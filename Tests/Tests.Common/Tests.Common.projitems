@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>3f08e25e-5e77-4bcc-8a4c-9882d0f308cd</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Tests.Common</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\PluginContextAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Metadata\DefinitionExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PluginTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\ServiceMethodNameAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\GenericParameterCollection.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Attributes\" />
+  </ItemGroup>
+</Project>

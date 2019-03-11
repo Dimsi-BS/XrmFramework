@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>43fc4fe4-e704-409c-9811-1ba2bf1ff4f6</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>LoggedServices</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)LoggedService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LoggedSystemuserService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LoggedAccountService.cs" />
+  </ItemGroup>
+</Project>
