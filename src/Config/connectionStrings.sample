@@ -1,0 +1,7 @@
+<connectionStrings>
+  <!-- You must specify here the connection string to your environment
+         You can specify several connection strings, you will select the one corresponding to the deployment
+         environnement in the xrmFramework selectedConnection attribute below    
+    -->
+  <add name="Xrm" connectionString="AuthType=Office365; Url=https://myOrg.crm4.dynamics.com; Username=; Password=;"/>
+</connectionStrings>

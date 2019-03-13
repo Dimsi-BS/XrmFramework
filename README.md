@@ -2,7 +2,7 @@
 This project is a compilation of tools and design pattern that has been used on several Microsoft Services Dynamics 365 projects.
 
 # Design Pattern
-Several design pattern are included in this solution :
+Several design pattern are included in this framework :
 1.	Definition of Services to access CRM Data from Plugins or external code (Webservices, console apps, ...)
 2.	Automatic Plugin Step registration from source code (use of attributes to describe plugin and plugin steps)
 3.	Advanced plugin traces (service calls are logged)
@@ -11,7 +11,7 @@ Several design pattern are included in this solution :
 # Quick start
 
 ## Set configuration informations
-Add a `connectionStrings.config` file as follows in the `Config\` folder near `App.config`
+Add a `connectionStrings.config` file as follows in the `Config\` folder near `App.config` (you can copy ``connectionStrings.sample`` to start you file)
 ```xml
 
   <connectionStrings>
@@ -23,6 +23,7 @@ Add a `connectionStrings.config` file as follows in the `Config\` folder near `A
   </connectionStrings>
 
 ```
+The ``connectionStrings.config`` file is added to the .gitignore so your connectionString will not be sent to the repository and each developer can use his credentials.
 
 Edit the `App.config` file in the ``Config`` solution folder to configure the connection to Dynamics 365 and the configuration of project deployments.
 
@@ -53,9 +54,25 @@ Define project list you have in your solution and the corresponding deployment t
 ```
 
 ## Generate model definitions
-Launch the executable `DefinitionManager.exe` in the Deploy solution folder.
+Launch the executable `DefinitionManager.exe` in the Deploy solution folder ( you can set the project as Startup project and run it pressing Ctrl + F5 )
 
-<img src="docs/images/definitionManager1.png" width="100" alt="Start of DefinitionManager" />
+<img src="docs/images/definitionManager1.png" width="800" alt="Start of DefinitionManager" />
+
+The program retrieves all the entities that are referenced in you entities solution.
+
+The definitions already added to you solution will be automatically selected.
+
+<img src="docs/images/definitionManager2.png" width="800" alt="Loaded entities" />
+
+You can select attributes to add them to already generated definitions or select new entities to generate definition files for them.
+
+<img src="docs/images/definitionManager3.png" width="200" alt="Select attribute" />
+
+When you have finished selecting the needed elements you can click on the "Generate Definitions" button.
+
+<img src="docs/images/definitionManager4.png" width="200" alt="Generate definitions" />
+
+The ``Model`` is now updated with the definitions you chose
 
 ## Create your first plugin
 
@@ -67,21 +84,51 @@ using Plugins;
 
 public class SamplePlugin : Plugin
 {
-    /// <summary>
-    /// AddSteps allows to generate SdkMessageProcessing items.
-    /// </summary>
-    protected override void AddSteps()
-    {
-        AddStep(Stages.PreValidation, Messages.Create, Modes.Synchronous, AccountDefinition.EntityName, nameof(AssignContactOwnerToAccount));
-
-        AddStep(Stages.PostOperation, Messages.Update, Modes.Synchronous, AccountDefinition.EntityName, nameof(UpdateSubContactInfos));
-    }
-
     ...
 }
 
+```
 
+### Defining Steps to register
 
+Implement the ``AddSteps`` method to define the steps that this plugin will manage
+
+```chsarp
+    protected override void AddSteps()
+    {
+        AddStep(Stages.PreValidation, Messages.Create, Modes.Synchronous, AccountDefinition.EntityName, nameof(Method1));
+        AddStep(Stages.PreValidation, Messages.Update, Modes.Synchronous, AccountDefinition.EntityName, nameof(Method1));
+
+        AddStep(Stages.PostOperation, Messages.Update, Modes.Synchronous, AccountDefinition.EntityName, nameof(Method2));
+    }
+
+```
+
+### Adding details to the registered steps
+For each method that you reference you can specify several information using method attributes :
+
+```chsarp
+   
+    [PreImage(AccountDefinition.Columns.Name)]
+    [PostImage(AccountDefinition.Columns.Name)]
+    [FilteringAttributes(AccountDefinition.Columns.Name, AccountDefinition.Columns.AccountNumber)]
+    [ExecutionOrder(100)]
+    public void Method(...)
+
+```
+
+- ``PreImageAttribute`` is used to define the fields that will be added in the preImage that will be registered
+
+- ``PostImageAttribute`` is used to define the fields that will be added in the postImage that will be registered
+
+- ``FilteringAttributesAttribute`` is used to define on which attribute change the method should launch
+
+- ``ExecutionOrderAttribute`` allows specifying the execution order that will be registered
+
+### Choosing method arguments
+
+```chsarp
+public void Method(IPluginContext context, IAccountService accountService, ...)
 ```
 
 # Contribute
