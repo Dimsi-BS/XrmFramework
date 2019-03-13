@@ -6,7 +6,7 @@ namespace Deploy.WebResources
     {
         static void Main(string[] args)
         {
-            WebResourceHelper.SyncWebResources(@"..\..\..\..\WebResources\");
+            WebResourceHelper.SyncWebResources(@"..\..\..\..\WebResources\", "Webresources");
         }
     }
 }

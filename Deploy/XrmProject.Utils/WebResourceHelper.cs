@@ -15,16 +15,20 @@ namespace XrmProject
 {
     public static class WebResourceHelper
     {
-        public static void SyncWebResources(string webresourcesPath)
+        public static void SyncWebResources(string webresourcesPath, string projectName)
         {
             var nbWebresources = 0;
 
-            var deploySection = ConfigurationManager.GetSection("deploySection") as DeployConfigSection;
+            if (!(ConfigurationManager.GetSection("xrmFramework") is XrmFrameworkSection deploySection))
+            {
+                return;
+            }
 
-            string solutionName = deploySection.WebResourcesSolutionUniqueName;
+            var solutionName = deploySection.Projects.OfType<ProjectElement>().Single(p => p.Name == projectName).TargetSolution;;
+
             string prefix = string.Empty;
 
-            var organizationName = ConfigurationManager.ConnectionStrings["Xrm"].ConnectionString;
+            var organizationName = ConfigurationManager.ConnectionStrings[deploySection.SelectedConnection].ConnectionString;
 
             Console.WriteLine($"You are about to deploy on {organizationName} organization. If ok press any key.");
             Console.ReadKey();
