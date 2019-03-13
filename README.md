@@ -66,11 +66,27 @@ The definitions already added to you solution will be automatically selected.
 
 You can select attributes to add them to already generated definitions or select new entities to generate definition files for them.
 
-<img src="docs/images/definitionManager3.png" width="200" alt="Select attribute" />
+<img src="docs/images/definitionManager3.png" width="300" alt="Select attribute" />
+
+Optionset attributes, when selected, generate corresponding enums
+
+<img src="docs/images/definitionManager5.png" width="500" alt="Select attribute" />
+
+```csharp
+	[OptionSetDefinition(AccountDefinition.EntityName, AccountDefinition.Columns.AccountCategoryCode)]
+	public enum Category
+	{
+		Null = 0,
+		[Description("Preferred Customer")]
+		PreferredCustomer = 1,
+		[Description("Standard")]
+		Standard = 2,
+	}
+```
 
 When you have finished selecting the needed elements you can click on the "Generate Definitions" button.
 
-<img src="docs/images/definitionManager4.png" width="200" alt="Generate definitions" />
+<img src="docs/images/definitionManager4.png" width="300" alt="Generate definitions" />
 
 The ``Model`` is now updated with the definitions you chose
 
