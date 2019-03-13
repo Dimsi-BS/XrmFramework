@@ -549,6 +549,8 @@ namespace DefinitionManager
             fileList.Add(new TfsHelper.FileInfo("OptionSetDefinitions.cs"));
 
             TfsHelper.EnsureReferencesInProjectFile("../../../../Model/Model.projitems", fileList, @"$(MSBuildThisFileDirectory)Definitions");
+
+            MessageBox.Show("Definition files generation succeedeed");
         }
 
         public T GetCustomList<T>()
