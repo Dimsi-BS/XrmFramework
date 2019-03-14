@@ -109,7 +109,7 @@ public class SamplePlugin : Plugin
 
 Implement the ``AddSteps`` method to define the steps that this plugin will manage
 
-```chsarp
+```csharp
     protected override void AddSteps()
     {
         AddStep(Stages.PreValidation, Messages.Create, Modes.Synchronous, AccountDefinition.EntityName, nameof(Method1));
@@ -123,7 +123,7 @@ Implement the ``AddSteps`` method to define the steps that this plugin will mana
 ### Adding details to the registered steps
 For each method that you reference you can specify several information using method attributes :
 
-```chsarp
+```csharp
    
     [PreImage(AccountDefinition.Columns.Name)]
     [PostImage(AccountDefinition.Columns.Name)]
@@ -143,7 +143,7 @@ For each method that you reference you can specify several information using met
 
 ### Choosing method arguments
 
-```chsarp
+```csharp
 public void Method(IPluginContext context, IAccountService accountService, ...)
 ```
 
