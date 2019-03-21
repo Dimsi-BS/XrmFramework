@@ -1,5 +1,3 @@
-// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
-// Licensed under the MIT License. See License.txt in the project root for license information.
 using System;
 using Model;
 using Microsoft.Crm.Sdk.Messages;
@@ -536,6 +534,48 @@ namespace Plugins
 			var returnValue = Service.GetOptionSetNameFromValue<T>( optionsetValue);
 
 			Log("GetOptionSetNameFromValue", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
+			return returnValue;
+		}
+
+		public T GetById<T>(Guid  id) where T : IBindingModel, new()
+		{
+			#region Parameters check
+			if (id == Guid.Empty)
+			{
+				throw new ArgumentNullException("id");
+			}
+			#endregion
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+
+			Log("GetById", "Start: id = {0}", id);
+
+			var returnValue = Service.GetById<T>( id);
+
+			Log("GetById", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
+			return returnValue;
+		}
+
+		public T GetById<T>(EntityReference  entityReference) where T : IBindingModel, new()
+		{
+			#region Parameters check
+			if (entityReference == null)
+			{
+				throw new ArgumentNullException("entityReference");
+			}
+			#endregion
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+
+			Log("GetById", "Start: entityReference = {0}", entityReference);
+
+			var returnValue = Service.GetById<T>( entityReference);
+
+			Log("GetById", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
 			return returnValue;
 		}
 	}

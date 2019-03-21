@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Model;
 
 namespace Plugins
 {
@@ -57,5 +58,9 @@ namespace Plugins
         string GetOptionSetNameFromValue(string optionsetName, int optionsetValue);
 
         string GetOptionSetNameFromValue<T>(int optionsetValue);
+
+        T GetById<T>(Guid id) where T : IBindingModel, new();
+
+        T GetById<T>(EntityReference entityReference) where T : IBindingModel, new();
     }
 }

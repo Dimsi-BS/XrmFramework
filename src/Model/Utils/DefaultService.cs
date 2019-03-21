@@ -446,6 +446,16 @@ namespace Plugins
             return GetOptionSetNameFromValue(optionSetattribute.LogicalName, optionsetValue);
         }
 
+        public T GetById<T>(Guid id) where T : IBindingModel, new()
+        {
+            return AdminOrganizationService.GetById<T>(id);
+        }
+
+        public T GetById<T>(EntityReference entityReference) where T : IBindingModel, new()
+        {
+            return AdminOrganizationService.GetById<T>(entityReference);
+        }
+
 
         public void AddUsersToTeam(EntityReference teamRef, params EntityReference[] userRefs)
         {

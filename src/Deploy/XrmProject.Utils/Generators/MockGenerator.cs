@@ -674,8 +674,100 @@ namespace XrmProject.Utils
 
             sb.Append(")");
 
+            if (method.ContainsGenericParameters && displayTypes)
+            {
+                sb.Append(GetGenericParametersConstraints(method));
+            }
+
             return sb.ToString();
         }
+
+        private static string GetGenericParametersConstraints(MethodInfo method)
+        {
+            var sb = new StringBuilder();
+
+            var first = true;
+            foreach (var tp in method.GetGenericArguments())
+            {
+                if (tp.IsGenericParameter)
+                {
+                    var classConstraint = tp.BaseType == typeof(object) ? null : tp.BaseType;
+
+                    var sbParam = new StringBuilder();
+                    sbParam.Append($" where {tp.Name}");
+                    var hasConstraints = false;
+
+                    if (classConstraint != null)
+                    {
+                        hasConstraints = true;
+                        sbParam.Append($" : {GetTypePrettyName(classConstraint)}");
+                    }
+
+                    foreach (var iConstraint in tp.GetGenericParameterConstraints())
+                    {
+                        if (iConstraint.IsInterface)
+                        {
+                            if (hasConstraints)
+                            {
+                                sbParam.Append(", ");
+                            }
+                            else
+                            {
+                                sbParam.Append(" : ");
+                                hasConstraints = true;
+                            }
+
+                            sbParam.Append(GetTypePrettyName(iConstraint));
+                        }
+                    }
+
+                    GenericParameterAttributes sConstraints =
+                        tp.GenericParameterAttributes &
+                        GenericParameterAttributes.SpecialConstraintMask;
+
+                    if (sConstraints == GenericParameterAttributes.None)
+                    {
+                        // No special constraints.
+                    }
+                    else
+                    {
+                        if (GenericParameterAttributes.None != (sConstraints &
+                                                                GenericParameterAttributes.DefaultConstructorConstraint))
+                        {
+                            if (hasConstraints)
+                            {
+                                sbParam.Append(", ");
+                            }
+                            else
+                            {
+                                sbParam.Append(" : ");
+                                hasConstraints = true;
+                            }
+                            sbParam.Append("new()");
+                        }
+                        if (GenericParameterAttributes.None != (sConstraints &
+                                                                GenericParameterAttributes.ReferenceTypeConstraint))
+                        {
+                            Console.WriteLine("Must be a reference type.");
+                        }
+                        if (GenericParameterAttributes.None != (sConstraints &
+                                                                GenericParameterAttributes.NotNullableValueTypeConstraint))
+                        {
+                            Console.WriteLine("Must be a non-nullable value type.");
+                        }
+                    }
+
+                    if (hasConstraints)
+                    {
+                        sb.Append(sbParam);
+                    }
+                }
+            }
+
+            return sb.ToString();
+        }
+
+
 
         private static string GetTypePrettyName(Type t, bool isResponder = false)
         {
