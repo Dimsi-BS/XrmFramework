@@ -53,7 +53,7 @@ namespace Deploy.Plugins
             
             service.EnableProxyTypes();
 
-            var assembly = GetAssemblyByName(service, pluginAssembly.FullName);
+            var assembly = GetAssemblyByName(service, pluginAssembly.GetName().Name);
 
             var profilerAssembly = GetProfilerAssembly(service);
 
@@ -406,7 +406,7 @@ namespace Deploy.Plugins
         {
             var assemblies = GetAssemblies(service);
 
-            return assemblies.FirstOrDefault(a => assemblyName == string.Format("{0}, Version={1}, Culture={2}, PublicKeyToken={3}", a.Name, a.Version, a.Culture, a.PublicKeyToken));
+            return assemblies.FirstOrDefault(a => assemblyName == a.Name);
         }
 
         private static PluginAssembly GetAssemblyToRegister(Assembly a, string assemblyPath)
