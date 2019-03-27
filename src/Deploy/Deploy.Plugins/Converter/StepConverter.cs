@@ -25,6 +25,8 @@ namespace Deploy.Utils
             step.PreImageUsed = s.PreImageUsed;
             step.UnsecureConfig = s.UnsecureConfig;
 
+            step.MethodNames.AddRange(s.MethodNames);
+
             return step;
         }
     }

@@ -5,7 +5,6 @@ using System;
 using System.Configuration;
 using System.ServiceModel.Description;
 using Microsoft.Xrm.Sdk.Client;
-using WebApiTrainingSupport.CRM_SDK;
 using XrmConnectionTooling;
 
 namespace Model

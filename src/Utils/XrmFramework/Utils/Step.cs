@@ -41,6 +41,8 @@ namespace Plugins
 
             if (Method != null)
             {
+                MethodNames.Add(Method.Name);
+
                 var filteringAttributes = Method.GetCustomAttribute<FilteringAttributesAttribute>();
                 if (filteringAttributes != null)
                 {
@@ -108,15 +110,17 @@ namespace Plugins
             }
         }
 
-        public Plugin Plugin { get; private set; }
-        public Messages Message { get; private set; }
-        public Stages Stage { get; private set; }
-        public Modes Mode { get; private set; }
-        public string EntityName { get; private set; }
+        public Plugin Plugin { get; }
+        public Messages Message { get; }
+        public Stages Stage { get; }
+        public Modes Mode { get; }
+        public string EntityName { get; }
 
-        public MethodInfo Method { get; private set; }
+        public MethodInfo Method { get; }
 
-        public string UnsecureConfig { get; private set; }
+        public List<string> MethodNames { get; } = new List<string>();
+
+        public string UnsecureConfig { get; }
 
         public Guid MessageId { get; set; }
 
@@ -132,9 +136,9 @@ namespace Plugins
         public bool PostImageAllAttributes => _postImageAllAttributes;
         public string PostImageAttributes => PostImageAllAttributes ? string.Empty : string.Join(",", _postImageAttributes);
 
-        public int Order { get; private set; }
+        public int Order { get; }
 
-        public string ImpersonationUsername { get; private set; }
+        public string ImpersonationUsername { get; }
 
         public void Merge(Step step)
         {
@@ -164,6 +168,8 @@ namespace Plugins
             {
                 _postImageAttributes.AddRange(step._postImageAttributes);
             }
+
+            MethodNames.AddRange(step.MethodNames);
         }
     }
 

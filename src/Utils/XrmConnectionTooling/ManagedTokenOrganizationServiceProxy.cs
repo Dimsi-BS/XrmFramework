@@ -1,154 +1,256 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
+
 using System;
 using System.IdentityModel.Tokens;
-//using System.DirectoryServices.AccountManagement;
+using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.ServiceModel.Security;
+using System.Threading;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Query;
 
-namespace WebApiTrainingSupport.CRM_SDK
+namespace XrmConnectionTooling
 {
     internal sealed class ManagedTokenOrganizationServiceProxy : OrganizationServiceProxy
     {
         private readonly AutoRefreshSecurityToken<OrganizationServiceProxy, IOrganizationService> _proxyManager;
 
+        private const int RateLimitExceededErrorCode = -2147015902;
+        private const int TimeLimitExceededErrorCode = -2147015903;
+        private const int ConcurrencyLimitExceededErrorCode = -2147015898;
+
+        private const int MaxRetries = 3;
+
         public ManagedTokenOrganizationServiceProxy(Uri serviceUri, ClientCredentials userCredentials)
             : base(serviceUri, null, userCredentials, null)
         {
-            this._proxyManager = new AutoRefreshSecurityToken<OrganizationServiceProxy, IOrganizationService>(this);
+            _proxyManager = new AutoRefreshSecurityToken<OrganizationServiceProxy, IOrganizationService>(this);
         }
 
         public ManagedTokenOrganizationServiceProxy(IServiceManagement<IOrganizationService> serviceManagement,
             SecurityTokenResponse securityTokenRes)
             : base(serviceManagement, securityTokenRes)
         {
-            this._proxyManager = new AutoRefreshSecurityToken<OrganizationServiceProxy, IOrganizationService>(this);
+            _proxyManager = new AutoRefreshSecurityToken<OrganizationServiceProxy, IOrganizationService>(this);
         }
 
         public ManagedTokenOrganizationServiceProxy(IServiceManagement<IOrganizationService> serviceManagement,
             ClientCredentials userCredentials)
             : base(serviceManagement, userCredentials)
         {
-            this._proxyManager = new AutoRefreshSecurityToken<OrganizationServiceProxy, IOrganizationService>(this);
+            _proxyManager = new AutoRefreshSecurityToken<OrganizationServiceProxy, IOrganizationService>(this);
         }
 
         protected override void AuthenticateCore()
         {
-            this._proxyManager.PrepareCredentials();
+            _proxyManager.PrepareCredentials();
             base.AuthenticateCore();
         }
 
         protected override void ValidateAuthentication()
         {
-            this._proxyManager.RenewTokenIfRequired();
+            _proxyManager.RenewTokenIfRequired();
             base.ValidateAuthentication();
         }
 
         protected override Guid CreateCore(Entity entity)
         {
-            try
+            var retryCount = 0;
+            while (true)
             {
-                return base.CreateCore(entity);
-            }
-            catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
-            {
-                ValidateAuthentication();
-                return base.CreateCore(entity);
+                try
+                {
+                    return base.CreateCore(entity);
+                }
+                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                {
+                    ValidateAuthentication();
+                    return base.CreateCore(entity);
+                }
+                catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
+                {
+                    ApplyDelay(e, retryCount);
+                }
             }
         }
 
         protected override void UpdateCore(Entity entity)
         {
-            try
+            var retryCount = 0;
+            while (true)
             {
-                base.UpdateCore(entity);
-            }
-            catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
-            {
-                ValidateAuthentication();
-                base.UpdateCore(entity);
+                try
+                {
+                    base.UpdateCore(entity);
+                }
+                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                {
+                    ValidateAuthentication();
+                    base.UpdateCore(entity);
+                }
+                catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
+                {
+                    ApplyDelay(e, retryCount);
+                }
             }
         }
 
         protected override void AssociateCore(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities)
         {
-            try
+            var retryCount = 0;
+            while (true)
             {
-                base.AssociateCore(entityName, entityId, relationship, relatedEntities);
-            }
-            catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
-            {
-                ValidateAuthentication();
-                base.AssociateCore(entityName, entityId, relationship, relatedEntities);
+                try
+                {
+                    base.AssociateCore(entityName, entityId, relationship, relatedEntities);
+                }
+                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                {
+                    ValidateAuthentication();
+                    base.AssociateCore(entityName, entityId, relationship, relatedEntities);
+                }
+                catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
+                {
+                    ApplyDelay(e, retryCount);
+                }
             }
         }
 
         protected override void DisassociateCore(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities)
         {
-            try
+            var retryCount = 0;
+            while (true)
             {
-                base.DisassociateCore(entityName, entityId, relationship, relatedEntities);
-            }
-            catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
-            {
-                ValidateAuthentication();
-                base.DisassociateCore(entityName, entityId, relationship, relatedEntities);
+                try
+                {
+                    base.DisassociateCore(entityName, entityId, relationship, relatedEntities);
+                }
+                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                {
+                    ValidateAuthentication();
+                    base.DisassociateCore(entityName, entityId, relationship, relatedEntities);
+                }
+                catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
+                {
+                    ApplyDelay(e, retryCount);
+                }
             }
         }
 
         protected override void DeleteCore(string entityName, Guid id)
         {
-            try
+            var retryCount = 0;
+            while (true)
             {
-                base.DeleteCore(entityName, id);
-            }
-            catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
-            {
-                ValidateAuthentication();
-                base.DeleteCore(entityName, id);
+                try
+                {
+                    base.DeleteCore(entityName, id);
+                }
+                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                {
+                    ValidateAuthentication();
+                    base.DeleteCore(entityName, id);
+                }
+                catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
+                {
+                    ApplyDelay(e, retryCount);
+                }
             }
         }
 
         protected override OrganizationResponse ExecuteCore(OrganizationRequest request)
         {
-            try
+            var retryCount = 0;
+            while (true)
             {
-                return base.ExecuteCore(request);
-            }
-            catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
-            {
-                ValidateAuthentication();
-                return base.ExecuteCore(request);
+                try
+                {
+                    return base.ExecuteCore(request);
+                }
+                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                {
+                    ValidateAuthentication();
+                    return base.ExecuteCore(request);
+                }
+                catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
+                {
+                    ApplyDelay(e, retryCount);
+                }
             }
         }
 
         protected override Entity RetrieveCore(string entityName, Guid id, ColumnSet columnSet)
         {
-            try
+            var retryCount = 0;
+            while (true)
             {
-                return base.RetrieveCore(entityName, id, columnSet);
-            }
-            catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
-            {
-                ValidateAuthentication();
-                return base.RetrieveCore(entityName, id, columnSet);
+                try
+                {
+                    return base.RetrieveCore(entityName, id, columnSet);
+                }
+                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                {
+                    ValidateAuthentication();
+                    return base.RetrieveCore(entityName, id, columnSet);
+                }
+                catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
+                {
+                    ApplyDelay(e, retryCount);
+                }
             }
         }
 
         protected override EntityCollection RetrieveMultipleCore(QueryBase query)
         {
-            try
+            var retryCount = 0;
+            while (true)
             {
-                return base.RetrieveMultipleCore(query);
+                try
+                {
+                    if (query is QueryExpression qe)
+                    {
+                        qe.NoLock = true;
+                    }
+
+                    return base.RetrieveMultipleCore(query);
+                }
+                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                {
+                    ValidateAuthentication();
+                    return base.RetrieveMultipleCore(query);
+                }
+                catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
+                {
+                    ApplyDelay(e, retryCount);
+                }
             }
-            catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+        }
+
+        private static void ApplyDelay(FaultException<OrganizationServiceFault> e, int retryCount)
+        {
+            TimeSpan delay;
+            if (e.Detail.ErrorCode == RateLimitExceededErrorCode)
             {
-                ValidateAuthentication();
-                return base.RetrieveMultipleCore(query);
+                // Use Retry-After delay when specified
+                delay = (TimeSpan)e.Detail.ErrorDetails["Retry-After"];
             }
+            else
+            {
+                // else use exponential backoff delay
+                delay = TimeSpan.FromSeconds(Math.Pow(2, retryCount));
+            }
+
+            Thread.Sleep(delay);
+        }
+
+        private static bool IsTransientError(FaultException<OrganizationServiceFault> ex)
+        {
+            // You can add more transient fault codes to retry here
+            return ex.Detail.ErrorCode == RateLimitExceededErrorCode ||
+                   ex.Detail.ErrorCode == TimeLimitExceededErrorCode ||
+                   ex.Detail.ErrorCode == ConcurrencyLimitExceededErrorCode;
         }
     }
 }

@@ -51,18 +51,25 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Tests.Common", "Tests\Tests
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Batches", "Batches", "{0B46AD2E-3A3D-4387-95CB-6066FCDF70A6}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "XrmFramework", "Utils\XrmFramework\XrmFramework.shproj", "{FF9FF6D8-4320-493A-8C59-96C0D816E095}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Model\Model.projitems*{084f560a-53d0-4f7a-b1eb-d32e13d92abf}*SharedItemsImports = 13
 		Model\Model.projitems*{1a5923ad-a835-4441-85f5-d79c355eff8d}*SharedItemsImports = 4
 		Utils\LoggedServices\LoggedServices.projitems*{1a5923ad-a835-4441-85f5-d79c355eff8d}*SharedItemsImports = 4
+		Utils\XrmFramework\XrmFramework.projitems*{1a5923ad-a835-4441-85f5-d79c355eff8d}*SharedItemsImports = 4
 		Tests\Tests.Common\Tests.Common.projitems*{23d7abc7-e069-4695-8a7a-64af65eb7bd4}*SharedItemsImports = 4
 		Tests\Tests.Common\Tests.Common.projitems*{3f08e25e-5e77-4bcc-8a4c-9882d0f308cd}*SharedItemsImports = 13
 		Utils\LoggedServices\LoggedServices.projitems*{43fc4fe4-e704-409c-9811-1ba2bf1ff4f6}*SharedItemsImports = 13
 		Model\Model.projitems*{d2bf0b88-b68b-439e-832d-39d4641108f5}*SharedItemsImports = 4
+		Utils\XrmFramework\XrmFramework.projitems*{d2bf0b88-b68b-439e-832d-39d4641108f5}*SharedItemsImports = 4
 		Model\Model.projitems*{e1fbd16e-7978-4c6b-8feb-192e0ea05b38}*SharedItemsImports = 4
 		Utils\LoggedServices\LoggedServices.projitems*{e1fbd16e-7978-4c6b-8feb-192e0ea05b38}*SharedItemsImports = 4
+		Utils\XrmFramework\XrmFramework.projitems*{e1fbd16e-7978-4c6b-8feb-192e0ea05b38}*SharedItemsImports = 4
 		Model\Model.projitems*{eb312523-c755-42a8-9c96-eff5106603f5}*SharedItemsImports = 4
+		Utils\XrmFramework\XrmFramework.projitems*{eb312523-c755-42a8-9c96-eff5106603f5}*SharedItemsImports = 4
+		Utils\XrmFramework\XrmFramework.projitems*{ff9ff6d8-4320-493a-8c59-96c0d816e095}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -246,6 +253,7 @@ Global
 		{047CFB89-8256-4432-A09E-5B60E8A45A86} = {EBA0AD2C-313B-46CB-A22D-22B396F29F66}
 		{23D7ABC7-E069-4695-8A7A-64AF65EB7BD4} = {EBA0AD2C-313B-46CB-A22D-22B396F29F66}
 		{3F08E25E-5E77-4BCC-8A4C-9882D0F308CD} = {EBA0AD2C-313B-46CB-A22D-22B396F29F66}
+		{FF9FF6D8-4320-493A-8C59-96C0D816E095} = {3A5567BD-E6A2-4FDA-9B82-F6A19437EFF2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {101361B0-96D3-40B0-8818-D69388B1A16D}

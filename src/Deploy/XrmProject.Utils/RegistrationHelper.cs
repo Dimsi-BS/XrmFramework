@@ -473,7 +473,7 @@ namespace Deploy.Plugins
 
         private static SdkMessageProcessingStep GetStepToRegister(Guid pluginTypeId, Step step)
         {
-            var description = $"{step.PluginTypeName} : {step.Stage} {step.Message} of {step.EntityName}";
+            var description = $"{step.PluginTypeName} : {step.Stage} {step.Message} of {step.EntityName} ({step.MethodsDisplayName})";
 
             if (!string.IsNullOrEmpty(step.ImpersonationUsername))
             {

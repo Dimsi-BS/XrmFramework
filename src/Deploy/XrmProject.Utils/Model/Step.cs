@@ -42,6 +42,9 @@ namespace Deploy
         public int Order { get; set; }
 
         public string ImpersonationUsername { get; set; }
+
+        public List<string> MethodNames { get; } = new List<string>();
+        public string MethodsDisplayName => string.Join(",", MethodNames);
     }
 
     public class StepComparer : IEqualityComparer<Step>

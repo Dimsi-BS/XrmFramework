@@ -28,6 +28,7 @@ namespace Deploy.Plugins
                                 || (x.ImpersonatingUserId != null && y.ImpersonatingUserId != null)
                                 || (x.ImpersonatingUserId.Id == y.ImpersonatingUserId.Id));
             needsUpdate |= x.Rank != y.Rank;
+            needsUpdate |= x.Description != y.Description;
 
             return needsUpdate;
         }

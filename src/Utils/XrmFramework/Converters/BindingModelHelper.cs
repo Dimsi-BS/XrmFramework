@@ -22,8 +22,6 @@ namespace Model
 {
     public static class BindingModelHelper
     {
-        private static DateTime cacheDate = DateTime.Now;
-
         private static object SyncRoot = new object();
 
         private static T FindBinding<T>(Dictionary<string, Dictionary<Guid, object>> cache, string typeName, Guid idEntity)

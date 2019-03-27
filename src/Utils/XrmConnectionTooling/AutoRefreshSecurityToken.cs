@@ -1,21 +1,17 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
-using Microsoft.Xrm.Sdk.Client;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceModel;
-using System.ServiceModel.Description;
-using System.Web;
 
-namespace WebApiTrainingSupport.CRM_SDK
+using System;
+using System.ServiceModel;
+using Microsoft.Xrm.Sdk.Client;
+
+namespace XrmConnectionTooling
 {
     public sealed class AutoRefreshSecurityToken<TProxy, TService>
        where TProxy : ServiceProxy<TService>
        where TService : class
     {
-        private ClientCredentials _deviceCredentials;
-        private TProxy _proxy;
+        private readonly TProxy _proxy;
 
         /// <summary>
         /// Instantiates an instance of the proxy class
@@ -23,12 +19,7 @@ namespace WebApiTrainingSupport.CRM_SDK
         /// <param name="proxy">Proxy that will be used to authenticate the user</param>
         public AutoRefreshSecurityToken(TProxy proxy)
         {
-            if (null == proxy)
-            {
-                throw new ArgumentNullException("proxy");
-            }
-
-            this._proxy = proxy;
+            _proxy = proxy ?? throw new ArgumentNullException(nameof(proxy));
         }
 
         /// <summary>
@@ -36,20 +27,20 @@ namespace WebApiTrainingSupport.CRM_SDK
         /// </summary>
         public void PrepareCredentials()
         {
-            if (null == this._proxy.ClientCredentials)
+            if (null == _proxy.ClientCredentials)
             {
                 return;
             }
 
-            switch (this._proxy.ServiceConfiguration.AuthenticationType)
+            switch (_proxy.ServiceConfiguration.AuthenticationType)
             {
                 case AuthenticationProviderType.ActiveDirectory:
-                    this._proxy.ClientCredentials.UserName.UserName = null;
-                    this._proxy.ClientCredentials.UserName.Password = null;
+                    _proxy.ClientCredentials.UserName.UserName = null;
+                    _proxy.ClientCredentials.UserName.Password = null;
                     break;
                 case AuthenticationProviderType.Federation:
                 case AuthenticationProviderType.LiveId:
-                    this._proxy.ClientCredentials.Windows.ClientCredential = null;
+                    _proxy.ClientCredentials.Windows.ClientCredential = null;
                     break;
                 default:
                     return;
@@ -61,17 +52,17 @@ namespace WebApiTrainingSupport.CRM_SDK
         /// </summary>
         public void RenewTokenIfRequired()
         {
-            if (null != this._proxy.SecurityTokenResponse &&
-                DateTime.UtcNow.AddMinutes(15) >= this._proxy.SecurityTokenResponse.Response.Lifetime.Expires)
+            if (null != _proxy.SecurityTokenResponse &&
+                DateTime.UtcNow.AddMinutes(15) >= _proxy.SecurityTokenResponse.Response.Lifetime.Expires)
             {
                 try
                 {
-                    this._proxy.Authenticate();
+                    _proxy.Authenticate();
                 }
                 catch (CommunicationException)
                 {
-                    if (null == this._proxy.SecurityTokenResponse ||
-                        DateTime.UtcNow >= this._proxy.SecurityTokenResponse.Response.Lifetime.Expires)
+                    if (null == _proxy.SecurityTokenResponse ||
+                        DateTime.UtcNow >= _proxy.SecurityTokenResponse.Response.Lifetime.Expires)
                     {
                         throw;
                     }

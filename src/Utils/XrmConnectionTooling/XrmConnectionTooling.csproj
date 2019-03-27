@@ -118,7 +118,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoRefreshSecurityToken.cs" />
-    <Compile Include="Configuration.cs" />
     <Compile Include="ConnectionHelper.cs" />
     <Compile Include="ConnectionStringParser.cs" />
     <Compile Include="ManagedTokenOrganizationServiceProxy.cs" />
