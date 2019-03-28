@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
-using Microsoft.Xrm.Sdk;
+
 using System;
 using System.Reflection;
 using System.ComponentModel;
 
 namespace Model
 {
-    public static class EnumExtensions
+    public static partial class EnumExtensions
     {
         public static T ToEnum<T>(this int value)
         {
@@ -48,11 +48,6 @@ namespace Model
         public static Int32 ToInt(this Enum enumValue)
         {
             return Convert.ToInt32(enumValue);
-        }
-
-        public static OptionSetValue ToOptionSetValue(this Enum enumValue)
-        {
-            return new OptionSetValue(enumValue.ToInt());
         }
     }
 }

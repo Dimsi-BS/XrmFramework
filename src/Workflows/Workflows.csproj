@@ -3,7 +3,8 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\Model\Model.projitems" Label="Shared" />
   <Import Project="..\Utils\LoggedServices\LoggedServices.projitems" Label="Shared" />
-  <Import Project="..\Utils\XrmFramework\XrmFramework.projitems" Label="Shared" />
+  <Import Project="..\Utils\XrmFramework.Common\XrmFramework.Common.projitems" Label="Shared" />
+  <Import Project="..\Utils\XrmFramework.Plugin\XrmFramework.Plugin.projitems" Label="Shared" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>

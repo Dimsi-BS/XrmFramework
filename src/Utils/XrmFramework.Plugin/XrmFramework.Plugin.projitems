@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>ff9ff6d8-4320-493a-8c59-96c0d816e095</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>XrmFramework</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\BindingModelHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\CustomWorkflowActivity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\DebrayablePlugin.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\DefaultService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\EnumExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\IBehaviour.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\IContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ICustomWorkflowContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\IEntityModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ImageHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\IPluginContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\IService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\IServiceContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\LocalContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\LocalPluginContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\LocalWorkflowContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\LogHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\LookupConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\Plugin.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\QueryExpressionExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\RequestContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ServiceChannel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ServiceContextBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ServiceManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\Step.cs" />
+  </ItemGroup>
+</Project>
