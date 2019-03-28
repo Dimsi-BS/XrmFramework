@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>XrmFramework.Sources</id>
+    <id>XrmFramework.Common.Sources</id>
     <version>$version$</version>
     <authors>Christophe Gondouin</authors>
     <owners>ChristopheGondouin</owners>
@@ -11,11 +11,8 @@
     <copyright>Copyright 2019</copyright>
     <tags>Dynamics365 CRM DynamicsCrm</tags>
     <licenseUrl>https://github.com/cgoconseils/XrmFramework/blob/master/LICENSE.txt</licenseUrl>
-    <dependencies>
-      <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="8.2.0" />
-    </dependencies>
   </metadata>
   <files>
-    <file src="..\src\Utils\XrmFramework\**\**" target="content/App_Packages/XrmFramework.Sources.$version$" />
+    <file src="..\src\Utils\XrmFramework.Common\**\**" target="content/App_Packages/XrmFramework.Common.Sources.$version$" />
   </files>
 </package>

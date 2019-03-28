@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>XrmFramework.SdkExtension.Sources</id>
+    <version>$version$</version>
+    <authors>Christophe Gondouin</authors>
+    <owners>ChristopheGondouin</owners>
+    <projectUrl>https://github.com/cgoconseils/XrmFramework</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>XrmFramework Source package</description>
+    <copyright>Copyright 2019</copyright>
+    <tags>Dynamics365 CRM DynamicsCrm</tags>
+    <licenseUrl>https://github.com/cgoconseils/XrmFramework/blob/master/LICENSE.txt</licenseUrl>
+    <dependencies>
+      <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="8.2.0" />
+      <dependency id="Microsoft.CrmSdk.Workflows" version="8.2.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\src\Utils\XrmFramework.SdkExtension\**\**" target="content/App_Packages/XrmFramework.SdkExtension.Sources.$version$" />
+  </files>
+</package>
