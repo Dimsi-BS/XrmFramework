@@ -10,7 +10,7 @@
     <description>XrmFramework Source package</description>
     <copyright>Copyright 2019</copyright>
     <tags>Dynamics365 CRM DynamicsCrm</tags>
-    <license type="expression">MIT</license>
+    <licenseUrl>https://github.com/cgoconseils/XrmFramework/blob/master/LICENSE.txt</licenseUrl>
     <dependencies>
       <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="8.2.0" />
     </dependencies>
