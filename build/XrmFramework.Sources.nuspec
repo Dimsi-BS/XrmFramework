@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>XrmFramework.Common.Sources</id>
+    <id>XrmFramework.Sources</id>
     <version>$version$</version>
     <authors>Christophe Gondouin</authors>
     <owners>ChristopheGondouin</owners>
@@ -13,6 +13,7 @@
     <licenseUrl>https://github.com/cgoconseils/XrmFramework/blob/master/LICENSE.txt</licenseUrl>
   </metadata>
   <files>
-    <file src="..\src\Utils\XrmFramework.Common\**\**" target="content/App_Packages/XrmFramework.Common.Sources.$version$" />
+    <file src="..\src\Utils\XrmFramework.Common\**\**" target="content\XrmFramework.Common" />
+    <file src="..\src\Utils\XrmFramework.SdkExtension\**\**" target="content\XrmFramework.SdkExtension" />
   </files>
 </package>
