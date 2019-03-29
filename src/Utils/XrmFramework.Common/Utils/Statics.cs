@@ -45,7 +45,8 @@ namespace Plugins
         /// Used by AddRecurrence Message
         /// </summary>
         AppointmentId,
-        FetchXml
+        FetchXml,
+        SubordinateId
     }
 
     public enum OutputParameters
