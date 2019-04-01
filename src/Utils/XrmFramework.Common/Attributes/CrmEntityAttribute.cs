@@ -4,7 +4,7 @@ using System;
 
 namespace Model
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class CrmEntityAttribute : Attribute
     {
         public CrmEntityAttribute(string entityName)
