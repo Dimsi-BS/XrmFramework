@@ -1,39 +1,41 @@
-﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
-// Licensed under the MIT License. See License.txt in the project root for license information.
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Windows;
 using Model.Sdk;
 
 namespace Model
 {
     public class ModelDefinition
     {
-        public readonly IList<CrmModelAttributeDefinition> _crmAttributes = new List<CrmModelAttributeDefinition>();
+        public Type BindingType { get; }
 
-        public IReadOnlyCollection<CrmModelAttributeDefinition> CrmAttributes => new ReadOnlyCollection<CrmModelAttributeDefinition>(_crmAttributes);
+        public Type[] ImplementedInterfaces { get; }
 
+        private readonly IList<AttributeDefinition> _attributes = new List<AttributeDefinition>();
 
-        public readonly IList<ModelAttributeDefinition> _extendBindingAttributes = new List<ModelAttributeDefinition>();
-        public IReadOnlyCollection<ModelAttributeDefinition> ExtendBindingAttributes => new ReadOnlyCollection<ModelAttributeDefinition>(_extendBindingAttributes);
+        public IReadOnlyCollection<AttributeDefinition> CrmAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.CrmMappingAttribute != null).ToList());
 
+        public IReadOnlyCollection<AttributeDefinition> ExtendBindingAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.IsExtendBindingModel).ToList());
 
-        public readonly IList<RelationshipModelAttributeDefinition> _relationshipAttributes = new List<RelationshipModelAttributeDefinition>();
-        public IReadOnlyCollection<RelationshipModelAttributeDefinition> RelationshipAttributes => new ReadOnlyCollection<RelationshipModelAttributeDefinition>(_relationshipAttributes);
+        public IReadOnlyCollection<AttributeDefinition> RelationshipAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.RelationshipAttribute != null).ToList());
 
-        public readonly IList<XmlMappingModelAttributeDefinition> _xmlMappingAttributes = new List<XmlMappingModelAttributeDefinition>();
-        public IReadOnlyCollection<XmlMappingModelAttributeDefinition> XmlMappingAttributes => new ReadOnlyCollection<XmlMappingModelAttributeDefinition>(_xmlMappingAttributes);
+        public IReadOnlyCollection<AttributeDefinition> XmlMappingAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.XmlMappingAttribute != null).ToList());
 
-        public readonly IList<ModelAttributeDefinition> _upsertableAttributes = new List<ModelAttributeDefinition>();
-        public IReadOnlyCollection<ModelAttributeDefinition> UpsertableAttributes => new ReadOnlyCollection<ModelAttributeDefinition>(_upsertableAttributes);
+        public IReadOnlyCollection<AttributeDefinition> UpsertableAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.IsUpsertable()).ToList());
 
         public EntityDefinition MainDefinition { get; }
 
+        public XmlMappingAttribute XmlMappingAttribute { get; private set; }
+
         public ModelDefinition(Type bindingType)
         {
+            BindingType = bindingType;
+            ImplementedInterfaces = bindingType.GetInterfaces();
+
             IsBindingModel = typeof(IBindingModel).IsAssignableFrom(bindingType);
 
             Constructor = bindingType.GetConstructor(new Type[] { });
@@ -45,48 +47,18 @@ namespace Model
             if (IsBindingModel)
             {
                 IdProperty = bindingType.GetProperty("Id");
-                MainDefinition = DefinitionCache.GetEntityDefinitionFromModelType(bindingType);
+                MainDefinition = DefinitionCache.GetEntityDefinition(bindingType);
             }
+
+            XmlMappingAttribute = bindingType.GetCustomAttribute<XmlMappingAttribute>() ??
+                                  ImplementedInterfaces.Where(type => type.GetCustomAttribute<XmlMappingAttribute>() != null).Select(type => type.GetCustomAttribute<XmlMappingAttribute>()).FirstOrDefault();
 
             foreach (var property in bindingType.GetProperties())
             {
-                ModelAttributeDefinition modelAttribute = null;
+                var attribute = AttributeDefinition.GetDefinition(this, property);
 
-                var crmAttribute = property.GetCustomAttribute<CrmMappingAttribute>();
-                if (crmAttribute != null)
-                {
-                    modelAttribute = new CrmModelAttributeDefinition(crmAttribute, property);
-                    _crmAttributes.Add((CrmModelAttributeDefinition)modelAttribute);
-                }
-
-                var extendBindingAttribute = property.GetCustomAttribute<ExtendBindingModelAttribute>();
-                if (extendBindingAttribute != null)
-                {
-                    modelAttribute = new ModelAttributeDefinition(property);
-                    _extendBindingAttributes.Add(modelAttribute);
-                }
-
-                var relationshipAttribute = property.GetCustomAttribute<CrmRelationshipAttribute>();
-                if (relationshipAttribute != null)
-                {
-                    modelAttribute = new RelationshipModelAttributeDefinition(relationshipAttribute, property);
-                    _relationshipAttributes.Add((RelationshipModelAttributeDefinition)modelAttribute);
-                }
-
-                var xmlMappingAttribute = property.GetCustomAttribute<XmlMappingAttribute>();
-                if (xmlMappingAttribute != null)
-                {
-                    modelAttribute = new XmlMappingModelAttributeDefinition(xmlMappingAttribute, property);
-                    _xmlMappingAttributes.Add((XmlMappingModelAttributeDefinition)modelAttribute);
-                }
-
-                if (modelAttribute != null && modelAttribute.IsUpsertable())
-                {
-                    _upsertableAttributes.Add(modelAttribute);
-                }
-
+                _attributes.Add(attribute);
             }
-
         }
 
         public bool IsBindingModel { get; }
@@ -109,27 +81,56 @@ namespace Model
 
             IdProperty.SetValue(instance, id);
         }
+
+        public override string ToString()
+        {
+            return BindingType.Name;
+        }
     }
 
-    public class ModelAttributeDefinition
+    public class AttributeDefinition
     {
-        public PropertyInfo Property { get; }
+        public ModelDefinition Model { get; private set; }
+        protected PropertyInfo Property { get; private set; }
 
-        public Type PropertyType => Property.PropertyType;
+        public Type PropertyType => ModelImplementationAttribute?.ImplementationType ?? Property.PropertyType;
 
-        public Type ObjectType { get; }
+        public Type ObjectType { get; private set; }
 
-        public int? UpsertOrder { get; }
+        public int? UpsertOrder { get; private set; }
 
         public string Name => Property.Name;
 
-        public bool IsNullable { get; }
+        public bool IsNullable { get; private set; }
 
-        public bool IsExtendBindingModel { get; }
+        public bool IsExtendBindingModel { get; private set; }
 
-        public ModelAttributeDefinition(PropertyInfo property)
+        public CrmModelImplementationAttribute ModelImplementationAttribute { get; private set; }
+
+        public CrmMappingAttribute CrmMappingAttribute { get; private set; }
+
+        public CrmLookupAttribute CrmLookupAttribute { get; private set; }
+
+        private AttributeDefinition()
         {
+
+        }
+
+        private void InitAttribute(ModelDefinition model, PropertyInfo property)
+        {
+            Model = model;
             Property = property;
+
+            CrmMappingAttribute = GetAttribute<CrmMappingAttribute>(property);
+
+
+            CrmLookupAttribute = GetAttribute<CrmLookupAttribute>(property);
+
+            ModelImplementationAttribute = GetAttribute<CrmModelImplementationAttribute>(property);
+
+            var extendBindingModel = GetAttribute<ExtendBindingModelAttribute>(property);
+
+            IsExtendBindingModel = extendBindingModel != null;
 
             ObjectType = Property.PropertyType;
             IsNullable = ObjectType.IsClass;
@@ -141,9 +142,42 @@ namespace Model
                 IsNullable = true;
             }
 
-            UpsertOrder = property.GetCustomAttribute<UpsertOrderAttribute>()?.Order;
+            UpsertOrder = GetAttribute<UpsertOrderAttribute>(property)?.Order;
 
-            IsExtendBindingModel = property.GetCustomAttribute<ExtendBindingModelAttribute>() != null;
+            var converterAttribute = GetAttribute<ModelPropertyConverterAttribute>(property);
+
+            if (converterAttribute != null)
+            {
+                var constructorInfo = converterAttribute.ConverterType.GetConstructor(new Type[] { });
+                if (constructorInfo != null)
+                {
+                    _typeConverter = (ModelPropertyConverter)(constructorInfo.Invoke(new object[] { }));
+                }
+            }
+
+            XmlMappingAttribute = GetAttribute<XmlMappingAttribute>(property);
+
+            RelationshipAttribute = GetAttribute<CrmRelationshipAttribute>(property);
+
+            var addMethods = PropertyType.GetMethods().Where(m => m.Name == "Add").ToList();
+            if (addMethods.Count == 1)
+            {
+                _addMethod = addMethods.Single();
+            }
+        }
+
+        public static AttributeDefinition GetDefinition(ModelDefinition model, PropertyInfo property)
+        {
+            var attribute = new AttributeDefinition();
+
+            attribute.InitAttribute(model, property);
+            return attribute;
+        }
+
+        private T GetAttribute<T>(PropertyInfo property) where T : Attribute
+        {
+            return property.GetCustomAttribute<T>(true)
+                   ?? Model.ImplementedInterfaces.FirstOrDefault(t => t.GetProperty(property.Name)?.GetCustomAttribute<T>() != null)?.GetProperty(property.Name)?.GetCustomAttribute<T>();
         }
 
 
@@ -153,6 +187,11 @@ namespace Model
             {
                 Property.SetValue(instance, value);
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{PropertyType.Name} {Property.Name}";
         }
 
         public object GetValue(object instance)
@@ -179,55 +218,6 @@ namespace Model
             return retour;
         }
 
-        public bool IsUpsertable()
-        {
-            Type collectionType;
-
-            if (Property.GetCustomAttribute<ChildRelationshipAttribute>()?.IsValidForUpdate == false)
-            {
-                return false;
-            }
-
-            if (Property.GetCustomAttribute<CrmMappingAttribute>()?.IsValidForUpdate == false)
-            {
-                return false;
-            }
-
-            return Property.GetType() != typeof(ModelAttributeDefinition) && (typeof(IBindingModel).IsAssignableFrom(PropertyType) || (IsCollectionProperty(out collectionType) && typeof(IBindingModel).IsAssignableFrom(collectionType)));
-        }
-
-    }
-
-    public class CrmModelAttributeDefinition : ModelAttributeDefinition
-    {
-        private readonly TypeConverter _typeConverter;
-
-        public CrmMappingAttribute CrmMappingAttribute { get; }
-
-        public CrmLookupAttribute CrmLookupAttribute { get; }
-
-        public CrmModelAttributeDefinition(CrmMappingAttribute crmAttribute, PropertyInfo property) : base(property)
-        {
-            CrmMappingAttribute = crmAttribute;
-
-            CrmLookupAttribute = Property.GetCustomAttribute<CrmLookupAttribute>();
-
-            var typeConverterAttribute = Property.GetCustomAttribute<TypeConverterAttribute>();
-            if (typeConverterAttribute != null)
-            {
-                var type1 = Type.GetType(typeConverterAttribute.ConverterTypeName);
-                if (type1 != null)
-                {
-                    var constructorInfo = type1.GetConstructor(new Type[] { });
-                    if (constructorInfo != null)
-                    {
-                        _typeConverter = (TypeConverter)(constructorInfo.Invoke(new object[] { }));
-                    }
-                }
-            }
-
-        }
-
         public bool HasConverter => _typeConverter != null;
 
         public object ConvertFrom(object initialValue)
@@ -248,38 +238,29 @@ namespace Model
             return _typeConverter.ConvertTo(initialValue, destinationType);
         }
 
-        public override string ToString() => $"{Name} ({CrmMappingAttribute.AttributeName})";
-    }
-
-    public class RelationshipModelAttributeDefinition : ModelAttributeDefinition
-    {
-        public Relationship Relationship { get; }
-        public CrmRelationshipAttribute RelationshipAttribute { get; }
-
-        private readonly MethodInfo _addMethod;
-
-        public RelationshipModelAttributeDefinition(CrmRelationshipAttribute attribute, PropertyInfo property) : base(property)
+        public bool IsUpsertable()
         {
-            Relationship = attribute.GetRelationship();
-
-            RelationshipAttribute = attribute;
-
-            _addMethod = PropertyType.GetMethod("Add");
+            Type collectionType;
+            return !IsExtendBindingModel && ((CrmMappingAttribute != null && typeof(IBindingModel).IsAssignableFrom(PropertyType)) || (RelationshipAttribute != null && IsCollectionProperty(out collectionType) && typeof(IBindingModel).IsAssignableFrom(collectionType)));
         }
+
+        private ModelPropertyConverter _typeConverter;
+
+        public Relationship Relationship => RelationshipAttribute?.GetRelationship();
+
+        public CrmRelationshipAttribute RelationshipAttribute { get; private set; }
+
+        public bool IsBindingModel => typeof(IBindingModel).IsAssignableFrom(PropertyType);
+
+        public ModelDefinition TargettedModelDefinition => DefinitionCache.GetModelDefinition(PropertyType);
+
+        private MethodInfo _addMethod;
 
         public void AddElement(object instance, object model)
         {
-            _addMethod.Invoke(Property.GetValue(instance), new object[] { model });
+            _addMethod.Invoke(Property.GetValue(instance), new[] { model });
         }
-    }
 
-    public class XmlMappingModelAttributeDefinition : ModelAttributeDefinition
-    {
-        public XmlMappingAttribute XmlMappingAttribute { get; }
-
-        public XmlMappingModelAttributeDefinition(XmlMappingAttribute mappingAttribute, PropertyInfo property) : base(property)
-        {
-            XmlMappingAttribute = mappingAttribute;
-        }
+        public XmlMappingAttribute XmlMappingAttribute { get; private set; }
     }
 }

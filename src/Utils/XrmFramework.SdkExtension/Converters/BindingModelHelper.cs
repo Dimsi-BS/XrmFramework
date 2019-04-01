@@ -1,9 +1,6 @@
-﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
-// Licensed under the MIT License. See License.txt in the project root for license information.
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -14,6 +11,7 @@ using Model.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Plugins;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using System.Text;
 using Relationship = Model.Sdk.Relationship;
 using EntityReference = Microsoft.Xrm.Sdk.EntityReference;
@@ -22,6 +20,8 @@ namespace Model
 {
     public static class BindingModelHelper
     {
+        private static DateTime cacheDate = DateTime.Now;
+
         private static object SyncRoot = new object();
 
         private static T FindBinding<T>(Dictionary<string, Dictionary<Guid, object>> cache, string typeName, Guid idEntity)
@@ -153,7 +153,7 @@ namespace Model
                 }
             }
 
-            var entityDefinition = DefinitionCache.GetEntityDefinitionFromModelType(type);
+            var entityDefinition = DefinitionCache.GetEntityDefinition(type);
 
             foreach (var property in modelDefinition.CrmAttributes)
             {
@@ -196,12 +196,11 @@ namespace Model
 
                             if (crmLookupAttribute != null)
                             {
+                                var targetEntityDefinition = DefinitionCache.GetEntityDefinition(crmLookupAttribute.TargetEntityName);
+
                                 var fieldName = string.Format("{0}.{1}", attributeName, crmLookupAttribute.AttributeName);
                                 if (entity.Contains(fieldName))
                                 {
-
-                                    var targetEntityDefinition = DefinitionCache.GetEntityDefinition(crmLookupAttribute.TargetEntityName);
-
                                     var relatedAttributeType = targetEntityDefinition.GetAttributeType(crmLookupAttribute.AttributeName);
 
                                     switch (relatedAttributeType)
@@ -225,7 +224,7 @@ namespace Model
                                             break;
                                     }
                                 }
-                                else if (DefinitionCache.GetEntityDefinition(crmLookupAttribute.TargetEntityName).IsPrimaryAttribute(crmLookupAttribute.AttributeName, PrimaryAttributeType.Name))
+                                else if (targetEntityDefinition.IsPrimaryAttribute(crmLookupAttribute.AttributeName, PrimaryAttributeType.Name))
                                 {
                                     if (entity.Contains(attributeName) && entity[attributeName] != null)
                                     {
@@ -324,7 +323,7 @@ namespace Model
                                         }
                                     }
 
-                                    value = entityTemp.CachedToBindingModel(property.ObjectType, cache);
+                                    value = entityTemp.CachedToBindingModel(property.PropertyType, cache);
                                 }
                             }
                             else
@@ -428,7 +427,7 @@ namespace Model
 
         public static Entity ToEntity(Type type, object bindingModel, IOrganizationService service, bool fillRelatedEntities = true)
         {
-            var entityDefinition = DefinitionCache.GetEntityDefinitionFromModelType(type);
+            var entityDefinition = DefinitionCache.GetEntityDefinition(type);
 
             var entity = new Entity(entityDefinition.EntityName);
             FillEntity(bindingModel, service, fillRelatedEntities, entity, null);
@@ -438,7 +437,7 @@ namespace Model
 
         private static void FillEntity(object bindingModel, IOrganizationService service, bool fillRelatedEntities, Entity entity, KeyInfos keyInfos)
         {
-            var entityDefinition = DefinitionCache.GetEntityDefinitionFromModelType(bindingModel.GetType());
+            var entityDefinition = DefinitionCache.GetEntityDefinition(bindingModel.GetType());
             if (entity.Id == Guid.Empty)
             {
                 entity.Id = ((IBindingModel)bindingModel).Id;
@@ -457,8 +456,7 @@ namespace Model
                 var crmAttribute = property.CrmMappingAttribute;
 
                 // Filtering out not initialized fields
-                var @base = bindingModel as BindingModelBase;
-                if (@base != null)
+                if (bindingModel is BindingModelBase @base)
                 {
                     if (!@base.InitializedProperties.Contains(property.Name) && property.Name != "Id")
                     {
@@ -484,7 +482,6 @@ namespace Model
 
                 if (property.HasConverter)
                 {
-
                     SetValue(entity, crmAttribute.AttributeName, property.ConvertFrom(value), keyInfos, isKey);
                 }
                 else
@@ -492,6 +489,8 @@ namespace Model
                     var attributeType = entityDefinition.GetAttributeType(crmAttribute.AttributeName);
                     switch (attributeType)
                     {
+                        case AttributeTypeCode.State:
+                        case AttributeTypeCode.Status:
                         case AttributeTypeCode.Picklist:
                             OptionSetValue pickListValue = null;
                             if (objectType.IsEnum)
@@ -670,7 +669,7 @@ namespace Model
 
         public static QueryExpression GetQueryToFilter(Type bindingModelType, Func<Relationship, LinkEntity, JoinOperator> Filter)
         {
-            var entityDefinition = DefinitionCache.GetEntityDefinitionFromModelType(bindingModelType);
+            var entityDefinition = DefinitionCache.GetEntityDefinition(bindingModelType);
 
             var query = new QueryExpression(entityDefinition.EntityName);
 
@@ -682,7 +681,7 @@ namespace Model
         private static void AddQueryFilter(Type bindingModelType, Func<Relationship, LinkEntity, JoinOperator> Filter, ColumnSet columnSet, DataCollection<LinkEntity> links, int depth = 1, string linkAlias = "")
         {
             var modelDefinition = DefinitionCache.GetModelDefinition(bindingModelType);
-            var entityDefinition = DefinitionCache.GetEntityDefinitionFromModelType(bindingModelType);
+            var entityDefinition = DefinitionCache.GetEntityDefinition(bindingModelType);
 
 
             foreach (var property in modelDefinition.CrmAttributes)
@@ -707,8 +706,7 @@ namespace Model
                     var hasOneLookupAttribute = lookupAttributes.Count == 1;
                     var crmLookupAttribute = property.CrmLookupAttribute;
 
-                    var targetEntityName = typeof(IBindingModel).IsAssignableFrom(property.PropertyType) ?
-                        property.PropertyType.GetCustomAttribute<CrmEntityAttribute>().EntityName :
+                    var targetEntityName = property.IsBindingModel ? property.TargettedModelDefinition.MainDefinition.EntityName :
                         property.CrmLookupAttribute?.TargetEntityName;
 
                     if (hasOneLookupAttribute && crmLookupAttribute == null && typeof(Guid).IsAssignableFrom(property.ObjectType))
@@ -800,14 +798,14 @@ namespace Model
 
             var bindingModel = modelDefinition.GetInstance();
 
-            var properties = new Queue<XmlMappingModelAttributeDefinition>();
+            var properties = new Queue<AttributeDefinition>();
 
             foreach (var prop in modelDefinition.XmlMappingAttributes)
             {
                 properties.Enqueue(prop);
             }
 
-            var rootElementName = type.GetCustomAttribute<XmlMappingAttribute>()?.RelativePath;
+            var rootElementName = modelDefinition.XmlMappingAttribute?.RelativePath;
 
             if (rootElementName != null)
             {
@@ -1242,8 +1240,8 @@ namespace Model
             {
                 if (upsertableProperties.Count > 1)
                 {
-                    var properties = new SortedDictionary<int, ModelAttributeDefinition>();
-                    var otherProperties = new List<ModelAttributeDefinition>();
+                    var properties = new SortedDictionary<int, AttributeDefinition>();
+                    var otherProperties = new List<AttributeDefinition>();
                     foreach (var property in upsertableProperties)
                     {
                         var order = property.UpsertOrder;
@@ -1253,9 +1251,7 @@ namespace Model
                         }
                         else
                         {
-                            var crmAttributeTemp = property as CrmModelAttributeDefinition;
-
-                            if (!crmAttributeTemp?.CrmMappingAttribute.IsValidForUpdate ?? false)
+                            if (!property.CrmMappingAttribute?.IsValidForUpdate ?? false)
                             {
                                 continue;
                             }
@@ -1282,19 +1278,30 @@ namespace Model
 
         }
 
-        private static void FillUpsertRequests(object model, ModelAttributeDefinition property, IOrganizationService service, RequestContainer container)
+        private static void FillUpsertRequests(object model, AttributeDefinition property, IOrganizationService service, RequestContainer container)
         {
             var extendedModel = property.IsExtendBindingModel ? model as IBindingModel : null;
 
-            if (property is CrmModelAttributeDefinition crmAt && !crmAt.CrmMappingAttribute.IsValidForUpdate)
+            if (!property.CrmMappingAttribute?.IsValidForUpdate ?? false)
             {
                 return;
             }
 
             if (typeof(IBindingModel).IsAssignableFrom(property.PropertyType))
             {
+                var bindingModel = (IBindingModel)property.GetValue(model);
 
-                FillUpsertRequests((IBindingModel)property.GetValue(model), service, container, extendedModel);
+                if (bindingModel == null)
+                {
+                    return;
+                }
+
+                if (property.IsExtendBindingModel && model is IBindingModel parentModel)
+                {
+                    bindingModel.Id = parentModel.Id;
+                }
+
+                FillUpsertRequests(bindingModel, service, container, extendedModel);
             }
             else
             {
@@ -1381,7 +1388,7 @@ namespace Model
 
         private static RetrieveRequest GetRetrieveRequest(Type type, EntityReference reference)
         {
-            var entityDefinition = DefinitionCache.GetEntityDefinitionFromModelType(type);
+            var entityDefinition = DefinitionCache.GetEntityDefinition(type);
 
             var request = new RetrieveRequest
             {
@@ -1417,7 +1424,9 @@ namespace Model
                 var lookupAttribute = property.CrmLookupAttribute;
                 var isBindingModel = typeof(IBindingModel).IsAssignableFrom(property.PropertyType);
 
-                var targetEntityName = isBindingModel ? property.PropertyType.GetCustomAttribute<CrmEntityAttribute>().EntityName : lookupAttribute?.TargetEntityName;
+                var subModelDefinition = isBindingModel ? DefinitionCache.GetModelDefinition(property.PropertyType) : null;
+
+                var targetEntityName = isBindingModel ? subModelDefinition.MainDefinition.EntityName : lookupAttribute?.TargetEntityName;
 
                 if (definitionLookupAttributes.Count == 1 && targetEntityName == null)
                 {
@@ -1480,7 +1489,7 @@ namespace Model
         public static T GetById<T>(this IOrganizationService service, Guid id) where T : IBindingModel
         {
             var type = typeof(T);
-            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
+            var definition = DefinitionCache.GetEntityDefinition(type);
             return (T)GetById(type, service, new EntityReference(definition.EntityName, id));
         }
 
@@ -1492,7 +1501,7 @@ namespace Model
 
         public static IBindingModel GetById(Type type, IOrganizationService service, Guid id)
         {
-            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
+            var definition = DefinitionCache.GetEntityDefinition(type);
             return GetById(type, service, new EntityReference(definition.EntityName, id));
         }
 
@@ -1508,7 +1517,7 @@ namespace Model
         public static bool TryGetById<T>(this IOrganizationService service, Guid id, out T result) where T : IBindingModel
         {
             var type = typeof(T);
-            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
+            var definition = DefinitionCache.GetEntityDefinition(type);
             IBindingModel resultTemp;
 
             var isOk = TryGetById(type, service, new EntityReference(definition.EntityName, id), out resultTemp);
@@ -1529,7 +1538,7 @@ namespace Model
 
         public static bool TryGetById(Type type, IOrganizationService service, Guid id, out IBindingModel result)
         {
-            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
+            var definition = DefinitionCache.GetEntityDefinition(type);
             return TryGetById(type, service, new EntityReference(definition.EntityName, id), out result);
         }
 
@@ -1594,6 +1603,53 @@ namespace Model
             }
 
             return dto;
+        }
+
+        public static U FromDto<T, U>(T dto) where T : new() where U : IBindingModel, new()
+        {
+            var model = new U();
+
+            var bindingType = typeof(U);
+
+            var dtoType = typeof(T);
+
+            foreach (var bindingProperty in bindingType.GetProperties())
+            {
+                var mappingAttribute = bindingProperty.GetCustomAttribute<DtoFieldMappingAttribute>();
+                if (mappingAttribute == null)
+                {
+                    continue;
+                }
+
+                var dtoProperty = dtoType.GetProperty(mappingAttribute.RelativePath);
+                if (dtoProperty == null)
+                {
+                    throw new Exception(string.Format("The Property {0} does not exist on type {1}, modify BindingModel accordingly", mappingAttribute.RelativePath, dtoType.Name));
+                }
+
+                var tempValue = dtoProperty.GetValue(dto);
+
+                object value = null;
+
+                if (bindingProperty.PropertyType == dtoProperty.PropertyType)
+                {
+                    value = tempValue;
+                }
+                else if (mappingAttribute.ConverterType != null)
+                {
+                    var converter = (IDtoAttributeConverter)mappingAttribute.ConverterType.GetConstructor(new Type[] { }).Invoke(new object[] { });
+
+                    value = converter.ConvertFromDtoAttribute(tempValue);
+                }
+                else if (dtoProperty.PropertyType == typeof(string) && tempValue != null)
+                {
+                    value = tempValue.ToString();
+                }
+
+                bindingProperty.SetValue(model, value);
+            }
+
+            return model;
         }
 
         public class ModelPriceComparer<T> : IComparer<T> where T : IPricedModel
@@ -1729,6 +1785,7 @@ namespace Model
             var result = new List<Entity>();
 
             EntityCollection ec;
+            query.CleanLinks();
             do
             {
                 ec = service.RetrieveMultiple(query);
@@ -1750,8 +1807,8 @@ namespace Model
         public class JobResult
         {
 
-
             public int NbCreated { get; set; }
+
             public int NbUpdated { get; set; }
 
             public int NbRejected { get; set; }
@@ -1759,7 +1816,6 @@ namespace Model
             public ICollection<KeyValuePair<int, string>> ErrorMessages { get; } = new List<KeyValuePair<int, string>>();
 
             public ICollection<KeyValuePair<int, OrganizationResponse>> Responses { get; } = new List<KeyValuePair<int, OrganizationResponse>>();
-
         }
 
         public static JobResult ExecuteMultiple<T>(this IOrganizationService service, IList<T> objects, Func<T, OrganizationRequest> RequestBuilder, string message, int nbRequest = 500, bool continueOnError = true)
@@ -1908,7 +1964,8 @@ namespace Model
             set
             {
                 _useTransactionRequest = value;
-                if (value) ContinueOnError = false;
+                if (value)
+                    ContinueOnError = false;
             }
         }
 

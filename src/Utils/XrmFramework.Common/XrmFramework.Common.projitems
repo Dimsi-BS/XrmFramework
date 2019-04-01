@@ -14,6 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CrmEntityAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CrmLookupAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CrmMappingAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\CrmModelImplementationAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CrmRelationshipAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\DateTimeBehaviorAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\DefinitionManagerIgnoreAttribute.cs" />
@@ -26,6 +27,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\ImageAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\ImpersonationAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\KeyAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\ModelPropertyConverterAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\MultiAttributesAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\NeolaneIdAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\NullableAttribute.cs" />
@@ -41,6 +43,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Converters\IBindingModelAction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\IDtoAttributeConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\IXmlTransform.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\ModelPropertyConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\PicklistConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Metadata\AttributeMetadata.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Metadata\EntityMetadata.cs" />

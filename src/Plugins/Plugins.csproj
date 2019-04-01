@@ -82,7 +82,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="..\Utils\XrmFramework.Common\XrmFramework.Common.projitems" Label="Shared" />
-  <Import Project="..\Utils\XrmFramework.Plugin\XrmFramework.Plugin.projitems" Label="Shared" />
+  <Import Project="..\Utils\XrmFramework.SdkExtension\XrmFramework.SdkExtension.projitems" Label="Shared" />
   <Import Project="..\Model\Model.projitems" Label="Shared" />
   <Import Project="..\Utils\LoggedServices\LoggedServices.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
