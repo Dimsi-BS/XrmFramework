@@ -12,7 +12,7 @@ using Model;
 
 namespace Plugins
 {
-    public interface IService
+    public partial interface IService
     {
         Guid Create(Entity entity, bool useAdmin = false);
 

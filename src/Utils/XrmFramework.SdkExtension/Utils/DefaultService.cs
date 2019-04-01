@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Plugins
 {
-    public class DefaultService : IService
+    public partial class DefaultService : IService
     {
         private readonly IServiceContext _context;
 
