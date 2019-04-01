@@ -1,16 +1,19 @@
 # Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 # Licensed under the MIT License. See License.txt in the project root for license information.
 
-Write-Host "Downloading Nuget.exe..." -ForegroundColor Blue
 
 $rootFolder = (Get-Item -Path $PSScriptRoot).FullName
+$targetNugetExe = "$rootFolder\.NuGet\nuget.exe"
 
-$sourceNugetExe = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
-$targetNugetExe = "$rootFolder\nuget.exe"
-Invoke-WebRequest $sourceNugetExe -OutFile $targetNugetExe
+if ([System.IO.File]::Exists($targetNugetExe) -eq $false)
+{
+    Write-Host "Downloading Nuget.exe..." -ForegroundColor Blue
+    $sourceNugetExe = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
+    Invoke-WebRequest $sourceNugetExe -OutFile $targetNugetExe
+
+    Write-Host "Nuget.exe downloaded" -ForegroundColor Green
+}
 Set-Alias nuget $targetNugetExe
-
-Write-Host "Nuget.exe downloaded" -ForegroundColor Green
 
 Write-Host "Installing XrmFramework.Sources package..." -ForegroundColor Blue
 
@@ -47,7 +50,6 @@ Write-Host "New XrmFramework.SdkExtension folder content done" -ForegroundColor 
 
 Write-Host "Deletion of XrmFramework.Sources package..." -ForegroundColor Blue
 Remove-Item "$rootFolder/XrmFramework.Sources" -Force -Recurse -ErrorAction Stop
-Remove-Item "$rootFolder/nuget.exe" -Force -ErrorAction Stop
 Write-Host "XrmFramework.Sources package deleted" -ForegroundColor Green
 
 
