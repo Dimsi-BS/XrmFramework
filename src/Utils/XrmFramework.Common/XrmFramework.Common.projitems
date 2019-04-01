@@ -65,7 +65,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\EntityReference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\EnumExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IBindingModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utils\IBusinessProcess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IInitializableService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ILoggedService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IPricedModel.cs" />

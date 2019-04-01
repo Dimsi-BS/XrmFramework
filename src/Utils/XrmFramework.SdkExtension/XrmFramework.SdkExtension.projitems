@@ -16,6 +16,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\EnumExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IBehaviour.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\IBusinessProcess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ICustomWorkflowContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IEntityModel.cs" />
