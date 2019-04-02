@@ -62,7 +62,7 @@ namespace Deploy
                 throw new Exception("Unable to edit LoggedServices Shared Project");
             }
 
-            if (itemGroup.Descendants(compileName).Any(x => x.Attributes().Any(a => a.Value.Contains(newFilePath))))
+            if (itemGroup.Descendants(compileName).Any(x => x.Attributes().Any(a => String.Compare(a.Value, newFilePath, StringComparison.OrdinalIgnoreCase) == 0)))
             {
                 return false;
             }
