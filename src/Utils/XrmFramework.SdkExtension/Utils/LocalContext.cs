@@ -17,7 +17,7 @@ using System.Xml;
 
 namespace Plugins
 {
-    public class LocalContext : IContext, IServiceContext
+    public class LocalContext : IContext, IServiceContext, IDisposable
     {
         private readonly IList<object> _loadedServices = new List<object>();
 
@@ -32,6 +32,8 @@ namespace Plugins
         protected LogHelper LogHelper { get; private set; }
 
         public Guid UserId => ExecutionContext.UserId;
+
+        private List<object> _instanciatedServices = new List<object>();
 
         public Guid InitiatingUserId => ExecutionContext.InitiatingUserId;
 
@@ -104,7 +106,9 @@ namespace Plugins
 
         public object GetService(Type type)
         {
-            return ServiceManager.GetService(type, this);
+            var service = ServiceManager.GetService(type, this);
+            _instanciatedServices.Add(service);
+            return service;
         }
 
         public Logger Logger => LogHelper.Log;
@@ -503,6 +507,7 @@ namespace Plugins
             return Factory.CreateOrganizationService(userId);
         }
 
+
         public void LogFields(Entity entity, params string[] fieldNames)
         {
             foreach (var fieldName in fieldNames)
@@ -514,6 +519,17 @@ namespace Plugins
                 else
                 {
                     Log("{0} not present in {1}", fieldName, entity.LogicalName);
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (var service in _instanciatedServices)
+            {
+                if (service is IDisposable disposableService)
+                {
+                    disposableService.Dispose();
                 }
             }
         }
