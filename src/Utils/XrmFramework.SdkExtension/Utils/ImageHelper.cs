@@ -1,6 +1,8 @@
-﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Plugins;
 
 namespace Microsoft.Xrm.Sdk
@@ -125,6 +127,91 @@ namespace Microsoft.Xrm.Sdk
             }
 
             entity[fieldName] = optionSetValue;
+        }
+
+        public static ICollection<T> GetOptionSetValues<T>(this Entity newEntity, Entity preImage, string fieldName, params T[] defaultValues)
+        {
+            if (typeof(T).IsEnum)
+            {
+                OptionSetValueCollection tempValue;
+                var objectValue = GetAttributeValue<object>(newEntity, preImage, fieldName);
+
+                if (objectValue is AliasedValue aliasedValue)
+                {
+                    tempValue = (OptionSetValueCollection)aliasedValue.Value;
+                }
+                else
+                {
+                    tempValue = (OptionSetValueCollection)objectValue;
+                }
+
+                if (tempValue != null)
+                {
+                    var list = new List<T>();
+
+                    foreach (var option in tempValue)
+                    {
+                        list.Add((T)Enum.ToObject(typeof(T), option.Value));
+                    }
+
+                    return list;
+                }
+            }
+
+            return defaultValues == null ? new List<T>() : defaultValues.ToList();
+        }
+
+        public static ICollection<T> GetOptionSetValues<T>(this Entity newEntity, Entity preImage, string fieldName)
+        {
+            return GetOptionSetValues<T>(newEntity, preImage, fieldName, null);
+        }
+
+        public static ICollection<T> GetOptionSetValues<T>(this Entity newEntity, string fieldName)
+        {
+
+            return GetOptionSetValues<T>(newEntity, null, fieldName);
+        }
+
+        public static ICollection<T> GetOptionSetValues<T>(this Entity newEntity, string fieldName, T defaultValue)
+        {
+
+            return GetOptionSetValues<T>(newEntity, null, fieldName, defaultValue);
+        }
+
+        /// <summary>
+        /// Set multi-select picklist values
+        /// </summary>
+        /// <typeparam name="T">The type of the enum corresponding to the field</typeparam>
+        /// <param name="entity"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="values">List of selected values</param>
+        public static void SetOptionSetValues<T>(this Entity entity, string fieldName, params T[] values)
+        {
+            OptionSetValueCollection optionSetValueCollection = null;
+
+            if (values != null)
+            {
+                optionSetValueCollection = new OptionSetValueCollection();
+
+                foreach (var value in values)
+                {
+                    var intValue = (int)(object)value;
+
+                    if (typeof(T).IsEnum)
+                    {
+                        if (value.ToString() != "Null" || intValue != 0)
+                        {
+                            optionSetValueCollection.Add(new OptionSetValue(intValue));
+                        }
+                    }
+                    else
+                    {
+                        optionSetValueCollection.Add(new OptionSetValue(intValue));
+                    }
+                }
+            }
+
+            entity[fieldName] = optionSetValueCollection;
         }
 
         public static EntityCollection EmptyIds(this EntityCollection collection, params string[] fieldNames)
