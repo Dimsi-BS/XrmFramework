@@ -473,7 +473,10 @@ namespace Deploy.Plugins
 
         private static SdkMessageProcessingStep GetStepToRegister(Guid pluginTypeId, Step step)
         {
+            // Issue with CRM SDK / Description field max length = 256 characters 
+            var descriptionAttributeMaxLength = 256;
             var description = $"{step.PluginTypeName} : {step.Stage} {step.Message} of {step.EntityName} ({step.MethodsDisplayName})";
+            description = description.Length <= descriptionAttributeMaxLength ? description : description.Substring(0, descriptionAttributeMaxLength - 3) + "...";
 
             if (!string.IsNullOrEmpty(step.ImpersonationUsername))
             {
