@@ -225,6 +225,12 @@ namespace XrmProject
                 case "ico":
                     wr["webresourcetype"] = new OptionSetValue(10);
                     break;
+                case "svg":
+                    wr["webresourcetype"] = new OptionSetValue(11);
+                    break;
+                case "resx":
+                    wr["webresourcetype"] = new OptionSetValue(12);
+                    break;
                 default:
                     throw new Exception("Unsupported extension: " + fi.Extension.Remove(0, 1).ToLower());
             }
@@ -259,6 +265,8 @@ namespace XrmProject
                 case ".xap":
                 case ".xsl":
                 case ".ico":
+                case ".svg":
+                case ".resx":
                     return true;
                 default:
                     return false;

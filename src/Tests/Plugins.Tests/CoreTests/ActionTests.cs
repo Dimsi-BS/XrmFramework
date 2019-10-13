@@ -17,6 +17,10 @@ namespace Plugins.Tests
             {
                 AddStep(Stages.PreOperation, Messages.Update, Modes.Synchronous, "test", "Machin");
             }
+
+            public PluginTest1(string unsecuredConfig, string securedConfig) : base(unsecuredConfig, securedConfig)
+            {
+            }
         }
 
         [TestMethod]
@@ -25,7 +29,7 @@ namespace Plugins.Tests
             var ok = false;
             try
             {
-                var pluginTest = new PluginTest1();
+                var pluginTest = new PluginTest1(null, null);
             }
             catch (InvalidPluginExecutionException)
             {
@@ -45,6 +49,10 @@ namespace Plugins.Tests
             private void Chose(IPluginContext localContext)
             {
             }
+
+            public PluginTest2(string unsecuredConfig, string securedConfig) : base(unsecuredConfig, securedConfig)
+            {
+            }
         }
 
         class PluginTest3 : Plugin
@@ -57,6 +65,10 @@ namespace Plugins.Tests
             public static void Chose(IPluginContext localContext)
             {
             }
+
+            public PluginTest3(string unsecuredConfig, string securedConfig) : base(unsecuredConfig, securedConfig)
+            {
+            }
         }
     
         [TestMethod]
@@ -65,7 +77,7 @@ namespace Plugins.Tests
             var ok = false;
             try
             {
-                var pluginTest = new PluginTest2();
+                var pluginTest = new PluginTest2(null, null);
             }
             catch (InvalidPluginExecutionException)
             {
@@ -81,7 +93,7 @@ namespace Plugins.Tests
             var ok = false;
             try
             {
-                var pluginTest = new PluginTest3();
+                var pluginTest = new PluginTest3(null, null);
             }
             catch (InvalidPluginExecutionException)
             {
@@ -99,6 +111,10 @@ namespace Plugins.Tests
             }
 
             public void Chose(IPluginContext localContext)
+            {
+            }
+
+            public PluginTest4(string unsecuredConfig, string securedConfig) : base(unsecuredConfig, securedConfig)
             {
             }
         }

@@ -16,6 +16,9 @@ namespace DefinitionManager
         [Column("Value", 1)]
         public string Value { get; set; }
 
+        [Column("External Value", 2)]
+        public string ExternalValue { get; set; }
+
         public override bool IncludeLogicalNameColumn
         {
             get

@@ -14,11 +14,11 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\AccountDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\ContactDefinition.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Definitions\SystemUserDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\AccountService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IAccountService.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Services\ISystemuserService.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Services\SystemuserService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\ISystemUserService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\SystemUserService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\OptionSetDefinitions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\SystemUserDefinition.cs" />
   </ItemGroup>
 </Project>

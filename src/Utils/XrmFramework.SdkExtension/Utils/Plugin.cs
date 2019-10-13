@@ -8,16 +8,26 @@ using System.ServiceModel;
 using Microsoft.Xrm.Sdk;
 using System.Reflection;
 using System.Diagnostics;
+using Microsoft.Xrm.Sdk.Query;
+using Model;
+using XrmFramework.Common;
+#if INTERNAL_NEWTONSOFT
+using Newtonsoft.Json.Xrm;
+#else 
+using Newtonsoft.Json;
+#endif
+using XrmFramework.Debugger;
+using XrmFramework.Model;
 
 namespace Plugins
 {
     /// <summary>
     ///     Base class for all Plugins.
     /// </summary>
-    [DebuggerNonUserCode]
+    //[DebuggerNonUserCode]
     public abstract class Plugin : IPlugin
     {
-        private IList<Step> _newRegisteredEvents = new Collection<Step>();
+        private readonly IList<Step> _newRegisteredEvents = new Collection<Step>();
 
         protected const string PreImageName = "PreImage";
 
@@ -34,16 +44,19 @@ namespace Plugins
         /// <summary>
         ///     Initializes a new instance of the <see cref="Plugin" /> class.
         /// </summary>
-        protected Plugin(bool delayStepRegistration = false)
-        {
-            InitializeSteps(delayStepRegistration);
-        }
-
         protected Plugin(string unsecuredConfig, string securedConfig)
-            : this()
+            : this(unsecuredConfig, securedConfig, false)
         {
             SecuredConfig = securedConfig;
             UnSecuredConfig = unsecuredConfig;
+        }
+
+
+        protected Plugin(string unsecuredConfig, string securedConfig, bool delayStepRegistration)
+        {
+            SecuredConfig = securedConfig;
+            UnSecuredConfig = unsecuredConfig;
+            InitializeSteps(delayStepRegistration);
         }
         #endregion
 
@@ -94,8 +107,6 @@ namespace Plugins
         /// <value>The name of the child class.</value>
         protected string ChildClassName => GetType().Name;
 
-        #region IPlugin Members
-
         /// <summary>
         ///     Executes the plug-in.
         /// </summary>
@@ -109,115 +120,206 @@ namespace Plugins
         /// </remarks>
         public void Execute(IServiceProvider serviceProvider)
         {
-            Stopwatch sw = new Stopwatch();
+            var sw = new Stopwatch();
             if (serviceProvider == null)
             {
                 throw new ArgumentNullException(nameof(serviceProvider));
             }
 
             // Construct the Local plug-in context.
-            using (var localContext = new LocalPluginContext(serviceProvider))
+            var localContext = new LocalPluginContext(serviceProvider);
+
+            localContext.Log($"Entity: {localContext.PrimaryEntityName}, Message: {localContext.MessageName}, Stage: {Enum.ToObject(typeof(Stages), localContext.Stage)}, Mode: {localContext.Mode}");
+
+            localContext.Log($"\r\nClass {ChildClassName}");
+            localContext.Log($"\r\nUserId\t\t\t\t{localContext.UserId}\r\nInitiatingUserId\t{localContext.InitiatingUserId}");
+            localContext.Log($"\r\nStart : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}");
+            sw.Restart();
+
+
+            try
             {
-                localContext.Log($"Entity: {localContext.PrimaryEntityName}, Message: {localContext.MessageName}, Stage: {Enum.ToObject(typeof(Stages), localContext.Stage)}, Mode: {localContext.Mode}");
+                #region Remote Debugger
 
-                localContext.Log($"\r\nClass {ChildClassName}");
-                localContext.Log($"\r\nUserId\t\t\t\t{localContext.UserId}\r\nInitiatingUserId\t{localContext.InitiatingUserId}");
-                localContext.Log($"\r\nStart : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}");
-                sw.Restart();
-
-                try
+                if (!localContext.IsDebugContext)
                 {
-                    // Iterate over all of the expected registered events to ensure that the plugin
-                    // has been invoked by an expected event
-                    // For any given plug-in event at an instance in time, we would expect at most 1 result to match.
-                    var steps =
-                        (from a in _newRegisteredEvents
-                         where (
-                         localContext.IsStage(a.Stage) &&
-                         localContext.IsMessage(a.Message) &&
-                         (string.IsNullOrWhiteSpace(a.EntityName) ||
-                          a.EntityName == localContext.PrimaryEntityName)
-                     )
-                         select a);
+                    localContext.Log("The context is genuine");
+#if !DEBUG
+                if (!string.IsNullOrEmpty(UnSecuredConfig) && UnSecuredConfig.Contains("debugSessions"))
+                {
+                    var debuggerUnsecuredConfig = JsonConvert.DeserializeObject<DebuggerUnsecureConfig>(UnSecuredConfig);
+#endif
 
-                    var stage = Enum.ToObject(typeof(Stages), localContext.Stage);
-                    sw.Restart();
-                    localContext.Log("------------------ Input Variables (before) ------------------");
-                    localContext.DumpInputParameters();
-                    localContext.Log("\r\n------------------ Shared Variables (before) ------------------");
-                    localContext.DumpSharedVariables();
-                    localContext.Log("\r\n---------------------------------------------------------------");
+                    var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
+                    queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.DebugeeId, ConditionOperator.Equal, localContext.InitiatingUserId);
+                    queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
 
-                    foreach (var step in steps)
+#if !DEBUG
+                queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Id, ConditionOperator.In, debuggerUnsecuredConfig.DebugSessionIds.ToArray());
+#endif
+
+                    var debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
+
+                    localContext.Log($"Debug session : {debugSession}");
+
+                    if (debugSession != null)
                     {
-                        sw.Restart();
-                        if (step.Message == Messages.Update && step.FilteringAttributes.Any())
+                        if (debugSession.SessionEnd < DateTime.Today)
                         {
-
-                            var target = localContext.GetInputParameter<Entity>(InputParameters.Target);
-
-                            var useStep = false;
-
-                            foreach (var attributeName in target.Attributes.Select(a => a.Key))
-                            {
-                                useStep |= step.FilteringAttributes.Contains(attributeName);
-                            }
-
-                            if (!useStep)
-                            {
-                                localContext.Log(
-                                    "\r\n{0}.{5} is not fired because filteringAttributes filter is not met.",
-                                    ChildClassName,
-                                    localContext.PrimaryEntityName,
-                                    localContext.MessageName,
-                                    stage,
-                                    localContext.Mode, step.Method.Name);
-                                continue;
-                            }
-
+                            throw new InvalidPluginExecutionException($"The debug session for user {localContext.InitiatingUserId} has ended, update the session to use it");
                         }
 
-                        var entityAction = step.Method;
+                        var remoteContext = localContext.RemoteContext;
+                        remoteContext.Id = Guid.NewGuid();
 
-                        localContext.Log($"\r\n\r\n{ChildClassName}.{step.Method.Name} is firing");
+                        var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
 
-                        sw.Restart();
+                        using (var hybridConnection = new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri))
+                        {
+                            var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
 
-                        localContext.Log($"{ChildClassName}.{step.Method.Name} Start");
+                            RemoteDebuggerMessage response;
+                            while (true)
+                            {
+                                localContext.Log("Sending context to local machine : {0}", message);
 
-                        Invoke(entityAction, localContext);
+                                response = hybridConnection.SendMessage(message).GetAwaiter().GetResult();
 
-                        localContext.Log($"{ChildClassName}.{step.Method.Name} End, duration : {sw.Elapsed}");
+                                localContext.Log("Received response : {0}", response);
+
+                                if (response.MessageType == RemoteDebuggerMessageType.Context || response.MessageType == RemoteDebuggerMessageType.Exception)
+                                {
+                                    break;
+                                }
+
+                                var request = response.GetOrganizationRequest();
+
+                                var service = response.UserId.HasValue ? localContext.GetService(response.UserId.Value) : localContext.AdminOrganizationService;
+
+                                var organizationResponse = service.Execute(request);
+
+                                message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Response, organizationResponse, remoteContext.Id);
+                            }
+
+                            if (response.MessageType == RemoteDebuggerMessageType.Exception)
+                            {
+                                throw response.GetException();
+                            }
+
+                            var updatedContext = response.GetContext<RemoteDebugPluginExecutionContext>();
+
+                            localContext.UpdateContext(updatedContext);
+                        }
+
+
+                        return;
                     }
 
-                    if (localContext.IsStage(Stages.PreValidation) || localContext.IsStage(Stages.PreOperation))
+#if !DEBUG
+                }
+#endif
+                }
+
+                #endregion
+
+
+
+
+                // Iterate over all of the expected registered events to ensure that the plugin
+                // has been invoked by an expected event
+                // For any given plug-in event at an instance in time, we would expect at most 1 result to match.
+                var steps =
+                    (from a in _newRegisteredEvents
+                     where (
+                               localContext.IsStage(a.Stage) &&
+                               localContext.IsMessage(a.Message) &&
+                               localContext.Mode == a.Mode &&
+                               (string.IsNullOrWhiteSpace(a.EntityName) ||
+                                a.EntityName == localContext.PrimaryEntityName)
+                           )
+                     select a);
+
+                var stage = Enum.ToObject(typeof(Stages), localContext.Stage);
+                sw.Restart();
+                localContext.Log("------------------ Input Variables (before) ------------------");
+                localContext.DumpInputParameters();
+                localContext.Log("\r\n------------------ Shared Variables (before) ------------------");
+                localContext.DumpSharedVariables();
+                localContext.Log("\r\n---------------------------------------------------------------");
+
+                foreach (var step in steps)
+                {
+                    sw.Restart();
+                    if (step.Message == Messages.Update && step.FilteringAttributes.Any())
                     {
-                        localContext.Log("\r\n\r\n------------------ Input Variables (after) ------------------");
-                        localContext.DumpInputParameters();
-                        localContext.Log("\r\n------------------ Shared Variables (after) ------------------");
-                        localContext.DumpSharedVariables();
-                        localContext.Log("\r\n---------------------------------------------------------------");
+
+                        var target = localContext.GetInputParameter<Entity>(InputParameters.Target);
+
+                        var useStep = false;
+
+                        foreach (var attributeName in target.Attributes.Select(a => a.Key))
+                        {
+                            useStep |= step.FilteringAttributes.Contains(attributeName);
+                        }
+
+                        if (!useStep)
+                        {
+                            localContext.Log(
+                                "\r\n{0}.{5} is not fired because filteringAttributes filter is not met.",
+                                ChildClassName,
+                                localContext.PrimaryEntityName,
+                                localContext.MessageName,
+                                stage,
+                                localContext.Mode, step.Method.Name);
+                            continue;
+                        }
+
                     }
-                }
-                catch (FaultException<OrganizationServiceFault> e)
-                {
-                    localContext.Log($"Exception: {e}");
 
-                    // Handle the exception.
-                    throw;
-                }
-                catch (TargetInvocationException e)
-                {
-                    localContext.Log($"Exception : {e.InnerException}");
+                    var entityAction = step.Method;
 
-                    if (e.InnerException != null) throw e.InnerException;
-                }
-                finally
-                {
-                    localContext.Log($"Exiting {ChildClassName}.Execute()");
+                    localContext.Log($"\r\n\r\n{ChildClassName}.{step.Method.Name} is firing");
 
-                    localContext.Log($"End : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}\r\n");
+                    sw.Restart();
+
+                    localContext.Log($"{ChildClassName}.{step.Method.Name} Start");
+
+                    Invoke(entityAction, localContext);
+
+                    localContext.Log($"{ChildClassName}.{step.Method.Name} End, duration : {sw.Elapsed}");
                 }
+
+                if (localContext.IsStage(Stages.PreValidation) || localContext.IsStage(Stages.PreOperation))
+                {
+                    localContext.Log("\r\n\r\n------------------ Input Variables (after) ------------------");
+                    localContext.DumpInputParameters();
+                    localContext.Log("\r\n------------------ Shared Variables (after) ------------------");
+                    localContext.DumpSharedVariables();
+                    localContext.Log("\r\n---------------------------------------------------------------");
+                }
+            }
+            catch (FaultException<OrganizationServiceFault> e)
+            {
+                localContext.Log($"Exception: {e}");
+
+                // Handle the exception.
+                throw;
+            }
+            catch (TargetInvocationException e)
+            {
+                localContext.Log($"Exception : {e.InnerException}");
+
+                if (e.InnerException != null) throw e.InnerException;
+            }
+            catch (JsonException e)
+            {
+                throw new InvalidPluginExecutionException(e.ToString());
+            }
+            finally
+            {
+                localContext.Log($"Exiting {ChildClassName}.Execute()");
+
+                localContext.Log($"End : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}\r\n");
             }
         }
 
@@ -240,7 +342,5 @@ namespace Plugins
 
             entityAction.Invoke(this, listParamValues.ToArray());
         }
-
-        #endregion
     }
 }

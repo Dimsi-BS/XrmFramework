@@ -1,9 +1,17 @@
-// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
-// Licensed under the MIT License. See License.txt in the project root for license information.
 using System.ComponentModel;
 
 namespace Model
 {
+
+	[OptionSetDefinition(AccountDefinition.EntityName, AccountDefinition.Columns.Address1_FreightTermsCode)]
+	public enum Address1FreightTerms
+	{
+		Null = 0,
+		[Description("FOB")]
+		FOB = 1,
+		[Description("No Charge")]
+		NoCharge = 2,
+	}
 
 	[OptionSetDefinition(AccountDefinition.EntityName, AccountDefinition.Columns.CustomerTypeCode)]
 	public enum RelationshipType

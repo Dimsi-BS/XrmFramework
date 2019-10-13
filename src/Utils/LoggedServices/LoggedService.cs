@@ -331,6 +331,78 @@ namespace Plugins
 			Log("RemoveUsersFromTeam", "End : duration = {0}", sw.Elapsed);
 		}
 
+		public void AddToQueue(Guid  queueId, EntityReference  target)
+		{
+			#region Parameters check
+			if (queueId == Guid.Empty)
+			{
+				throw new ArgumentNullException("queueId");
+			}
+			if (target == null)
+			{
+				throw new ArgumentNullException("target");
+			}
+			#endregion
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+
+			Log("AddToQueue", "Start: queueId = {0}, target = {1}", queueId, target);
+
+			Service.AddToQueue( queueId,  target);
+
+			Log("AddToQueue", "End : duration = {0}", sw.Elapsed);
+		}
+
+		public void RemoveFromQueue(Guid  queueItemId)
+		{
+			#region Parameters check
+			if (queueItemId == Guid.Empty)
+			{
+				throw new ArgumentNullException("queueItemId");
+			}
+			#endregion
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+
+			Log("RemoveFromQueue", "Start: queueItemId = {0}", queueItemId);
+
+			Service.RemoveFromQueue( queueItemId);
+
+			Log("RemoveFromQueue", "End : duration = {0}", sw.Elapsed);
+		}
+
+		public void Merge(EntityReference  target, Guid  subordonate, Entity  content)
+		{
+			#region Parameters check
+			if (target == null)
+			{
+				throw new ArgumentNullException("target");
+			}
+			if (subordonate == Guid.Empty)
+			{
+				throw new ArgumentNullException("subordonate");
+			}
+			if (content == null)
+			{
+				throw new ArgumentNullException("content");
+			}
+			#endregion
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+
+			Log("Merge", "Start: target = {0}, subordonate = {1}, content = {2}", target, subordonate, content);
+
+			Service.Merge( target,  subordonate,  content);
+
+			Log("Merge", "End : duration = {0}", sw.Elapsed);
+		}
+
 		public void SetState(EntityReference  objectRef, Int32  stateCode, Int32  statusCode, Boolean  useAdmin = false)
 		{
 			#region Parameters check
@@ -576,6 +648,140 @@ namespace Plugins
 			var returnValue = Service.GetById<T>( entityReference);
 
 			Log("GetById", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
+			return returnValue;
+		}
+
+		public T Upsert<T>(T  model) where T : IBindingModel, new()
+		{
+			#region Parameters check
+			if (model == null)
+			{
+				throw new ArgumentNullException("model");
+			}
+			#endregion
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+
+			Log("Upsert", "Start: model = {0}", model);
+
+			var returnValue = Service.Upsert<T>( model);
+
+			Log("Upsert", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
+			return returnValue;
+		}
+
+		public Boolean UserHasRole(Guid  userId, Guid  parentRoleId, Boolean  parentRootRole = true)
+		{
+			#region Parameters check
+			if (userId == Guid.Empty)
+			{
+				throw new ArgumentNullException("userId");
+			}
+			if (parentRoleId == Guid.Empty)
+			{
+				throw new ArgumentNullException("parentRoleId");
+			}
+			#endregion
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+
+			Log("UserHasRole", "Start: userId = {0}, parentRoleId = {1}, parentRootRole = {2}", userId, parentRoleId, parentRootRole);
+
+			var returnValue = Service.UserHasRole( userId,  parentRoleId,  parentRootRole);
+
+			Log("UserHasRole", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
+			return returnValue;
+		}
+
+		public Boolean UserHasOneRoleOf(Guid  userId, Boolean  parentRootRole, Guid[]  parentRoleIds)
+		{
+			#region Parameters check
+			if (userId == Guid.Empty)
+			{
+				throw new ArgumentNullException("userId");
+			}
+			if (parentRoleIds == null)
+			{
+				throw new ArgumentNullException("parentRoleIds");
+			}
+			#endregion
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+
+			Log("UserHasOneRoleOf", "Start: userId = {0}, parentRootRole = {1}, parentRoleIds = {2}", userId, parentRootRole, parentRoleIds);
+
+			var returnValue = Service.UserHasOneRoleOf( userId,  parentRootRole,  parentRoleIds);
+
+			Log("UserHasOneRoleOf", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
+			return returnValue;
+		}
+
+		public ICollection<Guid> GetUserRoleIds(EntityReference  userRef)
+		{
+			#region Parameters check
+			if (userRef == null)
+			{
+				throw new ArgumentNullException("userRef");
+			}
+			#endregion
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+
+			Log("GetUserRoleIds", "Start: userRef = {0}", userRef);
+
+			var returnValue = Service.GetUserRoleIds( userRef);
+
+			Log("GetUserRoleIds", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
+			return returnValue;
+		}
+
+		public Entity ToEntity<T>(T  model) where T : IBindingModel
+		{
+			#region Parameters check
+			if (model == null)
+			{
+				throw new ArgumentNullException("model");
+			}
+			#endregion
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+
+			Log("ToEntity", "Start: model = {0}", model);
+
+			var returnValue = Service.ToEntity<T>( model);
+
+			Log("ToEntity", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
+			return returnValue;
+		}
+
+		public ICollection<EntityReference> GetTeamMemberRefs(EntityReference  teamRef)
+		{
+			#region Parameters check
+			if (teamRef == null)
+			{
+				throw new ArgumentNullException("teamRef");
+			}
+			#endregion
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+
+			Log("GetTeamMemberRefs", "Start: teamRef = {0}", teamRef);
+
+			var returnValue = Service.GetTeamMemberRefs( teamRef);
+
+			Log("GetTeamMemberRefs", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
 			return returnValue;
 		}
 	}

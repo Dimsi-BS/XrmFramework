@@ -21,7 +21,7 @@ namespace Plugins.Tests.Objects
         private MockServiceProvider Provider { get; set; }
         protected override void InitializeTest(IServiceContext context)
         {
-            Plugin = new TestPlugin();
+            Plugin = new TestPlugin(null, null);
             Provider = new MockServiceProvider();
         }
 
@@ -38,6 +38,10 @@ namespace Plugins.Tests.Objects
             }
 
             public bool MethodLaunched { get; private set; }
+
+            public TestPlugin(string unsecuredConfig, string securedConfig) : base(unsecuredConfig, securedConfig)
+            {
+            }
         }
 
         [TestMethod]

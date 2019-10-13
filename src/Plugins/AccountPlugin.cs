@@ -7,7 +7,7 @@ using Microsoft.Xrm.Sdk;
 using Model;
 using Plugins;
 
-namespace Acquereurs.Plugins
+namespace Contoso.Plugins
 {
     public class AccountPlugin : Plugin
     {
@@ -19,6 +19,33 @@ namespace Acquereurs.Plugins
             AddStep(Stages.PreValidation, Messages.Create, Modes.Synchronous, AccountDefinition.EntityName, nameof(AssignContactOwnerToAccount));
 
             AddStep(Stages.PostOperation, Messages.Update, Modes.Synchronous, AccountDefinition.EntityName, nameof(UpdateSubContactInfos));
+
+            AddStep(Stages.PreOperation, Messages.Update, Modes.Synchronous, AccountDefinition.EntityName, nameof(ChangementNom));
+
+        }
+
+        [FilteringAttributes(AccountDefinition.Columns.Name)]
+        public void ChangementNom(IPluginContext context, IAccountService service)
+        {
+            var account = context.GetInputParameter<Entity>(InputParameters.Target);
+
+            var contact = new Entity(ContactDefinition.EntityName)
+            {
+                [ContactDefinition.Columns.ParentCustomerId] = account.ToEntityReference(),
+                [ContactDefinition.Columns.FirstName] = "Prénom",
+                [ContactDefinition.Columns.LastName] = "Nom"
+            };
+
+            var subContactRefs = service.GetSubContactRefs(account.ToEntityReference());
+
+            var contactId = service.Create(contact);
+
+            var retrievedContact = service.Retrieve(ContactDefinition.EntityName, contactId, ContactDefinition.Columns.OwnerId);
+
+            subContactRefs = service.GetSubContactRefs(account.ToEntityReference());
+
+
+            account[AccountDefinition.Columns.Name] = $"Truc {account.GetAttributeValue<string>(AccountDefinition.Columns.Name)}";
         }
 
         /// <summary>
@@ -27,7 +54,7 @@ namespace Acquereurs.Plugins
         /// <param name="context"></param>
         /// <param name="accountService"></param>
         /// <param name="systemUserService"></param>
-        public void AssignContactOwnerToAccount(IPluginContext context, IAccountService accountService, ISystemuserService systemUserService)
+        public void AssignContactOwnerToAccount(IPluginContext context, IAccountService accountService, ISystemUserService systemUserService)
         {
             #region Parameters check
 
@@ -94,6 +121,10 @@ namespace Acquereurs.Plugins
 
                 accountService.Update(updatedContact, true);
             }
+        }
+
+        public AccountPlugin(string unsecuredConfig, string securedConfig) : base(unsecuredConfig, securedConfig)
+        {
         }
     }
 }

@@ -34,7 +34,5 @@ namespace Plugins
         void Log(string message, params object[] formatArgs);
 
         void LogFields(Entity entity, params string[] fieldNames);
-
-        void ThrowInvalidPluginException(string messageName, params object[] formatArguments);
     }
 }

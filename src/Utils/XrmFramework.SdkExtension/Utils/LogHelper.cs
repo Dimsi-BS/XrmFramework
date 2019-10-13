@@ -114,6 +114,17 @@ namespace Plugins
                         var valueCode = parameter as OptionSetValue;
                         sb.AppendFormat("Value={0}", valueCode.Value);
                         break;
+                    case "OptionSetValueCollection":
+                        var optionsetCollection = parameter as OptionSetValueCollection;
+                        sb.Append("[");
+                        foreach (var option in optionsetCollection)
+                        {
+                            sb.Append("\r\n{");
+                            sb.AppendFormat("Value={0}", option.Value);
+                            sb.Append("}");
+                        }
+                        sb.Append("]");
+                        break;
                     default:
                         sb.AppendFormat("{0}", parameter);
                         break;
@@ -166,6 +177,17 @@ namespace Plugins
                     case "OptionSetValue":
                         var valueCode = attributeValue as OptionSetValue;
                         sb.AppendFormat("Value={0}", valueCode.Value);
+                        break;
+                    case "OptionSetValueCollection":
+                        var optionsetCollection = attributeValue as OptionSetValueCollection;
+                        sb.Append("[");
+                        foreach (var option in optionsetCollection)
+                        {
+                            sb.Append("\r\n{");
+                            sb.AppendFormat("Value={0}", option.Value);
+                            sb.Append("}");
+                        }
+                        sb.Append("]");
                         break;
                     case "EntityCollection":
                         var valueCollection = attributeValue as EntityCollection;

@@ -28,7 +28,7 @@ namespace Deploy.Plugins
 
             var pluginList = new List<Deploy.Plugin>();
 
-            ObjectHelper<T>.ApplyCode(new Type[] { }, null, (plugin, type, sb) => { pluginList.Add(PluginConverter(plugin)); return false; });
+            ObjectHelper<T>.ApplyCode(new Type[] { typeof(string), typeof(string) }, new object[] { null, null }, (plugin, type, sb) => { pluginList.Add(PluginConverter(plugin)); return false; });
 
             ObjectHelper<U>.ApplyCode(new Type[] { }, null, (wf, type, sb) => { pluginList.Add(WorkflowConverter(wf)); return false; });
 
@@ -46,11 +46,11 @@ namespace Deploy.Plugins
             Console.WriteLine($"You are about to deploy on {organizationName} organization. If ok press any key.");
             Console.ReadKey();
             Console.WriteLine("Connecting to CRM...");
-            
+
             var cs = ConnectionStringParser.Parse(organizationName);
 
             var service = new OrganizationServiceProxy(new Uri(new Uri(cs.Url), "/XRMServices/2011/Organization.svc"), null, new ClientCredentials { UserName = { UserName = cs.Username, Password = cs.Password } }, null);
-            
+
             service.EnableProxyTypes();
 
             var assembly = GetAssemblyByName(service, pluginAssembly.GetName().Name);
@@ -91,7 +91,7 @@ namespace Deploy.Plugins
 
                 foreach (var registeredType in registeredPluginTypes)
                 {
-                    if (pluginList.All(p => p.FullName != registeredType.Name) && pluginList.Where(p => p.IsWorkflow).All(c => c.FullName != registeredType.FriendlyName))
+                    if (pluginList.All(p => p.FullName != registeredType.Name) && pluginList.Where(p => p.IsWorkflow).All(c => c.FullName != registeredType.TypeName))
                     {
                         var registeredStepsForPluginType = registeredSteps.Where(s => s.EventHandler.Id == registeredType.Id).ToList();
                         foreach (var step in registeredStepsForPluginType)
@@ -209,7 +209,7 @@ namespace Deploy.Plugins
 
             foreach (var customWf in pluginList.Where(p => p.IsWorkflow))
             {
-                var registeredPluginType = registeredPluginTypes.FirstOrDefault(p => p.FriendlyName == customWf.FullName);
+                var registeredPluginType = registeredPluginTypes.FirstOrDefault(p => p.TypeName == customWf.FullName);
 
                 if (registeredPluginType == null)
                 {
@@ -563,7 +563,7 @@ namespace Deploy.Plugins
                     ComponentId = objectRef.Id,
                     SolutionUniqueName = solutionUniqueName
                 };
-                
+
                 switch (objectRef.LogicalName)
                 {
                     case PluginAssembly.EntityLogicalName:

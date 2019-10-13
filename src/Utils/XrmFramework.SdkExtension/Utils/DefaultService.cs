@@ -7,7 +7,9 @@ using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using XrmFramework.Common;
 
 namespace Plugins
 {
@@ -34,11 +36,6 @@ namespace Plugins
         protected Guid InitiatingUserId => _context.InitiatingUserId;
 
         protected Guid CorrelationId => _context.CorrelationId;
-
-        protected void ThrowInvalidPluginException(string messageId, params object[] args)
-        {
-            _context.ThrowInvalidPluginException(messageId, args);
-        }
 
         public Guid Create(Entity entity, bool useAdmin = false)
         {
@@ -351,7 +348,7 @@ namespace Plugins
             }
             #endregion
 
-            return RetrieveInternal(new EntityReference(entityName, id), new ColumnSet(allColumns));
+            return RetrieveInternal(new EntityReference(entityName, id), new ColumnSet(true));
         }
 
         public Entity Retrieve(EntityReference objectRef, params string[] columns)
@@ -404,18 +401,18 @@ namespace Plugins
             }
             #endregion
 
-            string optionsetSelectedText = string.Empty;
+            var optionsetSelectedText = string.Empty;
 
-            RetrieveOptionSetRequest retrieveOptionSetRequest = new RetrieveOptionSetRequest { Name = optionsetName };
+            var retrieveOptionSetRequest = new RetrieveOptionSetRequest { Name = optionsetName };
 
             //Execute the request
-            RetrieveOptionSetResponse retrieveOptionSetResponse = (RetrieveOptionSetResponse)OrganizationService.Execute(retrieveOptionSetRequest);
+            var retrieveOptionSetResponse = (RetrieveOptionSetResponse)OrganizationService.Execute(retrieveOptionSetRequest);
 
             //Access the retrieved OptionSetMetaData
-            OptionSetMetadata retrievedOptionSetMetadata = (OptionSetMetadata)retrieveOptionSetResponse.OptionSetMetadata;
+            var retrievedOptionSetMetadata = (OptionSetMetadata)retrieveOptionSetResponse.OptionSetMetadata;
 
             //Get the current option lists for the retrieved attribute
-            foreach (OptionMetadata optionMetadata in retrievedOptionSetMetadata.Options)
+            foreach (var optionMetadata in retrievedOptionSetMetadata.Options)
             {
                 if (optionMetadata.Value == optionsetValue)
                 {
@@ -456,6 +453,11 @@ namespace Plugins
             return AdminOrganizationService.GetById<T>(entityReference);
         }
 
+        public T Upsert<T>(T model) where T : IBindingModel, new()
+        {
+            return OrganizationService.Upsert(model);
+        }
+
 
         public void AddUsersToTeam(EntityReference teamRef, params EntityReference[] userRefs)
         {
@@ -477,6 +479,99 @@ namespace Plugins
             };
 
             AdminOrganizationService.Execute(request);
+        }
+
+        public void AddToQueue(Guid queueId, EntityReference target)
+        {
+            var request = new AddToQueueRequest
+            {
+                Target = target,
+                DestinationQueueId = queueId
+            };
+
+            AdminOrganizationService.Execute(request);
+        }
+
+        public void RemoveFromQueue(Guid queueItemId)
+        {
+            var request = new RemoveFromQueueRequest
+            {
+               QueueItemId = queueItemId               
+            };
+
+            AdminOrganizationService.Execute(request);
+        }
+
+        public void Merge(EntityReference target, Guid subordonate, Entity content)
+        {
+            var request = new MergeRequest
+            {
+                Target = target,
+                SubordinateId = subordonate,
+                UpdateContent = content,
+                PerformParentingChecks = true
+            };
+
+            AdminOrganizationService.Execute(request);
+        }
+
+        public bool UserHasOneRoleOf(Guid userId, bool parentRootRole, params Guid[] parentRoleIds)
+        {
+            var query = new QueryExpression(XrmFramework.Common.SystemUserDefinition.EntityName);
+            query.ColumnSet.AddColumn(XrmFramework.Common.SystemUserDefinition.Columns.Id);
+            query.Criteria.AddCondition(XrmFramework.Common.SystemUserDefinition.Columns.Id, ConditionOperator.Equal, userId);
+
+            var userRoleLink = query.AddLink(SystemUserRolesDefinition.EntityName, XrmFramework.Common.SystemUserDefinition.Columns.Id, SystemUserRolesDefinition.Columns.SystemUserId);
+            var roleLink = userRoleLink.AddLink(RoleDefinition.EntityName, SystemUserRolesDefinition.Columns.RoleId, RoleDefinition.Columns.Id);
+            roleLink.LinkCriteria.FilterOperator = LogicalOperator.Or;
+
+            foreach (var roleId in parentRoleIds)
+            {
+                roleLink.LinkCriteria.AddCondition(XrmFramework.Common.RoleDefinition.Columns.ParentRootRoleId, ConditionOperator.Equal, roleId);
+                roleLink.LinkCriteria.AddCondition(XrmFramework.Common.RoleDefinition.Columns.RoleTemplateId, ConditionOperator.Equal, roleId);
+            }
+
+            return AdminOrganizationService.RetrieveMultiple(query).Entities.Any();
+        }
+
+        public ICollection<Guid> GetUserRoleIds(EntityReference userRef)
+        {
+            var query = new QueryExpression(RoleDefinition.EntityName);
+            query.ColumnSet.AddColumns(RoleDefinition.Columns.RoleTemplateId, RoleDefinition.Columns.ParentRootRoleId);
+
+            var userRoleLink = query.AddLink(SystemUserRolesDefinition.EntityName, RoleDefinition.Columns.Id, SystemUserRolesDefinition.Columns.RoleId);
+            var userLink = userRoleLink.AddLink(XrmFramework.Common.SystemUserDefinition.EntityName, SystemUserRolesDefinition.Columns.SystemUserId, XrmFramework.Common.SystemUserDefinition.Columns.Id);
+
+            userLink.LinkCriteria.AddCondition(XrmFramework.Common.SystemUserDefinition.Columns.Id, ConditionOperator.Equal, userRef.Id);
+
+            return AdminOrganizationService.RetrieveMultiple(query).Entities
+                .Select(r =>
+                    r.Contains(RoleDefinition.Columns.RoleTemplateId) ?
+                        r.GetAttributeValue<EntityReference>(RoleDefinition.Columns.RoleTemplateId).Id :
+                        r.GetAttributeValue<EntityReference>(RoleDefinition.Columns.ParentRootRoleId).Id
+                        ).ToList();
+        }
+
+        public bool UserHasRole(Guid userId, Guid parentRoleId, bool parentRootRole = true)
+        {
+            return UserHasOneRoleOf(userId, parentRootRole, parentRoleId);
+        }
+
+        public Entity ToEntity<T>(T model) where T : IBindingModel
+        {
+            return model.ToEntity(OrganizationService);
+        }
+
+        public ICollection<EntityReference> GetTeamMemberRefs(EntityReference teamRef)
+        {
+            var queryMembers = new QueryExpression(XrmFramework.Common.SystemUserDefinition.EntityName);
+            queryMembers.ColumnSet.AddColumn(XrmFramework.Common.SystemUserDefinition.Columns.Id);
+            var linkMembers = queryMembers.AddLink(XrmFramework.Common.SystemUserDefinition.TeamMembershipRelationName, XrmFramework.Common.SystemUserDefinition.Columns.Id, XrmFramework.Common.SystemUserDefinition.Columns.Id);
+            var linkTeam = linkMembers.AddLink(TeamDefinition.EntityName, TeamDefinition.Columns.Id, TeamDefinition.Columns.Id);
+
+            linkTeam.LinkCriteria.AddCondition(TeamDefinition.Columns.Id, ConditionOperator.Equal, teamRef.Id);
+
+            return AdminOrganizationService.RetrieveAll(queryMembers, false).Select(e => e.ToEntityReference()).ToList();
         }
     }
 }

@@ -10,11 +10,11 @@ namespace Plugins
     /// <summary>
     /// All system User service methods
     /// </summary>
-    public class SystemuserService : DefaultService, ISystemuserService
+    public class SystemUserService : DefaultService, ISystemUserService
     {
         #region .ctor
 
-        public SystemuserService(IServiceContext context) : base(context)
+        public SystemUserService(IServiceContext context) : base(context)
         {
         }
 
@@ -30,11 +30,11 @@ namespace Plugins
         /// </returns>
         public bool IsActiveUser(EntityReference userRef)
         {
-            var user = OrganizationService.Retrieve(SystemUserDefinition.EntityName, userRef.Id,
-                                                    new ColumnSet(SystemUserDefinition.Columns.IsDisabled));
+            //var user = OrganizationService.Retrieve(SystemUserDefinition.EntityName, userRef.Id,
+            //                                        new ColumnSet(SystemUserDefinition.Columns.IsDisabled));
 
-            if (user != null && user.Attributes.Contains(SystemUserDefinition.Columns.IsDisabled))
-                return !user.GetAttributeValue<bool>(SystemUserDefinition.Columns.IsDisabled);
+            //if (user != null && user.Attributes.Contains(SystemUserDefinition.Columns.IsDisabled))
+            //    return !user.GetAttributeValue<bool>(SystemUserDefinition.Columns.IsDisabled);
 
             return false;
         }

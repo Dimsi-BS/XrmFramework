@@ -14,7 +14,13 @@ using Model;
 using Model.Sdk;
 using AttributeMetadata = Microsoft.Xrm.Sdk.Metadata.AttributeMetadata;
 using AttributeTypeCode = Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode;
+using DateTimeAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.DateTimeAttributeMetadata;
+using DecimalAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.DecimalAttributeMetadata;
+using DoubleAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.DoubleAttributeMetadata;
+using IntegerAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.IntegerAttributeMetadata;
+using MultiSelectPicklistAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.MultiSelectPicklistAttributeMetadata;
 using RelationshipAttributeDefinition = DefinitionManager.Definitions.RelationshipAttributeDefinition;
+using StringAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.StringAttributeMetadata;
 
 namespace DefinitionManager
 {
@@ -157,7 +163,9 @@ namespace DefinitionManager
                     entityDefinition.AdditionalClassesCollection.Add(classDefinition);
                     foreach (var relationship in entity.ManyToManyRelationships)
                     {
-                        classDefinition.Attributes.Add(new RelationshipAttributeDefinition { LogicalName = relationship.SchemaName,
+                        classDefinition.Attributes.Add(new RelationshipAttributeDefinition
+                        {
+                            LogicalName = relationship.SchemaName,
                             Name = relationship.SchemaName,
                             Value = relationship.SchemaName,
                             Type = "String",
@@ -227,7 +235,7 @@ namespace DefinitionManager
 
                     EnumDefinition enumDefinition = null;
 
-                    if (attributeMetadata.AttributeType.Value == AttributeTypeCode.Picklist || attributeMetadata.AttributeType.Value == AttributeTypeCode.State || attributeMetadata.AttributeType.Value == AttributeTypeCode.Status)
+                    if (attributeMetadata.AttributeType.Value == AttributeTypeCode.Picklist || attributeMetadata.AttributeType.Value == AttributeTypeCode.State || attributeMetadata.AttributeType.Value == AttributeTypeCode.Status || attributeMetadata.AttributeType.Value == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata)
                     {
                         var meta = ((EnumAttributeMetadata)attributeMetadata).OptionSet;
 
@@ -250,7 +258,12 @@ namespace DefinitionManager
                         }
                         else
                         {
-                            tempEnumDefinition.Name = meta.DisplayName.UserLocalizedLabel.Label.FormatText();
+                            tempEnumDefinition.Name = meta.DisplayName.UserLocalizedLabel?.Label.FormatText();
+                        }
+
+                        if (string.IsNullOrEmpty(tempEnumDefinition.Name))
+                        {
+                            continue;
                         }
 
                         foreach (var option in meta.Options)
@@ -264,7 +277,8 @@ namespace DefinitionManager
                                 Name = option.Label.UserLocalizedLabel.Label.FormatText(),
                                 LogicalName = option.Value.Value.ToString(),
                                 DisplayName = option.Label.UserLocalizedLabel.Label,
-                                Value = option.Value.Value.ToString()
+                                Value = option.Value.Value.ToString(),
+                                ExternalValue = option.ExternalValue
                             });
                         }
 
@@ -286,20 +300,20 @@ namespace DefinitionManager
                     {
                         name = "Id";
                     }
-                    
+
                     int? maxLength = null;
                     double? minRangeDouble = null, maxRangeDouble = null;
 
                     switch (attributeMetadata.AttributeType.Value)
                     {
                         case AttributeTypeCode.String:
-                            maxLength = ((StringAttributeMetadata) attributeMetadata).MaxLength;
+                            maxLength = ((StringAttributeMetadata)attributeMetadata).MaxLength;
                             break;
                         case AttributeTypeCode.Memo:
-                            maxLength = ((MemoAttributeMetadata) attributeMetadata).MaxLength;
+                            maxLength = ((MemoAttributeMetadata)attributeMetadata).MaxLength;
                             break;
                         case AttributeTypeCode.Money:
-                            var m = (MoneyAttributeMetadata) attributeMetadata;
+                            var m = (MoneyAttributeMetadata)attributeMetadata;
                             minRangeDouble = m.MinValue;
                             maxRangeDouble = m.MaxValue;
                             break;
@@ -315,8 +329,8 @@ namespace DefinitionManager
                             break;
                         case AttributeTypeCode.Decimal:
                             var mde = (DecimalAttributeMetadata)attributeMetadata;
-                            minRangeDouble = (double?) mde.MinValue;
-                            maxRangeDouble = (double?) mde.MaxValue;
+                            minRangeDouble = (double?)mde.MinValue;
+                            maxRangeDouble = (double?)mde.MaxValue;
                             break;
                     }
 
@@ -329,7 +343,8 @@ namespace DefinitionManager
                         IsValidForCreate = attributeMetadata.IsValidForCreate.Value,
                         IsValidForRead = attributeMetadata.IsValidForRead.Value,
                         IsValidForUpdate = attributeMetadata.IsValidForUpdate.Value,
-                        Type = attributeMetadata.AttributeType.Value.ToString(),
+                        Type = attributeMetadata.AttributeType.Value == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata
+                            ? "MultiSelectPicklist" : attributeMetadata.AttributeType.Value.ToString(),
                         Enum = enumDefinition,
                         ParentEntity = entityDefinition,
                         IsPrimaryIdAttribute = attributeMetadata.LogicalName == entity.PrimaryIdAttribute,
@@ -426,7 +441,7 @@ namespace DefinitionManager
 
                 EnumDefinition enumDefinition = null;
 
-                if (attributeMetadata.AttributeType.Value == AttributeTypeCode.Picklist || attributeMetadata.AttributeType.Value == AttributeTypeCode.State || attributeMetadata.AttributeType.Value == AttributeTypeCode.Status)
+                if (attributeMetadata.AttributeType.Value == AttributeTypeCode.Picklist || attributeMetadata.AttributeType.Value == AttributeTypeCode.State || attributeMetadata.AttributeType.Value == AttributeTypeCode.Status || attributeMetadata.AttributeType == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata)
                 {
                     var meta = ((EnumAttributeMetadata)attributeMetadata).OptionSet;
 
@@ -457,7 +472,8 @@ namespace DefinitionManager
                             Name = option.Label.UserLocalizedLabel.Label.FormatText(),
                             LogicalName = option.Value.Value.ToString(),
                             DisplayName = option.Label.UserLocalizedLabel.Label,
-                            Value = option.Value.Value.ToString()
+                            Value = option.Value.Value.ToString(),
+                            ExternalValue = option.ExternalValue
                         });
                     }
 
@@ -479,13 +495,13 @@ namespace DefinitionManager
                 switch (attributeMetadata.AttributeType.Value)
                 {
                     case AttributeTypeCode.String:
-                        maxLength = ((StringAttributeMetadata) attributeMetadata).MaxLength;
+                        maxLength = ((StringAttributeMetadata)attributeMetadata).MaxLength;
                         break;
                     case AttributeTypeCode.Memo:
-                        maxLength = ((MemoAttributeMetadata) attributeMetadata).MaxLength;
+                        maxLength = ((MemoAttributeMetadata)attributeMetadata).MaxLength;
                         break;
                     case AttributeTypeCode.Money:
-                        var m = (MoneyAttributeMetadata) attributeMetadata;
+                        var m = (MoneyAttributeMetadata)attributeMetadata;
                         minRangeDouble = m.MinValue;
                         maxRangeDouble = m.MaxValue;
                         break;
@@ -505,7 +521,8 @@ namespace DefinitionManager
                     IsValidForCreate = attributeMetadata.IsValidForCreate.Value,
                     IsValidForRead = attributeMetadata.IsValidForRead.Value,
                     IsValidForUpdate = attributeMetadata.IsValidForUpdate.Value,
-                    Type = attributeMetadata.AttributeType.Value.ToString(),
+                    Type = attributeMetadata.AttributeType.Value == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata
+                        ? "MultiSelectPicklist" : attributeMetadata.AttributeType.Value.ToString(),
                     StringMaxLength = maxLength,
                     MinRange = minRangeDouble,
                     MaxRange = maxRangeDouble,

@@ -7,7 +7,7 @@ namespace Plugins
     /// <summary>
     /// All signatures of SystemUser services methods
     /// </summary>
-    public interface ISystemuserService : IService
+    public interface ISystemUserService : IService
     {
 
         /// <summary>

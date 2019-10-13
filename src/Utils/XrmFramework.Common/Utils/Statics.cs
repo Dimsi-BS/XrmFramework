@@ -47,6 +47,7 @@ namespace Plugins
         AppointmentId,
         FetchXml,
         SubordinateId
+        , UpdateContent
     }
 
     public enum OutputParameters
@@ -146,6 +147,5 @@ namespace Plugins
         Win,
         ExecuteWorkflow,
         Default
-        , pchmcs_ExecuteFetchXml
     }
 }

@@ -1,5 +1,3 @@
-// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
-// Licensed under the MIT License. See License.txt in the project root for license information.
 using Model.Sdk;
 using System;
 using System.CodeDom.Compiler;
@@ -54,6 +52,24 @@ namespace Model
 			/// Validity :  Read | Create | Update | AdvancedFind 
 			/// </summary>
 			[AttributeMetadata(AttributeTypeCode.String)]
+			[StringLength(50)]
+			public const string Address1_Fax = "address1_fax";
+
+			/// <summary>
+			/// 
+			/// Type : Picklist (Address1FreightTerms)
+			/// Validity :  Read | Create | Update | AdvancedFind 
+			/// </summary>
+			[AttributeMetadata(AttributeTypeCode.Picklist)]
+			[OptionSet(typeof(Address1FreightTerms))]
+			public const string Address1_FreightTermsCode = "address1_freighttermscode";
+
+			/// <summary>
+			/// 
+			/// Type : String
+			/// Validity :  Read | Create | Update | AdvancedFind 
+			/// </summary>
+			[AttributeMetadata(AttributeTypeCode.String)]
 			[StringLength(250)]
 			public const string Address1_Line1 = "address1_line1";
 
@@ -100,6 +116,7 @@ namespace Model
 			/// </summary>
 			[AttributeMetadata(AttributeTypeCode.Picklist)]
 			[OptionSet(typeof(RelationshipType))]
+			[Key(AlternateKeyNames.Test)]
 			public const string CustomerTypeCode = "customertypecode";
 
 			/// <summary>
@@ -110,6 +127,7 @@ namespace Model
 			[AttributeMetadata(AttributeTypeCode.String)]
 			[PrimaryAttribute(PrimaryAttributeType.Name)]
 			[StringLength(160)]
+			[Key(AlternateKeyNames.Test)]
 			public const string Name = "name";
 
 			/// <summary>
@@ -143,6 +161,12 @@ namespace Model
 		}
 
 		[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
+		public static class AlternateKeyNames
+		{
+			public const string Test = "cgo_test";
+		}
+
+		[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
 		public static class ManyToManyRelationships
 		{
 			[Relationship("lead", EntityRole.Referencing, "accountleads", "leadid")]
@@ -155,6 +179,10 @@ namespace Model
 			public const string adx_webrole_account = "adx_webrole_account";
 			[Relationship("adx_website", EntityRole.Referencing, "adx_website_sponsor", "")]
 			public const string adx_website_sponsor = "adx_website_sponsor";
+			[Relationship("bulkoperation", EntityRole.Referencing, "bulkoperationlog", "bulkoperationid")]
+			public const string BulkOperation_Accounts = "BulkOperation_Accounts";
+			[Relationship("campaignactivity", EntityRole.Referencing, "bulkoperationlog", "campaignactivityid")]
+			public const string CampaignActivity_Accounts = "CampaignActivity_Accounts";
 			[Relationship("list", EntityRole.Referencing, "listmember", "listid")]
 			public const string listaccount_association = "listaccount_association";
 		}
@@ -285,6 +313,12 @@ namespace Model
 			public const string account_IncidentResolutions = "account_IncidentResolutions";
 			[Relationship("letter", EntityRole.Referenced, "Account_Letters", "regardingobjectid")]
 			public const string Account_Letters = "Account_Letters";
+			[Relationship("li_inmail", EntityRole.Referenced, "account_li_inmails", "regardingobjectid")]
+			public const string account_li_inmails = "account_li_inmails";
+			[Relationship("li_message", EntityRole.Referenced, "account_li_messages", "regardingobjectid")]
+			public const string account_li_messages = "account_li_messages";
+			[Relationship("li_pointdrivepresentationviewed", EntityRole.Referenced, "account_li_pointdrivepresentationvieweds", "regardingobjectid")]
+			public const string account_li_pointdrivepresentationvieweds = "account_li_pointdrivepresentationvieweds";
 			[Relationship("mailboxtrackingfolder", EntityRole.Referenced, "Account_MailboxTrackingFolder", "regardingobjectid")]
 			public const string Account_MailboxTrackingFolder = "Account_MailboxTrackingFolder";
 			[Relationship(AccountDefinition.EntityName, EntityRole.Referenced, "account_master_account", "masterid")]
@@ -305,12 +339,6 @@ namespace Model
 			public const string account_OrderCloses = "account_OrderCloses";
 			[Relationship(AccountDefinition.EntityName, EntityRole.Referenced, "account_parent_account", "parentaccountid")]
 			public const string account_parent_account = "account_parent_account";
-			[Relationship("pchmcs_email", EntityRole.Referenced, "account_pchmcs_emails", "")]
-			public const string account_pchmcs_emails = "account_pchmcs_emails";
-			[Relationship("pchmcs_message", EntityRole.Referenced, "account_pchmcs_messages", "")]
-			public const string account_pchmcs_messages = "account_pchmcs_messages";
-			[Relationship("pchmcs_smsactivity", EntityRole.Referenced, "account_pchmcs_smsactivities", "")]
-			public const string account_pchmcs_smsactivities = "account_pchmcs_smsactivities";
 			[Relationship("phonecall", EntityRole.Referenced, "Account_Phonecalls", "regardingobjectid")]
 			public const string Account_Phonecalls = "Account_Phonecalls";
 			[Relationship("postfollow", EntityRole.Referenced, "account_PostFollows", "regardingobjectid")]
@@ -345,6 +373,10 @@ namespace Model
 			public const string adx_account_badge = "adx_account_badge";
 			[Relationship("cgo_servicecontract", EntityRole.Referenced, "cgo_account_servicecontract", "cgo_accountid")]
 			public const string cgo_account_servicecontract = "cgo_account_servicecontract";
+			[Relationship("cgo_testpowerapps", EntityRole.Referenced, "cgo_testpowerapps_Account2Id_Account", "cgo_account2id")]
+			public const string cgo_testpowerapps_Account2Id_Account = "cgo_testpowerapps_Account2Id_Account";
+			[Relationship("cgo_testpowerapps", EntityRole.Referenced, "cgo_testpowerapps_AccountId_Account", "cgo_accountid")]
+			public const string cgo_testpowerapps_AccountId_Account = "cgo_testpowerapps_AccountId_Account";
 			[Relationship(ContactDefinition.EntityName, EntityRole.Referenced, "contact_customer_accounts", ContactDefinition.Columns.ParentCustomerId)]
 			public const string contact_customer_accounts = "contact_customer_accounts";
 			[Relationship("contract", EntityRole.Referenced, "contract_billingcustomer_accounts", "billingcustomerid")]
@@ -455,16 +487,14 @@ namespace Model
 			public const string msdyn_account_quotedetail_ServiceAccount = "msdyn_account_quotedetail_ServiceAccount";
 			[Relationship("salesorder", EntityRole.Referenced, "msdyn_account_salesorder_Account", "msdyn_account")]
 			public const string msdyn_account_salesorder_Account = "msdyn_account_salesorder_Account";
+			[Relationship("msdyn_playbookinstance", EntityRole.Referenced, "msdyn_playbookinstance_account", "regarding")]
+			public const string msdyn_playbookinstance_account = "msdyn_playbookinstance_account";
 			[Relationship("opportunity", EntityRole.Referenced, "opportunity_customer_accounts", "customerid")]
 			public const string opportunity_customer_accounts = "opportunity_customer_accounts";
 			[Relationship("opportunity", EntityRole.Referenced, "opportunity_parent_account", "parentaccountid")]
 			public const string opportunity_parent_account = "opportunity_parent_account";
 			[Relationship("salesorder", EntityRole.Referenced, "order_customer_accounts", "customerid")]
 			public const string order_customer_accounts = "order_customer_accounts";
-			[Relationship("pchmcs_programme", EntityRole.Referenced, "pchmcs_account_pchmcs_programme_notaire", "")]
-			public const string pchmcs_account_pchmcs_programme_notaire = "pchmcs_account_pchmcs_programme_notaire";
-			[Relationship("pchmcs_programme", EntityRole.Referenced, "pchmcs_programme_promoteurid", "")]
-			public const string pchmcs_programme_promoteurid = "pchmcs_programme_promoteurid";
 			[Relationship("quote", EntityRole.Referenced, "quote_customer_accounts", "customerid")]
 			public const string quote_customer_accounts = "quote_customer_accounts";
 			[Relationship("slakpiinstance", EntityRole.Referenced, "slakpiinstance_account", "regarding")]

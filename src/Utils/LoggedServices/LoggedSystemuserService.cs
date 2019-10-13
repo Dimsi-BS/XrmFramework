@@ -13,17 +13,17 @@ using System.Diagnostics;
 
 namespace Plugins
 {
-	public class LoggedSystemuserService : LoggedService, ISystemuserService
+	public class LoggedSystemUserService : LoggedService, ISystemUserService
 	{
-		private SystemuserService Service { get; set; }
+		private SystemUserService Service { get; set; }
 
 		#region .ctor
-		public LoggedSystemuserService(IServiceContext context) : base(context)
+		public LoggedSystemUserService(IServiceContext context) : base(context)
 		{
-			Service = new SystemuserService(context);
+			Service = new SystemUserService(context);
 		}
 
-		public LoggedSystemuserService(IOrganizationService service) : this(new ServiceContextBase(service))
+		public LoggedSystemUserService(IOrganizationService service) : this(new ServiceContextBase(service))
 		{
 		}
 		#endregion

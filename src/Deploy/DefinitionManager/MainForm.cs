@@ -539,7 +539,12 @@ namespace DefinitionManager
                 foreach (var val in def.Values.Definitions)
                 {
                     fc.AppendFormat(CultureInfo.InvariantCulture, "\t\t[Description(\"{0}\")]\r\n", val.DisplayName);
-                    fc.AppendFormat("\t\t{0} = {1},\r\n", val.Name, val.Value);
+                    if (!string.IsNullOrEmpty(val.ExternalValue))
+                    {
+                        fc.AppendFormat(CultureInfo.InvariantCulture, "\t\t[ExternalValue(\"{0}\")]\r\n", val.ExternalValue);
+                    }
+
+                    fc.AppendFormat("\t\t{0} = {1},\r\n", val.Name, val.LogicalName);
                 }
 
                 fc.AppendLine("\t}");

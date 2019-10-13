@@ -1,8 +1,9 @@
-// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Model;
 using Plugins;
 
 namespace Microsoft.Xrm.Sdk
@@ -66,7 +67,7 @@ namespace Microsoft.Xrm.Sdk
             return value;
         }
 
-        public static T GetOptionSetValue<T>(this Entity newEntity, Entity preImage, string fieldName, T defaultValue)
+        public static T GetOptionSetValue<T>(this Entity newEntity, Entity preImage, string fieldName, T defaultValue) where T : Enum
         {
             T value = defaultValue;
             if (typeof(T).IsEnum)
@@ -92,24 +93,24 @@ namespace Microsoft.Xrm.Sdk
             return value;
         }
 
-        public static T GetOptionSetValue<T>(this Entity newEntity, Entity preImage, string fieldName)
+        public static T GetOptionSetValue<T>(this Entity newEntity, Entity preImage, string fieldName) where T : Enum
         {
             return GetOptionSetValue<T>(newEntity, preImage, fieldName, default(T));
         }
 
-        public static T GetOptionSetValue<T>(this Entity newEntity, string fieldName)
+        public static T GetOptionSetValue<T>(this Entity newEntity, string fieldName) where T : Enum
         {
 
             return GetOptionSetValue<T>(newEntity, null, fieldName);
         }
 
-        public static T GetOptionSetValue<T>(this Entity newEntity, string fieldName, T defaultValue)
+        public static T GetOptionSetValue<T>(this Entity newEntity, string fieldName, T defaultValue) where T : Enum
         {
 
             return GetOptionSetValue<T>(newEntity, null, fieldName, defaultValue);
         }
 
-        public static void SetOptionSetValue<T>(this Entity entity, string fieldName, T value)
+        public static void SetOptionSetValue<T>(this Entity entity, string fieldName, T value) where T : Enum
         {
             OptionSetValue optionSetValue = null;
 
@@ -129,7 +130,7 @@ namespace Microsoft.Xrm.Sdk
             entity[fieldName] = optionSetValue;
         }
 
-        public static ICollection<T> GetOptionSetValues<T>(this Entity newEntity, Entity preImage, string fieldName, params T[] defaultValues)
+        public static ICollection<T> GetOptionSetValues<T>(this Entity newEntity, Entity preImage, string fieldName, params T[] defaultValues) where T : Enum
         {
             if (typeof(T).IsEnum)
             {
@@ -161,21 +162,26 @@ namespace Microsoft.Xrm.Sdk
             return defaultValues == null ? new List<T>() : defaultValues.ToList();
         }
 
-        public static ICollection<T> GetOptionSetValues<T>(this Entity newEntity, Entity preImage, string fieldName)
+        public static ICollection<T> GetOptionSetValues<T>(this Entity newEntity, Entity preImage, string fieldName) where T : Enum
         {
             return GetOptionSetValues<T>(newEntity, preImage, fieldName, null);
         }
 
-        public static ICollection<T> GetOptionSetValues<T>(this Entity newEntity, string fieldName)
+        public static ICollection<T> GetOptionSetValues<T>(this Entity newEntity, string fieldName) where T : Enum
         {
 
             return GetOptionSetValues<T>(newEntity, null, fieldName);
         }
 
-        public static ICollection<T> GetOptionSetValues<T>(this Entity newEntity, string fieldName, T defaultValue)
+        public static ICollection<T> GetOptionSetValues<T>(this Entity newEntity, string fieldName, T defaultValue) where T : Enum
         {
 
             return GetOptionSetValues<T>(newEntity, null, fieldName, defaultValue);
+        }
+
+        public static void SetOptionSetValues<T>(this Entity entity, string fieldName, ICollection<T> values) where T : Enum
+        {
+            SetOptionSetValues(entity, fieldName, values.ToArray());
         }
 
         /// <summary>
@@ -185,26 +191,19 @@ namespace Microsoft.Xrm.Sdk
         /// <param name="entity"></param>
         /// <param name="fieldName"></param>
         /// <param name="values">List of selected values</param>
-        public static void SetOptionSetValues<T>(this Entity entity, string fieldName, params T[] values)
+        public static void SetOptionSetValues<T>(this Entity entity, string fieldName, params T[] values) where T : Enum
         {
             OptionSetValueCollection optionSetValueCollection = null;
 
-            if (values != null)
+            if (values != null && values.Any())
             {
                 optionSetValueCollection = new OptionSetValueCollection();
 
                 foreach (var value in values)
                 {
-                    var intValue = (int)(object)value;
+                    var intValue = value.ToInt();
 
-                    if (typeof(T).IsEnum)
-                    {
-                        if (value.ToString() != "Null" || intValue != 0)
-                        {
-                            optionSetValueCollection.Add(new OptionSetValue(intValue));
-                        }
-                    }
-                    else
+                    if (value.ToString() != "Null" || intValue != 0)
                     {
                         optionSetValueCollection.Add(new OptionSetValue(intValue));
                     }
@@ -231,10 +230,15 @@ namespace Microsoft.Xrm.Sdk
             return collection;
         }
 
-        public static void MergeWith(this Entity targetEntity, Entity sourceEntity)
+        public static void MergeWith(this Entity targetEntity, Entity sourceEntity, bool copyOnlyIfFieldNotExist = false)
         {
             foreach (var attributeName in sourceEntity.Attributes.Keys)
             {
+                if (targetEntity.Contains(attributeName) && copyOnlyIfFieldNotExist)
+                {
+                    continue;
+                }
+
                 CopyField(sourceEntity, targetEntity, attributeName, attributeName);
             }
         }

@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)LoggedService.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LoggedSystemuserService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LoggedSystemUserService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LoggedAccountService.cs" />
   </ItemGroup>
 </Project>

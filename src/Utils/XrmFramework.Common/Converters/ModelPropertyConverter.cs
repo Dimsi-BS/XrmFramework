@@ -3,27 +3,16 @@ using System.ComponentModel;
 
 namespace Model
 {
-    public abstract class ModelPropertyConverter
+    public abstract class ModelPropertyConverter : IConverter
     {
-        public virtual bool CanConvertFrom(Type sourceType)
-        {
-            return false;
-        }
-
-        public virtual bool CanConvertTo(Type destinationType)
-        {
-            return false;
-        }
-
         public virtual object ConvertFrom(object value)
-        {
-            return null;
-        }
-
-        public virtual object ConvertTo(object initialValue, Type destinationType)
         {
             return null;
         }
     }
 
+    public interface IConverter
+    {
+        object ConvertFrom(object value);
+    }
 }

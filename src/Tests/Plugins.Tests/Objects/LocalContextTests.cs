@@ -212,11 +212,6 @@ namespace Plugins.Tests.Objects
                 query.ColumnSet.AssertColumns("content");
                 query.AssertCondition("name", string.Format("mcs_/xml/PluginMessages.{0}.xml", userLanguageCode));
             }).Add("webresource", new At("content", Convert.ToBase64String(Encoding.UTF8.GetBytes(xml))));
-
-            AssertException<InvalidPluginExecutionException>(() =>
-            {
-                LocalContext.ThrowInvalidPluginException("messageName");
-            }, (e) => { Assert.AreEqual("LocalizedLabel", e.Message); });
         }
     }
 }

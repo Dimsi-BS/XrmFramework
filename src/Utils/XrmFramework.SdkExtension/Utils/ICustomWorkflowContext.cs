@@ -6,7 +6,7 @@ using System.Activities;
 
 namespace Plugins
 {
-    public interface ICustomWorkflowContext
+    public partial interface ICustomWorkflowContext
     {
         EntityReference ObjectRef { get; }
 

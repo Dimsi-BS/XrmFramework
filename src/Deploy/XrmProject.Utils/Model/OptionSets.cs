@@ -6,7 +6,6 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 // </auto-generated>
-// Created via this command line: "C:\Users\Administrator\Downloads\DLaB.EarlyBoundGenerator.Full\CrmSvcUtil Ref\crmsvcutil.exe" /url:"https://sociusdev.api.crm4.dynamics.com/XRMServices/2011/Organization.svc" /namespace:"Deploy" /out:"C:\Users\Administrator\Downloads\DLaB.EarlyBoundGenerator.Full\CrmSvcUtil Ref\Entities.cs" /servicecontextname:"CrmServiceContext" /codecustomization:"DLaB.CrmSvcUtilExtensions.Entity.CustomizeCodeDomService,DLaB.CrmSvcUtilExtensions" /codegenerationservice:"DLaB.CrmSvcUtilExtensions.Entity.CustomCodeGenerationService,DLaB.CrmSvcUtilExtensions" /codewriterfilter:"DLaB.CrmSvcUtilExtensions.Entity.CodeWriterFilterService,DLaB.CrmSvcUtilExtensions" /namingservice:"DLaB.CrmSvcUtilExtensions.Entity.OverridePropertyNames,DLaB.CrmSvcUtilExtensions" /username:"cgo@sociusdev.onmicrosoft.com" /password:"********" 
 //------------------------------------------------------------------------------
 
 namespace Deploy

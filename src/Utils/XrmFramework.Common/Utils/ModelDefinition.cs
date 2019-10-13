@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -47,7 +48,7 @@ namespace Model
             if (IsBindingModel)
             {
                 IdProperty = bindingType.GetProperty("Id");
-                MainDefinition = DefinitionCache.GetEntityDefinition(bindingType);
+                MainDefinition = DefinitionCache.GetEntityDefinitionFromModelType(bindingType);
             }
 
             XmlMappingAttribute = bindingType.GetCustomAttribute<XmlMappingAttribute>() ??
@@ -148,10 +149,10 @@ namespace Model
 
             if (converterAttribute != null)
             {
-                var constructorInfo = converterAttribute.ConverterType.GetConstructor(new Type[] { });
+                var constructorInfo = converterAttribute.ConverterType.GetConstructor((converterAttribute.ConstructorParameters?.Any() ?? false) ? converterAttribute.ConstructorParameters.Select(p => p.GetType()).ToArray() : new Type[] { });
                 if (constructorInfo != null)
                 {
-                    _typeConverter = (ModelPropertyConverter)(constructorInfo.Invoke(new object[] { }));
+                    _typeConverter = (ModelPropertyConverter)(constructorInfo.Invoke(converterAttribute.ConstructorParameters ?? new object[] { }));
                 }
             }
 
@@ -186,6 +187,20 @@ namespace Model
             if (Property.SetMethod != null)
             {
                 Property.SetValue(instance, value);
+            }
+            else if (PropertyType.GenericTypeArguments.Any())
+            {
+                if (typeof(ICollection<>).MakeGenericType(PropertyType.GenericTypeArguments).IsAssignableFrom(PropertyType)
+                    && value is IEnumerable enumValue)
+                {
+                    var list = Property.GetValue(instance);
+                    var addMethod = list.GetType().GetMethod("Add");
+
+                    foreach (var v in enumValue)
+                    {
+                        addMethod?.Invoke(list, new[] { v });
+                    }
+                }
             }
         }
 
@@ -227,15 +242,6 @@ namespace Model
                 return initialValue;
             }
             return _typeConverter.ConvertFrom(initialValue);
-        }
-
-        public object ConvertTo(object initialValue, Type destinationType)
-        {
-            if (!HasConverter)
-            {
-                return initialValue;
-            }
-            return _typeConverter.ConvertTo(initialValue, destinationType);
         }
 
         public bool IsUpsertable()

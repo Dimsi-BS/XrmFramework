@@ -4,4 +4,7 @@
          environnement in the xrmFramework selectedConnection attribute below    
     -->
   <add name="Xrm" connectionString="AuthType=Office365; Url=https://myOrg.crm4.dynamics.com; Username=; Password=;"/>
+  
+  <add name="DebugConnectionString" connectionString="Endpoint=sb://{namespace}.servicebus.windows.net/;SharedAccessKeyName=;SharedAccessKey=;EntityPath=" />
+
 </connectionStrings>

@@ -10,8 +10,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Converters\BindingModelHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\ConditionExpressionConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\ObjectSerializationConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\CustomKeyValuePairConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\DataCollectionConverters.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\EntityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Debugger\DebuggerUnsecureConfig.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Debugger\HybridConnection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Debugger\IDebuggerCommunicationManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Debugger\RemoteDebuggerMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Debugger\RemoteDebuggerMessageType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Debugger\RemoteExecutionContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\AutoRefreshSecurityToken.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ConnectionHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\CustomWorkflowActivity.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utils\DebrayablePlugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\DefaultService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\EnumExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Extensions.cs" />
@@ -29,6 +41,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\LocalWorkflowContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\LogHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\LookupConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ManagedTokenOrganizationServiceProxy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Plugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\QueryExpressionExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\RequestContainer.cs" />

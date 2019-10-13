@@ -9,6 +9,7 @@
     <Import_RootNamespace>XrmFramework</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\ExternalValueAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\AttributeMetadataAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CopyFromParentAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CrmEntityAttribute.cs" />
@@ -29,7 +30,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\KeyAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\ModelPropertyConverterAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\MultiAttributesAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Attributes\NeolaneIdAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\NullableAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\OptionSetAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\OptionSetDefinitionAttribute.cs" />
@@ -45,6 +45,20 @@
     <Compile Include="$(MSBuildThisFileDirectory)Converters\IXmlTransform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ModelPropertyConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\PicklistConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\BusinessUnitDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\RoleDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\SdkMessageProcessingStepDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\DebugSessionDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\SystemUserDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\SystemUserRolesDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\TeamDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Model\DebugSession.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\PluginAssemblyDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\PluginTypeDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\SdkMessageProcessingStepImageDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\SdkMessageProcessingStepSecureConfigDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Model\PluginType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Model\SdkMessageProcessingStep.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Metadata\AttributeMetadata.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Metadata\EntityMetadata.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Metadata\EnumMetadata.cs" />
@@ -62,6 +76,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\AttributeMetadata.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\BindingModelBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\BindingModelExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ConnectionStringParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\DefinitionCache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\EntityDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\EntityMetadata.cs" />
@@ -75,9 +90,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IXmlModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\JsonSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ModelDefinition.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utils\PayLoadEvents.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utils\PMObject.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utils\PMRegardingObjects.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Relationship.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\SdkEnums.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Statics.cs" />

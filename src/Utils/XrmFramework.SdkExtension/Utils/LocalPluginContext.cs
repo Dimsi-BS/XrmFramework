@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 using Microsoft.Xrm.Sdk;
 using System;
+using XrmFramework.Debugger;
 
 namespace Plugins
 {
@@ -74,6 +75,22 @@ namespace Plugins
                 }
                 return false;
             }
+        }
+
+        public RemoteDebugPluginExecutionContext RemoteContext => new RemoteDebugPluginExecutionContext(PluginExecutionContext);
+
+        public bool IsDebugContext => PluginExecutionContext is RemoteDebugPluginExecutionContext;
+
+        public void UpdateContext(RemoteDebugPluginExecutionContext updatedContext)
+        {
+            PluginExecutionContext.InputParameters.Clear();
+            PluginExecutionContext.InputParameters.AddRange(updatedContext.InputParameters);
+
+            PluginExecutionContext.OutputParameters.Clear();
+            PluginExecutionContext.OutputParameters.AddRange(updatedContext.OutputParameters);
+
+            PluginExecutionContext.SharedVariables.Clear();
+            PluginExecutionContext.SharedVariables.AddRange(updatedContext.SharedVariables);
         }
     }
 

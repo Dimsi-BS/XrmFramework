@@ -106,6 +106,7 @@ namespace Model
                             _modelDefinitionCache[type] = new ModelDefinition(type);
                         } catch
                         {
+                            
                             return false;
                         }
                     }

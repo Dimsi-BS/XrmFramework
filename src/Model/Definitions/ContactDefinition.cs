@@ -1,5 +1,3 @@
-// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
-// Licensed under the MIT License. See License.txt in the project root for license information.
 using Model.Sdk;
 using System;
 using System.CodeDom.Compiler;
@@ -316,6 +314,10 @@ namespace Model
 			public const string adx_forum_activityalert = "adx_forum_activityalert";
 			[Relationship("adx_webrole", EntityRole.Referencing, "adx_webrole_contact", "")]
 			public const string adx_webrole_contact = "adx_webrole_contact";
+			[Relationship("bulkoperation", EntityRole.Referencing, "bulkoperationlog", "bulkoperationid")]
+			public const string BulkOperation_Contacts = "BulkOperation_Contacts";
+			[Relationship("campaignactivity", EntityRole.Referencing, "bulkoperationlog", "campaignactivityid")]
+			public const string CampaignActivity_Contacts = "CampaignActivity_Contacts";
 			[Relationship("subscription", EntityRole.Referencing, "subscriptionmanuallytrackedobject", "subscriptionid")]
 			public const string contact_subscription_association = "contact_subscription_association";
 			[Relationship("invoice", EntityRole.Referencing, "contactinvoices", "invoiceid")]
@@ -373,52 +375,6 @@ namespace Model
 			public const string msa_contact_managingpartner = "msa_contact_managingpartner";
 			[Relationship("owner", EntityRole.Referencing, "ownerid", ContactDefinition.Columns.OwnerId)]
 			public const string owner_contacts = "owner_contacts";
-			[Relationship("pchmcs_agence", EntityRole.Referencing, "pchmcs_agenceid", "")]
-			public const string pchmcs_agence_contact_agenceid = "pchmcs_agence_contact_agenceid";
-			[Relationship("pchmcs_agence", EntityRole.Referencing, "pchmcs_agencevendeurid", "")]
-			public const string pchmcs_contact_agencevendeurid = "pchmcs_contact_agencevendeurid";
-			[Relationship("pchmcs_conseiller", EntityRole.Referencing, "pchmcs_conseillerid", "")]
-			public const string pchmcs_contact_conseillerid = "pchmcs_contact_conseillerid";
-			[Relationship(ContactDefinition.EntityName, EntityRole.Referencing, "pchmcs_contactorigineid_Contact", "")]
-			public const string pchmcs_contact_contact_origine = "pchmcs_contact_contact_origine";
-			[Relationship("pchmcs_interet", EntityRole.Referencing, "pchmcs_interetorigineid", "")]
-			public const string pchmcs_contact_interet_origine = "pchmcs_contact_interet_origine";
-			[Relationship("pchmcs_prescripteur", EntityRole.Referencing, "pchmcs_prescripteurid", "")]
-			public const string pchmcs_contact_prescripteurid = "pchmcs_contact_prescripteurid";
-			[Relationship("pchmcs_vendeur", EntityRole.Referencing, "pchmcs_vendeurid", "")]
-			public const string pchmcs_contact_vendeurid = "pchmcs_contact_vendeurid";
-			[Relationship("pchmcs_country", EntityRole.Referencing, "pchmcs_countryid", "")]
-			public const string pchmcs_country_contact = "pchmcs_country_contact";
-			[Relationship("lead", EntityRole.Referencing, "pchmcs_prospectid", "")]
-			public const string pchmcs_lead_contact_prospectid = "pchmcs_lead_contact_prospectid";
-			[Relationship("pchmcs_lieudevente", EntityRole.Referencing, "pchmcs_lieudeventeid", "")]
-			public const string pchmcs_lieudevente_contact_lieudeventeid = "pchmcs_lieudevente_contact_lieudeventeid";
-			[Relationship("pchmcs_origine", EntityRole.Referencing, "pchmcs_origineid", "")]
-			public const string pchmcs_origine_contact_origineid = "pchmcs_origine_contact_origineid";
-			[Relationship("pchmcs_departement", EntityRole.Referencing, "pchmcs_departementdenaissanceid", "")]
-			public const string pchmcs_pchmcs_departement_contact_departementdenaissanceid = "pchmcs_pchmcs_departement_contact_departementdenaissanceid";
-			[Relationship("pchmcs_departement", EntityRole.Referencing, "pchmcs_departementdumariageid", "")]
-			public const string pchmcs_pchmcs_departement_contact_departementdumariageid = "pchmcs_pchmcs_departement_contact_departementdumariageid";
-			[Relationship("pchmcs_masterbusinessunit", EntityRole.Referencing, "pchmcs_masterbusinessunitid", "")]
-			public const string pchmcs_pchmcs_masterbusinessunit_contact_MasterBusinessUnitId = "pchmcs_pchmcs_masterbusinessunit_contact_MasterBusinessUnitId";
-			[Relationship("pchmcs_postalcodecity", EntityRole.Referencing, "pchmcs_appointmentpostalcodecityid", "")]
-			public const string pchmcs_pchmcs_postalcodecity_contact_appointmentpostalcodecityid = "pchmcs_pchmcs_postalcodecity_contact_appointmentpostalcodecityid";
-			[Relationship("pchmcs_postalcodecity", EntityRole.Referencing, "pchmcs_villedumariageid", "")]
-			public const string pchmcs_pchmcs_postalcodecity_contact_villedumariageid = "pchmcs_pchmcs_postalcodecity_contact_villedumariageid";
-			[Relationship("pchmcs_preferencesespperso", EntityRole.Referencing, "pchmcs_preferences", "")]
-			public const string pchmcs_pchmcs_preferencesespperso_contact = "pchmcs_pchmcs_preferencesespperso_contact";
-			[Relationship("pchmcs_uniquecontact", EntityRole.Referencing, "pchmcs_uniquecontactid", "")]
-			public const string pchmcs_pchmcs_uniquecontact_contact_uniquecontactid = "pchmcs_pchmcs_uniquecontact_contact_uniquecontactid";
-			[Relationship("pchmcs_postalcodecity", EntityRole.Referencing, "pchmcs_postalcodecityid", "")]
-			public const string pchmcs_postalcodecity_contact_postalcodecityid = "pchmcs_postalcodecity_contact_postalcodecityid";
-			[Relationship("pchmcs_programme", EntityRole.Referencing, "pchmcs_residenceid", "")]
-			public const string pchmcs_programme_contact_residenceid = "pchmcs_programme_contact_residenceid";
-			[Relationship("pchmcs_programmecdc", EntityRole.Referencing, "pchmcs_programmecdcid", "")]
-			public const string pchmcs_programmecdc_contact_programmecdcid = "pchmcs_programmecdc_contact_programmecdcid";
-			[Relationship(SystemUserDefinition.EntityName, EntityRole.Referencing, "pchmcs_previousnegociatorid", "")]
-			public const string pchmcs_systemuser_contact_PreviousNegociatorID = "pchmcs_systemuser_contact_PreviousNegociatorID";
-			[Relationship(SystemUserDefinition.EntityName, EntityRole.Referencing, "pchmcs_targettedfor", "")]
-			public const string pchmcs_systemuser_contact_Targettedfor = "pchmcs_systemuser_contact_Targettedfor";
 			[Relationship("pricelevel", EntityRole.Referencing, "defaultpricelevelid", "defaultpricelevelid")]
 			public const string price_level_contacts = "price_level_contacts";
 			[Relationship("processstage", EntityRole.Referencing, "stageid_processstage", "stageid")]
@@ -544,6 +500,12 @@ namespace Model
 			public const string Contact_FileAttachment = "Contact_FileAttachment";
 			[Relationship("letter", EntityRole.Referenced, "Contact_Letters", "regardingobjectid")]
 			public const string Contact_Letters = "Contact_Letters";
+			[Relationship("li_inmail", EntityRole.Referenced, "contact_li_inmails", "regardingobjectid")]
+			public const string contact_li_inmails = "contact_li_inmails";
+			[Relationship("li_message", EntityRole.Referenced, "contact_li_messages", "regardingobjectid")]
+			public const string contact_li_messages = "contact_li_messages";
+			[Relationship("li_pointdrivepresentationviewed", EntityRole.Referenced, "contact_li_pointdrivepresentationvieweds", "regardingobjectid")]
+			public const string contact_li_pointdrivepresentationvieweds = "contact_li_pointdrivepresentationvieweds";
 			[Relationship("mailboxtrackingfolder", EntityRole.Referenced, "Contact_MailboxTrackingFolder", "regardingobjectid")]
 			public const string Contact_MailboxTrackingFolder = "Contact_MailboxTrackingFolder";
 			[Relationship(ContactDefinition.EntityName, EntityRole.Referenced, "contact_master_contact", "masterid")]
@@ -558,12 +520,6 @@ namespace Model
 			public const string contact_msfp_surveyinvites = "contact_msfp_surveyinvites";
 			[Relationship("msfp_surveyresponse", EntityRole.Referenced, "contact_msfp_surveyresponses", "regardingobjectid")]
 			public const string contact_msfp_surveyresponses = "contact_msfp_surveyresponses";
-			[Relationship("pchmcs_email", EntityRole.Referenced, "contact_pchmcs_emails", "")]
-			public const string contact_pchmcs_emails = "contact_pchmcs_emails";
-			[Relationship("pchmcs_message", EntityRole.Referenced, "contact_pchmcs_messages", "")]
-			public const string contact_pchmcs_messages = "contact_pchmcs_messages";
-			[Relationship("pchmcs_smsactivity", EntityRole.Referenced, "contact_pchmcs_smsactivities", "")]
-			public const string contact_pchmcs_smsactivities = "contact_pchmcs_smsactivities";
 			[Relationship("phonecall", EntityRole.Referenced, "Contact_Phonecalls", "regardingobjectid")]
 			public const string Contact_Phonecalls = "Contact_Phonecalls";
 			[Relationship("postfollow", EntityRole.Referenced, "contact_PostFollows", "regardingobjectid")]
@@ -580,8 +536,10 @@ namespace Model
 			public const string Contact_RecurringAppointmentMasters = "Contact_RecurringAppointmentMasters";
 			[Relationship("serviceappointment", EntityRole.Referenced, "Contact_ServiceAppointments", "regardingobjectid")]
 			public const string Contact_ServiceAppointments = "Contact_ServiceAppointments";
-			[Relationship("sharepointdocumentlocation", EntityRole.Referenced, "contact_SharePointDocumentLocations", "")]
+			[Relationship("sharepointdocumentlocation", EntityRole.Referenced, "contact_SharePointDocumentLocations", "regardingobjectid")]
 			public const string contact_SharePointDocumentLocations = "contact_SharePointDocumentLocations";
+			[Relationship("sharepointdocument", EntityRole.Referenced, "contact_SharePointDocuments", "regardingobjectid")]
+			public const string contact_SharePointDocuments = "contact_SharePointDocuments";
 			[Relationship("socialactivity", EntityRole.Referenced, "Contact_SocialActivities", "regardingobjectid")]
 			public const string Contact_SocialActivities = "Contact_SocialActivities";
 			[Relationship("syncerror", EntityRole.Referenced, "Contact_SyncErrors", "regardingobjectid")]
@@ -660,26 +618,14 @@ namespace Model
 			public const string msdyn_contact_msdyn_surveyresponse_Contact = "msdyn_contact_msdyn_surveyresponse_Contact";
 			[Relationship("msdyn_workorder", EntityRole.Referenced, "msdyn_contact_msdyn_workorder_ReportedByContact", "msdyn_reportedbycontact")]
 			public const string msdyn_contact_msdyn_workorder_ReportedByContact = "msdyn_contact_msdyn_workorder_ReportedByContact";
+			[Relationship("msdyn_playbookinstance", EntityRole.Referenced, "msdyn_playbookinstance_contact", "regarding")]
+			public const string msdyn_playbookinstance_contact = "msdyn_playbookinstance_contact";
 			[Relationship("opportunity", EntityRole.Referenced, "opportunity_customer_contacts", "customerid")]
 			public const string opportunity_customer_contacts = "opportunity_customer_contacts";
 			[Relationship("opportunity", EntityRole.Referenced, "opportunity_parent_contact", "parentcontactid")]
 			public const string opportunity_parent_contact = "opportunity_parent_contact";
 			[Relationship("salesorder", EntityRole.Referenced, "order_customer_contacts", "customerid")]
 			public const string order_customer_contacts = "order_customer_contacts";
-			[Relationship("pchmcs_offresducyclesdevente", EntityRole.Referenced, "pchmcs_contact__offresducyclesdevente_Contact", "")]
-			public const string pchmcs_contact__offresducyclesdevente_Contact = "pchmcs_contact__offresducyclesdevente_Contact";
-			[Relationship("appointment", EntityRole.Referenced, "pchmcs_contact_appointment_contactid", "")]
-			public const string pchmcs_contact_appointment_contactid = "pchmcs_contact_appointment_contactid";
-			[Relationship(ContactDefinition.EntityName, EntityRole.Referenced, "pchmcs_contact_contact_origine", "")]
-			public const string pchmcs_contact_contact_origine = "pchmcs_contact_contact_origine";
-			[Relationship("pchmcs_bilanpatrimonial", EntityRole.Referenced, "pchmcs_contact_pchmcs_bilanpatrimonial", "")]
-			public const string pchmcs_contact_pchmcs_bilanpatrimonial = "pchmcs_contact_pchmcs_bilanpatrimonial";
-			[Relationship("pchmcs_cdvbuyer", EntityRole.Referenced, "pchmcs_contact_pchmcs_cdvbuyer_contactid", "")]
-			public const string pchmcs_contact_pchmcs_cdvbuyer_contactid = "pchmcs_contact_pchmcs_cdvbuyer_contactid";
-			[Relationship("pchmcs_simulation", EntityRole.Referenced, "pchmcs_contact_pchmcs_simulation", "")]
-			public const string pchmcs_contact_pchmcs_simulation = "pchmcs_contact_pchmcs_simulation";
-			[Relationship("pchmcs_uniquecontact", EntityRole.Referenced, "pchmcs_contact_pchmcs_uniquecontact", "")]
-			public const string pchmcs_contact_pchmcs_uniquecontact = "pchmcs_contact_pchmcs_uniquecontact";
 			[Relationship("quote", EntityRole.Referenced, "quote_customer_contacts", "customerid")]
 			public const string quote_customer_contacts = "quote_customer_contacts";
 			[Relationship("slakpiinstance", EntityRole.Referenced, "slakpiinstance_contact", "regarding")]

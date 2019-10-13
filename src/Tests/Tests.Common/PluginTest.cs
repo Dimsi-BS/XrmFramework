@@ -21,7 +21,7 @@ using EntityMetadata = Microsoft.Xrm.Sdk.Metadata.EntityMetadata;
 
 namespace UnitTest.Plugins.Utils
 {
-    public abstract class PluginTest<TPlugin> where TPlugin : Plugin, new()
+    public abstract class PluginTest<TPlugin> where TPlugin : Plugin
     {
         protected XrmFakedContext FakedContext { get; } = new XrmFakedContext();
 
@@ -68,7 +68,7 @@ namespace UnitTest.Plugins.Utils
             Context.InputParameters = InputParameters.Collection;
 
 
-            InitializeMetadata();
+            //InitializeMetadata();
         }
 
         private void InitializeMetadata()
@@ -92,7 +92,7 @@ namespace UnitTest.Plugins.Utils
 
         protected void ExecutePlugin()
         {
-            FakedContext.ExecutePluginWith<TPlugin>(Context);
+            FakedContext.ExecutePluginWithConfigurations<TPlugin>(Context, null, null);
         }
     }
 }

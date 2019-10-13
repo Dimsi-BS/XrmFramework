@@ -3,11 +3,8 @@
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
-using Microsoft.Xrm.Sdk.Query;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Model;
 
 namespace Plugins
@@ -40,6 +37,12 @@ namespace Plugins
 
         void RemoveUsersFromTeam(EntityReference teamRef, params EntityReference[] userRefs);
 
+        void AddToQueue(Guid queueId, EntityReference target);
+
+        void RemoveFromQueue(Guid queueItemId);
+
+        void Merge(EntityReference target, Guid subordonate, Entity content);
+
         [Obsolete("Use Update instead.")]
         void SetState(EntityReference objectRef, int stateCode, int statusCode, bool useAdmin = false);
 
@@ -62,5 +65,17 @@ namespace Plugins
         T GetById<T>(Guid id) where T : IBindingModel, new();
 
         T GetById<T>(EntityReference entityReference) where T : IBindingModel, new();
+
+        T Upsert<T>(T model) where T : IBindingModel, new();
+
+        bool UserHasRole(Guid userId, Guid parentRoleId, bool parentRootRole = true);
+
+        bool UserHasOneRoleOf(Guid userId, bool parentRootRole, params Guid[] parentRoleIds);
+
+        ICollection<Guid> GetUserRoleIds(EntityReference userRef);
+
+        Entity ToEntity<T>(T model) where T : IBindingModel;
+
+        ICollection<EntityReference> GetTeamMemberRefs(EntityReference teamRef);
     }
 }

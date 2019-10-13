@@ -153,7 +153,7 @@ namespace Model
                 }
             }
 
-            var entityDefinition = DefinitionCache.GetEntityDefinition(type);
+            var entityDefinition = modelDefinition.MainDefinition;
 
             foreach (var property in modelDefinition.CrmAttributes)
             {
@@ -185,6 +185,9 @@ namespace Model
                         case AttributeTypeCode.Picklist:
                             value = GetPicklist(entity, objectType, attributeName);
                             break;
+                        case AttributeTypeCode.MultiSelectPicklist:
+                            value = GetPicklistValues(entity, objectType, attributeName);
+                            break;
                         case AttributeTypeCode.Lookup:
                         case AttributeTypeCode.Owner:
                         case AttributeTypeCode.Customer:
@@ -209,6 +212,9 @@ namespace Model
                                         case AttributeTypeCode.State:
                                         case AttributeTypeCode.Status:
                                             value = GetPicklist(entity, objectType, fieldName);
+                                            break;
+                                        case AttributeTypeCode.MultiSelectPicklist:
+                                            value = GetPicklistValues(entity, objectType, fieldName);
                                             break;
                                         case AttributeTypeCode.Money:
                                             value = entity.GetAliasedValue<Money>(fieldName)?.Value;
@@ -251,6 +257,9 @@ namespace Model
                                                     case AttributeTypeCode.State:
                                                     case AttributeTypeCode.Status:
                                                         value = GetPicklist(relatedEntity, objectType, crmLookupAttribute.AttributeName);
+                                                        break;
+                                                    case AttributeTypeCode.MultiSelectPicklist:
+                                                        value = GetPicklistValues(relatedEntity, objectType, crmLookupAttribute.AttributeName);
                                                         break;
                                                     case AttributeTypeCode.Money:
                                                         value = relatedEntity.GetAttributeValue<Money>(crmLookupAttribute.AttributeName)?.Value;
@@ -339,9 +348,18 @@ namespace Model
 
                             break;
                         case AttributeTypeCode.Money:
+
                             if (entity.Contains(attributeName) && entity[attributeName] != null)
                             {
-                                value = entity.GetAttributeValue<Money>(attributeName).Value;
+                                var moneyValue = entity.GetAttributeValue<Money>(attributeName);
+                                if (objectType == typeof(decimal))
+                                {
+                                    value = moneyValue.Value;
+                                }
+                                else if (objectType == typeof(Money))
+                                {
+                                    value = moneyValue;
+                                }
                             }
                             break;
                         default:
@@ -420,6 +438,40 @@ namespace Model
             return value;
         }
 
+        private static object GetPicklistValues(Entity entity, Type objectType, string attributeName)
+        {
+            object value = null;
+
+            var genericType = objectType.GenericTypeArguments.First();
+
+            if (genericType == typeof(int))
+            {
+                if (entity.Contains(attributeName) && entity[attributeName] != null)
+                {
+                    if (entity[attributeName] is AliasedValue)
+                    {
+                        value = entity.GetAliasedValue<OptionSetValueCollection>(attributeName).Select(o => o.Value).ToList();
+                    }
+                    else
+                    {
+                        value = entity.GetAttributeValue<OptionSetValueCollection>(attributeName).Select(o => o.Value).ToList();
+                    }
+                }
+            }
+            else if (entity.Contains(attributeName) && entity[attributeName] != null)
+            {
+                if (entity[attributeName] is AliasedValue)
+                {
+                    value = entity.GetAliasedValue<OptionSetValueCollection>(attributeName).ToEnumCollection(genericType);
+                }
+                else
+                {
+                    value = entity.GetAttributeValue<OptionSetValueCollection>(attributeName).ToEnumCollection(genericType);
+                }
+            }
+            return value;
+        }
+
         public static Entity ToEntity(this IBindingModel bindingModel, IOrganizationService service, bool fillRelatedEntities = true)
         {
             return ToEntity(bindingModel.GetType(), bindingModel, service, fillRelatedEntities);
@@ -427,7 +479,7 @@ namespace Model
 
         public static Entity ToEntity(Type type, object bindingModel, IOrganizationService service, bool fillRelatedEntities = true)
         {
-            var entityDefinition = DefinitionCache.GetEntityDefinition(type);
+            var entityDefinition = DefinitionCache.GetEntityDefinitionFromModelType(type);
 
             var entity = new Entity(entityDefinition.EntityName);
             FillEntity(bindingModel, service, fillRelatedEntities, entity, null);
@@ -437,7 +489,7 @@ namespace Model
 
         private static void FillEntity(object bindingModel, IOrganizationService service, bool fillRelatedEntities, Entity entity, KeyInfos keyInfos)
         {
-            var entityDefinition = DefinitionCache.GetEntityDefinition(bindingModel.GetType());
+            var entityDefinition = DefinitionCache.GetEntityDefinitionFromModelType(bindingModel.GetType());
             if (entity.Id == Guid.Empty)
             {
                 entity.Id = ((IBindingModel)bindingModel).Id;
@@ -505,6 +557,30 @@ namespace Model
                                 pickListValue = new OptionSetValue((int)value);
                             }
                             SetValue(entity, crmAttribute.AttributeName, pickListValue, keyInfos, isKey);
+                            break;
+                        case AttributeTypeCode.MultiSelectPicklist:
+                            var list = new List<OptionSetValue>();
+                            if (value is IEnumerable enumValues)
+                            {
+                                foreach (var v in enumValues)
+                                {
+
+                                    if (objectType.IsEnum)
+                                    {
+                                        if (Enum.GetName(objectType, value) != "Null" || (int)v != 0)
+                                        {
+                                            list.Add(new OptionSetValue((int)v));
+                                        }
+                                    }
+                                    else if (value != null)
+                                    {
+                                        list.Add(new OptionSetValue((int)v));
+                                    }
+                                }
+                            }
+                            var pickListValues = list.Any() ? new OptionSetValueCollection(list) : null;
+
+                            SetValue(entity, crmAttribute.AttributeName, pickListValues, keyInfos, isKey);
                             break;
                         case AttributeTypeCode.Lookup:
                         case AttributeTypeCode.Customer:
@@ -669,7 +745,7 @@ namespace Model
 
         public static QueryExpression GetQueryToFilter(Type bindingModelType, Func<Relationship, LinkEntity, JoinOperator> Filter)
         {
-            var entityDefinition = DefinitionCache.GetEntityDefinition(bindingModelType);
+            var entityDefinition = DefinitionCache.GetEntityDefinitionFromModelType(bindingModelType);
 
             var query = new QueryExpression(entityDefinition.EntityName);
 
@@ -681,7 +757,7 @@ namespace Model
         private static void AddQueryFilter(Type bindingModelType, Func<Relationship, LinkEntity, JoinOperator> Filter, ColumnSet columnSet, DataCollection<LinkEntity> links, int depth = 1, string linkAlias = "")
         {
             var modelDefinition = DefinitionCache.GetModelDefinition(bindingModelType);
-            var entityDefinition = DefinitionCache.GetEntityDefinition(bindingModelType);
+            var entityDefinition = modelDefinition.MainDefinition;
 
 
             foreach (var property in modelDefinition.CrmAttributes)
@@ -1388,7 +1464,7 @@ namespace Model
 
         private static RetrieveRequest GetRetrieveRequest(Type type, EntityReference reference)
         {
-            var entityDefinition = DefinitionCache.GetEntityDefinition(type);
+            var entityDefinition = DefinitionCache.GetEntityDefinitionFromModelType(type);
 
             var request = new RetrieveRequest
             {
@@ -1489,7 +1565,7 @@ namespace Model
         public static T GetById<T>(this IOrganizationService service, Guid id) where T : IBindingModel
         {
             var type = typeof(T);
-            var definition = DefinitionCache.GetEntityDefinition(type);
+            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
             return (T)GetById(type, service, new EntityReference(definition.EntityName, id));
         }
 
@@ -1501,7 +1577,7 @@ namespace Model
 
         public static IBindingModel GetById(Type type, IOrganizationService service, Guid id)
         {
-            var definition = DefinitionCache.GetEntityDefinition(type);
+            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
             return GetById(type, service, new EntityReference(definition.EntityName, id));
         }
 
@@ -1517,7 +1593,7 @@ namespace Model
         public static bool TryGetById<T>(this IOrganizationService service, Guid id, out T result) where T : IBindingModel
         {
             var type = typeof(T);
-            var definition = DefinitionCache.GetEntityDefinition(type);
+            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
             IBindingModel resultTemp;
 
             var isOk = TryGetById(type, service, new EntityReference(definition.EntityName, id), out resultTemp);
@@ -1538,7 +1614,7 @@ namespace Model
 
         public static bool TryGetById(Type type, IOrganizationService service, Guid id, out IBindingModel result)
         {
-            var definition = DefinitionCache.GetEntityDefinition(type);
+            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
             return TryGetById(type, service, new EntityReference(definition.EntityName, id), out result);
         }
 
@@ -1775,7 +1851,7 @@ namespace Model
             return RetrieveAll(service, query).ToBindingModel<T>().ToList();
         }
 
-        public static IList<Entity> RetrieveAll(this IOrganizationService service, QueryExpression query)
+        public static IList<Entity> RetrieveAll(this IOrganizationService service, QueryExpression query, bool cleanLinks = true)
         {
             if (!query.TopCount.HasValue)
             {
@@ -1785,7 +1861,12 @@ namespace Model
             var result = new List<Entity>();
 
             EntityCollection ec;
-            query.CleanLinks();
+
+            if (cleanLinks)
+            {
+                query.CleanLinks();
+            }
+
             do
             {
                 ec = service.RetrieveMultiple(query);
