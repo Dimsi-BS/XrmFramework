@@ -59,6 +59,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Debug.Plugins", "Tests\Debu
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Tests\RemoteDebugger.Common\RemoteDebugger.Common.projitems*{0745d37f-c890-4c3d-b1a1-664ea9400c0c}*SharedItemsImports = 4
 		Model\Model.projitems*{084f560a-53d0-4f7a-b1eb-d32e13d92abf}*SharedItemsImports = 13
 		Model\Model.projitems*{1a5923ad-a835-4441-85f5-d79c355eff8d}*SharedItemsImports = 4
 		Utils\LoggedServices\LoggedServices.projitems*{1a5923ad-a835-4441-85f5-d79c355eff8d}*SharedItemsImports = 4

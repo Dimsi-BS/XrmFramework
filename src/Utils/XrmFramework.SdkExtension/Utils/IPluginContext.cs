@@ -3,8 +3,6 @@
 using Microsoft.Xrm.Sdk;
 using Plugins;
 using System;
-using XrmFramework.Debugger;
-
 namespace Plugins
 {
     public interface IPluginContext : IContext

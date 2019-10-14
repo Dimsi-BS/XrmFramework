@@ -130,7 +130,7 @@ namespace Plugins
                         break;
                 }
 
-                LogMethod(sb.ToString());
+                LogMethod("{0}", sb.ToString());
             }
             else
             {

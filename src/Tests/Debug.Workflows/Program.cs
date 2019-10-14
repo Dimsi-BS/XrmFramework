@@ -12,7 +12,7 @@ namespace Debug.Plugins
     {
         static void Main(string[] args)
         {
-            var manager = new AzureRelayHybridConnectionMessageManager<RemoteDebugPluginExecutionContext>();
+            var manager = new AzureRelayHybridConnectionMessageManager<RemoteDebugWorkflowExecutionContext>();
 
             manager.ContextReceived += remoteContext =>
                 {

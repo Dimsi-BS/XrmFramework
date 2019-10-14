@@ -43,9 +43,16 @@ namespace XrmFramework.Debugger
 
             var responseString = await response.Content.ReadAsStringAsync();
 
-            var responseMessage = JsonConvert.DeserializeObject<RemoteDebuggerMessage>(responseString);
+            if (response.IsSuccessStatusCode)
+            {
 
-            return responseMessage;
+                var responseMessage = JsonConvert.DeserializeObject<RemoteDebuggerMessage>(responseString);
+
+                return responseMessage;
+            }
+
+            response.EnsureSuccessStatusCode();
+            return null;
         }
 
 

@@ -9,15 +9,15 @@ using Microsoft.Xrm.Sdk.Query;
 using Plugins;
 using XrmFramework.Debugger;
 
-namespace Debug.Plugins
+namespace RemoteDebugger.Common
 {
     public class DebuggerOrganizationService : IOrganizationService
     {
         private readonly RemoteServiceProvider.RequestHandler _onRequestSent;
-        public RemoteDebugPluginExecutionContext Context { get; }
+        public RemoteDebugExecutionContext Context { get; }
         public Guid? UserId { get; }
 
-        public DebuggerOrganizationService(RemoteDebugPluginExecutionContext context, Guid? userId, RemoteServiceProvider.RequestHandler onRequestSent)
+        public DebuggerOrganizationService(RemoteDebugExecutionContext context, Guid? userId, RemoteServiceProvider.RequestHandler onRequestSent)
         {
             _onRequestSent = onRequestSent;
             Context = context;

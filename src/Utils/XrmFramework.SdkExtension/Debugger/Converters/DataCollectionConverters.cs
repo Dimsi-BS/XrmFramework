@@ -27,7 +27,7 @@ namespace XrmFramework.Debugger.Converters
         public override DataCollection<TKey, TValue> ReadJson(JsonReader reader, Type objectType, DataCollection<TKey, TValue> existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             var retour = (DataCollection<TKey, TValue>)Activator.CreateInstance(objectType);
-            
+
             var list = serializer.Deserialize<List<KeyValuePair<TKey, TValue>>>(reader);
 
             retour.AddRange(list);
@@ -64,7 +64,7 @@ namespace XrmFramework.Debugger.Converters
         }
     }
 
-    public class RelationshipQueryCollectionConverter: JsonConverter<RelationshipQueryCollection>
+    public class RelationshipQueryCollectionConverter : JsonConverter<RelationshipQueryCollection>
     {
         private readonly DataCollectionConverter<Relationship, QueryBase> _internalConverter = new DataCollectionConverter<Relationship, QueryBase>();
 

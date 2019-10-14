@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XrmFramework.Debugger;
 
 namespace Plugins
 {
@@ -54,6 +55,22 @@ namespace Plugins
         public void DumpObject(string parameterName, object parameter)
         {
             LogHelper.DumpObject(parameterName, parameter);
+        }
+
+        public RemoteDebugWorkflowExecutionContext RemoteContext => new RemoteDebugWorkflowExecutionContext(WorkflowContext);
+
+        public bool IsDebugContext => WorkflowContext is RemoteDebugWorkflowExecutionContext;
+
+        public void UpdateContext(RemoteDebugWorkflowExecutionContext updatedContext)
+        {
+            WorkflowContext.InputParameters.Clear();
+            WorkflowContext.InputParameters.AddRange(updatedContext.InputParameters);
+
+            WorkflowContext.OutputParameters.Clear();
+            WorkflowContext.OutputParameters.AddRange(updatedContext.OutputParameters);
+
+            WorkflowContext.SharedVariables.Clear();
+            WorkflowContext.SharedVariables.AddRange(updatedContext.SharedVariables);
         }
     }
 }

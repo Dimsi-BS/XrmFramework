@@ -2,11 +2,11 @@
 using System.Threading.Tasks;
 using XrmFramework.Debugger;
 
-namespace Debug.Plugins.Utils
+namespace RemoteDebugger.Common
 {
-    public interface IRemoteDebuggerMessageManager
+    public interface IRemoteDebuggerMessageManager<T> where T : RemoteDebugExecutionContext
     {
-        event Action<RemoteDebugPluginExecutionContext> ContextReceived;
+        event Action<T> ContextReceived;
 
         Task SendMessage(RemoteDebuggerMessage message);
 

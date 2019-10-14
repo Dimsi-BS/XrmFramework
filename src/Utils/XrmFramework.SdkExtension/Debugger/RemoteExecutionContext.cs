@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Workflow;
 #if INTERNAL_NEWTONSOFT
 using Newtonsoft.Json.Xrm;
 #else 
@@ -91,6 +92,8 @@ namespace XrmFramework.Debugger
         public Guid OperationId { get; set; }
 
         public DateTime OperationCreatedOn { get; set; }
+
+        public Guid Id { get; set; }
     }
 
     [Serializable]
@@ -116,8 +119,35 @@ namespace XrmFramework.Debugger
 
         [JsonIgnore]
         public IPluginExecutionContext ParentContext => RemoteParentContext;
-
-        public Guid Id { get; set; }
     }
 
+
+    [Serializable]
+    public class RemoteDebugWorkflowExecutionContext : RemoteDebugExecutionContext, IWorkflowContext
+    {
+        public RemoteDebugWorkflowExecutionContext()
+        {
+        }
+
+        public RemoteDebugWorkflowExecutionContext(IWorkflowContext context) : base(context)
+        {
+            StageName = context.StageName;
+            WorkflowCategory = context.WorkflowCategory;
+            WorkflowMode = context.WorkflowMode;
+
+            if (context.ParentContext != null)
+            {
+                RemoteParentContext = new RemoteDebugWorkflowExecutionContext(context.ParentContext);
+            }
+        }
+
+        public RemoteDebugWorkflowExecutionContext RemoteParentContext { get; set; }
+
+        public string StageName { get; }
+        public int WorkflowCategory { get; }
+        public int WorkflowMode { get; }
+
+        [JsonIgnore]
+        IWorkflowContext IWorkflowContext.ParentContext => RemoteParentContext;
+    }
 }

@@ -9,7 +9,7 @@ using Microsoft.Xrm.Sdk.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using XrmFramework.Common;
+using System.Runtime.Remoting.Contexts;
 
 namespace Plugins
 {
@@ -36,6 +36,11 @@ namespace Plugins
         protected Guid InitiatingUserId => _context.InitiatingUserId;
 
         protected Guid CorrelationId => _context.CorrelationId;
+
+        protected void ThrowInvalidPluginException(string messageId, params object[] args)
+        {
+            _context.ThrowInvalidPluginException(messageId, args);
+        }
 
         public Guid Create(Entity entity, bool useAdmin = false)
         {
@@ -348,7 +353,7 @@ namespace Plugins
             }
             #endregion
 
-            return RetrieveInternal(new EntityReference(entityName, id), new ColumnSet(true));
+            return RetrieveInternal(new EntityReference(entityName, id), new ColumnSet(allColumns));
         }
 
         public Entity Retrieve(EntityReference objectRef, params string[] columns)
@@ -517,18 +522,18 @@ namespace Plugins
 
         public bool UserHasOneRoleOf(Guid userId, bool parentRootRole, params Guid[] parentRoleIds)
         {
-            var query = new QueryExpression(XrmFramework.Common.SystemUserDefinition.EntityName);
-            query.ColumnSet.AddColumn(XrmFramework.Common.SystemUserDefinition.Columns.Id);
-            query.Criteria.AddCondition(XrmFramework.Common.SystemUserDefinition.Columns.Id, ConditionOperator.Equal, userId);
+            var query = new QueryExpression(SystemUserDefinition.EntityName);
+            query.ColumnSet.AddColumn(SystemUserDefinition.Columns.Id);
+            query.Criteria.AddCondition(SystemUserDefinition.Columns.Id, ConditionOperator.Equal, userId);
 
-            var userRoleLink = query.AddLink(SystemUserRolesDefinition.EntityName, XrmFramework.Common.SystemUserDefinition.Columns.Id, SystemUserRolesDefinition.Columns.SystemUserId);
+            var userRoleLink = query.AddLink(SystemUserRolesDefinition.EntityName, SystemUserDefinition.Columns.Id, SystemUserRolesDefinition.Columns.SystemUserId);
             var roleLink = userRoleLink.AddLink(RoleDefinition.EntityName, SystemUserRolesDefinition.Columns.RoleId, RoleDefinition.Columns.Id);
             roleLink.LinkCriteria.FilterOperator = LogicalOperator.Or;
 
             foreach (var roleId in parentRoleIds)
             {
-                roleLink.LinkCriteria.AddCondition(XrmFramework.Common.RoleDefinition.Columns.ParentRootRoleId, ConditionOperator.Equal, roleId);
-                roleLink.LinkCriteria.AddCondition(XrmFramework.Common.RoleDefinition.Columns.RoleTemplateId, ConditionOperator.Equal, roleId);
+                roleLink.LinkCriteria.AddCondition(RoleDefinition.Columns.ParentRootRoleId, ConditionOperator.Equal, roleId);
+                roleLink.LinkCriteria.AddCondition(RoleDefinition.Columns.RoleTemplateId, ConditionOperator.Equal, roleId);
             }
 
             return AdminOrganizationService.RetrieveMultiple(query).Entities.Any();
@@ -540,9 +545,9 @@ namespace Plugins
             query.ColumnSet.AddColumns(RoleDefinition.Columns.RoleTemplateId, RoleDefinition.Columns.ParentRootRoleId);
 
             var userRoleLink = query.AddLink(SystemUserRolesDefinition.EntityName, RoleDefinition.Columns.Id, SystemUserRolesDefinition.Columns.RoleId);
-            var userLink = userRoleLink.AddLink(XrmFramework.Common.SystemUserDefinition.EntityName, SystemUserRolesDefinition.Columns.SystemUserId, XrmFramework.Common.SystemUserDefinition.Columns.Id);
+            var userLink = userRoleLink.AddLink(SystemUserDefinition.EntityName, SystemUserRolesDefinition.Columns.SystemUserId, SystemUserDefinition.Columns.Id);
 
-            userLink.LinkCriteria.AddCondition(XrmFramework.Common.SystemUserDefinition.Columns.Id, ConditionOperator.Equal, userRef.Id);
+            userLink.LinkCriteria.AddCondition(SystemUserDefinition.Columns.Id, ConditionOperator.Equal, userRef.Id);
 
             return AdminOrganizationService.RetrieveMultiple(query).Entities
                 .Select(r =>
@@ -564,9 +569,9 @@ namespace Plugins
 
         public ICollection<EntityReference> GetTeamMemberRefs(EntityReference teamRef)
         {
-            var queryMembers = new QueryExpression(XrmFramework.Common.SystemUserDefinition.EntityName);
-            queryMembers.ColumnSet.AddColumn(XrmFramework.Common.SystemUserDefinition.Columns.Id);
-            var linkMembers = queryMembers.AddLink(XrmFramework.Common.SystemUserDefinition.TeamMembershipRelationName, XrmFramework.Common.SystemUserDefinition.Columns.Id, XrmFramework.Common.SystemUserDefinition.Columns.Id);
+            var queryMembers = new QueryExpression(SystemUserDefinition.EntityName);
+            queryMembers.ColumnSet.AddColumn(SystemUserDefinition.Columns.Id);
+            var linkMembers = queryMembers.AddLink(SystemUserDefinition.TeamMembershipRelationName, SystemUserDefinition.Columns.Id, SystemUserDefinition.Columns.Id);
             var linkTeam = linkMembers.AddLink(TeamDefinition.EntityName, TeamDefinition.Columns.Id, TeamDefinition.Columns.Id);
 
             linkTeam.LinkCriteria.AddCondition(TeamDefinition.Columns.Id, ConditionOperator.Equal, teamRef.Id);

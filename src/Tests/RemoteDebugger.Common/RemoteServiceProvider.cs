@@ -9,7 +9,7 @@ using Microsoft.Xrm.Sdk.Messages;
 using Plugins;
 using XrmFramework.Debugger;
 
-namespace Debug.Plugins
+namespace RemoteDebugger.Common
 {
     public class RemoteServiceProvider : IServiceProvider
     {
@@ -19,7 +19,7 @@ namespace Debug.Plugins
 
         public ITracingService TracingService { get; } = new LocalTracingService();
 
-        public RemoteServiceProvider(RemoteDebugPluginExecutionContext context)
+        public RemoteServiceProvider(RemoteDebugExecutionContext context)
         {
             Context = context;
 
@@ -33,7 +33,7 @@ namespace Debug.Plugins
             return RequestSent?.Invoke(message);
         }
 
-        private RemoteDebugPluginExecutionContext Context { get; }
+        private RemoteDebugExecutionContext Context { get; }
 
         public object GetService(Type serviceType)
         {

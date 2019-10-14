@@ -11,10 +11,10 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Converters\BindingModelHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\ConditionExpressionConverter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\ObjectSerializationConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\CustomKeyValuePairConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\DataCollectionConverters.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\EntityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\ObjectSerializationConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Debugger\DebuggerUnsecureConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Debugger\HybridConnection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Debugger\IDebuggerCommunicationManager.cs" />

@@ -26,7 +26,8 @@ namespace XrmFramework.Debugger.Converters
             writer.WritePropertyName("operator");
             writer.WriteValue(value.Operator);
             writer.WritePropertyName("values");
-            writer.WriteValue(value.Values.Select(v => new ObjectSerialization(v)).ToList());
+
+            serializer.Serialize(writer, value.Values.Select(v => new ObjectSerialization(v)).ToList());
 
             writer.WritePropertyName("entityName");
             writer.WriteValue(value.EntityName);

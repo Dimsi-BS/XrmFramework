@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title></title>
+    <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css" />
+</head>
+<body>
+
+    <h1>Remote Debugger configuration</h1>
+
+    <h2>Debug sessions</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Start date</th>
+                <th>End date</th>
+                <th>Debugged user</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach:sessions">
+            <tr>
+                <!-- ko ifnot: isEdit() -->
+                <td data-bind="text: startDate"></td>
+                <td data-bind="text: endDate"></td>
+                <td data-bind="text: debuggeeName"></td>
+                <td data-bind="text: statusName"></td>
+                <td><input type="button" data-bind="click: editSession" /></td>
+                <!-- /ko -->
+                <!-- ko if: isEdit() -->
+                <td data-bind="text: startDate"></td>
+                <td><input data-bind="value: endDate" /></td>
+                <td><select data-bind="select2 : $root.select2Config, selectedOptions: selectedSession"></select></td>
+                <td data-bind="text: statusName"></td>
+                <td><input type="button" data-bind="click: saveSession" /></td>
+                <!-- /ko -->
+            </tr>
+
+        </tbody>
+    </table>
+
+
+    <!-- Metro 4 -->
+    <script src="https://cdn.metroui.org.ua/v4/js/metro.min.js"></script>
+    <script type="text/javascript">
+        const model = (function() {
+
+            this.sessions = ko.observableArray();
+
+            this.select2Config = {
+                placeholder:"Utilisateur",
+                ajax: {
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    //datatype: "json",
+                    url: Xrm.Utility.getGlobalContext().getClientUrl() + "/api/data/v9.0/systemuser?$select=systemuserid,fullname",
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return "$filter=contains(fullname,'" + params.term + "') and statecode eq 0 &$top=15";
+                    },
+                    processResults: function(data) {
+                        // parse the results into the format expected by Select2.
+                        // since we are using custom formatting functions we do not need to
+                        // alter the remote JSON data
+                        const results = data.value;
+                        for (let i = 0; i < results.length; i++) {
+                            results[i].id = results[i].systemuserid;
+                            results[i].text = results[i].fullname;
+                        }
+                        return {
+                            results: results
+                        };
+                    },
+                    cache: true,
+                    width: '100%'
+                }
+            };
+
+            function loadSessions() {
+
+            }
+
+            loadSessions();
+        })();
+        
+        ko.applyBindings(model);
+    </script>
+</body>
+</html>

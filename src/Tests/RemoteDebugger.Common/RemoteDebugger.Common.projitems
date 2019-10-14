@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>7da78d05-6adc-4dd3-bbf6-10c563532920</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>RemoteDebugger.Common</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AzureRelayHybridConnectionMessageManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DebuggerOrganizationService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IRemoteDebuggerMessageManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LocalOrganizationServiceFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LocalTracingService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RemoteServiceProvider.cs" />
+  </ItemGroup>
+</Project>

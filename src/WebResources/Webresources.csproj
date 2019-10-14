@@ -49,11 +49,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="css\" />
-    <Folder Include="html\" />
     <Folder Include="img\" />
+    <Folder Include="js\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="js\Contact.js" />
+    <Content Include="html\RemoteDebuggerConfig.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

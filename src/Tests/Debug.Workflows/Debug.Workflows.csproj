@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0745D37F-C890-4C3D-B1A1-664EA9400C0C}</ProjectGuid>
+    <ProjectGuid>{9BF62B2D-01EA-4D6F-A1B6-B4B6808B55A4}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Debug.Plugins</RootNamespace>
-    <AssemblyName>Debug.Plugins</AssemblyName>
+    <RootNamespace>Debug.Workflows</RootNamespace>
+    <AssemblyName>Debug.Workflows</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -75,9 +75,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Plugins\Plugins.csproj">
+    <ProjectReference Include="..\..\Workflows\Workflows.csproj">
       <Project>{1a5923ad-a835-4441-85f5-d79c355eff8d}</Project>
-      <Name>Plugins</Name>
+      <Name>Workflows</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="..\RemoteDebugger.Common\RemoteDebugger.Common.projitems" Label="Shared" />
