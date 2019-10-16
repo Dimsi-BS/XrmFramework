@@ -28,12 +28,8 @@ namespace Workflows
         {
             if (context == null)
             {
-                throw new ArgumentNullException("serviceProvider");
+                throw new ArgumentNullException(nameof(context));
             }
-
-            //IWorkflowContext workflowContext = context.GetExtension<IWorkflowContext>();
-            //workflowContext.BusinessUnitId 
-            //workflowContext.InitiatingUserId
 
             // Construct the Local plug-in context.
             var localContext = new LocalWorkflowContext(context);
@@ -47,19 +43,12 @@ namespace Workflows
                 if (!localContext.IsDebugContext)
                 {
                     localContext.Log("The context is genuine");
-#if !DEBUG
-                if (!string.IsNullOrEmpty(UnSecuredConfig) && UnSecuredConfig.Contains("debugSessions"))
-                {
-                    var debuggerUnsecuredConfig = JsonConvert.DeserializeObject<DebuggerUnsecureConfig>(UnSecuredConfig);
-#endif
+
+                    var initiatingUserId = localContext.GetInitiatingUserId();
 
                     var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
-                    queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.DebugeeId, ConditionOperator.Equal, localContext.InitiatingUserId);
+                    queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.DebugeeId, ConditionOperator.Equal, initiatingUserId);
                     queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
-
-#if !DEBUG
-                queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Id, ConditionOperator.In, debuggerUnsecuredConfig.DebugSessionIds.ToArray());
-#endif
 
                     var debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
 
@@ -73,7 +62,11 @@ namespace Workflows
                         }
 
                         var remoteContext = localContext.RemoteContext;
+
+                        remoteContext.ActivityAssemblyQualifiedName = GetType().AssemblyQualifiedName;
                         remoteContext.Id = Guid.NewGuid();
+
+                        SetArgumentsInRemoteContext(context, remoteContext);
 
                         var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
 
@@ -114,19 +107,19 @@ namespace Workflows
                                 var updatedContext = response.GetContext<RemoteDebugWorkflowExecutionContext>();
 
                                 localContext.UpdateContext(updatedContext);
+
+                                ExtractArgumentsFromRemoteContext(context, updatedContext);
                             }
 
 
                             return;
                         }
-                        catch (HttpRequestException)
+                        catch (HttpRequestException e)
                         {
                             // Run the plugin as deploy if the remote debugger is not connected
+                            localContext.Log($"Error while sending context : {e}");
                         }
                     }
-#if !DEBUG
-                }
-#endif
                 }
 
                 #endregion
@@ -171,6 +164,47 @@ namespace Workflows
             finally
             {
                 localContext.Log(string.Format("Exiting {0}.Execute()", ChildClassName));
+            }
+        }
+
+        private void ExtractArgumentsFromRemoteContext(CodeActivityContext context, RemoteDebugWorkflowExecutionContext updatedContext)
+        {
+            foreach (var argument in updatedContext.Arguments)
+            {
+                var property = GetType().GetProperty(argument.Key);
+
+                if (property == null)
+                {
+                    break;
+                }
+
+                if (typeof(OutArgument).IsAssignableFrom(property.PropertyType) ||
+                    typeof(InOutArgument).IsAssignableFrom(property.PropertyType))
+                {
+                    var setMethod = property.PropertyType.GetMethod("Set", new[] {typeof(CodeActivityContext)});
+
+                    if (setMethod != null)
+                    {
+                        setMethod.Invoke(property.GetValue(this), new object[] {context, argument.Value});
+                    }
+                }
+            }
+        }
+
+        private void SetArgumentsInRemoteContext(CodeActivityContext context, RemoteDebugWorkflowExecutionContext remoteContext)
+        {
+            foreach (var property in GetType().GetProperties())
+            {
+                if (typeof(InArgument).IsAssignableFrom(property.PropertyType) ||
+                    typeof(InOutArgument).IsAssignableFrom(property.PropertyType))
+                {
+                    var getMethod = property.PropertyType.GetMethod("Get", new[] {typeof(CodeActivityContext)});
+
+                    if (getMethod != null)
+                    {
+                        remoteContext.Arguments.Add(property.Name, getMethod.Invoke(property.GetValue(this), new object[] {context}));
+                    }
+                }
             }
         }
 

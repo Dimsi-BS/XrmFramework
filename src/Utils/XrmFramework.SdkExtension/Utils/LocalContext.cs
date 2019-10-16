@@ -517,5 +517,17 @@ namespace Plugins
                 }
             }
         }
+
+        public LocalContext ParentLocalContext {get; protected set; }
+
+        public Guid GetInitiatingUserId()
+        {
+            if (ParentLocalContext != null)
+            {
+                return ParentLocalContext.GetInitiatingUserId();
+            }
+
+            return InitiatingUserId;
+        }
     }
 }

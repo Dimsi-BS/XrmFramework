@@ -60,4 +60,21 @@ namespace Model
 		[Description("Inactive")]
 		Inactif = 1,
 	}
+
+	[OptionSetDefinition(SystemUserDefinition.EntityName, SystemUserDefinition.Columns.AccessMode)]
+	public enum AccessMode
+	{
+		[Description("Read-Write")]
+		ReadWrite = 0,
+		[Description("Administrative")]
+		Administrative = 1,
+		[Description("Read")]
+		Read = 2,
+		[Description("Support User")]
+		SupportUser = 3,
+		[Description("Non-interactive")]
+		NonInteractive = 4,
+		[Description("Delegated Admin")]
+		DelegatedAdmin = 5,
+	}
 }

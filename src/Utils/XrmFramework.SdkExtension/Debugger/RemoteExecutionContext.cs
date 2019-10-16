@@ -149,5 +149,9 @@ namespace XrmFramework.Debugger
 
         [JsonIgnore]
         IWorkflowContext IWorkflowContext.ParentContext => RemoteParentContext;
+
+        public string ActivityAssemblyQualifiedName { get; set; }
+
+        public ArgumentsCollection Arguments { get; set; } = new ArgumentsCollection();
     }
 }

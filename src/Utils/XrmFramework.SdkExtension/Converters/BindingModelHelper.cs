@@ -1491,7 +1491,7 @@ namespace Model
                     request.ColumnSet.AddColumn(mappingAttribute.AttributeName);
                 }
 
-                if (!entityDefinition.IsLookupAttribute(mappingAttribute.AttributeName))
+                if (!entityDefinition.IsLookupAttribute(mappingAttribute.AttributeName) || property.ObjectType == typeof(Guid) || property.ObjectType == typeof(EntityReference))
                 {
                     continue;
                 }

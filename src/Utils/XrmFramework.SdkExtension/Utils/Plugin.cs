@@ -147,8 +147,10 @@ namespace Plugins
                     var debuggerUnsecuredConfig = JsonConvert.DeserializeObject<DebuggerUnsecureConfig>(UnSecuredConfig);
 #endif
 
+                    var initiatingUserId = localContext.GetInitiatingUserId();
+
                     var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
-                    queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.DebugeeId, ConditionOperator.Equal, localContext.InitiatingUserId);
+                    queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.DebugeeId, ConditionOperator.Equal, initiatingUserId);
                     queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
 
 #if !DEBUG

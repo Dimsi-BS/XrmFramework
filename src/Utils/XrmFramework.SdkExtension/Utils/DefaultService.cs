@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Contexts;
+using XrmFramework.Common;
+using SystemUserDefinition = Model.SystemUserDefinition;
 
 namespace Plugins
 {
@@ -495,6 +497,14 @@ namespace Plugins
             };
 
             AdminOrganizationService.Execute(request);
+        }
+
+        public EntityReference GetDefaultCurrencyRef()
+        {
+            var query = new QueryExpression("transactioncurrency");
+            query.Criteria.AddCondition("isocurrencycode", ConditionOperator.Equal, "EUR");
+
+            return AdminOrganizationService.RetrieveAll(query).Select(e => e.ToEntityReference()).FirstOrDefault();
         }
 
         public void RemoveFromQueue(Guid queueItemId)

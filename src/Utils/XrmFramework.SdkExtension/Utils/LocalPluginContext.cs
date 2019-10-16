@@ -13,7 +13,7 @@ namespace Plugins
         {
             if (PluginExecutionContext.ParentContext != null)
             {
-                ParentContext = new LocalPluginContext(this, PluginExecutionContext.ParentContext);
+                ParentPluginContext = new LocalPluginContext(this, PluginExecutionContext.ParentContext);
             }
         }
 
@@ -22,7 +22,7 @@ namespace Plugins
         {
             if (PluginExecutionContext.ParentContext != null)
             {
-                ParentContext = new LocalPluginContext(this, PluginExecutionContext.ParentContext);
+                ParentPluginContext = new LocalPluginContext(this, PluginExecutionContext.ParentContext);
             }
         }
 
@@ -60,7 +60,9 @@ namespace Plugins
 
         public ParameterCollection SharedVariables => PluginExecutionContext.SharedVariables;
 
-        public IPluginContext ParentContext { get; }
+        public IPluginContext ParentContext => ParentPluginContext;
+
+        public LocalPluginContext ParentPluginContext { get;}
 
         public bool IsMultiplePrePostOperation
         {
