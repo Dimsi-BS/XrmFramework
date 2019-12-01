@@ -31,12 +31,19 @@ namespace XrmFramework.Common.Utils
                         cs.Username = keyValue[1].Trim();
                         break;
                     case "Password":
-                        cs.Password = keyValue[1].Trim();
+                        cs.Password = ExtractParameterValue("Password", parameter);
                         break;
                 }
             }
 
             return cs;
+        }
+
+        private static string ExtractParameterValue(string parameterName, string rawValue)
+        {
+            var value = rawValue.Replace($"{parameterName}=", string.Empty);
+            value = value.Trim();
+            return value;
         }
     }
 
