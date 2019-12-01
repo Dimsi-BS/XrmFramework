@@ -11,5 +11,6 @@ namespace Plugins
     /// </summary>
     public interface IAccountService : IService
     {
+        ICollection<EntityReference> GetSubContactRefs(EntityReference accountRef);
     }
 }
