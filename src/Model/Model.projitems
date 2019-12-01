@@ -16,8 +16,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\ContactDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\AccountService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IAccountService.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Services\ISystemUserService.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Services\SystemUserService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\OptionSetDefinitions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\SystemUserDefinition.cs" />
   </ItemGroup>
