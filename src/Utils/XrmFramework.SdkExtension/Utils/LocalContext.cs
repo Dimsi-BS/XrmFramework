@@ -14,6 +14,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using Microsoft.Crm.Sdk.Messages;
 
 namespace Plugins
 {
@@ -36,6 +37,8 @@ namespace Plugins
         public Guid InitiatingUserId => ExecutionContext.InitiatingUserId;
 
         public Guid CorrelationId => ExecutionContext.CorrelationId;
+
+        public string OrganizationName => ExecutionContext.OrganizationName;
 
         //public Guid CorrelationId => ExecutionContext.CorrelationId;
 
@@ -104,7 +107,7 @@ namespace Plugins
 
         public object GetService(Type type)
         {
-            return ServiceManager.GetService(type, this);
+            return ServiceFactory.GetService(type, this);
         }
 
         public Logger Logger => LogHelper.Log;
@@ -527,7 +530,7 @@ namespace Plugins
                 return ParentLocalContext.GetInitiatingUserId();
             }
 
-            return InitiatingUserId;
+            return UserId;
         }
     }
 }

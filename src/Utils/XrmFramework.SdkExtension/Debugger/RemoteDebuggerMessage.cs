@@ -113,6 +113,7 @@ namespace XrmFramework.Debugger
             new RelationshipQueryCollectionConverter(),
             new OrganizationRequestCollectionConverter(),
             new OrganizationResponseCollectionConverter(),
+            new ArgumentsCollectionConverter(),
             new CustomKeyValuePairConverter<string, object>(),
             new CustomKeyValuePairConverter<string, Entity>(),
             new CustomKeyValuePairConverter<string, string>(),

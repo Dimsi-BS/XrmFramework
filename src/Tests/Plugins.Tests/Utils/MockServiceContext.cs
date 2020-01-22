@@ -61,6 +61,7 @@ namespace Plugins
         }
 
         public Guid CorrelationId { get; } = Guid.NewGuid();
+        public string OrganizationName { get; set; }
 
         public Logger Logger => _log.Log;
 

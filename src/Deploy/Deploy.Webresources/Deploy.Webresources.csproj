@@ -55,6 +55,10 @@
       <Link>connectionStrings.config</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="..\..\Config\xrmFramework.config">
+      <Link>xrmFramework.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\XrmProject.Utils\XrmProject.Utils.csproj">
@@ -64,7 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies">
-      <Version>9.0.2.12</Version>
+      <Version>9.0.2.21</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -62,10 +62,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies">
-      <Version>9.0.2.12</Version>
+      <Version>9.0.2.21</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CrmSdk.Workflow">
-      <Version>9.0.2.12</Version>
+      <Version>9.0.2.21</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +76,10 @@
       <Link>connectionStrings.config</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="..\..\Config\xrmFramework.config">
+      <Link>xrmFramework.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

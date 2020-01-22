@@ -15,16 +15,13 @@ namespace Plugins
 {
 	public class LoggedAccountService : LoggedService, IAccountService
 	{
-		private AccountService Service { get; set; }
+		private IAccountService Service { get; set; }
 
 		#region .ctor
-		public LoggedAccountService(IServiceContext context) : base(context)
+		public LoggedAccountService(IServiceContext context, IAccountService service) : base(context, service)
 		{
-			Service = new AccountService(context);
-		}
+			Service = service;
 
-		public LoggedAccountService(IOrganizationService service) : this(new ServiceContextBase(service))
-		{
 		}
 		#endregion
 
@@ -33,7 +30,7 @@ namespace Plugins
 			#region Parameters check
 			if (accountRef == null)
 			{
-				throw new ArgumentNullException("accountRef");
+				throw new ArgumentNullException(nameof(accountRef));
 			}
 			#endregion
 

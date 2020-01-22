@@ -67,7 +67,7 @@ namespace XrmProject.Utils
             sb.AppendLine("{");
             sb.AppendFormat("\tpublic class {0} : {1}, {2}\r\n", loggedServiceName, parentLoggedServiceName, type.Name);
             sb.AppendLine("\t{");
-            sb.AppendFormat("\t\tprivate {0} Service {{ get; set; }}\r\n", baseClassName);
+            sb.AppendFormat("\t\tprivate {0} Service {{ get; set; }}\r\n", type.Name);
             sb.AppendLine();
             if (isIService)
             {
@@ -76,17 +76,13 @@ namespace XrmProject.Utils
             }
 
             sb.AppendLine("\t\t#region .ctor");
-            sb.AppendFormat("\t\tpublic {0}(IServiceContext context){1}\r\n", loggedServiceName, isIService ? string.Empty : " : base(context)");
+            sb.AppendFormat("\t\tpublic {0}(IServiceContext context, {1} service){2}\r\n", loggedServiceName, type.Name, isIService ? string.Empty : " : base(context, service)");
             sb.AppendLine("\t\t{");
-            sb.AppendFormat("\t\t\tService = new {0}(context);\r\n", baseClassName);
+            sb.AppendLine("\t\t\tService = service;\r\n");
             if (isIService)
             {
                 sb.AppendLine("\t\t\tLog = context.Logger;");
             }
-            sb.AppendLine("\t\t}");
-            sb.AppendLine();
-            sb.AppendFormat("\t\tpublic {0}(IOrganizationService service) : this(new ServiceContextBase(service))\r\n", loggedServiceName);
-            sb.AppendLine("\t\t{");
             sb.AppendLine("\t\t}");
             sb.AppendLine("\t\t#endregion");
 
@@ -205,7 +201,7 @@ namespace XrmProject.Utils
                         sb.AppendFormat("\t\t\tif ({0} == null)\r\n", param.Name);
                     }
                     sb.AppendLine("\t\t\t{");
-                    sb.AppendFormat("\t\t\t\tthrow new ArgumentNullException(\"{0}\");\r\n", param.Name);
+                    sb.AppendFormat("\t\t\t\tthrow new ArgumentNullException(nameof({0}));\r\n", param.Name);
                     sb.AppendLine("\t\t\t}");
                 }
             }
@@ -663,6 +659,10 @@ namespace XrmProject.Utils
                     else if (param.DefaultValue == null)
                     {
                         sb.Append(" = null");
+                    }
+                    else if (param.DefaultValue.GetType().IsEnum)
+                    {
+                        sb.AppendFormat(" = {0}.{1}", param.DefaultValue.GetType().FullName, param.DefaultValue);
                     }
                     else
                     {

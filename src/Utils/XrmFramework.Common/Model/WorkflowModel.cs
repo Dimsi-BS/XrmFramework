@@ -8,7 +8,7 @@ namespace XrmFramework.Model
     public class WorkflowModel : IBindingModel
     {
         [CrmMapping(WorkflowDefinition.Columns.PluginTypeId)]
-        public PluginType PluginType { get; set; }
+        public Guid PluginType { get; set; }
 
         [CrmMapping(WorkflowDefinition.Columns.Name)]
         public string Name { get; set; }

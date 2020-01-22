@@ -30,5 +30,7 @@ namespace Plugins
         Logger Logger { get; }
 
         Guid CorrelationId { get; }
+
+        string OrganizationName { get; }
     }
 }

@@ -2,12 +2,9 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
 using Deploy.Utils;
+using Plugins;
 using Workflows;
-using XrmFramework.Debugger;
 
 namespace Deploy.Plugins
 {

@@ -1846,9 +1846,9 @@ namespace Model
             return RetrieveAll(service, query).ToBindingModel<T>().ToList();
         }
 
-        public static IList<T> RetrieveAll<T>(this IOrganizationService service, QueryExpression query) where T : IBindingModel
+        public static IList<T> RetrieveAll<T>(this IOrganizationService service, QueryExpression query, bool cleanLinks = false) where T : IBindingModel
         {
-            return RetrieveAll(service, query).ToBindingModel<T>().ToList();
+            return RetrieveAll(service, query, cleanLinks).ToBindingModel<T>().ToList();
         }
 
         public static IList<Entity> RetrieveAll(this IOrganizationService service, QueryExpression query, bool cleanLinks = true)

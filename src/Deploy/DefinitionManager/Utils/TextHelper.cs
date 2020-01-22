@@ -13,11 +13,11 @@ namespace DefinitionManager
     {
         internal static string FormatText(this string text)
         {
-            text = text.Replace("'", " ").Replace("-", " ").Replace("(", " ").Replace(")", " ").Replace(":", " ").Replace("/", " ").Replace("\\", " ").Replace("%", " Pourcent ").Replace("+", " Plus ").Replace("&", " ");
+            text = text.Replace("'", " ").Replace("‘", " ").Replace("’", " ").Replace(",", " ").Replace("-", " ").Replace("(", " ").Replace(")", " ").Replace(":", " ").Replace("/", " ").Replace("\\", " ").Replace("%", " Pourcent ").Replace("+", " Plus ").Replace("&", " ");
             text = RemoveDiacritics(text);
 
-            CultureInfo cultureInfo = System.Threading.Thread.CurrentThread.CurrentCulture;
-            TextInfo textInfo = cultureInfo.TextInfo;
+            var cultureInfo = System.Threading.Thread.CurrentThread.CurrentCulture;
+            var textInfo = cultureInfo.TextInfo;
 
             text = textInfo.ToTitleCase(text);
 

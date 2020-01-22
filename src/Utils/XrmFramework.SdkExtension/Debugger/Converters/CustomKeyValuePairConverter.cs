@@ -84,7 +84,7 @@ namespace XrmFramework.Debugger.Converters
                     }
                     else
                     {
-                        value = (TValue)reader.Value;
+                        value = (TValue)serializer.Deserialize(reader, type);
                     }
                 }
             }

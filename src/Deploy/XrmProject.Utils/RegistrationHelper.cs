@@ -28,7 +28,7 @@ namespace Deploy.Plugins
 
             var pluginList = new List<Deploy.Plugin>();
 
-            ObjectHelper<T>.ApplyCode(new Type[] { typeof(string), typeof(string) }, new object[] { null, null }, (plugin, type, sb) => { pluginList.Add(PluginConverter(plugin)); return false; });
+            ObjectHelper<T>.ApplyCode(new Type[] { typeof(string), typeof(string) }, new object[]{null, null}, (plugin, type, sb) => { pluginList.Add(PluginConverter(plugin)); return false; });
 
             ObjectHelper<U>.ApplyCode(new Type[] { }, null, (wf, type, sb) => { pluginList.Add(WorkflowConverter(wf)); return false; });
 

@@ -26,7 +26,10 @@ namespace XrmFramework.Debugger
             _uri = uri;
             var token = BuildSignature(keyName, Encoding.UTF8.GetBytes(sharedAccessKey), uri, TimeSpan.FromMinutes(5));
 
-            _client = new HttpClient();
+            _client = new HttpClient
+            {
+                Timeout = TimeSpan.FromMinutes(2)
+            };
             _client.DefaultRequestHeaders.Add("ServiceBusAuthorization", token);
         }
 

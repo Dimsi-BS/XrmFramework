@@ -36,6 +36,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IPluginContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IServiceContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\IServiceWithSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\LocalContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\LocalPluginContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\LocalWorkflowContext.cs" />
@@ -45,9 +46,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Plugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\QueryExpressionExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\RequestContainer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utils\ServiceChannel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ServiceContextBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utils\ServiceManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ServiceFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Step.cs" />
   </ItemGroup>
 </Project>

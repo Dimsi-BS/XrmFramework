@@ -15,16 +15,13 @@ namespace Plugins
 {
 	public class LoggedSystemUserService : LoggedService, ISystemUserService
 	{
-		private SystemUserService Service { get; set; }
+		private ISystemUserService Service { get; set; }
 
 		#region .ctor
-		public LoggedSystemUserService(IServiceContext context) : base(context)
+		public LoggedSystemUserService(IServiceContext context, ISystemUserService service) : base(context, service)
 		{
-			Service = new SystemUserService(context);
-		}
+			Service = service;
 
-		public LoggedSystemUserService(IOrganizationService service) : this(new ServiceContextBase(service))
-		{
 		}
 		#endregion
 
@@ -33,7 +30,7 @@ namespace Plugins
 			#region Parameters check
 			if (userRef == null)
 			{
-				throw new ArgumentNullException("userRef");
+				throw new ArgumentNullException(nameof(userRef));
 			}
 			#endregion
 

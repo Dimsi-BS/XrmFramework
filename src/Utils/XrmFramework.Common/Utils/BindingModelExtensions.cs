@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 using System;
 using System.CodeDom;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -146,12 +147,30 @@ namespace Model
 
             if (converterType != null)
             {
-                var converter = (IConverter) Activator.CreateInstance(converterType);
+                var converter = (IConverter)Activator.CreateInstance(converterType);
 
                 sourceValue = converter.ConvertFrom(sourceValue);
             }
 
-            targetProperty.SetMethod?.Invoke(output, new[] {sourceValue});
+            if (targetProperty.SetMethod == null)
+            {
+                var collection = targetProperty.GetMethod.Invoke(output, new object[] { });
+                var addMethod = targetProperty.PropertyType.GetMethod("Add");
+
+                if (addMethod == null)
+                {
+                    return;
+                }
+
+                foreach (var element in (IEnumerable)sourceValue)
+                {
+                    addMethod?.Invoke(collection, new[] { element });
+                }
+            }
+            else
+            {
+                targetProperty.SetMethod.Invoke(output, new[] { sourceValue });
+            }
         }
 
         private static PropertyInfo GetPropertyInfo<T>(Expression<Func<T, object>> propertyExpression)

@@ -11,7 +11,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Contexts;
 using XrmFramework.Common;
+using RoleDefinition = XrmFramework.Common.RoleDefinition;
 using SystemUserDefinition = Model.SystemUserDefinition;
+using SystemUserRolesDefinition = XrmFramework.Common.SystemUserRolesDefinition;
+using TeamDefinition = XrmFramework.Common.TeamDefinition;
 
 namespace Plugins
 {
@@ -34,6 +37,8 @@ namespace Plugins
         protected EntityReference BusinessUnitRef => _context.BusinessUnitRef;
 
         protected Guid UserId => _context.UserId;
+
+        protected string OrganizationName => _context.OrganizationName;
 
         protected Guid InitiatingUserId => _context.InitiatingUserId;
 
@@ -460,14 +465,21 @@ namespace Plugins
             return AdminOrganizationService.GetById<T>(entityReference);
         }
 
-        public T Upsert<T>(T model) where T : IBindingModel, new()
+        public T Upsert<T>(T model, bool isAdmin = false) where T : IBindingModel, new()
         {
-            return OrganizationService.Upsert(model);
+            var service = isAdmin ? AdminOrganizationService : OrganizationService; 
+
+            return service.Upsert(model);
         }
 
 
         public void AddUsersToTeam(EntityReference teamRef, params EntityReference[] userRefs)
         {
+            if(userRefs.Length == 0)
+            {
+                return;
+            }
+
             var request = new AddMembersTeamRequest
             {
                 MemberIds = userRefs.Select(u => u.Id).ToArray(),
@@ -507,16 +519,6 @@ namespace Plugins
             return AdminOrganizationService.RetrieveAll(query).Select(e => e.ToEntityReference()).FirstOrDefault();
         }
 
-        public void RemoveFromQueue(Guid queueItemId)
-        {
-            var request = new RemoveFromQueueRequest
-            {
-               QueueItemId = queueItemId               
-            };
-
-            AdminOrganizationService.Execute(request);
-        }
-
         public void Merge(EntityReference target, Guid subordonate, Entity content)
         {
             var request = new MergeRequest
@@ -530,7 +532,10 @@ namespace Plugins
             AdminOrganizationService.Execute(request);
         }
 
-        public bool UserHasOneRoleOf(Guid userId, bool parentRootRole, params Guid[] parentRoleIds)
+        public bool UserHasOneRoleOf(Guid userId, params string[] roleIdTxts) => 
+            UserHasOneRoleOf(userId, roleIdTxts?.Select(t => new Guid(t)).ToArray());
+
+        public bool UserHasOneRoleOf(Guid userId, params Guid[] roleIds)
         {
             var query = new QueryExpression(SystemUserDefinition.EntityName);
             query.ColumnSet.AddColumn(SystemUserDefinition.Columns.Id);
@@ -540,7 +545,7 @@ namespace Plugins
             var roleLink = userRoleLink.AddLink(RoleDefinition.EntityName, SystemUserRolesDefinition.Columns.RoleId, RoleDefinition.Columns.Id);
             roleLink.LinkCriteria.FilterOperator = LogicalOperator.Or;
 
-            foreach (var roleId in parentRoleIds)
+            foreach (var roleId in roleIds)
             {
                 roleLink.LinkCriteria.AddCondition(RoleDefinition.Columns.ParentRootRoleId, ConditionOperator.Equal, roleId);
                 roleLink.LinkCriteria.AddCondition(RoleDefinition.Columns.RoleTemplateId, ConditionOperator.Equal, roleId);
@@ -567,9 +572,9 @@ namespace Plugins
                         ).ToList();
         }
 
-        public bool UserHasRole(Guid userId, Guid parentRoleId, bool parentRootRole = true)
+        public bool UserHasRole(Guid userId, Guid parentRoleId)
         {
-            return UserHasOneRoleOf(userId, parentRootRole, parentRoleId);
+            return UserHasOneRoleOf(userId, parentRoleId);
         }
 
         public Entity ToEntity<T>(T model) where T : IBindingModel
@@ -581,12 +586,20 @@ namespace Plugins
         {
             var queryMembers = new QueryExpression(SystemUserDefinition.EntityName);
             queryMembers.ColumnSet.AddColumn(SystemUserDefinition.Columns.Id);
-            var linkMembers = queryMembers.AddLink(SystemUserDefinition.TeamMembershipRelationName, SystemUserDefinition.Columns.Id, SystemUserDefinition.Columns.Id);
+            var linkMembers = queryMembers.AddLink(XrmFramework.Common.SystemUserDefinition.TeamMembershipRelationName, SystemUserDefinition.Columns.Id, SystemUserDefinition.Columns.Id);
             var linkTeam = linkMembers.AddLink(TeamDefinition.EntityName, TeamDefinition.Columns.Id, TeamDefinition.Columns.Id);
 
             linkTeam.LinkCriteria.AddCondition(TeamDefinition.Columns.Id, ConditionOperator.Equal, teamRef.Id);
 
             return AdminOrganizationService.RetrieveAll(queryMembers, false).Select(e => e.ToEntityReference()).ToList();
+        }
+
+        public void AssociateRecords(EntityReference objectRef, Relationship relationName, params EntityReference[] entityReferences)
+        {
+            var collec = new EntityReferenceCollection();
+            collec.AddRange(entityReferences);
+
+            AdminOrganizationService.Associate(objectRef.LogicalName, objectRef.Id, relationName, collec);
         }
     }
 }

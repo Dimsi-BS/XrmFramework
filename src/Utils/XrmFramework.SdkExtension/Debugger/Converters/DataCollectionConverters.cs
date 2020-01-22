@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Sdk.Workflow;
 #if INTERNAL_NEWTONSOFT
 using Newtonsoft.Json.Xrm;
 #else
@@ -199,6 +200,20 @@ namespace XrmFramework.Debugger.Converters
         }
     }
 
+    public class ArgumentsCollectionConverter : JsonConverter<ArgumentsCollection>
+    {
+        private readonly DataCollectionConverter<string, object> _internalConverter = new DataCollectionConverter<string, object>();
+
+        public override void WriteJson(JsonWriter writer, ArgumentsCollection value, JsonSerializer serializer)
+        {
+            _internalConverter.WriteJson(writer, value, serializer);
+        }
+
+        public override ArgumentsCollection ReadJson(JsonReader reader, Type objectType, ArgumentsCollection existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            return (ArgumentsCollection)_internalConverter.ReadJson(reader, objectType, existingValue, hasExistingValue, serializer);
+        }
+    }
 
     [JsonObject]
     public class ObjectSerialization

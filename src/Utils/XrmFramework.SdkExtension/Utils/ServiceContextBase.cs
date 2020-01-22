@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xrm.Sdk.Query;
 
 namespace Plugins
 {
@@ -27,7 +28,9 @@ namespace Plugins
             InitiatingUserId = response.UserId;
             BusinessUnitRef = new EntityReference("businessunit", response.BusinessUnitId);
 
-         }
+            var organization = service.Retrieve("organization", response.OrganizationId, new ColumnSet("name"));
+            OrganizationName = organization.GetAttributeValue<string>("name");
+        }
 
         public ServiceContextBase(IOrganizationService service, TraceLogger log) : this(service)
         {
@@ -78,6 +81,8 @@ namespace Plugins
             get;
             set;
         }
+
+        public string OrganizationName { get; set; }
 
         public Logger Logger
         {

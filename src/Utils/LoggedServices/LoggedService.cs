@@ -15,19 +15,16 @@ namespace Plugins
 {
 	public class LoggedService : ILoggedService, IService
 	{
-		private DefaultService Service { get; set; }
+		private IService Service { get; set; }
 
 		protected Logger Log { get; set; }
 
 		#region .ctor
-		public LoggedService(IServiceContext context)
+		public LoggedService(IServiceContext context, IService service)
 		{
-			Service = new DefaultService(context);
-			Log = context.Logger;
-		}
+			Service = service;
 
-		public LoggedService(IOrganizationService service) : this(new ServiceContextBase(service))
-		{
+			Log = context.Logger;
 		}
 		#endregion
 
@@ -36,7 +33,7 @@ namespace Plugins
 			#region Parameters check
 			if (entity == null)
 			{
-				throw new ArgumentNullException("entity");
+				throw new ArgumentNullException(nameof(entity));
 			}
 			#endregion
 
@@ -57,7 +54,7 @@ namespace Plugins
 			#region Parameters check
 			if (entity == null)
 			{
-				throw new ArgumentNullException("entity");
+				throw new ArgumentNullException(nameof(entity));
 			}
 			#endregion
 
@@ -78,7 +75,7 @@ namespace Plugins
 			#region Parameters check
 			if (entity == null)
 			{
-				throw new ArgumentNullException("entity");
+				throw new ArgumentNullException(nameof(entity));
 			}
 			#endregion
 
@@ -98,11 +95,11 @@ namespace Plugins
 			#region Parameters check
 			if (string.IsNullOrEmpty(logicalName))
 			{
-				throw new ArgumentNullException("logicalName");
+				throw new ArgumentNullException(nameof(logicalName));
 			}
 			if (id == Guid.Empty)
 			{
-				throw new ArgumentNullException("id");
+				throw new ArgumentNullException(nameof(id));
 			}
 			#endregion
 
@@ -122,11 +119,11 @@ namespace Plugins
 			#region Parameters check
 			if (entity == null)
 			{
-				throw new ArgumentNullException("entity");
+				throw new ArgumentNullException(nameof(entity));
 			}
 			if (callerId == Guid.Empty)
 			{
-				throw new ArgumentNullException("callerId");
+				throw new ArgumentNullException(nameof(callerId));
 			}
 			#endregion
 
@@ -147,11 +144,11 @@ namespace Plugins
 			#region Parameters check
 			if (entity == null)
 			{
-				throw new ArgumentNullException("entity");
+				throw new ArgumentNullException(nameof(entity));
 			}
 			if (callerId == Guid.Empty)
 			{
-				throw new ArgumentNullException("callerId");
+				throw new ArgumentNullException(nameof(callerId));
 			}
 			#endregion
 
@@ -172,11 +169,11 @@ namespace Plugins
 			#region Parameters check
 			if (entity == null)
 			{
-				throw new ArgumentNullException("entity");
+				throw new ArgumentNullException(nameof(entity));
 			}
 			if (callerId == Guid.Empty)
 			{
-				throw new ArgumentNullException("callerId");
+				throw new ArgumentNullException(nameof(callerId));
 			}
 			#endregion
 
@@ -196,15 +193,15 @@ namespace Plugins
 			#region Parameters check
 			if (string.IsNullOrEmpty(logicalName))
 			{
-				throw new ArgumentNullException("logicalName");
+				throw new ArgumentNullException(nameof(logicalName));
 			}
 			if (id == Guid.Empty)
 			{
-				throw new ArgumentNullException("id");
+				throw new ArgumentNullException(nameof(id));
 			}
 			if (callerId == Guid.Empty)
 			{
-				throw new ArgumentNullException("callerId");
+				throw new ArgumentNullException(nameof(callerId));
 			}
 			#endregion
 
@@ -224,7 +221,7 @@ namespace Plugins
 			#region Parameters check
 			if (objectReference == null)
 			{
-				throw new ArgumentNullException("objectReference");
+				throw new ArgumentNullException(nameof(objectReference));
 			}
 			#endregion
 
@@ -244,11 +241,11 @@ namespace Plugins
 			#region Parameters check
 			if (objectReference == null)
 			{
-				throw new ArgumentNullException("objectReference");
+				throw new ArgumentNullException(nameof(objectReference));
 			}
 			if (callerId == Guid.Empty)
 			{
-				throw new ArgumentNullException("callerId");
+				throw new ArgumentNullException(nameof(callerId));
 			}
 			#endregion
 
@@ -268,7 +265,7 @@ namespace Plugins
 			#region Parameters check
 			if (objectReference == null)
 			{
-				throw new ArgumentNullException("objectReference");
+				throw new ArgumentNullException(nameof(objectReference));
 			}
 			#endregion
 
@@ -288,11 +285,11 @@ namespace Plugins
 			#region Parameters check
 			if (teamRef == null)
 			{
-				throw new ArgumentNullException("teamRef");
+				throw new ArgumentNullException(nameof(teamRef));
 			}
 			if (userRefs == null)
 			{
-				throw new ArgumentNullException("userRefs");
+				throw new ArgumentNullException(nameof(userRefs));
 			}
 			#endregion
 
@@ -312,11 +309,11 @@ namespace Plugins
 			#region Parameters check
 			if (teamRef == null)
 			{
-				throw new ArgumentNullException("teamRef");
+				throw new ArgumentNullException(nameof(teamRef));
 			}
 			if (userRefs == null)
 			{
-				throw new ArgumentNullException("userRefs");
+				throw new ArgumentNullException(nameof(userRefs));
 			}
 			#endregion
 
@@ -336,11 +333,11 @@ namespace Plugins
 			#region Parameters check
 			if (queueId == Guid.Empty)
 			{
-				throw new ArgumentNullException("queueId");
+				throw new ArgumentNullException(nameof(queueId));
 			}
 			if (target == null)
 			{
-				throw new ArgumentNullException("target");
+				throw new ArgumentNullException(nameof(target));
 			}
 			#endregion
 
@@ -355,40 +352,20 @@ namespace Plugins
 			Log("AddToQueue", "End : duration = {0}", sw.Elapsed);
 		}
 
-		public void RemoveFromQueue(Guid  queueItemId)
-		{
-			#region Parameters check
-			if (queueItemId == Guid.Empty)
-			{
-				throw new ArgumentNullException("queueItemId");
-			}
-			#endregion
-
-
-			var sw = new Stopwatch();
-			sw.Start();
-
-			Log("RemoveFromQueue", "Start: queueItemId = {0}", queueItemId);
-
-			Service.RemoveFromQueue( queueItemId);
-
-			Log("RemoveFromQueue", "End : duration = {0}", sw.Elapsed);
-		}
-
 		public void Merge(EntityReference  target, Guid  subordonate, Entity  content)
 		{
 			#region Parameters check
 			if (target == null)
 			{
-				throw new ArgumentNullException("target");
+				throw new ArgumentNullException(nameof(target));
 			}
 			if (subordonate == Guid.Empty)
 			{
-				throw new ArgumentNullException("subordonate");
+				throw new ArgumentNullException(nameof(subordonate));
 			}
 			if (content == null)
 			{
-				throw new ArgumentNullException("content");
+				throw new ArgumentNullException(nameof(content));
 			}
 			#endregion
 
@@ -408,7 +385,7 @@ namespace Plugins
 			#region Parameters check
 			if (objectRef == null)
 			{
-				throw new ArgumentNullException("objectRef");
+				throw new ArgumentNullException(nameof(objectRef));
 			}
 			#endregion
 
@@ -428,11 +405,11 @@ namespace Plugins
 			#region Parameters check
 			if (objectRef == null)
 			{
-				throw new ArgumentNullException("objectRef");
+				throw new ArgumentNullException(nameof(objectRef));
 			}
 			if (assignee == null)
 			{
-				throw new ArgumentNullException("assignee");
+				throw new ArgumentNullException(nameof(assignee));
 			}
 			#endregion
 
@@ -452,11 +429,11 @@ namespace Plugins
 			#region Parameters check
 			if (objectRef == null)
 			{
-				throw new ArgumentNullException("objectRef");
+				throw new ArgumentNullException(nameof(objectRef));
 			}
 			if (revokee == null)
 			{
-				throw new ArgumentNullException("revokee");
+				throw new ArgumentNullException(nameof(revokee));
 			}
 			#endregion
 
@@ -476,15 +453,15 @@ namespace Plugins
 			#region Parameters check
 			if (string.IsNullOrEmpty(entityName))
 			{
-				throw new ArgumentNullException("entityName");
+				throw new ArgumentNullException(nameof(entityName));
 			}
 			if (id == Guid.Empty)
 			{
-				throw new ArgumentNullException("id");
+				throw new ArgumentNullException(nameof(id));
 			}
 			if (columns == null)
 			{
-				throw new ArgumentNullException("columns");
+				throw new ArgumentNullException(nameof(columns));
 			}
 			#endregion
 
@@ -505,11 +482,11 @@ namespace Plugins
 			#region Parameters check
 			if (string.IsNullOrEmpty(entityName))
 			{
-				throw new ArgumentNullException("entityName");
+				throw new ArgumentNullException(nameof(entityName));
 			}
 			if (id == Guid.Empty)
 			{
-				throw new ArgumentNullException("id");
+				throw new ArgumentNullException(nameof(id));
 			}
 			#endregion
 
@@ -530,11 +507,11 @@ namespace Plugins
 			#region Parameters check
 			if (objectRef == null)
 			{
-				throw new ArgumentNullException("objectRef");
+				throw new ArgumentNullException(nameof(objectRef));
 			}
 			if (columns == null)
 			{
-				throw new ArgumentNullException("columns");
+				throw new ArgumentNullException(nameof(columns));
 			}
 			#endregion
 
@@ -555,7 +532,7 @@ namespace Plugins
 			#region Parameters check
 			if (objectRef == null)
 			{
-				throw new ArgumentNullException("objectRef");
+				throw new ArgumentNullException(nameof(objectRef));
 			}
 			#endregion
 
@@ -576,7 +553,7 @@ namespace Plugins
 			#region Parameters check
 			if (string.IsNullOrEmpty(optionsetName))
 			{
-				throw new ArgumentNullException("optionsetName");
+				throw new ArgumentNullException(nameof(optionsetName));
 			}
 			#endregion
 
@@ -614,7 +591,7 @@ namespace Plugins
 			#region Parameters check
 			if (id == Guid.Empty)
 			{
-				throw new ArgumentNullException("id");
+				throw new ArgumentNullException(nameof(id));
 			}
 			#endregion
 
@@ -635,7 +612,7 @@ namespace Plugins
 			#region Parameters check
 			if (entityReference == null)
 			{
-				throw new ArgumentNullException("entityReference");
+				throw new ArgumentNullException(nameof(entityReference));
 			}
 			#endregion
 
@@ -651,12 +628,12 @@ namespace Plugins
 			return returnValue;
 		}
 
-		public T Upsert<T>(T  model) where T : IBindingModel, new()
+		public T Upsert<T>(T  model, Boolean  isAdmin = false) where T : IBindingModel, new()
 		{
 			#region Parameters check
 			if (model == null)
 			{
-				throw new ArgumentNullException("model");
+				throw new ArgumentNullException(nameof(model));
 			}
 			#endregion
 
@@ -664,24 +641,24 @@ namespace Plugins
 			var sw = new Stopwatch();
 			sw.Start();
 
-			Log("Upsert", "Start: model = {0}", model);
+			Log("Upsert", "Start: model = {0}, isAdmin = {1}", model, isAdmin);
 
-			var returnValue = Service.Upsert<T>( model);
+			var returnValue = Service.Upsert<T>( model,  isAdmin);
 
 			Log("Upsert", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
 			return returnValue;
 		}
 
-		public Boolean UserHasRole(Guid  userId, Guid  parentRoleId, Boolean  parentRootRole = true)
+		public Boolean UserHasRole(Guid  userId, Guid  parentRoleId)
 		{
 			#region Parameters check
 			if (userId == Guid.Empty)
 			{
-				throw new ArgumentNullException("userId");
+				throw new ArgumentNullException(nameof(userId));
 			}
 			if (parentRoleId == Guid.Empty)
 			{
-				throw new ArgumentNullException("parentRoleId");
+				throw new ArgumentNullException(nameof(parentRoleId));
 			}
 			#endregion
 
@@ -689,24 +666,24 @@ namespace Plugins
 			var sw = new Stopwatch();
 			sw.Start();
 
-			Log("UserHasRole", "Start: userId = {0}, parentRoleId = {1}, parentRootRole = {2}", userId, parentRoleId, parentRootRole);
+			Log("UserHasRole", "Start: userId = {0}, parentRoleId = {1}", userId, parentRoleId);
 
-			var returnValue = Service.UserHasRole( userId,  parentRoleId,  parentRootRole);
+			var returnValue = Service.UserHasRole( userId,  parentRoleId);
 
 			Log("UserHasRole", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
 			return returnValue;
 		}
 
-		public Boolean UserHasOneRoleOf(Guid  userId, Boolean  parentRootRole, Guid[]  parentRoleIds)
+		public Boolean UserHasOneRoleOf(Guid  userId, Guid[]  parentRoleIds)
 		{
 			#region Parameters check
 			if (userId == Guid.Empty)
 			{
-				throw new ArgumentNullException("userId");
+				throw new ArgumentNullException(nameof(userId));
 			}
 			if (parentRoleIds == null)
 			{
-				throw new ArgumentNullException("parentRoleIds");
+				throw new ArgumentNullException(nameof(parentRoleIds));
 			}
 			#endregion
 
@@ -714,9 +691,34 @@ namespace Plugins
 			var sw = new Stopwatch();
 			sw.Start();
 
-			Log("UserHasOneRoleOf", "Start: userId = {0}, parentRootRole = {1}, parentRoleIds = {2}", userId, parentRootRole, parentRoleIds);
+			Log("UserHasOneRoleOf", "Start: userId = {0}, parentRoleIds = {1}", userId, parentRoleIds);
 
-			var returnValue = Service.UserHasOneRoleOf( userId,  parentRootRole,  parentRoleIds);
+			var returnValue = Service.UserHasOneRoleOf( userId,  parentRoleIds);
+
+			Log("UserHasOneRoleOf", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
+			return returnValue;
+		}
+
+		public Boolean UserHasOneRoleOf(Guid  userId, String[]  parentRoleIds)
+		{
+			#region Parameters check
+			if (userId == Guid.Empty)
+			{
+				throw new ArgumentNullException(nameof(userId));
+			}
+			if (parentRoleIds == null)
+			{
+				throw new ArgumentNullException(nameof(parentRoleIds));
+			}
+			#endregion
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+
+			Log("UserHasOneRoleOf", "Start: userId = {0}, parentRoleIds = {1}", userId, parentRoleIds);
+
+			var returnValue = Service.UserHasOneRoleOf( userId,  parentRoleIds);
 
 			Log("UserHasOneRoleOf", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
 			return returnValue;
@@ -727,7 +729,7 @@ namespace Plugins
 			#region Parameters check
 			if (userRef == null)
 			{
-				throw new ArgumentNullException("userRef");
+				throw new ArgumentNullException(nameof(userRef));
 			}
 			#endregion
 
@@ -748,7 +750,7 @@ namespace Plugins
 			#region Parameters check
 			if (model == null)
 			{
-				throw new ArgumentNullException("model");
+				throw new ArgumentNullException(nameof(model));
 			}
 			#endregion
 
@@ -769,7 +771,7 @@ namespace Plugins
 			#region Parameters check
 			if (teamRef == null)
 			{
-				throw new ArgumentNullException("teamRef");
+				throw new ArgumentNullException(nameof(teamRef));
 			}
 			#endregion
 
@@ -783,6 +785,34 @@ namespace Plugins
 
 			Log("GetTeamMemberRefs", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
 			return returnValue;
+		}
+
+		public void AssociateRecords(EntityReference  objectRef, Relationship  relationName, EntityReference[]  entityReferences)
+		{
+			#region Parameters check
+			if (objectRef == null)
+			{
+				throw new ArgumentNullException(nameof(objectRef));
+			}
+			if (relationName == null)
+			{
+				throw new ArgumentNullException(nameof(relationName));
+			}
+			if (entityReferences == null)
+			{
+				throw new ArgumentNullException(nameof(entityReferences));
+			}
+			#endregion
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+
+			Log("AssociateRecords", "Start: objectRef = {0}, relationName = {1}, entityReferences = {2}", objectRef, relationName, entityReferences);
+
+			Service.AssociateRecords( objectRef,  relationName,  entityReferences);
+
+			Log("AssociateRecords", "End : duration = {0}", sw.Elapsed);
 		}
 	}
 }

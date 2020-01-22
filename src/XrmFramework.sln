@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{B587A0
 	ProjectSection(SolutionItems) = preProject
 		Config\App.config = Config\App.config
 		Config\connectionStrings.config = Config\connectionStrings.config
+		Config\xrmFramework.config = Config\xrmFramework.config
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{3A5567BD-E6A2-4FDA-9B82-F6A19437EFF2}"

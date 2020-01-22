@@ -9,6 +9,7 @@
     <Import_RootNamespace>XrmFramework</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\DependencyInjectionAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\ExternalValueAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\AttributeMetadataAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\CopyFromParentAttribute.cs" />
@@ -46,21 +47,21 @@
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ModelPropertyConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\PicklistConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\BusinessUnitDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\DebugSessionDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\PluginAssemblyDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\PluginTypeDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\RoleDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\SdkMessageProcessingStepDefinition.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Definitions\DebugSessionDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\SdkmessageprocessingstepimageDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\SdkmessageprocessingstepsecureconfigDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\SystemUserDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\SystemUserRolesDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\TeamDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\WorkflowDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\DebugSession.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Definitions\PluginAssemblyDefinition.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Definitions\PluginTypeDefinition.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Definitions\SdkMessageProcessingStepImageDefinition.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Definitions\SdkMessageProcessingStepSecureConfigDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\PluginType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Model\WorkflowModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\SdkMessageProcessingStep.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Model\WorkflowModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Metadata\AttributeMetadata.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Metadata\EntityMetadata.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sdk\Metadata\EnumMetadata.cs" />

@@ -149,10 +149,13 @@ namespace Model
 
             if (converterAttribute != null)
             {
-                var constructorInfo = converterAttribute.ConverterType.GetConstructor((converterAttribute.ConstructorParameters?.Any() ?? false) ? converterAttribute.ConstructorParameters.Select(p => p.GetType()).ToArray() : new Type[] { });
-                if (constructorInfo != null)
+                try
                 {
-                    _typeConverter = (ModelPropertyConverter)(constructorInfo.Invoke(converterAttribute.ConstructorParameters ?? new object[] { }));
+                    _typeConverter = (ModelPropertyConverter) Activator.CreateInstance(converterAttribute.ConverterType, converterAttribute.ConstructorParameters);
+                }
+                catch (Exception)
+                {
+                    // erreur d'initialisation du converter
                 }
             }
 

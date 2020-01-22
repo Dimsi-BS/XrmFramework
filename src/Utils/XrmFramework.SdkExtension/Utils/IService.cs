@@ -39,8 +39,6 @@ namespace Plugins
 
         void AddToQueue(Guid queueId, EntityReference target);
 
-        void RemoveFromQueue(Guid queueItemId);
-
         void Merge(EntityReference target, Guid subordonate, Entity content);
 
         [Obsolete("Use Update instead.")]
@@ -66,16 +64,20 @@ namespace Plugins
 
         T GetById<T>(EntityReference entityReference) where T : IBindingModel, new();
 
-        T Upsert<T>(T model) where T : IBindingModel, new();
+        T Upsert<T>(T model, bool isAdmin = false) where T : IBindingModel, new();
 
-        bool UserHasRole(Guid userId, Guid parentRoleId, bool parentRootRole = true);
+        bool UserHasRole(Guid userId, Guid parentRoleId);
 
-        bool UserHasOneRoleOf(Guid userId, bool parentRootRole, params Guid[] parentRoleIds);
+        bool UserHasOneRoleOf(Guid userId, params Guid[] parentRoleIds);
+
+        bool UserHasOneRoleOf(Guid userId, params string[] parentRoleIds);
 
         ICollection<Guid> GetUserRoleIds(EntityReference userRef);
 
         Entity ToEntity<T>(T model) where T : IBindingModel;
 
         ICollection<EntityReference> GetTeamMemberRefs(EntityReference teamRef);
+
+        void AssociateRecords(EntityReference objectRef, Relationship relationName, params EntityReference[] entityReferences);
     }
 }
