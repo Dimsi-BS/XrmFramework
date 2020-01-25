@@ -33,8 +33,9 @@ namespace Plugins
         }
 
         public static Money ToMoney(this decimal? dec)
-        {
-            return dec == null ? null : new Money(dec.Value);
-        }
+            => dec == null ? null : new Money(dec.Value);
+
+        public static Money ToMoney(this decimal dec)
+            => ToMoney((decimal?)dec);
     }
 }

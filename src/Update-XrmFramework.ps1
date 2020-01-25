@@ -5,51 +5,63 @@
 $rootFolder = (Get-Item -Path $PSScriptRoot).FullName
 $targetNugetExe = "$rootFolder\.NuGet\nuget.exe"
 
-if ([System.IO.File]::Exists($targetNugetExe) -eq $false)
-{
+if ([System.IO.File]::Exists($targetNugetExe) -eq $false) {
     Write-Host "Downloading Nuget.exe..." -ForegroundColor Blue
     $sourceNugetExe = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
     Invoke-WebRequest $sourceNugetExe -OutFile $targetNugetExe
 
     Write-Host "Nuget.exe downloaded" -ForegroundColor Green
 }
-Set-Alias nuget $targetNugetExe
 
 Write-Host "Installing XrmFramework.Sources package..." -ForegroundColor Blue
 
-nuget install XrmFramework.Sources -NoCache -PreRelease -ExcludeVersion
+& $targetNugetExe install XrmFramework.Sources -NoCache -PreRelease -OutputDirectory $rootFolder
 
 Write-Host "XrmFramework.Sources package installation succeedeed" -ForegroundColor Green
 
-$newVersionCommonPath = "$rootFolder\XrmFramework.Sources\content\XrmFramework.Common" 
+$sourceFolder = (Get-ChildItem $rootFolder | Where-Object { $_.FullName.Contains("XrmFramework.Sources") -eq $true -and $_.PSIsContainer -eq $true }).FullName
 
-$destination = Get-ChildItem $rootFolder -Recurse -Filter XrmFramework.Common | Where-Object { $_.FullName.Contains("XrmFramework.Sources") -eq $false -and $_.PSIsContainer -eq $true }
-$destinationParentPath = $destination.Parent.FullName
+function SyncFolders {
+    param( $FolderName )
 
-Write-Host "Deletion of existing XrmFramework.Common folder..." -ForegroundColor Blue
-Remove-Item $destination.FullName -Force -Recurse -ErrorAction SilentlyContinue
-Write-Host "Existing XrmFramework.Common folder deleted" -ForegroundColor Green
+    Write-Host "Syncing $FolderName folder..." -ForegroundColor Blue
 
-Write-Host "Copy of new XrmFramework.Common folder content..." -ForegroundColor Blue
-Copy-Item $newVersionCommonPath -Destination $destinationParentPath -Force -Recurse -ErrorAction Stop
-Write-Host "New XrmFramework.Common folder content done" -ForegroundColor Green
+    $sourceFolderName = "$sourceFolder\content\$FolderName"
 
-$newVersionSdkExtensionPath = "$rootFolder\XrmFramework.Sources\content\XrmFramework.SdkExtension" 
+    $destination = Get-ChildItem $rootFolder -Recurse -Filter $FolderName | Where-Object { $_.FullName.Contains("XrmFramework.Sources") -eq $false -and $_.PSIsContainer -eq $true }
+    $destinationPath = $destination.FullName
 
-$destination = Get-ChildItem $rootFolder -Recurse -Filter XrmFramework.SdkExtension | Where-Object { $_.FullName.Contains("XrmFramework.Sources") -eq $false -and $_.PSIsContainer -eq $true }
-$destinationParentPath = $destination.Parent.FullName
+    $folder1Files = Get-ChildItem -Recurse -path $sourceFolderName
+    $folder2Files = Get-ChildItem -Recurse -path $destinationPath
+    $file_Diffs = Compare-Object -ReferenceObject $folder1Files -DifferenceObject $folder2Files -IncludeEqual
+    $file_Diffs | 
+    ForEach-Object {
+        $copyParams = @{'Path' = $_.InputObject.FullName }
+        $copyParams.Destination = $_.InputObject.FullName -replace [regex]::Escape($sourceFolderName), $destinationPath
+        if ($_.SideIndicator -eq '<=') { 
+            copy-Item @copyParams -force
+        }
+        elseif ($_.SideIndicator -eq '=>') {
+            Remove-Item @copyParams -Recurse -force -ErrorAction Ignore
+        }
+        elseif ( $_.InputObject.PSIsContainer -eq $false) {
+            $diffContent = Compare-Object -ReferenceObject $(Get-Content $_.InputObject.FullName) -DifferenceObject $(Get-Content $copyParams.Destination)
+            
+            if ($diffContent.Length -gt 0) {
+                copy-Item @copyParams -force
+            }
+        }
+    }
+    Write-Host "$FolderName folder synced" -ForegroundColor Green
+}
 
-Write-Host "Deletion of existing XrmFramework.SdkExtension folder..." -ForegroundColor Blue
-Remove-Item $destination.FullName -Force -Recurse -ErrorAction SilentlyContinue
-Write-Host "Existing XrmFramework.SdkExtension folder deleted" -ForegroundColor Green
-
-Write-Host "Copy of new XrmFramework.SdkExtension folder content..." -ForegroundColor Blue
-Copy-Item $newVersionSdkExtensionPath -Destination $destinationParentPath -Force -Recurse -ErrorAction Stop
-Write-Host "New XrmFramework.SdkExtension folder content done" -ForegroundColor Green
+SyncFolders -folderName "XrmFramework.Common"
+SyncFolders -folderName "XrmFramework.SdkExtension"
+SyncFolders -folderName "DefinitionManager"
 
 
 Write-Host "Deletion of XrmFramework.Sources package..." -ForegroundColor Blue
-Remove-Item "$rootFolder/XrmFramework.Sources" -Force -Recurse -ErrorAction Stop
+Remove-Item $sourceFolder -Force -Recurse -ErrorAction Stop
 Write-Host "XrmFramework.Sources package deleted" -ForegroundColor Green
 
 
