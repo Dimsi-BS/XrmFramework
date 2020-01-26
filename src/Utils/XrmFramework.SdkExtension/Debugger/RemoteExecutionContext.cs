@@ -10,11 +10,11 @@ using Newtonsoft.Json;
 namespace XrmFramework.Debugger
 {
     [Serializable]
-    public class RemoteDebugExecutionContext : IExecutionContext
+    public class RemoteDebugExecutionContext : IExecutionContext, IPluginExecutionContext, IWorkflowContext
     {
-        protected RemoteDebugExecutionContext() { }
+        public RemoteDebugExecutionContext() { }
 
-        protected RemoteDebugExecutionContext(IExecutionContext context)
+        public RemoteDebugExecutionContext(IExecutionContext context)
         {
             Mode = context.Mode;
             IsolationMode = context.IsolationMode;
@@ -41,6 +41,28 @@ namespace XrmFramework.Debugger
             IsInTransaction = context.IsInTransaction;
             OperationId = context.OperationId;
             OperationCreatedOn = context.OperationCreatedOn;
+
+            if (context is IPluginExecutionContext pluginContext)
+            {
+                Stage = pluginContext.Stage;
+
+                if (pluginContext.ParentContext != null)
+                {
+                    RemoteParentContext = new RemoteDebugExecutionContext(pluginContext.ParentContext);
+                }
+            }
+            else if (context is IWorkflowContext workflowContext)
+            {
+                StageName = workflowContext.StageName;
+                WorkflowCategory = workflowContext.WorkflowCategory;
+                WorkflowMode = workflowContext.WorkflowMode;
+                IsWorkflowContext = true;
+
+                if (workflowContext.ParentContext != null)
+                {
+                    RemoteParentContext = new RemoteDebugExecutionContext(workflowContext.ParentContext);
+                }
+            }
         }
 
         public int Mode { get; set; }
@@ -93,55 +115,11 @@ namespace XrmFramework.Debugger
 
         public DateTime OperationCreatedOn { get; set; }
 
-        public Guid Id { get; set; }
-    }
-
-    [Serializable]
-    public class RemoteDebugPluginExecutionContext : RemoteDebugExecutionContext, IPluginExecutionContext
-    {
-        public RemoteDebugPluginExecutionContext()
-        {
-        }
-
-        public RemoteDebugPluginExecutionContext(IPluginExecutionContext context) : base(context)
-        {
-            Stage = context.Stage;
-
-            if (context.ParentContext != null)
-            {
-                RemoteParentContext = new RemoteDebugPluginExecutionContext(context.ParentContext);
-            }
-        }
+        public string TypeAssemblyQualifiedName { get; set; }
 
         public int Stage { get; set; }
 
-        public RemoteDebugPluginExecutionContext RemoteParentContext { get; set; }
-
-        [JsonIgnore]
-        public IPluginExecutionContext ParentContext => RemoteParentContext;
-    }
-
-
-    [Serializable]
-    public class RemoteDebugWorkflowExecutionContext : RemoteDebugExecutionContext, IWorkflowContext
-    {
-        public RemoteDebugWorkflowExecutionContext()
-        {
-        }
-
-        public RemoteDebugWorkflowExecutionContext(IWorkflowContext context) : base(context)
-        {
-            StageName = context.StageName;
-            WorkflowCategory = context.WorkflowCategory;
-            WorkflowMode = context.WorkflowMode;
-
-            if (context.ParentContext != null)
-            {
-                RemoteParentContext = new RemoteDebugWorkflowExecutionContext(context.ParentContext);
-            }
-        }
-
-        public RemoteDebugWorkflowExecutionContext RemoteParentContext { get; set; }
+        public RemoteDebugExecutionContext RemoteParentContext { get; set; }
 
         public string StageName { get; }
         public int WorkflowCategory { get; }
@@ -150,8 +128,13 @@ namespace XrmFramework.Debugger
         [JsonIgnore]
         IWorkflowContext IWorkflowContext.ParentContext => RemoteParentContext;
 
-        public string ActivityAssemblyQualifiedName { get; set; }
+        public Guid Id { get; set; }
+
+        [JsonIgnore]
+        IPluginExecutionContext IPluginExecutionContext.ParentContext => RemoteParentContext;
 
         public ArgumentsCollection Arguments { get; set; } = new ArgumentsCollection();
+
+        public bool IsWorkflowContext { get; set; }
     }
 }

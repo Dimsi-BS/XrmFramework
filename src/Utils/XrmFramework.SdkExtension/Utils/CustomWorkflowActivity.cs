@@ -63,7 +63,7 @@ namespace Workflows
 
                         var remoteContext = localContext.RemoteContext;
 
-                        remoteContext.ActivityAssemblyQualifiedName = GetType().AssemblyQualifiedName;
+                        remoteContext.TypeAssemblyQualifiedName = GetType().AssemblyQualifiedName;
                         remoteContext.Id = Guid.NewGuid();
 
                         SetArgumentsInRemoteContext(context, remoteContext);
@@ -104,7 +104,7 @@ namespace Workflows
                                     throw response.GetException();
                                 }
 
-                                var updatedContext = response.GetContext<RemoteDebugWorkflowExecutionContext>();
+                                var updatedContext = response.GetContext<RemoteDebugExecutionContext>();
 
                                 localContext.UpdateContext(updatedContext);
 
@@ -167,7 +167,7 @@ namespace Workflows
             }
         }
 
-        private void ExtractArgumentsFromRemoteContext(CodeActivityContext context, RemoteDebugWorkflowExecutionContext updatedContext)
+        private void ExtractArgumentsFromRemoteContext(CodeActivityContext context, RemoteDebugExecutionContext updatedContext)
         {
             foreach (var argument in updatedContext.Arguments)
             {
@@ -181,28 +181,28 @@ namespace Workflows
                 if (typeof(OutArgument).IsAssignableFrom(property.PropertyType) ||
                     typeof(InOutArgument).IsAssignableFrom(property.PropertyType))
                 {
-                    var setMethod = property.PropertyType.GetMethod("Set", new[] {typeof(CodeActivityContext)});
+                    var setMethod = property.PropertyType.GetMethod("Set", new[] { typeof(CodeActivityContext) });
 
                     if (setMethod != null)
                     {
-                        setMethod.Invoke(property.GetValue(this), new object[] {context, argument.Value});
+                        setMethod.Invoke(property.GetValue(this), new object[] { context, argument.Value });
                     }
                 }
             }
         }
 
-        private void SetArgumentsInRemoteContext(CodeActivityContext context, RemoteDebugWorkflowExecutionContext remoteContext)
+        private void SetArgumentsInRemoteContext(CodeActivityContext context, RemoteDebugExecutionContext remoteContext)
         {
             foreach (var property in GetType().GetProperties())
             {
                 if (typeof(InArgument).IsAssignableFrom(property.PropertyType) ||
                     typeof(InOutArgument).IsAssignableFrom(property.PropertyType))
                 {
-                    var getMethod = property.PropertyType.GetMethod("Get", new[] {typeof(CodeActivityContext)});
+                    var getMethod = property.PropertyType.GetMethod("Get", new[] { typeof(CodeActivityContext) });
 
                     if (getMethod != null)
                     {
-                        remoteContext.Arguments.Add(property.Name, getMethod.Invoke(property.GetValue(this), new object[] {context}));
+                        remoteContext.Arguments.Add(property.Name, getMethod.Invoke(property.GetValue(this), new object[] { context }));
                     }
                 }
             }

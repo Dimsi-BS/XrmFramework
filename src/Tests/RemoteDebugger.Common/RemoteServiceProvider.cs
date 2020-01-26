@@ -9,11 +9,11 @@ using Microsoft.Xrm.Sdk.Messages;
 using Plugins;
 using XrmFramework.Debugger;
 
-namespace RemoteDebugger.Common
+namespace XrmFramework.RemoteDebugger.Common
 {
     public class RemoteServiceProvider : IServiceProvider
     {
-        public delegate RemoteDebuggerMessage RequestHandler(RemoteDebuggerMessage message);
+        public delegate RemoteDebuggerMessage RequestHandler(RemoteDebuggerMessage messageString);
 
         public event RequestHandler RequestSent;
 

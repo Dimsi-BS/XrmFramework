@@ -15,7 +15,7 @@ namespace Plugins
 
     public sealed class LocalWorkflowContext : LocalContext, ICustomWorkflowContext
     {
-        private CodeActivityContext _context;
+        private readonly CodeActivityContext _context;
 
         public IWorkflowContext WorkflowContext => (IWorkflowContext)ExecutionContext;
 
@@ -26,9 +26,7 @@ namespace Plugins
         }
 
         T ICustomWorkflowContext.GetArgumentValue<T>(InArgument<T> argument)
-        {
-            return argument.Get(_context);
-        }
+            => argument.Get(_context);
 
         void ICustomWorkflowContext.SetArgumentValue<T>(OutArgument<T> argument, T value)
         {
@@ -36,9 +34,7 @@ namespace Plugins
         }
 
         T ICustomWorkflowContext.GetArgumentValue<T>(InOutArgument<T> argument)
-        {
-            return argument.Get(_context);
-        }
+            => argument.Get(_context);
 
         void ICustomWorkflowContext.SetArgumentValue<T>(InOutArgument<T> argument, T value)
         {
@@ -48,20 +44,18 @@ namespace Plugins
         public EntityReference ObjectRef => new EntityReference(WorkflowContext.PrimaryEntityName, WorkflowContext.PrimaryEntityId);
 
         public WorkflowModes WorkflowMode
-        {
-            get { return (WorkflowModes)Enum.ToObject(typeof(WorkflowModes), WorkflowContext.WorkflowMode); }
-        }
+            => (WorkflowModes)Enum.ToObject(typeof(WorkflowModes), WorkflowContext.WorkflowMode);
 
         public void DumpObject(string parameterName, object parameter)
         {
             LogHelper.DumpObject(parameterName, parameter);
         }
 
-        public RemoteDebugWorkflowExecutionContext RemoteContext => new RemoteDebugWorkflowExecutionContext(WorkflowContext);
+        public RemoteDebugExecutionContext RemoteContext => new RemoteDebugExecutionContext(WorkflowContext);
 
-        public bool IsDebugContext => WorkflowContext is RemoteDebugWorkflowExecutionContext;
+        public bool IsDebugContext => WorkflowContext is RemoteDebugExecutionContext;
 
-        public void UpdateContext(RemoteDebugWorkflowExecutionContext updatedContext)
+        public void UpdateContext(RemoteDebugExecutionContext updatedContext)
         {
             WorkflowContext.InputParameters.Clear();
             WorkflowContext.InputParameters.AddRange(updatedContext.InputParameters);

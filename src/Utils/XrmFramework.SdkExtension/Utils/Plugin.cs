@@ -207,7 +207,7 @@ namespace Plugins
                                     throw response.GetException();
                                 }
 
-                                var updatedContext = response.GetContext<RemoteDebugPluginExecutionContext>();
+                                var updatedContext = response.GetContext<RemoteDebugExecutionContext>();
 
                                 localContext.UpdateContext(updatedContext);
                             }

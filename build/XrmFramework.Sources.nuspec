@@ -16,5 +16,7 @@
     <file src="..\src\Utils\XrmFramework.Common\**\**" target="content\XrmFramework.Common" />
     <file src="..\src\Utils\XrmFramework.SdkExtension\**\**" target="content\XrmFramework.SdkExtension" />
     <file src="..\src\Deploy\DefinitionManager\**\**" target="content\DefinitionManager" />
+    <file src="..\src\Tests\RemoteDebugger.Common\**\**" target="content\RemoteDebugger.Common" />
+    <file src="..\src\Deploy\XrmProject.Utils\**\**" target="content\XrmProject.Utils" />
   </files>
 </package>

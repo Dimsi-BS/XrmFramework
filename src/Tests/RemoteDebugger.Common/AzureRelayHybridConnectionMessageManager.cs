@@ -16,14 +16,14 @@ using Newtonsoft.Json;
 
 
 
-namespace RemoteDebugger.Common
+namespace XrmFramework.RemoteDebugger.Common
 {
-    public class AzureRelayHybridConnectionMessageManager<T> : IRemoteDebuggerMessageManager<T> where T : RemoteDebugExecutionContext
+    public class AzureRelayHybridConnectionMessageManager : IRemoteDebuggerMessageManager
     {
         private static readonly ConcurrentDictionary<Guid, RemoteDebuggerMessage> MessageSendCache = new ConcurrentDictionary<Guid, RemoteDebuggerMessage>();
         private static readonly ConcurrentDictionary<Guid, RemoteDebuggerMessage> MessageReceiveCache = new ConcurrentDictionary<Guid, RemoteDebuggerMessage>();
 
-        public event Action<T> ContextReceived;
+        public event Action<RemoteDebugExecutionContext> ContextReceived;
 
         private RelayedHttpListenerResponse CurrentResponse
         {
@@ -55,7 +55,7 @@ namespace RemoteDebugger.Common
             var message = JsonConvert.DeserializeObject<RemoteDebuggerMessage>(requestContent);
             if (message.MessageType == RemoteDebuggerMessageType.Context)
             {
-                var remoteContext = message.GetContext<T>();
+                var remoteContext = message.GetContext<RemoteDebugExecutionContext>();
                 OnContextReceived(remoteContext);
 
                 MessageSendCache.TryAdd(remoteContext.Id, new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id));
@@ -111,7 +111,7 @@ namespace RemoteDebugger.Common
             Listener.CloseAsync().GetAwaiter().GetResult();
         }
 
-        protected virtual void OnContextReceived(T obj)
+        protected virtual void OnContextReceived(RemoteDebugExecutionContext obj)
         {
             ContextReceived?.Invoke(obj);
         }

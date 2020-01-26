@@ -62,7 +62,7 @@ namespace Plugins
 
         public IPluginContext ParentContext => ParentPluginContext;
 
-        public LocalPluginContext ParentPluginContext { get;}
+        public LocalPluginContext ParentPluginContext { get; }
 
         public bool IsMultiplePrePostOperation
         {
@@ -79,11 +79,11 @@ namespace Plugins
             }
         }
 
-        public RemoteDebugPluginExecutionContext RemoteContext => new RemoteDebugPluginExecutionContext(PluginExecutionContext);
+        public RemoteDebugExecutionContext RemoteContext => new RemoteDebugExecutionContext(PluginExecutionContext);
 
-        public bool IsDebugContext => PluginExecutionContext is RemoteDebugPluginExecutionContext;
+        public bool IsDebugContext => PluginExecutionContext is RemoteDebugExecutionContext;
 
-        public void UpdateContext(RemoteDebugPluginExecutionContext updatedContext)
+        public void UpdateContext(RemoteDebugExecutionContext updatedContext)
         {
             PluginExecutionContext.InputParameters.Clear();
             PluginExecutionContext.InputParameters.AddRange(updatedContext.InputParameters);

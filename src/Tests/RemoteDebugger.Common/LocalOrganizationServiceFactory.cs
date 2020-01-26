@@ -6,7 +6,7 @@ using Microsoft.Xrm.Sdk;
 using Plugins;
 using XrmFramework.Debugger;
 
-namespace RemoteDebugger.Common
+namespace XrmFramework.RemoteDebugger.Common
 {
     public class LocalOrganizationServiceFactory : IOrganizationServiceFactory
     {

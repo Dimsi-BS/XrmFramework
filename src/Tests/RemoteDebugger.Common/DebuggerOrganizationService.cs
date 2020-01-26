@@ -2,14 +2,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using System.Web.Management;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
-using Plugins;
+using Newtonsoft.Json;
 using XrmFramework.Debugger;
 
-namespace RemoteDebugger.Common
+namespace XrmFramework.RemoteDebugger.Common
 {
     public class DebuggerOrganizationService : IOrganizationService
     {

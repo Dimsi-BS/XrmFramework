@@ -40,9 +40,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webresources", "Webresource
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{EBA0AD2C-313B-46CB-A22D-22B396F29F66}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest.Plugins", "UnitTest.Plugins\UnitTest.Plugins.csproj", "{3DD56EC9-A1F2-42A7-85CB-56987E1EB231}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest.Plugins", "Tests\UnitTest.Plugins\UnitTest.Plugins.csproj", "{3DD56EC9-A1F2-42A7-85CB-56987E1EB231}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest.Workflows", "UnitTest.Workflows\UnitTest.Workflows.csproj", "{047CFB89-8256-4432-A09E-5B60E8A45A86}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest.Workflows", "Tests\UnitTest.Workflows\UnitTest.Workflows.csproj", "{047CFB89-8256-4432-A09E-5B60E8A45A86}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugins.Tests", "Tests\Plugins.Tests\Plugins.Tests.csproj", "{23D7ABC7-E069-4695-8A7A-64AF65EB7BD4}"
 EndProject
@@ -56,11 +56,16 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "XrmFramework.SdkExtension",
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "NewtonSoft.Json", "Utils\NewtonSoft.Json\NewtonSoft.Json.shproj", "{651CDC43-48BA-430B-BA89-8C2F1A25542A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Debug.Plugins", "Tests\Debug.Plugins\Debug.Plugins.csproj", "{0745D37F-C890-4C3D-B1A1-664EA9400C0C}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "RemoteDebugger.Common", "Tests\RemoteDebugger.Common\RemoteDebugger.Common.shproj", "{7DA78D05-6ADC-4DD3-BBF6-10C563532920}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteDebugger", "Tests\RemoteDebugger\RemoteDebugger.csproj", "{0745D37F-C890-4C3D-B1A1-664EA9400C0C}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Model\Model.projitems*{0745d37f-c890-4c3d-b1a1-664ea9400c0c}*SharedItemsImports = 4
 		Tests\RemoteDebugger.Common\RemoteDebugger.Common.projitems*{0745d37f-c890-4c3d-b1a1-664ea9400c0c}*SharedItemsImports = 4
+		Utils\XrmFramework.Common\XrmFramework.Common.projitems*{0745d37f-c890-4c3d-b1a1-664ea9400c0c}*SharedItemsImports = 4
+		Utils\XrmFramework.SdkExtension\XrmFramework.SdkExtension.projitems*{0745d37f-c890-4c3d-b1a1-664ea9400c0c}*SharedItemsImports = 4
 		Model\Model.projitems*{084f560a-53d0-4f7a-b1eb-d32e13d92abf}*SharedItemsImports = 13
 		Model\Model.projitems*{1a5923ad-a835-4441-85f5-d79c355eff8d}*SharedItemsImports = 4
 		Utils\LoggedServices\LoggedServices.projitems*{1a5923ad-a835-4441-85f5-d79c355eff8d}*SharedItemsImports = 4
@@ -72,6 +77,7 @@ Global
 		Tests\Tests.Common\Tests.Common.projitems*{3f08e25e-5e77-4bcc-8a4c-9882d0f308cd}*SharedItemsImports = 13
 		Utils\LoggedServices\LoggedServices.projitems*{43fc4fe4-e704-409c-9811-1ba2bf1ff4f6}*SharedItemsImports = 13
 		Utils\NewtonSoft.Json\NewtonSoft.Json.projitems*{651cdc43-48ba-430b-ba89-8c2f1a25542a}*SharedItemsImports = 13
+		Tests\RemoteDebugger.Common\RemoteDebugger.Common.projitems*{7da78d05-6adc-4dd3-bbf6-10c563532920}*SharedItemsImports = 13
 		Model\Model.projitems*{d2bf0b88-b68b-439e-832d-39d4641108f5}*SharedItemsImports = 4
 		Utils\XrmFramework.Common\XrmFramework.Common.projitems*{d2bf0b88-b68b-439e-832d-39d4641108f5}*SharedItemsImports = 4
 		Utils\XrmFramework.SdkExtension\XrmFramework.SdkExtension.projitems*{d2bf0b88-b68b-439e-832d-39d4641108f5}*SharedItemsImports = 4
@@ -269,6 +275,7 @@ Global
 		{FF9FF6D8-4320-493A-8C59-96C0D816E095} = {3A5567BD-E6A2-4FDA-9B82-F6A19437EFF2}
 		{32625F1C-2F2F-4347-858B-8B78AB673CF0} = {3A5567BD-E6A2-4FDA-9B82-F6A19437EFF2}
 		{651CDC43-48BA-430B-BA89-8C2F1A25542A} = {3A5567BD-E6A2-4FDA-9B82-F6A19437EFF2}
+		{7DA78D05-6ADC-4DD3-BBF6-10C563532920} = {EBA0AD2C-313B-46CB-A22D-22B396F29F66}
 		{0745D37F-C890-4C3D-B1A1-664EA9400C0C} = {EBA0AD2C-313B-46CB-A22D-22B396F29F66}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

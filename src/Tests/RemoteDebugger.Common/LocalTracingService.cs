@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Xrm.Sdk;
 
-namespace RemoteDebugger.Common
+namespace XrmFramework.RemoteDebugger.Common
 {
     public class LocalTracingService : ITracingService
     {

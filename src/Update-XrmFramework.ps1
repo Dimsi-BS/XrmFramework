@@ -58,6 +58,8 @@ function SyncFolders {
 SyncFolders -folderName "XrmFramework.Common"
 SyncFolders -folderName "XrmFramework.SdkExtension"
 SyncFolders -folderName "DefinitionManager"
+SyncFolders -folderName "RemoteDebugger.Common"
+SyncFolders -folderName "XrmProject.Utils"
 
 
 Write-Host "Deletion of XrmFramework.Sources package..." -ForegroundColor Blue

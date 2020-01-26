@@ -14,6 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)IRemoteDebuggerMessageManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LocalOrganizationServiceFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LocalTracingService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RemoteDebugger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RemoteServiceProvider.cs" />
   </ItemGroup>
 </Project>
