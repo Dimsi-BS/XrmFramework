@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using Microsoft.Crm.Sdk.Messages;
+using XrmFramework.RemoteDebugger;
 
 namespace Plugins
 {
@@ -531,6 +532,22 @@ namespace Plugins
             }
 
             return UserId;
+        }
+
+        public bool IsDebugContext => ExecutionContext.GetType().FullName  == typeof(RemoteDebugExecutionContext).FullName;
+
+        public void UpdateContext(RemoteDebugExecutionContext updatedContext)
+        {
+            ExecutionContext.InputParameters.Clear();
+            ExecutionContext.InputParameters.AddRange(updatedContext.InputParameters);
+
+            ExecutionContext.OutputParameters.Clear();
+            ExecutionContext.OutputParameters.AddRange(updatedContext.OutputParameters);
+
+            ExecutionContext.SharedVariables.Clear();
+            ExecutionContext.SharedVariables.AddRange(updatedContext.SharedVariables);
+
+            Log("Context updated.");
         }
     }
 }

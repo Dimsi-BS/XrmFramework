@@ -4,14 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
-using XrmFramework.Debugger.Converters;
+using XrmFramework.RemoteDebugger.Converters;
 #if INTERNAL_NEWTONSOFT
 using Newtonsoft.Json.Xrm;
 #else 
 using Newtonsoft.Json;
 #endif
 
-namespace XrmFramework.Debugger
+namespace XrmFramework.RemoteDebugger
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class RemoteDebuggerMessage
@@ -120,7 +120,8 @@ namespace XrmFramework.Debugger
             new CustomKeyValuePairConverter<Relationship, QueryBase>(),
             new EntityConverter(),
             new ObjectSerializationConverter(),
-            new ConditionExpressionConverter()
+            new ConditionExpressionConverter(),
+            new AliasedValueConverter()
         };
 
         public Exception GetException()

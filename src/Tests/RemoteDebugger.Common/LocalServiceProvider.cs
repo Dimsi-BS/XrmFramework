@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceModel.Security;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Messages;
-using Plugins;
-using XrmFramework.Debugger;
+using Microsoft.Xrm.Sdk.Workflow;
 
 namespace XrmFramework.RemoteDebugger.Common
 {
-    public class RemoteServiceProvider : IServiceProvider
+    public class LocalServiceProvider : IServiceProvider
     {
         public delegate RemoteDebuggerMessage RequestHandler(RemoteDebuggerMessage messageString);
 
@@ -19,12 +12,16 @@ namespace XrmFramework.RemoteDebugger.Common
 
         public ITracingService TracingService { get; } = new LocalTracingService();
 
-        public RemoteServiceProvider(RemoteDebugExecutionContext context)
+        public LocalServiceProvider(RemoteDebugExecutionContext context)
         {
             Context = context;
 
             OrganizationServiceFactory = new LocalOrganizationServiceFactory(Context, OnRequestSent);
+
+            ServiceEndpointNotificationService = new LocalServiceEndpointNotificationService(Context);
         }
+
+        public LocalServiceEndpointNotificationService ServiceEndpointNotificationService { get; }
 
         public LocalOrganizationServiceFactory OrganizationServiceFactory { get; }
 
@@ -41,13 +38,20 @@ namespace XrmFramework.RemoteDebugger.Common
             {
                 return TracingService;
             }
-            else if (serviceType == typeof(IOrganizationServiceFactory))
+
+            if (serviceType == typeof(IOrganizationServiceFactory))
             {
                 return OrganizationServiceFactory;
             }
-            else if (serviceType == typeof(IPluginExecutionContext))
+
+            if (serviceType == typeof(IPluginExecutionContext) || serviceType == typeof(IWorkflowContext))
             {
                 return Context;
+            }
+
+            if (serviceType == typeof(IServiceEndpointNotificationService))
+            {
+                return ServiceEndpointNotificationService;
             }
 
             throw new NotImplementedException();

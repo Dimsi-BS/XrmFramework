@@ -12,7 +12,7 @@ using Newtonsoft.Json.Xrm;
 using Newtonsoft.Json;
 #endif
 
-namespace XrmFramework.Debugger
+namespace XrmFramework.RemoteDebugger
 {
     public class HybridConnection : IDisposable
     {

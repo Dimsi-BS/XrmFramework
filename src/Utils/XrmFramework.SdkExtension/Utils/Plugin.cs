@@ -17,7 +17,7 @@ using Newtonsoft.Json.Xrm;
 #else 
 using Newtonsoft.Json;
 #endif
-using XrmFramework.Debugger;
+using XrmFramework.RemoteDebugger;
 using XrmFramework.Model;
 
 namespace Plugins
@@ -170,6 +170,7 @@ namespace Plugins
 
                         var remoteContext = localContext.RemoteContext;
                         remoteContext.Id = Guid.NewGuid();
+                        remoteContext.TypeAssemblyQualifiedName = GetType().AssemblyQualifiedName;
 
                         var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
 

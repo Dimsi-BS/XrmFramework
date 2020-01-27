@@ -9,7 +9,7 @@ using Newtonsoft.Json.Xrm;
 using Newtonsoft.Json;
 #endif
 
-namespace XrmFramework.Debugger.Converters
+namespace XrmFramework.RemoteDebugger.Converters
 {
     public class DataCollectionConverter<TKey, TValue> : JsonConverter<DataCollection<TKey, TValue>>
     {

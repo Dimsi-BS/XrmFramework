@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 #endif
 
-namespace XrmFramework.Debugger.Converters
+namespace XrmFramework.RemoteDebugger.Converters
 {
     public class EntityConverter : JsonConverter<Entity>
     {

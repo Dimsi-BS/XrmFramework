@@ -7,7 +7,7 @@ using Newtonsoft.Json.Xrm;
 using Newtonsoft.Json;
 #endif
 
-namespace XrmFramework.Debugger
+namespace XrmFramework.RemoteDebugger
 {
     [JsonObject]
     class DebuggerUnsecureConfig

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
-using XrmFramework.Debugger;
+using XrmFramework.RemoteDebugger;
 
 namespace XrmFramework.RemoteDebugger.Common
 {
@@ -22,7 +22,7 @@ namespace XrmFramework.RemoteDebugger.Common
 
             Manager.ContextReceived += remoteContext =>
                 {
-                    var serviceProvider = new RemoteServiceProvider(remoteContext);
+                    var serviceProvider = new LocalServiceProvider(remoteContext);
 
                     serviceProvider.RequestSent += request => Manager.SendMessageWithResponse(request).GetAwaiter().GetResult();
 

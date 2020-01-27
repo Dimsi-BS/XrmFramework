@@ -2,23 +2,18 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
-using Microsoft.Xrm.Sdk.Workflow;
 using Plugins;
 using System;
 using System.Activities;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.ServiceModel;
-using System.Text;
-using System.Xml;
 using Model;
 using XrmFramework.Common;
-using XrmFramework.Debugger;
 using XrmFramework.Model;
+using XrmFramework.RemoteDebugger;
 
 namespace Workflows
 {
@@ -34,7 +29,7 @@ namespace Workflows
             // Construct the Local plug-in context.
             var localContext = new LocalWorkflowContext(context);
 
-            localContext.Log(string.Format("Entered {0}.Execute()", ChildClassName));
+            localContext.Log($"Entered {ChildClassName}.Execute()");
 
             try
             {
@@ -108,7 +103,7 @@ namespace Workflows
 
                                 localContext.UpdateContext(updatedContext);
 
-                                ExtractArgumentsFromRemoteContext(context, updatedContext);
+                                ExtractArgumentsFromRemoteContext(context, updatedContext, localContext.Logger);
                             }
 
 
@@ -127,12 +122,7 @@ namespace Workflows
 
                 if (ActivityAction != null)
                 {
-                    localContext.Log(string.Format(
-                        "{0} is firing for Entity: {1}, Message: {2}, Mode: {3}",
-                        ChildClassName,
-                        localContext.WorkflowContext.PrimaryEntityName,
-                        localContext.WorkflowContext.MessageName,
-                        localContext.WorkflowContext.Mode));
+                    localContext.Log($"{ChildClassName} is firing for Entity: {localContext.WorkflowContext.PrimaryEntityName}, Message: {localContext.WorkflowContext.MessageName}, Mode: {localContext.WorkflowContext.Mode}");
 
                     localContext.DumpInputParameters();
                     localContext.DumpSharedVariables();
@@ -151,26 +141,30 @@ namespace Workflows
             }
             catch (FaultException<OrganizationServiceFault> e)
             {
-                localContext.Log(string.Format("Exception: {0}", e));
+                localContext.Log($"Exception: {e}");
 
                 // Handle the exception.
                 throw;
             }
-            catch (TargetInvocationException e)
+            catch (TargetInvocationException e) when (e.InnerException != null)
             {
-                localContext.Log(string.Format("Exception: {0}", e.InnerException));
+                localContext.Log($"Exception: {e.InnerException}");
                 throw e.InnerException;
             }
             finally
             {
-                localContext.Log(string.Format("Exiting {0}.Execute()", ChildClassName));
+                localContext.Log($"Exiting {ChildClassName}.Execute()");
             }
         }
 
-        private void ExtractArgumentsFromRemoteContext(CodeActivityContext context, RemoteDebugExecutionContext updatedContext)
+        private void ExtractArgumentsFromRemoteContext(CodeActivityContext context, RemoteDebugExecutionContext updatedContext, Logger logger)
         {
+            logger.Invoke(nameof(ExtractArgumentsFromRemoteContext), $"{updatedContext.Arguments.Count} Arguments");
+
             foreach (var argument in updatedContext.Arguments)
             {
+                logger.Invoke(nameof(ExtractArgumentsFromRemoteContext), $"argument {argument.Key}");
+
                 var property = GetType().GetProperty(argument.Key);
 
                 if (property == null)
@@ -181,11 +175,15 @@ namespace Workflows
                 if (typeof(OutArgument).IsAssignableFrom(property.PropertyType) ||
                     typeof(InOutArgument).IsAssignableFrom(property.PropertyType))
                 {
-                    var setMethod = property.PropertyType.GetMethod("Set", new[] { typeof(CodeActivityContext) });
+                    logger.Invoke(nameof(ExtractArgumentsFromRemoteContext), $"Argument {argument.Key} is InOutArgument or OutArgument");
+
+                    var setMethod = property.PropertyType.GetMethod("Set", new[] { typeof(CodeActivityContext), typeof(object) });
+
+                    logger.Invoke(nameof(ExtractArgumentsFromRemoteContext), $"Setter {setMethod?.Name}");
 
                     if (setMethod != null)
                     {
-                        setMethod.Invoke(property.GetValue(this), new object[] { context, argument.Value });
+                        setMethod.Invoke(property.GetValue(this), new[] { context, argument.Value });
                     }
                 }
             }
@@ -231,26 +229,26 @@ namespace Workflows
         private void DumpInputArguments(LocalWorkflowContext localContext, CodeActivityContext context)
         {
             localContext.Log("InputArguments :");
-            foreach (var propertyInfo in this.GetType().GetProperties())
+            foreach (var propertyInfo in GetType().GetProperties())
             {
                 if (typeof(InArgument).IsAssignableFrom(propertyInfo.PropertyType))
                 {
                     var argument = propertyInfo.GetValue(this, null) as InArgument;
 
-                    localContext.DumpObject(propertyInfo.Name, argument.Get(context));
+                    localContext.DumpObject(propertyInfo.Name, argument?.Get(context));
                 }
             }
         }
 
         private void DumpOutputArguments(LocalWorkflowContext localContext, CodeActivityContext context)
         {
-            foreach (var propertyInfo in this.GetType().GetProperties())
+            foreach (var propertyInfo in GetType().GetProperties())
             {
                 if (typeof(OutArgument).IsAssignableFrom(propertyInfo.PropertyType))
                 {
                     var argument = propertyInfo.GetValue(this, null) as OutArgument;
 
-                    localContext.DumpObject(propertyInfo.Name, argument.Get(context));
+                    localContext.DumpObject(propertyInfo.Name, argument?.Get(context));
                 }
             }
         }
@@ -259,20 +257,20 @@ namespace Workflows
         {
             get
             {
-                return this.GetType().Name;
+                return GetType().Name;
             }
         }
 
         protected void SetAction(string actionName)
         {
-            var method = this.GetType().GetMethod(actionName);
+            var method = GetType().GetMethod(actionName);
             if (method == null)
             {
-                throw new InvalidPluginExecutionException(string.Format("The method {0}.{1} does not exist or is private", ChildClassName, actionName));
+                throw new InvalidPluginExecutionException($"The method {ChildClassName}.{actionName} does not exist or is private");
             }
             else if (!method.IsPublic || method.IsStatic)
             {
-                throw new InvalidPluginExecutionException(string.Format("The method {0}.{1} should be public and not static", ChildClassName, actionName));
+                throw new InvalidPluginExecutionException($"The method {ChildClassName}.{actionName} should be public and not static");
             }
 
             foreach (var param in method.GetParameters())
@@ -280,7 +278,7 @@ namespace Workflows
                 if (!typeof(ICustomWorkflowContext).IsAssignableFrom(param.ParameterType)
                         && (!param.ParameterType.IsInterface || !typeof(IService).IsAssignableFrom(param.ParameterType)))
                 {
-                    throw new InvalidPluginExecutionException(string.Format("{0}.{1} parameter : {2}. Only LocalPluginContext and IService interfaces are allowed as parameters", ChildClassName, method.Name, param.Name));
+                    throw new InvalidPluginExecutionException($"{ChildClassName}.{method.Name} parameter : {param.Name}. Only LocalPluginContext and IService interfaces are allowed as parameters");
                 }
             }
             ActivityAction = method;

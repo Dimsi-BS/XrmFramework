@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Relay;
-using XrmFramework.Debugger;
+using XrmFramework.RemoteDebugger;
 
 #if INTERNAL_NEWTONSOFT
 using Newtonsoft.Json.Xrm;

@@ -4,11 +4,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
 using System;
 using System.Activities;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using XrmFramework.Debugger;
+using XrmFramework.RemoteDebugger;
 
 namespace Plugins
 {
@@ -52,19 +48,5 @@ namespace Plugins
         }
 
         public RemoteDebugExecutionContext RemoteContext => new RemoteDebugExecutionContext(WorkflowContext);
-
-        public bool IsDebugContext => WorkflowContext is RemoteDebugExecutionContext;
-
-        public void UpdateContext(RemoteDebugExecutionContext updatedContext)
-        {
-            WorkflowContext.InputParameters.Clear();
-            WorkflowContext.InputParameters.AddRange(updatedContext.InputParameters);
-
-            WorkflowContext.OutputParameters.Clear();
-            WorkflowContext.OutputParameters.AddRange(updatedContext.OutputParameters);
-
-            WorkflowContext.SharedVariables.Clear();
-            WorkflowContext.SharedVariables.AddRange(updatedContext.SharedVariables);
-        }
     }
 }

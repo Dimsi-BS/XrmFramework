@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
 #if INTERNAL_NEWTONSOFT
@@ -7,7 +8,7 @@ using Newtonsoft.Json.Xrm;
 using Newtonsoft.Json;
 #endif
 
-namespace XrmFramework.Debugger
+namespace XrmFramework.RemoteDebugger
 {
     [Serializable]
     public class RemoteDebugExecutionContext : IExecutionContext, IPluginExecutionContext, IWorkflowContext
@@ -42,28 +43,25 @@ namespace XrmFramework.Debugger
             OperationId = context.OperationId;
             OperationCreatedOn = context.OperationCreatedOn;
 
-            if (context is IPluginExecutionContext pluginContext)
+            if (context is IWorkflowContext workflowContext)
             {
-                Stage = pluginContext.Stage;
 
-                if (pluginContext.ParentContext != null)
-                {
-                    RemoteParentContext = new RemoteDebugExecutionContext(pluginContext.ParentContext);
-                }
-            }
-            else if (context is IWorkflowContext workflowContext)
-            {
                 StageName = workflowContext.StageName;
                 WorkflowCategory = workflowContext.WorkflowCategory;
                 WorkflowMode = workflowContext.WorkflowMode;
-                IsWorkflowContext = true;
 
-                if (workflowContext.ParentContext != null)
-                {
-                    RemoteParentContext = new RemoteDebugExecutionContext(workflowContext.ParentContext);
-                }
+                IsWorkflowContext = true;
+                RemoteParentContext = new RemoteDebugExecutionContext(workflowContext.ParentContext);
             }
+            else if (context is IPluginExecutionContext pluginContext)
+            {
+                Stage = pluginContext.Stage;
+                RemoteParentContext = new RemoteDebugExecutionContext(pluginContext.ParentContext);
+            }
+
         }
+
+        public bool IsWorkflowContext { get; set; }
 
         public int Mode { get; set; }
 
@@ -115,26 +113,26 @@ namespace XrmFramework.Debugger
 
         public DateTime OperationCreatedOn { get; set; }
 
-        public string TypeAssemblyQualifiedName { get; set; }
+        public Guid Id { get; set; }
+
+        public ArgumentsCollection Arguments { get; set; } = new ArgumentsCollection();
 
         public int Stage { get; set; }
 
-        public RemoteDebugExecutionContext RemoteParentContext { get; set; }
-
         public string StageName { get; }
+
         public int WorkflowCategory { get; }
+
         public int WorkflowMode { get; }
 
-        [JsonIgnore]
-        IWorkflowContext IWorkflowContext.ParentContext => RemoteParentContext;
-
-        public Guid Id { get; set; }
+        public RemoteDebugExecutionContext RemoteParentContext { get; set; }
 
         [JsonIgnore]
         IPluginExecutionContext IPluginExecutionContext.ParentContext => RemoteParentContext;
 
-        public ArgumentsCollection Arguments { get; set; } = new ArgumentsCollection();
+        [JsonIgnore]
+        IWorkflowContext IWorkflowContext.ParentContext => RemoteParentContext;
 
-        public bool IsWorkflowContext { get; set; }
+        public string TypeAssemblyQualifiedName { get; set; }
     }
 }

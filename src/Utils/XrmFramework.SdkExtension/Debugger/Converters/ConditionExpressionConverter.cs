@@ -1,20 +1,16 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 #if INTERNAL_NEWTONSOFT
 using Newtonsoft.Json.Xrm;
-using Newtonsoft.Json.Xrm.Linq;
+
 #else
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 #endif
 
-namespace XrmFramework.Debugger.Converters
+namespace XrmFramework.RemoteDebugger.Converters
 {
     public class ConditionExpressionConverter : JsonConverter<ConditionExpression>
     {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using XrmFramework.Debugger;
 
 namespace XrmFramework.RemoteDebugger.Common
 {

@@ -6,7 +6,7 @@ using Newtonsoft.Json.Xrm;
 using Newtonsoft.Json;
 #endif
 
-namespace XrmFramework.Debugger.Converters
+namespace XrmFramework.RemoteDebugger.Converters
 {
     public class ObjectSerializationConverter : JsonConverter<ObjectSerialization>
     {

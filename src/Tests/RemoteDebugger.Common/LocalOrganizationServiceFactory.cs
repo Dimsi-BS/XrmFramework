@@ -3,17 +3,15 @@
 
 using System;
 using Microsoft.Xrm.Sdk;
-using Plugins;
-using XrmFramework.Debugger;
 
 namespace XrmFramework.RemoteDebugger.Common
 {
     public class LocalOrganizationServiceFactory : IOrganizationServiceFactory
     {
-        private readonly RemoteServiceProvider.RequestHandler _onRequestSent;
+        private readonly LocalServiceProvider.RequestHandler _onRequestSent;
         public RemoteDebugExecutionContext Context { get; }
 
-        public LocalOrganizationServiceFactory(RemoteDebugExecutionContext context, RemoteServiceProvider.RequestHandler onRequestSent)
+        public LocalOrganizationServiceFactory(RemoteDebugExecutionContext context, LocalServiceProvider.RequestHandler onRequestSent)
         {
             _onRequestSent = onRequestSent;
             Context = context;

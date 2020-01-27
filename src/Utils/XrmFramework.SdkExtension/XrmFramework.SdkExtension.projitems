@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Converters\BindingModelHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\AliasedValueConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\ConditionExpressionConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\CustomKeyValuePairConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Debugger\Converters\DataCollectionConverters.cs" />

@@ -1,4 +1,4 @@
-﻿namespace XrmFramework.Debugger
+﻿namespace XrmFramework.RemoteDebugger
 {
     public enum RemoteDebuggerMessageType
     {

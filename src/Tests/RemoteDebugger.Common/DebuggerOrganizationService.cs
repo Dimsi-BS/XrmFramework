@@ -5,18 +5,16 @@ using System;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
-using Newtonsoft.Json;
-using XrmFramework.Debugger;
 
 namespace XrmFramework.RemoteDebugger.Common
 {
     public class DebuggerOrganizationService : IOrganizationService
     {
-        private readonly RemoteServiceProvider.RequestHandler _onRequestSent;
+        private readonly LocalServiceProvider.RequestHandler _onRequestSent;
         public RemoteDebugExecutionContext Context { get; }
         public Guid? UserId { get; }
 
-        public DebuggerOrganizationService(RemoteDebugExecutionContext context, Guid? userId, RemoteServiceProvider.RequestHandler onRequestSent)
+        public DebuggerOrganizationService(RemoteDebugExecutionContext context, Guid? userId, LocalServiceProvider.RequestHandler onRequestSent)
         {
             _onRequestSent = onRequestSent;
             Context = context;
