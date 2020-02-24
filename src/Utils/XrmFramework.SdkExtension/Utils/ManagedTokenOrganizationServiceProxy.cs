@@ -1,4 +1,4 @@
-﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
@@ -58,6 +58,7 @@ namespace XrmConnectionTooling
         protected override Guid CreateCore(Entity entity)
         {
             var retryCount = 0;
+            var securityFailed = false;
             while (true)
             {
                 try
@@ -66,8 +67,15 @@ namespace XrmConnectionTooling
                 }
                 catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
                 {
-                    ValidateAuthentication();
-                    return base.CreateCore(entity);
+                    if (!securityFailed)
+                    {
+                        securityFailed = true;
+                        ValidateAuthentication();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
@@ -79,16 +87,25 @@ namespace XrmConnectionTooling
         protected override void UpdateCore(Entity entity)
         {
             var retryCount = 0;
+            var securityFailed = false;
             while (true)
             {
                 try
                 {
                     base.UpdateCore(entity);
+                    return;
                 }
                 catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
                 {
-                    ValidateAuthentication();
-                    base.UpdateCore(entity);
+                    if (!securityFailed)
+                    {
+                        securityFailed = true;
+                        ValidateAuthentication();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
@@ -100,16 +117,25 @@ namespace XrmConnectionTooling
         protected override void AssociateCore(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities)
         {
             var retryCount = 0;
+            var securityFailed = false;
             while (true)
             {
                 try
                 {
                     base.AssociateCore(entityName, entityId, relationship, relatedEntities);
+                    return;
                 }
                 catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
                 {
-                    ValidateAuthentication();
-                    base.AssociateCore(entityName, entityId, relationship, relatedEntities);
+                    if (!securityFailed)
+                    {
+                        securityFailed = true;
+                        ValidateAuthentication();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
@@ -121,16 +147,25 @@ namespace XrmConnectionTooling
         protected override void DisassociateCore(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities)
         {
             var retryCount = 0;
+            var securityFailed = false;
             while (true)
             {
                 try
                 {
                     base.DisassociateCore(entityName, entityId, relationship, relatedEntities);
+                    return;
                 }
                 catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
                 {
-                    ValidateAuthentication();
-                    base.DisassociateCore(entityName, entityId, relationship, relatedEntities);
+                    if (!securityFailed)
+                    {
+                        securityFailed = true;
+                        ValidateAuthentication();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
@@ -142,16 +177,25 @@ namespace XrmConnectionTooling
         protected override void DeleteCore(string entityName, Guid id)
         {
             var retryCount = 0;
+            var securityFailed = false;
             while (true)
             {
                 try
                 {
                     base.DeleteCore(entityName, id);
+                    return;
                 }
                 catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
                 {
-                    ValidateAuthentication();
-                    base.DeleteCore(entityName, id);
+                    if (!securityFailed)
+                    {
+                        securityFailed = true;
+                        ValidateAuthentication();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
@@ -163,6 +207,7 @@ namespace XrmConnectionTooling
         protected override OrganizationResponse ExecuteCore(OrganizationRequest request)
         {
             var retryCount = 0;
+            var securityFailed = false;
             while (true)
             {
                 try
@@ -171,8 +216,15 @@ namespace XrmConnectionTooling
                 }
                 catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
                 {
-                    ValidateAuthentication();
-                    return base.ExecuteCore(request);
+                    if (!securityFailed)
+                    {
+                        securityFailed = true;
+                        ValidateAuthentication();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
@@ -184,6 +236,7 @@ namespace XrmConnectionTooling
         protected override Entity RetrieveCore(string entityName, Guid id, ColumnSet columnSet)
         {
             var retryCount = 0;
+            var securityFailed = false;
             while (true)
             {
                 try
@@ -192,8 +245,15 @@ namespace XrmConnectionTooling
                 }
                 catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
                 {
-                    ValidateAuthentication();
-                    return base.RetrieveCore(entityName, id, columnSet);
+                    if (!securityFailed)
+                    {
+                        securityFailed = true;
+                        ValidateAuthentication();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
@@ -205,6 +265,7 @@ namespace XrmConnectionTooling
         protected override EntityCollection RetrieveMultipleCore(QueryBase query)
         {
             var retryCount = 0;
+            var securityFailed = false;
             while (true)
             {
                 try
@@ -218,8 +279,11 @@ namespace XrmConnectionTooling
                 }
                 catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
                 {
-                    ValidateAuthentication();
-                    return base.RetrieveMultipleCore(query);
+                    if (!securityFailed)
+                    {
+                        securityFailed = true;
+                        ValidateAuthentication();
+                    }
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
