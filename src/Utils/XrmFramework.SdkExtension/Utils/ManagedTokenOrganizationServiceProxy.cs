@@ -65,17 +65,10 @@ namespace XrmConnectionTooling
                 {
                     return base.CreateCore(entity);
                 }
-                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                catch (Exception ex) when (!securityFailed && (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException))
                 {
-                    if (!securityFailed)
-                    {
-                        securityFailed = true;
-                        ValidateAuthentication();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    securityFailed = true;
+                    ValidateAuthentication();
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
@@ -95,17 +88,10 @@ namespace XrmConnectionTooling
                     base.UpdateCore(entity);
                     return;
                 }
-                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                catch (Exception ex) when (!securityFailed && (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException))
                 {
-                    if (!securityFailed)
-                    {
-                        securityFailed = true;
-                        ValidateAuthentication();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    securityFailed = true;
+                    ValidateAuthentication();
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
@@ -125,17 +111,10 @@ namespace XrmConnectionTooling
                     base.AssociateCore(entityName, entityId, relationship, relatedEntities);
                     return;
                 }
-                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                catch (Exception ex) when (!securityFailed && (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException))
                 {
-                    if (!securityFailed)
-                    {
-                        securityFailed = true;
-                        ValidateAuthentication();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    securityFailed = true;
+                    ValidateAuthentication();
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
@@ -155,17 +134,10 @@ namespace XrmConnectionTooling
                     base.DisassociateCore(entityName, entityId, relationship, relatedEntities);
                     return;
                 }
-                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                catch (Exception ex) when (!securityFailed && (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException))
                 {
-                    if (!securityFailed)
-                    {
-                        securityFailed = true;
-                        ValidateAuthentication();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    securityFailed = true;
+                    ValidateAuthentication();
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
@@ -185,17 +157,10 @@ namespace XrmConnectionTooling
                     base.DeleteCore(entityName, id);
                     return;
                 }
-                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                catch (Exception ex) when (!securityFailed && (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException))
                 {
-                    if (!securityFailed)
-                    {
-                        securityFailed = true;
-                        ValidateAuthentication();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    securityFailed = true;
+                    ValidateAuthentication();
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
@@ -214,17 +179,10 @@ namespace XrmConnectionTooling
                 {
                     return base.ExecuteCore(request);
                 }
-                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                catch (Exception ex) when (!securityFailed && (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException))
                 {
-                    if (!securityFailed)
-                    {
-                        securityFailed = true;
-                        ValidateAuthentication();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    securityFailed = true;
+                    ValidateAuthentication();
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
@@ -243,17 +201,10 @@ namespace XrmConnectionTooling
                 {
                     return base.RetrieveCore(entityName, id, columnSet);
                 }
-                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                catch (Exception ex) when (!securityFailed && (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException))
                 {
-                    if (!securityFailed)
-                    {
-                        securityFailed = true;
-                        ValidateAuthentication();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    securityFailed = true;
+                    ValidateAuthentication();
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
@@ -277,13 +228,10 @@ namespace XrmConnectionTooling
 
                     return base.RetrieveMultipleCore(query);
                 }
-                catch (Exception ex) when (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException)
+                catch (Exception ex) when (!securityFailed && (ex is SecurityTokenValidationException || ex is ExpiredSecurityTokenException || ex is SecurityAccessDeniedException || ex is SecurityNegotiationException))
                 {
-                    if (!securityFailed)
-                    {
-                        securityFailed = true;
-                        ValidateAuthentication();
-                    }
+                    securityFailed = true;
+                    ValidateAuthentication();
                 }
                 catch (FaultException<OrganizationServiceFault> e) when (IsTransientError(e) && ++retryCount < MaxRetries)
                 {
