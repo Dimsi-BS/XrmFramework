@@ -22,6 +22,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Debugger\RemoteDebuggerMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Debugger\RemoteDebuggerMessageType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Debugger\RemoteExecutionContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EnableRuleProvider\EnableRuleProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EnableRuleProvider\EnableRulesActivity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EnableRuleProvider\ICustomWorkflowContext.partial.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EnableRuleProvider\IEnableRuleProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\EnvironmentVariable.partial.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\AutoRefreshSecurityToken.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ConnectionHelper.cs" />
