@@ -983,13 +983,7 @@ namespace Model
                         {
                             var elements = propElement.Elements(xmlAttributeTemp.RelativePath);
 
-                            var goodMapping = false;
-                            foreach (XElement el in elements)
-                            {
-                                goodMapping = true;
-                                break;
-                            }
-                            if (!goodMapping)
+                            if (!elements.Any())
                             {
                                 elements = propElement.Elements(xmlAttributeTemp.AlternateRelativePath);
                             }

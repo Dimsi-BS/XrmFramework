@@ -48,6 +48,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Converters\PicklistConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\BusinessUnitDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\DebugSessionDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\EnvironmentVariableDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Definitions\EnvironmentVariableValueDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\PluginAssemblyDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\PluginTypeDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\RoleDefinition.cs" />
@@ -59,6 +61,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\TeamDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\WorkflowDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\DebugSession.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Model\EnvironmentVariable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\PluginType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\SdkMessageProcessingStep.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\WorkflowModel.cs" />

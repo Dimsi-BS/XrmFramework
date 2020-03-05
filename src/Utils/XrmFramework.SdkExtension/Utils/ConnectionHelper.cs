@@ -3,6 +3,7 @@
 using Microsoft.Xrm.Sdk;
 using System;
 using System.Configuration;
+using System.Net;
 using System.ServiceModel.Description;
 using Microsoft.Xrm.Sdk.Client;
 using XrmConnectionTooling;
@@ -22,6 +23,8 @@ namespace Model
         {
             var cs = ConnectionStringParser.Parse(connectionString);
 
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+
             var client = new ManagedTokenOrganizationServiceProxy(new Uri(new Uri(cs.Url), "/XRMServices/2011/Organization.svc"), new ClientCredentials { UserName = { UserName = cs.Username, Password = cs.Password } });
 
             return client;
@@ -29,7 +32,18 @@ namespace Model
 
         public static OrganizationServiceProxy GetCrmServiceClient(string connectionStringName)
         {
-            return GetCrmServiceClientFromConnectionString(ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString);
+            string connectionString;
+
+            try
+            {
+                connectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
+            }
+            catch (Exception)
+            {
+                connectionString = ConfigurationManager.AppSettings[connectionStringName];
+            }
+
+            return GetCrmServiceClientFromConnectionString(connectionString);
         }
     }
 }

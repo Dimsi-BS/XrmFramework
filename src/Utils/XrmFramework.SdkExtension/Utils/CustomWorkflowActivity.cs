@@ -51,68 +51,67 @@ namespace Workflows
 
                     if (debugSession != null)
                     {
-                        if (debugSession.SessionEnd < DateTime.Today)
+                        if (debugSession.SessionEnd >= DateTime.Today)
                         {
-                            throw new InvalidPluginExecutionException($"The debug session for user {localContext.InitiatingUserId} has ended, update the session to use it");
-                        }
 
-                        var remoteContext = localContext.RemoteContext;
+                            var remoteContext = localContext.RemoteContext;
 
-                        remoteContext.TypeAssemblyQualifiedName = GetType().AssemblyQualifiedName;
-                        remoteContext.Id = Guid.NewGuid();
+                            remoteContext.TypeAssemblyQualifiedName = GetType().AssemblyQualifiedName;
+                            remoteContext.Id = Guid.NewGuid();
 
-                        SetArgumentsInRemoteContext(context, remoteContext);
+                            SetArgumentsInRemoteContext(context, remoteContext);
 
-                        var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
+                            var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
 
-                        try
-                        {
-                            using (var hybridConnection = new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri))
+                            try
                             {
-                                var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
-
-                                RemoteDebuggerMessage response;
-                                while (true)
+                                using (var hybridConnection = new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri))
                                 {
-                                    localContext.Log("Sending context to local machine : {0}", message);
+                                    var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
 
-                                    response = hybridConnection.SendMessage(message).GetAwaiter().GetResult();
-
-                                    localContext.Log("Received response : {0}", response);
-
-                                    if (response.MessageType == RemoteDebuggerMessageType.Context || response.MessageType == RemoteDebuggerMessageType.Exception)
+                                    RemoteDebuggerMessage response;
+                                    while (true)
                                     {
-                                        break;
+                                        localContext.Log("Sending context to local machine : {0}", message);
+
+                                        response = hybridConnection.SendMessage(message).GetAwaiter().GetResult();
+
+                                        localContext.Log("Received response : {0}", response);
+
+                                        if (response.MessageType == RemoteDebuggerMessageType.Context || response.MessageType == RemoteDebuggerMessageType.Exception)
+                                        {
+                                            break;
+                                        }
+
+                                        var request = response.GetOrganizationRequest();
+
+                                        var service = response.UserId.HasValue ? localContext.GetService(response.UserId.Value) : localContext.AdminOrganizationService;
+
+                                        var organizationResponse = service.Execute(request);
+
+                                        message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Response, organizationResponse, remoteContext.Id);
                                     }
 
-                                    var request = response.GetOrganizationRequest();
+                                    if (response.MessageType == RemoteDebuggerMessageType.Exception)
+                                    {
+                                        throw response.GetException();
+                                    }
 
-                                    var service = response.UserId.HasValue ? localContext.GetService(response.UserId.Value) : localContext.AdminOrganizationService;
+                                    var updatedContext = response.GetContext<RemoteDebugExecutionContext>();
 
-                                    var organizationResponse = service.Execute(request);
+                                    localContext.UpdateContext(updatedContext);
 
-                                    message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Response, organizationResponse, remoteContext.Id);
+                                    ExtractArgumentsFromRemoteContext(context, updatedContext, localContext.Logger);
                                 }
 
-                                if (response.MessageType == RemoteDebuggerMessageType.Exception)
-                                {
-                                    throw response.GetException();
-                                }
 
-                                var updatedContext = response.GetContext<RemoteDebugExecutionContext>();
-
-                                localContext.UpdateContext(updatedContext);
-
-                                ExtractArgumentsFromRemoteContext(context, updatedContext, localContext.Logger);
+                                return;
                             }
-
-
-                            return;
-                        }
-                        catch (HttpRequestException e)
-                        {
-                            // Run the plugin as deploy if the remote debugger is not connected
-                            localContext.Log($"Error while sending context : {e}");
+                            catch (HttpRequestException e)
+                            {
+                                // Run the plugin as deploy if the remote debugger is not connected
+                                localContext.Log($"Error while sending context : {e}");
+                            }
                         }
                     }
                 }

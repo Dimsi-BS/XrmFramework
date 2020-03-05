@@ -27,33 +27,56 @@ namespace Plugins
         RealTime = 1
     }
 
-    public enum InputParameters
+    public partial class InputParameters
     {
-        Assignee,
-        EntityMoniker,
-        OpportunityClose,
-        Query,
-        Record,
-        RelatedEntities,
-        Relationship,
-        State,
-        Status,
-        SystemUserId,
-        Target,
-        TeamTemplateId,
-        /// <summary>
-        /// Used by AddRecurrence Message
-        /// </summary>
-        AppointmentId,
-        FetchXml,
-        SubordinateId
-        , UpdateContent
+        protected string ParameterName { get; }
+
+        protected InputParameters(string inputParameterName)
+        {
+            ParameterName = inputParameterName;
+        }
+
+        public override string ToString() => ParameterName;
+
+        public override int GetHashCode() => ParameterName.GetHashCode();
+
+        public override bool Equals(object obj) => obj is InputParameters message && message.ParameterName == ParameterName;
+
+        public static InputParameters Assignee = new InputParameters("Assignee");
+        public static InputParameters EntityMoniker = new InputParameters("EntityMoniker");
+        public static InputParameters OpportunityClose = new InputParameters("OpportunityClose");
+        public static InputParameters Query = new InputParameters("Query");
+        public static InputParameters Record = new InputParameters("Record");
+        public static InputParameters RelatedEntities = new InputParameters("RelatedEntities");
+        public static InputParameters Relationship = new InputParameters("Relationship");
+        public static InputParameters State = new InputParameters("State");
+        public static InputParameters Status = new InputParameters("Status");
+        public static InputParameters SystemUserId = new InputParameters("SystemUserId");
+        public static InputParameters Target = new InputParameters("Target");
+        public static InputParameters TeamTemplateId = new InputParameters("TeamTemplateId");
+        public static InputParameters AppointmentId = new InputParameters("AppointmentId");
+        public static InputParameters FetchXml = new InputParameters("FetchXml");
+        public static InputParameters SubordinateId = new InputParameters("SubordinateId");
+        public static InputParameters UpdateContent = new InputParameters("UpdateContent");
     }
 
-    public enum OutputParameters
+    public partial class OutputParameters
     {
-        BusinessEntityCollection,
-        ValidationResult
+        protected string ParameterName { get; }
+
+        protected OutputParameters(string outputParameterName)
+        {
+            ParameterName = outputParameterName;
+        }
+
+        public override string ToString() => ParameterName;
+
+        public override int GetHashCode() => ParameterName.GetHashCode();
+
+        public override bool Equals(object obj) => obj is OutputParameters message && message.ParameterName == ParameterName;
+
+        public static OutputParameters BusinessEntityCollection = new OutputParameters("BusinessEntityCollection");
+        public static OutputParameters ValidationResult = new OutputParameters("ValidationResult");
     }
 
     public partial class Messages
@@ -160,16 +183,6 @@ namespace Plugins
         public override int GetHashCode() => MessageName.GetHashCode();
 
         public override bool Equals(object obj) => obj is Messages message && message.MessageName == MessageName;
-
-        public static bool operator ==(Messages x, Messages y)
-        {
-            return Equals(x, y);
-        }
-
-        public static bool operator !=(Messages x, Messages y)
-        {
-            return !Equals(x, y);
-        }
 
         public static Messages GetMessage(string messageName)
         {

@@ -11,10 +11,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Contexts;
 using XrmFramework.Common;
+using XrmFramework.Model;
 using RoleDefinition = XrmFramework.Common.RoleDefinition;
 using SystemUserDefinition = Model.SystemUserDefinition;
 using SystemUserRolesDefinition = XrmFramework.Common.SystemUserRolesDefinition;
 using TeamDefinition = XrmFramework.Common.TeamDefinition;
+
+#if INTERNAL_NEWTONSOFT
+using Newtonsoft.Json.Xrm;
+#else
+using Newtonsoft.Json;
+#endif
 
 namespace Plugins
 {
@@ -51,12 +58,12 @@ namespace Plugins
 
         public Guid Create(Entity entity, bool useAdmin = false)
         {
-            #region Parameters check
+#region Parameters check
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
-            #endregion
+#endregion
 
             var service = GetService(useAdmin);
 
@@ -65,12 +72,12 @@ namespace Plugins
 
         public Guid Create(Entity entity, Guid callerId)
         {
-            #region Parameters check
+#region Parameters check
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
-            #endregion
+#endregion
 
             var service = GetService(callerId);
 
@@ -79,12 +86,12 @@ namespace Plugins
 
         public UpsertResponse Upsert(Entity entity, bool useAdmin = false)
         {
-            #region Parameters check
+#region Parameters check
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
-            #endregion
+#endregion
 
             var service = GetService(useAdmin);
 
@@ -95,12 +102,12 @@ namespace Plugins
 
         public UpsertResponse Upsert(Entity entity, Guid callerId)
         {
-            #region Parameters check
+#region Parameters check
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
-            #endregion
+#endregion
 
             var service = GetService(callerId);
 
@@ -111,7 +118,7 @@ namespace Plugins
 
         public void Update(Entity entity, bool useAdmin = false)
         {
-            #region Parameters check
+#region Parameters check
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
@@ -120,7 +127,7 @@ namespace Plugins
             {
                 throw new ArgumentNullException("entity.Id");
             }
-            #endregion
+#endregion
 
             var service = GetService(useAdmin);
 
@@ -129,7 +136,7 @@ namespace Plugins
 
         public void Update(Entity entity, Guid callerId)
         {
-            #region Parameters check
+#region Parameters check
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
@@ -138,7 +145,7 @@ namespace Plugins
             {
                 throw new ArgumentNullException("entity.Id");
             }
-            #endregion
+#endregion
 
             var service = GetService(callerId);
 
@@ -147,12 +154,12 @@ namespace Plugins
 
         public void Delete(EntityReference objectReference, Guid callerId)
         {
-            #region Parameters check
+#region Parameters check
             if (objectReference == null)
             {
                 throw new ArgumentNullException(nameof(objectReference));
             }
-            #endregion
+#endregion
 
             var service = GetService(callerId);
 
@@ -161,7 +168,7 @@ namespace Plugins
 
         public void Delete(string logicalName, Guid id, Guid callerId)
         {
-            #region Parameters check
+#region Parameters check
             if (string.IsNullOrEmpty(logicalName))
             {
                 throw new ArgumentNullException(nameof(logicalName));
@@ -170,14 +177,14 @@ namespace Plugins
             {
                 throw new ArgumentNullException(nameof(id));
             }
-            #endregion
+#endregion
 
             Delete(new EntityReference(logicalName, id), callerId);
         }
 
         public void Delete(string logicalName, Guid id, bool useAdmin = false)
         {
-            #region Parameters check
+#region Parameters check
             if (string.IsNullOrEmpty(logicalName))
             {
                 throw new ArgumentNullException(nameof(logicalName));
@@ -186,19 +193,19 @@ namespace Plugins
             {
                 throw new ArgumentNullException(nameof(id));
             }
-            #endregion
+#endregion
 
             Delete(new EntityReference(logicalName, id), useAdmin);
         }
 
         public void Delete(EntityReference objectReference, bool useAdmin = false)
         {
-            #region Parameters check
+#region Parameters check
             if (objectReference == null)
             {
                 throw new ArgumentNullException(nameof(objectReference));
             }
-            #endregion
+#endregion
 
             var service = GetService(useAdmin);
 
@@ -207,12 +214,12 @@ namespace Plugins
 
         public void AssignEntity(EntityReference objectReference, EntityReference ownerRef)
         {
-            #region Parameters check
+#region Parameters check
             if (objectReference == null)
             {
                 throw new ArgumentNullException(nameof(objectReference));
             }
-            #endregion
+#endregion
 
             AdminOrganizationService.Execute(new AssignRequest
             {
@@ -223,12 +230,12 @@ namespace Plugins
 
         public void SetState(EntityReference objectRef, int stateCode, int statusCode, bool useAdmin = false)
         {
-            #region Parameters check
+#region Parameters check
             if (objectRef == null)
             {
                 throw new ArgumentNullException(nameof(objectRef));
             }
-            #endregion
+#endregion
 
             var service = GetService(useAdmin);
 
@@ -242,7 +249,7 @@ namespace Plugins
 
         public void Share(EntityReference objectRef, EntityReference assigneeRef, AccessRights accessRights)
         {
-            #region Parameters check
+#region Parameters check
             if (objectRef == null)
             {
                 throw new ArgumentNullException(nameof(objectRef));
@@ -251,7 +258,7 @@ namespace Plugins
             {
                 throw new ArgumentNullException(nameof(assigneeRef));
             }
-            #endregion
+#endregion
 
             AdminOrganizationService.Execute(new GrantAccessRequest
             {
@@ -266,7 +273,7 @@ namespace Plugins
 
         public void UnShare(EntityReference objectRef, EntityReference revokeeRef, EntityReference callerRef = null)
         {
-            #region Parameters check
+#region Parameters check
             if (objectRef == null)
             {
                 throw new ArgumentNullException(nameof(objectRef));
@@ -275,7 +282,7 @@ namespace Plugins
             {
                 throw new ArgumentNullException(nameof(revokeeRef));
             }
-            #endregion
+#endregion
 
             var service = GetService(callerRef?.Id ?? Guid.Empty);
 
@@ -320,7 +327,7 @@ namespace Plugins
 
         public Entity Retrieve(string entityName, Guid id, params string[] columns)
         {
-            #region Parameters check
+#region Parameters check
             if (string.IsNullOrEmpty(entityName))
             {
                 throw new ArgumentNullException(nameof(entityName));
@@ -337,7 +344,7 @@ namespace Plugins
             {
                 throw new ArgumentNullException("columns.Length");
             }
-            #endregion
+#endregion
 
             return RetrieveInternal(new EntityReference(entityName, id), new ColumnSet(columns));
         }
@@ -345,7 +352,7 @@ namespace Plugins
 
         public Entity Retrieve(string entityName, Guid id, bool allColumns)
         {
-            #region Parameters check
+#region Parameters check
             if (string.IsNullOrEmpty(entityName))
             {
                 throw new ArgumentNullException(nameof(entityName));
@@ -358,14 +365,14 @@ namespace Plugins
             {
                 throw new ArgumentNullException(nameof(allColumns));
             }
-            #endregion
+#endregion
 
             return RetrieveInternal(new EntityReference(entityName, id), new ColumnSet(allColumns));
         }
 
         public Entity Retrieve(EntityReference objectRef, params string[] columns)
         {
-            #region Parameters check
+#region Parameters check
             if (objectRef == null)
             {
                 throw new ArgumentNullException(nameof(objectRef));
@@ -378,7 +385,7 @@ namespace Plugins
             {
                 throw new ArgumentNullException("columns.Length");
             }
-            #endregion
+#endregion
 
             return RetrieveInternal(objectRef, new ColumnSet(columns));
         }
@@ -386,7 +393,7 @@ namespace Plugins
 
         public Entity Retrieve(EntityReference objectRef, bool allColumns)
         {
-            #region Parameters check
+#region Parameters check
             if (objectRef == null)
             {
                 throw new ArgumentNullException(nameof(objectRef));
@@ -395,14 +402,14 @@ namespace Plugins
             {
                 throw new ArgumentNullException(nameof(allColumns));
             }
-            #endregion
+#endregion
 
             return RetrieveInternal(objectRef, new ColumnSet(allColumns));
         }
 
         public string GetOptionSetNameFromValue(string optionsetName, int optionsetValue)
         {
-            #region Parameters check
+#region Parameters check
             if (string.IsNullOrEmpty(optionsetName))
             {
                 throw new ArgumentNullException(nameof(optionsetName));
@@ -411,7 +418,7 @@ namespace Plugins
             {
                 throw new ArgumentNullException(nameof(optionsetValue));
             }
-            #endregion
+#endregion
 
             var optionsetSelectedText = string.Empty;
 
@@ -438,12 +445,12 @@ namespace Plugins
 
         public string GetOptionSetNameFromValue<T>(int optionsetValue)
         {
-            #region Parameters check
+#region Parameters check
             if (optionsetValue < 0)
             {
                 throw new ArgumentNullException(nameof(optionsetValue));
             }
-            #endregion
+#endregion
 
             var optionSetattribute = typeof(T).GetCustomAttributes(typeof(OptionSetDefinitionAttribute), false).FirstOrDefault() as OptionSetDefinitionAttribute;
 
@@ -600,6 +607,64 @@ namespace Plugins
             collec.AddRange(entityReferences);
 
             AdminOrganizationService.Associate(objectRef.LogicalName, objectRef.Id, relationName, collec);
+        }
+
+        public TVariable GetEnvironmentVariable<TVariable>(string schemaName)
+        {
+            var variableObject = GetEnvironmentVariable(typeof(TVariable), schemaName);
+
+            if (variableObject == null)
+            {
+                return default(TVariable);
+            }
+
+            return (TVariable) variableObject;
+        }
+
+        protected object GetEnvironmentVariable(Type objectType, string schemaName)
+        {
+            var queryVariable = BindingModelHelper.GetRetrieveAllQuery<EnvironmentVariable>();
+            queryVariable.Criteria.AddCondition(EnvironmentVariableDefinition.Columns.SchemaName, ConditionOperator.Equal, schemaName);
+
+            var linkValue = queryVariable.AddLink(EnvironmentVariableValueDefinition.EntityName, EnvironmentVariableDefinition.Columns.Id, EnvironmentVariableValueDefinition.Columns.EnvironmentVariableDefinitionId, JoinOperator.LeftOuter);
+            linkValue.EntityAlias = EnvironmentVariableValueDefinition.EntityName;
+            linkValue.Columns.AddColumn(EnvironmentVariableValueDefinition.Columns.Value);
+
+            var variable = AdminOrganizationService.RetrieveAll<EnvironmentVariable>(queryVariable).FirstOrDefault();
+
+            if (variable == null)
+            {
+                return null;
+            }
+
+            switch (variable.Type)
+            {
+                case EnvironmentVariableType.String:
+                    if (objectType != typeof(string))
+                    {
+                        throw new ArgumentException($"The environment variable is of type String GetEnvironmentVariable must be called with a string Type argument");
+                    }
+
+                    return variable.Value;
+                case EnvironmentVariableType.Number:
+                    if (objectType != typeof(int))
+                    {
+                        throw new ArgumentException($"The environment variable is of type Integer GetEnvironmentVariable must be called with a int Type argument");
+                    }
+
+                    return int.Parse(variable.Value);
+                case EnvironmentVariableType.Boolean:
+                    if (objectType != typeof(bool))
+                    {
+                        throw new ArgumentException($"The environment variable is of type Boolean GetEnvironmentVariable must be called with a bool Type argument");
+                    }
+
+                    return bool.Parse(variable.Value);
+                case EnvironmentVariableType.Json:
+                    return JsonConvert.DeserializeObject(variable.Value, objectType);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

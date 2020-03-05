@@ -123,18 +123,7 @@ namespace Plugins
 
         public IOrganizationService AdminOrganizationService => _adminService ?? (_adminService = Factory.CreateOrganizationService(null));
 
-        public Messages MessageName
-        {
-            get
-            {
-                Messages message = Messages.Default;
-                if (!string.IsNullOrEmpty(ExecutionContext.MessageName) && !Enum.TryParse(ExecutionContext.MessageName, out message))
-                {
-                    throw new InvalidPluginExecutionException($"The message name \"{ExecutionContext.MessageName}\" is not registered in the MessageName enum");
-                }
-                return message;
-            }
-        }
+        public Messages MessageName => Messages.GetMessage(ExecutionContext.MessageName);
 
         //public virtual void Trace(string message)
         //{

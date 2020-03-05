@@ -5,6 +5,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using Model;
 
 namespace Plugins
@@ -79,5 +80,7 @@ namespace Plugins
         ICollection<EntityReference> GetTeamMemberRefs(EntityReference teamRef);
 
         void AssociateRecords(EntityReference objectRef, Relationship relationName, params EntityReference[] entityReferences);
+
+        TVariable GetEnvironmentVariable<TVariable>(string schemaName);
     }
 }

@@ -106,9 +106,10 @@ namespace Model
                         try
                         {
                             _modelDefinitionCache[type] = new ModelDefinition(type);
-                        } catch
+                        }
+                        catch
                         {
-                            
+
                             return false;
                         }
                     }
@@ -120,7 +121,7 @@ namespace Model
 
         }
 
-            public static ModelDefinition GetModelDefinition(Type type)
+        public static ModelDefinition GetModelDefinition(Type type)
         {
             if (TryGetModelDefinition(type, out var modelDefinition))
             {
