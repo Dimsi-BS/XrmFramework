@@ -814,5 +814,26 @@ namespace Plugins
 
 			Log("AssociateRecords", "End : duration = {0}", sw.Elapsed);
 		}
+
+		public TVariable GetEnvironmentVariable<TVariable>(String  schemaName)
+		{
+			#region Parameters check
+			if (string.IsNullOrEmpty(schemaName))
+			{
+				throw new ArgumentNullException(nameof(schemaName));
+			}
+			#endregion
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+
+			Log("GetEnvironmentVariable", "Start: schemaName = {0}", schemaName);
+
+			var returnValue = Service.GetEnvironmentVariable<TVariable>( schemaName);
+
+			Log("GetEnvironmentVariable", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
+			return returnValue;
+		}
 	}
 }

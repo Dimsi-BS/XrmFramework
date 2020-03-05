@@ -7,9 +7,9 @@ namespace Plugins.Tests
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class PluginContextAttribute : Attribute
     {
-        public PluginContextAttribute(Stages stage, Messages message, Modes mode, string entityName)
+        public PluginContextAttribute(Stages stage, string messageName, Modes mode, string entityName)
         {
-            Message = message;
+            Message = Messages.GetMessage(messageName);
             Stage = stage;
             Mode = mode;
             EntityName = entityName;

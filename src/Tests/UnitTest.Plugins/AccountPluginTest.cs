@@ -31,7 +31,7 @@ namespace UnitTest.Plugins
         /// Create a new Account with an active Contact Owner
         /// </summary>
         [Fact]
-        [PluginContext(Stages.PreValidation, Messages.Create, Modes.Synchronous, AccountDefinition.EntityName)]
+        [PluginContext(Stages.PreValidation, nameof(Messages.Create), Modes.Synchronous, AccountDefinition.EntityName)]
         public void CreateAccountWithactiveContactOwner()
         {
             // Define the Contact Owner
@@ -90,7 +90,7 @@ namespace UnitTest.Plugins
         /// Create a new Account with an inactive Contact Owner
         /// </summary>
         [Fact]
-        [PluginContext(Stages.PreValidation, Messages.Create, Modes.Synchronous, AccountDefinition.EntityName)]
+        [PluginContext(Stages.PreValidation, nameof(Messages.Create), Modes.Synchronous, AccountDefinition.EntityName)]
         public void CreateAccountWithInactiveContactOwner()
         {   
             // Define the Contact Owner

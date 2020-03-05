@@ -27,6 +27,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ConnectionHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\CustomWorkflowActivity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\DefaultService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\DefaultServiceWithSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\EnumExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IBehaviour.cs" />

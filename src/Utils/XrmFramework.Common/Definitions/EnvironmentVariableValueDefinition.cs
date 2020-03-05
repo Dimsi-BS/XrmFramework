@@ -92,7 +92,7 @@ namespace XrmFramework.Common
 		[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
 		public static class ManyToOneRelationships
 		{
-			[Relationship(BusinessunitDefinition.EntityName, EntityRole.Referencing, "owningbusinessunit", "owningbusinessunit")]
+			[Relationship(BusinessUnitDefinition.EntityName, EntityRole.Referencing, "owningbusinessunit", "owningbusinessunit")]
 			public const string business_unit_environmentvariablevalue = "business_unit_environmentvariablevalue";
 			[Relationship(EnvironmentVariableDefinition.EntityName, EntityRole.Referencing, "EnvironmentVariableDefinitionId", EnvironmentVariableValueDefinition.Columns.EnvironmentVariableDefinitionId)]
 			public const string environmentvariabledefinition_environmentvariablevalue = "environmentvariabledefinition_environmentvariablevalue";
