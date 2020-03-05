@@ -56,96 +56,129 @@ namespace Plugins
         ValidationResult
     }
 
-    public enum Messages
+    public partial class Messages
     {
-        AddItem,
-        AddListMembers,
-        AddMember,
-        AddMembers,
-        AddPrivileges,
-        AddProductToKit,
-        AddRecurrence,
-        AddToQueue,
-        AddUserToRecordTeam,
-        Assign,
-        AssignUserRoles,
-        Associate,
-        BackgroundSend,
-        Book,
-        Cancel,
-        CheckIncoming,
-        CheckPromote,
-        Clone,
-        Close,
-        CopyDynamicListToStatic,
-        CopySystemForm,
-        Create,
-        CreateException,
-        CreateInstance,
-        Delete,
-        DeleteOpenInstances,
-        DeliverIncoming,
-        DeliverPromote,
-        DetachFromQueue,
-        Disassociate,
-        Execute,
-        ExecuteById,
-        Export,
-        ExportAll,
-        ExportCompressed,
-        ExportCompressedAll,
-        GrantAccess,
-        Handle,
-        Import,
-        ImportAll,
-        ImportCompressedAll,
-        ImportCompressedWithProgress,
-        ImportWithProgress,
-        LockInvoicePricing,
-        LockSalesOrderPricing,
-        Lose,
-        Merge,
-        ModifyAccess,
-        Publish,
-        PublishAll,
-        QualifyLead,
-        Recalculate,
-        RemoveItem,
-        RemoveMember,
-        RemoveMembers,
-        RemovePrivilege,
-        RemoveProductFromKit,
-        RemoveRelated,
-        RemoveUserFromRecordTeam,
-        RemoveUserRoles,
-        ReplacePrivileges,
-        Reschedule,
-        Retrieve,
-        RetrieveExchangeRate,
-        RetrieveFilteredForms,
-        RetrieveMultiple,
-        RetrievePersonalWall,
-        RetrievePrincipalAccess,
-        RetrieveRecordWall,
-        RetrieveSharedPrincipalsAndAccess,
-        RetrieveUnpublished,
-        RetrieveUnpublishedMultiple,
-        RevokeAccess,
-        Route,
-        Send,
-        SendFromTemplate,
-        SetRelated,
+        public static Messages AddItem = new Messages("AddItem");
+        public static Messages AddListMembers = new Messages("AddListMembers");
+        public static Messages AddMember = new Messages("AddMember");
+        public static Messages AddMembers = new Messages("AddMembers");
+        public static Messages AddPrivileges = new Messages("AddPrivileges");
+        public static Messages AddProductToKit = new Messages("AddProductToKit");
+        public static Messages AddRecurrence = new Messages("AddRecurrence");
+        public static Messages AddToQueue = new Messages("AddToQueue");
+        public static Messages AddUserToRecordTeam = new Messages("AddUserToRecordTeam");
+        public static Messages Assign = new Messages("Assign");
+        public static Messages AssignUserRoles = new Messages("AssignUserRoles");
+        public static Messages Associate = new Messages("Associate");
+        public static Messages BackgroundSend = new Messages("BackgroundSend");
+        public static Messages Book = new Messages("Book");
+        public static Messages Cancel = new Messages("Cancel");
+        public static Messages CheckIncoming = new Messages("CheckIncoming");
+        public static Messages CheckPromote = new Messages("CheckPromote");
+        public static Messages Clone = new Messages("Clone");
+        public static Messages Close = new Messages("Close");
+        public static Messages CopyDynamicListToStatic = new Messages("CopyDynamicListToStatic");
+        public static Messages CopySystemForm = new Messages("CopySystemForm");
+        public static Messages Create = new Messages("Create");
+        public static Messages CreateException = new Messages("CreateException");
+        public static Messages CreateInstance = new Messages("CreateInstance");
+        public static Messages Delete = new Messages("Delete");
+        public static Messages DeleteOpenInstances = new Messages("DeleteOpenInstances");
+        public static Messages DeliverIncoming = new Messages("DeliverIncoming");
+        public static Messages DeliverPromote = new Messages("DeliverPromote");
+        public static Messages DetachFromQueue = new Messages("DetachFromQueue");
+        public static Messages Disassociate = new Messages("Disassociate");
+        public static Messages Execute = new Messages("Execute");
+        public static Messages ExecuteById = new Messages("ExecuteById");
+        public static Messages Export = new Messages("Export");
+        public static Messages ExportAll = new Messages("ExportAll");
+        public static Messages ExportCompressed = new Messages("ExportCompressed");
+        public static Messages ExportCompressedAll = new Messages("ExportCompressedAll");
+        public static Messages GrantAccess = new Messages("GrantAccess");
+        public static Messages Handle = new Messages("Handle");
+        public static Messages Import = new Messages("Import");
+        public static Messages ImportAll = new Messages("ImportAll");
+        public static Messages ImportCompressedAll = new Messages("ImportCompressedAll");
+        public static Messages ImportCompressedWithProgress = new Messages("ImportCompressedWithProgress");
+        public static Messages ImportWithProgress = new Messages("ImportWithProgress");
+        public static Messages LockInvoicePricing = new Messages("LockInvoicePricing");
+        public static Messages LockSalesOrderPricing = new Messages("LockSalesOrderPricing");
+        public static Messages Lose = new Messages("Lose");
+        public static Messages Merge = new Messages("Merge");
+        public static Messages ModifyAccess = new Messages("ModifyAccess");
+        public static Messages Publish = new Messages("Publish");
+        public static Messages PublishAll = new Messages("PublishAll");
+        public static Messages QualifyLead = new Messages("QualifyLead");
+        public static Messages Recalculate = new Messages("Recalculate");
+        public static Messages RemoveItem = new Messages("RemoveItem");
+        public static Messages RemoveMember = new Messages("RemoveMember");
+        public static Messages RemoveMembers = new Messages("RemoveMembers");
+        public static Messages RemovePrivilege = new Messages("RemovePrivilege");
+        public static Messages RemoveProductFromKit = new Messages("RemoveProductFromKit");
+        public static Messages RemoveRelated = new Messages("RemoveRelated");
+        public static Messages RemoveUserFromRecordTeam = new Messages("RemoveUserFromRecordTeam");
+        public static Messages RemoveUserRoles = new Messages("RemoveUserRoles");
+        public static Messages ReplacePrivileges = new Messages("ReplacePrivileges");
+        public static Messages Reschedule = new Messages("Reschedule");
+        public static Messages Retrieve = new Messages("Retrieve");
+        public static Messages RetrieveExchangeRate = new Messages("RetrieveExchangeRate");
+        public static Messages RetrieveFilteredForms = new Messages("RetrieveFilteredForms");
+        public static Messages RetrieveMultiple = new Messages("RetrieveMultiple");
+        public static Messages RetrievePersonalWall = new Messages("RetrievePersonalWall");
+        public static Messages RetrievePrincipalAccess = new Messages("RetrievePrincipalAccess");
+        public static Messages RetrieveRecordWall = new Messages("RetrieveRecordWall");
+        public static Messages RetrieveSharedPrincipalsAndAccess = new Messages("RetrieveSharedPrincipalsAndAccess");
+        public static Messages RetrieveUnpublished = new Messages("RetrieveUnpublished");
+        public static Messages RetrieveUnpublishedMultiple = new Messages("RetrieveUnpublishedMultiple");
+        public static Messages RevokeAccess = new Messages("RevokeAccess");
+        public static Messages Route = new Messages("Route");
+        public static Messages Send = new Messages("Send");
+        public static Messages SendFromTemplate = new Messages("SendFromTemplate");
+        public static Messages SetRelated = new Messages("SetRelated");
         [Obsolete("Use Update message with state filtering attribute instead")]
-        SetState,
+        public static Messages SetState = new Messages("SetState");
         [Obsolete("Use Update message with state filtering attribute instead")]
-        SetStateDynamicEntity,
-        TriggerServiceEndpointCheck,
-        UnlockInvoicePricing,
-        UnlockSalesOrderPricing,
-        Update,
-        ValidateRecurrenceRule,
-        Win,
-        ExecuteWorkflow,
-        Default
+        public static Messages SetStateDynamicEntity = new Messages("SetStateDynamicEntity");
+        public static Messages TriggerServiceEndpointCheck = new Messages("TriggerServiceEndpointCheck");
+        public static Messages UnlockInvoicePricing = new Messages("UnlockInvoicePricing");
+        public static Messages UnlockSalesOrderPricing = new Messages("UnlockSalesOrderPricing");
+        public static Messages Update = new Messages("Update");
+        public static Messages ValidateRecurrenceRule = new Messages("ValidateRecurrenceRule");
+        public static Messages Win = new Messages("Win");
+        public static Messages ExecuteWorkflow = new Messages("ExecuteWorkflow");
+        public static Messages Default = new Messages("Default");
+
+        protected string MessageName { get; }
+
+        protected Messages(string messageName)
+        {
+            MessageName = messageName;
+        }
+
+        public override string ToString() => MessageName;
+
+        public override int GetHashCode() => MessageName.GetHashCode();
+
+        public override bool Equals(object obj) => obj is Messages message && message.MessageName == MessageName;
+
+        public static bool operator ==(Messages x, Messages y)
+        {
+            return Equals(x, y);
+        }
+
+        public static bool operator !=(Messages x, Messages y)
+        {
+            return !Equals(x, y);
+        }
+
+        public static Messages GetMessage(string messageName)
+        {
+            if (string.IsNullOrEmpty(messageName))
+            {
+                return Default;
+            }
+
+            return new Messages(messageName);
+        }
     }
 }

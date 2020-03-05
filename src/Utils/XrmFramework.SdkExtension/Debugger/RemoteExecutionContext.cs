@@ -51,14 +51,21 @@ namespace XrmFramework.RemoteDebugger
                 WorkflowMode = workflowContext.WorkflowMode;
 
                 IsWorkflowContext = true;
-                RemoteParentContext = new RemoteDebugExecutionContext(workflowContext.ParentContext);
+
+                if (workflowContext.ParentContext != null)
+                {
+                    RemoteParentContext = new RemoteDebugExecutionContext(workflowContext.ParentContext);
+                }
             }
             else if (context is IPluginExecutionContext pluginContext)
             {
                 Stage = pluginContext.Stage;
-                RemoteParentContext = new RemoteDebugExecutionContext(pluginContext.ParentContext);
-            }
 
+                if (pluginContext.ParentContext != null)
+                {
+                    RemoteParentContext = new RemoteDebugExecutionContext(pluginContext.ParentContext);
+                }
+            }
         }
 
         public bool IsWorkflowContext { get; set; }
