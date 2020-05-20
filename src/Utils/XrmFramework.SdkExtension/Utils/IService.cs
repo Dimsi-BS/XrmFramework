@@ -82,5 +82,7 @@ namespace Plugins
         void AssociateRecords(EntityReference objectRef, Relationship relationName, params EntityReference[] entityReferences);
 
         TVariable GetEnvironmentVariable<TVariable>(string schemaName);
+
+        void AddRoleToUserOrTeam(EntityReference userOrTeamRef, string parentRootRoleIdOrTemplateId);
     }
 }

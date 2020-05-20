@@ -8,20 +8,198 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using XrmFramework.Utils;
 
 namespace Plugins
 {
-    public class LogHelper
+    public class DefaultLogHelper : ILogger
     {
-        public TraceLogger LogMethod { get; set; }
+        protected IOrganizationService Service { get; }
+        public ILoggerContext Context { get; }
 
-        public LogHelper(TraceLogger logMethod)
+        private LogMethod LogMethod { get; }
+
+        public DefaultLogHelper(IOrganizationService service, ILoggerContext context, LogMethod logMethod)
         {
+            Service = service;
+            Context = context;
             LogMethod = logMethod;
         }
 
-        public void Log(string methodName, string message, params object[] formatArgs)
+        public void Log(string message, params object[] args)
+        {
+            LogInternal(message, FormatArgs(args));
+        }
+
+        public void LogCollection(IEnumerable<KeyValuePair<string, object>> collection, bool verifyIncluded = false, params string[] excludedIncludedKeys)
+        {
+            if (collection == null)
+            {
+                return;
+            }
+
+            var sb = new StringBuilder();
+
+            var keyValuePairs = collection.ToList();
+            foreach (var kvp in keyValuePairs)
+            {
+                if (!verifyIncluded && excludedIncludedKeys != null && excludedIncludedKeys.Contains(kvp.Key))
+                {
+                    continue;
+                }
+
+                if (verifyIncluded && excludedIncludedKeys != null && !excludedIncludedKeys.Contains(kvp.Key))
+                {
+                    continue;
+                }
+
+                Log("{0} : {1}", kvp.Key, LogObject(kvp.Value));
+
+            }
+
+            if (verifyIncluded && excludedIncludedKeys != null)
+            {
+                foreach (var key in excludedIncludedKeys.Where(key => keyValuePairs.All(c => c.Key != key)))
+                {
+                    Log("{0} not present", key);
+                }
+            }
+        }
+
+        private string LogObject(object parameter, string prefix = "")
+        {
+            var sb = new StringBuilder();
+            if (parameter != null)
+            {
+                var parameterType = parameter.GetType();
+
+                sb.AppendFormat(" type {0} : ", parameterType.Name);
+
+                switch (parameter)
+                {
+                    case Entity valueEntity:
+                        LogEntity(sb, valueEntity, $"\t{prefix}");
+                        break;
+                    case EntityReference valueRef:
+                        sb.Append(valueRef.LogicalName);
+                        if (valueRef.Id != Guid.Empty)
+                        {
+                            sb.Append("|").Append(valueRef.Id);
+                        }
+                        else
+                        {
+                            foreach (var keyAttribute in valueRef.KeyAttributes)
+                            {
+                                sb.AppendFormat("|{0}|{1}", keyAttribute.Key, keyAttribute.Value);
+                            }
+                        }
+
+                        break;
+                    case OptionSetValue valueCode:
+                        sb.AppendFormat("Value={0}", valueCode.Value);
+                        break;
+                    case OptionSetValueCollection optionsetCollection:
+                        sb.Append("[");
+                        foreach (var option in optionsetCollection)
+                        {
+                            sb.Append("\r\n{");
+                            sb.AppendFormat("Value={0}", option.Value);
+                            sb.Append("}");
+                        }
+                        sb.Append("]");
+                        break;
+                    case Money mValue:
+                        sb.AppendFormat("Value={0}", mValue.Value);
+                        break;
+                    case string[] stValue:
+                        sb.Append(string.Join(", ", stValue));
+                        break;
+                    default:
+                        sb.AppendFormat("{0}", parameter);
+                        break;
+                }
+
+            }
+            else
+            {
+                sb.Append("null");
+            }
+
+            return sb.ToString();
+        }
+
+        public virtual string LogEntity(Entity entity)
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat("LogicalName={0}, Id={1}", entity.LogicalName, entity.Id);
+
+            foreach (var attribute in entity.Attributes)
+            {
+                LogAttribute(sb, attribute.Key, attribute.Value);
+            }
+            return sb.ToString();
+        }
+
+        private void LogEntity(StringBuilder sb, Entity entity, string prefix = "")
+        {
+            sb.AppendFormat("{2}LogicalName={0}, Id={1}", entity.LogicalName, entity.Id, prefix);
+
+            foreach (var attribute in entity.Attributes)
+            {
+                LogAttribute(sb, attribute.Key, attribute.Value, prefix);
+            }
+        }
+
+        private void LogAttribute(StringBuilder sb, string attributeName, object attributeValue, string prefix = "")
+        {
+            sb.AppendFormat("\r\n{1}\t\"{0}\" : ", attributeName, prefix);
+
+            if (attributeValue == null)
+            {
+                sb.Append("null");
+            }
+            else
+            {
+                switch (attributeValue)
+                {
+                    case EntityReference valueRef:
+                        sb.AppendFormat("LogicalName={0}, Id={1}", valueRef.LogicalName, valueRef.Id);
+                        break;
+                    case OptionSetValue valueCode:
+                        sb.AppendFormat("Value={0}", valueCode.Value);
+                        break;
+                    case OptionSetValueCollection optionsetCollection:
+                        sb.Append("[");
+                        foreach (var option in optionsetCollection)
+                        {
+                            sb.Append("\r\n{");
+                            sb.AppendFormat("Value={0}", option.Value);
+                            sb.Append("}");
+                        }
+                        sb.Append("]");
+                        break;
+                    case EntityCollection valueCollection:
+                        sb.Append("[");
+                        foreach (var entity in valueCollection.Entities)
+                        {
+                            prefix = prefix + "\t";
+                            sb.Append("\r\n{");
+                            LogEntity(sb, entity, prefix);
+                            sb.Append("}");
+                        }
+                        sb.Append("]");
+                        break;
+                    default:
+                        sb.AppendFormat("{0}", attributeValue);
+                        break;
+                }
+            }
+        }
+
+        protected virtual void LogInternal(string message, params object[] args)
+            => LogMethod(message, args);
+
+        private object[] FormatArgs(params object[] formatArgs)
         {
             object[] args = null;
 
@@ -37,32 +215,22 @@ namespace Plugins
                         formattedArg = formatArgs[i];
                         var argType = formattedArg.GetType();
 
-                        switch (argType.Name)
+                        switch (formattedArg)
                         {
-                            case "EntityReference":
-                                var eRValue = (EntityReference)formattedArg;
-                                formattedArg = string.Format("{0}|{1}", eRValue.LogicalName, eRValue.Id);
+                            case EntityReference eRValue:
+                                formattedArg = $"{eRValue.LogicalName}|{eRValue.Id}";
                                 break;
-                            case "Entity":
-                                formattedArg = DumpEntity((Entity)formattedArg);
+                            case Entity eValue:
+                                formattedArg = LogEntity(eValue);
                                 break;
-                            case "OptionSetValue":
-                                formattedArg = ((OptionSetValue)formattedArg).Value;
+                            case OptionSetValue oValue:
+                                formattedArg = oValue.Value;
                                 break;
-                            case "Money":
-                                formattedArg = ((Money)formattedArg).Value;
+                            case Money mValue:
+                                formattedArg = mValue.Value;
                                 break;
-                            case "String[]":
-                                formattedArg = ((string[])formattedArg).Aggregate(string.Empty, (last, column) =>
-                                                                        {
-                                                                            var value = last;
-                                                                            if (last != string.Empty)
-                                                                            {
-                                                                                value = value + ", ";
-                                                                            }
-                                                                            value = value + column;
-                                                                            return value;
-                                                                        });
+                            case string[] stValue:
+                                formattedArg = string.Join(", ", stValue);
                                 break;
                         }
 
@@ -87,125 +255,28 @@ namespace Plugins
                 }
             }
 
-            LogMethod("{0} : {1}", methodName, string.Format(CultureInfo.CurrentCulture, message, args));
+            return args;
         }
 
-        public void DumpObject(string parameterName, object parameter)
+        public void LogWithMethodName(string methodName, string message, params object[] args) => LogInternal($"{methodName} : {message}", FormatArgs(args));
+
+        public virtual void LogError(Exception e, string message = null, params object[] args) => LogInternal("ERROR : {0}\r\n{1}", message == null ? string.Empty : string.Format(message, FormatArgs(args)), e);
+
+        public virtual void DumpLog()
         {
-
-            var sb = new StringBuilder();
-            if (parameter != null)
-            {
-                var parameterType = parameter.GetType();
-
-                sb.AppendFormat("\r\n{0} type {1} : ", parameterName, parameterType.Name);
-
-                switch (parameterType.Name)
-                {
-                    case "Entity":
-                        var valueEntity = parameter as Entity;
-                        DumpEntity(sb, valueEntity);
-                        break;
-                    case "EntityReference":
-                        var valueRef = parameter as EntityReference;
-                        sb.AppendFormat("{0}|{1}", valueRef.LogicalName, valueRef.Id);
-                        break;
-                    case "OptionSetValue":
-                        var valueCode = parameter as OptionSetValue;
-                        sb.AppendFormat("Value={0}", valueCode.Value);
-                        break;
-                    case "OptionSetValueCollection":
-                        var optionsetCollection = parameter as OptionSetValueCollection;
-                        sb.Append("[");
-                        foreach (var option in optionsetCollection)
-                        {
-                            sb.Append("\r\n{");
-                            sb.AppendFormat("Value={0}", option.Value);
-                            sb.Append("}");
-                        }
-                        sb.Append("]");
-                        break;
-                    default:
-                        sb.AppendFormat("{0}", parameter);
-                        break;
-                }
-
-                LogMethod("{0}", sb.ToString());
-            }
-            else
-            {
-                LogMethod("{0} is null", parameterName);
-            }
         }
+    }
 
-        public virtual string DumpEntity(Entity entity)
-        {
-            var sb = new StringBuilder();
-            sb.AppendFormat("LogicalName={0}, Id={1}", entity.LogicalName, entity.Id);
+    public interface ILogger
+    {
+        void LogWithMethodName(string methodName, string message, params object[] formatArgs);
 
-            foreach (var attribute in entity.Attributes)
-            {
-                DumpAttribute(sb, attribute.Key, attribute.Value);
-            }
-            return sb.ToString();
-        }
-        public void DumpEntity(StringBuilder sb, Entity entity, string prefix = "")
-        {
-            sb.AppendFormat("{2}LogicalName={0}, Id={1}", entity.LogicalName, entity.Id, prefix);
+        void Log(string message, params object[] args);
 
-            foreach (var attribute in entity.Attributes)
-            {
-                DumpAttribute(sb, attribute.Key, attribute.Value, prefix);
-            }
-        }
-        private void DumpAttribute(StringBuilder sb, string attributeName, object attributeValue, string prefix = "")
-        {
-            sb.AppendFormat("\r\n{1}\t\"{0}\" : ", attributeName, prefix);
+        void LogError(Exception e, string message = null, params object[] args);
 
-            if (attributeValue == null)
-            {
-                sb.Append("null");
-            }
-            else
-            {
-                switch (attributeValue.GetType().Name)
-                {
-                    case "EntityReference":
-                        var valueRef = attributeValue as EntityReference;
-                        sb.AppendFormat("LogicalName={0}, Id={1}", valueRef.LogicalName, valueRef.Id);
-                        break;
-                    case "OptionSetValue":
-                        var valueCode = attributeValue as OptionSetValue;
-                        sb.AppendFormat("Value={0}", valueCode.Value);
-                        break;
-                    case "OptionSetValueCollection":
-                        var optionsetCollection = attributeValue as OptionSetValueCollection;
-                        sb.Append("[");
-                        foreach (var option in optionsetCollection)
-                        {
-                            sb.Append("\r\n{");
-                            sb.AppendFormat("Value={0}", option.Value);
-                            sb.Append("}");
-                        }
-                        sb.Append("]");
-                        break;
-                    case "EntityCollection":
-                        var valueCollection = attributeValue as EntityCollection;
-                        sb.Append("[");
-                        foreach (var entity in valueCollection.Entities)
-                        {
-                            prefix = prefix + "\t";
-                            sb.Append("\r\n{");
-                            DumpEntity(sb, entity, prefix);
-                            sb.Append("}");
-                        }
-                        sb.Append("]");
-                        break;
-                    default:
-                        sb.AppendFormat("{0}", attributeValue);
-                        break;
-                }
-            }
-        }
+        void LogCollection(IEnumerable<KeyValuePair<string, object>> collection, bool verifyIncluded = false, params string[] excludedIncludedKeys);
+
+        void DumpLog();
     }
 }

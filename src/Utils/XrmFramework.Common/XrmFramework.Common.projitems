@@ -29,6 +29,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\ImageAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\ImpersonationAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\KeyAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Attributes\LoggerClassAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\ModelPropertyConverterAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\MultiAttributesAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Attributes\NullableAttribute.cs" />
@@ -60,6 +61,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\SystemUserRolesDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\TeamDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Definitions\WorkflowDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\BindingModelExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\EnumExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\GuidExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\StringExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\DebugSession.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\EnvironmentVariable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\PluginType.cs" />
@@ -81,13 +86,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\AttributeDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\AttributeMetadata.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\BindingModelBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utils\BindingModelExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ConnectionStringParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\DefinitionCache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\EntityDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\EntityMetadata.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\EntityReference.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utils\EnumExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IBindingModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IInitializableService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ILoggedService.cs" />

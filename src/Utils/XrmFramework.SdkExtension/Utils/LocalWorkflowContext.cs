@@ -4,6 +4,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
 using System;
 using System.Activities;
+using System.Collections.Generic;
 using XrmFramework.RemoteDebugger;
 
 namespace Plugins
@@ -42,11 +43,11 @@ namespace Plugins
         public WorkflowModes WorkflowMode
             => (WorkflowModes)Enum.ToObject(typeof(WorkflowModes), WorkflowContext.WorkflowMode);
 
-        public void DumpObject(string parameterName, object parameter)
-        {
-            LogHelper.DumpObject(parameterName, parameter);
-        }
-
         public RemoteDebugExecutionContext RemoteContext => new RemoteDebugExecutionContext(WorkflowContext);
+
+        public void LogCollection(Dictionary<string, object> list)
+        {
+            Logger.LogCollection(list);
+        }
     }
 }

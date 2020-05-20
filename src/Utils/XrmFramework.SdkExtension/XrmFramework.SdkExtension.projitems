@@ -39,6 +39,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ICustomWorkflowContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IEntityModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ILoggerContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ImageHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IPluginContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IService.cs" />
@@ -47,13 +48,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\LocalContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\LocalPluginContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\LocalWorkflowContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\LoggerFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\LogHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\LookupConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ManagedTokenOrganizationServiceProxy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Plugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\QueryExpressionExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\RequestContainer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Utils\ServiceContextBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ServiceFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Step.cs" />
   </ItemGroup>

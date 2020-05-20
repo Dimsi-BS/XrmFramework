@@ -7,7 +7,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EB312523-C755-42A8-9C96-EFF5106603F5}</ProjectGuid>
+    <ProjectGuid>{453FDFA5-9F0D-4E67-B46C-20B7E855CAFB}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>DefinitionManager</RootNamespace>
     <AssemblyName>DefinitionManager</AssemblyName>
@@ -148,7 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\XrmProject.Utils\XrmProject.Utils.csproj">
-      <Project>{f2225a80-4277-4038-967d-fc2589b32696}</Project>
+      <Project>{0d10d342-d1d8-4929-bf4c-3ab15a24253a}</Project>
       <Name>XrmProject.Utils</Name>
     </ProjectReference>
   </ItemGroup>

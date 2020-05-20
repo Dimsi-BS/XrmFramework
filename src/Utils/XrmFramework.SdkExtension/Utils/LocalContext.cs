@@ -12,10 +12,12 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.ServiceModel;
 using System.Text;
 using System.Xml;
 using Microsoft.Crm.Sdk.Messages;
 using XrmFramework.RemoteDebugger;
+using XrmFramework.Utils;
 
 namespace Plugins
 {
@@ -25,13 +27,17 @@ namespace Plugins
 
         private IOrganizationService _adminService;
 
-        private EntityReference _businessUnitRef;
+        private readonly EntityReference _businessUnitRef;
+
+        public EntityReference UserRef => new EntityReference(SystemUserDefinition.EntityName, UserId);
 
         public EntityReference BusinessUnitRef => _businessUnitRef;
 
-        protected LocalContext() { }
+        protected LocalContext()
+        {
+        }
 
-        protected LogHelper LogHelper { get; private set; }
+        protected ILogger Logger { get; }
 
         public Guid UserId => ExecutionContext.UserId;
 
@@ -42,8 +48,8 @@ namespace Plugins
         public string OrganizationName => ExecutionContext.OrganizationName;
 
         //public Guid CorrelationId => ExecutionContext.CorrelationId;
-
-        public LocalContext(IServiceProvider serviceProvider)
+        
+        public LocalContext(IServiceProvider serviceProvider) : this()
         {
             if (serviceProvider == null)
             {
@@ -64,10 +70,10 @@ namespace Plugins
 
             _businessUnitRef = new EntityReference("businessunit", ExecutionContext.BusinessUnitId);
 
-            LogHelper = new LogHelper(TracingService.Trace);
+            Logger = LoggerFactory.GetLogger(this, TracingService.Trace);
         }
 
-        public LocalContext(CodeActivityContext context)
+        public LocalContext(CodeActivityContext context) : this()
         {
             if (context == null)
             {
@@ -88,7 +94,7 @@ namespace Plugins
 
             _businessUnitRef = new EntityReference("businessunit", ExecutionContext.BusinessUnitId);
 
-            LogHelper = new LogHelper(TracingService.Trace);
+            Logger = LoggerFactory.GetLogger(this, TracingService.Trace);
         }
 
         protected LocalContext(LocalContext context, IPluginExecutionContext parentContext)
@@ -98,7 +104,7 @@ namespace Plugins
             Factory = context.Factory;
             OrganizationService = context.OrganizationService;
             _businessUnitRef = context._businessUnitRef;
-            LogHelper = context.LogHelper;
+            Logger = context.Logger;
         }
 
         public T GetService<T>() where T : IService
@@ -111,7 +117,7 @@ namespace Plugins
             return ServiceFactory.GetService(type, this);
         }
 
-        public Logger Logger => LogHelper.Log;
+        public LogServiceMethod LogServiceMethod => Logger.LogWithMethodName;
 
         private IOrganizationServiceFactory Factory { get; set; }
 
@@ -121,36 +127,21 @@ namespace Plugins
 
         public ITracingService TracingService { get; protected set; }
 
-        public IOrganizationService AdminOrganizationService => _adminService ?? (_adminService = Factory.CreateOrganizationService(null));
+        public IOrganizationService AdminOrganizationService => _adminService = _adminService ?? Factory.CreateOrganizationService(null);
 
         public Messages MessageName => Messages.GetMessage(ExecutionContext.MessageName);
 
-        //public virtual void Trace(string message)
-        //{
-        //    if (string.IsNullOrWhiteSpace(message) || TracingService == null)
-        //    {
-        //        return;
-        //    }
-
-        //    if (ExecutionContext == null)
-        //    {
-        //        TracingService.Trace(message);
-        //    }
-        //    else
-        //    {
-        //        TracingService.Trace(
-        //            "{0}, Correlation Id: {1}, Initiating User: {2}",
-        //            message,
-        //            ExecutionContext.CorrelationId,
-        //            ExecutionContext.InitiatingUserId);
-        //    }
-        //}
-
         public void Log(string message, params object[] args)
         {
-            LogHelper.LogMethod(message, args);
+            Logger.Log(message, args);
         }
 
+        public void LogError(Exception e)
+        {
+            Logger.LogError(e, "ERROR");
+        }
+
+        public void DumpLog() => Logger.DumpLog();
 
         #region Image Helpers
         public bool HasPreImage(string imageName)
@@ -160,6 +151,15 @@ namespace Plugins
         public virtual Entity GetPreImage(string imageName)
         {
             VerifyPreImage(imageName);
+            return ExecutionContext.PreEntityImages[imageName];
+        }
+        public virtual Entity GetPreImageOrDefault(string imageName)
+        {
+            if (!ExecutionContext.PreEntityImages.ContainsKey(imageName))
+            {
+                return null;
+            }
+
             return ExecutionContext.PreEntityImages[imageName];
         }
         public bool HasPostImage(string imageName)
@@ -226,53 +226,14 @@ namespace Plugins
         #region Entitys
         public virtual void DumpSharedVariables()
         {
-            if (ExecutionContext.SharedVariables != null)
-            {
-                var sb = new StringBuilder();
-
-                foreach (var key in ExecutionContext.SharedVariables.Keys)
-                {
-                    var parameter = ExecutionContext.SharedVariables[key];
-
-                    LogHelper.DumpObject(key, parameter);
-                }
-            }
+            Logger.LogCollection(ExecutionContext.SharedVariables);
         }
 
 
         public virtual void DumpInputParameters()
         {
-            foreach (var inputParameter in ExecutionContext.InputParameters)
-            {
-                switch (inputParameter.Key)
-                {
-                    case "ExtensionData":
-                    case "Parameters":
-                    case "RequestId":
-                    case "RequestName":
-                        break;
-                    default:
-                        DumpInputParameter(inputParameter.Key);
-                        break;
-                }
-            }
+            Logger.LogCollection(ExecutionContext.InputParameters, false, "ExtensionData", "Parameters", "RequestId", "RequestName");
         }
-
-        private void DumpInputParameter(InputParameters parameterName)
-        {
-            VerifyInputParameter(parameterName);
-
-            var parameter = ExecutionContext.InputParameters[parameterName.ToString()];
-
-            LogHelper.DumpObject(parameterName.ToString(), parameter);
-        }
-
-        private void DumpInputParameter(string parameterName)
-        {
-            var parameter = ExecutionContext.InputParameters[parameterName];
-            LogHelper.DumpObject(parameterName, parameter);
-        }
-
 
         #endregion
 
@@ -375,6 +336,8 @@ namespace Plugins
                 throw new InvalidPluginExecutionException(string.Format(CultureInfo.InvariantCulture, message, formatArguments));
             }
         }
+
+        public virtual int Depth { get; }
 
         private static string GetResourceFileName(int language, string defaultResourceName = null)
         {
@@ -498,20 +461,10 @@ namespace Plugins
 
         public void LogFields(Entity entity, params string[] fieldNames)
         {
-            foreach (var fieldName in fieldNames)
-            {
-                if (entity.Contains(fieldName))
-                {
-                    LogHelper.DumpObject(fieldName, entity[fieldName]);
-                }
-                else
-                {
-                    Log("{0} not present in {1}", fieldName, entity.LogicalName);
-                }
-            }
+            Logger.LogCollection(entity.Attributes, true, fieldNames);
         }
 
-        public LocalContext ParentLocalContext {get; protected set; }
+        public LocalContext ParentLocalContext { get; protected set; }
 
         public Guid GetInitiatingUserId()
         {
@@ -523,7 +476,7 @@ namespace Plugins
             return UserId;
         }
 
-        public bool IsDebugContext => ExecutionContext.GetType().FullName  == typeof(RemoteDebugExecutionContext).FullName;
+        public bool IsDebugContext => ExecutionContext.GetType().FullName == typeof(RemoteDebugExecutionContext).FullName;
 
         public void UpdateContext(RemoteDebugExecutionContext updatedContext)
         {

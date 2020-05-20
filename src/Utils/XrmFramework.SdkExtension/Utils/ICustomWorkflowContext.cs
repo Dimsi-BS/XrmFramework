@@ -3,6 +3,7 @@
 using System;
 using Microsoft.Xrm.Sdk;
 using System.Activities;
+using XrmFramework.Common;
 
 namespace Plugins
 {
@@ -11,6 +12,8 @@ namespace Plugins
         EntityReference ObjectRef { get; }
 
         Guid UserId { get; }
+
+        EntityReference UserRef { get; }
 
         Guid CorrelationId { get; }
 

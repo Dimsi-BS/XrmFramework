@@ -101,7 +101,7 @@ namespace Workflows
 
                                     localContext.UpdateContext(updatedContext);
 
-                                    ExtractArgumentsFromRemoteContext(context, updatedContext, localContext.Logger);
+                                    ExtractArgumentsFromRemoteContext(context, updatedContext, localContext.LogServiceMethod);
                                 }
 
 
@@ -140,29 +140,31 @@ namespace Workflows
             }
             catch (FaultException<OrganizationServiceFault> e)
             {
-                localContext.Log($"Exception: {e}");
+                localContext.LogError(e);
 
                 // Handle the exception.
                 throw;
             }
             catch (TargetInvocationException e) when (e.InnerException != null)
             {
-                localContext.Log($"Exception: {e.InnerException}");
+                localContext.LogError(e.InnerException);
                 throw e.InnerException;
             }
             finally
             {
                 localContext.Log($"Exiting {ChildClassName}.Execute()");
+
+                localContext.DumpLog();
             }
         }
 
-        private void ExtractArgumentsFromRemoteContext(CodeActivityContext context, RemoteDebugExecutionContext updatedContext, Logger logger)
+        private void ExtractArgumentsFromRemoteContext(CodeActivityContext context, RemoteDebugExecutionContext updatedContext, LogServiceMethod logServiceMethod)
         {
-            logger.Invoke(nameof(ExtractArgumentsFromRemoteContext), $"{updatedContext.Arguments.Count} Arguments");
+            logServiceMethod.Invoke(nameof(ExtractArgumentsFromRemoteContext), $"{updatedContext.Arguments.Count} Arguments");
 
             foreach (var argument in updatedContext.Arguments)
             {
-                logger.Invoke(nameof(ExtractArgumentsFromRemoteContext), $"argument {argument.Key}");
+                logServiceMethod.Invoke(nameof(ExtractArgumentsFromRemoteContext), $"argument {argument.Key}");
 
                 var property = GetType().GetProperty(argument.Key);
 
@@ -174,11 +176,11 @@ namespace Workflows
                 if (typeof(OutArgument).IsAssignableFrom(property.PropertyType) ||
                     typeof(InOutArgument).IsAssignableFrom(property.PropertyType))
                 {
-                    logger.Invoke(nameof(ExtractArgumentsFromRemoteContext), $"Argument {argument.Key} is InOutArgument or OutArgument");
+                    logServiceMethod.Invoke(nameof(ExtractArgumentsFromRemoteContext), $"Argument {argument.Key} is InOutArgument or OutArgument");
 
                     var setMethod = property.PropertyType.GetMethod("Set", new[] { typeof(CodeActivityContext), typeof(object) });
 
-                    logger.Invoke(nameof(ExtractArgumentsFromRemoteContext), $"Setter {setMethod?.Name}");
+                    logServiceMethod.Invoke(nameof(ExtractArgumentsFromRemoteContext), $"Setter {setMethod?.Name}");
 
                     if (setMethod != null)
                     {
@@ -228,28 +230,37 @@ namespace Workflows
         private void DumpInputArguments(LocalWorkflowContext localContext, CodeActivityContext context)
         {
             localContext.Log("InputArguments :");
+
+            var list = new Dictionary<string, object>();
             foreach (var propertyInfo in GetType().GetProperties())
             {
                 if (typeof(InArgument).IsAssignableFrom(propertyInfo.PropertyType))
                 {
                     var argument = propertyInfo.GetValue(this, null) as InArgument;
 
-                    localContext.DumpObject(propertyInfo.Name, argument?.Get(context));
+                    list.Add(propertyInfo.Name, argument?.Get(context));
                 }
             }
+
+            localContext.LogCollection(list);
         }
 
         private void DumpOutputArguments(LocalWorkflowContext localContext, CodeActivityContext context)
         {
+            localContext.Log("OutputArguments :");
+
+            var list = new Dictionary<string, object>();
             foreach (var propertyInfo in GetType().GetProperties())
             {
                 if (typeof(OutArgument).IsAssignableFrom(propertyInfo.PropertyType))
                 {
                     var argument = propertyInfo.GetValue(this, null) as OutArgument;
 
-                    localContext.DumpObject(propertyInfo.Name, argument?.Get(context));
+                    list.Add(propertyInfo.Name, argument?.Get(context));
                 }
             }
+
+            localContext.LogCollection(list);
         }
 
         private string ChildClassName

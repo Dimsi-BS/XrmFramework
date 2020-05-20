@@ -29,12 +29,12 @@ namespace Plugins
     {
         private readonly IServiceContext _context;
 
-        protected Logger Log { get; }
+        protected LogServiceMethod Log { get; }
 
         public DefaultService(IServiceContext context)
         {
             _context = context;
-            Log = context.Logger;
+            Log = context.LogServiceMethod;
         }
 
         protected IOrganizationService OrganizationService => _context.OrganizationService;
@@ -577,6 +577,47 @@ namespace Plugins
                         r.GetAttributeValue<EntityReference>(RoleDefinition.Columns.RoleTemplateId).Id :
                         r.GetAttributeValue<EntityReference>(RoleDefinition.Columns.ParentRootRoleId).Id
                         ).ToList();
+        }
+
+
+        public void AddRoleToUserOrTeam(EntityReference userOrTeamRef, string parentRootRoleIdOrTemplateId)
+        {
+            EntityReference businessUnitRef;
+
+            if (userOrTeamRef.LogicalName == SystemUserDefinition.EntityName)
+            {
+                businessUnitRef = Retrieve(userOrTeamRef, SystemUserDefinition.Columns.BusinessUnitId).GetAttributeValue<EntityReference>(SystemUserDefinition.Columns.BusinessUnitId);
+            }
+            else
+            {
+                businessUnitRef = Retrieve(userOrTeamRef, TeamDefinition.Columns.BusinessUnitId).GetAttributeValue<EntityReference>(TeamDefinition.Columns.BusinessUnitId);
+            }
+
+            var roleRef = GetRoleRefForBusinessUnit(businessUnitRef, parentRootRoleIdOrTemplateId);
+
+
+            if (userOrTeamRef.LogicalName == SystemUserDefinition.EntityName)
+            {
+                AdminOrganizationService.Associate(SystemUserDefinition.EntityName, userOrTeamRef.Id, new Relationship(RoleDefinition.ManyToManyRelationships.systemuserroles_association),
+                    new EntityReferenceCollection { roleRef });
+            }
+            else
+            {
+                AdminOrganizationService.Associate(TeamDefinition.EntityName, userOrTeamRef.Id, new Relationship(RoleDefinition.ManyToManyRelationships.teamroles_association),
+                    new EntityReferenceCollection { roleRef });
+            }
+        }
+
+        private EntityReference GetRoleRefForBusinessUnit(EntityReference businessUnitRef, string parentRootRoleIdOrTemplateId)
+        {
+            var queryRole = new QueryExpression(RoleDefinition.EntityName);
+            var filterParent = queryRole.Criteria.AddFilter(LogicalOperator.Or);
+            filterParent.AddCondition(RoleDefinition.Columns.RoleTemplateId, ConditionOperator.Equal, new Guid(parentRootRoleIdOrTemplateId));
+            filterParent.AddCondition(RoleDefinition.Columns.ParentRootRoleId, ConditionOperator.Equal, new Guid(parentRootRoleIdOrTemplateId));
+
+            queryRole.Criteria.AddCondition(RoleDefinition.Columns.BusinessUnitId, ConditionOperator.Equal, businessUnitRef.Id);
+
+            return AdminOrganizationService.RetrieveMultiple(queryRole).Entities.Select(e => e.ToEntityReference()).FirstOrDefault();
         }
 
         public bool UserHasRole(Guid userId, Guid parentRoleId)
