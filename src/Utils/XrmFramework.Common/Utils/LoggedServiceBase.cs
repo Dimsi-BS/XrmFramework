@@ -6,11 +6,11 @@ namespace Plugins
     public abstract class LoggedServiceBase : ILoggedService
     {
         protected IService Service { get; }
-        protected Logger Log { get; }
+        protected LogServiceMethod Log { get; }
 
         protected LoggedServiceBase(IServiceContext context, IService service)
         {
-            Log = context.Logger;
+            Log = context.LogServiceMethod;
             Service = service;
         }
     }

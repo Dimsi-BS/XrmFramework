@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Microsoft.Xrm.Sdk;
 using XrmFramework.Utils;
+using XrmFramework;
 
 #if INTERNAL_NEWTONSOFT
 using Newtonsoft.Json.Xrm;

@@ -1,49 +1,39 @@
-using System;
-using Model;
-using Microsoft.Crm.Sdk.Messages;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Messages;
-using Microsoft.Xrm.Sdk.Query;
+using Plugins;
+using System;
 using System.Diagnostics;
 
-namespace Plugins
+namespace Plugins.LoggedServices
 {
-	public class LoggedSystemUserService : LoggedService, ISystemUserService
-	{
-		private ISystemUserService Service { get; set; }
+    public class LoggedSystemUserService : LoggedService, ISystemUserService
+    {
+        protected new ISystemUserService Service => (ISystemUserService) base.Service;
 
-		#region .ctor
-		public LoggedSystemUserService(IServiceContext context, ISystemUserService service) : base(context, service)
-		{
-			Service = service;
+        #region .ctor
+        public LoggedSystemUserService(IServiceContext context, ISystemUserService service) : base(context, service)
+        {
+        }
+        #endregion
 
-		}
-		#endregion
+        public bool IsActiveUser(EntityReference userRef)
+        {
+            #region Parameters check
+            if (userRef == null)
+            {
+                throw new ArgumentNullException(nameof(userRef));
+            }
+            #endregion
 
-		public Boolean IsActiveUser(EntityReference  userRef)
-		{
-			#region Parameters check
-			if (userRef == null)
-			{
-				throw new ArgumentNullException(nameof(userRef));
-			}
-			#endregion
+            var sw = new Stopwatch();
+            sw.Start();
 
+            Log("IsActiveUser", "Start: userRef = {0}", userRef);
 
-			var sw = new Stopwatch();
-			sw.Start();
+            var returnValue = Service.IsActiveUser(userRef);
 
-			Log("IsActiveUser", "Start: userRef = {0}", userRef);
+            Log("IsActiveUser", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
 
-			var returnValue = Service.IsActiveUser( userRef);
-
-			Log("IsActiveUser", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
-			return returnValue;
-		}
-	}
+            return returnValue;
+        }
+    }
 }

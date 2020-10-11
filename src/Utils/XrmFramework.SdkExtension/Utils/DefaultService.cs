@@ -13,7 +13,7 @@ using System.Runtime.Remoting.Contexts;
 using XrmFramework.Common;
 using XrmFramework.Model;
 using RoleDefinition = XrmFramework.Common.RoleDefinition;
-using SystemUserDefinition = Model.SystemUserDefinition;
+using SystemUserDefinition = XrmFramework.Common.SystemUserDefinition;
 using SystemUserRolesDefinition = XrmFramework.Common.SystemUserRolesDefinition;
 using TeamDefinition = XrmFramework.Common.TeamDefinition;
 

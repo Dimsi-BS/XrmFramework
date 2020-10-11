@@ -27,6 +27,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)EnableRuleProvider\ICustomWorkflowContext.partial.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EnableRuleProvider\IEnableRuleProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Model\EnvironmentVariable.partial.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ApiService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\AutoRefreshSecurityToken.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ConnectionHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\CustomWorkflowActivity.cs" />

@@ -1,49 +1,40 @@
-using System;
-using Model;
-using Microsoft.Crm.Sdk.Messages;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Messages;
-using Microsoft.Xrm.Sdk.Query;
+using Plugins;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Plugins
+namespace Plugins.LoggedServices
 {
-	public class LoggedAccountService : LoggedService, IAccountService
-	{
-		private IAccountService Service { get; set; }
+    public class LoggedAccountService : LoggedService, IAccountService
+    {
+        protected new IAccountService Service => (IAccountService) base.Service;
 
-		#region .ctor
-		public LoggedAccountService(IServiceContext context, IAccountService service) : base(context, service)
-		{
-			Service = service;
+        #region .ctor
+        public LoggedAccountService(IServiceContext context, IAccountService service) : base(context, service)
+        {
+        }
+        #endregion
 
-		}
-		#endregion
+        public ICollection<EntityReference> GetSubContactRefs(EntityReference accountRef)
+        {
+            #region Parameters check
+            if (accountRef == null)
+            {
+                throw new ArgumentNullException(nameof(accountRef));
+            }
+            #endregion
 
-		public ICollection<EntityReference> GetSubContactRefs(EntityReference  accountRef)
-		{
-			#region Parameters check
-			if (accountRef == null)
-			{
-				throw new ArgumentNullException(nameof(accountRef));
-			}
-			#endregion
+            var sw = new Stopwatch();
+            sw.Start();
 
+            Log("GetSubContactRefs", "Start: accountRef = {0}", accountRef);
 
-			var sw = new Stopwatch();
-			sw.Start();
+            var returnValue = Service.GetSubContactRefs(accountRef);
 
-			Log("GetSubContactRefs", "Start: accountRef = {0}", accountRef);
+            Log("GetSubContactRefs", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
 
-			var returnValue = Service.GetSubContactRefs( accountRef);
-
-			Log("GetSubContactRefs", "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
-			return returnValue;
-		}
-	}
+            return returnValue;
+        }
+    }
 }

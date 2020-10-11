@@ -23,6 +23,15 @@ namespace XrmFramework.Common
 		[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
 		public static class Columns
 		{
+            /// <summary>
+            /// 
+            /// Type : Lookup
+            /// Validity :  Read | Create | Update | AdvancedFind 
+            /// </summary>
+            [AttributeMetadata(AttributeTypeCode.Lookup)]
+            [CrmLookup(BusinessUnitDefinition.EntityName, BusinessUnitDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.business_unit_system_users)]
+            public const string BusinessUnitId = "businessunitid";
+
 			/// <summary>
 			/// 
 			/// Type : String
