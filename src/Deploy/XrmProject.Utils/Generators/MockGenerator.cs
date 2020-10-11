@@ -3,6 +3,7 @@
 using Deploy;
 using Microsoft.Xrm.Sdk;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,12 +11,18 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using XrmProject.Utils.Generators;
 using XrmProject.Utils.Properties;
 
 namespace XrmProject.Utils
 {
-    public static class MockGenerator
+    public class MockGenerator
     {
+        private readonly ICSharpHelper Code = new CSharpHelper();
+
         public static void GenerateMocks(string serviceUtilsProjFileName, IEnumerable<Type> types, Type nullableAttributeType)
         {
             string logServicePath = Path.GetDirectoryName(serviceUtilsProjFileName);
@@ -49,74 +56,11 @@ namespace XrmProject.Utils
             string parentLoggedServiceName = isIService ? "ILoggedService" : GetLogServiceName(type.BaseType?.Name ?? "IService");
             var fileName = Path.Combine(basePath, loggedServiceName + ".cs");
 
-            var sb = new StringBuilder();
-            sb.AppendLine("using System;");
-            sb.AppendLine("using Model;");
-            sb.AppendLine("using Microsoft.Crm.Sdk.Messages;");
-            sb.AppendLine("using System.Collections.Generic;");
-            sb.AppendLine("using System.Linq;");
-            sb.AppendLine("using System.Reflection;");
-            sb.AppendLine("using System.Text;");
-            sb.AppendLine("using System.Threading.Tasks;");
-            sb.AppendLine("using Microsoft.Xrm.Sdk;");
-            sb.AppendLine("using Microsoft.Xrm.Sdk.Messages;");
-            sb.AppendLine("using Microsoft.Xrm.Sdk.Query;");
-            sb.AppendLine("using System.Diagnostics;");
-            sb.AppendLine();
-            sb.AppendLine("namespace Plugins");
-            sb.AppendLine("{");
-            sb.AppendFormat("\tpublic class {0} : {1}, {2}\r\n", loggedServiceName, parentLoggedServiceName, type.Name);
-            sb.AppendLine("\t{");
-            sb.AppendFormat("\t\tprivate {0} Service {{ get; set; }}\r\n", type.Name);
-            sb.AppendLine();
-            if (isIService)
-            {
-                sb.AppendLine("\t\tprotected Logger Log { get; set; }");
-                sb.AppendLine();
-            }
+            var generator = new LoggedServiceCodeGenerator(nullableAttributeType);
 
-            sb.AppendLine("\t\t#region .ctor");
-            sb.AppendFormat("\t\tpublic {0}(IServiceContext context, {1} service){2}\r\n", loggedServiceName, type.Name, isIService ? string.Empty : " : base(context, service)");
-            sb.AppendLine("\t\t{");
-            sb.AppendLine("\t\t\tService = service;\r\n");
-            if (isIService)
-            {
-                sb.AppendLine("\t\t\tLog = context.Logger;");
-            }
-            sb.AppendLine("\t\t}");
-            sb.AppendLine("\t\t#endregion");
+            var fileContent = generator.Generate(type);
 
-            foreach (var method in type.GetMethods())
-            {
-                sb.AppendLine();
-                sb.AppendFormat("\t\tpublic {0}\r\n", GetMethodPrototype(method, true));
-                sb.AppendLine("\t\t{");
-                sb.AppendLine(GetParametersCheck(method, nullableAttributeType));
-                sb.AppendLine();
-                sb.AppendLine("\t\t\tvar sw = new Stopwatch();");
-                sb.AppendLine("\t\t\tsw.Start();");
-                sb.AppendLine();
-                sb.AppendLine(GetMethodLog(method, true));
-                sb.AppendLine();
-                sb.Append("\t\t\t");
-                if (method.ReturnType != typeof(void))
-                {
-                    sb.Append("var returnValue = ");
-                }
-                sb.AppendFormat("Service.{0};\r\n", GetMethodPrototype(method, false));
-                sb.AppendLine();
-                sb.AppendLine(GetMethodLog(method, false));
-                if (method.ReturnType != typeof(void))
-                {
-                    sb.AppendLine("\t\t\treturn returnValue;");
-                }
-                sb.AppendLine("\t\t}");
-            }
-
-            sb.AppendLine("\t}");
-            sb.AppendLine("}");
-
-            File.WriteAllText(fileName, sb.ToString());
+            File.WriteAllText(fileName, fileContent);
 
             var list = new List<string> {
                $"$(MSBuildThisFileDirectory){Path.GetFileName(fileName)}"

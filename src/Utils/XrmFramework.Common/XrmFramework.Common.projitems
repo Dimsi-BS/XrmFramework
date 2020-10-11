@@ -98,6 +98,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IXmlConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\IXmlModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\JsonSerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\LoggedServiceBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ModelDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Relationship.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\SdkEnums.cs" />
