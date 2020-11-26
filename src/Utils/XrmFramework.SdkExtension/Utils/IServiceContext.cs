@@ -19,7 +19,7 @@ namespace Plugins
         EntityReference BusinessUnitRef { get; }
 
         void Log(string message, params object[] paramsObject);
-        
+
         void ThrowInvalidPluginException(string messageId, params object[] args);
 
         IOrganizationService GetService(Guid userId);

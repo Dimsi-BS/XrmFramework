@@ -248,7 +248,7 @@ namespace DefinitionManager
 
                             if (nestedType.Name == "ManyToOneRelationships" || nestedType.Name == "OneToManyRelationships" || nestedType.Name == "ManyToManyRelationships")
                             {
-                                var relationshipAttribute = field.GetCustomAttribute<RelationshipAttribute>();
+                                var relationshipAttribute = field.GetCustomAttribute<Model.Sdk.RelationshipAttribute>();
 
                                 classDefinition.Attributes.Add(new RelationshipAttributeDefinition
                                 {

@@ -12,43 +12,43 @@ namespace Plugins
     [ExcludeFromCodeCoverage]
     public class MockServiceContext : IServiceContext
     {
-        private readonly LogHelper _log;
+        private readonly ILogger _log;
 
         public MockServiceContext(IOrganizationService service)
         {
-            _log = new LogHelper((message, args) => { });
+            _log = new DefaultLogHelper(service, this, (message, args) => { });
             AdminOrganizationService = service;
             OrganizationService = service;
         }
 
-        public MockServiceContext(IOrganizationService service, TraceLogger log)
+        public MockServiceContext(IOrganizationService service, LogMethod log)
         {
-            _log = new LogHelper(log);
+            _log = new DefaultLogHelper(service, this, log);
             AdminOrganizationService = service;
             OrganizationService = service;
         }
 
         public MockServiceContext(IOrganizationService service, IOrganizationService adminService)
         {
-            _log = new LogHelper((message, args) => { });
+            _log = new DefaultLogHelper(adminService, this, (message, args) => { });
             AdminOrganizationService = adminService;
             OrganizationService = service;
         }
 
-        public MockServiceContext(IOrganizationService service, IOrganizationService adminService, TraceLogger log)
+        public MockServiceContext(IOrganizationService service, IOrganizationService adminService, LogMethod log)
         {
-            _log = new LogHelper(log);
+            _log = new DefaultLogHelper(adminService, this, log);
             AdminOrganizationService = adminService;
             OrganizationService = service;
         }
 
-        public Microsoft.Xrm.Sdk.IOrganizationService AdminOrganizationService
+        public IOrganizationService AdminOrganizationService
         {
             get;
             private set;
         }
 
-        public Microsoft.Xrm.Sdk.IOrganizationService OrganizationService
+        public IOrganizationService OrganizationService
         {
             get;
             private set;
@@ -63,7 +63,7 @@ namespace Plugins
         public Guid CorrelationId { get; } = Guid.NewGuid();
         public string OrganizationName { get; set; }
 
-        public Logger Logger => _log.Log;
+        public LogServiceMethod LogServiceMethod => _log.LogWithMethodName;
 
         public Guid UserId
         {
@@ -79,7 +79,7 @@ namespace Plugins
 
         public void Log(string message, params object[] paramsObject)
         {
-            _log.LogMethod(message, paramsObject);
+            _log.Log(message, paramsObject);
         }
 
         public void ThrowInvalidPluginException(string messageId, params object[] args)

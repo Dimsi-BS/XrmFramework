@@ -22,7 +22,7 @@ namespace Plugins.Tests
 
         protected MockServiceContext ServiceContext { get; private set; }
 
-        private TraceLogger Log = new TraceLogger(Console.WriteLine);
+        private LogMethod Log = new LogMethod(Console.WriteLine);
 
         #region Test Context
         /// <summary>
