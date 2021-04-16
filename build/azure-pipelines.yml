@@ -1,0 +1,69 @@
+# Starter pipeline
+
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+variables:
+- group: Nuget Variables
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'build'
+    Contents: '**'
+    TargetFolder: 'build-save'
+- bash: |
+    echo "##vso[task.setvariable variable=DEPENDENCY_VERSION]$(PreReleaseVersion)"
+- task: replacetokens@3
+  inputs:
+    targetFiles: 'build/*.nuspec'
+    encoding: 'auto'
+    writeBOM: true
+    actionOnMissing: 'warn'
+    keepToken: false
+    tokenPrefix: '#{'
+    tokenSuffix: '}#'
+    useLegacyPattern: false
+    enableTransforms: false
+    enableTelemetry: true
+- task: NuGetCommand@2
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/XrmFramework.nuspec;**/XrmFramework.Workflow.nuspec;**/XrmFramework.RemoteDebugger.nuspec'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'PreReleaseVersion'
+
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'build-save'
+    Contents: '**'
+    TargetFolder: 'build'
+- bash: |
+    echo "##vso[task.setvariable variable=DEPENDENCY_VERSION]$(Version)"
+- task: replacetokens@3
+  inputs:
+    targetFiles: 'build/*.nuspec'
+    encoding: 'auto'
+    writeBOM: true
+    actionOnMissing: 'warn'
+    keepToken: false
+    tokenPrefix: '#{'
+    tokenSuffix: '}#'
+    useLegacyPattern: false
+    enableTransforms: false
+    enableTelemetry: true
+- task: NuGetCommand@2
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/XrmFramework.nuspec;**/XrmFramework.Workflow.nuspec;**/XrmFramework.RemoteDebugger.nuspec'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'Version'
