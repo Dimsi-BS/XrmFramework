@@ -1,0 +1,17 @@
+﻿<?xml version="1.0"?> 
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"> 
+  <metadata minClientVersion="4.9.4"> 
+    <id>XrmFramework.Tools</id> 
+    <version>1.0.0</version> 
+    <authors>DIMSI</authors> <!-- The NuGet team authored this package --> 
+    <owners>DIMSI</owners> <!-- The NuGet team owns this package --> 
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The tools related to XrmFramework development/deployment.</description> 
+    <tags>PowerPlatform Plugin D365 Dynamics</tags> 
+    <!-- Build actions for items in the contentFiles folder --> 
+    <contentFiles> 
+      <!-- Include Assets as Content --> 
+      <files include="../XrmFramework.Core/**.cs" buildAction="Compile" /> 
+    </contentFiles> 
+  </metadata> 
+</package>

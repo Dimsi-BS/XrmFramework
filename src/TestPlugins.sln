@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29306.81
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{B587A0E4-93C6-4183-98CD-D2B5AD37DAE7}"
+	ProjectSection(SolutionItems) = preProject
+		Config\App.config = Config\App.config
+		Config\connectionStrings.config = Config\connectionStrings.config
+		Config\xrmFramework.config = Config\xrmFramework.config
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{3A5567BD-E6A2-4FDA-9B82-F6A19437EFF2}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "LoggedServices", "Utils\LoggedServices\LoggedServices.shproj", "{43FC4FE4-E704-409C-9811-1BA2BF1FF4F6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPlugins", "TestPlugins\TestPlugins.csproj", "{51DA706F-8716-469E-A4D0-1FC00812D07F}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Model", "Model\Model.shproj", "{084F560A-53D0-4F7A-B1EB-D32E13D92ABF}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Model\Model.projitems*{084f560a-53d0-4f7a-b1eb-d32e13d92abf}*SharedItemsImports = 13
+		Utils\LoggedServices\LoggedServices.projitems*{43fc4fe4-e704-409c-9811-1ba2bf1ff4f6}*SharedItemsImports = 13
+		Model\Model.projitems*{51da706f-8716-469e-a4d0-1fc00812d07f}*SharedItemsImports = 5
+		Utils\LoggedServices\LoggedServices.projitems*{51da706f-8716-469e-a4d0-1fc00812d07f}*SharedItemsImports = 5
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		DEV-HF|Any CPU = DEV-HF|Any CPU
+		PRE|Any CPU = PRE|Any CPU
+		QA|Any CPU = QA|Any CPU
+		Release|Any CPU = Release|Any CPU
+		TEST|Any CPU = TEST|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{51DA706F-8716-469E-A4D0-1FC00812D07F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51DA706F-8716-469E-A4D0-1FC00812D07F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51DA706F-8716-469E-A4D0-1FC00812D07F}.DEV-HF|Any CPU.ActiveCfg = Debug|Any CPU
+		{51DA706F-8716-469E-A4D0-1FC00812D07F}.DEV-HF|Any CPU.Build.0 = Debug|Any CPU
+		{51DA706F-8716-469E-A4D0-1FC00812D07F}.PRE|Any CPU.ActiveCfg = Release|Any CPU
+		{51DA706F-8716-469E-A4D0-1FC00812D07F}.PRE|Any CPU.Build.0 = Release|Any CPU
+		{51DA706F-8716-469E-A4D0-1FC00812D07F}.QA|Any CPU.ActiveCfg = Release|Any CPU
+		{51DA706F-8716-469E-A4D0-1FC00812D07F}.QA|Any CPU.Build.0 = Release|Any CPU
+		{51DA706F-8716-469E-A4D0-1FC00812D07F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51DA706F-8716-469E-A4D0-1FC00812D07F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51DA706F-8716-469E-A4D0-1FC00812D07F}.TEST|Any CPU.ActiveCfg = Release|Any CPU
+		{51DA706F-8716-469E-A4D0-1FC00812D07F}.TEST|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{43FC4FE4-E704-409C-9811-1BA2BF1FF4F6} = {3A5567BD-E6A2-4FDA-9B82-F6A19437EFF2}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {101361B0-96D3-40B0-8818-D69388B1A16D}
+	EndGlobalSection
+EndGlobal

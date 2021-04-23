@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+
+
+  <PropertyGroup Condition="'$(Constants)' != ''">
+    <DefineConstants>$(Constants);$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="XrmFramework" Version="*" />
+    <PackageReference Include="XrmFramework.Workflow" Version="*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="*.DotSettings" />
+  </ItemGroup>
+
+</Project>

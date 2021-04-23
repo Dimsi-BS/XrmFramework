@@ -1,0 +1,38 @@
+
+<Project>
+  <Target Name="SetNuspecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
+    <PropertyGroup>
+      <NuspecProperties>$(NuspecProperties);config=$(Configuration)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);version=$(NuGetPackageVersion)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);SolutionDir=$(SolutionDir)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);copyright=$(XrmFramework_Copyright)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);author=$(XrmFramework_Authors)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);owner=$(XrmFramework_Owners)</NuspecProperties>
+      
+      <NuspecProperties>$(NuspecProperties);XrmFramework_Net5_TFM=$(XrmFramework_Net5_TFM)</NuspecProperties>
+      
+      <NuspecProperties>$(NuspecProperties);XrmFramework_FullFramework_Runtime_TFM=$(XrmFramework_FullFramework_Runtime_TFM)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);XrmFramework_Core_Runtime_TFM=$(XrmFramework_Core_Runtime_TFM)</NuspecProperties>
+      
+      <NuspecProperties>$(NuspecProperties);XrmFramework_FullFramework_Generator_TFM=$(XrmFramework_FullFramework_Generator_TFM)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);XrmFramework_Core_Generator_TFM=$(XrmFramework_Core_Generator_TFM)</NuspecProperties>
+            
+      <NuspecProperties>$(NuspecProperties);XrmFramework_Core_Tools_TFM=$(XrmFramework_Core_Tools_TFM)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);XrmFramework_Net5_Tools_TFM=$(XrmFramework_Net5_Tools_TFM)</NuspecProperties>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="CleanupNupkgs" BeforeTargets="Build" >
+    <ItemGroup>
+      <Nupkgs2Delete Include="$(PackageOutputAbsolutePath)\*.nupkg"/>
+    </ItemGroup>
+    <Delete Files="@(Nupkgs2Delete)" />
+  </Target>
+
+  <Target Name="CopyNupkgToFolder" AfterTargets="Pack">
+    <ItemGroup>
+      <GeneratedNupkgs Include="$(PackageOutputAbsolutePath)\*.nupkg"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(GeneratedNupkgs)" DestinationFolder="$(SolutionDir)GeneratedNuGetPackages\$(Configuration)" />
+  </Target>
+</Project>

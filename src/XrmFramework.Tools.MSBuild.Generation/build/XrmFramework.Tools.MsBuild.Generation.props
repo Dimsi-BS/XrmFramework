@@ -1,0 +1,77 @@
+﻿<Project TreatAsLocalProperty="TaskFolder;TaskAssembly">
+
+  <PropertyGroup>
+    <XrmFramework_CpsExtensionDesignTimeTargetsPath Condition="'$(XrmFramework_CpsExtensionDesignTimeTargetsPath)' == ''">$(MSBuildThisFileDirectory)CPS\Buildsystem\CpsExtension.DesignTime.targets</XrmFramework_CpsExtensionDesignTimeTargetsPath>
+  </PropertyGroup>
+
+  <Import Project="$(XrmFramework_CpsExtensionDesignTimeTargetsPath)" Condition="'$(DesignTimeBuild)' == 'true' " />
+
+
+  <PropertyGroup>
+    <XrmFramework_UseHostCompilerIfAvailable Condition="'$(XrmFramework_UseHostCompilerIfAvailable)'==''">false</XrmFramework_UseHostCompilerIfAvailable>
+    <UseHostCompilerIfAvailable>$(XrmFramework_UseHostCompilerIfAvailable)</UseHostCompilerIfAvailable>
+  </PropertyGroup>
+
+
+  <PropertyGroup>
+    <OverwriteReadOnlyFiles Condition="'$(OverwriteReadOnlyFiles)'==''">false</OverwriteReadOnlyFiles>
+    <ForceGeneration Condition="'$(ForceGeneration)'==''">false</ForceGeneration>
+
+    <ShowTrace Condition="'$(ShowTrace)'==''">false</ShowTrace>
+    <VerboseOutput Condition="'$(VerboseOutput)'==''">true</VerboseOutput>
+    <XrmFramework_DebugMSBuildTask Condition="'$(XrmFramework_DebugMSBuildTask)' == ''">false</XrmFramework_DebugMSBuildTask>
+
+    <_XrmFrameworkPropsImported Condition="'$(_XrmFrameworkPropsImported)'==''">true</_XrmFrameworkPropsImported>
+  </PropertyGroup>
+
+  <!--
+    property group for feature flags
+  -->
+  <PropertyGroup>
+
+    <!--
+      feature flag to enable experimental support for cleaning up generated code-behind files during rebuild and clean scenarios
+    -->
+    <XrmFramework_DeleteCodeBehindFilesOnCleanRebuild Condition="'$(XrmFramework_DeleteCodeBehindFilesOnCleanRebuild)'==''">false</XrmFramework_DeleteCodeBehindFilesOnCleanRebuild>
+
+    <!--
+      net.sdk support: feature flag to enable experimental support for net.sdk project system
+    -->
+    <XrmFramework_EnableDefaultCompileItems Condition="'$(XrmFramework_EnableDefaultCompileItems)'==''">true</XrmFramework_EnableDefaultCompileItems>
+    <XrmFramework_EnableWarnForFeatureCodeBehindFilesWithoutCorrespondingFeatureFile Condition="'$(XrmFramework_EnableWarnForFeatureCodeBehindFilesWithoutCorrespondingFeatureFile)'==''">$(XrmFramework_EnableDefaultCompileItems)</XrmFramework_EnableWarnForFeatureCodeBehindFilesWithoutCorrespondingFeatureFile>
+
+    <!--<DefaultItemExcludes>$(DefaultItemExcludes);**/*Service(DefaultLanguageSourceExtension)</DefaultItemExcludes>-->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <XrmFrameworkServiceFiles Include="**\I*Service$(DefaultLanguageSourceExtension)" >
+      <CodeBehindFile>%(RelativeDir)%(Filename).logged$(DefaultLanguageSourceExtension)</CodeBehindFile>
+      <Visible>$(UsingMicrosoftNETSdk)</Visible>
+    </XrmFrameworkServiceFiles>
+
+    <!-- obsolete codebehind files, scenarios:
+         - after rename operation
+         - after deletion of a feature file
+         - after pulling latest changes from version control with above changes
+     -->
+    <XrmFrameworkObsoleteCodeBehindFiles Include="**\*Service.logged$(DefaultLanguageSourceExtension)" Exclude="@(XrmFrameworkServiceFiles->'%(CodeBehindFile)')" />
+
+    <!-- Support for Visual Studio Incremental Build
+        https://github.com/techtalk/XrmFramework/issues/1319
+     -->
+    <UpToDateCheckInput Include="@(XrmFrameworkServiceFiles)" />
+    <UpToDateCheckBuild Include="@(XrmFrameworkServiceFiles->'%(CodeBehindFile)')" Original="@(XrmFrameworkServiceFiles)" />
+    <CustomAdditionalCompileInputs Include="@(XrmFrameworkServiceFiles->'%(CodeBehindFile)')" />
+
+  </ItemGroup>
+
+
+  <PropertyGroup>
+    <_XrmFramework_TaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' And '$(_XrmFramework_TaskFolder)' == ''">netcoreapp2.1</_XrmFramework_TaskFolder>
+    <_XrmFramework_TaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' And '$(_XrmFramework_TaskFolder)' == ''">net461</_XrmFramework_TaskFolder>
+    <_XrmFramework_TaskAssembly Condition=" '$(_XrmFramework_TaskAssembly)' == '' ">..\tasks\$(_XrmFramework_TaskFolder)\XrmFramework.Tools.MsBuild.Generation.dll</_XrmFramework_TaskAssembly>
+  </PropertyGroup>
+
+  <Import Project="XrmFramework.Tools.MsBuild.Generation.tasks" Condition="'$(_XrmFrameworkTasksImported)' =='' " />
+
+</Project>

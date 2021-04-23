@@ -1,0 +1,9 @@
+﻿<Project>
+  <UsingTask TaskName="XrmFramework.Tools.MsBuild.Generation.GenerateServiceFileCodeBehindTask" AssemblyFile="$(_XrmFramework_TaskAssembly)"  />
+  <UsingTask TaskName="XrmFramework.Tools.MsBuild.Generation.GenerateModelFileCodeBehindTask" AssemblyFile="$(_XrmFramework_TaskAssembly)"  />
+  <UsingTask TaskName="XrmFramework.Tools.MsBuild.Generation.ReplaceTokenInFileTask" AssemblyFile="$(_XrmFramework_TaskAssembly)"  />
+
+  <PropertyGroup>
+    <_XrmFrameworkTasksImported>true</_XrmFrameworkTasksImported>
+  </PropertyGroup>
+</Project>

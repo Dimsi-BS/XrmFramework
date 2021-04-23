@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
+    <AssemblyName>XrmFramework.RemoteDebugger</AssemblyName>
+    <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
+    <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
+    <PublicSign>$(XrmFramework_PublicSign)</PublicSign>
+    <PackageId>XrmFramework.RemoteDebugger</PackageId>
+
+    <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.RemoteDebugger.nuspec</NuspecFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU' And '$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <DefineConstants>TRACE;INTERNAL_NEWTONSOFT;STANDALONE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU' And '$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <DefineConstants>TRACE;INTERNAL_NEWTONSOFT;STANDALONE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.33" />
+    <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.33" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="0.4.11" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\XrmFramework\XrmFramework.csproj" />
+  </ItemGroup>
+
+</Project>

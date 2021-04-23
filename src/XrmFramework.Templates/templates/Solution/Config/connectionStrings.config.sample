@@ -1,0 +1,3 @@
+<connectionStrings>
+  <add name="Xrm" connectionString="AuthType=Office365; Url=https://myorg.crm4.dynamics.com; Username=login; Password=password;"/>
+</connectionStrings>

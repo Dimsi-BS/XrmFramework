@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Christophe Gondouin",
+    "classifications": [ "Common/Library" ],
+    "name": "XrmFramework",
+    "identity": "XrmFramework.Solution",
+    "shortName": "xrmSolution",
+    "tags": {
+      "language": "C#" ,
+      "type":"project"
+    },
+    "sourceName": "$safeprojectname$",
+    "preferNameDirectory": true,
+    "postActions": [
+      {
+        "actionId":"3A7C4B45-1F5D-4A30-959A-51B88E82B5D2",
+        "args": {
+          "executable": "powershell",
+          "args": "-File initXrm.ps1",
+          "redirectStandardOutput": "false"
+        },
+        "manualInstructions": [
+          {"text": "Initialisation XrmFramework"}
+        ],
+        "continueOnError": false,
+        "description": "Finalize XrmFramework solution initialization"
+      }
+    ]
+}

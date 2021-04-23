@@ -1,0 +1,158 @@
+﻿#if INTERNAL_NEWTONSOFT
+using Newtonsoft.Json.Xrm;
+#else
+using Newtonsoft.Json;
+#endif
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Microsoft.Xrm.Sdk;
+
+namespace XrmFramework
+{
+    public abstract class ApiService<TSettings> : DefaultServiceWithSettings<TSettings> where TSettings : CrmSettings, new()
+    {
+        private static readonly object SyncRoot = new object();
+
+        protected HttpClient Client { get; private set; }
+
+        private void CheckOrInitConnection()
+        {
+            if (Client == null)
+            {
+                lock (SyncRoot)
+                {
+                    if (Client == null)
+                    {
+                        var handler = new HttpClientHandler();
+
+                        var credentials = GetCredentials();
+
+                        if (credentials != null)
+                        {
+                            handler.Credentials = credentials;
+                        }
+
+                        Client = new HttpClient(handler)
+                        {
+                            Timeout = new TimeSpan(0, 2, 0)
+                        };
+                        // Add HTTP headers
+                        Client.DefaultRequestHeaders.Clear();
+                        Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        Client.DefaultRequestHeaders.ConnectionClose = false;
+                    }
+                }
+            }
+        }
+
+        protected virtual ICredentials GetCredentials() => null;
+
+        protected virtual void AddAuthenticationHeader(HttpRequestHeaders requestMessageHeaders)
+        {
+        }
+
+        protected TResponse HttpPostData<TResponse>(string url, string requestContent)
+        {
+            CheckOrInitConnection();
+
+            var isSuccessfull = false;
+            var status = HttpStatusCode.Unused;
+
+            var apiRequest = requestContent;
+            string replyContent;
+
+            try
+            {
+                var requestMessage = new HttpRequestMessage(HttpMethod.Post, url)
+                {
+                    Content = new StringContent(requestContent, System.Text.Encoding.UTF8, "application/json")
+                };
+                AddAuthenticationHeader(requestMessage.Headers);
+
+                var serviceResponse = Client.SendAsync(requestMessage).GetAwaiter().GetResult();
+
+                replyContent = serviceResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                isSuccessfull = serviceResponse.IsSuccessStatusCode;
+
+                status = serviceResponse.StatusCode;
+            }
+            catch (HttpRequestException e)
+            {
+                replyContent = e.Message;
+            }
+
+            if (isSuccessfull)
+            {
+                if (typeof(TResponse) == typeof(string))
+                {
+                    return (TResponse)(object)replyContent;
+                }
+
+                var response = JsonConvert.DeserializeObject<TResponse>(replyContent);
+
+                return response;
+            }
+
+            throw new InvalidPluginExecutionException(replyContent);
+        }
+
+        protected TResponse HttpPostData<TRequest, TResponse>(string url, TRequest request)
+        {
+            var requestContent = JsonConvert.SerializeObject(request);
+
+            return HttpPostData<TResponse>(url, requestContent);
+        }
+
+        protected TResponse HttpGetData<TResponse>(string url, bool useAuthenticationHeaders = true)
+        {
+            CheckOrInitConnection();
+
+            var isSuccessfull = false;
+            var status = HttpStatusCode.Unused;
+
+            var apiRequest = string.Empty;
+
+            string replyContent;
+
+            try
+            {
+                var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+
+                if (useAuthenticationHeaders)
+                {
+                    AddAuthenticationHeader(requestMessage.Headers);
+                }
+                var serviceResponse = Client.SendAsync(requestMessage).GetAwaiter().GetResult();
+                replyContent = serviceResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+                isSuccessfull = serviceResponse.IsSuccessStatusCode;
+
+                status = serviceResponse.StatusCode;
+            }
+            catch (HttpRequestException e)
+            {
+                replyContent = e.Message;
+            }
+
+            if (isSuccessfull)
+            {
+                if (typeof(TResponse) == typeof(string))
+                {
+                    return (TResponse)(object)replyContent;
+                }
+
+                var response = JsonConvert.DeserializeObject<TResponse>(replyContent);
+
+                return response;
+            }
+
+            throw new InvalidPluginExecutionException(replyContent);
+        }
+
+        protected ApiService(IServiceContext context) : base(context)
+        {
+        }
+    }
+}
