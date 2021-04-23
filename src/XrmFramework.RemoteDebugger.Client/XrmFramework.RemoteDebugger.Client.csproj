@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageOutputPath>../nupkg</PackageOutputPath>
+
+    <PackageTags>xrmframework;d365;dataverse;powerapps;powerplatform;dynamics</PackageTags>
+    <PackageCopyright>Christophe Gondouin, Dimsi 2020</PackageCopyright>
+    
+    <PackageProjectUrl>https://aka.ms/XrmFramework</PackageProjectUrl>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\Converters\AliasedValueConverter.cs" Link="Converters\AliasedValueConverter.cs" />
+    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\Converters\ConditionExpressionConverter.cs" Link="Converters\ConditionExpressionConverter.cs" />
+    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\Converters\CustomKeyValuePairConverter.cs" Link="Converters\CustomKeyValuePairConverter.cs" />
+    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\Converters\DataCollectionConverters.cs" Link="Converters\DataCollectionConverters.cs" />
+    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\Converters\EntityConverter.cs" Link="Converters\EntityConverter.cs" />
+    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\Converters\ObjectSerializationConverter.cs" Link="Converters\ObjectSerializationConverter.cs" />
+    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\DebuggerUnsecureConfig.cs" Link="DebuggerUnsecureConfig.cs" />
+    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\HybridConnection.cs" Link="HybridConnection.cs" />
+    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\IDebuggerCommunicationManager.cs" Link="IDebuggerCommunicationManager.cs" />
+    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\RemoteDebuggerMessage.cs" Link="RemoteDebuggerMessage.cs" />
+    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\RemoteDebuggerMessageType.cs" Link="RemoteDebuggerMessageType.cs" />
+    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\RemoteExecutionContext.cs" Link="RemoteExecutionContext.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Relay" Version="2.0.15596" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.33" />
+    <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.33" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.6.0" />
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+  <!--
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="0.4.11" />
+  </ItemGroup>-->
+
+  <ItemGroup>
+    <Folder Include="Converters\" />
+  </ItemGroup>
+</Project>

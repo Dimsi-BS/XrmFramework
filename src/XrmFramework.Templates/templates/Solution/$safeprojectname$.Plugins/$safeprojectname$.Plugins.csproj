@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Constants)' != ''">
+    <DefineConstants>$(Constants);$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="XrmFramework" Version="*" />
+    <PackageReference Include="XrmFramework.Workflow" Version="*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Model\\**\\*.cs" Exclude="..\Model\obj\**" Link="Imports\Model\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Utils\LoggedServices\\**\\*.cs" Exclude="..\Utils\LoggedServices\obj\**" Link="Imports\LoggedServices\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+  
+</Project>

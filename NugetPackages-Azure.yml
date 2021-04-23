@@ -1,0 +1,77 @@
+# Starter pipeline
+
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+variables:
+- group: Nuget-Variables
+- name: time
+  value: ''
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'build'
+    Contents: '**'
+    TargetFolder: 'build-save'
+
+- script: echo "##vso[task.setvariable variable=PreReleaseVersion]$(Version)-CI-$(Build.BuildId)"
+- script: echo "##vso[task.setvariable variable=DEPENDENCY_VERSION]$(PreReleaseVersion)"
+- task: replacetokens@3
+  inputs:
+    targetFiles: 'build/*.nuspec'
+    encoding: 'auto'
+    writeBOM: true
+    actionOnMissing: 'warn'
+    keepToken: false
+    tokenPrefix: '#{'
+    tokenSuffix: '}#'
+    useLegacyPattern: false
+    enableTransforms: false
+    enableTelemetry: true
+- task: NuGetCommand@2
+  inputs:
+    command: 'pack'
+    packagesToPack: 'build/*.nuspec'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'PreReleaseVersion'
+
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'build-save'
+    Contents: '**'
+    TargetFolder: 'build'
+    OverWrite: true
+- script: echo "##vso[task.setvariable variable=DEPENDENCY_VERSION]$(Version)"
+- task: replacetokens@3
+  inputs:
+    targetFiles: 'build/*.nuspec'
+    encoding: 'auto'
+    writeBOM: true
+    actionOnMissing: 'warn'
+    keepToken: false
+    tokenPrefix: '#{'
+    tokenSuffix: '}#'
+    useLegacyPattern: false
+    enableTransforms: false
+    enableTelemetry: true
+- task: NuGetCommand@2
+  inputs:
+    command: 'pack'
+    packagesToPack: 'build/*.nuspec'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'Version'
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)'
+    artifact: 'Packages'
+    publishLocation: 'pipeline'

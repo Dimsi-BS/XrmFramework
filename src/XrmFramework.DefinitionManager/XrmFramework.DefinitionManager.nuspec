@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>XrmFramework.DefinitionManager</id>
+    <version>$version$</version>
+    <title>XrmFramework.DefinitionManager</title>
+    <authors>$author$</authors>
+    <owners>$owner$</owners>
+    <description>XrmFramework aims at simplifying Microsoft Dynamics 365 and Dataverse plugin, workflows development, deployment and testing</description>
+    <summary>XrmFramework aims at simplifying Microsoft Dynamics 365 and Dataverse plugin, workflows development, deployment and testing</summary>
+    <language>en-US</language>
+    <projectUrl>https://aka.ms/XrmFramework</projectUrl>
+    <license type="expression">MIT</license>
+    <tags>Dynamics365 CRM DynamicsCrm Dataverse PowerApps</tags>
+    <copyright>$copyrigth$</copyright>
+    <dependencies>
+      <group targetFramework="net462">
+        <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.33" />
+        <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.33" />
+        <dependency id="Microsoft.CrmSdk.Deployment" version="9.0.2.33" />
+      </group>
+    </dependencies>
+  </metadata>
+
+  <files>
+    <file src="bin\$config$\net462\XrmFramework.DefinitionManager.*" target="lib\$XrmFramework_FullFramework_Runtime_TFM$" />
+
+    <file src="$SolutionDir$\Licenses\*" target="Licenses" />
+    <file src="$SolutionDir$\*.txt" target="" />
+  </files>
+</package>
