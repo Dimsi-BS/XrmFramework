@@ -4,7 +4,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="$(NuGetPackageRoot)**\__Imports\XrmFramework\NewtonSoft.Json\**\*.cs" />
     <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.77" />
   </ItemGroup>
 </Project>

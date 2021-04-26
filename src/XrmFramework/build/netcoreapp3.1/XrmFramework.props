@@ -1,5 +1,4 @@
 ﻿<Project>
   <ItemGroup>
-    <Compile Remove="$(NuGetPackageRoot)**\__Imports\XrmFramework\NewtonSoft.Json\**\*.cs" />
   </ItemGroup>
 </Project>

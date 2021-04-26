@@ -25,8 +25,6 @@
     <file src="**\*.cs" target="contentFiles/cs/any/__Imports/XrmFramework.Plugin" exclude="obj\**;**\AssemblyInfo.cs" />
     <file src="build\**\*" target="build/" />
 
-    <file src="$SolutionDir$\Licenses\*" target="Licenses" />
-    <file src="$SolutionDir$\*.txt" target="" />
     <file src="lib\**" target="lib" />
     
   </files>

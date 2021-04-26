@@ -7,20 +7,6 @@ namespace XrmFramework
 {
     partial class LocalContext
     {
-#if !REMOTE_DEBUGGER
-        public IExecutionContext ExecutionContext { get; set; }
-
-        public IOrganizationService AdminOrganizationService { get; set; }
-
-        public void Log(string message, params object[] args) { }
-
-        public IOrganizationService GetService(Guid userId) => null;
-
-        public Guid GetInitiatingUserId() => Guid.Empty;
-
-        public LogServiceMethod LogServiceMethod { get; set; }
-#endif
-
         public bool IsDebugContext => ExecutionContext.GetType().FullName == typeof(RemoteDebugExecutionContext).FullName;
 
         public void UpdateContext(RemoteDebugExecutionContext updatedContext)

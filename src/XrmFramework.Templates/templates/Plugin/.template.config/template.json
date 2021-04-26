@@ -4,7 +4,7 @@
     "classifications": [ "Common/Library" ],
     "name": "XrmFramework",
     "identity": "XrmFramework.Plugin",
-    "shortName": "xrmPlugin",
+    "shortName": "xrmPluginProject",
     "tags": {
       "language": "C#" ,
       "type":"project"

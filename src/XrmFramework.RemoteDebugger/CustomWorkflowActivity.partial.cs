@@ -1,8 +1,4 @@
-﻿
-
-#define REMOTE_DEBUGGER
-
-using Microsoft.Xrm.Sdk.Query;
+﻿using Microsoft.Xrm.Sdk.Query;
 using System;
 using System.Activities;
 using System.Linq;
