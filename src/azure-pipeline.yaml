@@ -23,7 +23,7 @@ steps:
     custom: tool
     arguments: install --tool-path . nbgv
 
-- script: nbgv cloud
+- script: .\nbgv cloud
   displayName: Set Version
   
 - task: replacetokens@3
