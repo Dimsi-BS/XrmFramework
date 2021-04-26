@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="XrmFramework.DeployUtils" Version="#{Version}#" />
+    <PackageReference Include="XrmFramework.DeployUtils" Version="#{GitBuildVersionSimple}#" />
   </ItemGroup>
 
   <ItemGroup>

@@ -32,7 +32,7 @@
 
 
   <ItemGroup>
-    <PackageReference Include="XrmFramework.DefinitionManager" Version="#{Version}#" />
+    <PackageReference Include="XrmFramework.DefinitionManager" Version="#{GitBuildVersionSimple}#" />
   </ItemGroup>
 
   <ItemGroup>

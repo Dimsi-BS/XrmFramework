@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="XrmFramework" Version="#{Version}#" />
-    <PackageReference Include="XrmFramework.Plugin" Version="#{Version}#" />
+    <PackageReference Include="XrmFramework" Version="#{GitBuildVersionSimple}#" />
+    <PackageReference Include="XrmFramework.Plugin" Version="#{GitBuildVersionSimple}#" />
   </ItemGroup>
 
   <ItemGroup>
