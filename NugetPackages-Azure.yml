@@ -6,28 +6,29 @@
 
 trigger:
 - master
+- v2.*
 
 variables:
-- group: Nuget-Variables
-- name: time
-  value: ''
+  buildConfiguration: 'Release'
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
 
-- task: CopyFiles@2
+- task: DotNetCoreCLI@2  
+  displayName: Install NBGV tool
   inputs:
-    SourceFolder: 'build'
-    Contents: '**'
-    TargetFolder: 'build-save'
+    command: custom
+    custom: tool
+    arguments: install --tool-path . nbgv
 
-- script: echo "##vso[task.setvariable variable=PreReleaseVersion]$(Version)-CI-$(Build.BuildId)"
-- script: echo "##vso[task.setvariable variable=DEPENDENCY_VERSION]$(PreReleaseVersion)"
+- script: nbgv cloud
+  displayName: Set Version
+  
 - task: replacetokens@3
   inputs:
-    targetFiles: 'build/*.nuspec'
+    targetFiles: '**/*.csproj'
     encoding: 'auto'
     writeBOM: true
     actionOnMissing: 'warn'
@@ -37,41 +38,13 @@ steps:
     useLegacyPattern: false
     enableTransforms: false
     enableTelemetry: true
-- task: NuGetCommand@2
-  inputs:
-    command: 'pack'
-    packagesToPack: 'build/*.nuspec'
-    versioningScheme: 'byEnvVar'
-    versionEnvVar: 'PreReleaseVersion'
 
+- script: dotnet build --configuration $(buildConfiguration) /p:PublicRelease=true
+  displayName: Build
+  
 
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: 'build-save'
-    Contents: '**'
-    TargetFolder: 'build'
-    OverWrite: true
-- script: echo "##vso[task.setvariable variable=DEPENDENCY_VERSION]$(Version)"
-- task: replacetokens@3
-  inputs:
-    targetFiles: 'build/*.nuspec'
-    encoding: 'auto'
-    writeBOM: true
-    actionOnMissing: 'warn'
-    keepToken: false
-    tokenPrefix: '#{'
-    tokenSuffix: '}#'
-    useLegacyPattern: false
-    enableTransforms: false
-    enableTelemetry: true
-- task: NuGetCommand@2
-  inputs:
-    command: 'pack'
-    packagesToPack: 'build/*.nuspec'
-    versioningScheme: 'byEnvVar'
-    versionEnvVar: 'Version'
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(Build.ArtifactStagingDirectory)'
+    targetPath: '**/GeneratedNuGetPackages/$(buildConfiguration)'
     artifact: 'Packages'
     publishLocation: 'pipeline'
