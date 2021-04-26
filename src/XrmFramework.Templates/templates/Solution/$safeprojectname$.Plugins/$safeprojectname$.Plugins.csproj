@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="XrmFramework" Version="2.1.3" />
-    <PackageReference Include="XrmFramework.Plugin" Version="2.1.3" />
+    <PackageReference Include="XrmFramework" Version="#{Version}#" />
+    <PackageReference Include="XrmFramework.Plugin" Version="#{Version}#" />
   </ItemGroup>
 
   <ItemGroup>
