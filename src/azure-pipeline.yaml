@@ -21,7 +21,7 @@ steps:
   inputs:
     command: custom
     custom: tool
-    arguments: install --tool-path . nbgv
+    arguments: install -g nbgv
 
 - script: nbgv cloud
   displayName: Set Version
