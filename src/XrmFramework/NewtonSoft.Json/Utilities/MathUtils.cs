@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Newtonsoft.Json.Xrm.Utilities
+namespace Newtonsoft.Json.Utilities
 {
     internal static class MathUtils
     {

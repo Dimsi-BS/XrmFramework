@@ -27,17 +27,17 @@ using System;
 using System.Globalization;
 using System.ComponentModel;
 using System.Collections.Generic;
-using Newtonsoft.Json.Xrm.Linq;
-using Newtonsoft.Json.Xrm.Utilities;
-using Newtonsoft.Json.Xrm.Serialization;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Utilities;
+using Newtonsoft.Json.Serialization;
 #if !HAVE_LINQ
-using Newtonsoft.Json.Xrm.Utilities.LinqBridge;
+using Newtonsoft.Json.Utilities.LinqBridge;
 #else
 using System.Linq;
 
 #endif
 
-namespace Newtonsoft.Json.Xrm.Schema
+namespace Newtonsoft.Json.Schema
 {
     /// <summary>
     /// <para>

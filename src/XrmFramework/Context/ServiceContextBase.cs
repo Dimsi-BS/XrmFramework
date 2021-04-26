@@ -15,7 +15,7 @@ namespace XrmFramework
         {
             if (Logger == null)
             {
-                LoggerFactory.GetLogger(this, Console.WriteLine);
+                Logger = LoggerFactory.GetLogger(this, Console.WriteLine);
             }
             AdminOrganizationService = service;
             OrganizationService = service;

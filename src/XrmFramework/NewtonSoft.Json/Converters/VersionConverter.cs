@@ -25,9 +25,9 @@
 
 using System;
 using System.Globalization;
-using Newtonsoft.Json.Xrm.Utilities;
+using Newtonsoft.Json.Utilities;
 
-namespace Newtonsoft.Json.Xrm.Converters
+namespace Newtonsoft.Json.Converters
 {
     /// <summary>
     /// Converts a <see cref="Version"/> to and from a string (e.g. <c>"1.2.3.4"</c>).

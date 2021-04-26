@@ -29,7 +29,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace Newtonsoft.Json.Xrm.Serialization
+namespace Newtonsoft.Json.Serialization
 {
     internal class TraceJsonReader : JsonReader, IJsonLineInfo
     {

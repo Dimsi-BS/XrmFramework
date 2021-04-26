@@ -30,9 +30,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Newtonsoft.Json.Xrm.Serialization;
+using Newtonsoft.Json.Serialization;
 
-namespace Newtonsoft.Json.Xrm.Utilities
+namespace Newtonsoft.Json.Utilities
 {
     internal class FSharpFunction
     {

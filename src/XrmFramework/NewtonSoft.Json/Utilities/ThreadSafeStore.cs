@@ -26,15 +26,15 @@
 using System;
 using System.Collections.Generic;
 #if !HAVE_LINQ
-using Newtonsoft.Json.Xrm.Utilities.LinqBridge;
+using Newtonsoft.Json.Utilities.LinqBridge;
 #endif
 #if HAVE_CONCURRENT_DICTIONARY
 using System.Collections.Concurrent;
 #endif
 using System.Threading;
-using Newtonsoft.Json.Xrm.Serialization;
+using Newtonsoft.Json.Serialization;
 
-namespace Newtonsoft.Json.Xrm.Utilities
+namespace Newtonsoft.Json.Utilities
 {
     internal class ThreadSafeStore<TKey, TValue>
     {

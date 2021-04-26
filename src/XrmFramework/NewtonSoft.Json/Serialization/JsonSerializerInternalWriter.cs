@@ -34,17 +34,17 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Security;
-using Newtonsoft.Json.Xrm.Linq;
-using Newtonsoft.Json.Xrm.Utilities;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Utilities;
 using System.Runtime.Serialization;
 #if !HAVE_LINQ
-using Newtonsoft.Json.Xrm.Utilities.LinqBridge;
+using Newtonsoft.Json.Utilities.LinqBridge;
 #else
 using System.Linq;
 
 #endif
 
-namespace Newtonsoft.Json.Xrm.Serialization
+namespace Newtonsoft.Json.Serialization
 {
     internal class JsonSerializerWriter : JsonSerializerBase
     {

@@ -1,18 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net462</TargetFramework>
+        <TargetFrameworks>net462;netcoreapp3.1</TargetFrameworks>
     </PropertyGroup>
-
-
-    <PropertyGroup Condition="'$(Constants)' != ''">
-        <DefineConstants>$(Constants);$(DefineConstants)</DefineConstants>
-    </PropertyGroup>
-
-    <Import Project="../../Model/Model.csproj" />
 
     <ItemGroup>
-        <None Remove="*.DotSettings" />
+        <ProjectReference Include="..\..\Model\Model.csproj" />
     </ItemGroup>
-
+    
 </Project>

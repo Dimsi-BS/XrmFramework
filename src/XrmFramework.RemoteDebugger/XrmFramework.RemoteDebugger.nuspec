@@ -22,7 +22,9 @@
   </metadata>
 
   <files>
-    <file src="**\*.cs" target="contentFiles/cs/any/Imports/XrmFramework.RemoteDebugger" exclude="obj\**;AssemblyInfo.cs" />
+    <file src="**\*.cs" target="contentFiles/cs/any/__Imports/XrmFramework.RemoteDebugger" exclude="obj\**;AssemblyInfo.cs" />
     <file src="build\**\*" target="build/" />
+    <file src="lib\**" target="lib" />
+    
   </files>
 </package>

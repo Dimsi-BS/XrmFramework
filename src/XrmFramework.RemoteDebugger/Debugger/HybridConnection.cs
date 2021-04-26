@@ -7,11 +7,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-#if INTERNAL_NEWTONSOFT
-using Newtonsoft.Json.Xrm;
-#else 
 using Newtonsoft.Json;
-#endif
 
 namespace XrmFramework.RemoteDebugger
 {

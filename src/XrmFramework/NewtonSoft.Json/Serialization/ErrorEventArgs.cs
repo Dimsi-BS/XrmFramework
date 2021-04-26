@@ -25,7 +25,7 @@
 
 using System;
 
-namespace Newtonsoft.Json.Xrm.Serialization
+namespace Newtonsoft.Json.Serialization
 {
     /// <summary>
     /// Provides data for the Error event.

@@ -21,7 +21,6 @@ namespace XrmFramework.DeployUtils.Generators
         {
             string logServicePath = Path.GetDirectoryName(serviceUtilsProjFileName);
 
-            var filesServices = new List<TfsHelper.FileInfo>();
             var filesLoggedServices = new List<TfsHelper.FileInfo>();
             
             foreach (var type in types)
@@ -30,15 +29,7 @@ namespace XrmFramework.DeployUtils.Generators
                 {
                     filesLoggedServices.Add(new TfsHelper.FileInfo(f));
                 }
-
-                if (type.Name != "IService")
-                {
-                    filesServices.Add(new TfsHelper.FileInfo(type.Name + ".cs"));
-                    filesServices.Add(new TfsHelper.FileInfo(type.Name.Substring(1) + ".cs"));
-                }
             }
-
-            TfsHelper.EnsureReferencesInProjectFile(serviceUtilsProjFileName, filesLoggedServices, "", null);
        }
 
         private static IEnumerable<string> GenerateLogServiceFile(string basePath, Type type, Type nullableAttributeType)

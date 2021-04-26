@@ -33,9 +33,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using Newtonsoft.Json.Xrm.Serialization;
+using Newtonsoft.Json.Serialization;
 
-namespace Newtonsoft.Json.Xrm.Utilities.LinqBridge
+namespace Newtonsoft.Json.Utilities.LinqBridge
 {
   /// <summary>
   /// Provides a set of static (Shared in Visual Basic) methods for 
@@ -3031,7 +3031,7 @@ namespace Newtonsoft.Json.Xrm.Utilities.LinqBridge
 }
 
 /*
-namespace Newtonsoft.Json.Xrm.Serialization
+namespace Newtonsoft.Json.Serialization
 {
 #pragma warning disable 1591
   public delegate TResult Func<TResult>();

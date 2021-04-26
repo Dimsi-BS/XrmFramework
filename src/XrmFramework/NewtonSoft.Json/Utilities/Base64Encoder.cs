@@ -30,7 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 #endif
 
-namespace Newtonsoft.Json.Xrm.Utilities
+namespace Newtonsoft.Json.Utilities
 {
     internal class Base64Encoder
     {

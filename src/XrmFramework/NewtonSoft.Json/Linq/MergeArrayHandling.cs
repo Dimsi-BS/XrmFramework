@@ -1,4 +1,4 @@
-namespace Newtonsoft.Json.Xrm.Linq
+namespace Newtonsoft.Json.Linq
 {
     /// <summary>
     /// Specifies how JSON arrays are merged together.

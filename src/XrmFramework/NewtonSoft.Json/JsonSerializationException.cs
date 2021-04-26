@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace Newtonsoft.Json.Xrm
+namespace Newtonsoft.Json
 {
     /// <summary>
     /// The exception thrown when an error occurs during JSON serialization or deserialization.

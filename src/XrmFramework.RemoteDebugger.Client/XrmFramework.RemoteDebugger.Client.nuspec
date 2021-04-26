@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
-    <id>XrmFramework.Workflow</id>
+    <id>XrmFramework.RemoteDebugger.Client</id>
     <version>$version$</version>
-    <title>XrmFramework.Workflow</title>
+    <title>XrmFramework.RemoteDebugger.Client</title>
     <authors>$author$</authors>
     <owners>$owner$</owners>
     <description>XrmFramework aims at simplifying Microsoft Dynamics 365 and Dataverse plugin, workflows development, deployment and testing</description>
@@ -15,16 +15,16 @@
     <copyright>$copyrigth$</copyright>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="XrmFramework" version="[$version$]" />
+        <dependency id="Microsoft.Azure.Relay" version="2.0.15596" />
+        <dependency id="Newtonsoft.Json" version="12.0.3" />
+        <dependency id="System.ComponentModel.Annotations" version="4.6.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.33" />
         <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.33" />
       </group>
     </dependencies>
   </metadata>
 
   <files>
-    <file src="**\*.cs" target="contentFiles/cs/any/Imports/XrmFramework.Workflow" exclude="obj\**;**\AssemblyInfo.cs" />
-
-    <file src="$SolutionDir$\Licenses\*" target="Licenses" />
-    <file src="$SolutionDir$\*.txt" target="" />
+    <file src="bin\$config$\net462\XrmFramework.RemoteDebugger.Client.*" target="lib\$XrmFramework_FullFramework_Runtime_TFM$" />
   </files>
 </package>

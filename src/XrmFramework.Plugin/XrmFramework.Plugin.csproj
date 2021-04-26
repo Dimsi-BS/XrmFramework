@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
-    <AssemblyName>XrmFramework.Workflow</AssemblyName>
+    <AssemblyName>XrmFramework.Plugin</AssemblyName>
     <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
     <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
     <PublicSign>$(XrmFramework_PublicSign)</PublicSign>
-    <PackageId>XrmFramework.Workflow</PackageId>
+    <PackageId>XrmFramework.Plugin</PackageId>
 
-    <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.Workflow.nuspec</NuspecFile>
+    <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.Plugin.nuspec</NuspecFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

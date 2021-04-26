@@ -25,7 +25,7 @@
 
 using System;
 
-namespace Newtonsoft.Json.Xrm.Bson
+namespace Newtonsoft.Json.Bson
 {
     internal enum BsonBinaryType : byte
     {

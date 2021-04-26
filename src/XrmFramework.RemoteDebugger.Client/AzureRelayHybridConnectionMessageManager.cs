@@ -8,11 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Relay;
 using XrmFramework.RemoteDebugger;
 
-#if INTERNAL_NEWTONSOFT
-using Newtonsoft.Json.Xrm;
-#else 
 using Newtonsoft.Json;
-#endif
 
 
 

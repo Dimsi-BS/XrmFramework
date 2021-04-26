@@ -28,11 +28,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.IO;
-using Newtonsoft.Json.Xrm.Serialization;
-using Newtonsoft.Json.Xrm.Utilities;
-using Newtonsoft.Json.Xrm.Linq;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Utilities;
+using Newtonsoft.Json.Linq;
 
-namespace Newtonsoft.Json.Xrm.Bson
+namespace Newtonsoft.Json.Bson
 {
     /// <summary>
     /// Represents a reader that provides fast, non-cached, forward-only access to serialized BSON data.

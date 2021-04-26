@@ -9,13 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="XrmFramework" Version="*" />
-    <PackageReference Include="XrmFramework.Workflow" Version="*" />
+    <PackageReference Include="XrmFramework" Version="2.1.1-alpha" />
+    <PackageReference Include="XrmFramework.Workflow" Version="2.1.1-alpha" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Model\\**\\*.cs" Exclude="..\Model\obj\**" Link="Imports\Model\%(RecursiveDir)%(Filename)%(Extension)" />
-    <Compile Include="..\Utils\LoggedServices\\**\\*.cs" Exclude="..\Utils\LoggedServices\obj\**" Link="Imports\LoggedServices\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Model\\**\\*.cs" Exclude="..\Model\obj\**" Link="__Imports\Model\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Utils\LoggedServices\\**\\*.cs" Exclude="..\Utils\LoggedServices\obj\**" Link="__Imports\LoggedServices\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
   
 </Project>

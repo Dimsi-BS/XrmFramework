@@ -25,7 +25,7 @@
 
 using System;
 
-namespace Newtonsoft.Json.Xrm.Schema
+namespace Newtonsoft.Json.Schema
 {
     /// <summary>
     /// <para>

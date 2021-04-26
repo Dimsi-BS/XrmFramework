@@ -10,6 +10,7 @@
 
     <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.RemoteDebugger.nuspec</NuspecFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -19,11 +20,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU' And '$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <DefineConstants>TRACE;INTERNAL_NEWTONSOFT;STANDALONE</DefineConstants>
+    <DefineConstants>TRACE;STANDALONE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU' And '$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <DefineConstants>TRACE;INTERNAL_NEWTONSOFT;STANDALONE</DefineConstants>
+    <DefineConstants>TRACE;STANDALONE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">

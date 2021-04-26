@@ -14,10 +14,13 @@
     <WarningLevel>3</WarningLevel>
   </PropertyGroup>
 
-  <Import Project="..\..\Model\Model.csproj" />
 
   <ItemGroup>
-    <PackageReference Include="XrmFramework.DeployUtils" Version="*" />
+    <ProjectReference Include="..\..\Model\Model.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="XrmFramework.DeployUtils" Version="2.1.1-alpha" />
   </ItemGroup>
 
 </Project>

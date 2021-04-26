@@ -26,9 +26,9 @@
 #if HAVE_ADO_NET
 using System;
 using System.Data;
-using Newtonsoft.Json.Xrm.Serialization;
+using Newtonsoft.Json.Serialization;
 
-namespace Newtonsoft.Json.Xrm.Converters
+namespace Newtonsoft.Json.Converters
 {
     /// <summary>
     /// Converts a <see cref="DataSet"/> to and from JSON.

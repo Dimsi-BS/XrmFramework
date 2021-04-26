@@ -25,10 +25,10 @@
 
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json.Xrm.Linq;
-using Newtonsoft.Json.Xrm.Utilities;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Utilities;
 
-namespace Newtonsoft.Json.Xrm.Schema
+namespace Newtonsoft.Json.Schema
 {
     [Obsolete("JSON Schema validation has been moved to its own package. See https://www.newtonsoft.com/jsonschema for more details.")]
     internal class JsonSchemaModel

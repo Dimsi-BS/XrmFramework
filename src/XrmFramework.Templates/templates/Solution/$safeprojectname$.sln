@@ -16,13 +16,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{0ADA5F86
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManageServices", "Utils\ManageServices\ManageServices.csproj", "{B399CD76-C47C-4116-A8F7-0DB556384055}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "LoggedServices", "Utils\LoggedServices\LoggedServices.csproj", "{43FC4FE4-E704-409C-9811-1BA2BF1FF4F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoggedServices", "Utils\LoggedServices\LoggedServices.csproj", "{43FC4FE4-E704-409C-9811-1BA2BF1FF4F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deploy.$safeprojectname$.Plugins", "Utils\Deploy.$safeprojectname$.Plugins\Deploy.$safeprojectname$.Plugins.csproj", "{0ED1E16F-C6A9-46E2-8DF3-D83AD5B60EA4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deploy.$safeprojectname$.Plugins", "Utils\Deploy.$safeprojectname$.Plugins\Deploy.$safeprojectname$.Plugins.csproj", "{0ED1E16F-C6A9-46E2-8DF3-D83AD5B60EA4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DefinitionManager", "Utils\DefinitionManager\DefinitionManager.csproj", "{24F664F7-1982-4DA2-9C5B-A3D1A7D98308}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Model", "Model\Model.csproj", "{0A7D9EAF-EA3A-4522-B124-535909C4AE05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model", "Model\Model.csproj", "{0A7D9EAF-EA3A-4522-B124-535909C4AE05}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -66,18 +66,6 @@ Global
 		{336CF7CE-A9F1-478D-84E7-92A17852DA58}.Release|x64.Build.0 = Release|Any CPU
 		{336CF7CE-A9F1-478D-84E7-92A17852DA58}.Release|x86.ActiveCfg = Release|Any CPU
 		{336CF7CE-A9F1-478D-84E7-92A17852DA58}.Release|x86.Build.0 = Release|Any CPU
-		{F2225A80-4277-4038-967D-FC2589B32696}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F2225A80-4277-4038-967D-FC2589B32696}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F2225A80-4277-4038-967D-FC2589B32696}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{F2225A80-4277-4038-967D-FC2589B32696}.Debug|x64.Build.0 = Debug|Any CPU
-		{F2225A80-4277-4038-967D-FC2589B32696}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{F2225A80-4277-4038-967D-FC2589B32696}.Debug|x86.Build.0 = Debug|Any CPU
-		{F2225A80-4277-4038-967D-FC2589B32696}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F2225A80-4277-4038-967D-FC2589B32696}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F2225A80-4277-4038-967D-FC2589B32696}.Release|x64.ActiveCfg = Release|Any CPU
-		{F2225A80-4277-4038-967D-FC2589B32696}.Release|x64.Build.0 = Release|Any CPU
-		{F2225A80-4277-4038-967D-FC2589B32696}.Release|x86.ActiveCfg = Release|Any CPU
-		{F2225A80-4277-4038-967D-FC2589B32696}.Release|x86.Build.0 = Release|Any CPU
 		{B399CD76-C47C-4116-A8F7-0DB556384055}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B399CD76-C47C-4116-A8F7-0DB556384055}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B399CD76-C47C-4116-A8F7-0DB556384055}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -119,7 +107,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{F2225A80-4277-4038-967D-FC2589B32696} = {0ADA5F86-CDCF-415C-86FC-13895777F7EC}
 		{B399CD76-C47C-4116-A8F7-0DB556384055} = {0ADA5F86-CDCF-415C-86FC-13895777F7EC}
 		{43FC4FE4-E704-409C-9811-1BA2BF1FF4F6} = {0ADA5F86-CDCF-415C-86FC-13895777F7EC}
 		{0ED1E16F-C6A9-46E2-8DF3-D83AD5B60EA4} = {0ADA5F86-CDCF-415C-86FC-13895777F7EC}

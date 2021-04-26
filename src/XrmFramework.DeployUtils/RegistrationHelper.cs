@@ -25,11 +25,11 @@ namespace XrmFramework.DeployUtils
     {
         private static List<PluginAssembly> _list = new List<PluginAssembly>();
 
-        public static void Register<T, U>(string projectName, string assemblyPath, Func<T, Plugin> PluginConverter, Func<U, Plugin> WorkflowConverter)
+        public static void Register<T, U>(string projectName, string assemblyPath, Func<T, Model.Plugin> PluginConverter, Func<U, Model.Plugin> WorkflowConverter)
         {
             Assembly pluginAssembly = typeof(T).Assembly;
 
-            var pluginList = new List<Plugin>();
+            var pluginList = new List<Model.Plugin>();
 
             ObjectHelper<T>.ApplyCode(new Type[] { typeof(string), typeof(string) }, new object[] { null, null }, (plugin, type, sb) => { pluginList.Add(PluginConverter(plugin)); return false; });
 
@@ -41,8 +41,6 @@ namespace XrmFramework.DeployUtils
             }
 
             var pluginSolutionUniqueName = deploySection.Projects.OfType<ProjectElement>().Single(p => p.Name == projectName).TargetSolution;
-
-            EnsureAppConfigLink();
 
             var organizationName = ConfigurationManager.ConnectionStrings[deploySection.SelectedConnection].ConnectionString;
 
@@ -235,94 +233,7 @@ namespace XrmFramework.DeployUtils
             }
 
         }
-
-        public static void EnsureAppConfigLink()
-        {
-
-            var directory = Directory.GetParent(@"..\..\..\");
-
-            FileInfo slnFileInfo = null;
-            do
-            {
-                slnFileInfo = directory.GetFiles().FirstOrDefault(fileInfo => fileInfo.Extension == ".sln");
-
-                if (slnFileInfo == null)
-                {
-                    directory = directory.Parent;
-                }
-            } while (slnFileInfo == null);
-
-            var slnFilePath = slnFileInfo.FullName;
-
-            var slnContent = File.ReadAllText(slnFilePath);
-
-            var appConfigPath = new FileInfo(@"..\..\..\..\Config\App.config").FullName.Substring(directory.FullName.Length + 1);
-
-            if (!slnContent.Contains(appConfigPath))
-            {
-                var sb = new StringBuilder();
-                using (StringReader reader = new StringReader(slnContent))
-                {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        sb.AppendLine(line);
-                        if (line.Contains("\"Config\", \"Config\""))
-                        {
-                            sb.AppendLine("\tProjectSection(SolutionItems) = preProject");
-                            sb.AppendFormat("\t\t{0} = {0}\r\n", appConfigPath);
-                            sb.AppendLine("\tEndProjectSection");
-                        }
-                    }
-                }
-
-                var appConfigContent = File.ReadAllText(@"..\..\..\Config\App.config");
-                var appConfig = XDocument.Parse(appConfigContent);
-
-                Console.WriteLine("Setting up MCS Framework :");
-                Console.WriteLine();
-
-                Console.Write("Enter Organization Connection String : ");
-                var connectionString = Console.ReadLine();
-                Console.WriteLine();
-
-                var entitiesUniqueName = string.Empty;
-                while (entitiesUniqueName == string.Empty)
-                {
-                    Console.Write("Enter Entities Solution Unique Name : ");
-                    entitiesUniqueName = Console.ReadLine();
-                }
-                Console.WriteLine();
-
-                Console.Write("Enter Plugins Solution Unique Name (default : {0}) : ", entitiesUniqueName);
-                var pluginsUniqueName = Console.ReadLine();
-                Console.WriteLine();
-
-                Console.Write("Enter Webresources Solution Unique Name (default : {0}) : ", entitiesUniqueName);
-                var webresourcesUniqueName = Console.ReadLine();
-
-                foreach (var connectionStringElement in appConfig.Descendants("add"))
-                {
-                    if (connectionStringElement.Attribute("name").Value == "Xrm")
-                    {
-                        connectionStringElement.Attribute("connectionString").Value = connectionString;
-                    }
-                }
-
-                var deploySection = appConfig.Descendants("deploySection").Single();
-
-                // entitiesSolutionUniqueName="Demo_Entities" pluginSolutionUniqueName="Demo_Plugins" webResourcesSolutionUniqueName="Demo_WebResources" />
-                deploySection.Attribute("entitiesSolutionUniqueName").Value = entitiesUniqueName;
-                deploySection.Attribute("pluginSolutionUniqueName").Value = string.IsNullOrEmpty(pluginsUniqueName) ? entitiesUniqueName : pluginsUniqueName;
-                deploySection.Attribute("webResourcesSolutionUniqueName").Value = string.IsNullOrEmpty(webresourcesUniqueName) ? entitiesUniqueName : webresourcesUniqueName;
-
-                appConfig.Save(@"..\..\..\Config\App.config");
-
-                File.WriteAllText(slnFilePath, sb.ToString());
-                System.Environment.Exit(0);
-            }
-        }
-
+        
         private static PluginAssembly GetProfilerAssembly(IOrganizationService service)
         {
             var assemblies = GetAssemblies(service);
@@ -477,7 +388,7 @@ namespace XrmFramework.DeployUtils
             return t;
         }
 
-        private static SdkMessageProcessingStep GetStepToRegister(Guid pluginTypeId, Step step)
+        private static SdkMessageProcessingStep GetStepToRegister(Guid pluginTypeId, Model.Step step)
         {
             // Issue with CRM SDK / Description field max length = 256 characters 
             var descriptionAttributeMaxLength = 256;
@@ -500,7 +411,7 @@ namespace XrmFramework.DeployUtils
 
             var t = new SdkMessageProcessingStep()
             {
-                AsyncAutoDelete = step.Mode == Modes.Asynchronous,
+                AsyncAutoDelete = step.Mode == Model.Modes.Asynchronous,
                 Description = description,
                 EventHandler = new EntityReference(PluginType.EntityLogicalName, pluginTypeId),
                 FilteringAttributes = string.IsNullOrEmpty(step.FilteredAttributes) ? null : step.FilteredAttributes,
@@ -528,7 +439,7 @@ namespace XrmFramework.DeployUtils
             return t;
         }
 
-        private static SdkMessageProcessingStepImage GetImageToRegister(IOrganizationService service, Guid stepId, Step step, bool isPreImage)
+        private static SdkMessageProcessingStepImage GetImageToRegister(IOrganizationService service, Guid stepId, Model.Step step, bool isPreImage)
         {
             var isAllColumns = isPreImage ? step.PreImageAllAttributes : step.PostImageAllAttributes;
             var columns = isPreImage ? step.PreImageAttributes : step.PostImageAttributes;
@@ -536,11 +447,11 @@ namespace XrmFramework.DeployUtils
 
             var messagePropertyName = "Target";
 
-            if (step.Message == Messages.Create.ToString() && !isPreImage)
+            if (step.Message == Model.Messages.Create.ToString() && !isPreImage)
             {
                 messagePropertyName = "Id";
             }
-            else if (step.Message == Messages.SetState.ToString() || step.Message == Messages.SetStateDynamicEntity.ToString())
+            else if (step.Message == Model.Messages.SetState.ToString() || step.Message == Messages.SetStateDynamicEntity.ToString())
             {
                 messagePropertyName = "EntityMoniker";
             }

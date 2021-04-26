@@ -23,7 +23,7 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 #endregion
 
-namespace Newtonsoft.Json.Xrm.Bson
+namespace Newtonsoft.Json.Bson
 {
     internal enum BsonType : sbyte
     {

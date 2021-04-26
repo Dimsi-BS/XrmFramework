@@ -24,11 +24,11 @@
 #endregion
 
 using System;
-using Newtonsoft.Json.Xrm.Bson;
+using Newtonsoft.Json.Bson;
 using System.Globalization;
-using Newtonsoft.Json.Xrm.Utilities;
+using Newtonsoft.Json.Utilities;
 
-namespace Newtonsoft.Json.Xrm.Converters
+namespace Newtonsoft.Json.Converters
 {
     /// <summary>
     /// Converts a <see cref="BsonObjectId"/> to and from JSON and BSON.

@@ -27,7 +27,7 @@ using System;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace Newtonsoft.Json.Xrm.Serialization
+namespace Newtonsoft.Json.Serialization
 {
     /// <summary>
     /// Allows users to control class loading and mandate what class to load.

@@ -4,11 +4,7 @@ using System.Collections.Generic;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Sdk.Workflow;
-#if INTERNAL_NEWTONSOFT
-using Newtonsoft.Json.Xrm;
-#else
 using Newtonsoft.Json;
-#endif
 
 namespace XrmFramework.RemoteDebugger.Converters
 {

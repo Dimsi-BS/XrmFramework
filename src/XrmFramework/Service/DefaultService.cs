@@ -12,12 +12,7 @@ using Microsoft.Xrm.Sdk.Query;
 using XrmFramework.BindingModel;
 using XrmFramework.Definitions;
 using XrmFramework.Model;
-
-#if INTERNAL_NEWTONSOFT
-using Newtonsoft.Json.Xrm;
-#else
 using Newtonsoft.Json;
-#endif
 
 namespace XrmFramework
 {

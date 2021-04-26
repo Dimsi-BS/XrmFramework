@@ -1,11 +1,7 @@
 ﻿
 using System;
 using Microsoft.Xrm.Sdk;
-#if INTERNAL_NEWTONSOFT
-using Newtonsoft.Json.Xrm;
-#else
 using Newtonsoft.Json;
-#endif
 
 namespace XrmFramework.RemoteDebugger.Converters
 {

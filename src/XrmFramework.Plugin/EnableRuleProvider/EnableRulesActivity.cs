@@ -3,12 +3,7 @@ using System.Activities;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
-using Newtonsoft.Json.Xrm;
-#if INTERNAL_NEWTONSOFT
-
-#else
 using Newtonsoft.Json;
-#endif
 
 namespace XrmFramework.Workflow.EnableRuleProvider
 {

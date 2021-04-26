@@ -24,9 +24,9 @@
 #endregion
 
 using System;
-using Newtonsoft.Json.Xrm.Utilities;
+using Newtonsoft.Json.Utilities;
 
-namespace Newtonsoft.Json.Xrm.Bson
+namespace Newtonsoft.Json.Bson
 {
     /// <summary>
     /// Represents a BSON Oid (object id).

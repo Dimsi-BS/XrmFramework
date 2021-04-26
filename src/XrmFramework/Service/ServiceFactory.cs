@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Xrm.Sdk;
 
@@ -18,7 +19,16 @@ namespace XrmFramework
             => (T)GetService(typeof(T), localContext);
 
         public static object GetService(Type t, IServiceContext localContext)
+         => GetServiceInternal(t, localContext, new List<Type>());
+
+
+        public static object GetServiceInternal(Type t, IServiceContext localContext, List<Type> callingTypes)
         {
+            if (callingTypes.Contains(t))
+            {
+                throw new InvalidPluginExecutionException($"Circular service reference for Service {t.FullName}");
+            }
+
             var loadedAssemblies = new[] { localContext.GetType().Assembly };
 
             object service = null;
@@ -68,21 +78,54 @@ namespace XrmFramework
                             }
                         }
 
-                        var implementationConstructor = implementationType?.GetConstructor(new[] { typeof(LocalContext) });
-                        var loggedConstructor = loggedServiceType?.GetConstructor(new[] { typeof(LocalContext), t });
-                        if (loggedConstructor == null || implementationConstructor == null)
+                        var implementationConstructors = implementationType?.GetConstructors() ?? new ConstructorInfo[0];
+                        if (!implementationConstructors.Any())
                         {
-                            throw new InvalidPluginExecutionException($"Service '{t.Name}' not found");
+                            throw new InvalidPluginExecutionException($"No implementation found for Service '{t.FullName}'");
                         }
 
-                        implementation = implementationConstructor.Invoke(new object[] { localContext });
+                        if (implementationConstructors.Length > 1)
+                        {
+                            throw new InvalidPluginExecutionException($"A unique constructor must be specified for '{t.FullName}' implementation '{implementationType.FullName}'");
+                        }
+
+                        var implementationConstructor = implementationConstructors[0];
+
+                        var listParamValues = new List<object>();
+                        foreach (var param in implementationConstructor.GetParameters())
+                        {
+                            if (typeof(IServiceContext).IsAssignableFrom(param.ParameterType))
+                            {
+                                listParamValues.Add(localContext);
+                            }
+                            else if (typeof(IService).IsAssignableFrom(param.ParameterType))
+                            {
+                                var obj = GetServiceInternal(param.ParameterType, localContext, callingTypes.Union(new[] { t }).ToList());
+                                listParamValues.Add(obj);
+                            }
+                            else
+                            {
+                                throw new InvalidPluginExecutionException($"Invalid constructor parameter type {param.ParameterType.FullName} (param: {param.Name}) for {t.FullName} implementation {implementationType.FullName}");
+                            }
+                        }
+
+                        implementation = implementationConstructor.Invoke(listParamValues.ToArray());
 
                         if (implementation is IServiceWithSettings implementationWithSettings)
                         {
                             implementationWithSettings.InitSettings();
                         }
 
-                        service = loggedConstructor.Invoke(new[] { localContext, implementation });
+                        var loggedConstructor = loggedServiceType?.GetConstructor(new[] { typeof(LocalContext), t });
+                        if (loggedConstructor == null)
+                        {
+                            service = implementation;
+                        }
+                        else
+                        {
+                            service = loggedConstructor.Invoke(new[] { localContext, implementation });
+                        }
+
                         loadedServicesTemp.Add(t, service);
                         isNewService = true;
                     }
@@ -92,24 +135,6 @@ namespace XrmFramework
             if (!loadedServicesTemp.TryGetValue(t, out service))
             {
                 throw new InvalidPluginExecutionException($"Service '{t.Name}' not found");
-            }
-
-            if (isNewService)
-            {
-                foreach (var property in implementation.GetType().GetProperties())
-                {
-                    if (property.GetCustomAttribute<DependencyInjectionAttribute>() == null)
-                    {
-                        continue;
-                    }
-
-                    if (typeof(IService).IsAssignableFrom(property.PropertyType))
-                    {
-                        var dependingService = GetService(property.PropertyType, localContext);
-
-                        property.SetValue(implementation, dependingService);
-                    }
-                }
             }
 
             return service;

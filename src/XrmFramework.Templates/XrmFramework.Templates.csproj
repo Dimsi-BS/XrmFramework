@@ -2,26 +2,16 @@
 
   <PropertyGroup>
     <PackageType>Template</PackageType>
-    <PackageVersion>1.0</PackageVersion>
     <PackageId>XrmFramework.Templates</PackageId>
-    <Title>XrmFramework Project Template</Title>
-    <Authors>Christophe Gondouin</Authors>
-    <Description>Project Template that creates a XrmFramework solution ou sub project.</Description>
     <TargetFramework>netstandard2.0</TargetFramework>
 
     <IncludeContentInPack>true</IncludeContentInPack>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <ContentTargetFolders>content</ContentTargetFolders>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageOutputPath>../nupkg</PackageOutputPath>
-
-    <PackageTags>xrmframework;d365;dataverse;powerapps;powerplatform;dynamics</PackageTags>
-    <PackageCopyright>Christophe Gondouin, Dimsi 2020</PackageCopyright>
     
-    <PackageProjectUrl>https://aka.ms/XrmFramework</PackageProjectUrl>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    
+
   </PropertyGroup>
 
   <ItemGroup>

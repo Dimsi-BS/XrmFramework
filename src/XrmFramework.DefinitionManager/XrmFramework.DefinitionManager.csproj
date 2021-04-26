@@ -11,6 +11,7 @@
 
     <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.DefinitionManager.nuspec</NuspecFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

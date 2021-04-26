@@ -28,10 +28,10 @@ using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security;
-using Newtonsoft.Json.Xrm.Linq;
-using Newtonsoft.Json.Xrm.Utilities;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Utilities;
 
-namespace Newtonsoft.Json.Xrm.Serialization
+namespace Newtonsoft.Json.Serialization
 {
     /// <summary>
     /// Contract details for a <see cref="System.Type"/> used by the <see cref="JsonSerializer"/>.

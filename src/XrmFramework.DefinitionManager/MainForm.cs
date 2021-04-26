@@ -149,7 +149,7 @@ namespace DefinitionManager
             }
         }
 
-        private Type GetExternalType(string name) 
+        private Type GetExternalType(string name)
             => _iServiceType.Assembly.GetType(name);
 
         private IEnumerable<EntityDefinition> GetCodedEntityDefinitions()
@@ -323,7 +323,7 @@ namespace DefinitionManager
                 sb.AppendLine();
                 sb.AppendLine("namespace Model");
                 sb.AppendLine("{");
-                sb.AppendLine("\t[GeneratedCode(\"XrmFramework\", \"1.0\")]");
+                sb.AppendLine("\t[GeneratedCode(\"XrmFramework\", \"2.0\")]");
                 sb.AppendLine("\t[EntityDefinition]\r\n");
                 sb.AppendLine("\t[ExcludeFromCodeCoverage]\r\n");
                 sb.AppendFormat("\tpublic static class {0}\r\n", item.Name);
@@ -512,6 +512,12 @@ namespace DefinitionManager
 
                 var fileInfo = new FileInfo(string.Format("../../../../../Model/Definitions/{0}.cs", item.Name));
 
+                var definitionFolder = new DirectoryInfo("../../../../../Model/Definitions");
+                if (definitionFolder.Exists == false)
+                {
+                    definitionFolder.Create();
+                }
+
                 File.WriteAllText(fileInfo.FullName, sb.ToString());
                 string oldFileName = null;
 
@@ -565,8 +571,6 @@ namespace DefinitionManager
             fc.AppendLine("}");
             File.WriteAllText("../../../../../Model/Definitions/OptionSetDefinitions.cs", fc.ToString());
             fileList.Add(new TfsHelper.FileInfo("OptionSetDefinitions.cs"));
-
-            TfsHelper.EnsureReferencesInProjectFile("../../../../../Model/Model.projitems", fileList, @"$(MSBuildThisFileDirectory)Definitions");
 
             MessageBox.Show("Definition files generation succeedeed");
         }

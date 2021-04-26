@@ -1,17 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net462</TargetFramework>
-  </PropertyGroup>
+    <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
+    <AssemblyName>XrmFramework.RemoteDebugger.Client</AssemblyName>
+    <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
+    <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
+    <PublicSign>$(XrmFramework_PublicSign)</PublicSign>
+    <PackageId>XrmFramework.RemoteDebugger.Client</PackageId>
 
-  <PropertyGroup>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageOutputPath>../nupkg</PackageOutputPath>
-
-    <PackageTags>xrmframework;d365;dataverse;powerapps;powerplatform;dynamics</PackageTags>
-    <PackageCopyright>Christophe Gondouin, Dimsi 2020</PackageCopyright>
+    <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.RemoteDebugger.Client.nuspec</NuspecFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     
-    <PackageProjectUrl>https://aka.ms/XrmFramework</PackageProjectUrl>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
 

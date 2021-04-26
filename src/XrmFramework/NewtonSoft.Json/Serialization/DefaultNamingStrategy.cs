@@ -1,4 +1,4 @@
-﻿namespace Newtonsoft.Json.Xrm.Serialization
+﻿namespace Newtonsoft.Json.Serialization
 {
     /// <summary>
     /// The default naming strategy. Property names and dictionary keys are unchanged.

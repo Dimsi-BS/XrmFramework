@@ -1,11 +1,7 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-#if INTERNAL_NEWTONSOFT
-using Newtonsoft.Json.Xrm;
-#else
 using Newtonsoft.Json;
-#endif
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

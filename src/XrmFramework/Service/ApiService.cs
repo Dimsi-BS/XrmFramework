@@ -1,8 +1,4 @@
-﻿#if INTERNAL_NEWTONSOFT
-using Newtonsoft.Json.Xrm;
-#else
-using Newtonsoft.Json;
-#endif
+﻿using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Net.Http;

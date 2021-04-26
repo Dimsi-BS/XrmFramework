@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 
-namespace XrmFramework.Utils
+namespace XrmFramework.DeployUtils
 {
     public class DisposableOrganizationService : IDisposable, IOrganizationService
     {
