@@ -1,4 +1,3 @@
-
 <Project>
   <Target Name="SetNuspecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
@@ -8,25 +7,68 @@
       <NuspecProperties>$(NuspecProperties);copyright=$(XrmFramework_Copyright)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);author=$(XrmFramework_Authors)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);owner=$(XrmFramework_Owners)</NuspecProperties>
-      
+
       <NuspecProperties>$(NuspecProperties);XrmFramework_Net5_TFM=$(XrmFramework_Net5_TFM)</NuspecProperties>
-      
+
       <NuspecProperties>$(NuspecProperties);XrmFramework_FullFramework_Runtime_TFM=$(XrmFramework_FullFramework_Runtime_TFM)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);XrmFramework_Core_Runtime_TFM=$(XrmFramework_Core_Runtime_TFM)</NuspecProperties>
-      
+
       <NuspecProperties>$(NuspecProperties);XrmFramework_FullFramework_Generator_TFM=$(XrmFramework_FullFramework_Generator_TFM)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);XrmFramework_Core_Generator_TFM=$(XrmFramework_Core_Generator_TFM)</NuspecProperties>
-            
+
       <NuspecProperties>$(NuspecProperties);XrmFramework_Core_Tools_TFM=$(XrmFramework_Core_Tools_TFM)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);XrmFramework_Net5_Tools_TFM=$(XrmFramework_Net5_Tools_TFM)</NuspecProperties>
     </PropertyGroup>
+    
+    <ItemGroup>
+      <FilesToModify Remove="@(FilesToModify)" />
+      <FilesToModify Include="**/templates/**/*.csproj"/>
+    </ItemGroup>
+
+    <MSBuild Condition="@(FilesToModify->Count()) > 0" Projects="$(MSBuildProjectFile)" Properties="CurrentCsProj=%(FilesToModify.FullPath);searchedPattern=#{GitBuildVersionSimple}#;NuGetPackageVersion=$(NuGetPackageVersion)" Targets="ReplaceCspojVersion">
+    </MSBuild>
   </Target>
 
-  <Target Name="CleanupNupkgs" BeforeTargets="Build" >
+  <Target Name="CleanupNupkgs" BeforeTargets="Build">
     <ItemGroup>
       <Nupkgs2Delete Include="$(PackageOutputAbsolutePath)\*.nupkg"/>
     </ItemGroup>
     <Delete Files="@(Nupkgs2Delete)" />
+  </Target>
+
+
+
+  <Target Name="ModifyTemplateDependencyVersion" AfterTargets="Pack" DependsOnTargets="GetBuildVersion">
+  <Message Importance="High" Text="NuGetPackageVersion = $(NuGetPackageVersion)" />
+    <ItemGroup>
+      <FilesToModify Remove="@(FilesToModify)" />
+      <FilesToModify Include="**/templates/**/*.csproj"/>
+    </ItemGroup>
+
+    <MSBuild Condition="@(FilesToModify->Count()) > 0" Projects="$(MSBuildProjectFile)" Properties="CurrentCsProj=%(FilesToModify.FullPath);searchedPattern=$(NuGetPackageVersion);NuGetPackageVersion=#{GitBuildVersionSimple}#" Targets="ReplaceCspojVersion">
+    </MSBuild>
+  </Target>
+  
+
+  <!-- This target checks the current analyzed file $(CurrentXmlFile) -->
+  <Target Name="ReplaceCspojVersion">
+  <Message Importance="High" Text="Toto $(CurrentCsProj)" />
+ <ItemGroup>
+    <ItemsFromFile Include="$([System.IO.File]::ReadAllText($(CurrentCsProj)))"/>
+  </ItemGroup>
+    <!-- <ReadLinesFromFile File="$(CurrentCsProj)">
+      <Output TaskParameter="Lines" ItemName="ItemsFromFile"/>
+    </ReadLinesFromFile> -->
+    
+    <ItemGroup>
+      <TempLines Include="@(ItemsFromFile->Replace('$(searchedPattern)', $(NuGetPackageVersion)))" />
+    </ItemGroup>
+
+        <WriteLinesToFile
+            File="$(CurrentCsProj)"
+            Lines="@(TempLines)"
+            Overwrite="true"/>
+
   </Target>
 
   <Target Name="CopyNupkgToFolder" AfterTargets="Pack">
@@ -34,5 +76,6 @@
       <GeneratedNupkgs Include="$(PackageOutputAbsolutePath)\*.nupkg"/>
     </ItemGroup>
     <Copy SourceFiles="@(GeneratedNupkgs)" DestinationFolder="$(SolutionDir)GeneratedNuGetPackages\$(Configuration)" />
+
   </Target>
 </Project>
