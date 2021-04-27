@@ -22,7 +22,7 @@ steps:
   
 - task: CopyFiles@2
   inputs:
-    SourceFolder: 'src\GeneratedNuGetPackages\$(buildConfiguration)'
+    SourceFolder: 'src/GeneratedNuGetPackages/$(buildConfiguration)/'
     Contents: '**'
     TargetFolder: '$(build.artifactstagingdirectory)'
 
