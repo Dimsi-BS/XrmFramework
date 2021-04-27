@@ -74,6 +74,7 @@
   <Target Name="CopyNupkgToFolder" AfterTargets="Pack">
     <ItemGroup>
       <GeneratedNupkgs Include="$(PackageOutputAbsolutePath)\*.nupkg"/>
+      <GeneratedNupkgs Include="$(PackageOutputAbsolutePath)\*.snupkg"/>
     </ItemGroup>
     <Copy SourceFiles="@(GeneratedNupkgs)" DestinationFolder="$(SolutionDir)GeneratedNuGetPackages\$(Configuration)" />
 
