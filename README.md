@@ -1,16 +1,16 @@
 # Xrm Framework 
 This project is a compilation of tools and design pattern that has been used on several Microsoft Services Dynamics 365 projects.
 
-# Design Pattern
+## Design Pattern
 Several design pattern are included in this framework :
 1.	Definition of Services to access CRM Data from Plugins or external code (Webservices, console apps, ...)
 2.	Automatic Plugin Step registration from source code (use of attributes to describe plugin and plugin steps)
 3.	Advanced plugin traces (service calls are logged)
 4.  Metadata Definition extraction tool (no more plain string attribute references)
 
-# Quick start
+## Quick start
 
-## Set configuration informations
+### Set configuration informations
 Add a `connectionStrings.config` file as follows in the `Config\` folder near `App.config` (you can copy ``connectionStrings.sample`` to start you file)
 ```xml
 
