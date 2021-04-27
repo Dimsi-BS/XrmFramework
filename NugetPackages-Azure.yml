@@ -5,8 +5,13 @@
 # https://aka.ms/yaml
 
 trigger:
-- master
-- v2.*
+ branches:
+  include:
+    - master
+    - v2.*
+ paths:
+  include:
+    - src
 
 variables:
   buildConfiguration: 'Release'
