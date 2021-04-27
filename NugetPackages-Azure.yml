@@ -22,7 +22,8 @@ steps:
   
 - task: CopyFiles@2
   inputs:
-    Contents: '**/*.nupkg'
+    SourceFolder: 'src\GeneratedNuGetPackages\$(buildConfiguration)'
+    Contents: '**'
     TargetFolder: '$(build.artifactstagingdirectory)'
 
 - task: PublishPipelineArtifact@1
