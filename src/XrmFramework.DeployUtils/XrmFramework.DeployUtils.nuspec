@@ -25,7 +25,6 @@
   <files>
     <file src="bin\$config$\net462\XrmFramework.DeployUtils.*" target="lib\$XrmFramework_FullFramework_Runtime_TFM$" />
 
-    <file src="$SolutionDir$\Licenses\*" target="Licenses" />
     <file src="$SolutionDir$\*.txt" target="" />
   </files>
 </package>
