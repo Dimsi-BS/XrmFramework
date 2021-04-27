@@ -10,6 +10,8 @@
 
     <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.RemoteDebugger.Client.nuspec</NuspecFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
