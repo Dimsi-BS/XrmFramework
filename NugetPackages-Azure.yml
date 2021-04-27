@@ -20,9 +20,13 @@ steps:
   displayName: Build
   workingDirectory: src
   
+- task: CopyFiles@2
+  inputs:
+    Contents: '**/*.nupkg'
+    TargetFolder: '$(build.artifactstagingdirectory)'
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '**/GeneratedNuGetPackages/$(buildConfiguration)'
+    targetPath: '$(build.artifactstagingdirectory)'
     artifact: 'Packages'
     publishLocation: 'pipeline'
