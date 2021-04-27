@@ -16,7 +16,7 @@ pool:
 
 steps:
 
-- script: dotnet build XrmFramwork.sln --configuration $(buildConfiguration) /p:PublicRelease=true
+- script: dotnet build XrmFramework.sln --configuration $(buildConfiguration) /p:PublicRelease=true
   displayName: Build
   workingDirectory: src
   
