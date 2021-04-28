@@ -4,10 +4,6 @@
     <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Constants)' != ''">
-    <DefineConstants>$(Constants);$(DefineConstants)</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="XrmFramework" Version="#{GitBuildVersionSimple}#" />
     <PackageReference Include="XrmFramework.Plugin" Version="#{GitBuildVersionSimple}#" />

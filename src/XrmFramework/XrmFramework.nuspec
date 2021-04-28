@@ -20,7 +20,6 @@
         <dependency id="System.Net.Http" version="4.3.4" />
         <dependency id="Microsoft.CSharp" version="4.6.0" />
         <dependency id="System.Configuration.ConfigurationManager" version="4.6.0" />
-        <dependency id="Newtonsoft.Json" version="12.0.3" />
       </group>
       <group targetFramework="netcoreapp3.1">
         <dependency id="System.ComponentModel.Annotations" version="4.6.0" exclude="Build,Analyzers" />
