@@ -1,11 +1,11 @@
 <Project>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(SolutionDir)\PrimoV2.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(SolutionDir)\$safeprojectname$.snk</AssemblyOriginatorKeyFile>
 
     <LangVersion>latest</LangVersion>
 
-    <XrmFrameworkCoreProjectName>PrimoV2.Core</XrmFrameworkCoreProjectName>
+    <XrmFrameworkCoreProjectName>$safeprojectname$.Core</XrmFrameworkCoreProjectName>
   </PropertyGroup>
 
 
