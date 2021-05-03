@@ -1,0 +1,9 @@
+<Project>
+
+  <ItemGroup>
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+</Project>

@@ -50,14 +50,14 @@
     <XrmFramework_Net5_Specs_TFM>$(XrmFramework_Net5_TFM)</XrmFramework_Net5_Specs_TFM>
 
     <XrmFramework_FullFramework_Tools_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Tools_TFM>
-    <XrmFramework_Core_Tools_TFM>netcoreapp2.1</XrmFramework_Core_Tools_TFM>    
+    <XrmFramework_Core_Tools_TFM>netcoreapp3.1</XrmFramework_Core_Tools_TFM>    
     <XrmFramework_Net5_Tools_TFM>$(XrmFramework_Net5_TFM)</XrmFramework_Net5_Tools_TFM>
 
     <XrmFramework_Runtime_TFM>$(XrmFramework_FullFramework_Runtime_TFM);$(XrmFramework_Core_Runtime_TFM)</XrmFramework_Runtime_TFM>
     <XrmFramework_Generator_TFM>$(XrmFramework_FullFramework_Generator_TFM);$(XrmFramework_Core_Generator_TFM);$(XrmFramework_Net5_TFM)</XrmFramework_Generator_TFM>
     <XrmFramework_Test_TFM>$(XrmFramework_FullFramework_Test_TFM);$(XrmFramework_Core_Test_TFM)</XrmFramework_Test_TFM>
     <XrmFramework_Specs_TFM>$(XrmFramework_Net5_Specs_TFM)</XrmFramework_Specs_TFM>
-    <XrmFramework_Tools_TFM>$(XrmFramework_FullFramework_Tools_TFM);$(XrmFramework_Core_Tools_TFM);$(XrmFramework_Net5_Tools_TFM)</XrmFramework_Tools_TFM>
+    <XrmFramework_Tools_TFM>$(XrmFramework_FullFramework_Tools_TFM);$(XrmFramework_Core_Tools_TFM)</XrmFramework_Tools_TFM>
 
     <XrmFramework_EnableStrongNameSigning>true</XrmFramework_EnableStrongNameSigning>
   </PropertyGroup>

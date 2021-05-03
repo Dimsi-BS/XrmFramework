@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="XrmFramework" Version="#{GitBuildVersionSimple}#" />
+    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.77" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(XrmFrameworkIsPluginProject)' == ''">
+    <Compile Include="..\..\**\*.cs" Exclude="..\..\obj\**\*.cs;..\..\bin\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(XrmFrameworkIsPluginProject)' == 'true'">
+    <Compile Include="..\..\..\$(XrmFrameworkCoreProjectName)\**\*.cs" Exclude="..\..\..\$(XrmFrameworkCoreProjectName)\obj\**;..\..\..\$(XrmFrameworkCoreProjectName)\bin\**" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <XrmFrameworkDisableLoggedServiceGeneration>true</XrmFrameworkDisableLoggedServiceGeneration>
+  </PropertyGroup>
+</Project>

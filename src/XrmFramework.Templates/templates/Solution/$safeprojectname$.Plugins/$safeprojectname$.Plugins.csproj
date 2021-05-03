@@ -10,8 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Model\\**\\*.cs" Exclude="..\Model\obj\**" Link="__Imports\Model\%(RecursiveDir)%(Filename)%(Extension)" />
-    <Compile Include="..\Utils\LoggedServices\\**\\*.cs" Exclude="..\Utils\LoggedServices\obj\**" Link="__Imports\LoggedServices\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\$(XrmFrameworkCoreProjectName)\\**\\*.cs" Exclude="..\$(XrmFrameworkCoreProjectName)\obj\**;..\$(XrmFrameworkCoreProjectName)\bin\**" Link="__Imports\$(XrmFrameworkCoreProjectName)\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
   
 </Project>

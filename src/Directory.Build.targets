@@ -19,10 +19,11 @@
       <NuspecProperties>$(NuspecProperties);XrmFramework_Core_Tools_TFM=$(XrmFramework_Core_Tools_TFM)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);XrmFramework_Net5_Tools_TFM=$(XrmFramework_Net5_Tools_TFM)</NuspecProperties>
     </PropertyGroup>
-    
+
     <ItemGroup>
       <FilesToModify Remove="@(FilesToModify)" />
       <FilesToModify Include="**/templates/**/*.csproj"/>
+      <FilesToModify Include="**/ServicesProject/**" />
     </ItemGroup>
 
     <MSBuild Condition="@(FilesToModify->Count()) > 0" Projects="$(MSBuildProjectFile)" Properties="CurrentCsProj=%(FilesToModify.FullPath);searchedPattern=#{GitBuildVersionSimple}#;NuGetPackageVersion=$(NuGetPackageVersion)" Targets="ReplaceCspojVersion">
@@ -39,36 +40,30 @@
 
 
   <Target Name="ModifyTemplateDependencyVersion" AfterTargets="Pack" DependsOnTargets="GetBuildVersion">
-  <Message Importance="High" Text="NuGetPackageVersion = $(NuGetPackageVersion)" />
+    <Message Importance="High" Text="NuGetPackageVersion = $(NuGetPackageVersion)" />
     <ItemGroup>
       <FilesToModify Remove="@(FilesToModify)" />
       <FilesToModify Include="**/templates/**/*.csproj"/>
+      <FilesToModify Include="**/ServicesProject/**" />
+
     </ItemGroup>
 
     <MSBuild Condition="@(FilesToModify->Count()) > 0" Projects="$(MSBuildProjectFile)" Properties="CurrentCsProj=%(FilesToModify.FullPath);searchedPattern=$(NuGetPackageVersion);NuGetPackageVersion=#{GitBuildVersionSimple}#" Targets="ReplaceCspojVersion">
     </MSBuild>
   </Target>
-  
+
 
   <!-- This target checks the current analyzed file $(CurrentXmlFile) -->
   <Target Name="ReplaceCspojVersion">
-  <Message Importance="High" Text="Toto $(CurrentCsProj)" />
- <ItemGroup>
-    <ItemsFromFile Include="$([System.IO.File]::ReadAllText($(CurrentCsProj)))"/>
-  </ItemGroup>
-    <!-- <ReadLinesFromFile File="$(CurrentCsProj)">
-      <Output TaskParameter="Lines" ItemName="ItemsFromFile"/>
-    </ReadLinesFromFile> -->
-    
+    <ItemGroup>
+      <ItemsFromFile Include="$([System.IO.File]::ReadAllText($(CurrentCsProj)))"/>
+    </ItemGroup>
+
     <ItemGroup>
       <TempLines Include="@(ItemsFromFile->Replace('$(searchedPattern)', $(NuGetPackageVersion)))" />
     </ItemGroup>
 
-        <WriteLinesToFile
-            File="$(CurrentCsProj)"
-            Lines="@(TempLines)"
-            Overwrite="true"/>
-
+    <WriteLinesToFile File="$(CurrentCsProj)" Lines="@(TempLines)" Overwrite="true"/>
   </Target>
 
   <Target Name="CopyNupkgToFolder" AfterTargets="Pack">

@@ -5,26 +5,6 @@
     <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
 
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <WarningLevel>3</WarningLevel>
-  </PropertyGroup>
-
-
-  <ItemGroup>
-    <None Include="..\..\Config\App.config">
-      <Link>App.config</Link>
-    </None>
-    <None Include="..\..\Config\connectionStrings.config">
-      <Link>connectionStrings.config</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <Content Include="..\..\Config\xrmFramework.config">
-      <Link>xrmFramework.config</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="XrmFramework.DeployUtils" Version="#{GitBuildVersionSimple}#" />
   </ItemGroup>

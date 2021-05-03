@@ -8,5 +8,11 @@
     <PackageReference Include="XrmFramework" Version="#{GitBuildVersionSimple}#" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Definitions\" />
+    <Folder Include="Model\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
 
 </Project>

@@ -22,10 +22,12 @@ namespace DefinitionManager
 
         private readonly Type _iServiceType;
 
-        public MainForm(Type iServiceType)
+        public string CoreProjectName { get; }
+
+        public MainForm(Type iServiceType, string coreProjectName)
         {
             _iServiceType = iServiceType;
-
+            CoreProjectName = coreProjectName;
             CustomProvider.Instance = this;
             InitializeComponent();
 
@@ -321,7 +323,7 @@ namespace DefinitionManager
                 sb.AppendLine("using System.Diagnostics.CodeAnalysis;");
                 sb.AppendLine("using XrmFramework;");
                 sb.AppendLine();
-                sb.AppendLine("namespace Model");
+                sb.AppendLine($"namespace {CoreProjectName}");
                 sb.AppendLine("{");
                 sb.AppendLine("\t[GeneratedCode(\"XrmFramework\", \"2.0\")]");
                 sb.AppendLine("\t[EntityDefinition]\r\n");
@@ -510,9 +512,9 @@ namespace DefinitionManager
                 sb.AppendLine("\t}");
                 sb.AppendLine("}");
 
-                var fileInfo = new FileInfo(string.Format("../../../../../Model/Definitions/{0}.cs", item.Name));
+                var fileInfo = new FileInfo(string.Format("../../../../../{0}/Definitions/{1}.cs", CoreProjectName, item.Name));
 
-                var definitionFolder = new DirectoryInfo("../../../../../Model/Definitions");
+                var definitionFolder = new DirectoryInfo($"../../../../../{CoreProjectName}/Definitions");
                 if (definitionFolder.Exists == false)
                 {
                     definitionFolder.Create();
@@ -534,7 +536,7 @@ namespace DefinitionManager
             fc.AppendLine("using System.ComponentModel;");
             fc.AppendLine("using XrmFramework;");
             fc.AppendLine();
-            fc.AppendLine("namespace Model");
+            fc.AppendLine($"namespace {CoreProjectName}");
             fc.AppendLine("{");
             foreach (var def in EnumDefinitionCollection.Instance.SelectedDefinitions)
             {
@@ -569,7 +571,7 @@ namespace DefinitionManager
                 fc.AppendLine("\t}");
             }
             fc.AppendLine("}");
-            File.WriteAllText("../../../../../Model/Definitions/OptionSetDefinitions.cs", fc.ToString());
+            File.WriteAllText($"../../../../../{CoreProjectName}/Definitions/OptionSetDefinitions.cs", fc.ToString());
             fileList.Add(new TfsHelper.FileInfo("OptionSetDefinitions.cs"));
 
             MessageBox.Show("Definition files generation succeedeed");
