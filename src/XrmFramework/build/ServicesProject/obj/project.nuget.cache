@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "dgSpecHash": "776KgBklDaqbJIGv78BjrhkhEjFUWVmkX0BKtp5tr19ivCD7jKzTqAXkd739PS8n4uskLHXcjwl/vf4ndWjzIQ==",
+  "success": true,
+  "projectFilePath": "C:\\Temp\\Toto\\ConsoleApp1\\ConsoleApp1.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\microsoft.crmsdk.coreassemblies\\9.0.2.33\\microsoft.crmsdk.coreassemblies.9.0.2.33.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\microsoft.crmsdk.deployment\\9.0.2.25\\microsoft.crmsdk.deployment.9.0.2.25.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\microsoft.crmsdk.workflow\\9.0.2.25\\microsoft.crmsdk.workflow.9.0.2.25.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\microsoft.crmsdk.xrmtooling.coreassembly\\9.1.0.77\\microsoft.crmsdk.xrmtooling.coreassembly.9.1.0.77.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\microsoft.csharp\\4.6.0\\microsoft.csharp.4.6.0.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\microsoft.identitymodel.clients.activedirectory\\3.19.8\\microsoft.identitymodel.clients.activedirectory.3.19.8.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\microsoft.netframework.referenceassemblies\\1.0.0\\microsoft.netframework.referenceassemblies.1.0.0.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net462\\1.0.0\\microsoft.netframework.referenceassemblies.net462.1.0.0.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\microsoft.rest.clientruntime\\2.3.20\\microsoft.rest.clientruntime.2.3.20.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\nerdbank.gitversioning\\3.3.37\\nerdbank.gitversioning.3.3.37.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\system.componentmodel.annotations\\4.6.0\\system.componentmodel.annotations.4.6.0.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\system.configuration.configurationmanager\\4.6.0\\system.configuration.configurationmanager.4.6.0.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\system.net.http\\4.3.4\\system.net.http.4.3.4.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\system.security.accesscontrol\\4.6.0\\system.security.accesscontrol.4.6.0.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\system.security.cryptography.algorithms\\4.3.0\\system.security.cryptography.algorithms.4.3.0.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\system.security.cryptography.encoding\\4.3.0\\system.security.cryptography.encoding.4.3.0.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\system.security.cryptography.primitives\\4.3.0\\system.security.cryptography.primitives.4.3.0.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\system.security.cryptography.x509certificates\\4.3.0\\system.security.cryptography.x509certificates.4.3.0.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\system.security.permissions\\4.6.0\\system.security.permissions.4.6.0.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\system.security.principal.windows\\4.6.0\\system.security.principal.windows.4.6.0.nupkg.sha512",
+    "C:\\Users\\ChristopheGondouin\\.nuget\\packages\\xrmframework\\#{GitBuildVersionSimple}#\\xrmframework.#{GitBuildVersionSimple}#.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,901 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <RestoreSuccess Condition=" '$(RestoreSuccess)' == '' ">True</RestoreSuccess>
+    <RestoreTool Condition=" '$(RestoreTool)' == '' ">NuGet</RestoreTool>
+    <ProjectAssetsFile Condition=" '$(ProjectAssetsFile)' == '' ">$(MSBuildThisFileDirectory)project.assets.json</ProjectAssetsFile>
+    <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">$(UserProfile)\.nuget\packages\</NuGetPackageRoot>
+    <NuGetPackageFolders Condition=" '$(NuGetPackageFolders)' == '' ">C:\Users\ChristopheGondouin\.nuget\packages\;C:\Program Files\dotnet\sdk\NuGetFallbackFolder</NuGetPackageFolders>
+    <NuGetProjectStyle Condition=" '$(NuGetProjectStyle)' == '' ">PackageReference</NuGetProjectStyle>
+    <NuGetToolVersion Condition=" '$(NuGetToolVersion)' == '' ">5.8.0</NuGetToolVersion>
+  </PropertyGroup>
+  <ItemGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <SourceRoot Include="$([MSBuild]::EnsureTrailingSlash($(NuGetPackageFolders)))" />
+  </ItemGroup>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+  <ItemGroup Condition=" '$(Language)' == 'C#' AND '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\AlternateKeyAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\AlternateKeyAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\AlternateKeyAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\AttributeMetadataAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\AttributeMetadataAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\AttributeMetadataAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\CopyFromParentAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\CopyFromParentAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\CopyFromParentAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\CrmEntityAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\CrmEntityAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\CrmEntityAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\CrmLookupAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\CrmLookupAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\CrmLookupAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\CrmModelImplementationAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\CrmModelImplementationAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\CrmModelImplementationAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\DateTimeBehaviorAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\DateTimeBehaviorAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\DateTimeBehaviorAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\DefinitionManagerIgnoreAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\DefinitionManagerIgnoreAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\DefinitionManagerIgnoreAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\DependentAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\DependentAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\DependentAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\EntityDefinitionAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\EntityDefinitionAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\EntityDefinitionAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\EntityTemplateAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\EntityTemplateAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\EntityTemplateAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\ExecutionOrderAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\ExecutionOrderAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\ExecutionOrderAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\ExternalValueAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\ExternalValueAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\ExternalValueAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\FilteringAttributesAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\FilteringAttributesAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\FilteringAttributesAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\ImageAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\ImageAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\ImageAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\ImpersonationAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\ImpersonationAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\ImpersonationAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\LoggerClassAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\LoggerClassAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\LoggerClassAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\MultiAttributesAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\MultiAttributesAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\MultiAttributesAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\NullableAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\NullableAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\NullableAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\OptionSetAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\OptionSetAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\OptionSetAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\OptionSetDefinitionAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\OptionSetDefinitionAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\OptionSetDefinitionAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\OptionSetToSwaggerAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\OptionSetToSwaggerAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\OptionSetToSwaggerAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\PrimaryAttributeAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\PrimaryAttributeAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\PrimaryAttributeAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\UnsecureConfigAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Attributes\UnsecureConfigAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Attributes\UnsecureConfigAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\CrmMappingAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\CrmMappingAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\Attributes\CrmMappingAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\CrmRelationshipAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\CrmRelationshipAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\Attributes\CrmRelationshipAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\ExtendBindingModelAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\ExtendBindingModelAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\Attributes\ExtendBindingModelAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\ModelPropertyConverterAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\ModelPropertyConverterAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\Attributes\ModelPropertyConverterAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\UpsertBehaviourAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\UpsertBehaviourAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\Attributes\UpsertBehaviourAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\UpsertOrderAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\UpsertOrderAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\Attributes\UpsertOrderAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\XmlMappingAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\XmlMappingAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\Attributes\XmlMappingAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\XmlTransformAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Attributes\XmlTransformAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\Attributes\XmlTransformAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\BindingModelBase.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\BindingModelBase.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\BindingModelBase.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\BindingModelHelper.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\BindingModelHelper.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\BindingModelHelper.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Converters\LookupConverter.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Converters\LookupConverter.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\Converters\LookupConverter.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Converters\PicklistConverter.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Converters\PicklistConverter.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\Converters\PicklistConverter.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IBehaviour.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IBehaviour.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\IBehaviour.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IBindingModel.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IBindingModel.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\IBindingModel.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IBindingModelAction.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IBindingModelAction.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\IBindingModelAction.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IDtoAttributeConverter.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IDtoAttributeConverter.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\IDtoAttributeConverter.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IEntityModel.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IEntityModel.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\IEntityModel.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IXmlConverter.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IXmlConverter.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\IXmlConverter.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IXmlModel.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IXmlModel.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\IXmlModel.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IXmlTransform.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\IXmlTransform.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\IXmlTransform.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\ModelPropertyConverter.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\ModelPropertyConverter.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\ModelPropertyConverter.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Utils\EntityMetadata.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\BindingModel\Utils\EntityMetadata.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\BindingModel\Utils\EntityMetadata.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Context\ServiceContextBase.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Context\ServiceContextBase.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Context\ServiceContextBase.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\CustomApi\CustomApi.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\CustomApi\CustomApi.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\CustomApi\CustomApi.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\CustomApi\CustomApiArgument.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\CustomApi\CustomApiArgument.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\CustomApi\CustomApiArgument.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\CustomApi\CustomApiArgumentAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\CustomApi\CustomApiArgumentAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\CustomApi\CustomApiArgumentAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\CustomApi\CustomApiAttribute.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\CustomApi\CustomApiAttribute.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\CustomApi\CustomApiAttribute.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\CustomApi\CustomApiEnums.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\CustomApi\CustomApiEnums.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\CustomApi\CustomApiEnums.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\CustomApi\ICustomApiContext.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\CustomApi\ICustomApiContext.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\CustomApi\ICustomApiContext.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\BusinessUnitDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\BusinessUnitDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Definitions\BusinessUnitDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\EnvironmentVariableDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\EnvironmentVariableDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Definitions\EnvironmentVariableDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\EnvironmentVariableValueDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\EnvironmentVariableValueDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Definitions\EnvironmentVariableValueDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\PluginAssemblyDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\PluginAssemblyDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Definitions\PluginAssemblyDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\PluginTypeDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\PluginTypeDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Definitions\PluginTypeDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\RoleDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\RoleDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Definitions\RoleDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\SdkMessageProcessingStepDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\SdkMessageProcessingStepDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Definitions\SdkMessageProcessingStepDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\SdkmessageprocessingstepimageDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\SdkmessageprocessingstepimageDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Definitions\SdkmessageprocessingstepimageDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\SdkmessageprocessingstepsecureconfigDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\SdkmessageprocessingstepsecureconfigDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Definitions\SdkmessageprocessingstepsecureconfigDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\SystemUserDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\SystemUserDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Definitions\SystemUserDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\SystemUserRolesDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\SystemUserRolesDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Definitions\SystemUserRolesDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\TeamDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\TeamDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Definitions\TeamDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\WorkflowDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Definitions\WorkflowDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Definitions\WorkflowDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\DependencyInjection\XrmFrameworkOptionsBuilder.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\DependencyInjection\XrmFrameworkOptionsBuilder.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\DependencyInjection\XrmFrameworkOptionsBuilder.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\DependencyInjection\XrmFrameworkServiceCollectionExtension.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\DependencyInjection\XrmFrameworkServiceCollectionExtension.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\DependencyInjection\XrmFrameworkServiceCollectionExtension.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\BindingModelExtensions.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\BindingModelExtensions.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Extensions\BindingModelExtensions.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\CollectionExtensions.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\CollectionExtensions.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Extensions\CollectionExtensions.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\DecimalExtensions.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\DecimalExtensions.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Extensions\DecimalExtensions.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\EntityExtensions.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\EntityExtensions.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Extensions\EntityExtensions.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\EntityReferenceExtensions.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\EntityReferenceExtensions.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Extensions\EntityReferenceExtensions.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\EnumExtensions.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\EnumExtensions.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Extensions\EnumExtensions.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\GuidExtensions.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\GuidExtensions.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Extensions\GuidExtensions.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\QueryExpressionExtensions.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\QueryExpressionExtensions.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Extensions\QueryExpressionExtensions.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\StringExtensions.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Extensions\StringExtensions.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Extensions\StringExtensions.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Model\EnvironmentVariable.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Model\EnvironmentVariable.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Model\EnvironmentVariable.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Model\PluginType.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Model\PluginType.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Model\PluginType.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Model\SdkMessageProcessingStep.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Model\SdkMessageProcessingStep.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Model\SdkMessageProcessingStep.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Model\WorkflowModel.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Model\WorkflowModel.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Model\WorkflowModel.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Plugin\IPluginContext.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Plugin\IPluginContext.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Plugin\IPluginContext.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Plugin\LocalContext.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Plugin\LocalContext.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Plugin\LocalContext.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Plugin\LocalPluginContext.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Plugin\LocalPluginContext.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Plugin\LocalPluginContext.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Plugin\Plugin.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Plugin\Plugin.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Plugin\Plugin.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Plugin\Step.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Plugin\Step.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Plugin\Step.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Metadata\AttributeMetadata.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Metadata\AttributeMetadata.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Sdk\Metadata\AttributeMetadata.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Metadata\EntityMetadata.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Metadata\EntityMetadata.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Sdk\Metadata\EntityMetadata.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Metadata\EnumMetadata.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Metadata\EnumMetadata.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Sdk\Metadata\EnumMetadata.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Metadata\ModelMetadata.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Metadata\ModelMetadata.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Sdk\Metadata\ModelMetadata.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Metadata\RelationshipMetadata.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Metadata\RelationshipMetadata.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Sdk\Metadata\RelationshipMetadata.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\Condition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\Condition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Sdk\Queries\Condition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\IQueryObject.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\IQueryObject.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Sdk\Queries\IQueryObject.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\IQueryToString.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\IQueryToString.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Sdk\Queries\IQueryToString.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\Link.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\Link.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Sdk\Queries\Link.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\PagingInfo.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\PagingInfo.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Sdk\Queries\PagingInfo.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\Query.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\Query.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Sdk\Queries\Query.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\QueryCriteria.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\QueryCriteria.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Sdk\Queries\QueryCriteria.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\QueryObject.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Sdk\Queries\QueryObject.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Sdk\Queries\QueryObject.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\ApiService.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\ApiService.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Service\ApiService.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\DefaultService.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\DefaultService.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Service\DefaultService.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\DefaultServiceWithSettings.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\DefaultServiceWithSettings.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Service\DefaultServiceWithSettings.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\IInitializableService.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\IInitializableService.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Service\IInitializableService.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\ILoggedService.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\ILoggedService.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Service\ILoggedService.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\IService.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\IService.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Service\IService.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\IServiceContext.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\IServiceContext.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Service\IServiceContext.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\IServiceWithSettings.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\IServiceWithSettings.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Service\IServiceWithSettings.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\LoggedServiceBase.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\LoggedServiceBase.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Service\LoggedServiceBase.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\ServiceFactory.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Service\ServiceFactory.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Service\ServiceFactory.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\AttributeMetadata.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\AttributeMetadata.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\AttributeMetadata.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\ConnectionHelper.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\ConnectionHelper.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\ConnectionHelper.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\DefinitionCache.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\DefinitionCache.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\DefinitionCache.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\DisposableOrganizationService.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\DisposableOrganizationService.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\DisposableOrganizationService.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\EntityDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\EntityDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\EntityDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\IBusinessProcess.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\IBusinessProcess.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\IBusinessProcess.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\IContext.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\IContext.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\IContext.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\ILoggerContext.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\ILoggerContext.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\ILoggerContext.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\JsonSerializer.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\JsonSerializer.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\JsonSerializer.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\LogHelper.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\LogHelper.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\LogHelper.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\LoggerFactory.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\LoggerFactory.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\LoggerFactory.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\ModelDefinition.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\ModelDefinition.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\ModelDefinition.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\Relationship.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\Relationship.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\Relationship.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\RequestContainer.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\RequestContainer.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\RequestContainer.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\SdkEnums.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\SdkEnums.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\SdkEnums.cs</Link>
+    </Compile>
+    <Compile Include="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\Statics.cs" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\contentFiles\cs\any\__Imports\XrmFramework\Utils\Statics.cs')">
+      <NuGetPackageId>XrmFramework</NuGetPackageId>
+      <NuGetPackageVersion>#{GitBuildVersionSimple}#</NuGetPackageVersion>
+      <NuGetItemType>Compile</NuGetItemType>
+      <Private>False</Private>
+      <Link>__Imports\XrmFramework\Utils\Statics.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\build\net462\XrmFramework.props" Condition="Exists('$(NuGetPackageRoot)xrmframework\#{GitBuildVersionSimple}#\build\net462\XrmFramework.props')" />
+  </ImportGroup>
+  <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <PkgNerdbank_GitVersioning Condition=" '$(PkgNerdbank_GitVersioning)' == '' ">C:\Users\ChristopheGondouin\.nuget\packages\nerdbank.gitversioning\3.3.37</PkgNerdbank_GitVersioning>
+  </PropertyGroup>
+</Project>
