@@ -37,12 +37,10 @@
     <Content Include="**\*.html;**\*.htm" />
     <Content Include="**\*.png;**\*.jpg;**\*.jpeg;**\*.svg;**\*.resx;**\*.ico;**\*.xsl;**\*.xap;**\*.gif" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="css\" />
-    <Folder Include="html\" />
-    <Folder Include="js\" />
-  </ItemGroup>
+  
   <Target Name="Build" />
+  <Target Name="Rebuild" />
+  <Target Name="Clean" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v16.0\WebApplications\Microsoft.WebApplication.targets" />
   <ProjectExtensions>
     <VisualStudio>

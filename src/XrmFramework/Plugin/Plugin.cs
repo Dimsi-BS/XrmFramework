@@ -243,7 +243,17 @@ namespace XrmFramework
             {
                 localContext.Log($"Exception : {e.InnerException}");
 
-                if (e.InnerException != null) throw e.InnerException;
+                if (e.InnerException != null)
+                {
+                    if (e.InnerException is InvalidPluginExecutionException invalidPluginExecutionException)
+                    {
+                        throw invalidPluginExecutionException;
+                    }
+                    else
+                    {
+                        throw new InvalidPluginExecutionException(e.InnerException.Message);
+                    }
+                }
             }
             catch (JsonException e)
             {
