@@ -22,7 +22,7 @@ namespace XrmFramework.MSBuild.Reflection
             
             MockGenerator.GenerateMocks(folderPath, types, nullableType);
 
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("Logged service generation completed");
         }
     }
 }

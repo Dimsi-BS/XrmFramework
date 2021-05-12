@@ -23,7 +23,9 @@
       </group>
       <group targetFramework="netcoreapp3.1">
         <dependency id="System.ComponentModel.Annotations" version="4.6.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="0.4.11" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="0.4.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="0.4.12" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Dynamics.Sdk.Messages" version="0.4.12" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
@@ -31,8 +33,8 @@
   <files>
     <file src="**\*.cs" target="contentFiles\cs\any\__Imports\XrmFramework" exclude="obj\**;**\AssemblyInfo.cs;**\CrmServiceClientDummy.cs" />
 
-    <file src="bin\$config$\net462\XrmFramework.MSBuild.*" target="build\net462\tasks" />
-    <file src="bin\$config$\netcoreapp3.1\XrmFramework.MSBuild.*" target="build\netcoreapp3.1\tasks" />
+    <file src="..\XrmFramework.MSBuild.Reflection\bin\$config$\net462\*" target="build\net462\tasks" />
+    <file src="..\XrmFramework.MSBuild.Reflection\bin\$config$\netcoreapp3.1\*" target="build\netcoreapp3.1\tasks" />
     <file src="build\**\*" target="build" />
 
     <file src="lib\**" target="lib" />
