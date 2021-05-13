@@ -7,28 +7,9 @@
   </PropertyGroup>
 
 
-  <Target Name="RestoreServicesProject" AfterTargets="Restore">
-
-    <PropertyGroup>
-      <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <FilesToCopy Include="$(MSBuildThisFileDirectory)\..\ServicesProject\**" />
-    </ItemGroup>
-
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(ProjectFolderPath)\bin\ServicesProject\%(RecursiveDir)%(Filename)%(Extension)')" />
-
-    <PropertyGroup>
-      <ProjectFile>$(ProjectFolderPath)\bin\ServicesProject\ServicesProject.csproj</ProjectFile>
-    </PropertyGroup>
-
-    <MSBuild Projects="$(ProjectFile)" Targets="Restore" Properties="Configuration=$(Configuration);XrmFrameworkDisableSubBuild=True;SolutionDir=$(SolutionDir);XrmFrameworkIsPluginProject=$(XrmFrameworkIsPluginProject);XrmFrameworkDisableLoggedServiceGeneration=true" ContinueOnError="true" />
-
-  </Target>
 
   <Target Name="GenerateLoggedServices" BeforeTargets="Compile" Condition="'$(XrmFrameworkDisableLoggedServiceGeneration)' == ''">
-    <Message Importance="High" Text="Building ServicesProject" />
+    <Message Importance="High" Text="Building ServicesProject .Net Framework 4.6.2" />
 
     <PropertyGroup>
       <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
@@ -44,15 +25,21 @@
 
     <Delete Files="@(LoggedFilesToDelete)" ContinueOnError="true" />
 
+    <ItemGroup>
+      <FilesToCopy Include="$(MSBuildThisFileDirectory)\..\ServicesProject\**" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(ProjectFolderPath)\bin\ServicesProject\%(RecursiveDir)%(Filename)%(Extension)')" />
+
     <PropertyGroup>
       <ProjectFile>$(ProjectFolderPath)\bin\ServicesProject\ServicesProject.csproj</ProjectFile>
       <ProjectOutputFile>$(ProjectFolderPath)\bin\ServicesProject\bin\$(Configuration)\net462\ServicesProject.dll</ProjectOutputFile>
     </PropertyGroup>
     <Message Importance="High" Text="=============> ProjectOutputFile=$(ProjectOutputFile)" />
 
-    <MSBuild Projects="$(ProjectFile)" Targets="Build" Properties="Configuration=$(Configuration);XrmFrameworkDisableSubBuild=True;SolutionDir=$(SolutionDir);XrmFrameworkIsPluginProject=$(XrmFrameworkIsPluginProject);XrmFrameworkDisableLoggedServiceGeneration=true" ContinueOnError="false" />
+    <MSBuild Projects="$(ProjectFile)" Targets="Restore;Build" Properties="Configuration=$(Configuration);XrmFrameworkDisableSubBuild=True;SolutionDir=$(SolutionDir);XrmFrameworkIsPluginProject=$(XrmFrameworkIsPluginProject);XrmFrameworkDisableLoggedServiceGeneration=true" ContinueOnError="false" />
 
-    <Exec 
+    <Exec
       Command="$(_XrmFrameworkLoggedServiceGenerator) $(ProjectOutputFile)"
       Condition="'$(MSBuildLastTaskResult)' == 'True'"
       YieldDuringToolExecution="true"

@@ -3,32 +3,13 @@
 
   <PropertyGroup>
     <_XrmFrameworkTaskDir Condition=" '$(_XrmFrameworkTaskDir)'=='' ">$(MSBuildThisFileDirectory)tasks</_XrmFrameworkTaskDir>
-    <_XrmFrameworkLoggedServiceGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">$(_XrmFrameworkTaskDir)\XrmFramework.MSBuild.Reflection.exe</_XrmFrameworkLoggedServiceGenerator>
+    <_XrmFrameworkLoggedServiceGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">$(_XrmFrameworkTaskDir)\XrmFramework.MSBuild.Reflection.dll</_XrmFrameworkLoggedServiceGenerator>
   </PropertyGroup>
 
 
-  <Target Name="RestoreServicesProject" AfterTargets="Restore">
-
-    <PropertyGroup>
-      <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <FilesToCopy Include="$(MSBuildThisFileDirectory)\..\ServicesProject\**" />
-    </ItemGroup>
-
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(ProjectFolderPath)\bin\ServicesProject\%(RecursiveDir)%(Filename)%(Extension)')" />
-
-    <PropertyGroup>
-      <ProjectFile>$(ProjectFolderPath)\bin\ServicesProject\ServicesProject.csproj</ProjectFile>
-    </PropertyGroup>
-
-    <MSBuild Projects="$(ProjectFile)" Targets="Restore" Properties="Configuration=$(Configuration);XrmFrameworkDisableSubBuild=True;SolutionDir=$(SolutionDir);XrmFrameworkIsPluginProject=$(XrmFrameworkIsPluginProject);XrmFrameworkDisableLoggedServiceGeneration=true" ContinueOnError="true" />
-
-  </Target>
 
   <Target Name="GenerateLoggedServices" BeforeTargets="Compile" Condition="'$(XrmFrameworkDisableLoggedServiceGeneration)' == ''">
-    <Message Importance="High" Text="Building ServicesProject" />
+    <Message Importance="High" Text="Building ServicesProject .Net Core" />
 
     <PropertyGroup>
       <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
@@ -44,16 +25,22 @@
 
     <Delete Files="@(LoggedFilesToDelete)" ContinueOnError="true" />
 
+    <ItemGroup>
+      <FilesToCopy Include="$(MSBuildThisFileDirectory)\..\ServicesProject\**" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(ProjectFolderPath)\bin\ServicesProject\%(RecursiveDir)%(Filename)%(Extension)')" />
+
     <PropertyGroup>
       <ProjectFile>$(ProjectFolderPath)\bin\ServicesProject\ServicesProject.csproj</ProjectFile>
       <ProjectOutputFile>$(ProjectFolderPath)\bin\ServicesProject\bin\$(Configuration)\netcoreapp3.1\ServicesProject.dll</ProjectOutputFile>
     </PropertyGroup>
     <Message Importance="High" Text="=============> ProjectOutputFile=$(ProjectOutputFile)" />
 
-    <MSBuild Projects="$(ProjectFile)" Targets="Build" Properties="Configuration=$(Configuration);XrmFrameworkDisableSubBuild=True;SolutionDir=$(SolutionDir);XrmFrameworkIsPluginProject=$(XrmFrameworkIsPluginProject);XrmFrameworkDisableLoggedServiceGeneration=true" ContinueOnError="false" />
+    <MSBuild Projects="$(ProjectFile)" Targets="Restore;Build" Properties="Configuration=$(Configuration);XrmFrameworkDisableSubBuild=True;SolutionDir=$(SolutionDir);XrmFrameworkIsPluginProject=$(XrmFrameworkIsPluginProject);XrmFrameworkDisableLoggedServiceGeneration=true" ContinueOnError="false" />
 
     <Exec 
-      Command="dotnet run $(_XrmFrameworkLoggedServiceGenerator) -- $(ProjectOutputFile)"
+      Command="dotnet $(_XrmFrameworkLoggedServiceGenerator) $(ProjectOutputFile)"
       Condition="'$(MSBuildLastTaskResult)' == 'True'"
       YieldDuringToolExecution="true"
       StandardErrorImportance="High" />
