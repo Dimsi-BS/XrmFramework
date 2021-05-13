@@ -28,17 +28,18 @@ namespace Microsoft.Extensions.DependencyInjection
             }, ServiceLifetime.Singleton));
 
             var assembly = typeof(IService).Assembly;
+            var loggedServiceAssembly = assembly;
             
             var serviceType = typeof(IService);
 
-            var serviceTypes = assembly.GetModules().SelectMany(m => m.GetTypes().Where(t => serviceType.IsInstanceOfType(t) && t.IsInterface)).ToList();
+            var serviceTypes = assembly.GetModules().SelectMany(m => m.GetTypes().Where(t => serviceType.IsAssignableFrom(t) && t.IsInterface)).ToList();
             var serviceImplementationTypes = assembly.GetModules().SelectMany(m => m.GetTypes().Where(type => !type.IsAbstract && type.IsClass && serviceType.IsAssignableFrom(type))).ToList();
 
-            var loggedServiceImplementationTypes = new List<Type>();
             if (optionsBuilder.LoggedServiceAssembly != null)
             {
-                loggedServiceImplementationTypes = optionsBuilder.LoggedServiceAssembly.GetModules().SelectMany(m => m.GetTypes().Where(t => t.IsClass && !t.IsAbstract && typeof(ILoggedService).IsAssignableFrom(t))).ToList();
+                loggedServiceAssembly = optionsBuilder.LoggedServiceAssembly;
             }
+            var loggedServiceImplementationTypes = loggedServiceAssembly.GetModules().SelectMany(m => m.GetTypes().Where(t => t.IsClass && !t.IsAbstract && typeof(ILoggedService).IsAssignableFrom(t))).ToList();
 
             foreach (var type in serviceTypes)
             {

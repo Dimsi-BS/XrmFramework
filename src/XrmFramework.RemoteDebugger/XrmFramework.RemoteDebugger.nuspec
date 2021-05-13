@@ -16,7 +16,7 @@
     <dependencies>
       <group targetFramework="net462">
         <dependency id="XrmFramework" version="[$version$]" />
-        <dependency id="XrmFramework.Workflow" version="[$version$]" />
+        <dependency id="XrmFramework.Plugin" version="[$version$]" />
       </group>
     </dependencies>
   </metadata>
