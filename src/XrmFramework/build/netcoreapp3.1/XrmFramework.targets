@@ -46,14 +46,14 @@
 
     <PropertyGroup>
       <ProjectFile>$(ProjectFolderPath)\bin\ServicesProject\ServicesProject.csproj</ProjectFile>
-      <ProjectOutputFile>$(ProjectFolderPath)\bin\ServicesProject\bin\$(Configuration)\net462\ServicesProject.dll</ProjectOutputFile>
+      <ProjectOutputFile>$(ProjectFolderPath)\bin\ServicesProject\bin\$(Configuration)\netcoreapp3.1\ServicesProject.dll</ProjectOutputFile>
     </PropertyGroup>
     <Message Importance="High" Text="=============> ProjectOutputFile=$(ProjectOutputFile)" />
 
     <MSBuild Projects="$(ProjectFile)" Targets="Build" Properties="Configuration=$(Configuration);XrmFrameworkDisableSubBuild=True;SolutionDir=$(SolutionDir);XrmFrameworkIsPluginProject=$(XrmFrameworkIsPluginProject);XrmFrameworkDisableLoggedServiceGeneration=true" ContinueOnError="false" />
 
     <Exec 
-      Command="$(_XrmFrameworkLoggedServiceGenerator) $(ProjectOutputFile)"
+      Command="dotnet run $(_XrmFrameworkLoggedServiceGenerator) -- $(ProjectOutputFile)"
       Condition="'$(MSBuildLastTaskResult)' == 'True'"
       YieldDuringToolExecution="true"
       StandardErrorImportance="High" />
