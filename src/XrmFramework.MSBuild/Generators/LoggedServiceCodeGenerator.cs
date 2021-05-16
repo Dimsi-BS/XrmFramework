@@ -225,8 +225,17 @@ namespace XrmFramework.DeployUtils.Generators
                     firstParameter = false;
                 }
 
-                if (p.IsOut) builder.Append("out ");
-                if (p.ParameterType.IsByRef) builder.Append("ref ");
+                if (p.ParameterType.IsByRef)
+                {
+                    if (p.IsOut)
+                    {
+                        builder.Append("out ");
+                    }
+                    else
+                    {
+                        builder.Append("ref ");
+                    }
+                }
 
                 if (displayTypes)
                 {

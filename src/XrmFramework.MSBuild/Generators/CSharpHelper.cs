@@ -198,6 +198,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             Check.NotNull(type, nameof(type));
 
+            if (type.IsByRef)
+            {
+                return Reference(type.GetElementType(), useFullName);
+            }
+
+
             if (_builtInTypes.TryGetValue(type, out var builtInType))
             {
                 return builtInType;
@@ -237,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             builder.Append(
-                useFullName
+                useFullName && !type.IsNested
                     ? type.DisplayName()
                     : type.ShortDisplayName());
 
