@@ -26,10 +26,6 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="NewtonSoft.Json\**" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.33" />
     <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
