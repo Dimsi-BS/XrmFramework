@@ -26,6 +26,7 @@
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="0.4.12" exclude="Build,Analyzers" />
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="0.4.12" exclude="Build,Analyzers" />
         <dependency id="Microsoft.Dynamics.Sdk.Messages" version="0.4.12" exclude="Build,Analyzers" />
+        <dependency id="System.Reflection.DispatchProxy" version="4.7.1" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
@@ -33,8 +34,6 @@
   <files>
     <file src="**\*.cs" target="contentFiles\cs\any\__Imports\XrmFramework" exclude="obj\**;**\AssemblyInfo.cs;**\CrmServiceClientDummy.cs" />
 
-    <file src="..\XrmFramework.MSBuild.Reflection\bin\$config$\net462\*" target="build\net462\tasks" />
-    <file src="..\XrmFramework.MSBuild.Reflection\bin\$config$\netcoreapp3.1\**" target="build\netcoreapp3.1\tasks" />
     <file src="build\**\*" target="build" />
 
     <file src="lib\**" target="lib" />

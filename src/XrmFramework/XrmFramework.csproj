@@ -20,6 +20,10 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);DEPENDENCY_INJECTION</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
@@ -32,15 +36,18 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.6.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.6.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="0.4.12" />
     <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="0.4.12" />
     <PackageReference Include="Microsoft.Dynamics.Sdk.Messages" Version="0.4.12" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="build\ServicesProject\**" />
+    <EmbeddedResource Remove="build\ServicesProject\**" />
+    <None Remove="build\ServicesProject\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,7 +59,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="build\ServicesProject\ServicesProject.csproj" />
+    <PackageReference Include="Castle.Core" Version="4.4.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Serilog" Version="2.10.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    <PackageReference Include="System.Reflection.DispatchProxy" Version="4.7.1" />
   </ItemGroup>
 
   <ItemGroup>

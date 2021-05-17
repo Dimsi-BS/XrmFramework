@@ -1,5 +1,5 @@
 ﻿
-#if NETCOREAPP3_1
+#if !DISABLE_DI
 
 using System;
 using System.Reflection;
@@ -22,12 +22,12 @@ namespace XrmFramework.DependencyInjection
             return this;
         }
 
-        public XrmFrameworkOptionBuilder AddLoggedServices<TLoggedService>() where TLoggedService : LoggedServiceBase
-        {
-            LoggedServiceAssembly = typeof(TLoggedService).Assembly;
+        // public XrmFrameworkOptionBuilder AddLoggedServices<TLoggedService>() where TLoggedService : LoggedServiceBase
+        // {
+        //     LoggedServiceAssembly = typeof(TLoggedService).Assembly;
 
-            return this;
-        }
+        //     return this;
+        // }
     }
 }
 
