@@ -1,15 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net462</TargetFrameworks>
+    <TargetFrameworks>net462</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="XrmFramework" Version="#{GitBuildVersionSimple}#" />
+    <PackageReference Include="XrmFramework" Version="2.1.35-g11ba2768e2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
   
 	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);DISABLE_DI</DefineConstants>
 		<RestoreIgnoreFailedSource>true</RestoreIgnoreFailedSource>
 	</PropertyGroup>
 
@@ -17,12 +18,8 @@
     <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.77" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(XrmFrameworkIsPluginProject)' == ''">
-    <Compile Include="..\..\**\*.cs" Exclude="..\..\obj\**\*.cs;..\..\bin\**\*.cs" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(XrmFrameworkIsPluginProject)' == 'true'">
-    <Compile Include="..\..\..\$(XrmFrameworkCoreProjectName)\**\*.cs" Exclude="..\..\..\$(XrmFrameworkCoreProjectName)\obj\**;..\..\..\$(XrmFrameworkCoreProjectName)\bin\**" />
+  <ItemGroup>
+    <Compile Include="$(SolutionDir)\$(XrmFrameworkCoreProjectName)\**\*.cs" Exclude="$(SolutionDir)\$(XrmFrameworkCoreProjectName)\obj\**;$(SolutionDir)\$(XrmFrameworkCoreProjectName)\bin\**" />
   </ItemGroup>
 
   <PropertyGroup>

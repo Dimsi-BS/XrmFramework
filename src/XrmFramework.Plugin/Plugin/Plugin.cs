@@ -95,10 +95,6 @@ namespace XrmFramework
         /// <value>The name of the child class.</value>
         protected string ChildClassName => GetType().Name;
 
-        #if !REMOTE_DEBUGGER
-        private bool SendToRemoteDebugger(LocalPluginContext localContext, string unsecureConfig, string secureConfig) => false;
-#endif
-
         protected void SetCustomApiInfos(string methodName)
         {
             _isCustomApi = true;

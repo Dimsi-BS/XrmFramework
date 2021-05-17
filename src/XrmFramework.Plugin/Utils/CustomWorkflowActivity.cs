@@ -12,9 +12,6 @@ namespace XrmFramework.Workflow
 {
     public abstract partial class CustomWorkflowActivity : CodeActivity
     {
-        #if !REMOTE_DEBUGGER
-        bool SendToRemoteDebugger(LocalWorkflowContext localContext, CodeActivityContext codeActivityContext) => false; 
-        #endif
 
         protected override void Execute(CodeActivityContext context)
         {

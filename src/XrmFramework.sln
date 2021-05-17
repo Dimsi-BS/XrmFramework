@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.RemoteDebugger", "XrmFramework.RemoteDebugger\XrmFramework.RemoteDebugger.csproj", "{AC21ABCD-CC08-4E1D-8C93-E6287A3D41B2}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{D89922A5-D1C2-4EDC-BCA9-300160187485}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{77073001-05CF-4273-B51D-0CD857B66FFF}"
@@ -28,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.RemoteDebugger
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.MSBuild", "XrmFramework.MSBuild\XrmFramework.MSBuild.csproj", "{DF51F451-68C5-44B0-B99F-D4D78C0EB3A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmFramework.MSBuild.Reflection", "XrmFramework.MSBuild.Reflection\XrmFramework.MSBuild.Reflection.csproj", "{85E2C24E-8805-4194-8017-2D04C71D3DC4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.MSBuild.Reflection", "XrmFramework.MSBuild.Reflection\XrmFramework.MSBuild.Reflection.csproj", "{85E2C24E-8805-4194-8017-2D04C71D3DC4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,10 +34,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AC21ABCD-CC08-4E1D-8C93-E6287A3D41B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AC21ABCD-CC08-4E1D-8C93-E6287A3D41B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AC21ABCD-CC08-4E1D-8C93-E6287A3D41B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AC21ABCD-CC08-4E1D-8C93-E6287A3D41B2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E473F628-9BFD-400B-8A7A-596A3A1F806B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E473F628-9BFD-400B-8A7A-596A3A1F806B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E473F628-9BFD-400B-8A7A-596A3A1F806B}.Release|Any CPU.ActiveCfg = Release|Any CPU

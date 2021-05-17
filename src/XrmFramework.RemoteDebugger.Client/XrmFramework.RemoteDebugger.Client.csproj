@@ -22,18 +22,18 @@
 
 
   <ItemGroup>
-    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\Converters\AliasedValueConverter.cs" Link="Converters\AliasedValueConverter.cs" />
-    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\Converters\ConditionExpressionConverter.cs" Link="Converters\ConditionExpressionConverter.cs" />
-    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\Converters\CustomKeyValuePairConverter.cs" Link="Converters\CustomKeyValuePairConverter.cs" />
-    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\Converters\DataCollectionConverters.cs" Link="Converters\DataCollectionConverters.cs" />
-    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\Converters\EntityConverter.cs" Link="Converters\EntityConverter.cs" />
-    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\Converters\ObjectSerializationConverter.cs" Link="Converters\ObjectSerializationConverter.cs" />
-    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\DebuggerUnsecureConfig.cs" Link="DebuggerUnsecureConfig.cs" />
-    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\HybridConnection.cs" Link="HybridConnection.cs" />
-    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\IDebuggerCommunicationManager.cs" Link="IDebuggerCommunicationManager.cs" />
-    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\RemoteDebuggerMessage.cs" Link="RemoteDebuggerMessage.cs" />
-    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\RemoteDebuggerMessageType.cs" Link="RemoteDebuggerMessageType.cs" />
-    <Compile Include="..\XrmFramework.RemoteDebugger\Debugger\RemoteExecutionContext.cs" Link="RemoteExecutionContext.cs" />
+    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\AliasedValueConverter.cs" Link="Converters\AliasedValueConverter.cs" />
+    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\ConditionExpressionConverter.cs" Link="Converters\ConditionExpressionConverter.cs" />
+    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\CustomKeyValuePairConverter.cs" Link="Converters\CustomKeyValuePairConverter.cs" />
+    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\DataCollectionConverters.cs" Link="Converters\DataCollectionConverters.cs" />
+    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\EntityConverter.cs" Link="Converters\EntityConverter.cs" />
+    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\ObjectSerializationConverter.cs" Link="Converters\ObjectSerializationConverter.cs" />
+    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\DebuggerUnsecureConfig.cs" Link="DebuggerUnsecureConfig.cs" />
+    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\HybridConnection.cs" Link="HybridConnection.cs" />
+    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\IDebuggerCommunicationManager.cs" Link="IDebuggerCommunicationManager.cs" />
+    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\RemoteDebuggerMessage.cs" Link="RemoteDebuggerMessage.cs" />
+    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\RemoteDebuggerMessageType.cs" Link="RemoteDebuggerMessageType.cs" />
+    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\RemoteExecutionContext.cs" Link="RemoteExecutionContext.cs" />
   </ItemGroup>
 
   <ItemGroup>
