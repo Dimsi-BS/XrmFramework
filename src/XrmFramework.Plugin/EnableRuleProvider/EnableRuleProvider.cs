@@ -23,9 +23,7 @@ namespace XrmFramework.Workflow.EnableRuleProvider
         }
 
         protected TService GetService<TService>() where TService : IService
-        {
-            return Context.GetService<TService>();
-        }
+            => Context.GetService<TService>();
 
         protected abstract void AddRules();
 

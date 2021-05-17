@@ -83,7 +83,7 @@ namespace XrmFramework.Workflow
                 }
                 else if (typeof(IService).IsAssignableFrom(param.ParameterType))
                 {
-                    var obj = localContext.GetService(param.ParameterType);
+                    var obj = ServiceFactory.GetService(param.ParameterType, localContext);
                     listParamValues.Add(obj);
                 }
             }

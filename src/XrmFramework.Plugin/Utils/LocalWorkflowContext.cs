@@ -47,5 +47,12 @@ namespace XrmFramework.Workflow
         {
             Logger.LogCollection(list);
         }
+
+
+        public object GetService(Type serviceType)
+            => ServiceFactory.GetService(serviceType, this);
+
+        public TService GetService<TService>() where TService : IService
+            => ServiceFactory.GetService<TService>(this);
     }
 }

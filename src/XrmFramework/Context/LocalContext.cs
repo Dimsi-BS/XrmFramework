@@ -64,16 +64,6 @@ namespace XrmFramework
             Logger = LoggerFactory.GetLogger(this, TracingService.Trace);
         }
 
-        public T GetService<T>() where T : IService
-        {
-            return (T)GetService(typeof(T));
-        }
-
-        public object GetService(Type type)
-        {
-            return ServiceFactory.GetService(type, this);
-        }
-
         public LogServiceMethod LogServiceMethod => Logger.LogWithMethodName;
 
         private IOrganizationServiceFactory Factory { get; set; }
