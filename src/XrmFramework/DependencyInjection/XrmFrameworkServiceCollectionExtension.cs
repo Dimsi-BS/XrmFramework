@@ -33,7 +33,6 @@ namespace Microsoft.Extensions.DependencyInjection
             }, ServiceLifetime.Singleton));
 
             var assembly = typeof(IService).Assembly;
-            var loggedServiceAssembly = assembly;
 
             var serviceType = typeof(IService);
 
@@ -53,11 +52,7 @@ namespace Microsoft.Extensions.DependencyInjection
                         ServiceLifetime.Scoped);
 
                     serviceCollection.Add(descriptor);
-
-                    continue;
                 }
-
-                throw new NotImplementedException($"No implementation type found for service '{type.FullName}'");
             }
 
             return serviceCollection;
