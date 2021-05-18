@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SolutionDir)\$safeprojectname$.Plugins\$safeprojectName$.Plugins.csproj">
+      <Name>$safeprojectName$.Plugins</Name>
+      <Aliases>$safeprojectName$.Plugins</Aliases>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="XrmFramework.RemoteDebugger.Client" Version="#{GitBuildVersionSimple}#" />
+  </ItemGroup>
+
+</Project>

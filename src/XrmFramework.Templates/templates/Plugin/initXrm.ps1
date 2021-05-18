@@ -33,3 +33,6 @@ $project.SetAttribute("type", "PluginsWorkflows")
 $xmlDoc.xrmFramework.projects.AppendChild($project)
 
 $xmlDoc.Save($configFileName)
+
+
+dotnet add .\Utils\RemoteDebugger\RemoteDebugger.csproj reference .\$safeprojectname$\$safeprojectname$.csproj
