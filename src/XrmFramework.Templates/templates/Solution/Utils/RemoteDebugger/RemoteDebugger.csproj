@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -6,10 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)\$safeprojectname$.Plugins\$safeprojectName$.Plugins.csproj">
-      <Name>$safeprojectName$.Plugins</Name>
-      <Aliases>$safeprojectName$.Plugins</Aliases>
-    </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\$safeprojectname$.Plugins\$safeprojectName$.Plugins.csproj" />
   </ItemGroup>
 
   <ItemGroup>

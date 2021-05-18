@@ -16,11 +16,4 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Update="@(ProjectReference)">
-      <Name>%([System.IO.Path]::GetFileNameWithoutExtension(ProjectReference.Identity))</Name>
-      <Aliases>%([System.IO.Path]::GetFileNameWithoutExtension(ProjectReference.Identity))</Aliases>
-    </ProjectReference>
-  </ItemGroup>
-
 </Project>
