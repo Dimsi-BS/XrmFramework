@@ -16,12 +16,7 @@ namespace XrmFramework.Workflow
 
         public IWorkflowContext WorkflowContext => (IWorkflowContext)ExecutionContext;
 
-        public LocalWorkflowContext(CodeActivityContext context)
-
-#if !STANDALONE
-            : base(context)
-#endif
-
+        public LocalWorkflowContext(CodeActivityContext context) : base(context)
         {
             _context = context;
         }
@@ -53,54 +48,11 @@ namespace XrmFramework.Workflow
             Logger.LogCollection(list);
         }
 
-#if STANDALONE
 
+        public object GetService(Type serviceType)
+            => ServiceFactory.GetService(serviceType, this);
 
-        internal void DumpSharedVariables()
-        {
-            throw new NotImplementedException();
-        }
-
-        internal void DumpInputParameters()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Guid UserId => throw new NotImplementedException();
-
-        public EntityReference UserRef => throw new NotImplementedException();
-
-        public Guid CorrelationId => throw new NotImplementedException();
-
-        public void Log(string message, params object[] paramsObject)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal void LogError(Exception innerException)
-        {
-            throw new NotImplementedException();
-        }
-
-        public T GetService<T>(Type parameterType) where T : IService
-        {
-            throw new NotImplementedException();
-        }
-
-        internal void DumpLog()
-        {
-            throw new NotImplementedException();
-        }
-
-        public T GetService<T>() where T : IService
-        {
-            throw new NotImplementedException();
-        }
-
-        public object GetService(Type type)
-        {
-            throw new NotImplementedException();
-        }
-#endif
+        public TService GetService<TService>() where TService : IService
+            => ServiceFactory.GetService<TService>(this);
     }
 }

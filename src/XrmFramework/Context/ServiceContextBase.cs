@@ -13,10 +13,7 @@ namespace XrmFramework
 
         public ServiceContextBase(IOrganizationService service)
         {
-            if (Logger == null)
-            {
-                Logger = LoggerFactory.GetLogger(this, Console.WriteLine);
-            }
+            Logger ??= LoggerFactory.GetLogger(this, Console.WriteLine);
             AdminOrganizationService = service;
             OrganizationService = service;
             CorrelationId = Guid.NewGuid();
@@ -50,7 +47,6 @@ namespace XrmFramework
         public Microsoft.Xrm.Sdk.IOrganizationService AdminOrganizationService
         {
             get;
-            private set;
         }
 
         public Guid CorrelationId { get; }
@@ -58,7 +54,6 @@ namespace XrmFramework
         public Microsoft.Xrm.Sdk.IOrganizationService OrganizationService
         {
             get;
-            private set;
         }
 
         public EntityReference BusinessUnitRef

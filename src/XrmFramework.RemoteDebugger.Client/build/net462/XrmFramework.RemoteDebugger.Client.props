@@ -1,0 +1,19 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  
+  <ItemGroup>
+    <None Include="$(SolutionDir)\Config\App.config" Condition="">
+      <Link>App.config</Link>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="$(SolutionDir)\Config\connectionStrings.config">
+      <Link>connectionStrings.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Content Include="$(SolutionDir)\Config\xrmFramework.config">
+      <Link>xrmFramework.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

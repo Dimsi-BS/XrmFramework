@@ -10,7 +10,9 @@
 
     <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.DeployUtils.nuspec</NuspecFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -19,7 +21,7 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.33" />
     <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.33" />

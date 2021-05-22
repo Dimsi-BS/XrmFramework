@@ -1,6 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0"  >
 
-   <UsingTask TaskName="ReplaceTokenInFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
+   <UsingTask TaskName="ReplaceTokenInFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
       <InputPath ParameterType="System.String" Required="true" />
       <OutputPath ParameterType="System.String" Required="true" />
@@ -17,10 +17,6 @@
       </Code>
     </Task>
   </UsingTask>
-
-  <PropertyGroup>
-    <XrmFrameworkBaseVersion Condition="'$(XrmFrameworkBaseVersion)' == ''">2.0.0</XrmFrameworkBaseVersion>
-  </PropertyGroup>
   
-  
+ 
 </Project>

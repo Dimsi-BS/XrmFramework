@@ -29,8 +29,6 @@ namespace XrmFramework.Workflow
 
         void Log(string message, params object[] paramsObject);
 
-        T GetService<T>() where T : IService;
-
-        object GetService(Type type);
+        TService GetService<TService>() where TService : IService;
     }
 }

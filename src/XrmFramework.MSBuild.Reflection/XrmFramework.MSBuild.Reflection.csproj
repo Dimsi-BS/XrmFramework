@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>$(XrmFramework_Tools_TFM)</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XrmFramework.MSBuild\XrmFramework.MSBuild.csproj" />
+  </ItemGroup>
+
+</Project>

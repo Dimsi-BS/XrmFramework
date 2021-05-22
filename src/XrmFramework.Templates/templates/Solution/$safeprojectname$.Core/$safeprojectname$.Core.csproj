@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net462</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="XrmFramework" Version="#{GitBuildVersionSimple}#" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Definitions\" />
+    <Folder Include="Model\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
+
+</Project>

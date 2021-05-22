@@ -3,34 +3,11 @@ using System.Activities;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
 
-#if STANDALONE
-
-#endif
-
 // ReSharper disable once CheckNamespace
 namespace XrmFramework
 {
     public partial class LocalContext
     {
-
-#if STANDALONE
-        public LocalContext()
-        {
-        }
-
-        private IOrganizationServiceFactory Factory { get; set; }
-
-        public IOrganizationService OrganizationService { get; protected set; }
-
-        public IExecutionContext ExecutionContext { get; private set; }
-
-        public ITracingService TracingService { get; protected set; }
-
-        private readonly EntityReference _businessUnitRef;
-
-        protected ILogger Logger { get; }
-#endif
-
         public LocalContext(CodeActivityContext context) : this()
         {
             if (context == null)
@@ -54,11 +31,17 @@ namespace XrmFramework
 
             _businessUnitRef = new EntityReference("businessunit", ExecutionContext.BusinessUnitId);
 
-#if STANDALONE
-           // Logger = LoggerFactory.GetLogger(this, TracingService.Trace);
-#else
             Logger = LoggerFactory.GetLogger(this, TracingService.Trace);
-#endif
+        }
+
+        protected LocalContext(LocalContext context, IPluginExecutionContext parentContext)
+        {
+            ExecutionContext = parentContext;
+            TracingService = context.TracingService;
+            Factory = context.Factory;
+            OrganizationService = context.OrganizationService;
+            _businessUnitRef = context._businessUnitRef;
+            Logger = context.Logger;
         }
     }
 }

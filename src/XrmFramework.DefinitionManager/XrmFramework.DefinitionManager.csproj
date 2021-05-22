@@ -11,6 +11,8 @@
 
     <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.DefinitionManager.nuspec</NuspecFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+     <IncludeSymbols>true</IncludeSymbols>
+     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

@@ -4,18 +4,13 @@
     <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Constants)' != ''">
-    <DefineConstants>$(Constants);$(DefineConstants)</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="XrmFramework" Version="2.1.1-alpha" />
-    <PackageReference Include="XrmFramework.Workflow" Version="2.1.1-alpha" />
+    <PackageReference Include="XrmFramework" Version="#{GitBuildVersionSimple}#" />
+    <PackageReference Include="XrmFramework.Plugin" Version="#{GitBuildVersionSimple}#" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Model\\**\\*.cs" Exclude="..\Model\obj\**" Link="__Imports\Model\%(RecursiveDir)%(Filename)%(Extension)" />
-    <Compile Include="..\Utils\LoggedServices\\**\\*.cs" Exclude="..\Utils\LoggedServices\obj\**" Link="__Imports\LoggedServices\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(SolutionDir)\$(XrmFrameworkCoreProjectName)\\**\\*.cs" Exclude="$(SolutionDir)\$(XrmFrameworkCoreProjectName)\obj\**;$(SolutionDir)\$(XrmFrameworkCoreProjectName)\bin\**" Link="__Imports\$(XrmFrameworkCoreProjectName)\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
   
 </Project>

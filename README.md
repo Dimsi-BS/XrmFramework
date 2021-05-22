@@ -1,17 +1,70 @@
 # Xrm Framework 
-This project is a compilation of tools and design pattern that has been used on several Microsoft Services Dynamics 365 projects.
+The XrmFramework project is the result of 15+ years working on Dynamics 365 / Dataverse projects.
 
-# Design Pattern
+- [Xrm Framework](#xrm-framework)
+  - [Design Pattern](#design-pattern)
+  - [Quick start](#quick-start)
+    - [Download XrmFramework project templates](#download-xrmframework-project-templates)
+    - [Create a new solution for you Dynamics 365 / Dataverse project](#create-a-new-solution-for-you-dynamics-365--dataverse-project)
+    - [Configure the new project](#configure-the-new-project)
+  - [Generate model definitions](#generate-model-definitions)
+  - [Create your first plugin](#create-your-first-plugin)
+    - [Defining Steps to register](#defining-steps-to-register)
+    - [Adding details to the registered steps](#adding-details-to-the-registered-steps)
+    - [Choosing method arguments](#choosing-method-arguments)
+  - [Utilities](#utilities)
+  - [Contribute](#contribute)
+
+## Design Pattern
 Several design pattern are included in this framework :
 1.	Definition of Services to access CRM Data from Plugins or external code (Webservices, console apps, ...)
 2.	Automatic Plugin Step registration from source code (use of attributes to describe plugin and plugin steps)
 3.	Advanced plugin traces (service calls are logged)
 4.  Metadata Definition extraction tool (no more plain string attribute references)
+5.  Definition and automatic registration of Custom Apis
 
-# Quick start
+## Quick start
 
-## Set configuration informations
-Add a `connectionStrings.config` file as follows in the `Config\` folder near `App.config` (you can copy ``connectionStrings.sample`` to start you file)
+### Download XrmFramework project templates
+The XrmFramework project uses the `dotnet new` templating capabilities.
+
+To start using XrmFramework on a new project you have to download the XrmFramework.Templates NuGet package by running the following command :
+
+```PS
+dotnet new -i XrmFramework.Templates
+```
+
+### Create a new solution for you Dynamics 365 / Dataverse project
+To instantiate a new solution you will need to run the following command:
+
+```PS
+PS C:\Temp> dotnet new xrmSolution -n {solutionName}
+```
+
+The -n argument will create the solution in the `C:\Temp\{solutionName}`
+
+The templating service will prompt you to accept the execution of a PowerShell initialization script :
+
+```PS
+Processing post-creation actions...
+Template is configured to run the following action:
+Description: Finalize XrmFramework solution initialization
+Manual instructions: Initialisation XrmFramework
+Actual command: powershell -File initXrm.ps1
+Do you want to run this action (Y|N)?
+```
+
+You need to accept this execution to be sure to have the solution configured correctly.
+
+
+You can add `--accept-scripts` to install the solution and run the script without the `dotnet new` script acceptance prompt.
+
+
+
+### Configure the new project
+A `connectionStrings.config` file as been created in the `Config\` folder near of the new solution.
+
+This file will contain the connectionStrings needed for the tools to connect to your Dynamics 365 / Dataverse environments.
 ```xml
 
   <connectionStrings>
@@ -19,19 +72,31 @@ Add a `connectionStrings.config` file as follows in the `Config\` folder near `A
          You can specify several connection strings, you will select the one corresponding to the deployment
          environnement in the xrmFramework selectedConnection attribute below    
     -->
-    <add name="Xrm" connectionString="AuthType=Office365; Url=https://yourorg.crm4.dynamics.com; Username=****@***.**; Password=*****"/>
+    <add name="XrmDev" connectionString="AuthType=Office365; Url=https://yourorg.crm.dynamics.com; Username=****@***.**; Password=*****"/>
+    <add name="XrmDev2" connectionString="AuthType=ClientSecret; Url=https://yourorg.crm.dynamics.com; ClientId=00000000-0000-0000-0000-000000000000; ClientSecret=*****"/>
   </connectionStrings>
 
 ```
+
+The connectionStrings allowed are thoses documented in the Microsoft documentation [Use connection strings in XRM tooling to connect to Microsoft Dataverse](https://docs.microsoft.com/en-us/powerapps/developer/data-platform/xrm-tooling/use-connection-strings-xrm-tooling-connect)
+
 The ``connectionStrings.config`` file is added to the .gitignore so your connectionString will not be sent to the repository and each developer can use his credentials.
 
-Edit the `App.config` file in the ``Config`` solution folder to configure the connection to Dynamics 365 and the configuration of project deployments.
+Edit the `xrmFramework.config` file in the ``Config`` solution folder to configure the connection to Dynamics 365 and the configuration of project deployments.
 
-Define the connection string to Dynamics 365
-
-You can specify several connection strings and pick the one to use in deployment tools by modifying the attribute `selectedConnection` 
 ```xml
-<xrmFramework selectedConnection="Xrm">
+<xrmFramework selectedConnection="XrmDev">
+    <entitySolution name="EntitiesSolutionUniqueName" />
+    <projects>
+        <add name="Contoso.Plugins" targetSolution="PluginsSolutionUniqueName" type="PluginsWorkflows" />
+        <add name="Contoso.Webresources" targetSolution="WebResourcesSolutionUniqueName" type="WebResources" />
+    </projects>
+</xrmFramework>
+```
+
+You can specify several connection strings and pick the one to use in deployment tools by modifying the attribute `selectedConnection`.
+```xml
+<xrmFramework selectedConnection="XrmDev">
     ...    
 </xrmFramework>
 ```
@@ -46,19 +111,18 @@ Define project list you have in your solution and the corresponding deployment t
 ```xml
 
 <projects>
-    <add name="Plugins" targetSolution="PluginsSolutionUniqueName" type="PluginsWorkflows" />
-    <add name="Workflows" targetSolution="WorkflowsSolutionUniqueName" type="PluginsWorkflows" />
-    <add name="Webresources" targetSolution="WebResourcesSolutionUniqueName" type="WebResources" />
+    <add name="Contoso.Plugins" targetSolution="PluginsSolutionUniqueName" type="PluginsWorkflows" />
+    <add name="Contoso.Webresources" targetSolution="WebResourcesSolutionUniqueName" type="WebResources" />
 </projects>
 
 ```
 
 ## Generate model definitions
-Launch the executable `DefinitionManager.exe` in the Deploy solution folder ( you can set the project as Startup project and run it pressing Ctrl + F5 )
+Launch the project executable `Utils\DefinitionManager` ( you can set the project as Startup project and run it pressing Ctrl + F5 in Visual Studio )
 
 <img src="docs/images/definitionManager1.png" width="800" alt="Start of DefinitionManager" />
 
-The program retrieves all the entities that are referenced in you entities solution.
+The program retrieves all the entities that are referenced in your entities solution.
 
 The definitions already added to you solution will be automatically selected.
 
@@ -88,18 +152,25 @@ When you have finished selecting the needed elements you can click on the "Gener
 
 <img src="docs/images/definitionManager4.png" width="300" alt="Generate definitions" />
 
-The ``Model`` is now updated with the definitions you chose
+The ``Contoso.Core`` project is now updated with the definitions you chose.
 
 ## Create your first plugin
 
 Implement a plugin using the `Plugin` base class.
 
 ```csharp
-using Model;
-using Plugins;
+using Contoso.Core;
+using XrmFramework;
 
 public class SamplePlugin : Plugin
 {
+    #region .ctor
+
+    public SamplePlugin(string unsecuredConfig, string securedConfig) : base(unsecuredConfig, securedConfig)
+    {
+    }
+
+    #endregion
     ...
 }
 
@@ -143,9 +214,17 @@ For each method that you reference you can specify several information using met
 
 ### Choosing method arguments
 
+The step method registered in the ``AddSteps`` registration can be injected with services 
+
 ```csharp
 public void Method(IPluginContext context, IAccountService accountService, ...)
 ```
 
-# Contribute
+## Utilities
+
+XrmFramework contains a bunch of utility methods or Extensions to better work with the SDK.
+
+[XrmFramework Utilities](docs/XrmFrameworkUtilities.md)
+
+## Contribute
 The code is currently on production on several big project but is not at all finished. If you have time and motivation to contribute to it you are welcome to make pull requests. Il will study them and include the changes in this repo. 

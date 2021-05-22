@@ -1,18 +1,22 @@
 <Project>
-    <PropertyGroup>
-        <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>$(SolutionDir)\$safeprojectname$.snk</AssemblyOriginatorKeyFile>
-    </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(SolutionDir)\$safeprojectname$.snk</AssemblyOriginatorKeyFile>
+
+    <LangVersion>latest</LangVersion>
+
+    <XrmFrameworkCoreProjectName>$safeprojectname$.Core</XrmFrameworkCoreProjectName>
+  </PropertyGroup>
 
 
-    <ItemGroup>
-        <PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
-            <Version>3.3.37</Version>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
+      <Version>3.3.37</Version>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 </Project>
