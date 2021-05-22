@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)\$safeprojectname$.Plugins\$safeprojectName$.Plugins.csproj" />
+    <ProjectReference Include="$(SolutionDir)\$safeprojectname$.Plugins\$safeprojectname$.Plugins.csproj" />
   </ItemGroup>
 
   <ItemGroup>
