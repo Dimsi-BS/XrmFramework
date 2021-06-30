@@ -16,5 +16,8 @@ namespace XrmFramework.DeployUtils.Configuration
         {
             return GetSection().EntitySolution.Name;
         }
+
+        public static string GetSelectedConnectionString()
+            => ConfigurationManager.ConnectionStrings[GetSection().SelectedConnection].ConnectionString;
     }
 }

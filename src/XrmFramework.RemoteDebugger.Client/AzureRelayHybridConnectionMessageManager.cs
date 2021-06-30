@@ -24,6 +24,11 @@ namespace XrmFramework.RemoteDebugger.Common
         
         public AzureRelayHybridConnectionMessageManager()
         {
+            if (ConfigurationManager.ConnectionStrings["DebugConnectionString"] == null)
+            {
+                throw new Exception("The connectionString \"DebugConnectionString\" is not defined.");
+            }
+
             // create a connection string with the listener profile
             Listener = new HybridConnectionListener(ConfigurationManager.ConnectionStrings["DebugConnectionString"].ConnectionString);
 

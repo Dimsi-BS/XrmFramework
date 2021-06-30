@@ -21,6 +21,7 @@ using MultiSelectPicklistAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.MultiSel
 using RelationshipAttributeDefinition = DefinitionManager.Definitions.RelationshipAttributeDefinition;
 using StringAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.StringAttributeMetadata;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Tooling.Connector;
 using XrmFramework.DeployUtils.Configuration;
 
 namespace DefinitionManager
@@ -35,7 +36,6 @@ namespace DefinitionManager
         }
 
         private static DataAccessManager _instance = new DataAccessManager();
-        private Type _connectionHelperType;
 
         public static DataAccessManager Instance { get { return _instance; } }
 
@@ -59,9 +59,8 @@ namespace DefinitionManager
         {
             SendStepChange("Connecting...");
 
-            var getServiceClientMethod = _connectionHelperType.GetMethod("GetCrmServiceClient");
+            _service = new CrmServiceClient(ConfigHelper.GetSelectedConnectionString()); 
 
-            _service = (IOrganizationService)getServiceClientMethod.Invoke(null, new object[] {ConfigHelper.GetSection().SelectedConnection});
             _service.Execute(new WhoAmIRequest());
             SendStepChange("Connected!");
 
@@ -76,10 +75,6 @@ namespace DefinitionManager
 
             _solution = _service.RetrieveMultiple(query).Entities.Select(s => s.ToEntity<Solution>()).FirstOrDefault();
             return _service;
-        }
-
-        public void SetConnectionHelperType(Type connectionHelperType) {
-            _connectionHelperType = connectionHelperType;
         }
 
         object DoRetrieveEntities(object arg)

@@ -31,8 +31,6 @@ namespace DefinitionManager
             CustomProvider.Instance = this;
             InitializeComponent();
 
-            DataAccessManager.Instance.SetConnectionHelperType(GetExternalType("XrmFramework.DeployUtils.ConnectionHelper"));
-
             DataAccessManager.Instance.StepChanged += StepChangedHandler;
 
             entityCollection = new DefinitionCollection<EntityDefinition>();

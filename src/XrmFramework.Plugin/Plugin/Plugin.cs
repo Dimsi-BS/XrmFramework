@@ -141,7 +141,7 @@ namespace XrmFramework
 
             try
             {
-                if (SendToRemoteDebugger(localContext, UnSecuredConfig, SecuredConfig))
+                if (SendToRemoteDebugger(localContext))
                 {
                     return;
                 }

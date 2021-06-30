@@ -7,14 +7,11 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.ServiceModel.Description;
-using System.Text;
-using System.Xml.Linq;
 using Deploy;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Tooling.Connector;
 using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
@@ -25,34 +22,51 @@ namespace XrmFramework.DeployUtils
     {
         private static List<PluginAssembly> _list = new List<PluginAssembly>();
 
-        public static void Register<T, U>(string projectName, string assemblyPath, Func<T, Model.Plugin> PluginConverter, Func<U, Model.Plugin> WorkflowConverter)
+        public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
-            Assembly pluginAssembly = typeof(T).Assembly;
+            var pluginAssembly = typeof(TPlugin).Assembly;
 
-            var pluginList = new List<Model.Plugin>();
+            var pluginType = pluginAssembly.GetType("XrmFramework.Plugin");
+            var workflowType = pluginAssembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");
 
-            ObjectHelper<T>.ApplyCode(new Type[] { typeof(string), typeof(string) }, new object[] { null, null }, (plugin, type, sb) => { pluginList.Add(PluginConverter(plugin)); return false; });
+            var pluginList = new List<Plugin>();
 
-            ObjectHelper<U>.ApplyCode(new Type[] { }, null, (wf, type, sb) => { pluginList.Add(WorkflowConverter(wf)); return false; });
+            var pluginTypes = pluginAssembly.GetTypes().Where(t => pluginType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
 
-            if (!(ConfigurationManager.GetSection("xrmFramework") is XrmFrameworkSection deploySection))
+            var workflowTypes = pluginAssembly.GetTypes().Where(t => workflowType.IsAssignableFrom(t) && !t.IsAbstract && t.IsPublic).ToList();
+
+            foreach (var type in pluginTypes)
             {
-                return;
+                dynamic pluginTemp = Activator.CreateInstance(type, new object[] {null, null});
+
+                var plugin = Plugin.FromXrmFrameworkPlugin(pluginTemp);
+
+                pluginList.Add(plugin);
             }
 
-            var pluginSolutionUniqueName = deploySection.Projects.OfType<ProjectElement>().Single(p => p.Name == projectName).TargetSolution;
+            foreach (var type in workflowTypes)
+            {
+                dynamic pluginTemp = Activator.CreateInstance(type, new object[] { });
 
-            var organizationName = ConfigurationManager.ConnectionStrings[deploySection.SelectedConnection].ConnectionString;
+                var plugin = Plugin.FromXrmFrameworkPlugin(pluginTemp, true);
 
-            Console.WriteLine($"You are about to deploy on {organizationName} organization. If ok press any key.");
+                pluginList.Add(plugin);
+            }
+
+
+            var xrmFrameworkConfigSection = ConfigHelper.GetSection();
+
+            var pluginSolutionUniqueName = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>().Single(p => p.Name == projectName).TargetSolution;
+
+            var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
+
+            Console.WriteLine($"You are about to deploy on {connectionString} organization. If ok press any key.");
             Console.ReadKey();
             Console.WriteLine("Connecting to CRM...");
 
-            var cs = ConnectionStringParser.Parse(organizationName);
+            var service = new CrmServiceClient(connectionString);
 
-            var service = new OrganizationServiceProxy(new Uri(new Uri(cs.Url), "/XRMServices/2011/Organization.svc"), null, new ClientCredentials { UserName = { UserName = cs.Username, Password = cs.Password } }, null);
-
-            service.EnableProxyTypes();
+            service.OrganizationServiceProxy?.EnableProxyTypes();
 
             var assembly = GetAssemblyByName(service, pluginAssembly.GetName().Name);
 
@@ -63,6 +77,8 @@ namespace XrmFramework.DeployUtils
             var registeredPluginTypes = new List<PluginType>();
             var profiledSteps = new List<SdkMessageProcessingStep>();
             ICollection<SdkMessageProcessingStep> registeredSteps = Enumerable.Empty<SdkMessageProcessingStep>().ToList();
+
+            var assemblyPath = pluginAssembly.Location;
 
             if (assembly == null)
             {
@@ -105,7 +121,7 @@ namespace XrmFramework.DeployUtils
                 }
 
                 // TODO : Améliorer la composition de la DLL pour optimiser son upload
-                service.Timeout = TimeSpan.FromMinutes(10); 
+                //service.Timeout = TimeSpan.FromMinutes(10); 
                 service.Update(updatedAssembly);
             }
 
@@ -177,9 +193,9 @@ namespace XrmFramework.DeployUtils
                                 registeredPostImage.Id = service.Create(registeredPostImage);
 
                             }
-                            else if (registeredPostImage.Attributes1 != convertedStep.PostImageAttributes)
+                            else if (registeredPostImage.Attributes1 != convertedStep.JoinedPostImageAttributes)
                             {
-                                registeredPostImage.Attributes1 = convertedStep.PostImageAttributes;
+                                registeredPostImage.Attributes1 = convertedStep.JoinedPostImageAttributes;
                                 service.Update(registeredPostImage);
                             }
                         }
@@ -197,9 +213,9 @@ namespace XrmFramework.DeployUtils
                                 registeredPreImage = GetImageToRegister(service, stepToRegister.Id, convertedStep, true);
                                 registeredPreImage.Id = service.Create(registeredPreImage);
                             }
-                            else if (registeredPreImage.Attributes1 != convertedStep.PreImageAttributes)
+                            else if (registeredPreImage.Attributes1 != convertedStep.JoinedPreImageAttributes)
                             {
-                                registeredPreImage.Attributes1 = convertedStep.PreImageAttributes;
+                                registeredPreImage.Attributes1 = convertedStep.JoinedPreImageAttributes;
                                 service.Update(registeredPreImage);
                             }
                         }
@@ -231,7 +247,6 @@ namespace XrmFramework.DeployUtils
             {
                 service.Delete(SdkMessageProcessingStep.EntityLogicalName, step.Id);
             }
-
         }
         
         private static PluginAssembly GetProfilerAssembly(IOrganizationService service)
@@ -414,7 +429,7 @@ namespace XrmFramework.DeployUtils
                 AsyncAutoDelete = step.Mode == Model.Modes.Asynchronous,
                 Description = description,
                 EventHandler = new EntityReference(PluginType.EntityLogicalName, pluginTypeId),
-                FilteringAttributes = string.IsNullOrEmpty(step.FilteredAttributes) ? null : step.FilteredAttributes,
+                FilteringAttributes = step.FilteringAttributes.Any() ? string.Join(",", step.FilteringAttributes) : null,
                 ImpersonatingUserId = string.IsNullOrEmpty(step.ImpersonationUsername) ? null : new EntityReference("systemuser", _users.First(u => u.Key == step.ImpersonationUsername).Value),
 #pragma warning disable 0612
                 InvocationSource = new OptionSetValue((int)sdkmessageprocessingstep_invocationsource.Child),
@@ -442,7 +457,7 @@ namespace XrmFramework.DeployUtils
         private static SdkMessageProcessingStepImage GetImageToRegister(IOrganizationService service, Guid stepId, Model.Step step, bool isPreImage)
         {
             var isAllColumns = isPreImage ? step.PreImageAllAttributes : step.PostImageAllAttributes;
-            var columns = isPreImage ? step.PreImageAttributes : step.PostImageAttributes;
+            var columns = isPreImage ? step.JoinedPreImageAttributes : step.JoinedPostImageAttributes;
             var name = isPreImage ? "PreImage" : "PostImage";
 
             var messagePropertyName = "Target";
