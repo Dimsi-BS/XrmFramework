@@ -18,6 +18,7 @@
         <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.33" />
         <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.33" />
         <dependency id="Microsoft.CrmSdk.Deployment" version="9.0.2.33" />
+        <dependency id="Microsoft.CrmSdk.XrmTooling.CoreAssembly" version="9.1.0.77" />
       </group>
     </dependencies>
   </metadata>
