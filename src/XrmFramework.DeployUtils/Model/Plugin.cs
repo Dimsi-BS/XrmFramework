@@ -5,12 +5,13 @@ namespace XrmFramework.DeployUtils.Model
 {
     public class Plugin
     {
-        public Plugin(string fullName)
+        public Plugin(string fullName, bool isCustomApi)
         {
             FullName = fullName;
+            IsCustomApi = isCustomApi;
         }
 
-        public Plugin(string fullName, string displayName) :this(fullName)
+        public Plugin(string fullName, string displayName) :this(fullName, false)
         {
             DisplayName = displayName;
         }
@@ -19,14 +20,16 @@ namespace XrmFramework.DeployUtils.Model
 
         public string FullName { get; }
 
+        public bool IsCustomApi { get; }
+
         public string DisplayName { get; }
 
         public StepCollection Steps { get; } = new StepCollection();
 
 
-        public static Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false)
+        public static Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false, bool isCustomApi = false)
         {
-            var pluginTemp = !isWorkflow ? new Plugin(plugin.GetType().FullName) : new Plugin(plugin.GetType().FullName, plugin.DisplayName);
+            var pluginTemp = !isWorkflow ? new Plugin(plugin.GetType().FullName, isCustomApi) : new Plugin(plugin.GetType().FullName, plugin.DisplayName);
 
             if (!isWorkflow)
             {

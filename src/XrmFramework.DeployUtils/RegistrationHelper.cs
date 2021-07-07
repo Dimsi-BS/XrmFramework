@@ -27,6 +27,7 @@ namespace XrmFramework.DeployUtils
             var pluginAssembly = typeof(TPlugin).Assembly;
 
             var pluginType = pluginAssembly.GetType("XrmFramework.Plugin");
+            var customApiType = pluginAssembly.GetType("XrmFramework.CustomApi");
             var workflowType = pluginAssembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");
 
             var pluginList = new List<Plugin>();
@@ -39,7 +40,7 @@ namespace XrmFramework.DeployUtils
             {
                 dynamic pluginTemp = Activator.CreateInstance(type, new object[] {null, null});
 
-                var plugin = Plugin.FromXrmFrameworkPlugin(pluginTemp);
+                var plugin = Plugin.FromXrmFrameworkPlugin(pluginTemp, false, customApiType.IsAssignableFrom(type));
 
                 pluginList.Add(plugin);
             }
@@ -92,9 +93,11 @@ namespace XrmFramework.DeployUtils
             {
                 Console.WriteLine("Updating plugin assembly");
 
-                var updatedAssembly = new Entity("pluginassembly");
-                updatedAssembly.Id = assembly.Id;
-                updatedAssembly["content"] = Convert.ToBase64String(File.ReadAllBytes(assemblyPath));
+                var updatedAssembly = new Entity("pluginassembly")
+                {
+                    Id = assembly.Id, 
+                    ["content"] = Convert.ToBase64String(File.ReadAllBytes(assemblyPath))
+                };
 
                 registeredPluginTypes = GetRegisteredPluginTypes(service, assembly.Id).ToList();
                 registeredSteps = GetRegisteredSteps(service, assembly.Id);
@@ -103,9 +106,7 @@ namespace XrmFramework.DeployUtils
                 {
                     profiledSteps = GetRegisteredSteps(service, profilerAssembly.Id).ToList();
                 }
-
-                Console.WriteLine("{0} Steps profiled", profiledSteps.Count());
-
+                
                 foreach (var registeredType in registeredPluginTypes)
                 {
                     if (pluginList.All(p => p.FullName != registeredType.Name) && pluginList.Where(p => p.IsWorkflow).All(c => c.FullName != registeredType.TypeName))
@@ -120,8 +121,6 @@ namespace XrmFramework.DeployUtils
                     }
                 }
 
-                // TODO : Améliorer la composition de la DLL pour optimiser son upload
-                //service.Timeout = TimeSpan.FromMinutes(10); 
                 service.Update(updatedAssembly);
             }
 
@@ -129,9 +128,12 @@ namespace XrmFramework.DeployUtils
 
             var registeredImages = GetRegisteredImages(service, assembly.Id);
 
-            foreach (var plugin in pluginList.Where(p => !p.IsWorkflow))
+            Console.WriteLine();
+            Console.WriteLine(@"Registering Plugins");
+
+            foreach (var plugin in pluginList.Where(p => !p.IsWorkflow && !p.IsCustomApi))
             {
-                Console.WriteLine("Registering pluginType {0}", plugin.FullName);
+                Console.WriteLine($@"  - {plugin.FullName}");
 
                 var registeredPluginType = registeredPluginTypes.FirstOrDefault(p => p.Name == plugin.FullName);
 
@@ -227,9 +229,14 @@ namespace XrmFramework.DeployUtils
                 }
             }
 
+            Console.WriteLine();
+            Console.WriteLine(@"Registering Custom Workflow activities");
+
             foreach (var customWf in pluginList.Where(p => p.IsWorkflow))
             {
                 var registeredPluginType = registeredPluginTypes.FirstOrDefault(p => p.TypeName == customWf.FullName);
+
+                Console.WriteLine($@"  - {customWf.FullName}");
 
                 if (registeredPluginType == null)
                 {
@@ -242,6 +249,24 @@ namespace XrmFramework.DeployUtils
                     service.Update(registeredPluginType);
                 }
             }
+
+            Console.WriteLine();
+            Console.WriteLine(@"Registering Custom Apis");
+
+            foreach (var plugin in pluginList.Where(p => p.IsCustomApi))
+            {
+                Console.WriteLine($@"  - {plugin.FullName}");
+
+                var registeredPluginType = registeredPluginTypes.FirstOrDefault(p => p.Name == plugin.FullName);
+
+                if (registeredPluginType == null)
+                {
+                    registeredPluginType = GetPluginTypeToRegister(assembly.Id, plugin.FullName);
+                    registeredPluginType.Id = service.Create(registeredPluginType);
+                }
+            }
+
+            Console.WriteLine();
 
             foreach (var step in registeredSteps)
             {
