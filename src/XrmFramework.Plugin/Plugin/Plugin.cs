@@ -272,6 +272,10 @@ namespace XrmFramework
                 if (typeof(IPluginContext).IsAssignableFrom(param.ParameterType))
                 {
                     listParamValues.Add(localContext);
+                } 
+                else if (typeof(ICustomApiContext).IsAssignableFrom(param.ParameterType))
+                {
+                    listParamValues.Add(localContext);
                 }
                 else if (typeof(IService).IsAssignableFrom(param.ParameterType))
                 {
