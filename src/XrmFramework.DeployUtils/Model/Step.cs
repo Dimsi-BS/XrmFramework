@@ -31,13 +31,13 @@ namespace XrmFramework.DeployUtils.Model
 
         public List<string> FilteringAttributes { get; } = new List<string>();
 
-        public bool PreImageUsed => PreImageAllAttributes || PreImageAttributes.Any();
+        public bool PreImageUsed => Message != "Create" && Message != "Book" && (PreImageAllAttributes || PreImageAttributes.Any());
         public bool PreImageAllAttributes { get; set; }
         public List<string> PreImageAttributes { get; } = new List<string>();
 
         public string JoinedPreImageAttributes => string.Join(",", PreImageAttributes);
 
-        public bool PostImageUsed => PostImageAllAttributes || PostImageAttributes.Any();
+        public bool PostImageUsed => Stage == Stages.PostOperation && (PostImageAllAttributes || PostImageAttributes.Any());
         public bool PostImageAllAttributes { get; set; }
         public List<string> PostImageAttributes { get; } = new List<string>();
 
