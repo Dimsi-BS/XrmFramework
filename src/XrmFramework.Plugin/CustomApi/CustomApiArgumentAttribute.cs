@@ -2,16 +2,18 @@
 
 namespace XrmFramework
 {
-    // ReSharper disable once UnusedTypeParameter
-    public sealed class CustomApiInArgument<T> : CustomApiArgument
+    public sealed class CustomApiInputAttribute : CustomApiArgumentAttribute
     {
-        public CustomApiInArgument(string name, CustomApiArgumentType type, bool isSerialized) : base(name, type, isSerialized) { }
+        public CustomApiInputAttribute(string displayName = null, string description = null, string logicalEntityName = null, bool isOptional = false) : base(displayName, description, logicalEntityName, isOptional)
+        {
+        }
     }
 
-    // ReSharper disable once UnusedTypeParameter
-    public sealed class CustomApiOutArgument<T> : CustomApiArgument
+    public sealed class CustomApiOutputAttribute : CustomApiArgumentAttribute
     {
-        public CustomApiOutArgument(string name, CustomApiArgumentType type, bool isSerialized) : base(name, type, isSerialized) { }
+        public CustomApiOutputAttribute(string displayName = null, string description = null, string logicalEntityName = null) : base(displayName, description, logicalEntityName)
+        {
+        }
     }
 
     [AttributeUsage(AttributeTargets.Property)]
@@ -20,10 +22,16 @@ namespace XrmFramework
         public string DisplayName { get; }
         public string Description { get; }
 
-        protected CustomApiArgumentAttribute(string displayName = null, string description = null)
+        public string LogicalEntityName { get; }
+
+        public bool IsOptional { get; }
+
+        protected CustomApiArgumentAttribute(string displayName = null, string description = null, string logicalEntityName = null, bool isOptional = false)
         {
             DisplayName = displayName;
             Description = description;
+            LogicalEntityName = logicalEntityName;
+            IsOptional = isOptional;
         }
     }
 }

@@ -24,37 +24,6 @@ namespace XrmFramework.DeployUtils
 
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
-            var pluginAssembly = typeof(TPlugin).Assembly;
-
-            var pluginType = pluginAssembly.GetType("XrmFramework.Plugin");
-            var customApiType = pluginAssembly.GetType("XrmFramework.CustomApi");
-            var workflowType = pluginAssembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");
-
-            var pluginList = new List<Plugin>();
-
-            var pluginTypes = pluginAssembly.GetTypes().Where(t => pluginType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
-
-            var workflowTypes = pluginAssembly.GetTypes().Where(t => workflowType.IsAssignableFrom(t) && !t.IsAbstract && t.IsPublic).ToList();
-
-            foreach (var type in pluginTypes)
-            {
-                dynamic pluginTemp = Activator.CreateInstance(type, new object[] {null, null});
-
-                var plugin = Plugin.FromXrmFrameworkPlugin(pluginTemp, false, customApiType.IsAssignableFrom(type));
-
-                pluginList.Add(plugin);
-            }
-
-            foreach (var type in workflowTypes)
-            {
-                dynamic pluginTemp = Activator.CreateInstance(type, new object[] { });
-
-                var plugin = Plugin.FromXrmFrameworkPlugin(pluginTemp, true);
-
-                pluginList.Add(plugin);
-            }
-
-
             var xrmFrameworkConfigSection = ConfigHelper.GetSection();
 
             var pluginSolutionUniqueName = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>().Single(p => p.Name == projectName).TargetSolution;
@@ -69,13 +38,76 @@ namespace XrmFramework.DeployUtils
 
             service.OrganizationServiceProxy?.EnableProxyTypes();
 
+            InitMetadata(service, pluginSolutionUniqueName);
+
+            var pluginAssembly = typeof(TPlugin).Assembly;
+
+            var pluginType = pluginAssembly.GetType("XrmFramework.Plugin");
+            var customApiType = pluginAssembly.GetType("XrmFramework.CustomApi");
+            var workflowType = pluginAssembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");
+
+            var pluginList = new List<Plugin>();
+
+            var pluginTypes = pluginAssembly.GetTypes().Where(t => pluginType.IsAssignableFrom(t) && !customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
+
+            var workflowTypes = pluginAssembly.GetTypes().Where(t => workflowType.IsAssignableFrom(t) && !t.IsAbstract && t.IsPublic).ToList();
+            
+            var customApiTypes = pluginAssembly.GetTypes().Where(t => customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
+            
+            foreach (var type in pluginTypes)
+            {
+                dynamic pluginTemp;
+                if (type.GetConstructor(new[] {typeof(string), typeof(string)}) != null)
+                {
+                    pluginTemp = Activator.CreateInstance(type, new object[] {null, null});
+                }
+                else
+                {
+                    pluginTemp = Activator.CreateInstance(type, new object[] { });
+                }
+
+                var plugin = Plugin.FromXrmFrameworkPlugin(pluginTemp, false);
+
+                pluginList.Add(plugin);
+            }
+
+            foreach (var type in workflowTypes)
+            {
+                dynamic pluginTemp = Activator.CreateInstance(type, new object[] { });
+
+                var plugin = Plugin.FromXrmFrameworkPlugin(pluginTemp, true);
+
+                pluginList.Add(plugin);
+            }
+
+            var customApis = new List<CustomApi>();
+
+            foreach (var type in customApiTypes)
+            {
+                dynamic customApiTemp;
+                if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
+                {
+                    customApiTemp = Activator.CreateInstance(type, new object[] { null, null });
+                }
+                else
+                {
+                    customApiTemp = Activator.CreateInstance(type, new object[] { });
+                }
+
+                var customApi = CustomApi.FromXrmFrameworkCustomApi(customApiTemp, _publisher.CustomizationPrefix);
+
+                customApis.Add(customApi);
+            }
+
+
             var assembly = GetAssemblyByName(service, pluginAssembly.GetName().Name);
 
             var profilerAssembly = GetProfilerAssembly(service);
 
-            InitMetadata(service, pluginSolutionUniqueName);
-
             var registeredPluginTypes = new List<PluginType>();
+            var registeredCustomApis = new List<CustomApi>();
+            var registeredCustomApiRequestParameters = new List<CustomApiRequestParameter>();
+            var registeredCustomApiResponseProperties = new List<CustomApiResponseProperty>();
             var profiledSteps = new List<SdkMessageProcessingStep>();
             ICollection<SdkMessageProcessingStep> registeredSteps = Enumerable.Empty<SdkMessageProcessingStep>().ToList();
 
@@ -100,6 +132,10 @@ namespace XrmFramework.DeployUtils
                 };
 
                 registeredPluginTypes = GetRegisteredPluginTypes(service, assembly.Id).ToList();
+                registeredCustomApis = GetRegisteredCustomApis(service).ToList();
+                registeredCustomApiRequestParameters = GetRegisteredCustomApiRequestParameters(service).ToList();
+                registeredCustomApiResponseProperties = GetRegisteredCustomApiResponseProperties(service).ToList();
+
                 registeredSteps = GetRegisteredSteps(service, assembly.Id);
 
                 if (profilerAssembly != null)
@@ -109,7 +145,7 @@ namespace XrmFramework.DeployUtils
                 
                 foreach (var registeredType in registeredPluginTypes)
                 {
-                    if (pluginList.All(p => p.FullName != registeredType.Name) && pluginList.Where(p => p.IsWorkflow).All(c => c.FullName != registeredType.TypeName))
+                    if (pluginList.All(p => p.FullName != registeredType.Name) && pluginList.Where(p => p.IsWorkflow).All(c => c.FullName != registeredType.TypeName) && customApis.All(c => c.FullName !=  registeredType.TypeName))
                     {
                         var registeredStepsForPluginType = registeredSteps.Where(s => s.EventHandler.Id == registeredType.Id).ToList();
                         foreach (var step in registeredStepsForPluginType)
@@ -131,7 +167,7 @@ namespace XrmFramework.DeployUtils
             Console.WriteLine();
             Console.WriteLine(@"Registering Plugins");
 
-            foreach (var plugin in pluginList.Where(p => !p.IsWorkflow && !p.IsCustomApi))
+            foreach (var plugin in pluginList.Where(p => !p.IsWorkflow))
             {
                 Console.WriteLine($@"  - {plugin.FullName}");
 
@@ -253,17 +289,68 @@ namespace XrmFramework.DeployUtils
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Apis");
 
-            foreach (var plugin in pluginList.Where(p => p.IsCustomApi))
+            foreach (var customApi in customApis)
             {
-                Console.WriteLine($@"  - {plugin.FullName}");
+                Console.WriteLine($@"  - {customApi.FullName}");
 
-                var registeredPluginType = registeredPluginTypes.FirstOrDefault(p => p.Name == plugin.FullName);
+                var registeredPluginType = registeredPluginTypes.FirstOrDefault(p => p.Name == customApi.FullName);
 
                 if (registeredPluginType == null)
                 {
-                    registeredPluginType = GetPluginTypeToRegister(assembly.Id, plugin.FullName);
+                    registeredPluginType = GetPluginTypeToRegister(assembly.Id, customApi.FullName);
                     registeredPluginType.Id = service.Create(registeredPluginType);
                 }
+
+                customApi.PluginTypeId = new EntityReference(PluginType.EntityLogicalName, registeredPluginType.Id);
+
+                var existingCustomApi = registeredCustomApis.FirstOrDefault(c => c.UniqueName == customApi.UniqueName);
+
+                if (existingCustomApi == null)
+                {
+                    existingCustomApi = customApi;
+                    existingCustomApi.Id = service.Create(customApi);
+                }
+                else
+                {
+                    customApi.Id = existingCustomApi.Id;
+                    service.Update(customApi);
+                }
+
+                foreach (var customApiRequestParameter in customApi.InArguments)
+                {
+                    var existingRequestParameter = registeredCustomApiRequestParameters.FirstOrDefault(p => p.UniqueName == customApiRequestParameter.UniqueName && p.CustomApiId.Id == existingCustomApi.Id);
+
+                    customApiRequestParameter.CustomApiId = new EntityReference(CustomApi.EntityLogicalName, existingCustomApi.Id);
+
+                    if (existingRequestParameter == null)
+                    {
+                        service.Create(customApiRequestParameter);
+                    }
+                    else
+                    {
+                        customApiRequestParameter.Id = existingRequestParameter.Id;
+                        service.Update(customApiRequestParameter);
+                    }
+                }
+
+                foreach (var customApiResponseProperty in customApi.OutArguments)
+                {
+                    var existingResponseProperty = registeredCustomApiResponseProperties.FirstOrDefault(p => p.UniqueName == customApiResponseProperty.UniqueName && p.CustomApiId.Id == existingCustomApi.Id);
+
+                    customApiResponseProperty.CustomApiId = new EntityReference(CustomApi.EntityLogicalName, existingCustomApi.Id);
+
+                    if (existingResponseProperty == null)
+                    {
+                        service.Create(customApiResponseProperty);
+                    }
+                    else
+                    {
+                        customApiResponseProperty.Id = existingResponseProperty.Id;
+                        service.Update(customApiResponseProperty);
+                    }
+                }
+
+
             }
 
             Console.WriteLine();
@@ -298,12 +385,65 @@ namespace XrmFramework.DeployUtils
             return list;
         }
 
+        private static IEnumerable<CustomApi> GetRegisteredCustomApis(IOrganizationService service)
+        {
+            var list = new List<CustomApi>();
+
+            var query = new QueryExpression(CustomApi.EntityLogicalName);
+            query.ColumnSet.AllColumns = true;
+            query.Criteria.AddCondition("ismanaged", ConditionOperator.Equal, false);
+
+            var result = RetrieveAll(service, query);
+            foreach (var type in result)
+            {
+                list.Add(type.ToEntity<CustomApi>());
+            }
+
+            return list;
+        }
+
+        private static IEnumerable<CustomApiRequestParameter> GetRegisteredCustomApiRequestParameters(IOrganizationService service)
+        {
+            var list = new List<CustomApiRequestParameter>();
+
+            var query = new QueryExpression(CustomApiRequestParameter.EntityLogicalName);
+            query.ColumnSet.AllColumns = true;
+            query.Criteria.AddCondition("ismanaged", ConditionOperator.Equal, false);
+
+            var result = RetrieveAll(service, query);
+            foreach (var type in result)
+            {
+                list.Add(type.ToEntity<CustomApiRequestParameter>());
+            }
+
+            return list;
+        }
+
+        private static IEnumerable<CustomApiResponseProperty> GetRegisteredCustomApiResponseProperties(IOrganizationService service)
+        {
+            var list = new List<CustomApiResponseProperty>();
+
+            var query = new QueryExpression(CustomApiResponseProperty.EntityLogicalName);
+            query.ColumnSet.AllColumns = true;
+            query.Criteria.AddCondition("ismanaged", ConditionOperator.Equal, false);
+
+            var result = RetrieveAll(service, query);
+            foreach (var type in result)
+            {
+                list.Add(type.ToEntity<CustomApiResponseProperty>());
+            }
+
+            return list;
+        }
+
         private static ICollection<SdkMessageProcessingStep> GetRegisteredSteps(IOrganizationService service, Guid assemblyId)
         {
             var list = new List<SdkMessageProcessingStep>();
 
             var query = new QueryExpression("sdkmessageprocessingstep");
             query.ColumnSet.AllColumns = true;
+            query.Criteria.AddCondition("stage", ConditionOperator.NotEqual, 30);
+
             var linkPluginType = query.AddLink(PluginType.EntityLogicalName, "eventhandler", "plugintypeid");
             linkPluginType.LinkCriteria.AddCondition("pluginassemblyid", ConditionOperator.Equal, assemblyId);
 
@@ -589,6 +729,9 @@ namespace XrmFramework.DeployUtils
             }
             else
             {
+                _publisher = service.Retrieve(Publisher.EntityLogicalName, _solution.PublisherId.Id, new ColumnSet(true)).ToEntity<Publisher>();
+
+
                 query = new QueryExpression(SolutionComponent.EntityLogicalName);
                 query.ColumnSet.AllColumns = true;
                 query.Criteria.AddCondition("solutionid", ConditionOperator.Equal, _solution.Id);
@@ -640,6 +783,8 @@ namespace XrmFramework.DeployUtils
 
 
         private static Solution _solution = null;
+        private static Publisher _publisher = null;
+
         private static List<SolutionComponent> _components = new List<SolutionComponent>();
         private static List<SdkMessageFilter> _filters = new List<SdkMessageFilter>();
         private static readonly Dictionary<string, EntityReference> _messages = new Dictionary<string, EntityReference>();

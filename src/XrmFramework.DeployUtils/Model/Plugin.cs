@@ -1,17 +1,19 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using Deploy;
+
 namespace XrmFramework.DeployUtils.Model
 {
     public class Plugin
     {
-        public Plugin(string fullName, bool isCustomApi)
+        private Plugin(string fullName)
         {
             FullName = fullName;
-            IsCustomApi = isCustomApi;
         }
 
-        public Plugin(string fullName, string displayName) :this(fullName, false)
+        private Plugin(string fullName, string displayName) :this(fullName)
         {
             DisplayName = displayName;
         }
@@ -20,16 +22,14 @@ namespace XrmFramework.DeployUtils.Model
 
         public string FullName { get; }
 
-        public bool IsCustomApi { get; }
-
         public string DisplayName { get; }
 
         public StepCollection Steps { get; } = new StepCollection();
 
 
-        public static Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false, bool isCustomApi = false)
+        public static Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false)
         {
-            var pluginTemp = !isWorkflow ? new Plugin(plugin.GetType().FullName, isCustomApi) : new Plugin(plugin.GetType().FullName, plugin.DisplayName);
+            var pluginTemp = !isWorkflow ? new Plugin(plugin.GetType().FullName) : new Plugin(plugin.GetType().FullName, plugin.DisplayName);
 
             if (!isWorkflow)
             {
@@ -38,7 +38,7 @@ namespace XrmFramework.DeployUtils.Model
                     pluginTemp.Steps.Add(Step.FromXrmFrameworkStep(step));
                 }
             }
-
+            
             return pluginTemp;
         }
     }

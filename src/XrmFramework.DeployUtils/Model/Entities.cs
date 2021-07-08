@@ -6,14 +6,665 @@
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 // </auto-generated>
-// Created via this command line: "C:\Users\Administrator\Downloads\DLaB.EarlyBoundGenerator.Full\CrmSvcUtil Ref\crmsvcutil.exe" /url:"https://sociusdev.api.crm4.dynamics.com/XRMServices/2011/Organization.svc" /namespace:"Deploy" /out:"C:\Users\Administrator\Downloads\DLaB.EarlyBoundGenerator.Full\CrmSvcUtil Ref\Entities.cs" /servicecontextname:"CrmServiceContext" /codecustomization:"DLaB.CrmSvcUtilExtensions.Entity.CustomizeCodeDomService,DLaB.CrmSvcUtilExtensions" /codegenerationservice:"DLaB.CrmSvcUtilExtensions.Entity.CustomCodeGenerationService,DLaB.CrmSvcUtilExtensions" /codewriterfilter:"DLaB.CrmSvcUtilExtensions.Entity.CodeWriterFilterService,DLaB.CrmSvcUtilExtensions" /namingservice:"DLaB.CrmSvcUtilExtensions.Entity.OverridePropertyNames,DLaB.CrmSvcUtilExtensions" /username:"cgo@sociusdev.onmicrosoft.com" /password:"********" 
 //------------------------------------------------------------------------------
 
 [assembly: Microsoft.Xrm.Sdk.Client.ProxyTypesAssemblyAttribute()]
 
 namespace Deploy
 {
-	
+
+	/// <summary>
+	/// Assembly that contains one or more plug-in types.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	[Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("customapiresponseproperty")]
+	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
+	[System.Diagnostics.DebuggerStepThrough()]
+	public partial class CustomApiResponseProperty : Microsoft.Xrm.Sdk.Entity, System.ComponentModel.INotifyPropertyChanging, System.ComponentModel.INotifyPropertyChanged
+	{
+
+		/// <summary>
+		/// Default Constructor.
+		/// </summary>
+		public CustomApiResponseProperty() :
+				base(EntityLogicalName)
+		{
+		}
+
+		public const string EntityLogicalName = "customapiresponseproperty";
+
+		public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+		public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
+
+		private void OnPropertyChanged(string propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		private void OnPropertyChanging(string propertyName)
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, new System.ComponentModel.PropertyChangingEventArgs(propertyName));
+			}
+		}
+
+		/// <summary>
+		/// Unique identifier of the plug-in type associated with the step.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("customapiid")]
+		public Microsoft.Xrm.Sdk.EntityReference CustomApiId
+		{
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("customapiid");
+			}
+			set
+			{
+				this.OnPropertyChanging("CustomApiId");
+				this.SetAttributeValue("customapiid", value);
+				this.OnPropertyChanged("CustomApiId");
+			}
+		}
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("description")]
+		public string Description
+		{
+			get
+			{
+				return this.GetAttributeValue<string>("description");
+			}
+			set
+			{
+				this.OnPropertyChanging("Description");
+				this.SetAttributeValue("description", value);
+				this.OnPropertyChanged("Description");
+			}
+		}
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("displayname")]
+        public string DisplayName
+        {
+            get
+            {
+                return this.GetAttributeValue<string>("displayname");
+            }
+            set
+            {
+                this.OnPropertyChanging("DisplayName");
+                this.SetAttributeValue("displayname", value);
+                this.OnPropertyChanged("DisplayName");
+            }
+        }
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("logicalentityname")]
+		public string LogicalEntityName
+		{
+			get
+			{
+				return this.GetAttributeValue<string>("logicalentityname");
+			}
+			set
+			{
+				this.OnPropertyChanging("LogicalEntityName");
+				this.SetAttributeValue("logicalentityname", value);
+				this.OnPropertyChanged("LogicalEntityName");
+			}
+		}
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("name")]
+		public string Name
+		{
+			get
+			{
+				return this.GetAttributeValue<string>("name");
+			}
+			set
+			{
+				this.OnPropertyChanging("Name");
+				this.SetAttributeValue("name", value);
+				this.OnPropertyChanged("Name");
+			}
+		}
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("uniquename")]
+        public string UniqueName
+        {
+            get
+            {
+                return this.GetAttributeValue<string>("uniquename");
+            }
+            set
+            {
+                this.OnPropertyChanging("UniqueName");
+                this.SetAttributeValue("uniquename", value);
+                this.OnPropertyChanged("UniqueName");
+            }
+        }
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("type")]
+		public Microsoft.Xrm.Sdk.OptionSetValue Type
+		{
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.OptionSetValue>("type");
+			}
+			set
+			{
+				this.OnPropertyChanging("Type");
+				this.SetAttributeValue("type", value);
+				this.OnPropertyChanged("Type");
+			}
+		}
+
+		/// <summary>
+		/// Unique identifier of the associated solution.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("solutionid")]
+		public System.Nullable<System.Guid> SolutionId
+		{
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("solutionid");
+			}
+		}
+
+		public virtual CustomApiFieldType? TypeEnum
+		{
+			get
+			{
+				return ((CustomApiFieldType?)(EntityOptionSetEnum.GetEnum(this, "type")));
+			}
+			set
+			{
+				Type = value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null;
+			}
+		}
+	}
+
+	/// <summary>
+	/// Assembly that contains one or more plug-in types.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	[Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("customapirequestparameter")]
+	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
+	[System.Diagnostics.DebuggerStepThrough()]
+	public partial class CustomApiRequestParameter : Microsoft.Xrm.Sdk.Entity, System.ComponentModel.INotifyPropertyChanging, System.ComponentModel.INotifyPropertyChanged
+	{
+
+		/// <summary>
+		/// Default Constructor.
+		/// </summary>
+		public CustomApiRequestParameter() :
+				base(EntityLogicalName)
+		{
+		}
+
+		public const string EntityLogicalName = "customapirequestparameter";
+
+		public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+		public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
+
+		private void OnPropertyChanged(string propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		private void OnPropertyChanging(string propertyName)
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, new System.ComponentModel.PropertyChangingEventArgs(propertyName));
+			}
+		}
+
+        /// <summary>
+        /// Unique identifier of the plug-in type associated with the step.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("customapiid")]
+        public Microsoft.Xrm.Sdk.EntityReference CustomApiId
+		{
+            get
+            {
+                return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("customapiid");
+            }
+            set
+            {
+                this.OnPropertyChanging("CustomApiId");
+                this.SetAttributeValue("customapiid", value);
+                this.OnPropertyChanged("CustomApiId");
+            }
+        }
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("description")]
+        public string Description
+        {
+            get
+            {
+                return this.GetAttributeValue<string>("description");
+            }
+            set
+            {
+                this.OnPropertyChanging("Description");
+                this.SetAttributeValue("description", value);
+                this.OnPropertyChanged("Description");
+            }
+		}
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("isfunction")]
+        public bool IsOptional
+        {
+            get
+            {
+                return this.GetAttributeValue<bool>("isoptional");
+            }
+            set
+            {
+                this.OnPropertyChanging("IsOptional");
+                this.SetAttributeValue("isoptional", value);
+                this.OnPropertyChanged("IsOptional");
+            }
+        }
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("logicalentityname")]
+        public string LogicalEntityName
+		{
+            get
+            {
+                return this.GetAttributeValue<string>("logicalentityname");
+            }
+            set
+            {
+                this.OnPropertyChanging("LogicalEntityName");
+                this.SetAttributeValue("logicalentityname", value);
+                this.OnPropertyChanged("LogicalEntityName");
+            }
+		}
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("name")]
+        public string Name
+        {
+            get
+            {
+                return this.GetAttributeValue<string>("name");
+            }
+            set
+            {
+                this.OnPropertyChanging("Name");
+                this.SetAttributeValue("name", value);
+                this.OnPropertyChanged("Name");
+            }
+        }
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("displayname")]
+        public string DisplayName
+        {
+            get
+            {
+                return this.GetAttributeValue<string>("displayname");
+            }
+            set
+            {
+                this.OnPropertyChanging("DisplayName");
+                this.SetAttributeValue("displayname", value);
+                this.OnPropertyChanged("DisplayName");
+            }
+        }
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("uniquename")]
+        public string UniqueName
+        {
+            get
+            {
+                return this.GetAttributeValue<string>("uniquename");
+            }
+            set
+            {
+                this.OnPropertyChanging("UniqueName");
+                this.SetAttributeValue("uniquename", value);
+                this.OnPropertyChanged("UniqueName");
+            }
+        }
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("type")]
+		public Microsoft.Xrm.Sdk.OptionSetValue Type
+		{
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.OptionSetValue>("type");
+			}
+			set
+			{
+				this.OnPropertyChanging("Type");
+				this.SetAttributeValue("type", value);
+				this.OnPropertyChanged("Type");
+			}
+		}
+
+		/// <summary>
+		/// Unique identifier of the associated solution.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("solutionid")]
+		public System.Nullable<System.Guid> SolutionId
+		{
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("solutionid");
+			}
+		}
+
+		public virtual CustomApiFieldType? TypeEnum
+		{
+			get
+			{
+				return ((CustomApiFieldType?)(EntityOptionSetEnum.GetEnum(this, "type")));
+			}
+			set
+			{
+                Type = value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null;
+			}
+		}
+	}
+
+	/// <summary>
+	/// Assembly that contains one or more plug-in types.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	[Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("customapi")]
+	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
+	[System.Diagnostics.DebuggerStepThrough()]
+	public partial class CustomApi : Microsoft.Xrm.Sdk.Entity, System.ComponentModel.INotifyPropertyChanging, System.ComponentModel.INotifyPropertyChanged
+	{
+
+		/// <summary>
+		/// Default Constructor.
+		/// </summary>
+		public CustomApi() :
+				base(EntityLogicalName)
+		{
+		}
+
+		public const string EntityLogicalName = "customapi";
+
+		public const int EntityTypeCode = 4605;
+
+		public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+		public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
+
+		private void OnPropertyChanged(string propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+			}
+		}
+
+		private void OnPropertyChanging(string propertyName)
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, new System.ComponentModel.PropertyChangingEventArgs(propertyName));
+			}
+		}
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("allowedcustomprocessingsteptype")]
+		public Microsoft.Xrm.Sdk.OptionSetValue AllowedCustomProcessingStepType
+		{
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.OptionSetValue>("allowedcustomprocessingsteptype");
+			}
+            set
+            {
+                this.OnPropertyChanging("AllowedCustomProcessingStepType");
+                this.SetAttributeValue("allowedcustomprocessingsteptype", value);
+                this.OnPropertyChanged("AllowedCustomProcessingStepType");
+            }
+		}
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("bindingtype")]
+        public Microsoft.Xrm.Sdk.OptionSetValue BindingType
+        {
+            get
+            {
+                return this.GetAttributeValue<Microsoft.Xrm.Sdk.OptionSetValue>("bindingtype");
+            }
+            set
+            {
+                this.OnPropertyChanging("BindingType");
+                this.SetAttributeValue("bindingtype", value);
+                this.OnPropertyChanged("BindingType");
+            }
+		}
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("boundentitylogicalname")]
+        public string BoundEntityLogicalName
+		{
+            get
+            {
+                return this.GetAttributeValue<string>("boundentitylogicalname");
+            }
+            set
+            {
+                this.OnPropertyChanging("BoundEntityLogicalName");
+                this.SetAttributeValue("boundentitylogicalname", value);
+                this.OnPropertyChanged("BoundEntityLogicalName");
+            }
+		}
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("description")]
+        public string Description
+        {
+            get
+            {
+                return this.GetAttributeValue<string>("description");
+            }
+            set
+            {
+                this.OnPropertyChanging("Description");
+                this.SetAttributeValue("description", value);
+                this.OnPropertyChanged("Description");
+            }
+		}
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("displayname")]
+        public string DisplayName
+        {
+            get
+            {
+                return this.GetAttributeValue<string>("displayname");
+            }
+            set
+            {
+                this.OnPropertyChanging("DisplayName");
+                this.SetAttributeValue("displayname", value);
+                this.OnPropertyChanged("DisplayName");
+            }
+		}
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("executeprivilegename")]
+        public string ExecutePrivilegeName
+		{
+            get
+            {
+                return this.GetAttributeValue<string>("executeprivilegename");
+            }
+            set
+            {
+                this.OnPropertyChanging("ExecutePrivilegeName");
+                this.SetAttributeValue("executeprivilegename", value);
+                this.OnPropertyChanged("ExecutePrivilegeName");
+            }
+		}
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("isfunction")]
+        public bool IsFunction
+		{
+            get
+            {
+                return this.GetAttributeValue<bool>("isfunction");
+            }
+            set
+            {
+                this.OnPropertyChanging("IsFunction");
+                this.SetAttributeValue("isfunction", value);
+                this.OnPropertyChanged("IsFunction");
+            }
+		}
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("isprivate")]
+        public bool IsPrivate
+        {
+            get
+            {
+                return this.GetAttributeValue<bool>("isprivate");
+            }
+            set
+            {
+                this.OnPropertyChanging("IsPrivate");
+                this.SetAttributeValue("isprivate", value);
+                this.OnPropertyChanged("IsPrivate");
+            }
+		}
+
+        /// <summary>
+        /// Name of the plug-in assembly.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("name")]
+        public string Name
+        {
+            get
+            {
+                return this.GetAttributeValue<string>("name");
+            }
+            set
+            {
+                this.OnPropertyChanging("Name");
+                this.SetAttributeValue("name", value);
+                this.OnPropertyChanged("Name");
+            }
+		}
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("uniquename")]
+        public string UniqueName
+        {
+            get
+            {
+                return this.GetAttributeValue<string>("uniquename");
+            }
+            set
+            {
+                this.OnPropertyChanging("UniqueName");
+                this.SetAttributeValue("uniquename", value);
+                this.OnPropertyChanged("UniqueName");
+            }
+        }
+
+        /// <summary>
+        /// Unique identifier of the plug-in type associated with the step.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("plugintypeid")]
+        public Microsoft.Xrm.Sdk.EntityReference PluginTypeId
+        {
+            get
+            {
+                return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("plugintypeid");
+            }
+            set
+            {
+                this.OnPropertyChanging("PluginTypeId");
+                this.SetAttributeValue("plugintypeid", value);
+                this.OnPropertyChanged("PluginTypeId");
+            }
+		}
+
+        /// <summary>
+        /// Unique identifier of the plug-in type associated with the step.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("sdkmessageid")]
+        public Microsoft.Xrm.Sdk.EntityReference SdkMessageId
+		{
+            get
+            {
+                return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("sdkmessageid");
+            }
+            set
+            {
+                this.OnPropertyChanging("SdkMessageId");
+                this.SetAttributeValue("sdkmessageid", value);
+                this.OnPropertyChanged("SdkMessageId");
+            }
+        }
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("workflowsdkstepenabled")]
+        public bool WorkflowSdkStepEnabled
+		{
+            get
+            {
+                return this.GetAttributeValue<bool>("workflowsdkstepenabled");
+            }
+            set
+            {
+                this.OnPropertyChanging("WorkflowSdkStepEnabled");
+                this.SetAttributeValue("workflowsdkstepenabled", value);
+                this.OnPropertyChanged("WorkflowSdkStepEnabled");
+            }
+        }
+
+		/// <summary>
+		/// Unique identifier of the associated solution.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("solutionid")]
+		public System.Nullable<System.Guid> SolutionId
+		{
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("solutionid");
+			}
+		}
+
+		public virtual componentstate? ComponentStateEnum
+		{
+			get
+			{
+				return ((componentstate?)(EntityOptionSetEnum.GetEnum(this, "componentstate")));
+			}
+		}
+
+		public virtual AllowedCustomProcessingStepType? AllowedCustomProcessingStepTypeEnum
+		{
+			get
+			{
+				return ((AllowedCustomProcessingStepType?)(EntityOptionSetEnum.GetEnum(this, "allowedcustomprocessingsteptype")));
+			}
+			set
+			{
+                AllowedCustomProcessingStepType = value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null;
+			}
+		}
+
+        public virtual BindingType? BindingTypeEnum
+		{
+            get
+            {
+                return ((BindingType?)(EntityOptionSetEnum.GetEnum(this, "bindingtype")));
+            }
+            set
+            {
+                AllowedCustomProcessingStepType = value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null;
+            }
+        }
+	}
+
 	/// <summary>
 	/// Assembly that contains one or more plug-in types.
 	/// </summary>

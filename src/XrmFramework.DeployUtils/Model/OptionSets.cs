@@ -6351,7 +6351,63 @@ namespace Deploy
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		Sandbox = 2,
 	}
-	
+
+    [System.Runtime.Serialization.DataContractAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
+	public enum AllowedCustomProcessingStepType
+	{
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		None = 0,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		AsyncOnly = 1,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		SyncAndAsync = 2,
+	}
+
+    [System.Runtime.Serialization.DataContractAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
+	public enum BindingType
+	{
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		Global = 0,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		Entity = 1,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		EntityCollection = 2,
+	}
+
+    [System.Runtime.Serialization.DataContractAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
+	public enum CustomApiFieldType
+	{
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		Boolean = 0,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		Datetime = 1,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		String = 10,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		StringArray = 11,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		Guid = 12,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		Decimal = 2,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		Entity = 3,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		Entitycollection = 4,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		Entityreference = 5,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		Float = 6,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		Integer = 7,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		Money = 8,
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+		Picklist = 9,
+    }
+
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
 	public enum pluginassembly_sourcetype
