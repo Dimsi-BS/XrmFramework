@@ -13,6 +13,7 @@ namespace XrmFramework
         public bool IsPrivate { get; }
         public AllowedCustomProcessingStep AllowedCustomProcessing { get; }
         public string ExecutePrivilegeName { get; }
+        public bool WorkflowSdkStepEnabled { get; }
 
         public CustomApiAttribute(
             string displayName,
@@ -22,7 +23,8 @@ namespace XrmFramework
             string boundEntityLogicalName = null,
             bool isPrivate = false,
             AllowedCustomProcessingStep allowedCustomProcessing = AllowedCustomProcessingStep.None,
-            string executePrivilegeName = null
+            string executePrivilegeName = null,
+            bool workflowSdkStepEnabled = false
         )
         {
             DisplayName = displayName;
@@ -33,6 +35,7 @@ namespace XrmFramework
             IsPrivate = isPrivate;
             AllowedCustomProcessing = allowedCustomProcessing;
             ExecutePrivilegeName = executePrivilegeName;
+            WorkflowSdkStepEnabled = workflowSdkStepEnabled;
         }
     }
 }
