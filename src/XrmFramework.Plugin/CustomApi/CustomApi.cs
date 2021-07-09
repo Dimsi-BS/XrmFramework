@@ -22,15 +22,15 @@ namespace XrmFramework
             {
                 var inArgumentAttribute = property.GetCustomAttribute<CustomApiInputAttribute>();
                 var outArgumentAttribute = property.GetCustomAttribute<CustomApiOutputAttribute>();
-				
-				var argumentAttribute = (CustomApiArgumentAttribute)inArgumentAttribute ?? outArgumentAttribute;
+
+                var argumentAttribute = (CustomApiArgumentAttribute)inArgumentAttribute ?? outArgumentAttribute;
 
                 if (argumentAttribute == null)
                 {
                     continue;
                 }
 
-                var argumentName = property.Name;
+                var argumentName = argumentAttribute.Name ?? property.Name;
 
                 var objectType = property.PropertyType.GenericTypeArguments.Single();
 
@@ -95,7 +95,16 @@ namespace XrmFramework
                     isSerialized = true;
                 }
 
-                var propertyValue = (CustomApiArgument)Activator.CreateInstance(property.PropertyType, new object[] { argumentName, argumentType, isSerialized, argumentAttribute.Description, argumentAttribute.DisplayName, argumentAttribute.LogicalEntityName, argumentAttribute.IsOptional });
+                var propertyValue = (CustomApiArgument)Activator.CreateInstance(property.PropertyType,
+                    new object[] {
+                        argumentName,
+                        argumentType,
+                        isSerialized,
+                        argumentAttribute.Description,
+                        argumentAttribute.DisplayName,
+                        argumentAttribute.LogicalEntityName,
+                        argumentAttribute.IsOptional
+                        });
 
                 Arguments.Add(propertyValue);
 

@@ -4,34 +4,21 @@ namespace XrmFramework
 {
     public sealed class CustomApiInputAttribute : CustomApiArgumentAttribute
     {
-        public CustomApiInputAttribute(string displayName = null, string description = null, string logicalEntityName = null, bool isOptional = false) : base(displayName, description, logicalEntityName, isOptional)
-        {
-        }
     }
 
     public sealed class CustomApiOutputAttribute : CustomApiArgumentAttribute
     {
-        public CustomApiOutputAttribute(string displayName = null, string description = null, string logicalEntityName = null) : base(displayName, description, logicalEntityName)
-        {
-        }
     }
 
     [AttributeUsage(AttributeTargets.Property)]
     public abstract class CustomApiArgumentAttribute : Attribute
     {
-        public string DisplayName { get; }
-        public string Description { get; }
+        public string Name { get; set; }
+        public string DisplayName { get; set; }
+        public string Description { get; set; }
 
-        public string LogicalEntityName { get; }
+        public string LogicalEntityName { get; set; }
 
-        public bool IsOptional { get; }
-
-        protected CustomApiArgumentAttribute(string displayName = null, string description = null, string logicalEntityName = null, bool isOptional = false)
-        {
-            DisplayName = displayName;
-            Description = description;
-            LogicalEntityName = logicalEntityName;
-            IsOptional = isOptional;
-        }
+        public bool IsOptional { get; set; }
     }
 }
