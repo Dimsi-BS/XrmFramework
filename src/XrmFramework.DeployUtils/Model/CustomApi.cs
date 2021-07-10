@@ -24,18 +24,20 @@ namespace Deploy
                 throw new Exception($"The custom api type {type.FullName} must have a CustomApiAttribute defined");
             }
 
+            var name = string.IsNullOrWhiteSpace(customApiAttribute.Name) ? type.Name : customApiAttribute.Name;
+
             var customApi = new CustomApi
             {
-                DisplayName = customApiAttribute.DisplayName,
-                Name = type.Name,
+                DisplayName = string.IsNullOrWhiteSpace(customApiAttribute.DisplayName) ? name: customApiAttribute.DisplayName,
+                Name = name,
                 AllowedCustomProcessingStepType = new OptionSetValue((int)customApiAttribute.AllowedCustomProcessing),
                 BindingType = new OptionSetValue((int)customApiAttribute.BindingType),
                 BoundEntityLogicalName = customApiAttribute.BoundEntityLogicalName,
-                Description = customApiAttribute.Description,
+                Description = string.IsNullOrWhiteSpace(customApiAttribute.Description) ? name : customApiAttribute.Description,
                 ExecutePrivilegeName = customApiAttribute.ExecutePrivilegeName,
                 IsFunction = customApiAttribute.IsFunction,
                 IsPrivate = customApiAttribute.IsPrivate,
-                UniqueName = $"{prefix}_{type.Name}",
+                UniqueName = $"{prefix}_{name}",
                 WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled,
                 FullName = type.FullName
             };
