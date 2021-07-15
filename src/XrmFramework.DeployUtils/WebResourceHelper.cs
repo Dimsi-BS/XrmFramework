@@ -11,6 +11,7 @@ using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Tooling.Connector;
 using XrmFramework.DeployUtils.Configuration;
 
 namespace XrmFramework.DeployUtils
@@ -21,25 +22,21 @@ namespace XrmFramework.DeployUtils
         {
             var nbWebresources = 0;
 
-            if (!(ConfigurationManager.GetSection("xrmFramework") is XrmFrameworkSection deploySection))
-            {
-                return;
-            }
+            var xrmFrameworkConfigSection = ConfigHelper.GetSection();
 
-            var solutionName = deploySection.Projects.OfType<ProjectElement>().Single(p => p.Name == projectName).TargetSolution;;
+            var solutionName = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>().Single(p => p.Name == projectName).TargetSolution;
 
             string prefix = string.Empty;
 
-            var organizationName = ConfigurationManager.ConnectionStrings[deploySection.SelectedConnection].ConnectionString;
+            var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
 
-            Console.WriteLine($"You are about to deploy on {organizationName} organization. If ok press any key.");
+            Console.WriteLine($"You are about to deploy on {connectionString} organization. If ok press any key.");
             Console.ReadKey();
             Console.WriteLine("Connecting to CRM...");
             
-            var cs = ConnectionStringParser.Parse(organizationName);
+            var service = new CrmServiceClient(connectionString);
 
-            var service = new OrganizationServiceProxy(new Uri(new Uri(cs.Url), "/XRMServices/2011/Organization.svc"), null, new ClientCredentials { UserName = { UserName = cs.Username, Password = cs.Password } }, null);
-
+            service.OrganizationServiceProxy?.EnableProxyTypes();
 
             var query = new QueryExpression(Solution.EntityLogicalName);
             query.ColumnSet.AddColumn("uniquename");

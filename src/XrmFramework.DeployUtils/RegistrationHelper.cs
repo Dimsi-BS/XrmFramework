@@ -153,6 +153,12 @@ namespace XrmFramework.DeployUtils
                             service.Delete(SdkMessageProcessingStep.EntityLogicalName, step.Id);
                             registeredSteps.Remove(step);
                         }
+
+                        foreach (var customApi in registeredCustomApis.Where(c => c.PluginTypeId?.Id == registeredType.Id))
+                        {
+                            service.Delete(customApi.LogicalName, customApi.Id);
+                        }
+
                         service.Delete(PluginType.EntityLogicalName, registeredType.Id);
                     }
                 }
