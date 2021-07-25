@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using XrmFramework.DeployUtils.Generators;
@@ -11,8 +10,8 @@ namespace XrmFramework.MSBuild.Reflection
         static void Main(string[] args)
         {
             var assembly = Assembly.LoadFrom(args[0]);
-            var folderPath = Directory.GetParent(args[0]).Parent.Parent.Parent.Parent.Parent.FullName + "\\obj";
-
+            var folderPath = args[1];
+            
             var nullableType = assembly.GetType("XrmFramework.NullableAttribute");
             var iServiceType = assembly.GetType("XrmFramework.IService");
 

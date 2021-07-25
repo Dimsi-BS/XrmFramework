@@ -36,7 +36,7 @@
 
     <MSBuild Projects="$(ProjectFile)" Targets="Restore;Build" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir)" ContinueOnError="false" />
 
-    <Exec Command="$(_XrmFrameworkLoggedServiceGenerator) $(ProjectOutputFile)" YieldDuringToolExecution="true" StandardErrorImportance="High" />
+    <Exec Command="$(_XrmFrameworkLoggedServiceGenerator) $(ProjectOutputFile) $(ProjectFolderPath)\obj" YieldDuringToolExecution="true" StandardErrorImportance="High" />
 
   </Target>
 
