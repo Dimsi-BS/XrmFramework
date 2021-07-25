@@ -41,9 +41,21 @@ namespace XrmFramework.Analyzers
                     return;
                 }
 
-                var modifiers = classDeclaration.Modifiers;
+                var allModifiers = new List<SyntaxToken>();
 
-                if (!modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)))
+                foreach (var reference in classSymbol.DeclaringSyntaxReferences)
+                {
+                    var syntaxNode = reference.GetSyntax();
+
+                    if (syntaxNode is ClassDeclarationSyntax classSyntaxNode)
+                    {
+                        allModifiers.AddRange(classSyntaxNode.Modifiers);
+                    }
+                }
+
+                allModifiers.AddRange(classDeclaration.Modifiers);
+
+                if (!allModifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)))
                 {
                     var diag = Diagnostic.Create(_rule, classDeclaration.Identifier.GetLocation(), classDeclaration.Identifier.Text);
                     context.ReportDiagnostic(diag);
