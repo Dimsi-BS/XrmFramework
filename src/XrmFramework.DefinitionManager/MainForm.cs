@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
-using Microsoft.Xrm.Sdk.Metadata;
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,16 +9,21 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
-using Deploy;
-using XrmFramework;
-using XrmFramework.DeployUtils;
+using DefinitionManager;
+using Microsoft.EntityFrameworkCore.Internal;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using XrmFramework.DefinitionManager.Model;
 using RelationshipAttributeDefinition = DefinitionManager.Definitions.RelationshipAttributeDefinition;
 
-namespace DefinitionManager
+namespace XrmFramework.DefinitionManager
 {
     public partial class MainForm : Form, ICustomListProvider
     {
-        private readonly DefinitionCollection<EntityDefinition> entityCollection;
+        private readonly DefinitionCollection<EntityDefinition> _entityCollection;
+
+        private readonly List<Entity> _entities;
+        private readonly List<OptionSetEnum> _enums = new();
 
         private readonly Type _iServiceType;
 
@@ -33,7 +38,8 @@ namespace DefinitionManager
 
             DataAccessManager.Instance.StepChanged += StepChangedHandler;
 
-            entityCollection = new DefinitionCollection<EntityDefinition>();
+            _entityCollection = new DefinitionCollection<EntityDefinition>();
+            _entities = new List<Entity>();
 
             this.attributeListView.SelectionChanged += attributeListView_SelectionChanged;
         }
@@ -58,9 +64,11 @@ namespace DefinitionManager
 
         void RetrieveEntitiesSucceeded(object result)
         {
-            var entities = (List<EntityDefinition>)result;
+            var entities = (Tuple<List<EntityDefinition>, List<Entity>, List<OptionSetEnum>>)result;
 
-            entityCollection.AddRange(entities);
+            _entityCollection.AddRange(entities.Item1);
+            _entities.AddRange(entities.Item2);
+            _enums.AddRange(entities.Item3);
             this.generateDefinitionsToolStripMenuItem.Enabled = true;
             this.entityListView.Enabled = true;
             this.attributeListView.Enabled = true;
@@ -75,8 +83,11 @@ namespace DefinitionManager
         {
             InitEnumDefinitions();
 
-            entityCollection.AttachListView(this.entityListView);
-            entityCollection.AddRange(GetCodedEntityDefinitions());
+            _entityCollection.AttachListView(this.entityListView);
+
+            var entities = GetCodedEntities().ToList();
+
+            _entityCollection.AddRange(GetCodedEntityDefinitions());
 
             DataAccessManager.Instance.Connect(ConnectionSucceeded);
         }
@@ -131,7 +142,7 @@ namespace DefinitionManager
                     {
                         var value = (int)field.GetValue(null);
 
-                        if ((int)value == 0)
+                        if (value == 0)
                         {
                             continue;
                         }
@@ -151,6 +162,22 @@ namespace DefinitionManager
 
         private Type GetExternalType(string name)
             => _iServiceType.Assembly.GetType(name);
+
+        private IEnumerable<Entity> GetCodedEntities()
+        {
+            var entityFiles = Directory.EnumerateFiles(".", "*.entity", SearchOption.AllDirectories);
+
+            foreach (var entityFile in entityFiles)
+            {
+                var fileContent = File.ReadAllText(entityFile);
+
+                var entity = JsonConvert.DeserializeObject<Entity>(fileContent);
+                entity.Selected = true;
+                entity.Attributes.ForEach(a => a.Selected = true);
+
+                yield return entity;
+            }
+        }
 
         private IEnumerable<EntityDefinition> GetCodedEntityDefinitions()
         {
@@ -309,10 +336,25 @@ namespace DefinitionManager
 
         private void generateDefinitionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var fileList = new List<TfsHelper.FileInfo>();
-            foreach (var item in this.entityCollection.SelectedDefinitions)
+            foreach (var item in this._entityCollection.SelectedDefinitions)
             {
-                var sb = new StringBuilder();
+                var sb = new IndentedStringBuilder();
+
+                var entity = _entities.FirstOrDefault(e => e.LogicalName == item.LogicalName);
+
+                var selectedAttributes = item.AttributesCollection.SelectedDefinitions;
+
+                entity.Attributes.RemoveAll(a => selectedAttributes.All(s => s.LogicalName != a.LogicalName));
+
+                var enumsToKeep = entity.Attributes.Where(a => !string.IsNullOrEmpty(a.EnumName))
+                    .Select(en => en.EnumName).Distinct().ToList();
+
+                entity.Enums.RemoveAll(en => !enumsToKeep.Contains(en.LogicalName));
+                
+                var entityTxt = JsonConvert.SerializeObject(entity, Formatting.Indented, new JsonSerializerSettings
+                {
+                    DefaultValueHandling = DefaultValueHandling.Ignore
+                });
 
                 sb.AppendLine("");
                 sb.AppendLine("using System;");
@@ -323,194 +365,235 @@ namespace DefinitionManager
                 sb.AppendLine();
                 sb.AppendLine($"namespace {CoreProjectName}");
                 sb.AppendLine("{");
-                sb.AppendLine("\t[GeneratedCode(\"XrmFramework\", \"2.0\")]");
-                sb.AppendLine("\t[EntityDefinition]\r\n");
-                sb.AppendLine("\t[ExcludeFromCodeCoverage]\r\n");
-                sb.AppendFormat("\tpublic static class {0}\r\n", item.Name);
-                sb.AppendLine("\t{");
-                sb.AppendFormat("\t\tpublic const string EntityName = \"{0}\";\r\n", item.LogicalName);
-                sb.AppendFormat("\t\tpublic const string EntityCollectionName = \"{0}\";\r\n", item.LogicalCollectionName);
 
-                foreach (var t in item.AdditionalInfoCollection.Definitions)
+                using (sb.Indent())
                 {
-                    sb.AppendLine();
-                    sb.AppendFormat("\t\tpublic const {0} {1} = {2};\r\n", t.Type, t.Name, t.Type == "String" ? "\"" + (string)t.Value + "\"" : t.Value);
-                }
 
-                sb.AppendLine();
-                sb.AppendLine("\t\t[SuppressMessage(\"Microsoft.Design\", \"CA1034:NestedTypesShouldNotBeVisible\")]");
-                sb.AppendLine("\t\tpublic static class Columns");
-                sb.AppendLine("\t\t{");
+                    sb.AppendLine("[GeneratedCode(\"XrmFramework\", \"2.0\")]");
+                    sb.AppendLine("[EntityDefinition]");
+                    sb.AppendLine("[ExcludeFromCodeCoverage]");
+                    sb.AppendLine($"public static class {item.Name}");
+                    sb.AppendLine("{");
 
-                foreach (var attr in item.AttributesCollection.SelectedDefinitions)
-                {
-                    sb.Append(attr.Summary);
-                    if (!string.IsNullOrEmpty(attr.Type))
+                    using (sb.Indent())
                     {
-                        sb.AppendFormat("\t\t\t[AttributeMetadata(AttributeTypeCode.{0})]\r\n", attr.Type);
-                    }
-                    if (attr.Enum != null)
-                    {
-                        sb.AppendFormat("\t\t\t[OptionSet(typeof({0}))]\r\n", attr.Enum.Name);
-                    }
-                    if (attr.IsPrimaryIdAttribute)
-                    {
-                        sb.AppendLine("\t\t\t[PrimaryAttribute(PrimaryAttributeType.Id)]");
-                    }
-                    if (attr.IsPrimaryNameAttribute)
-                    {
-                        sb.AppendLine("\t\t\t[PrimaryAttribute(PrimaryAttributeType.Name)]");
-                    }
-                    if (attr.IsPrimaryImageAttribute)
-                    {
-                        sb.AppendLine("\t\t\t[PrimaryAttribute(PrimaryAttributeType.Image)]");
-                    }
 
-                    if (attr.StringMaxLength.HasValue)
-                    {
-                        sb.AppendLine($"\t\t\t[StringLength({attr.StringMaxLength.Value})]");
-                    }
+                        sb.AppendLine($"public const string EntityName = \"{item.LogicalName}\";");
+                        sb.AppendLine($"public const string EntityCollectionName = \"{item.LogicalCollectionName}\";");
 
-                    if (attr.MinRange.HasValue && attr.MaxRange.HasValue)
-                    {
-                        sb.AppendLine($"\t\t\t[Range({attr.MinRange.Value}, {attr.MaxRange.Value})]");
-                    }
-
-                    foreach (var keyName in attr.KeyNames)
-                    {
-                        sb.AppendFormat("\t\t\t[AlternateKey(AlternateKeyNames.{0})]\r\n", keyName);
-                    }
-                    if (attr.DateTimeBehavior != null)
-                    {
-                        var behavior = string.Empty;
-                        if (attr.DateTimeBehavior == Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.DateOnly)
+                        foreach (var t in item.AdditionalInfoCollection.Definitions)
                         {
-                            behavior = "DateOnly";
+                            sb.AppendLine();
+                            sb.AppendLine(
+                                $"public const {t.Type} {t.Name} = {(t.Type == "String" ? "\"" + (string) t.Value + "\"" : t.Value)};");
                         }
-                        else if (attr.DateTimeBehavior == Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.TimeZoneIndependent)
-                        {
-                            behavior = "TimeZoneIndependent";
-                        }
-                        else if (attr.DateTimeBehavior == Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.UserLocal)
-                        {
-                            behavior = "UserLocal";
-                        }
-                        sb.AppendFormat("\t\t\t[DateTimeBehavior(DateTimeBehavior.{0})]\r\n", behavior);
-                    }
-                    foreach (var relationship in attr.Relationships)
-                    {
-                        if (this.entityCollection.SelectedDefinitions.Any(d => d.LogicalName == relationship.ReferencedEntity))
-                        {
-                            var eC = this.entityCollection[relationship.ReferencedEntity];
-                            sb.AppendFormat("\t\t\t[CrmLookup({0}.EntityName, {0}.Columns.{1}, RelationshipName = ManyToOneRelationships.{2})]\r\n", eC.Name, eC.AttributesCollection[relationship.ReferencedAttribute].Name, relationship.SchemaName);
-                        }
-                        else if (relationship.ReferencedEntity != "owner")
-                        {
-                            sb.AppendFormat("\t\t\t[CrmLookup(\"{0}\", \"{1}\", RelationshipName = \"{2}\")]\r\n", relationship.ReferencedEntity, relationship.ReferencedAttribute, relationship.SchemaName);
-                        }
-                        else if (relationship.ReferencedEntity == "owner")
-                        {
-                            sb.AppendFormat("\t\t\t[CrmLookup(\"{0}\", \"{1}\", RelationshipName = \"{2}\")]\r\n", relationship.ReferencedEntity, relationship.ReferencedAttribute, relationship.SchemaName);
-                        }
-                    }
 
-                    sb.AppendFormat("\t\t\tpublic const string {0} = \"{1}\";\r\n\r\n", attr.Name, attr.LogicalName);
-                }
+                        sb.AppendLine();
+                        sb.AppendLine("[SuppressMessage(\"Microsoft.Design\", \"CA1034:NestedTypesShouldNotBeVisible\")]");
+                        sb.AppendLine("public static class Columns");
+                        sb.AppendLine("{");
 
-                sb.AppendLine("\t\t}");
-
-
-                foreach (var def in item.AdditionalClassesCollection.Definitions)
-                {
-                    sb.AppendLine();
-                    if (def.IsEnum)
-                    {
-                        sb.AppendFormat("\t\tpublic enum {0}\r\n", def.Name);
-                    }
-                    else
-                    {
-                        sb.AppendLine("\t\t[SuppressMessage(\"Microsoft.Design\", \"CA1034:NestedTypesShouldNotBeVisible\")]");
-                        sb.AppendFormat("\t\tpublic static class {0}\r\n", def.Name);
-                    }
-                    sb.AppendLine("\t\t{");
-
-                    if (def.IsEnum)
-                    {
-                        foreach (var attr in def.Attributes.Definitions.OrderBy(a => a.Value))
+                        using (sb.Indent())
                         {
-                            sb.AppendFormat("\t\t\t{0} = {1},\r\n", attr.Name, attr.Value);
-                        }
-                    }
-                    else
-                    {
-                        foreach (var attr in def.Attributes.Definitions.OrderBy(a => a.Name))
-                        {
-                            if (attr.Type == "String")
+                            foreach (var attr in item.AttributesCollection.SelectedDefinitions)
                             {
-                                if (attr is RelationshipAttributeDefinition)
+                                AddAttributeSummary(sb, attr);
+                                if (!string.IsNullOrEmpty(attr.Type))
                                 {
-                                    sb.Append($"\t\t\t[Relationship(");
-                                    var rAttr = attr as RelationshipAttributeDefinition;
-                                    if (this.entityCollection.SelectedDefinitions.Any(d => d.LogicalName == rAttr.TargetEntityName))
-                                    {
-                                        sb.Append($"{entityCollection[rAttr.TargetEntityName].Name}.EntityName");
-                                    }
-                                    else
-                                    {
-                                        sb.Append($"\"{rAttr.TargetEntityName}\"");
-                                    }
-
-                                    sb.Append($", EntityRole.{rAttr.Role}, \"{rAttr.NavigationPropertyName}\", ");
-
-                                    if (rAttr.Role == "Referencing")
-                                    {
-                                        var ec = entityCollection.Definitions.FirstOrDefault(d => d.LogicalName == item.LogicalName);
-                                        var att = ec?.AttributesCollection.SelectedDefinitions.FirstOrDefault(d => d.LogicalName == rAttr.LookupFieldName);
-
-                                        if (att != null)
-                                        {
-                                            sb.Append($"{ec.Name}.Columns.{att.Name}");
-                                        }
-                                        else
-                                        {
-                                            sb.Append($"\"{rAttr.LookupFieldName}\"");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        var ec = entityCollection.SelectedDefinitions.FirstOrDefault(d => d.LogicalName == rAttr.TargetEntityName);
-                                        var att = ec?.AttributesCollection.SelectedDefinitions.FirstOrDefault(d => d.LogicalName == rAttr.LookupFieldName);
-
-                                        if (att != null)
-                                        {
-                                            sb.Append($"{ec.Name}.Columns.{att.Name}");
-                                        }
-                                        else
-                                        {
-                                            sb.Append($"\"{rAttr.LookupFieldName}\"");
-                                        }
-                                    }
-
-                                    sb.Append(")]\r\n");
+                                    sb.AppendLine($"[AttributeMetadata(AttributeTypeCode.{attr.Type})]");
                                 }
 
-                                sb.AppendFormat("\t\t\tpublic const string {0} = \"{1}\";\r\n", attr.Name, attr.Value);
+                                if (attr.Enum != null)
+                                {
+                                    sb.AppendLine($"[OptionSet(typeof({attr.Enum.Name}))]");
+                                }
+
+                                if (attr.IsPrimaryIdAttribute)
+                                {
+                                    sb.AppendLine("[PrimaryAttribute(PrimaryAttributeType.Id)]");
+                                }
+
+                                if (attr.IsPrimaryNameAttribute)
+                                {
+                                    sb.AppendLine("[PrimaryAttribute(PrimaryAttributeType.Name)]");
+                                }
+
+                                if (attr.IsPrimaryImageAttribute)
+                                {
+                                    sb.AppendLine("[PrimaryAttribute(PrimaryAttributeType.Image)]");
+                                }
+
+                                if (attr.StringMaxLength.HasValue)
+                                {
+                                    sb.AppendLine($"[StringLength({attr.StringMaxLength.Value})]");
+                                }
+
+                                if (attr.MinRange.HasValue && attr.MaxRange.HasValue)
+                                {
+                                    sb.AppendLine($"[Range({attr.MinRange.Value}, {attr.MaxRange.Value})]");
+                                }
+
+                                foreach (var keyName in attr.KeyNames)
+                                {
+                                    sb.AppendLine($"[AlternateKey(AlternateKeyNames.{keyName})]");
+                                }
+
+                                if (attr.DateTimeBehavior != null)
+                                {
+                                    var behavior = string.Empty;
+                                    if (attr.DateTimeBehavior == Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.DateOnly)
+                                    {
+                                        behavior = "DateOnly";
+                                    }
+                                    else if (attr.DateTimeBehavior ==
+                                             Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.TimeZoneIndependent)
+                                    {
+                                        behavior = "TimeZoneIndependent";
+                                    }
+                                    else if (attr.DateTimeBehavior ==
+                                             Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.UserLocal)
+                                    {
+                                        behavior = "UserLocal";
+                                    }
+
+                                    sb.AppendLine($"[DateTimeBehavior(DateTimeBehavior.{behavior})]");
+                                }
+
+                                foreach (var relationship in attr.Relationships)
+                                {
+                                    if (this._entityCollection.SelectedDefinitions.Any(d =>
+                                        d.LogicalName == relationship.ReferencedEntity))
+                                    {
+                                        var eC = this._entityCollection[relationship.ReferencedEntity];
+                                        sb.AppendLine(string.Format(
+                                            "[CrmLookup({0}.EntityName, {0}.Columns.{1}, RelationshipName = ManyToOneRelationships.{2})]",
+                                            eC.Name, eC.AttributesCollection[relationship.ReferencedAttribute].Name,
+                                            relationship.SchemaName));
+                                    }
+                                    else if (relationship.ReferencedEntity != "owner")
+                                    {
+                                        sb.AppendLine(
+                                            $"[CrmLookup(\"{relationship.ReferencedEntity}\", \"{relationship.ReferencedAttribute}\", RelationshipName = \"{relationship.SchemaName}\")]");
+                                    }
+                                    else if (relationship.ReferencedEntity == "owner")
+                                    {
+                                        sb.AppendLine(
+                                            $"[CrmLookup(\"{relationship.ReferencedEntity}\", \"{relationship.ReferencedAttribute}\", RelationshipName = \"{relationship.SchemaName}\")]");
+                                    }
+                                }
+
+                                sb.AppendLine($"public const string {attr.Name} = \"{attr.LogicalName}\";\r\n");
+                            }
+                        }
+
+                        sb.AppendLine("}");
+
+
+                        foreach (var def in item.AdditionalClassesCollection.Definitions)
+                        {
+                            sb.AppendLine();
+                            if (def.IsEnum)
+                            {
+                                sb.AppendLine($"public enum {def.Name}");
                             }
                             else
                             {
-                                sb.AppendFormat("\t\t\tpublic const int {0} = {1};\r\n", attr.Name, attr.Value);
+                                sb.AppendLine("[SuppressMessage(\"Microsoft.Design\", \"CA1034:NestedTypesShouldNotBeVisible\")]");
+                                sb.AppendLine($"public static class {def.Name}");
                             }
+
+                            sb.AppendLine("{");
+
+                            using (sb.Indent())
+                            {
+                                if (def.IsEnum)
+                                {
+                                    foreach (var attr in def.Attributes.Definitions.OrderBy(a => a.Value))
+                                    {
+                                        sb.AppendLine($"{attr.Name} = {attr.Value},");
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (var attr in def.Attributes.Definitions.OrderBy(a => a.Name))
+                                    {
+                                        if (attr.Type == "String")
+                                        {
+                                            if (attr is RelationshipAttributeDefinition rAttr)
+                                            {
+                                                sb.Append("[Relationship(");
+                                                if (this._entityCollection.SelectedDefinitions.Any(d =>
+                                                    d.LogicalName == rAttr.TargetEntityName))
+                                                {
+                                                    sb.Append($"{_entityCollection[rAttr.TargetEntityName].Name}.EntityName");
+                                                }
+                                                else
+                                                {
+                                                    sb.Append($"\"{rAttr.TargetEntityName}\"");
+                                                }
+
+                                                sb.Append($", EntityRole.{rAttr.Role}, \"{rAttr.NavigationPropertyName}\", ");
+
+                                                if (rAttr.Role == "Referencing")
+                                                {
+                                                    var ec = _entityCollection.Definitions.FirstOrDefault(d =>
+                                                        d.LogicalName == item.LogicalName);
+                                                    var att = ec?.AttributesCollection.SelectedDefinitions
+                                                        .FirstOrDefault(
+                                                            d =>
+                                                                d.LogicalName == rAttr.LookupFieldName);
+
+                                                    if (att != null)
+                                                    {
+                                                        sb.Append($"{ec.Name}.Columns.{att.Name}");
+                                                    }
+                                                    else
+                                                    {
+                                                        sb.Append($"\"{rAttr.LookupFieldName}\"");
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    var ec = _entityCollection.SelectedDefinitions.FirstOrDefault(d =>
+                                                        d.LogicalName == rAttr.TargetEntityName);
+                                                    var att = ec?.AttributesCollection.SelectedDefinitions
+                                                        .FirstOrDefault(
+                                                            d =>
+                                                                d.LogicalName == rAttr.LookupFieldName);
+
+                                                    if (att != null)
+                                                    {
+                                                        sb.Append($"{ec.Name}.Columns.{att.Name}");
+                                                    }
+                                                    else
+                                                    {
+                                                        sb.Append($"\"{rAttr.LookupFieldName}\"");
+                                                    }
+                                                }
+
+                                                sb.AppendLine(")]");
+                                            }
+
+                                            sb.AppendLine($"public const string {attr.Name} = \"{attr.Value}\";");
+                                        }
+                                        else
+                                        {
+                                            sb.AppendLine($"public const int {attr.Name} = {attr.Value};");
+                                        }
+                                    }
+                                }
+                            }
+
+                            sb.AppendLine("}");
                         }
                     }
 
-                    sb.AppendLine("\t\t}");
+                    sb.AppendLine("}");
                 }
 
-
-                sb.AppendLine("\t}");
                 sb.AppendLine("}");
 
-                var fileInfo = new FileInfo(string.Format("../../../../../{0}/Definitions/{1}.cs", CoreProjectName, item.Name));
+                var fileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{item.Name}.cs");
 
                 var definitionFolder = new DirectoryInfo($"../../../../../{CoreProjectName}/Definitions");
                 if (definitionFolder.Exists == false)
@@ -519,60 +602,125 @@ namespace DefinitionManager
                 }
 
                 File.WriteAllText(fileInfo.FullName, sb.ToString());
-                string oldFileName = null;
 
-                if (!string.IsNullOrEmpty(item.PreviousName) && item.PreviousName != item.Name)
-                {
-                    oldFileName = string.Format("{0}.cs", item.PreviousName);
-                }
-
-                fileList.Add(new TfsHelper.FileInfo(fileInfo.Name, oldFileName));
+                var fileInfo2 = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{item.Name.Replace("Definition", string.Empty)}.entity");
+                
+                File.WriteAllText(fileInfo2.FullName, entityTxt);
             }
 
 
-            var fc = new StringBuilder();
+
+            var globalEnums = EnumDefinitionCollection.Instance.SelectedDefinitions.Where(en => en.IsSelected)
+                .Select(en => en.LogicalName).ToList();
+
+            var globalOptionSets = new Entity
+            {
+                LogicalName = "globalEnums",
+                Name = "OptionSets"
+            };
+            globalOptionSets.Enums.AddRange(_enums.Where(en => globalEnums.Contains(en.LogicalName) && en.IsGlobal));
+
+            var optionSetsTxt = JsonConvert.SerializeObject(globalOptionSets, Formatting.Indented, new JsonSerializerSettings
+            {
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            });
+
+            var fileInfoOptionSets = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{globalOptionSets.Name}.entity");
+
+            File.WriteAllText(fileInfoOptionSets.FullName, optionSetsTxt);
+
+            var fc = new IndentedStringBuilder();
             fc.AppendLine("using System.ComponentModel;");
             fc.AppendLine("using XrmFramework;");
             fc.AppendLine();
             fc.AppendLine($"namespace {CoreProjectName}");
             fc.AppendLine("{");
-            foreach (var def in EnumDefinitionCollection.Instance.SelectedDefinitions)
-            {
-                fc.AppendLine();
-                if (def.IsGlobal)
-                {
-                    fc.AppendFormat("\t[OptionSetDefinition(\"{0}\")]\r\n", def.LogicalName);
-                }
-                else
-                {
-                    var attribute = def.ReferencedBy.First();
 
-                    fc.AppendFormat("\t[OptionSetDefinition({0}.EntityName, {0}.Columns.{1})]\r\n", attribute.ParentEntity.Name, attribute.Name);
-                }
-                fc.AppendFormat("\tpublic enum {0}\r\n", def.Name);
-                fc.AppendLine("\t{");
-                if (def.HasNullValue)
-                {
-                    fc.AppendLine("\t\tNull = 0,");
-                }
-                foreach (var val in def.Values.Definitions)
-                {
-                    fc.AppendFormat(CultureInfo.InvariantCulture, "\t\t[Description(\"{0}\")]\r\n", val.DisplayName);
-                    if (!string.IsNullOrEmpty(val.ExternalValue))
+            using (fc.Indent())
+            {
+                foreach (var def in EnumDefinitionCollection.Instance.SelectedDefinitions)
+                {   
+                    fc.AppendLine();
+                    if (def.IsGlobal)
                     {
-                        fc.AppendFormat(CultureInfo.InvariantCulture, "\t\t[ExternalValue(\"{0}\")]\r\n", val.ExternalValue);
+                        fc.AppendLine($"[OptionSetDefinition(\"{def.LogicalName}\")]");
+                    }
+                    else
+                    {
+                        var attribute = def.ReferencedBy.First();
+
+                        fc.AppendLine(string.Format("[OptionSetDefinition({0}.EntityName, {0}.Columns.{1})]",
+                            attribute.ParentEntity.Name, attribute.Name));
                     }
 
-                    fc.AppendFormat("\t\t{0} = {1},\r\n", val.Name, val.LogicalName);
-                }
+                    fc.AppendLine($"public enum {def.Name}");
+                    fc.AppendLine("{");
 
-                fc.AppendLine("\t}");
+                    using (fc.Indent())
+                    {
+
+                        if (def.HasNullValue)
+                        {
+                            fc.AppendLine("Null = 0,");
+                        }
+
+                        foreach (var val in def.Values.Definitions)
+                        {
+                            fc.AppendLine($"[Description(\"{val.DisplayName}\")]");
+
+                            if (!string.IsNullOrEmpty(val.ExternalValue))
+                            {
+                                fc.AppendLine($"[ExternalValue(\"{val.ExternalValue}\")]");
+                            }
+
+                            fc.AppendLine($"{val.Name} = {val.LogicalName},");
+                        }
+                    }
+
+                    fc.AppendLine("}");
+                }
             }
+
             fc.AppendLine("}");
             File.WriteAllText($"../../../../../{CoreProjectName}/Definitions/OptionSetDefinitions.cs", fc.ToString());
-            fileList.Add(new TfsHelper.FileInfo("OptionSetDefinitions.cs"));
 
-            MessageBox.Show("Definition files generation succeedeed");
+            MessageBox.Show(@"Definition files generation succeeded");
+        }
+
+        private void AddAttributeSummary(IndentedStringBuilder sb, AttributeDefinition attr)
+        {
+            sb.AppendLine("/// <summary>");
+            sb.AppendLine("/// ");
+            sb.AppendLine($"/// Type : {attr.Type}{(attr.Enum == null ? "" : " (" + attr.Enum.Name + ")")}");
+            sb.Append("/// Validity :  ");
+
+            var isFirst = true;
+            if (attr.IsValidForRead)
+            {
+                isFirst = false;
+                sb.Append("Read ");
+            }
+
+            if (attr.IsValidForCreate)
+            {
+                if (isFirst) { isFirst = false; } else { sb.Append("| "); }
+                sb.Append("Create ");
+            }
+
+            if (attr.IsValidForUpdate)
+            {
+                if (isFirst) { isFirst = false; } else { sb.Append("| "); }
+                sb.Append("Update ");
+            }
+
+            if (attr.IsValidForAdvancedFind)
+            {
+                if (isFirst) { isFirst = false; } else { sb.Append("| "); }
+                sb.Append("AdvancedFind ");
+            }
+            sb.AppendLine();
+
+            sb.AppendLine("/// </summary>");
         }
 
         public T GetCustomList<T>()

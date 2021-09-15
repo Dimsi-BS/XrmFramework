@@ -13,7 +13,9 @@ namespace DefinitionManager
     {
         internal static string FormatText(this string text)
         {
-            text = text.Replace("'", " ").Replace("‘", " ").Replace("’", " ").Replace(",", " ").Replace("-", " ").Replace("(", " ").Replace(")", " ").Replace(":", " ").Replace("/", " ").Replace("\\", " ").Replace("%", " Pourcent ").Replace("+", " Plus ").Replace("&", " ");
+            text = text.Replace("'", " ").Replace("‘", " ").Replace("’", " ").Replace("_", " ").Replace(",", " ").Replace("-", " ").Replace("(", " ").Replace(")", " ").Replace(":", " ").Replace("/", " ").Replace("\\", " ").Replace("%", " Pourcent ").Replace("+", " Plus ").Replace("&", " ")
+                // Characters looking like spaces but not spaces
+                .Replace(" ", " ").Replace(" ", " ");
             text = RemoveDiacritics(text);
 
             var cultureInfo = System.Threading.Thread.CurrentThread.CurrentCulture;

@@ -22,7 +22,11 @@ using RelationshipAttributeDefinition = DefinitionManager.Definitions.Relationsh
 using StringAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.StringAttributeMetadata;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Tooling.Connector;
+using XrmFramework.DefinitionManager.Model;
 using XrmFramework.DeployUtils.Configuration;
+using Attribute = XrmFramework.DefinitionManager.Model.Attribute;
+using Entity = XrmFramework.DefinitionManager.Model.Entity;
+using LocalizedLabel = XrmFramework.DefinitionManager.Model.LocalizedLabel;
 
 namespace DefinitionManager
 {
@@ -59,7 +63,7 @@ namespace DefinitionManager
         {
             SendStepChange("Connecting...");
 
-            _service = new CrmServiceClient(ConfigHelper.GetSelectedConnectionString()); 
+            _service = new CrmServiceClient(ConfigHelper.GetSelectedConnectionString());
 
             _service.Execute(new WhoAmIRequest());
             SendStepChange("Connected!");
@@ -82,6 +86,8 @@ namespace DefinitionManager
             SendStepChange("Retrieving entities...");
 
             var entities = new List<EntityDefinition>();
+            var newEntities = new List<Entity>();
+            var enums = new List<OptionSetEnum>();
 
             var queryComponents = new QueryExpression(SolutionComponent.EntityLogicalName);
             queryComponents.ColumnSet.AllColumns = true;
@@ -117,6 +123,13 @@ namespace DefinitionManager
                     IsLoaded = true
                 };
 
+                var newEntity = new Entity
+                {
+                    LogicalName = entity.LogicalName,
+                    CollectionName = entity.LogicalCollectionName,
+                    Name = RemovePrefix(entity.SchemaName).FormatText()
+                };
+
                 ClassDefinition keyDefinition = null;
                 if (entity.Keys != null && entity.Keys.Any())
                 {
@@ -129,6 +142,20 @@ namespace DefinitionManager
                     foreach (var key in entity.Keys)
                     {
                         keyDefinition.Attributes.Add(new AttributeDefinition { LogicalName = key.LogicalName, Name = key.DisplayName.UserLocalizedLabel.Label.FormatText(), Value = key.LogicalName, Type = "String" });
+
+                        var newKey = new Key
+                        {
+                            Name = key.LogicalName
+                        };
+                        newKey.FieldNames.AddRange(key.KeyAttributes);
+
+
+                        if (newEntity.Keys == null)
+                        {
+                            newEntity.Keys = new List<Key>();
+                        }
+
+                        newEntity.Keys.Add(newKey);
                     }
                 }
 
@@ -155,6 +182,15 @@ namespace DefinitionManager
                         };
 
                         classDefinition.Attributes.Add(attribute);
+
+                        newEntity.OneToManyRelationships.Add(new Relation
+                        {
+                            Name = relationship.SchemaName,
+                            Role = EntityRole.Referenced,
+                            EntityName = relationship.ReferencingEntity,
+                            NavigationPropertyName = relationship.ReferencedEntityNavigationPropertyName,
+                            LookupFieldName = relationship.ReferencingAttribute
+                        });
                     }
                 }
 
@@ -177,6 +213,15 @@ namespace DefinitionManager
                             Role = "Referencing",
                             NavigationPropertyName = relationship.IntersectEntityName,
                             TargetEntityName = relationship.Entity1LogicalName == entityDefinition.LogicalName ? relationship.Entity2LogicalName : relationship.Entity1LogicalName,
+                            LookupFieldName = relationship.Entity1LogicalName == entityDefinition.LogicalName ? relationship.Entity2IntersectAttribute : relationship.Entity1IntersectAttribute
+                        });
+
+                        newEntity.ManyToManyRelationships.Add(new Relation
+                        {
+                            Name = relationship.SchemaName,
+                            Role = EntityRole.Referencing,
+                            EntityName = relationship.Entity1LogicalName == entityDefinition.LogicalName ? relationship.Entity2LogicalName : relationship.Entity1LogicalName,
+                            NavigationPropertyName = relationship.IntersectEntityName,
                             LookupFieldName = relationship.Entity1LogicalName == entityDefinition.LogicalName ? relationship.Entity2IntersectAttribute : relationship.Entity1IntersectAttribute
                         });
                     }
@@ -220,6 +265,15 @@ namespace DefinitionManager
                         }
 
                         list.Add(relationship);
+
+                        newEntity.ManyToOneRelationships.Add(new Relation
+                        {
+                            Name = relationship.SchemaName,
+                            Role = EntityRole.Referencing,
+                            NavigationPropertyName = relationship.ReferencingEntityNavigationPropertyName,
+                            EntityName = relationship.ReferencedEntity,
+                            LookupFieldName = relationship.ReferencingAttribute
+                        });
                     }
                 }
 
@@ -227,6 +281,7 @@ namespace DefinitionManager
                 current++;
 
                 entities.Add(entityDefinition);
+                newEntities.Add(newEntity);
 
                 foreach (AttributeMetadata attributeMetadata in entity.Attributes.OrderBy(a => a.LogicalName))
                 {
@@ -240,12 +295,15 @@ namespace DefinitionManager
                     }
 
                     EnumDefinition enumDefinition = null;
+                    string attributeEnumName = null;
 
                     if (attributeMetadata.AttributeType.Value == AttributeTypeCode.Picklist || attributeMetadata.AttributeType.Value == AttributeTypeCode.State || attributeMetadata.AttributeType.Value == AttributeTypeCode.Status || attributeMetadata.AttributeType.Value == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata)
                     {
                         var meta = ((EnumAttributeMetadata)attributeMetadata).OptionSet;
 
-                        var enumLogicalName = meta.IsGlobal.Value ? meta.Name : entity.LogicalName + "_" + attributeMetadata.LogicalName;
+                        var enumLogicalName = meta.IsGlobal.Value ? meta.Name : entity.LogicalName + "|" + attributeMetadata.LogicalName;
+
+                        attributeEnumName = enumLogicalName;
 
                         var tempEnumDefinition = new EnumDefinition
                         {
@@ -254,20 +312,32 @@ namespace DefinitionManager
                             HasNullValue = attributeMetadata.AttributeType.Value == AttributeTypeCode.Picklist && meta.Options.All(option => option.Value.GetValueOrDefault() != 0)
                         };
 
+                        var newEnum = new OptionSetEnum
+                        {
+                            LogicalName = enumLogicalName,
+                            IsGlobal = meta.IsGlobal.Value,
+                            HasNullValue = attributeMetadata.AttributeType.Value == AttributeTypeCode.Picklist &&
+                                           meta.Options.All(option => option.Value.GetValueOrDefault() != 0),
+                        };
+
                         if (attributeMetadata.AttributeType.Value == AttributeTypeCode.State)
                         {
                             tempEnumDefinition.Name = entityDefinition.Name.Replace("Definition", "") + "State";
+
+                            newEnum.Name = entityDefinition.Name.Replace("Definition", "") + "State";
                         }
                         else if (attributeMetadata.AttributeType.Value == AttributeTypeCode.Status)
                         {
                             tempEnumDefinition.Name = entityDefinition.Name.Replace("Definition", "") + "Status";
+                            newEnum.Name = entityDefinition.Name.Replace("Definition", "") + "Status";
                         }
                         else
                         {
                             tempEnumDefinition.Name = meta.DisplayName.UserLocalizedLabel?.Label.FormatText();
+                            newEnum.Name = meta.DisplayName.UserLocalizedLabel?.Label.FormatText();
                         }
 
-                        if (string.IsNullOrEmpty(tempEnumDefinition.Name))
+                        if (string.IsNullOrEmpty(newEnum.Name))
                         {
                             continue;
                         }
@@ -278,6 +348,25 @@ namespace DefinitionManager
                             {
                                 continue;
                             }
+
+                            var optionValue = new OptionSetEnumValue
+                            {
+                                Name = option.Label.UserLocalizedLabel.Label.FormatText(),
+                                Value = option.Value.Value,
+                                ExternalValue = option.ExternalValue
+                            };
+
+                            foreach (var displayNameLocalizedLabel in option.Label.LocalizedLabels)
+                            {
+                                optionValue.Labels.Add(new LocalizedLabel
+                                {
+                                    Label = displayNameLocalizedLabel.Label,
+                                    LangId = displayNameLocalizedLabel.LanguageCode
+                                });
+                            }
+
+                            newEnum.Values.Add(optionValue);
+
                             tempEnumDefinition.Values.Add(new EnumValueDefinition
                             {
                                 Name = option.Label.UserLocalizedLabel.Label.FormatText(),
@@ -286,6 +375,15 @@ namespace DefinitionManager
                                 Value = option.Value.Value.ToString(),
                                 ExternalValue = option.ExternalValue
                             });
+                        }
+
+                        if (newEnum.IsGlobal == false)
+                        {
+                            newEntity.Enums.Add(newEnum);
+                        }
+                        else if (enums.All(e => e.LogicalName != newEnum.LogicalName))
+                        {
+                            enums.Add(newEnum);
                         }
 
                         if (!EnumDefinitionCollection.Instance.Contains(enumLogicalName))
@@ -362,11 +460,61 @@ namespace DefinitionManager
                         MaxRange = maxRangeDouble
                     };
 
+                    var attribute = new Attribute
+                    {
+                        LogicalName = attributeMetadata.LogicalName,
+                        Name = name,
+                        Type = attributeMetadata.AttributeType.Value == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata
+                            ? AttributeTypeCode.Picklist : attributeMetadata.AttributeType.Value,
+                        IsMultiSelect = attributeMetadata.AttributeType.Value == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata,
+                        PrimaryType = attributeMetadata.LogicalName == entity.PrimaryIdAttribute ?
+                            PrimaryType.Id :
+                            attributeMetadata.LogicalName == entity.PrimaryNameAttribute ?
+                                PrimaryType.Name :
+                                attributeMetadata.LogicalName == entity.PrimaryImageAttribute ? PrimaryType.Image : PrimaryType.None,
+                        StringLength = maxLength,
+                        MinRange = minRangeDouble,
+                        MaxRange = maxRangeDouble,
+                        EnumName = attributeEnumName
+                    };
+
+                    foreach (var displayNameLocalizedLabel in attributeMetadata.DisplayName.LocalizedLabels)
+                    {
+                        attribute.Labels.Add(new LocalizedLabel
+                        {
+                            Label = displayNameLocalizedLabel.Label,
+                            LangId = displayNameLocalizedLabel.LanguageCode
+                        });
+                    }
+
+                    if (attributeMetadata.IsValidForAdvancedFind.Value)
+                    {
+                        attribute.Capabilities |= AttributeCapabilities.AdvancedFind;
+                    }
+
+                    if (attributeMetadata.IsValidForCreate.Value)
+                    {
+                        attribute.Capabilities |= AttributeCapabilities.Create;
+                    }
+
+                    if (attributeMetadata.IsValidForRead.Value)
+                    {
+                        attribute.Capabilities |= AttributeCapabilities.Read;
+                    }
+
+                    if (attributeMetadata.IsValidForUpdate.Value)
+                    {
+                        attribute.Capabilities |= AttributeCapabilities.Update;
+                    }
+
+
                     if (attributeMetadata.AttributeType == AttributeTypeCode.DateTime)
                     {
                         var meta = (DateTimeAttributeMetadata)attributeMetadata;
 
                         attributeDefinition.DateTimeBehavior = meta.DateTimeBehavior;
+
+                        attribute.DateTimeBehavior = meta.DateTimeBehavior;
                     }
 
                     if (attributeMetadata.LogicalName == "ownerid")
@@ -410,11 +558,12 @@ namespace DefinitionManager
                     }
 
                     entityDefinition.AttributesCollection.Add(attributeDefinition);
+                    newEntity.Attributes.Add(attribute);
                 }
 
             }
             SendStepChange(string.Empty);
-            return entities;
+            return new Tuple<List<EntityDefinition>, List<Entity>, List<OptionSetEnum>>(entities, newEntities, enums);
         }
 
         object DoRetrieveAttributes(object item)

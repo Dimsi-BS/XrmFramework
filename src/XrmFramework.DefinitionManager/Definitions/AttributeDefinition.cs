@@ -145,60 +145,17 @@ namespace DefinitionManager
         public string EnumName { get { return Enum == null || !IsSelected ? null : Enum.Name; } }
 
         [Mergeable]
-        public bool IsValidForCreate { protected get; set; }
+        public bool IsValidForCreate { protected internal get; set; }
 
         [Mergeable]
-        public bool IsValidForUpdate { protected get; set; }
+        public bool IsValidForUpdate { protected internal get; set; }
 
         [Mergeable]
-        public bool IsValidForRead { protected get; set; }
+        internal bool IsValidForRead { get; set; }
 
         [Mergeable]
-        public bool IsValidForAdvancedFind { protected get; set; }
-
-        public string Summary
-        {
-            get
-            {
-                var sb = new StringBuilder();
-                sb.AppendLine("\t\t\t/// <summary>");
-                sb.AppendLine("\t\t\t/// ");
-                sb.AppendFormat("\t\t\t/// Type : {0}{1}\r\n", Type, Enum == null ? "" : " (" + Enum.Name + ")");
-                sb.Append("\t\t\t/// Validity :  ");
-
-                var isFirst = true;
-                if (IsValidForRead)
-                {
-                    isFirst = false;
-                    sb.Append("Read ");
-                }
-
-                if (IsValidForCreate)
-                {
-                    if (isFirst) { isFirst = false; } else { sb.Append("| "); }
-                    sb.Append("Create ");
-                }
-
-                if (IsValidForUpdate)
-                {
-                    if (isFirst) { isFirst = false; } else { sb.Append("| "); }
-                    sb.Append("Update ");
-                }
-
-                if (IsValidForAdvancedFind)
-                {
-                    if (isFirst) { isFirst = false; } else { sb.Append("| "); }
-                    sb.Append("AdvancedFind ");
-                }
-                sb.Append("\r\n");
-
-                sb.AppendLine("\t\t\t/// </summary>");
-
-
-                return sb.ToString();
-            }
-        }
-
+        public bool IsValidForAdvancedFind { protected internal get; set; }
+        
         protected override void MergeInternal(AbstractDefinition definition)
         {
             var def = (AttributeDefinition)definition;

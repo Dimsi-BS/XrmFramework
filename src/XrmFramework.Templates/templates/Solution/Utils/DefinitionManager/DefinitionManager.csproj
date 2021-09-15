@@ -9,8 +9,4 @@
     <PackageReference Include="XrmFramework.DefinitionManager" Version="#{GitBuildVersionSimple}#" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\$(XrmFrameworkCoreProjectName)\$(XrmFrameworkCoreProjectName).csproj" />
-  </ItemGroup>
-
 </Project>

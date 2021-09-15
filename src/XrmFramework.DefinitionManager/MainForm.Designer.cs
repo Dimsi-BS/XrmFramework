@@ -1,4 +1,6 @@
-﻿namespace DefinitionManager
+﻿using DefinitionManager;
+
+namespace XrmFramework.DefinitionManager
 {
     partial class MainForm
     {
@@ -34,10 +36,10 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.generateDefinitionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.entityListView = new DefinitionManager.EntityListViewControl();
+            this.entityListView = new global::DefinitionManager.EntityListViewControl();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.attributeListView = new DefinitionManager.AttributeListViewControl();
-            this.enumListView = new DefinitionManager.EnumListViewControl();
+            this.attributeListView = new global::DefinitionManager.AttributeListViewControl();
+            this.enumListView = new global::DefinitionManager.EnumListViewControl();
             this.picklistNameHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.picklistDisplayNameHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.picklistValueHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));

@@ -2,14 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Microsoft.Xrm.Sdk;
-
 
 namespace XrmFramework
 {
-
-
     public abstract class CustomApi : Plugin
     {
         public readonly List<CustomApiArgument> Arguments = new List<CustomApiArgument>();
