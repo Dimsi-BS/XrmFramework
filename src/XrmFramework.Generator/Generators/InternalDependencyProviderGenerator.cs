@@ -20,7 +20,7 @@ namespace XrmFramework.DeployUtils.Generators
 
         public static void Generate(string loggedServiceFolder, IEnumerable<Type> types, Type iServiceType, Type defaultServiceType, Type iLoggedServiceType)
         {
-            var namespaceSet = new HashSet<string>();
+            var namespaceSet = new HashSet<string>{ "BoDi"};
 
             var sb = new IndentedStringBuilder();
 
@@ -31,6 +31,7 @@ namespace XrmFramework.DeployUtils.Generators
             foreach (var t in types)
             {
                 namespaceSet.Add(t.Namespace);
+                namespaceSet.Add(Code.Namespace(t.Namespace, "LoggedServices"));
 
                 foreach (var type in allTypes)
                 {
@@ -50,14 +51,10 @@ namespace XrmFramework.DeployUtils.Generators
                     .Append("using ")
                     .Append(ns)
                     .AppendLine(";");
-
-                sb
-                    .Append("using ")
-                    .Append(Code.Namespace(ns, "LoggedServices"))
-                    .AppendLine(";");
             }
 
             sb
+                .AppendLine()
                 .AppendLine("namespace XrmFramework")
                 .AppendLine("{");
 
@@ -88,7 +85,8 @@ namespace XrmFramework.DeployUtils.Generators
                                 
                                 .Append("container.RegisterFactoryAs<")
                                 .Append(Code.Reference(service.serviceType))
-                                .AppendLine(">(objectContainer =>");
+                                .AppendLine(">(objectContainer =>")
+                                .AppendLine("{");
 
                             using (sb.Indent())
                             {
