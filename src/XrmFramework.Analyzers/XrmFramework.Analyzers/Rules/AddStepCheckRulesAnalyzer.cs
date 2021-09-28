@@ -78,7 +78,7 @@ namespace XrmFramework.Analyzers
                 return;
             }
 
-            if (symbol.Name != "AddStep" || symbol.ContainingType.Name != "Plugin" || symbol.ContainingNamespace.Name != "Plugins")
+            if (symbol.Name != "AddStep" || symbol.ContainingType.Name != "Plugin" || symbol.ContainingNamespace.Name != "XrmFramework")
             {
                 return;
             }

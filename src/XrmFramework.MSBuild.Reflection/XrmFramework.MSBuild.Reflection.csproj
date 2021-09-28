@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\XrmFramework.MSBuild\XrmFramework.MSBuild.csproj" />
+    <ProjectReference Include="..\XrmFramework.Generator\XrmFramework.Generator.csproj" />
   </ItemGroup>
 
 </Project>

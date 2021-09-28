@@ -1269,9 +1269,9 @@ namespace XrmFramework.BindingModel
             return root;
         }
 
-        public static RequestContainer GetUpsertRequests(this IXmlModel xmlModel, IOrganizationService service)
+        public static RequestContainer GetUpsertRequests(this IXmlModel xmlModel, IOrganizationService service, bool disablePluginsExecution = false)
         {
-            var container = new RequestContainer();
+            var container = new RequestContainer(disablePluginsExecution);
 
             FillUpsertRequests(xmlModel, service, container);
 
@@ -1750,7 +1750,7 @@ namespace XrmFramework.BindingModel
             }
             else
             {
-                var listRequests = ((IXmlModel)model).GetUpsertRequests(service);
+                var listRequests = ((IXmlModel)model).GetUpsertRequests(service, settings.DisablePluginsExecution);
 
                 var skip = 0;
 
@@ -2024,6 +2024,8 @@ namespace XrmFramework.BindingModel
                     ContinueOnError = false;
             }
         }
+
+        public bool DisablePluginsExecution { get; set; }
 
         public bool ContinueOnError
         {

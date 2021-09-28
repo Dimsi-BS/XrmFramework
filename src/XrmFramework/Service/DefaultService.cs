@@ -42,11 +42,6 @@ namespace XrmFramework
 
         protected Guid CorrelationId => _context.CorrelationId;
 
-        protected void ThrowInvalidPluginException(string messageId, params object[] args)
-        {
-            _context.ThrowInvalidPluginException(messageId, args);
-        }
-
         public Guid Create(Entity entity, bool useAdmin = false)
         {
 #region Parameters check

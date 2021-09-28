@@ -3,29 +3,32 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Xml;
+using System.Reflection;
+using BoDi;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Query;
 using XrmFramework.Definitions;
 
 namespace XrmFramework
 {
     public partial class LocalContext : IContext, IServiceContext
     {
-        private readonly IList<object> _loadedServices = new List<object>();
-
         private IOrganizationService _adminService;
 
-        private readonly Microsoft.Xrm.Sdk.EntityReference _businessUnitRef;
+        private readonly EntityReference _businessUnitRef;
 
-        public Microsoft.Xrm.Sdk.EntityReference UserRef => new Microsoft.Xrm.Sdk.EntityReference(SystemUserDefinition.EntityName, UserId);
+        public EntityReference UserRef => new(SystemUserDefinition.EntityName, UserId);
 
-        public Microsoft.Xrm.Sdk.EntityReference BusinessUnitRef => _businessUnitRef;
+        public EntityReference BusinessUnitRef => _businessUnitRef;
+
+        protected IObjectContainer ObjectContainer { get; }
 
         protected LocalContext()
         {
+            ObjectContainer = new ObjectContainer();
+
+            ObjectContainer.RegisterInstanceAs(this, typeof(IServiceContext));
+
+            InternalDependencyProvider.RegisterDefaults(ObjectContainer);
         }
 
         protected ILogger Logger { get; }
@@ -59,7 +62,7 @@ namespace XrmFramework
             // Use the factory to generate the Organization Service.
             OrganizationService = Factory.CreateOrganizationService(ExecutionContext.UserId);
 
-            _businessUnitRef = new Microsoft.Xrm.Sdk.EntityReference("businessunit", ExecutionContext.BusinessUnitId);
+            _businessUnitRef = new EntityReference("businessunit", ExecutionContext.BusinessUnitId);
 
             Logger = LoggerFactory.GetLogger(this, TracingService.Trace);
         }
@@ -74,7 +77,7 @@ namespace XrmFramework
 
         public ITracingService TracingService { get; protected set; }
 
-        public IOrganizationService AdminOrganizationService => _adminService = _adminService ?? Factory.CreateOrganizationService(null);
+        public IOrganizationService AdminOrganizationService => _adminService ??= Factory.CreateOrganizationService(null);
 
         public Messages MessageName => Messages.GetMessage(ExecutionContext.MessageName);
 
@@ -264,128 +267,6 @@ namespace XrmFramework
 
         #endregion
 
-        #region User Error Message
-        public virtual void ThrowInvalidPluginException(string messageName, params object[] formatArguments)
-        {
-            int orgLanguage = RetrieveOrganizationBaseLanguageCode(OrganizationService);
-            int userLanguage = RetrieveUserUiLanguageCode(OrganizationService, ExecutionContext.InitiatingUserId);
-            String orgResourceFile = GetResourceFileName(orgLanguage);
-            String resourceFile = GetResourceFileName(userLanguage, orgResourceFile);
-
-            XmlDocument messages = RetrieveXmlWebResourceByName(resourceFile);
-            String message = RetrieveLocalizedStringFromWebResource(messages, messageName);
-            if (formatArguments == null || formatArguments.Length == 0)
-            {
-                throw new InvalidPluginExecutionException(message);
-            }
-            else
-            {
-                throw new InvalidPluginExecutionException(string.Format(CultureInfo.InvariantCulture, message, formatArguments));
-            }
-        }
-
-        public virtual int Depth { get; }
-
-        private static string GetResourceFileName(int language, string defaultResourceName = null)
-        {
-            string resourceFile;
-            switch (language)
-            {
-                case 1033:
-                    resourceFile = "pchmcs_/xml/PluginMessages.en_US.xml";
-                    break;
-                case 1041:
-                    resourceFile = "pchmcs_/xml/PluginMessages.ja_JP.xml";
-                    break;
-                case 1031:
-                    resourceFile = "pchmcs_/xml/PluginMessages.de_DE.xml";
-                    break;
-                case 1036:
-                    resourceFile = "pchmcs_/xml/PluginMessages.fr_FR.xml";
-                    break;
-                case 1034:
-                    resourceFile = "pchmcs_/xml/PluginMessages.es_ES.xml";
-                    break;
-                case 1049:
-                    resourceFile = "pchmcs_/xml/PluginMessages.ru_RU.xml";
-                    break;
-                default:
-                    resourceFile = string.IsNullOrEmpty(defaultResourceName) ? "pchmcs_/xml/PluginMessages.en_US.xml" : defaultResourceName;
-                    break;
-            }
-            return resourceFile;
-        }
-
-        private static int RetrieveOrganizationBaseLanguageCode(IOrganizationService service)
-        {
-            QueryExpression organizationEntityQuery = new QueryExpression("organization");
-            organizationEntityQuery.NoLock = true;
-            organizationEntityQuery.ColumnSet.AddColumn("languagecode");
-            EntityCollection organizationEntities = service.RetrieveMultiple(organizationEntityQuery);
-            return (int)organizationEntities[0].Attributes["languagecode"];
-        }
-
-        private static int RetrieveUserUiLanguageCode(IOrganizationService service, Guid userId)
-        {
-            QueryExpression userSettingsQuery = new QueryExpression("usersettings");
-            userSettingsQuery.NoLock = true;
-            userSettingsQuery.ColumnSet.AddColumns("uilanguageid", "systemuserid");
-            userSettingsQuery.Criteria.AddCondition("systemuserid", ConditionOperator.Equal, userId);
-            EntityCollection userSettings = service.RetrieveMultiple(userSettingsQuery);
-            if (userSettings.Entities.Count > 0)
-            {
-                return (int)userSettings.Entities[0]["uilanguageid"];
-            }
-            return 0;
-        }
-
-        private XmlDocument RetrieveXmlWebResourceByName(string webresourceSchemaName)
-        {
-            TracingService.Trace("Begin:RetrieveXmlWebResourceByName, webresourceSchemaName={0}", webresourceSchemaName);
-            QueryExpression webresourceQuery = new QueryExpression("webresource")
-            {
-                NoLock = true
-            };
-            webresourceQuery.ColumnSet.AddColumn("content");
-            webresourceQuery.Criteria.AddCondition("name", ConditionOperator.Equal, webresourceSchemaName);
-            EntityCollection webresources = OrganizationService.RetrieveMultiple(webresourceQuery);
-            TracingService.Trace("Webresources Returned from server. Count={0}", webresources.Entities.Count);
-            if (webresources.Entities.Count > 0)
-            {
-                byte[] bytes = Convert.FromBase64String((string)webresources.Entities[0]["content"]);
-                // The bytes would contain the ByteOrderMask. Encoding.UTF8.GetString() does not remove the BOM.
-                // Stream Reader auto detects the BOM and removes it on the text
-                XmlDocument document = new XmlDocument();
-                document.XmlResolver = null;
-                MemoryStream ms = new MemoryStream(bytes);
-                using (StreamReader sr = new StreamReader(ms))
-                {
-                    document.Load(sr);
-                }
-                TracingService.Trace("End:RetrieveXmlWebResourceByName , webresourceSchemaName={0}", webresourceSchemaName);
-                return document;
-            }
-            else
-            {
-                TracingService.Trace("{0} Webresource missing. Reinstall the solution", webresourceSchemaName);
-                throw new InvalidPluginExecutionException($"Unable to locate the web resource {webresourceSchemaName}.");
-            }
-        }
-
-        private string RetrieveLocalizedStringFromWebResource(XmlDocument resource, string resourceId)
-        {
-            XmlNode valueNode = resource.SelectSingleNode(string.Format(CultureInfo.InvariantCulture, "./root/data[@name='{0}']/value", resourceId));
-            if (valueNode != null)
-            {
-                return valueNode.InnerText;
-            }
-            else
-            {
-                TracingService.Trace("No Node Found for {0} ", resourceId);
-                throw new InvalidPluginExecutionException($"ResourceID {resourceId} was not found.");
-            }
-        }
-        #endregion
 
         public Modes Mode
         {
@@ -421,6 +302,18 @@ namespace XrmFramework
             }
 
             return UserId;
+        }
+
+        public void InvokeMethod(MethodInfo method)
+        {
+            var listParamValues = new List<object>();
+
+            foreach (var param in method.GetParameters())
+            {
+                listParamValues.Add(ObjectContainer.Resolve(param.ParameterType));
+            }
+
+            method.Invoke(this, listParamValues.ToArray());
         }
     }
 }

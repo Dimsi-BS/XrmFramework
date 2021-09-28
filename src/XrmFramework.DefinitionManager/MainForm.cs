@@ -165,7 +165,7 @@ namespace XrmFramework.DefinitionManager
 
         private IEnumerable<Entity> GetCodedEntities()
         {
-            var entityFiles = Directory.EnumerateFiles(".", "*.entity", SearchOption.AllDirectories);
+            var entityFiles = Directory.EnumerateFiles(".", "*.table", SearchOption.AllDirectories);
 
             foreach (var entityFile in entityFiles)
             {
@@ -603,9 +603,9 @@ namespace XrmFramework.DefinitionManager
 
                 File.WriteAllText(fileInfo.FullName, sb.ToString());
 
-                var fileInfo2 = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{item.Name.Replace("Definition", string.Empty)}.entity");
+                var fileInfo2 = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{item.Name.Replace("Definition", string.Empty)}.table");
                 
-                File.WriteAllText(fileInfo2.FullName, entityTxt);
+                //File.WriteAllText(fileInfo2.FullName, entityTxt);
             }
 
 
@@ -625,9 +625,9 @@ namespace XrmFramework.DefinitionManager
                 DefaultValueHandling = DefaultValueHandling.Ignore
             });
 
-            var fileInfoOptionSets = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{globalOptionSets.Name}.entity");
+            var fileInfoOptionSets = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{globalOptionSets.Name}.table");
 
-            File.WriteAllText(fileInfoOptionSets.FullName, optionSetsTxt);
+            //File.WriteAllText(fileInfoOptionSets.FullName, optionSetsTxt);
 
             var fc = new IndentedStringBuilder();
             fc.AppendLine("using System.ComponentModel;");

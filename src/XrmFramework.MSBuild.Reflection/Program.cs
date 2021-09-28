@@ -14,12 +14,16 @@ namespace XrmFramework.MSBuild.Reflection
             
             var nullableType = assembly.GetType("XrmFramework.NullableAttribute");
             var iServiceType = assembly.GetType("XrmFramework.IService");
+            var defaultServiceType = assembly.GetType("XrmFramework.DefaultService");
+            var iLoggedServiceType = assembly.GetType("XrmFramework.ILoggedService");
 
             var generator = new LoggedServiceCodeGenerator(nullableType);
 
-            var types = assembly.GetTypes().Where(t => iServiceType.IsAssignableFrom(t) && t.IsInterface);
+            var types = assembly.GetTypes().Where(t => iServiceType.IsAssignableFrom(t) && t.IsInterface).ToList();
             
             MockGenerator.GenerateMocks(folderPath, types, nullableType);
+
+            InternalDependencyProviderGenerator.Generate(folderPath, types, iServiceType, defaultServiceType, iLoggedServiceType);
 
             Console.WriteLine("Logged service generation completed");
         }

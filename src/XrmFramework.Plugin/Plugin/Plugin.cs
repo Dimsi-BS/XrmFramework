@@ -145,7 +145,7 @@ namespace XrmFramework
                 {
                     return;
                 }
-
+                
                 IEnumerable<Step> steps;
 
                 if (_isCustomApi)
@@ -214,7 +214,7 @@ namespace XrmFramework
 
                     localContext.Log($"{ChildClassName}.{step.Method.Name} Start");
 
-                    Invoke(entityAction, localContext);
+                    localContext.InvokeMethod(entityAction);
 
                     localContext.Log($"{ChildClassName}.{step.Method.Name} End, duration : {sw.Elapsed}");
                 }
@@ -261,30 +261,6 @@ namespace XrmFramework
 
                 localContext.Log($"End : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}\r\n");
             }
-        }
-
-        private void Invoke(MethodInfo entityAction, LocalPluginContext localContext)
-        {
-            var listParamValues = new List<object>();
-
-            foreach (var param in entityAction.GetParameters())
-            {
-                if (typeof(IPluginContext).IsAssignableFrom(param.ParameterType))
-                {
-                    listParamValues.Add(localContext);
-                } 
-                else if (typeof(ICustomApiContext).IsAssignableFrom(param.ParameterType))
-                {
-                    listParamValues.Add(localContext);
-                }
-                else if (typeof(IService).IsAssignableFrom(param.ParameterType))
-                {
-                    var obj = ServiceFactory.GetService(param.ParameterType, localContext);
-                    listParamValues.Add(obj);
-                }
-            }
-
-            entityAction.Invoke(this, listParamValues.ToArray());
         }
     }
 }

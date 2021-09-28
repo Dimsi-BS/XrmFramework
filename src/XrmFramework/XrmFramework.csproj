@@ -44,19 +44,6 @@
     <PackageReference Include="Microsoft.Dynamics.Sdk.Messages" Version="0.4.12" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="build\ServicesProject\**" />
-    <EmbeddedResource Remove="build\ServicesProject\**" />
-    <None Remove="build\ServicesProject\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Utils\EntityReference.cs" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <Folder Remove="NewtonSoft.Json" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.4.1" />

@@ -1,0 +1,85 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(XrmFramework_Tools_TFM)</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>DISABLE_DI</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.9.20" />
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == '$(XrmFramework_Core_Tools_TFM)'">
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="0.4.12" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="0.4.12" />
+    <PackageReference Include="Microsoft.Dynamics.Sdk.Messages" Version="0.4.12" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.CodeDom" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XrmFramework.Utils\XrmFramework.Utils.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+
+  <!--<ItemGroup>
+    <Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
+  </ItemGroup>-->
+
+
+  <ItemGroup>
+    <Compile Remove="Configuration\**" />
+    <Compile Remove="DefinitionConverter\**" />
+    <Compile Remove="Interfaces\**" />
+    <Compile Remove="Project\**" />
+    <EmbeddedResource Remove="Configuration\**" />
+    <EmbeddedResource Remove="DefinitionConverter\**" />
+    <EmbeddedResource Remove="Interfaces\**" />
+    <EmbeddedResource Remove="Project\**" />
+    <None Remove="Configuration\**" />
+    <None Remove="DefinitionConverter\**" />
+    <None Remove="Interfaces\**" />
+    <None Remove="Project\**" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Remove="DefaultDependencyProvider.cs" />
+    <Compile Remove="GenerationTargetLanguage.cs" />
+    <Compile Remove="GenerationTargetPlatform.cs" />
+    <Compile Remove="GeneratorContainerBuilder.cs" />
+    <Compile Remove="GeneratorPluginInfo.cs" />
+    <Compile Remove="IndentProcessingWriter.cs" />
+    <Compile Remove="ITestHeaderWriter.cs" />
+    <Compile Remove="ITestUpToDateChecker.cs" />
+    <Compile Remove="TableFileInputExtensions.cs" />
+    <Compile Remove="TestClassGenerationContext.cs" />
+    <Compile Remove="TestGenerator.cs" />
+    <Compile Remove="TestGeneratorFactory.cs" />
+    <Compile Remove="XrmFrameworkDocument.cs" />
+    <Compile Remove="XrmFrameworkDocumentLocation.cs" />
+  </ItemGroup>
+
+</Project>

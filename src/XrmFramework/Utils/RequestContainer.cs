@@ -13,6 +13,13 @@ namespace XrmFramework
 {
     public class RequestContainer : IEnumerable<UpsertRequest>
     {
+        private readonly bool _disablePluginsExecution;
+
+        public RequestContainer(bool disablePluginsExecution)
+        {
+            _disablePluginsExecution = disablePluginsExecution;
+        }
+
         private Dictionary<Entity, List<IBindingModel>> ExistingRequests { get; } = new Dictionary<Entity, List<IBindingModel>>();
 
         public int Count => ExistingRequests.Keys.Count;
@@ -93,7 +100,17 @@ namespace XrmFramework
             list.Add(model);
         }
 
-        public IEnumerator<UpsertRequest> GetEnumerator() => ExistingRequests.Keys.Select(e => new UpsertRequest { Target = e }).GetEnumerator();
+        public IEnumerator<UpsertRequest> GetEnumerator() => ExistingRequests.Keys.Select(e =>
+        {
+            var req = new UpsertRequest {Target = e};
+
+            if (_disablePluginsExecution)
+            {
+                req["BypassCustomPluginExecution"] = _disablePluginsExecution;
+            }
+
+            return req;
+        }).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
         {

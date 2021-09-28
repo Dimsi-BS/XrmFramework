@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
 using XrmFramework.Analyzers.Utils;
 
-namespace XrmFramework.Generators
+namespace XrmFramework.Analyzers.Generators
 {
     public static class BindingModelGeneratorHelper
     {

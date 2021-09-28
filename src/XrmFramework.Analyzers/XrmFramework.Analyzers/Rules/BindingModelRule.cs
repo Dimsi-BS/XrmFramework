@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using XrmFramework.Analyzers.Utils;
 
 namespace XrmFramework.Analyzers
-{
+{/*
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class BindingModelRuleAnalyzer : DiagnosticAnalyzer // CodeFixProvider
     {
@@ -191,4 +191,5 @@ namespace XrmFramework.Analyzers
             return Task.FromResult(newDocument);
         }
     }
+*/
 }
