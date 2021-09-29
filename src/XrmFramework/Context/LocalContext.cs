@@ -304,7 +304,7 @@ namespace XrmFramework
             return UserId;
         }
 
-        public void InvokeMethod(MethodInfo method)
+        public void InvokeMethod(object obj, MethodInfo method)
         {
             var listParamValues = new List<object>();
 
@@ -313,7 +313,7 @@ namespace XrmFramework
                 listParamValues.Add(ObjectContainer.Resolve(param.ParameterType));
             }
 
-            method.Invoke(this, listParamValues.ToArray());
+            method.Invoke(obj, listParamValues.ToArray());
         }
     }
 }

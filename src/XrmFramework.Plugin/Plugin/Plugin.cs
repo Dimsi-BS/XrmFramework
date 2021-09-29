@@ -214,7 +214,7 @@ namespace XrmFramework
 
                     localContext.Log($"{ChildClassName}.{step.Method.Name} Start");
 
-                    localContext.InvokeMethod(entityAction);
+                    localContext.InvokeMethod(this, entityAction);
 
                     localContext.Log($"{ChildClassName}.{step.Method.Name} End, duration : {sw.Elapsed}");
                 }

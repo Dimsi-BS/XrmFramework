@@ -99,7 +99,8 @@ namespace XrmFramework.DeployUtils.Generators
 
                                     .Append("return new ")
                                     .Append(GetLogServiceName(service.serviceType.Name))
-                                    .AppendLine("(context, service);");
+                                    .AppendLine("(context, service);")
+                                    .AppendLine();
                             }
 
                             sb.AppendLine("});");

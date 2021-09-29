@@ -43,7 +43,7 @@ namespace XrmFramework.Workflow
 
                     localContext.Log(ActivityAction.Name, "Start");
 
-                    localContext.InvokeMethod(ActivityAction);
+                    localContext.InvokeMethod(this, ActivityAction);
                     localContext.Log(ActivityAction.Name, "End");
 
                     DumpOutputArguments(localContext, context);

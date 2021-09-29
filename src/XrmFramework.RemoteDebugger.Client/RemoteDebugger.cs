@@ -28,7 +28,12 @@ namespace XrmFramework.RemoteDebugger.Common
 
                     var pluginExecutionTask = Task.Run(() =>
                     {
-                        var pluginType = Type.GetType(remoteContext.TypeAssemblyQualifiedName);
+                        var typeQualifiedName = remoteContext.TypeAssemblyQualifiedName.Split(new [] {", "}, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        typeQualifiedName.RemoveAll(i => i.StartsWith("Version") || i.StartsWith("PublicKeyToken"));
+
+                        var typeName = string.Join(", ", typeQualifiedName);
+
+                        var pluginType = Type.GetType(typeName);
 
                         if (pluginType == null)
                         {
