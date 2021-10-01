@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFrameworks>$(XrmFramework_Runtime_TFM)</TargetFrameworks>
+    <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
+    <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
+    <PublicSign>$(XrmFramework_PublicSign)</PublicSign>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">

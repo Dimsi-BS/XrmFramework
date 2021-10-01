@@ -7,6 +7,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Windows.Navigation;
 using Deploy;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
@@ -21,12 +22,24 @@ namespace XrmFramework.DeployUtils
     public static class RegistrationHelper
     {
         private static List<PluginAssembly> _list = new List<PluginAssembly>();
-
+        
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
             var xrmFrameworkConfigSection = ConfigHelper.GetSection();
 
-            var pluginSolutionUniqueName = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>().Single(p => p.Name == projectName).TargetSolution;
+            var projectConfig = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>()
+                .FirstOrDefault(p => p.Name == projectName);
+
+            if (projectConfig == null)
+            {
+                var defaultColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"No reference to the project {projectName} has been found in the xrmFramework.config file.");
+                Console.ForegroundColor = defaultColor;
+                return;
+            }
+
+            var pluginSolutionUniqueName = projectConfig.TargetSolution;
 
             var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
 
