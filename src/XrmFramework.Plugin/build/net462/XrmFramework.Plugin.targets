@@ -6,10 +6,11 @@
     <_XrmFrameworkLoggedServiceGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">$(_XrmFrameworkTaskDir)\XrmFramework.MSBuild.Reflection.exe</_XrmFrameworkLoggedServiceGenerator>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(XrmFrameworkDisableLoggedServiceGeneration)' == ''">
     <LoggedFiles Include="**\Logged*.cs" />
     <LoggedFiles Include="obj\InternalDependencyProvider.cs" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Include="@(LoggedFiles)" />
   </ItemGroup>

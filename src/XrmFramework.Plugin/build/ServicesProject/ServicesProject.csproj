@@ -6,18 +6,10 @@
 
   <ItemGroup>
     <PackageReference Include="XrmFramework" Version="[#{GitBuildVersionSimple}#]" />
+    <PackageReference Include="XrmFramework.Plugin" Version="[#{GitBuildVersionSimple}#]" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
   
-	<PropertyGroup>
-		<DefineConstants>$(DefineConstants);DISABLE_DI</DefineConstants>
-		<RestoreIgnoreFailedSource>true</RestoreIgnoreFailedSource>
-	</PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.90" />
-  </ItemGroup>
-
   <ItemGroup>
     <Compile Include="$(SolutionDir)\$(XrmFrameworkCoreProjectName)\**\*.cs" Exclude="$(SolutionDir)\$(XrmFrameworkCoreProjectName)\obj\**;$(SolutionDir)\$(XrmFrameworkCoreProjectName)\bin\**" />
   </ItemGroup>
