@@ -21,6 +21,7 @@
   </metadata>
 
   <files>
+    <file src="bin\$config$\net462\XrmFramework.Core.*" target="lib\$XrmFramework_FullFramework_Runtime_TFM$" />
     <file src="bin\$config$\net462\XrmFramework.DefinitionManager.*" target="lib\$XrmFramework_FullFramework_Runtime_TFM$" />
     
     <file src="build\**\*" target="build/" />
