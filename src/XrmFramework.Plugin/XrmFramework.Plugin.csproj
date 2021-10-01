@@ -37,4 +37,8 @@
     <Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="build\ServicesProject\ServicesProject.csproj" />
+  </ItemGroup>
+
 </Project>
