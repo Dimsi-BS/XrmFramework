@@ -2,9 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DefinitionManager
 {
@@ -14,7 +11,7 @@ namespace DefinitionManager
 
         public IList<Attribute> ClassAttributes { get; } = new List<Attribute>();
 
-        public DefinitionCollection<AttributeDefinition> Attributes { get; } = new DefinitionCollection<AttributeDefinition>();
+        public DefinitionCollection<AttributeDefinition> Attributes { get; } = new();
 
         protected override void MergeInternal(AbstractDefinition definition)
         {

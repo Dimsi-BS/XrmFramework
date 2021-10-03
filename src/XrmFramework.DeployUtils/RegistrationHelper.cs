@@ -7,14 +7,12 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.ServiceModel.Description;
-using System.Text;
-using System.Xml.Linq;
+using System.Windows.Navigation;
 using Deploy;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Tooling.Connector;
 using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
@@ -24,45 +22,109 @@ namespace XrmFramework.DeployUtils
     public static class RegistrationHelper
     {
         private static List<PluginAssembly> _list = new List<PluginAssembly>();
-
-        public static void Register<T, U>(string projectName, string assemblyPath, Func<T, Model.Plugin> PluginConverter, Func<U, Model.Plugin> WorkflowConverter)
+        
+        public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
-            Assembly pluginAssembly = typeof(T).Assembly;
+            var xrmFrameworkConfigSection = ConfigHelper.GetSection();
 
-            var pluginList = new List<Model.Plugin>();
+            var projectConfig = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>()
+                .FirstOrDefault(p => p.Name == projectName);
 
-            ObjectHelper<T>.ApplyCode(new Type[] { typeof(string), typeof(string) }, new object[] { null, null }, (plugin, type, sb) => { pluginList.Add(PluginConverter(plugin)); return false; });
-
-            ObjectHelper<U>.ApplyCode(new Type[] { }, null, (wf, type, sb) => { pluginList.Add(WorkflowConverter(wf)); return false; });
-
-            if (!(ConfigurationManager.GetSection("xrmFramework") is XrmFrameworkSection deploySection))
+            if (projectConfig == null)
             {
+                var defaultColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"No reference to the project {projectName} has been found in the xrmFramework.config file.");
+                Console.ForegroundColor = defaultColor;
                 return;
             }
 
-            var pluginSolutionUniqueName = deploySection.Projects.OfType<ProjectElement>().Single(p => p.Name == projectName).TargetSolution;
+            var pluginSolutionUniqueName = projectConfig.TargetSolution;
 
-            var organizationName = ConfigurationManager.ConnectionStrings[deploySection.SelectedConnection].ConnectionString;
+            var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
 
-            Console.WriteLine($"You are about to deploy on {organizationName} organization. If ok press any key.");
+            Console.WriteLine($"You are about to deploy on {connectionString} organization. If ok press any key.");
             Console.ReadKey();
             Console.WriteLine("Connecting to CRM...");
 
-            var cs = ConnectionStringParser.Parse(organizationName);
+            var service = new CrmServiceClient(connectionString);
 
-            var service = new OrganizationServiceProxy(new Uri(new Uri(cs.Url), "/XRMServices/2011/Organization.svc"), null, new ClientCredentials { UserName = { UserName = cs.Username, Password = cs.Password } }, null);
+            service.OrganizationServiceProxy?.EnableProxyTypes();
 
-            service.EnableProxyTypes();
+            InitMetadata(service, pluginSolutionUniqueName);
+
+            var pluginAssembly = typeof(TPlugin).Assembly;
+
+            var pluginType = pluginAssembly.GetType("XrmFramework.Plugin");
+            var customApiType = pluginAssembly.GetType("XrmFramework.CustomApi");
+            var workflowType = pluginAssembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");
+
+            var pluginList = new List<Plugin>();
+
+            var pluginTypes = pluginAssembly.GetTypes().Where(t => pluginType.IsAssignableFrom(t) && !customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
+
+            var workflowTypes = pluginAssembly.GetTypes().Where(t => workflowType.IsAssignableFrom(t) && !t.IsAbstract && t.IsPublic).ToList();
+            
+            var customApiTypes = pluginAssembly.GetTypes().Where(t => customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
+            
+            foreach (var type in pluginTypes)
+            {
+                dynamic pluginTemp;
+                if (type.GetConstructor(new[] {typeof(string), typeof(string)}) != null)
+                {
+                    pluginTemp = Activator.CreateInstance(type, new object[] {null, null});
+                }
+                else
+                {
+                    pluginTemp = Activator.CreateInstance(type, new object[] { });
+                }
+
+                var plugin = Plugin.FromXrmFrameworkPlugin(pluginTemp, false);
+
+                pluginList.Add(plugin);
+            }
+
+            foreach (var type in workflowTypes)
+            {
+                dynamic pluginTemp = Activator.CreateInstance(type, new object[] { });
+
+                var plugin = Plugin.FromXrmFrameworkPlugin(pluginTemp, true);
+
+                pluginList.Add(plugin);
+            }
+
+            var customApis = new List<CustomApi>();
+
+            foreach (var type in customApiTypes)
+            {
+                dynamic customApiTemp;
+                if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
+                {
+                    customApiTemp = Activator.CreateInstance(type, new object[] { null, null });
+                }
+                else
+                {
+                    customApiTemp = Activator.CreateInstance(type, new object[] { });
+                }
+
+                var customApi = CustomApi.FromXrmFrameworkCustomApi(customApiTemp, _publisher.CustomizationPrefix);
+
+                customApis.Add(customApi);
+            }
+
 
             var assembly = GetAssemblyByName(service, pluginAssembly.GetName().Name);
 
             var profilerAssembly = GetProfilerAssembly(service);
 
-            InitMetadata(service, pluginSolutionUniqueName);
-
             var registeredPluginTypes = new List<PluginType>();
+            var registeredCustomApis = new List<CustomApi>();
+            var registeredCustomApiRequestParameters = new List<CustomApiRequestParameter>();
+            var registeredCustomApiResponseProperties = new List<CustomApiResponseProperty>();
             var profiledSteps = new List<SdkMessageProcessingStep>();
             ICollection<SdkMessageProcessingStep> registeredSteps = Enumerable.Empty<SdkMessageProcessingStep>().ToList();
+
+            var assemblyPath = pluginAssembly.Location;
 
             if (assembly == null)
             {
@@ -76,23 +138,27 @@ namespace XrmFramework.DeployUtils
             {
                 Console.WriteLine("Updating plugin assembly");
 
-                var updatedAssembly = new Entity("pluginassembly");
-                updatedAssembly.Id = assembly.Id;
-                updatedAssembly["content"] = Convert.ToBase64String(File.ReadAllBytes(assemblyPath));
+                var updatedAssembly = new Entity("pluginassembly")
+                {
+                    Id = assembly.Id, 
+                    ["content"] = Convert.ToBase64String(File.ReadAllBytes(assemblyPath))
+                };
 
                 registeredPluginTypes = GetRegisteredPluginTypes(service, assembly.Id).ToList();
+                registeredCustomApis = GetRegisteredCustomApis(service).ToList();
+                registeredCustomApiRequestParameters = GetRegisteredCustomApiRequestParameters(service).ToList();
+                registeredCustomApiResponseProperties = GetRegisteredCustomApiResponseProperties(service).ToList();
+
                 registeredSteps = GetRegisteredSteps(service, assembly.Id);
 
                 if (profilerAssembly != null)
                 {
                     profiledSteps = GetRegisteredSteps(service, profilerAssembly.Id).ToList();
                 }
-
-                Console.WriteLine("{0} Steps profiled", profiledSteps.Count());
-
+                
                 foreach (var registeredType in registeredPluginTypes)
                 {
-                    if (pluginList.All(p => p.FullName != registeredType.Name) && pluginList.Where(p => p.IsWorkflow).All(c => c.FullName != registeredType.TypeName))
+                    if (pluginList.All(p => p.FullName != registeredType.Name) && pluginList.Where(p => p.IsWorkflow).All(c => c.FullName != registeredType.TypeName) && customApis.All(c => c.FullName !=  registeredType.TypeName))
                     {
                         var registeredStepsForPluginType = registeredSteps.Where(s => s.EventHandler.Id == registeredType.Id).ToList();
                         foreach (var step in registeredStepsForPluginType)
@@ -100,12 +166,16 @@ namespace XrmFramework.DeployUtils
                             service.Delete(SdkMessageProcessingStep.EntityLogicalName, step.Id);
                             registeredSteps.Remove(step);
                         }
+
+                        foreach (var customApi in registeredCustomApis.Where(c => c.PluginTypeId?.Id == registeredType.Id))
+                        {
+                            service.Delete(customApi.LogicalName, customApi.Id);
+                        }
+
                         service.Delete(PluginType.EntityLogicalName, registeredType.Id);
                     }
                 }
 
-                // TODO : Améliorer la composition de la DLL pour optimiser son upload
-                service.Timeout = TimeSpan.FromMinutes(10); 
                 service.Update(updatedAssembly);
             }
 
@@ -113,9 +183,12 @@ namespace XrmFramework.DeployUtils
 
             var registeredImages = GetRegisteredImages(service, assembly.Id);
 
+            Console.WriteLine();
+            Console.WriteLine(@"Registering Plugins");
+
             foreach (var plugin in pluginList.Where(p => !p.IsWorkflow))
             {
-                Console.WriteLine("Registering pluginType {0}", plugin.FullName);
+                Console.WriteLine($@"  - {plugin.FullName}");
 
                 var registeredPluginType = registeredPluginTypes.FirstOrDefault(p => p.Name == plugin.FullName);
 
@@ -177,9 +250,9 @@ namespace XrmFramework.DeployUtils
                                 registeredPostImage.Id = service.Create(registeredPostImage);
 
                             }
-                            else if (registeredPostImage.Attributes1 != convertedStep.PostImageAttributes)
+                            else if (registeredPostImage.Attributes1 != convertedStep.JoinedPostImageAttributes)
                             {
-                                registeredPostImage.Attributes1 = convertedStep.PostImageAttributes;
+                                registeredPostImage.Attributes1 = convertedStep.JoinedPostImageAttributes;
                                 service.Update(registeredPostImage);
                             }
                         }
@@ -197,9 +270,9 @@ namespace XrmFramework.DeployUtils
                                 registeredPreImage = GetImageToRegister(service, stepToRegister.Id, convertedStep, true);
                                 registeredPreImage.Id = service.Create(registeredPreImage);
                             }
-                            else if (registeredPreImage.Attributes1 != convertedStep.PreImageAttributes)
+                            else if (registeredPreImage.Attributes1 != convertedStep.JoinedPreImageAttributes)
                             {
-                                registeredPreImage.Attributes1 = convertedStep.PreImageAttributes;
+                                registeredPreImage.Attributes1 = convertedStep.JoinedPreImageAttributes;
                                 service.Update(registeredPreImage);
                             }
                         }
@@ -211,9 +284,14 @@ namespace XrmFramework.DeployUtils
                 }
             }
 
+            Console.WriteLine();
+            Console.WriteLine(@"Registering Custom Workflow activities");
+
             foreach (var customWf in pluginList.Where(p => p.IsWorkflow))
             {
                 var registeredPluginType = registeredPluginTypes.FirstOrDefault(p => p.TypeName == customWf.FullName);
+
+                Console.WriteLine($@"  - {customWf.FullName}");
 
                 if (registeredPluginType == null)
                 {
@@ -227,11 +305,79 @@ namespace XrmFramework.DeployUtils
                 }
             }
 
+            Console.WriteLine();
+            Console.WriteLine(@"Registering Custom Apis");
+
+            foreach (var customApi in customApis)
+            {
+                Console.WriteLine($@"  - {customApi.FullName}");
+
+                var registeredPluginType = registeredPluginTypes.FirstOrDefault(p => p.Name == customApi.FullName);
+
+                if (registeredPluginType == null)
+                {
+                    registeredPluginType = GetPluginTypeToRegister(assembly.Id, customApi.FullName);
+                    registeredPluginType.Id = service.Create(registeredPluginType);
+                }
+
+                customApi.PluginTypeId = new EntityReference(PluginType.EntityLogicalName, registeredPluginType.Id);
+
+                var existingCustomApi = registeredCustomApis.FirstOrDefault(c => c.UniqueName == customApi.UniqueName);
+
+                if (existingCustomApi == null)
+                {
+                    existingCustomApi = customApi;
+                    existingCustomApi.Id = service.Create(customApi);
+                }
+                else
+                {
+                    customApi.Id = existingCustomApi.Id;
+                    service.Update(customApi);
+                }
+
+                foreach (var customApiRequestParameter in customApi.InArguments)
+                {
+                    var existingRequestParameter = registeredCustomApiRequestParameters.FirstOrDefault(p => p.UniqueName == customApiRequestParameter.UniqueName && p.CustomApiId.Id == existingCustomApi.Id);
+
+                    customApiRequestParameter.CustomApiId = new EntityReference(CustomApi.EntityLogicalName, existingCustomApi.Id);
+
+                    if (existingRequestParameter == null)
+                    {
+                        service.Create(customApiRequestParameter);
+                    }
+                    else
+                    {
+                        customApiRequestParameter.Id = existingRequestParameter.Id;
+                        service.Update(customApiRequestParameter);
+                    }
+                }
+
+                foreach (var customApiResponseProperty in customApi.OutArguments)
+                {
+                    var existingResponseProperty = registeredCustomApiResponseProperties.FirstOrDefault(p => p.UniqueName == customApiResponseProperty.UniqueName && p.CustomApiId.Id == existingCustomApi.Id);
+
+                    customApiResponseProperty.CustomApiId = new EntityReference(CustomApi.EntityLogicalName, existingCustomApi.Id);
+
+                    if (existingResponseProperty == null)
+                    {
+                        service.Create(customApiResponseProperty);
+                    }
+                    else
+                    {
+                        customApiResponseProperty.Id = existingResponseProperty.Id;
+                        service.Update(customApiResponseProperty);
+                    }
+                }
+
+
+            }
+
+            Console.WriteLine();
+
             foreach (var step in registeredSteps)
             {
                 service.Delete(SdkMessageProcessingStep.EntityLogicalName, step.Id);
             }
-
         }
         
         private static PluginAssembly GetProfilerAssembly(IOrganizationService service)
@@ -258,12 +404,65 @@ namespace XrmFramework.DeployUtils
             return list;
         }
 
+        private static IEnumerable<CustomApi> GetRegisteredCustomApis(IOrganizationService service)
+        {
+            var list = new List<CustomApi>();
+
+            var query = new QueryExpression(CustomApi.EntityLogicalName);
+            query.ColumnSet.AllColumns = true;
+            query.Criteria.AddCondition("ismanaged", ConditionOperator.Equal, false);
+
+            var result = RetrieveAll(service, query);
+            foreach (var type in result)
+            {
+                list.Add(type.ToEntity<CustomApi>());
+            }
+
+            return list;
+        }
+
+        private static IEnumerable<CustomApiRequestParameter> GetRegisteredCustomApiRequestParameters(IOrganizationService service)
+        {
+            var list = new List<CustomApiRequestParameter>();
+
+            var query = new QueryExpression(CustomApiRequestParameter.EntityLogicalName);
+            query.ColumnSet.AllColumns = true;
+            query.Criteria.AddCondition("ismanaged", ConditionOperator.Equal, false);
+
+            var result = RetrieveAll(service, query);
+            foreach (var type in result)
+            {
+                list.Add(type.ToEntity<CustomApiRequestParameter>());
+            }
+
+            return list;
+        }
+
+        private static IEnumerable<CustomApiResponseProperty> GetRegisteredCustomApiResponseProperties(IOrganizationService service)
+        {
+            var list = new List<CustomApiResponseProperty>();
+
+            var query = new QueryExpression(CustomApiResponseProperty.EntityLogicalName);
+            query.ColumnSet.AllColumns = true;
+            query.Criteria.AddCondition("ismanaged", ConditionOperator.Equal, false);
+
+            var result = RetrieveAll(service, query);
+            foreach (var type in result)
+            {
+                list.Add(type.ToEntity<CustomApiResponseProperty>());
+            }
+
+            return list;
+        }
+
         private static ICollection<SdkMessageProcessingStep> GetRegisteredSteps(IOrganizationService service, Guid assemblyId)
         {
             var list = new List<SdkMessageProcessingStep>();
 
             var query = new QueryExpression("sdkmessageprocessingstep");
             query.ColumnSet.AllColumns = true;
+            query.Criteria.AddCondition("stage", ConditionOperator.NotEqual, 30);
+
             var linkPluginType = query.AddLink(PluginType.EntityLogicalName, "eventhandler", "plugintypeid");
             linkPluginType.LinkCriteria.AddCondition("pluginassemblyid", ConditionOperator.Equal, assemblyId);
 
@@ -414,7 +613,7 @@ namespace XrmFramework.DeployUtils
                 AsyncAutoDelete = step.Mode == Model.Modes.Asynchronous,
                 Description = description,
                 EventHandler = new EntityReference(PluginType.EntityLogicalName, pluginTypeId),
-                FilteringAttributes = string.IsNullOrEmpty(step.FilteredAttributes) ? null : step.FilteredAttributes,
+                FilteringAttributes = step.FilteringAttributes.Any() ? string.Join(",", step.FilteringAttributes) : null,
                 ImpersonatingUserId = string.IsNullOrEmpty(step.ImpersonationUsername) ? null : new EntityReference("systemuser", _users.First(u => u.Key == step.ImpersonationUsername).Value),
 #pragma warning disable 0612
                 InvocationSource = new OptionSetValue((int)sdkmessageprocessingstep_invocationsource.Child),
@@ -442,7 +641,7 @@ namespace XrmFramework.DeployUtils
         private static SdkMessageProcessingStepImage GetImageToRegister(IOrganizationService service, Guid stepId, Model.Step step, bool isPreImage)
         {
             var isAllColumns = isPreImage ? step.PreImageAllAttributes : step.PostImageAllAttributes;
-            var columns = isPreImage ? step.PreImageAttributes : step.PostImageAttributes;
+            var columns = isPreImage ? step.JoinedPreImageAttributes : step.JoinedPostImageAttributes;
             var name = isPreImage ? "PreImage" : "PostImage";
 
             var messagePropertyName = "Target";
@@ -549,6 +748,9 @@ namespace XrmFramework.DeployUtils
             }
             else
             {
+                _publisher = service.Retrieve(Publisher.EntityLogicalName, _solution.PublisherId.Id, new ColumnSet(true)).ToEntity<Publisher>();
+
+
                 query = new QueryExpression(SolutionComponent.EntityLogicalName);
                 query.ColumnSet.AllColumns = true;
                 query.Criteria.AddCondition("solutionid", ConditionOperator.Equal, _solution.Id);
@@ -600,6 +802,8 @@ namespace XrmFramework.DeployUtils
 
 
         private static Solution _solution = null;
+        private static Publisher _publisher = null;
+
         private static List<SolutionComponent> _components = new List<SolutionComponent>();
         private static List<SdkMessageFilter> _filters = new List<SdkMessageFilter>();
         private static readonly Dictionary<string, EntityReference> _messages = new Dictionary<string, EntityReference>();

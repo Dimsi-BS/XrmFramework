@@ -22,7 +22,7 @@ namespace DefinitionManager
         public event SelectionChangedEventHandler SelectionChanged;
         public event FilterTextChangedEventHandler FilterTextChanged;
 
-        private SortedList<T, CustomListViewItem<T>> _customItems = new SortedList<T, CustomListViewItem<T>>(new DefinitionComparer<T>());
+        private SortedList<T, CustomListViewItem<T>> _customItems = new(new DefinitionComparer<T>());
 
         private IEnumerable<T> _currentlyVisibleDefinitions;
 

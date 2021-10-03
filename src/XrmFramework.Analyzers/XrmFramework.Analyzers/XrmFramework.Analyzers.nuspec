@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>XrmFramework.Analyzers</id>
+    <version>$version$</version>
+    <title>XrmFramework.Analyzers</title>
+    <authors>$author$</authors>
+    <owners>$owner$</owners>
+    <description>XrmFramework aims at simplifying Microsoft Dynamics 365 and Dataverse plugin, workflows development, deployment and testing</description>
+    <summary>XrmFramework aims at simplifying Microsoft Dynamics 365 and Dataverse plugin, workflows development, deployment and testing</summary>
+    <language>en-US</language>
+    <projectUrl>https://aka.ms/XrmFramework</projectUrl>
+    <license type="expression">MIT</license>
+    <tags>Dynamics365 CRM DynamicsCrm Dataverse PowerApps</tags>
+    <copyright>$copyrigth$</copyright>
+    <!--<dependencies>
+      <group targetFramework="net462">
+        <dependency id="System.ComponentModel.Annotations" version="5.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.42" />
+        <dependency id="System.Net.Http" version="4.3.4" />
+        <dependency id="Microsoft.CSharp" version="4.7.0" />
+        <dependency id="System.Configuration.ConfigurationManager" version="5.0.0" />
+      </group>
+      <group targetFramework="netcoreapp3.1">
+        <dependency id="System.ComponentModel.Annotations" version="5.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="0.5.2" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="0.5.2" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Dynamics.Sdk.Messages" version="0.5.2" exclude="Build,Analyzers" />
+        <dependency id="System.Reflection.DispatchProxy" version="4.7.1" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>-->
+  </metadata>
+
+  <files>
+    <file src="bin\$config$\netstandard2.0\XrmFramework.Analyzers.*" target="analyzers\dotnet\cs" exclude="**\System.Collections.Immutable.*;**\System.Reflection.Metadata.*;**\System.Composition.*" />
+
+  </files>
+</package>

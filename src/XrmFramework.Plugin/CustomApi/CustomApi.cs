@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Microsoft.Xrm.Sdk;
-
 
 namespace XrmFramework
 {
-
-
     public abstract class CustomApi : Plugin
     {
+        public readonly List<CustomApiArgument> Arguments = new List<CustomApiArgument>();
+
         protected CustomApi(string methodName) : base(null, null)
         {
             SetCustomApiInfos(methodName);
@@ -21,12 +19,14 @@ namespace XrmFramework
                 var inArgumentAttribute = property.GetCustomAttribute<CustomApiInputAttribute>();
                 var outArgumentAttribute = property.GetCustomAttribute<CustomApiOutputAttribute>();
 
-                if (inArgumentAttribute == null && outArgumentAttribute == null)
+                var argumentAttribute = (CustomApiArgumentAttribute)inArgumentAttribute ?? outArgumentAttribute;
+
+                if (argumentAttribute == null)
                 {
                     continue;
                 }
 
-                var argumentName = property.Name;
+                var argumentName = argumentAttribute.Name ?? property.Name;
 
                 var objectType = property.PropertyType.GenericTypeArguments.Single();
 
@@ -91,7 +91,18 @@ namespace XrmFramework
                     isSerialized = true;
                 }
 
-                var propertyValue = Activator.CreateInstance(property.PropertyType, new object[] { argumentName, argumentType, isSerialized });
+                var propertyValue = (CustomApiArgument)Activator.CreateInstance(property.PropertyType,
+                    new object[] {
+                        argumentName,
+                        argumentType,
+                        isSerialized,
+                        argumentAttribute.Description,
+                        argumentAttribute.DisplayName,
+                        argumentAttribute.LogicalEntityName,
+                        argumentAttribute.IsOptional
+                        });
+
+                Arguments.Add(propertyValue);
 
                 property.SetValue(this, propertyValue);
             }

@@ -15,6 +15,8 @@ namespace XrmFramework
             {
                 ParentPluginContext = new LocalPluginContext(this, PluginExecutionContext.ParentContext);
             }
+
+            ObjectContainer.RegisterInstanceAs(this, typeof(IPluginContext));
         }
 
         private LocalPluginContext(LocalPluginContext context, IPluginExecutionContext parentContext)
@@ -24,6 +26,8 @@ namespace XrmFramework
             {
                 ParentPluginContext = new LocalPluginContext(this, PluginExecutionContext.ParentContext);
             }
+
+            ObjectContainer.RegisterInstanceAs(this, typeof(IPluginContext));
         }
 
         private IPluginExecutionContext PluginExecutionContext => (IPluginExecutionContext)ExecutionContext;
@@ -56,7 +60,7 @@ namespace XrmFramework
 
         public Guid OrganizationId => PluginExecutionContext.OrganizationId;
 
-        public override int Depth => PluginExecutionContext.Depth;
+        public int Depth => PluginExecutionContext.Depth;
 
         public ParameterCollection SharedVariables => PluginExecutionContext.SharedVariables;
 
@@ -78,6 +82,10 @@ namespace XrmFramework
                 return false;
             }
         }
+
+        public EntityReference ObjectRef => throw new NotImplementedException();
+        
+
     }
 
 }

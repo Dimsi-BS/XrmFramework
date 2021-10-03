@@ -2,29 +2,44 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using Deploy;
 
 namespace XrmFramework.DeployUtils.Model
 {
     public class Plugin
     {
-        private ICollection<Step> _steps = new List<Step>();
-
-        public Plugin(string fullName)
+        private Plugin(string fullName)
         {
             FullName = fullName;
         }
 
-        public Plugin(string fullName, string displayName) :this(fullName)
+        private Plugin(string fullName, string displayName) :this(fullName)
         {
             DisplayName = displayName;
         }
 
-        public bool IsWorkflow { get { return !string.IsNullOrEmpty(DisplayName); } }
+        public bool IsWorkflow => !string.IsNullOrEmpty(DisplayName);
 
-        public string FullName { get; private set; }
+        public string FullName { get; }
 
-        public string DisplayName { get; private set; }
+        public string DisplayName { get; }
 
-        public ICollection<Step> Steps { get { return _steps; } }
+        public StepCollection Steps { get; } = new StepCollection();
+
+
+        public static Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false)
+        {
+            var pluginTemp = !isWorkflow ? new Plugin(plugin.GetType().FullName) : new Plugin(plugin.GetType().FullName, plugin.DisplayName);
+
+            if (!isWorkflow)
+            {
+                foreach (var step in plugin.Steps)
+                {
+                    pluginTemp.Steps.Add(Step.FromXrmFrameworkStep(step));
+                }
+            }
+            
+            return pluginTemp;
+        }
     }
 }

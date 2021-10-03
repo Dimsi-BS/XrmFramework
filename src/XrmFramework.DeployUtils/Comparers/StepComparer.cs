@@ -28,7 +28,7 @@ namespace XrmFramework.DeployUtils.Comparers
             needsUpdate |= x.FilteringAttributes != y.FilteringAttributes;
             needsUpdate |= !((x.ImpersonatingUserId == null && y.ImpersonatingUserId == null)
                                 || (x.ImpersonatingUserId != null && y.ImpersonatingUserId != null)
-                                || (x.ImpersonatingUserId.Id == y.ImpersonatingUserId.Id));
+                                || (x.ImpersonatingUserId?.Id == y.ImpersonatingUserId?.Id));
             needsUpdate |= x.Rank != y.Rank;
             needsUpdate |= x.Description != y.Description;
 

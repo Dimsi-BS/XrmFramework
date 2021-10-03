@@ -5,34 +5,22 @@ namespace XrmFramework
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class CustomApiAttribute : Attribute
     {
-        public string DisplayName { get; }
-        public string Description { get; }
+        public string Name { get; set; }
+        public string DisplayName { get; set; }
+        public string Description { get; set; }
         public CustomApiBindingType BindingType { get; }
-        public string BoundEntityLogicalName { get; }
-        public bool IsFunction { get; }
-        public bool IsPrivate { get; }
-        public AllowedCustomProcessingStep AllowedCustomProcessing { get; }
-        public string ExecutePrivilegeName { get; }
+        public string BoundEntityLogicalName { get; set; }
+        public bool IsFunction { get; set; }
+        public bool IsPrivate { get; set; }
+        public AllowedCustomProcessingStep AllowedCustomProcessing { get; set; }
+        public string ExecutePrivilegeName { get; set; }
+        public bool WorkflowSdkStepEnabled { get; set; }
 
         public CustomApiAttribute(
-            string displayName,
-            CustomApiBindingType bindingType,
-            bool isFunction,
-            string description = null,
-            string boundEntityLogicalName = null,
-            bool isPrivate = false,
-            AllowedCustomProcessingStep allowedCustomProcessing = AllowedCustomProcessingStep.None,
-            string executePrivilegeName = null
+            CustomApiBindingType bindingType
         )
         {
-            DisplayName = displayName;
-            Description = description;
             BindingType = bindingType;
-            BoundEntityLogicalName = boundEntityLogicalName;
-            IsFunction = isFunction;
-            IsPrivate = isPrivate;
-            AllowedCustomProcessing = allowedCustomProcessing;
-            ExecutePrivilegeName = executePrivilegeName;
         }
     }
 }

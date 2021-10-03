@@ -19,6 +19,8 @@ namespace XrmFramework.Workflow
         public LocalWorkflowContext(CodeActivityContext context) : base(context)
         {
             _context = context;
+
+            ObjectContainer.RegisterInstanceAs(this, typeof(ICustomWorkflowContext));
         }
 
         T ICustomWorkflowContext.GetArgumentValue<T>(InArgument<T> argument)
@@ -37,7 +39,7 @@ namespace XrmFramework.Workflow
             argument.Set(_context, value);
         }
 
-        public EntityReference ObjectRef => new EntityReference(WorkflowContext.PrimaryEntityName, WorkflowContext.PrimaryEntityId);
+        public EntityReference ObjectRef => new(WorkflowContext.PrimaryEntityName, WorkflowContext.PrimaryEntityId);
 
         public WorkflowModes WorkflowMode
             => (WorkflowModes)Enum.ToObject(typeof(WorkflowModes), WorkflowContext.WorkflowMode);
@@ -50,9 +52,9 @@ namespace XrmFramework.Workflow
 
 
         public object GetService(Type serviceType)
-            => ServiceFactory.GetService(serviceType, this);
+            => ObjectContainer.Resolve(serviceType);
 
         public TService GetService<TService>() where TService : IService
-            => ServiceFactory.GetService<TService>(this);
+            => ObjectContainer.Resolve<TService>();
     }
 }

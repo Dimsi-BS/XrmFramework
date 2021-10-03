@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 
 namespace XrmFramework
@@ -124,53 +123,19 @@ namespace XrmFramework
 
         public Guid MessageId { get; set; }
 
-        public string FilteredAttributes => _doNotFilterAttributes ? string.Empty : string.Join(",", _filteringAttributes);
 
         public IReadOnlyCollection<string> FilteringAttributes => _filteringAttributes;
 
-        public bool PreImageUsed => Message != Messages.Create && (PreImageAllAttributes || _preImageAttributes.Any());
         public bool PreImageAllAttributes => _preImageAllAttributes;
-        public string PreImageAttributes => PreImageAllAttributes ? string.Empty : string.Join(",", _preImageAttributes);
+        public IReadOnlyCollection<string> PreImageAttributes => _preImageAttributes;
 
-        public bool PostImageUsed => Stage == Stages.PostOperation && (PostImageAllAttributes || _postImageAttributes.Any());
+
         public bool PostImageAllAttributes => _postImageAllAttributes;
-        public string PostImageAttributes => PostImageAllAttributes ? string.Empty : string.Join(",", _postImageAttributes);
+        public IReadOnlyCollection<string> PostImageAttributes => _postImageAttributes;
 
         public int Order { get; }
 
         public string ImpersonationUsername { get; }
-
-        public void Merge(Step step)
-        {
-            if (!step._filteringAttributes.Any())
-            {
-                _doNotFilterAttributes = true;
-            }
-            
-            _filteringAttributes.AddRange(step._filteringAttributes);
-
-            if (step._preImageAllAttributes)
-            {
-                _preImageAllAttributes = true;
-                _preImageAttributes.Clear();
-            }
-            else
-            {
-                _preImageAttributes.AddRange(step._preImageAttributes);
-            }
-
-            if (step._postImageAllAttributes)
-            {
-                _postImageAllAttributes = true;
-                _postImageAttributes.Clear();
-            }
-            else
-            {
-                _postImageAttributes.AddRange(step._postImageAttributes);
-            }
-
-            MethodNames.AddRange(step.MethodNames);
-        }
     }
 
     public class StepComparer : IEqualityComparer<Step>

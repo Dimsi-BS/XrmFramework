@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.Xrm.Sdk.Metadata;
 
 namespace DefinitionManager
@@ -20,7 +19,7 @@ namespace DefinitionManager
         [Column("Display Name", 1, 300)]
         public string DisplayName { get { return _displayName; } set { _displayName = value; OnPropertyChanged("DisplayName"); } }
 
-        [Column("Attribute Type", 2, 100)]
+        [Column("Column Type", 2, 100)]
         public string Type { get { return _type; } set { _type = value; OnPropertyChanged("Type"); } }
 
         public EntityDefinition ParentEntity { get; set; }
@@ -37,7 +36,7 @@ namespace DefinitionManager
         [Mergeable]
         public DateTimeBehavior DateTimeBehavior { get; set; }
 
-        private List<string> _keyNames = new List<string>();
+        private List<string> _keyNames = new();
         [Mergeable]
         public ICollection<string> KeyNames
         {
@@ -70,7 +69,7 @@ namespace DefinitionManager
         }
 
         private EnumDefinition _enum;
-        private readonly List<OneToManyRelationshipMetadata> _relationships = new List<OneToManyRelationshipMetadata>();
+        private readonly List<OneToManyRelationshipMetadata> _relationships = new();
 
         [Mergeable]
         public EnumDefinition Enum
@@ -145,60 +144,17 @@ namespace DefinitionManager
         public string EnumName { get { return Enum == null || !IsSelected ? null : Enum.Name; } }
 
         [Mergeable]
-        public bool IsValidForCreate { protected get; set; }
+        public bool IsValidForCreate { protected internal get; set; }
 
         [Mergeable]
-        public bool IsValidForUpdate { protected get; set; }
+        public bool IsValidForUpdate { protected internal get; set; }
 
         [Mergeable]
-        public bool IsValidForRead { protected get; set; }
+        internal bool IsValidForRead { get; set; }
 
         [Mergeable]
-        public bool IsValidForAdvancedFind { protected get; set; }
-
-        public string Summary
-        {
-            get
-            {
-                var sb = new StringBuilder();
-                sb.AppendLine("\t\t\t/// <summary>");
-                sb.AppendLine("\t\t\t/// ");
-                sb.AppendFormat("\t\t\t/// Type : {0}{1}\r\n", Type, Enum == null ? "" : " (" + Enum.Name + ")");
-                sb.Append("\t\t\t/// Validity :  ");
-
-                var isFirst = true;
-                if (IsValidForRead)
-                {
-                    isFirst = false;
-                    sb.Append("Read ");
-                }
-
-                if (IsValidForCreate)
-                {
-                    if (isFirst) { isFirst = false; } else { sb.Append("| "); }
-                    sb.Append("Create ");
-                }
-
-                if (IsValidForUpdate)
-                {
-                    if (isFirst) { isFirst = false; } else { sb.Append("| "); }
-                    sb.Append("Update ");
-                }
-
-                if (IsValidForAdvancedFind)
-                {
-                    if (isFirst) { isFirst = false; } else { sb.Append("| "); }
-                    sb.Append("AdvancedFind ");
-                }
-                sb.Append("\r\n");
-
-                sb.AppendLine("\t\t\t/// </summary>");
-
-
-                return sb.ToString();
-            }
-        }
-
+        public bool IsValidForAdvancedFind { protected internal get; set; }
+        
         protected override void MergeInternal(AbstractDefinition definition)
         {
             var def = (AttributeDefinition)definition;

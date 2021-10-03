@@ -42,7 +42,8 @@ namespace XrmFramework.Workflow
                     DumpInputArguments(localContext, context);
 
                     localContext.Log(ActivityAction.Name, "Start");
-                    Invoke(ActivityAction, localContext);
+
+                    localContext.InvokeMethod(this, ActivityAction);
                     localContext.Log(ActivityAction.Name, "End");
 
                     DumpOutputArguments(localContext, context);
@@ -69,26 +70,6 @@ namespace XrmFramework.Workflow
 
                 localContext.DumpLog();
             }
-        }
-
-        private void Invoke(MethodInfo entityAction, LocalWorkflowContext localContext)
-        {
-            var listParamValues = new List<object>();
-
-            foreach (var param in entityAction.GetParameters())
-            {
-                if (typeof(ICustomWorkflowContext).IsAssignableFrom(param.ParameterType))
-                {
-                    listParamValues.Add(localContext);
-                }
-                else if (typeof(IService).IsAssignableFrom(param.ParameterType))
-                {
-                    var obj = ServiceFactory.GetService(param.ParameterType, localContext);
-                    listParamValues.Add(obj);
-                }
-            }
-
-            entityAction.Invoke(this, listParamValues.ToArray());
         }
 
         private void DumpInputArguments(LocalWorkflowContext localContext, CodeActivityContext context)

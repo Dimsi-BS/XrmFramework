@@ -11,23 +11,28 @@ namespace XrmFramework
 {
     partial class Plugin
     {
-        private bool SendToRemoteDebugger(LocalPluginContext localContext, string unsecureConfig, string secureConfig)
+        private bool SendToRemoteDebugger(LocalPluginContext localContext)
         {
             if (!localContext.IsDebugContext)
             {
                 localContext.Log("The context is genuine");
+                localContext.Log($"UnSecuredConfig : {UnSecuredConfig}");
 
-                if (!string.IsNullOrEmpty(unsecureConfig) && secureConfig.Contains("debugSessions"))
-                {
-                    var debuggerUnsecuredConfig = JsonConvert.DeserializeObject<DebuggerUnsecureConfig>(unsecureConfig);
+                //if (!string.IsNullOrEmpty(UnSecuredConfig) && UnSecuredConfig.Contains("debugSessions"))
+                //{
+                //    var debuggerUnsecuredConfig = JsonConvert.DeserializeObject<DebuggerUnsecureConfig>(UnSecuredConfig);
+
+                //    localContext.Log($"Debug session ids : {string.Join(",", debuggerUnsecuredConfig.DebugSessionIds)}");
 
                     var initiatingUserId = localContext.GetInitiatingUserId();
+
+                    localContext.Log($"Initiating user Id : {initiatingUserId}");
 
                     var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
                     queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.DebugeeId, ConditionOperator.Equal, initiatingUserId);
                     queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
 
-                    queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Id, ConditionOperator.In, debuggerUnsecuredConfig.DebugSessionIds.Cast<object>().ToArray());
+                    //queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Id, ConditionOperator.In, debuggerUnsecuredConfig.DebugSessionIds.Cast<object>().ToArray());
 
                     var debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
 
@@ -41,8 +46,8 @@ namespace XrmFramework
                             var remoteContext = localContext.RemoteContext;
                             remoteContext.Id = Guid.NewGuid();
                             remoteContext.TypeAssemblyQualifiedName = GetType().AssemblyQualifiedName;
-                            remoteContext.UnsecureConfig = unsecureConfig;
-                            remoteContext.SecureConfig = secureConfig;
+                            remoteContext.UnsecureConfig = UnSecuredConfig;
+                            remoteContext.SecureConfig = SecuredConfig;
 
                             var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
 
@@ -92,7 +97,7 @@ namespace XrmFramework
                             }
                         }
                     }
-                }
+                //}
             }
 
             return false;

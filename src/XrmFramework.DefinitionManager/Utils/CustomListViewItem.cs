@@ -12,7 +12,7 @@ namespace DefinitionManager
 {
     class CustomListViewItem<T> : ListViewItem where T : AbstractDefinition
     {
-        private Dictionary<string, ListViewSubItem> _subItems = new Dictionary<string, ListViewSubItem>();
+        private Dictionary<string, ListViewSubItem> _subItems = new();
 
         public CustomListViewItem(T definition)
         {

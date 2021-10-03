@@ -2,8 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using Deploy.Utils;
-using XrmFramework.Workflow;
 using XrmFramework.DeployUtils;
 
 namespace Deploy.Plugins
@@ -13,15 +11,7 @@ namespace Deploy.Plugins
         [STAThread]
         static void Main(string[] args)
         {
-            var prog = new Program();
-            prog.RegisterPlugins();
-        }
-
-        private void RegisterPlugins()
-        {
-            var assemblyPath = "$safeprojectname$.Plugins.dll";
-
-            RegistrationHelper.Register<global::XrmFramework.Plugin, CustomWorkflowActivity>("$safeprojectname$.Plugins", assemblyPath, PluginConverter.Convert, PluginConverter.Convert);
+            RegistrationHelper.RegisterPluginsAndWorkflows<XrmFramework.Plugin>("$safeprojectname$.Plugins");
         }
     }   
 }

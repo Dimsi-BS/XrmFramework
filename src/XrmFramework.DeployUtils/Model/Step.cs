@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace XrmFramework.DeployUtils.Model
 {
@@ -17,23 +18,30 @@ namespace XrmFramework.DeployUtils.Model
             EntityName = entityName;
         }
 
-        public string PluginTypeName { get; private set; }
+        public string PluginTypeName { get; }
 
-        public string Message { get; private set; }
-        public Stages Stage { get; private set; }
-        public Modes Mode { get; private set; }
-        public string EntityName { get; private set; }
+        public string Message { get; }
+        public Stages Stage { get; }
+        public Modes Mode { get; }
+        public string EntityName { get; }
 
         public Guid MessageId { get; set; }
 
-        public string FilteredAttributes { get; set; }
-        public bool PreImageUsed { get; set; }
-        public bool PreImageAllAttributes { get; set; }
-        public string PreImageAttributes { get; set; }
+        public bool DoNotFilterAttributes { get; set; }
 
-        public bool PostImageUsed { get; set; }
+        public List<string> FilteringAttributes { get; } = new List<string>();
+
+        public bool PreImageUsed => Message != "Create" && Message != "Book" && (PreImageAllAttributes || PreImageAttributes.Any());
+        public bool PreImageAllAttributes { get; set; }
+        public List<string> PreImageAttributes { get; } = new List<string>();
+
+        public string JoinedPreImageAttributes => string.Join(",", PreImageAttributes);
+
+        public bool PostImageUsed => Stage == Stages.PostOperation && (PostImageAllAttributes || PostImageAttributes.Any());
         public bool PostImageAllAttributes { get; set; }
-        public string PostImageAttributes { get; set; }
+        public List<string> PostImageAttributes { get; } = new List<string>();
+
+        public string JoinedPostImageAttributes => string.Join(",", PostImageAttributes);
 
         public string UnsecureConfig { get; set; }
 
@@ -43,18 +51,58 @@ namespace XrmFramework.DeployUtils.Model
 
         public List<string> MethodNames { get; } = new List<string>();
         public string MethodsDisplayName => string.Join(",", MethodNames);
-    }
 
-    public class StepComparer : IEqualityComparer<Step>
-    {
-        public bool Equals(Step x, Step y)
+
+
+        public void Merge(Step step)
         {
-            return x.PluginTypeName == y.PluginTypeName && x.EntityName == y.EntityName && x.Message == y.Message && x.Stage == y.Stage && x.Mode == y.Mode && x.UnsecureConfig == y.UnsecureConfig;
+            if (!step.FilteringAttributes.Any())
+            {
+                DoNotFilterAttributes = true;
+            }
+
+            FilteringAttributes.AddRange(step.FilteringAttributes);
+
+            if (step.PreImageAllAttributes)
+            {
+                PreImageAllAttributes = true;
+                PreImageAttributes.Clear();
+            }
+            else
+            {
+                PreImageAttributes.AddRange(step.PreImageAttributes);
+            }
+
+            if (step.PostImageAllAttributes)
+            {
+                PostImageAllAttributes = true;
+                PostImageAttributes.Clear();
+            }
+            else
+            {
+                PostImageAttributes.AddRange(step.PostImageAttributes);
+            }
+
+            MethodNames.AddRange(step.MethodNames);
         }
 
-        public int GetHashCode(Step obj)
+        public static Step FromXrmFrameworkStep(dynamic s)
         {
-            return obj.PluginTypeName.GetHashCode() + obj.EntityName.GetHashCode() + obj.Message.GetHashCode() + obj.Stage.GetHashCode() + obj.Mode.GetHashCode();
+            var step = new Step(s.Plugin.GetType().Name, s.Message.ToString(), (Stages)(int)s.Stage, (Modes)(int)s.Mode, s.EntityName);
+
+            step.FilteringAttributes.AddRange(s.FilteringAttributes);
+            step.ImpersonationUsername = s.ImpersonationUsername;
+            step.Order = s.Order;
+            step.PostImageAllAttributes = s.PostImageAllAttributes;
+            step.PostImageAttributes.AddRange(s.PostImageAttributes);
+            step.PreImageAllAttributes = s.PreImageAllAttributes;
+            step.PreImageAttributes.AddRange(s.PreImageAttributes);
+            step.UnsecureConfig = s.UnsecureConfig;
+
+            step.MethodNames.AddRange(s.MethodNames);
+
+            return step;
         }
     }
+
 }

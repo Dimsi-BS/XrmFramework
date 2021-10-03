@@ -34,7 +34,7 @@ namespace XrmFramework
             Logger = LoggerFactory.GetLogger(this, TracingService.Trace);
         }
 
-        protected LocalContext(LocalContext context, IPluginExecutionContext parentContext)
+        protected LocalContext(LocalContext context, IPluginExecutionContext parentContext) : this()
         {
             ExecutionContext = parentContext;
             TracingService = context.TracingService;

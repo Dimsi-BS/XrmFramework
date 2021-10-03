@@ -6,4 +6,14 @@
     <Reference Include="System.Configuration" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="$(SolutionDir)/$(XrmFrameworkCoreProjectName)/$(XrmFrameworkCoreProjectName).csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="$(SolutionDir)/$(XrmFrameworkCoreProjectName)/**/*.table" >
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
