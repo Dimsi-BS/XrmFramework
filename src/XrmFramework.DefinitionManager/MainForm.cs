@@ -13,7 +13,7 @@ using DefinitionManager;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using XrmFramework.DefinitionManager.Model;
+using XrmFramework.Core;
 using RelationshipAttributeDefinition = DefinitionManager.Definitions.RelationshipAttributeDefinition;
 
 namespace XrmFramework.DefinitionManager
@@ -22,7 +22,7 @@ namespace XrmFramework.DefinitionManager
     {
         private readonly DefinitionCollection<EntityDefinition> _entityCollection;
 
-        private readonly List<Entity> _entities;
+        private readonly TableCollection _tables;
         private readonly List<OptionSetEnum> _enums = new();
 
         private readonly Type _iServiceType;
@@ -39,7 +39,7 @@ namespace XrmFramework.DefinitionManager
             DataAccessManager.Instance.StepChanged += StepChangedHandler;
 
             _entityCollection = new DefinitionCollection<EntityDefinition>();
-            _entities = new List<Entity>();
+            _tables = new TableCollection();
 
             this.attributeListView.SelectionChanged += attributeListView_SelectionChanged;
         }
@@ -64,10 +64,10 @@ namespace XrmFramework.DefinitionManager
 
         void RetrieveEntitiesSucceeded(object result)
         {
-            var entities = (Tuple<List<EntityDefinition>, List<Entity>, List<OptionSetEnum>>)result;
+            var entities = (Tuple<List<EntityDefinition>, List<Table>, List<OptionSetEnum>>)result;
 
             _entityCollection.AddRange(entities.Item1);
-            _entities.AddRange(entities.Item2);
+            _tables.AddRange(entities.Item2);
             _enums.AddRange(entities.Item3);
             this.generateDefinitionsToolStripMenuItem.Enabled = true;
             this.entityListView.Enabled = true;
@@ -85,7 +85,8 @@ namespace XrmFramework.DefinitionManager
 
             _entityCollection.AttachListView(this.entityListView);
 
-            var entities = GetCodedEntities().ToList();
+            //var entities = GetCodedEntities().ToList();
+            //_tables.AddRange(entities);
 
             _entityCollection.AddRange(GetCodedEntityDefinitions());
 
@@ -163,21 +164,21 @@ namespace XrmFramework.DefinitionManager
         private Type GetExternalType(string name)
             => _iServiceType.Assembly.GetType(name);
 
-        private IEnumerable<Entity> GetCodedEntities()
-        {
-            var entityFiles = Directory.EnumerateFiles(".", "*.table", SearchOption.AllDirectories);
+        //private IEnumerable<Table> GetCodedEntities()
+        //{
+        //    var entityFiles = Directory.EnumerateFiles(".", "*.table", SearchOption.AllDirectories);
 
-            foreach (var entityFile in entityFiles)
-            {
-                var fileContent = File.ReadAllText(entityFile);
+        //    foreach (var entityFile in entityFiles)
+        //    {
+        //        var fileContent = File.ReadAllText(entityFile);
 
-                var entity = JsonConvert.DeserializeObject<Entity>(fileContent);
-                entity.Selected = true;
-                entity.Attributes.ForEach(a => a.Selected = true);
+        //        var entity = JsonConvert.DeserializeObject<Table>(fileContent);
+        //        entity.Selected = true;
+        //        entity.Columns.ForEach(a => a.Selected = true);
 
-                yield return entity;
-            }
-        }
+        //        yield return entity;
+        //    }
+        //}
 
         private IEnumerable<EntityDefinition> GetCodedEntityDefinitions()
         {
@@ -340,21 +341,21 @@ namespace XrmFramework.DefinitionManager
             {
                 var sb = new IndentedStringBuilder();
 
-                var entity = _entities.FirstOrDefault(e => e.LogicalName == item.LogicalName);
+                //var entity = _tables.FirstOrDefault(e => e.LogicalName == item.LogicalName);
 
-                var selectedAttributes = item.AttributesCollection.SelectedDefinitions;
+                //var selectedAttributes = item.AttributesCollection.SelectedDefinitions;
 
-                entity.Attributes.RemoveAll(a => selectedAttributes.All(s => s.LogicalName != a.LogicalName));
+                //entity.Columns.RemoveAll(a => selectedAttributes.All(s => s.LogicalName != a.LogicalName));
 
-                var enumsToKeep = entity.Attributes.Where(a => !string.IsNullOrEmpty(a.EnumName))
-                    .Select(en => en.EnumName).Distinct().ToList();
+                //var enumsToKeep = entity.Columns.Where(a => !string.IsNullOrEmpty(a.EnumName))
+                //    .Select(en => en.EnumName).Distinct().ToList();
 
-                entity.Enums.RemoveAll(en => !enumsToKeep.Contains(en.LogicalName));
+                //entity.Enums.RemoveAll(en => !enumsToKeep.Contains(en.LogicalName));
                 
-                var entityTxt = JsonConvert.SerializeObject(entity, Formatting.Indented, new JsonSerializerSettings
-                {
-                    DefaultValueHandling = DefaultValueHandling.Ignore
-                });
+                //var entityTxt = JsonConvert.SerializeObject(entity, Formatting.Indented, new JsonSerializerSettings
+                //{
+                //    DefaultValueHandling = DefaultValueHandling.Ignore
+                //});
 
                 sb.AppendLine("");
                 sb.AppendLine("using System;");
@@ -613,7 +614,7 @@ namespace XrmFramework.DefinitionManager
             var globalEnums = EnumDefinitionCollection.Instance.SelectedDefinitions.Where(en => en.IsSelected)
                 .Select(en => en.LogicalName).ToList();
 
-            var globalOptionSets = new Entity
+            var globalOptionSets = new Table
             {
                 LogicalName = "globalEnums",
                 Name = "OptionSets"

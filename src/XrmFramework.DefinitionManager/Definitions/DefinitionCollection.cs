@@ -1,11 +1,8 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
-using System;
+
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace DefinitionManager
 {
@@ -14,11 +11,11 @@ namespace DefinitionManager
         public delegate void TextChangedEventHandler(object sender, TextChangedEventArgs e);
         public event TextChangedEventHandler TextChanged;
 
-        private SortedSet<T> _definitions = new SortedSet<T>(new DefinitionComparer<T>());
+        private SortedSet<T> _definitions = new(new DefinitionComparer<T>());
 
-        private static object syncRoot = new object();
+        private static object syncRoot = new();
 
-        public IReadOnlyList<T> Definitions { get { return _definitions.ToList(); } }
+        public IReadOnlyList<T> Definitions => _definitions.ToList();
 
         private CustomListViewControl<T> _listView;
 
@@ -32,8 +29,8 @@ namespace DefinitionManager
             {
                 _listView = listView;
 
-                _listView.FilterTextChanged += new CustomListViewControl<T>.FilterTextChangedEventHandler(_listView_FilterTextChanged);
-                _listView.SelectionChanged += new CustomListViewControl<T>.SelectionChangedEventHandler(_listView_SelectionChanged);
+                _listView.FilterTextChanged += _listView_FilterTextChanged;
+                _listView.SelectionChanged += _listView_SelectionChanged;
 
                 FillListView();
             }
@@ -43,8 +40,8 @@ namespace DefinitionManager
         {
             if (_listView != null)
             {
-                _listView.FilterTextChanged -= new CustomListViewControl<T>.FilterTextChangedEventHandler(_listView_FilterTextChanged);
-                _listView.SelectionChanged -= new CustomListViewControl<T>.SelectionChangedEventHandler(_listView_SelectionChanged);
+                _listView.FilterTextChanged -= _listView_FilterTextChanged;
+                _listView.SelectionChanged -= _listView_SelectionChanged;
                 _listView.Clear();
             }
             _listView = null;

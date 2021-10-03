@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
+using System.Composition;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeActions;
 using System.Threading;
@@ -12,58 +13,40 @@ using System.Threading;
 namespace XrmFramework.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class CallbackVisibilityRule : CodeFixProvider
+    public class CallbackVisibilityRuleAnalyzer : DiagnosticAnalyzer
     {
         private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.CheckCallbackVisibilityTitle), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableString MessageFormat = new LocalizableResourceString(nameof(Resources.CheckCallbackVisibilityMessageFormat), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.CheckCallbackVisibilityDescription), Resources.ResourceManager, typeof(Resources));
         private const string Category = "Naming";
 
-        private static readonly DiagnosticDescriptor _rule = new DiagnosticDescriptor(DiagnosticIds.CheckCallbackVisibility, Title, MessageFormat, Category, DiagnosticSeverity.Error, true, description: Description);
+        private static readonly DiagnosticDescriptor _rule = new(DiagnosticIds.CheckCallbackVisibility, Title, MessageFormat, Category, DiagnosticSeverity.Error, true, description: Description);
 
-        public ImmutableArray<DiagnosticDescriptor> Rules => ImmutableArray.Create(_rule);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(_rule);
 
-        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(_rule.Id);
-
-        public void InitializeDiagnostics(AnalysisContext context)
+        public override void Initialize(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(AnalyzeMethodAnalysis, SyntaxKind.MethodDeclaration);
         }
 
-        public override async Task RegisterCodeFixesAsync(CodeFixContext context)
-        {
-            var title = "Make method public";
-            foreach (var diagnostic in context.Diagnostics)
-            {
-                var methodLocation = diagnostic.Location;
-
-                var methodRoot = await methodLocation.SourceTree.GetRootAsync(context.CancellationToken).ConfigureAwait(false);
-                var methodDeclaration = methodRoot.FindNode(methodLocation.SourceSpan) as MethodDeclarationSyntax;
-
-                context.RegisterCodeFix(
-                    CodeAction.Create(title, createChangedDocument: c => MakePublic(context.Document, methodDeclaration, c), equivalenceKey: title),
-                    diagnostic);
-            }
-        }
-
-        private async Task<Document> MakePublic(Document document, MethodDeclarationSyntax methodDecl, CancellationToken cancellationToken)
-        {
-            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-
-            var newModifiers = SyntaxFactory.TokenList(new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) });
-            var newMethodDeclaration = methodDecl.WithModifiers(newModifiers);
-
-            var newRoot = root.ReplaceNode(methodDecl, newMethodDeclaration);
-            var newDocument = document.WithSyntaxRoot(newRoot);
-
-            return newDocument;
-        }
-
         private static void AnalyzeMethodAnalysis(SyntaxNodeAnalysisContext context)
         {
-            var methodDeclaration = context.Node as MethodDeclarationSyntax;
+            if (context.Node is not MethodDeclarationSyntax methodDeclaration)
+            {
+                return;
+            }
 
-            var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodDeclaration, context.CancellationToken) as IMethodSymbol;
+            var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodDeclaration, context.CancellationToken);
+
+            if (methodSymbol == null)
+            {
+                return;
+            }
+
+            if (!methodSymbol.IsAbstract && !methodSymbol.IsStatic && methodSymbol.DeclaredAccessibility == Accessibility.Public)
+            {
+                return;
+            }
 
             var typeSyntaxReferences = methodSymbol.ContainingType.DeclaringSyntaxReferences;
 
@@ -77,9 +60,10 @@ namespace XrmFramework.Analyzers
 
                 foreach (var methodCall in methodCalls)
                 {
-                    var calledMethodSymbol = context.SemanticModel.Compilation.GetSemanticModel(methodCall.SyntaxTree).GetSymbolInfo(methodCall).Symbol as IMethodSymbol;
+                    var semanticModel = context.SemanticModel.Compilation.GetSemanticModel(methodCall.SyntaxTree);
 
-                    if (calledMethodSymbol == null || calledMethodSymbol.Name != "AddStep" || calledMethodSymbol.ContainingType.Name != "Plugin")
+
+                    if (semanticModel.GetSymbolInfo(methodCall).Symbol is not IMethodSymbol calledMethodSymbol || calledMethodSymbol.Name != "AddStep" || calledMethodSymbol.ContainingType.Name != "Plugin")
                     {
                         continue;
                     }
@@ -91,8 +75,7 @@ namespace XrmFramework.Analyzers
                             methodIsUsed |= ((LiteralExpressionSyntax)argumentExpression).Token.ValueText == methodSymbol.Name;
                             break;
                         case SyntaxKind.PointerMemberAccessExpression:
-                            var fieldInfo = context.SemanticModel.GetSymbolInfo((MemberAccessExpressionSyntax)argumentExpression).Symbol as IFieldSymbol;
-                            if (fieldInfo != null)
+                            if (context.SemanticModel.GetSymbolInfo((MemberAccessExpressionSyntax)argumentExpression).Symbol is IFieldSymbol fieldInfo)
                             {
                                 methodIsUsed |= (fieldInfo.HasConstantValue && methodSymbol.Name.Equals(fieldInfo.ConstantValue));
                             }
@@ -120,12 +103,49 @@ namespace XrmFramework.Analyzers
 
             if (methodIsUsed)
             {
-                if (methodSymbol.IsAbstract || methodSymbol.IsStatic || methodSymbol.DeclaredAccessibility != Accessibility.Public)
-                {
-                    var diag = Diagnostic.Create(_rule, methodDeclaration.Identifier.GetLocation(), methodSymbol.ContainingType.Name, methodSymbol.Name);
-                    context.ReportDiagnostic(diag);
-                }
+                var diagnostic = Diagnostic.Create(_rule, methodDeclaration.Identifier.GetLocation(), methodSymbol.ContainingType.Name, methodSymbol.Name);
+                context.ReportDiagnostic(diagnostic);
             }
+        }
+    }
+
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(CallbackVisibilityRuleCodeFixProvider)), Shared]
+    public class CallbackVisibilityRuleCodeFixProvider : CodeFixProvider
+    {
+        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(DiagnosticIds.CheckCallbackVisibility);
+
+        public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+        {
+            var title = "Make method public";
+            foreach (var diagnostic in context.Diagnostics)
+            {
+                var sourceTree = diagnostic.Location.SourceTree;
+
+                if (sourceTree == null)
+                {
+                    continue;
+                }
+
+                var methodRoot = await sourceTree.GetRootAsync(context.CancellationToken).ConfigureAwait(false);
+                var methodDeclaration = methodRoot.FindNode(diagnostic.Location.SourceSpan) as MethodDeclarationSyntax;
+
+                context.RegisterCodeFix(
+                    CodeAction.Create(title, c => MakePublic(context.Document, methodDeclaration, c), title),
+                    diagnostic);
+            }
+        }
+
+        private async Task<Document> MakePublic(Document document, MethodDeclarationSyntax methodDecl, CancellationToken cancellationToken)
+        {
+            var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+
+            var newModifiers = SyntaxFactory.TokenList(new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) });
+            var newMethodDeclaration = methodDecl.WithModifiers(newModifiers);
+
+            var newRoot = root.ReplaceNode(methodDecl, newMethodDeclaration);
+            var newDocument = document.WithSyntaxRoot(newRoot);
+
+            return newDocument;
         }
     }
 }

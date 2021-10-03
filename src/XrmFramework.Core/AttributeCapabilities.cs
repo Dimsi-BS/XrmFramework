@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace XrmFramework.DefinitionManager.Model
+namespace XrmFramework.Core
 {
     [Flags]
     public enum AttributeCapabilities

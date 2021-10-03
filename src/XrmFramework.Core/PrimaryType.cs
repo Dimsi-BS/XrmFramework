@@ -1,4 +1,4 @@
-﻿namespace XrmFramework.DefinitionManager.Model
+﻿namespace XrmFramework.Core
 {
     public enum PrimaryType
     {

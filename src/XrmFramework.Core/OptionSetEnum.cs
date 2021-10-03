@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace XrmFramework.DefinitionManager.Model
+namespace XrmFramework.Core
 {
     [JsonObject(MemberSerialization.OptOut)]
     public class OptionSetEnum

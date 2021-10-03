@@ -3,10 +3,10 @@ using Microsoft.Xrm.Sdk.Metadata;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace XrmFramework.DefinitionManager.Model
+namespace XrmFramework.Core
 {
     [JsonObject(MemberSerialization.OptOut)]
-    public class Attribute
+    public class Column
     {
         [JsonProperty("LogName")]
         public string LogicalName { get; set; }

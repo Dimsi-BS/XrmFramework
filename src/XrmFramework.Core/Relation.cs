@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace XrmFramework.DefinitionManager.Model
+namespace XrmFramework.Core
 {
     [JsonObject(MemberSerialization.OptOut)]
     public class Relation

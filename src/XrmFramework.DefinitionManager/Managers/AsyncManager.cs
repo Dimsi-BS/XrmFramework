@@ -18,7 +18,7 @@ namespace DefinitionManager
         public delegate void ProgressChangedEventHandler(object sender, ProgressChangedEventArgs e);
         public event ProgressChangedEventHandler ProgressChanged;
 
-        private Queue<AsyncAction> _queue = new Queue<AsyncAction>();
+        private Queue<AsyncAction> _queue = new();
 
         protected BackgroundWorker _worker;
 

@@ -36,6 +36,8 @@ namespace XrmFramework.Analyzers
             {
                 var classSymbol = context.SemanticModel.GetDeclaredSymbol(classDeclaration);
 
+
+
                 if (classSymbol.AllInterfaces.All(i => i.Name != "IPlugin"))
                 {
                     return;

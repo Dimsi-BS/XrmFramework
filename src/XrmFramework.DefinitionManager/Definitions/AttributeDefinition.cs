@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.Xrm.Sdk.Metadata;
 
 namespace DefinitionManager
@@ -20,7 +19,7 @@ namespace DefinitionManager
         [Column("Display Name", 1, 300)]
         public string DisplayName { get { return _displayName; } set { _displayName = value; OnPropertyChanged("DisplayName"); } }
 
-        [Column("Attribute Type", 2, 100)]
+        [Column("Column Type", 2, 100)]
         public string Type { get { return _type; } set { _type = value; OnPropertyChanged("Type"); } }
 
         public EntityDefinition ParentEntity { get; set; }
@@ -37,7 +36,7 @@ namespace DefinitionManager
         [Mergeable]
         public DateTimeBehavior DateTimeBehavior { get; set; }
 
-        private List<string> _keyNames = new List<string>();
+        private List<string> _keyNames = new();
         [Mergeable]
         public ICollection<string> KeyNames
         {
@@ -70,7 +69,7 @@ namespace DefinitionManager
         }
 
         private EnumDefinition _enum;
-        private readonly List<OneToManyRelationshipMetadata> _relationships = new List<OneToManyRelationshipMetadata>();
+        private readonly List<OneToManyRelationshipMetadata> _relationships = new();
 
         [Mergeable]
         public EnumDefinition Enum

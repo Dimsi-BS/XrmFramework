@@ -1,11 +1,7 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
-using System;
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace DefinitionManager
 {
@@ -14,14 +10,14 @@ namespace DefinitionManager
         [Mergeable]
         public bool IsActivity { get; set; }
 
-        private readonly DefinitionCollection<AttributeDefinition> _attributes = new DefinitionCollection<AttributeDefinition>();
+        private readonly DefinitionCollection<AttributeDefinition> _attributes = new();
         public DefinitionCollection<AttributeDefinition> AttributesCollection { get { return _attributes; } }
 
-        private readonly DefinitionCollection<ClassDefinition> _additionalClasses = new DefinitionCollection<ClassDefinition>();
+        private readonly DefinitionCollection<ClassDefinition> _additionalClasses = new();
         public DefinitionCollection<ClassDefinition> AdditionalClassesCollection { get { return _additionalClasses; } }
 
 
-        private DefinitionCollection<AttributeDefinition> _additionalInfos = new DefinitionCollection<AttributeDefinition>();
+        private DefinitionCollection<AttributeDefinition> _additionalInfos = new();
         public DefinitionCollection<AttributeDefinition> AdditionalInfoCollection { get { return _additionalInfos; } }
 
         public override string UnselectionWarning

@@ -22,11 +22,10 @@ using RelationshipAttributeDefinition = DefinitionManager.Definitions.Relationsh
 using StringAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.StringAttributeMetadata;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Tooling.Connector;
-using XrmFramework.DefinitionManager.Model;
+using XrmFramework.Core;
 using XrmFramework.DeployUtils.Configuration;
-using Attribute = XrmFramework.DefinitionManager.Model.Attribute;
-using Entity = XrmFramework.DefinitionManager.Model.Entity;
-using LocalizedLabel = XrmFramework.DefinitionManager.Model.LocalizedLabel;
+using Table = XrmFramework.Core.Table;
+using LocalizedLabel = XrmFramework.Core.LocalizedLabel;
 
 namespace DefinitionManager
 {
@@ -39,7 +38,7 @@ namespace DefinitionManager
         {
         }
 
-        private static DataAccessManager _instance = new DataAccessManager();
+        private static DataAccessManager _instance = new();
 
         public static DataAccessManager Instance { get { return _instance; } }
 
@@ -86,7 +85,7 @@ namespace DefinitionManager
             SendStepChange("Retrieving entities...");
 
             var entities = new List<EntityDefinition>();
-            var newEntities = new List<Entity>();
+            var newEntities = new List<Table>();
             var enums = new List<OptionSetEnum>();
 
             var queryComponents = new QueryExpression(SolutionComponent.EntityLogicalName);
@@ -111,8 +110,8 @@ namespace DefinitionManager
             {
                 var entity = ((RetrieveEntityResponse)_service.Execute(new RetrieveEntityRequest { MetadataId = component.GetAttributeValue<Guid>("objectid"), EntityFilters = EntityFilters.Entity | EntityFilters.Attributes | EntityFilters.Relationships })).EntityMetadata;
 
-                var solutionName = component.GetAttributeValue<Microsoft.Xrm.Sdk.AliasedValue>("solution.uniquename").Value as string;
-                Prefix = component.GetAttributeValue<Microsoft.Xrm.Sdk.AliasedValue>("publisher.customizationprefix").Value as string;
+                var solutionName = component.GetAttributeValue<AliasedValue>("solution.uniquename").Value as string;
+                Prefix = component.GetAttributeValue<AliasedValue>("publisher.customizationprefix").Value as string;
 
                 var entityDefinition = new EntityDefinition
                 {
@@ -123,7 +122,7 @@ namespace DefinitionManager
                     IsLoaded = true
                 };
 
-                var newEntity = new Entity
+                var newEntity = new Table
                 {
                     LogicalName = entity.LogicalName,
                     CollectionName = entity.LogicalCollectionName,
@@ -460,7 +459,7 @@ namespace DefinitionManager
                         MaxRange = maxRangeDouble
                     };
 
-                    var attribute = new Attribute
+                    var attribute = new Column
                     {
                         LogicalName = attributeMetadata.LogicalName,
                         Name = name,
@@ -558,12 +557,12 @@ namespace DefinitionManager
                     }
 
                     entityDefinition.AttributesCollection.Add(attributeDefinition);
-                    newEntity.Attributes.Add(attribute);
+                    newEntity.Columns.Add(attribute);
                 }
 
             }
             SendStepChange(string.Empty);
-            return new Tuple<List<EntityDefinition>, List<Entity>, List<OptionSetEnum>>(entities, newEntities, enums);
+            return new Tuple<List<EntityDefinition>, List<Table>, List<OptionSetEnum>>(entities, newEntities, enums);
         }
 
         object DoRetrieveAttributes(object item)
