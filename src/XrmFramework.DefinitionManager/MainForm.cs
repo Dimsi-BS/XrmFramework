@@ -76,7 +76,7 @@ namespace XrmFramework.DefinitionManager
 
         void ConnectionSucceeded(object service)
         {
-            DataAccessManager.Instance.RetrieveEntities(RetrieveEntitiesSucceeded);
+            DataAccessManager.Instance.RetrieveEntities(RetrieveEntitiesSucceeded, _entityCollection.Definitions.Select(d => d.LogicalName).ToArray());
         }
 
         private void DefinitionManager_Load(object sender, EventArgs e)

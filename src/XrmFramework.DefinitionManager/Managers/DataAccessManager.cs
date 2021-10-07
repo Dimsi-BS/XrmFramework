@@ -48,9 +48,9 @@ namespace DefinitionManager
         {
             Run(DoConnect, callback, null);
         }
-        public void RetrieveEntities(Action<object> callback)
+        public void RetrieveEntities(Action<object> callback, params string[] entityNames)
         {
-            Run(DoRetrieveEntities, callback, null);
+            Run(DoRetrieveEntities, callback, entityNames);
         }
 
         internal void RetrieveAttributes(EntityDefinition item, Action<object> callback)
@@ -88,6 +88,8 @@ namespace DefinitionManager
             var newEntities = new List<Table>();
             var enums = new List<OptionSetEnum>();
 
+            var preloadedEntities = (arg as string[] ?? new string[0]).ToList();
+
             var queryComponents = new QueryExpression(SolutionComponent.EntityLogicalName);
             queryComponents.ColumnSet.AllColumns = true;
             queryComponents.Criteria.AddCondition("componenttype", ConditionOperator.Equal, (int)componenttype.Entity);
@@ -103,15 +105,38 @@ namespace DefinitionManager
 
             var components = _service.RetrieveMultiple(queryComponents).Entities;
 
-            var max = components.Count;
+            var entitiesToLoad = components.Select(c => new EntityToLoad { MetadataId = c.GetAttributeValue<Guid>("objectid") }).ToList();
+            entitiesToLoad.AddRange(preloadedEntities.Select(e => new EntityToLoad { LogicalName = e }));
+
+            var solutionName = components.First().GetAttributeValue<AliasedValue>("solution.uniquename").Value as string;
+            Prefix = components.First().GetAttributeValue<AliasedValue>("publisher.customizationprefix").Value as string;
+
+            var max = entitiesToLoad.Count;
             var current = 1;
 
-            foreach (var component in components)
+            for (var i = 0; i < entitiesToLoad.Count; i++)
             {
-                var entity = ((RetrieveEntityResponse)_service.Execute(new RetrieveEntityRequest { MetadataId = component.GetAttributeValue<Guid>("objectid"), EntityFilters = EntityFilters.Entity | EntityFilters.Attributes | EntityFilters.Relationships })).EntityMetadata;
+                var component = entitiesToLoad[i];
 
-                var solutionName = component.GetAttributeValue<AliasedValue>("solution.uniquename").Value as string;
-                Prefix = component.GetAttributeValue<AliasedValue>("publisher.customizationprefix").Value as string;
+                var request = new RetrieveEntityRequest
+                {
+                    EntityFilters = EntityFilters.Entity | EntityFilters.Attributes | EntityFilters.Relationships
+                };
+
+                if (component.MetadataId != Guid.Empty)
+                {
+                    request.MetadataId = component.MetadataId;
+                } else
+                {
+                    request.LogicalName = component.LogicalName;
+                }
+
+                var entity = ((RetrieveEntityResponse)_service.Execute(request)).EntityMetadata;
+
+                if (component.MetadataId != Guid.Empty && entitiesToLoad.Any(e => e.LogicalName == entity.LogicalName))
+                {
+                    entitiesToLoad.RemoveAll(e => e.LogicalName == entity.LogicalName);
+                }
 
                 var entityDefinition = new EntityDefinition
                 {
@@ -696,6 +721,13 @@ namespace DefinitionManager
             }
             name = name.Substring(0, 1).ToUpperInvariant() + name.Substring(1);
             return name;
+        }
+
+        private class EntityToLoad
+        {
+            public Guid MetadataId { get; set; }
+
+            public string LogicalName { get; set; }
         }
     }
 }
