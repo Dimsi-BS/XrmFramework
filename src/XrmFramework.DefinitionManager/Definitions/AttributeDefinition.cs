@@ -150,7 +150,7 @@ namespace DefinitionManager
         public bool IsValidForUpdate { protected internal get; set; }
 
         [Mergeable]
-        internal bool IsValidForRead { get; set; }
+        public bool IsValidForRead { get; set; }
 
         [Mergeable]
         public bool IsValidForAdvancedFind { protected internal get; set; }

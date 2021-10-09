@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Xrm.Sdk;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
+using XrmFramework.Definitions.Internal;
 
 namespace XrmFramework.Model
 {

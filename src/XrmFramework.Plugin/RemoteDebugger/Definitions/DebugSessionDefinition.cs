@@ -2,17 +2,14 @@ using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using XrmFramework.Definitions;
+using XrmFramework.Definitions.Internal;
+using XrmFramework.Definitions.Internal;
 
-namespace XrmFramework.RemoteDebugger
+namespace XrmFramework.RemoteDebugger.Definitions.Internal
 {
 	[GeneratedCode("XrmFramework", "1.0")]
 	[EntityDefinition]
-
 	[ExcludeFromCodeCoverage]
-
-    [DefinitionManagerIgnore]
-
 	public static class DebugSessionDefinition
 	{
 		public const string EntityName = "dimsi_debugsession";

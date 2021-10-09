@@ -63,9 +63,14 @@ namespace XrmFramework
             }
             else
             {
-                var definitionTypes = typeof(DefinitionCache).Assembly.GetTypes().Where(t => t.GetField("EntityName") != null).Where(t => t.GetField("EntityName").FieldType == typeof(string) && (string)t.GetField("EntityName").GetValue(null) == entityName);
+                var definitionTypes = typeof(DefinitionCache).Assembly.GetTypes()
+                    .Where(t => t.GetField("EntityName") != null)
+                    .Where(t => (t.Namespace.StartsWith("XrmFramework") && t.Namespace.Contains("Internal")) == false)
+                    .Where(t =>
+                        t.GetField("EntityName").FieldType == typeof(string)
+                        && (string)t.GetField("EntityName").GetValue(null) == entityName);
 
-                var definitionType = definitionTypes.OrderBy(t => t.Namespace?.Contains("XrmFramework.Common") ?? false).FirstOrDefault();
+                var definitionType = definitionTypes.Where(t => t.Namespace?.Contains("XrmFramework.Common") ?? false).FirstOrDefault();
 
                 if (definitionType == null)
                 {

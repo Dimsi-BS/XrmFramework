@@ -4,14 +4,11 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
-namespace XrmFramework.Definitions
+namespace XrmFramework.Definitions.Internal
 {
-	[GeneratedCode("XrmFramework", "1.0")]
+	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
-
 	[ExcludeFromCodeCoverage]
-    [DefinitionManagerIgnore]
-
 	public static class TeamDefinition
 	{
 		public const string EntityName = "team";

@@ -11,6 +11,7 @@ using System.Text;
 using System.Windows.Forms;
 using DefinitionManager;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Xrm.Sdk.Messages;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using XrmFramework.Core;
@@ -97,23 +98,16 @@ namespace XrmFramework.DefinitionManager
         {
             var optionSetDefinitionAttributeType = GetExternalType("XrmFramework.OptionSetDefinitionAttribute");
 
-            var definitionTypes = _iServiceType.Assembly.GetTypes().Where(t => t.GetCustomAttributes(optionSetDefinitionAttributeType, false).Any());
-            var definitionManagerIgnoreType = GetExternalType("XrmFramework.DefinitionManagerIgnoreAttribute");
-
+            var definitionTypes = _iServiceType.Assembly.GetTypes()
+                .Where(t => t.GetCustomAttributes(optionSetDefinitionAttributeType, false).Any());
 
             foreach (var type in definitionTypes)
             {
                 dynamic attribute = type.GetCustomAttribute(optionSetDefinitionAttributeType);
 
-                var ignoreAttribute = type.GetCustomAttribute(definitionManagerIgnoreType);
-                if (ignoreAttribute != null)
-                {
-                    continue;
-                }
-
                 var enumDefinition = new EnumDefinition
                 {
-                    LogicalName = (string.IsNullOrEmpty(attribute.EntityName) ? string.Empty : attribute.EntityName + "_") + attribute.LogicalName,
+                    LogicalName = (string.IsNullOrEmpty(attribute.EntityName) ? string.Empty : attribute.EntityName + "|") + attribute.LogicalName,
                     Name = type.Name,
                     IsGlobal = string.IsNullOrEmpty(attribute.EntityName)
                 };

@@ -21,6 +21,8 @@
 
     <NoWarn>$(NoWarn);1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
 
@@ -36,13 +38,6 @@
   </ItemGroup>
 
 <ItemGroup>
-
-  <Compile Update="Form1.cs">
-    <SubType>Form</SubType>
-  </Compile>
-  <Compile Update="Form1.Designer.cs">
-    <DependentUpon>Form1.cs</DependentUpon>
-  </Compile>
   <Compile Update="MainForm.cs">
     <SubType>Form</SubType>
   </Compile>

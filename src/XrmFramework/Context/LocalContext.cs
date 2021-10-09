@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using BoDi;
 using Microsoft.Xrm.Sdk;
-using XrmFramework.Definitions;
+using XrmFramework.Definitions.Internal;
 
 namespace XrmFramework
 {

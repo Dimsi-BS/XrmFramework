@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
-using XrmFramework.Definitions;
+using XrmFramework.Definitions.Internal;
 
 namespace XrmFramework.Workflow.EnableRuleProvider
 {

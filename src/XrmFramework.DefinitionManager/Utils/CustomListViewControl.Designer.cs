@@ -1,4 +1,4 @@
-﻿namespace DefinitionManager
+﻿namespace XrmFramework.DefinitionManager
 {
     internal partial class CustomListViewControl<T>
     {
@@ -43,11 +43,11 @@
             this.listView.FullRowSelect = true;
             this.listView.HideSelection = false;
             this.listView.LabelEdit = true;
-            this.listView.Location = new System.Drawing.Point(4, 43);
-            this.listView.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.listView.Location = new System.Drawing.Point(5, 54);
+            this.listView.Margin = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.listView.MultiSelect = false;
             this.listView.Name = "listView";
-            this.listView.Size = new System.Drawing.Size(180, 61);
+            this.listView.Size = new System.Drawing.Size(241, 76);
             this.listView.TabIndex = 2;
             this.listView.UseCompatibleStateImageBehavior = false;
             this.listView.View = System.Windows.Forms.View.Details;
@@ -59,28 +59,28 @@
             // tableLayoutPanel
             // 
             this.tableLayoutPanel.ColumnCount = 2;
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 75F));
+            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel.Controls.Add(this.listView, 0, 1);
             this.tableLayoutPanel.Controls.Add(this.filterTextBox, 1, 0);
             this.tableLayoutPanel.Controls.Add(this.textBoxLabel, 0, 0);
             this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.tableLayoutPanel.Margin = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.tableLayoutPanel.Name = "tableLayoutPanel";
             this.tableLayoutPanel.RowCount = 2;
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
+            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 48F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel.Size = new System.Drawing.Size(188, 109);
+            this.tableLayoutPanel.Size = new System.Drawing.Size(251, 136);
             this.tableLayoutPanel.TabIndex = 3;
             // 
             // filterTextBox
             // 
             this.filterTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.filterTextBox.Location = new System.Drawing.Point(79, 5);
-            this.filterTextBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.filterTextBox.Location = new System.Drawing.Point(105, 6);
+            this.filterTextBox.Margin = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.filterTextBox.Name = "filterTextBox";
-            this.filterTextBox.Size = new System.Drawing.Size(105, 26);
+            this.filterTextBox.Size = new System.Drawing.Size(141, 31);
             this.filterTextBox.TabIndex = 3;
             this.filterTextBox.TextChanged += new System.EventHandler(this.filterTextBox_TextChanged);
             this.filterTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.filterTextBox_KeyUp);
@@ -89,21 +89,21 @@
             // 
             this.textBoxLabel.AutoSize = true;
             this.textBoxLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBoxLabel.Location = new System.Drawing.Point(4, 0);
-            this.textBoxLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.textBoxLabel.Location = new System.Drawing.Point(5, 0);
+            this.textBoxLabel.Margin = new System.Windows.Forms.Padding(5, 0, 5, 0);
             this.textBoxLabel.Name = "textBoxLabel";
-            this.textBoxLabel.Size = new System.Drawing.Size(67, 38);
+            this.textBoxLabel.Size = new System.Drawing.Size(90, 48);
             this.textBoxLabel.TabIndex = 4;
             this.textBoxLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // CustomListViewControl
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.tableLayoutPanel);
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.Margin = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.Name = "CustomListViewControl";
-            this.Size = new System.Drawing.Size(188, 109);
+            this.Size = new System.Drawing.Size(251, 136);
             this.tableLayoutPanel.ResumeLayout(false);
             this.tableLayoutPanel.PerformLayout();
             this.ResumeLayout(false);

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using XrmFramework.BindingModel;
 using XrmFramework.RemoteDebugger;
+using XrmFramework.RemoteDebugger.Definitions.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace XrmFramework.Workflow
