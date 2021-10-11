@@ -1,6 +1,6 @@
 ﻿using System;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions.Internal;
+using XrmFramework.Definitions;
 
 namespace XrmFramework.Model
 {

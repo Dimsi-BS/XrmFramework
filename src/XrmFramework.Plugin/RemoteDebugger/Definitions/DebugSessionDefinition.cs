@@ -2,10 +2,8 @@ using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using XrmFramework.Definitions.Internal;
-using XrmFramework.Definitions.Internal;
 
-namespace XrmFramework.RemoteDebugger.Definitions.Internal
+namespace XrmFramework.Definitions
 {
 	[GeneratedCode("XrmFramework", "1.0")]
 	[EntityDefinition]

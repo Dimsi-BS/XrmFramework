@@ -10,7 +10,7 @@ using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions.Internal;
+using XrmFramework.Definitions;
 using XrmFramework.Model;
 using Newtonsoft.Json;
 

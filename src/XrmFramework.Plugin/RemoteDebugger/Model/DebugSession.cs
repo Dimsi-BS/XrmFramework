@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using XrmFramework.BindingModel;
-using XrmFramework.RemoteDebugger.Definitions.Internal;
+using XrmFramework.Definitions;
 
 namespace XrmFramework.RemoteDebugger
 {

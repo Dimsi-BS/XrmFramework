@@ -3,7 +3,7 @@ using System.CodeDom.Compiler;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
-namespace XrmFramework.Definitions.Internal
+namespace XrmFramework.Definitions
 {
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
