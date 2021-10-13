@@ -44,6 +44,10 @@
     <PackageReference Include="Microsoft.Dynamics.Sdk.Messages" Version="0.5.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="build\ServicesProject\ServicesProject.csproj" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.4.1" />

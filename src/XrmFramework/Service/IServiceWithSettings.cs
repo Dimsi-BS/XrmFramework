@@ -2,7 +2,7 @@
 
 namespace XrmFramework
 {
-    public interface IServiceWithSettings
+    public interface IServiceWithSettings : IService
     {
         void InitSettings();
     }

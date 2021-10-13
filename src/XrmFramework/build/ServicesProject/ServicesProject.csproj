@@ -1,12 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net462</TargetFrameworks>
+    <TargetFrameworks>net462;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="XrmFramework" Version="[#{GitBuildVersionSimple}#]" />
-    <PackageReference Include="XrmFramework.Plugin" Version="[#{GitBuildVersionSimple}#]" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
   
@@ -16,5 +15,6 @@
 
   <PropertyGroup>
     <XrmFrameworkDisableLoggedServiceGeneration>true</XrmFrameworkDisableLoggedServiceGeneration>
+    <DefineConstants>$(DefineConstants);DISABLE_DI</DefineConstants>
   </PropertyGroup>
 </Project>

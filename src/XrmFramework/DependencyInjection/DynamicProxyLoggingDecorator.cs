@@ -16,6 +16,8 @@ namespace XrmFramework.DependencyInjection
         public static object Decorate(Type interfaceType, object target)
             => Generator.CreateInterfaceProxyWithTargetInterface(interfaceType, target, new DynamicProxyLoggingInterceptor(interfaceType.Name));
 
+        public static T Decorate<T>(object target) where T : IService
+            => (T) Decorate(typeof(T), target);
     }
 }
 

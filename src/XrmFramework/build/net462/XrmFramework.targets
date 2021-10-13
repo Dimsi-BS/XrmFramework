@@ -1,4 +1,4 @@
-<Project ToolsVersion="14.0"
+﻿<Project ToolsVersion="14.0"
   xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
@@ -7,15 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(XrmFrameworkDisableLoggedServiceGeneration)' == ''">
-    <LoggedFiles Include="**\Logged*.cs" />
-    <LoggedFiles Include="obj\InternalDependencyProvider.cs" />
+    <Compile Include="obj\XrmFrameworkServiceCollectionExtension.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="@(LoggedFiles)" />
-  </ItemGroup>
-
-  <Target Name="GenerateLoggedServices" AfterTargets="GenerateDependencyInjection" Condition="'$(XrmFrameworkDisableLoggedServiceGeneration)' == '' AND '$(BuildingProject)' == 'true'">
+  <Target Name="GenerateDependencyInjection" BeforeTargets="CoreCompile" Condition="'$(XrmFrameworkDisableLoggedServiceGeneration)' == '' AND '$(BuildingProject)' == 'true'">
     <Message Importance="High" Text="Building ServicesProject .Net Framework 4.6.2" />
 
     <PropertyGroup>
@@ -36,7 +31,9 @@
     </PropertyGroup>
     <Message Importance="High" Text="=============> ProjectOutputFile=$(ProjectOutputFile)" />
 
-    <Exec Command="$(_XrmFrameworkLoggedServiceGenerator) &quot;$(ProjectOutputFile)&quot; &quot;$(ProjectFolderPath)\obj&quot; &quot;LoggedServices&quot;" YieldDuringToolExecution="true" StandardErrorImportance="High" />
+    <MSBuild Projects="$(ProjectFile)" Targets="Restore;Build" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir)" ContinueOnError="false" />
+
+    <Exec Command="$(_XrmFrameworkLoggedServiceGenerator) &quot;$(ProjectOutputFile)&quot; &quot;$(ProjectFolderPath)\obj&quot; &quot;DependencyInjection&quot;" YieldDuringToolExecution="true" StandardErrorImportance="High" />
 
   </Target>
 

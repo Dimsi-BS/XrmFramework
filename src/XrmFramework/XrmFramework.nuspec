@@ -37,6 +37,8 @@
     <file src="**\*.cs" target="contentFiles\cs\any\__Imports\XrmFramework" exclude="obj\**;**\AssemblyInfo.cs;**\CrmServiceClientDummy.cs" />
 
     <file src="build\**\*" target="build" />
+    <file src="..\XrmFramework.MSBuild.Reflection\bin\$config$\net462\*" target="build\net462\tasks" />
+    <file src="..\XrmFramework.MSBuild.Reflection\bin\$config$\netcoreapp3.1\*" target="build\netcoreapp3.1\tasks" />
 
     <file src="lib\**" target="lib" />
     
