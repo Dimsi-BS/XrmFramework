@@ -36,6 +36,8 @@
     </PropertyGroup>
     <Message Importance="High" Text="=============> ProjectOutputFile=$(ProjectOutputFile)" />
 
+    <MSBuild Projects="$(ProjectFile)" Targets="Restore;Build" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir)" ContinueOnError="false" />
+
     <Exec Command="$(_XrmFrameworkLoggedServiceGenerator) &quot;$(ProjectOutputFile)&quot; &quot;$(ProjectFolderPath)\obj&quot; &quot;LoggedServices&quot;" YieldDuringToolExecution="true" StandardErrorImportance="High" />
 
   </Target>

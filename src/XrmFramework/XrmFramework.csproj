@@ -45,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="build\ServicesProject\ServicesProject.csproj" />
+    <None Include="build\DependencyProject\DependencyProject.csproj" />
   </ItemGroup>
 
 

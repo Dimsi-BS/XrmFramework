@@ -6,12 +6,12 @@
     <_XrmFrameworkLoggedServiceGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">$(_XrmFrameworkTaskDir)\XrmFramework.MSBuild.Reflection.exe</_XrmFrameworkLoggedServiceGenerator>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(XrmFrameworkDisableLoggedServiceGeneration)' == ''">
+  <ItemGroup Condition="'$(XrmFrameworkDisableDependencyProjectGeneration)' == '' AND $(DefineConstants.IndexOf('XRMFRAMEWORK_PLUGIN')) == -1">
     <Compile Include="obj\XrmFrameworkServiceCollectionExtension.cs" />
   </ItemGroup>
 
-  <Target Name="GenerateDependencyInjection" BeforeTargets="CoreCompile" Condition="'$(XrmFrameworkDisableLoggedServiceGeneration)' == '' AND '$(BuildingProject)' == 'true'">
-    <Message Importance="High" Text="Building ServicesProject .Net Framework 4.6.2" />
+  <Target Name="GenerateDependencyInjection" BeforeTargets="CoreCompile" Condition="'$(XrmFrameworkDisableDependencyProjectGeneration)' == '' AND '$(BuildingProject)' == 'true' AND $(DefineConstants.IndexOf('XRMFRAMEWORK_PLUGIN')) == -1">
+    <Message Importance="High" Text="Building DependencyProject .Net Framework 4.6.2" />
 
     <PropertyGroup>
       <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
@@ -20,16 +20,15 @@
     <Delete Files="@(LoggedFiles)" ContinueOnError="true" />
 
     <ItemGroup>
-      <FilesToCopy Include="$(MSBuildThisFileDirectory)\..\ServicesProject\**" />
+      <FilesToCopy Include="$(MSBuildThisFileDirectory)\..\DependencyProject\**" />
     </ItemGroup>
 
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(ProjectFolderPath)\bin\ServicesProject\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(ProjectFolderPath)\bin\DependencyProject\%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <PropertyGroup>
-      <ProjectFile>$(ProjectFolderPath)\bin\ServicesProject\ServicesProject.csproj</ProjectFile>
-      <ProjectOutputFile>$(ProjectFolderPath)\bin\ServicesProject\bin\$(Configuration)\net462\ServicesProject.dll</ProjectOutputFile>
+      <ProjectFile>$(ProjectFolderPath)\bin\DependencyProject\DependencyProject.csproj</ProjectFile>
+      <ProjectOutputFile>$(ProjectFolderPath)\bin\DependencyProject\bin\$(Configuration)\net462\DependencyProject.dll</ProjectOutputFile>
     </PropertyGroup>
-    <Message Importance="High" Text="=============> ProjectOutputFile=$(ProjectOutputFile)" />
 
     <MSBuild Projects="$(ProjectFile)" Targets="Restore;Build" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir)" ContinueOnError="false" />
 

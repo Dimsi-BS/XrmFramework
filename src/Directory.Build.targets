@@ -24,6 +24,7 @@
       <FilesToModify Remove="@(FilesToModify)" />
       <FilesToModify Include="**/templates/**/*.csproj"/>
       <FilesToModify Include="**/ServicesProject/**" />
+      <FilesToModify Include="**/DependencyProject/**" />
     </ItemGroup>
 
     <MSBuild Condition="@(FilesToModify->Count()) > 0" Projects="$(MSBuildProjectFile)" Properties="CurrentCsProj=%(FilesToModify.FullPath);searchedPattern=#{GitBuildVersionSimple}#;NuGetPackageVersion=$(NuGetPackageVersion)" Targets="ReplaceCspojVersion">
