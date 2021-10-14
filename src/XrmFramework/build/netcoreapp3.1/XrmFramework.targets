@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <_XrmFrameworkTaskDir Condition=" '$(_XrmFrameworkTaskDir)'=='' ">$(MSBuildThisFileDirectory)tasks</_XrmFrameworkTaskDir>
-    <_XrmFrameworkLoggedServiceGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">$(_XrmFrameworkTaskDir)\XrmFramework.MSBuild.Reflection.exe</_XrmFrameworkLoggedServiceGenerator>
+    <_XrmFrameworkLoggedServiceGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">$(_XrmFrameworkTaskDir)\XrmFramework.MSBuild.Reflection.dll</_XrmFrameworkLoggedServiceGenerator>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(XrmFrameworkDisableDependencyProjectGeneration)' == ''">
@@ -33,7 +33,7 @@
 
     <MSBuild Projects="$(ProjectFile)" Targets="Restore;Build" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir)" ContinueOnError="false" />
 
-    <Exec Command="$(_XrmFrameworkLoggedServiceGenerator) &quot;$(ProjectOutputFile)&quot; &quot;$(ProjectFolderPath)\obj&quot; &quot;DependencyInjection&quot;" YieldDuringToolExecution="true" StandardErrorImportance="High" />
+    <Exec Command="dotnet &quot;$(_XrmFrameworkLoggedServiceGenerator)&quot; &quot;$(ProjectOutputFile)&quot; &quot;$(ProjectFolderPath)\obj&quot; &quot;DependencyInjection&quot;" YieldDuringToolExecution="true" StandardErrorImportance="High" WorkingDirectory="$(_XrmFrameworkTaskDir)" />
 
   </Target>
 
