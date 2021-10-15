@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="XrmFramework" Version="[2.1.70-g3b5d225df7]" />
+    <PackageReference Include="XrmFramework" Version="[#{GitBuildVersionSimple}#]" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
   
