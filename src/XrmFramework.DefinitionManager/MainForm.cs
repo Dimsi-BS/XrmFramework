@@ -178,19 +178,12 @@ namespace XrmFramework.DefinitionManager
         {
             var entityDefinitionAttributeType = GetExternalType("XrmFramework.EntityDefinitionAttribute");
             var definitionTypes = _iServiceType.Assembly.GetTypes().Where(t => t.GetCustomAttributes(entityDefinitionAttributeType, false).Any());
-            var definitionManagerIgnoreType = GetExternalType("XrmFramework.DefinitionManagerIgnoreAttribute");
             var relationshipAttributeType = GetExternalType("XrmFramework.RelationshipAttribute");
 
             var definitionList = new List<EntityDefinition>();
 
             foreach (var t in definitionTypes)
             {
-                var ignoreAttribute = t.GetCustomAttribute(definitionManagerIgnoreType);
-                if (ignoreAttribute != null)
-                {
-                    continue;
-                }
-
                 var definition = new EntityDefinition
                 {
                     Name = t.Name
