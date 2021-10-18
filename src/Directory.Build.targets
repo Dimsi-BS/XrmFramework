@@ -46,6 +46,7 @@
       <FilesToModify Remove="@(FilesToModify)" />
       <FilesToModify Include="**/templates/**/*.csproj"/>
       <FilesToModify Include="**/ServicesProject/**" />
+      <FilesToModify Include="**/DependencyProject/**" />
 
     </ItemGroup>
 
