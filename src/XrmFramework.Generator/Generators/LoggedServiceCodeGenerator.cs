@@ -40,12 +40,7 @@ namespace XrmFramework.DeployUtils.Generators
                     .Concat(GetAttributeNamespaces(p.CustomAttributes))));
 
             var isIService = serviceType.FullName == "XrmFramework.IService";
-
-            if (!isIService)
-            {
-                namespaces.Add("XrmFramework.LoggedServices");
-            }
-
+            
             var builder = new IndentedStringBuilder();
 
             foreach (var ns in namespaces.Where(n => !string.IsNullOrEmpty(n)).OrderBy(n => n).Distinct())
