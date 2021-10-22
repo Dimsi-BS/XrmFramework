@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="XrmFramework" Version="#{GitBuildVersionSimple}#" />
+    <PackageReference Include="XrmFramework.CoreProject" Version="#{GitBuildVersionSimple}#" />
   </ItemGroup>
 
   <ItemGroup>
