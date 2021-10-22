@@ -35,7 +35,7 @@
 
   </Target>
 
-  <Target Name="GenerateDependencyInjection" Condition="'$(XrmFrameworkDisableDependencyProjectGeneration)' == '' AND '$(BuildingProject)' == 'true' AND $(DefineConstants.IndexOf('XRMFRAMEWORK_PLUGIN')) == -1">
+  <Target Name="GenerateDependencyInjection" DependsOnTargets="RestoreDependencyProject" Condition="'$(XrmFrameworkDisableDependencyProjectGeneration)' == '' AND '$(BuildingProject)' == 'true' AND $(DefineConstants.IndexOf('XRMFRAMEWORK_PLUGIN')) == -1">
     <Message Importance="High" Text="Building DependencyProject .Net Framework 4.6.2" />
 
     <PropertyGroup>
