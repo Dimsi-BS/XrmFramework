@@ -33,7 +33,6 @@ namespace XrmFramework.DeployUtils.Generators
                         && (t == iServiceType && type == defaultServiceType || t != iServiceType))
                     {
                         namespaceSet.Add(t.Namespace);
-                        namespaceSet.Add(Code.Namespace(t.Namespace, "LoggedServices"));
                         namespaceSet.Add(type.Namespace);
                         listServices.Add((t, type));
                     }

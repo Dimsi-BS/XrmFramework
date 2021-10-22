@@ -1,28 +1,30 @@
 <Project ToolsVersion="14.0"
   xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <PropertyGroup>
-    <_XrmFrameworkTaskDir Condition=" '$(_XrmFrameworkTaskDir)'=='' ">$(MSBuildThisFileDirectory)tasks</_XrmFrameworkTaskDir>
-    <_XrmFrameworkLoggedServiceGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">$(_XrmFrameworkTaskDir)\XrmFramework.MSBuild.Reflection.exe</_XrmFrameworkLoggedServiceGenerator>
-  </PropertyGroup>
-
   <ItemGroup Condition="'$(XrmFrameworkDisableLoggedServiceGeneration)' == ''">
     <LoggedFiles Include="**\Logged*.cs" />
-    <LoggedFiles Include="obj\InternalDependencyProvider.cs" />
+    <LoggedFiles Include="obj\InternalDependencyProvider.cs" Condition="Exists('obj\InternalDependencyProvider.cs')" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="@(LoggedFiles)" />
   </ItemGroup>
 
-  <Target Name="GenerateLoggedServices" AfterTargets="GenerateDependencyInjection" Condition="'$(XrmFrameworkDisableLoggedServiceGeneration)' == '' AND '$(BuildingProject)' == 'true'">
-    <Message Importance="High" Text="Building ServicesProject .Net Framework 4.6.2" />
+  <PropertyGroup>
+    <!-- Here you need to experiment with [Build/Compile/SomeOther]DependsOn property -->
+    <CoreCompileDependsOn>
+      GenerateLoggedServices;
+      $(CoreCompileDependsOn)
+    </CoreCompileDependsOn>
+  </PropertyGroup>
+
+  <Target Name="RestoreServiceProject" Condition="'$(XrmFrameworkDisableLoggedServiceGeneration)' == '' AND '$(BuildingProject)' == 'true'">
+    <Message Importance="High" Text="Preparing ServicesProject .Net Framework 4.6.2" />
 
     <PropertyGroup>
       <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
+      <ProjectFile>$(ProjectFolderPath)\bin\ServicesProject\ServicesProject.csproj</ProjectFile>
     </PropertyGroup>
-
-    <Delete Files="@(LoggedFiles)" ContinueOnError="true" />
 
     <ItemGroup>
       <FilesToCopy Include="$(MSBuildThisFileDirectory)\..\ServicesProject\**" />
@@ -30,13 +32,35 @@
 
     <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(ProjectFolderPath)\bin\ServicesProject\%(RecursiveDir)%(Filename)%(Extension)')" />
 
+    <MSBuild Projects="$(ProjectFile)" Targets="Restore" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);FakeProperty=restore" ContinueOnError="false" />
+    <Message Importance="High" Text=">>>>>> Project ServicesProject Restored" />
+
+  </Target>
+
+  <Target Name="GenerateLoggedServices" DependsOnTargets="RestoreServiceProject" Condition="'$(XrmFrameworkDisableLoggedServiceGeneration)' == '' AND '$(BuildingProject)' == 'true'">
+    <Message Importance="High" Text="Building ServicesProject .Net Framework 4.6.2" />
+
+    <PropertyGroup>
+      <_XrmFrameworkTaskDir Condition=" '$(_XrmFrameworkTaskDir)'=='' ">$(MSBuildThisFileDirectory)tasks</_XrmFrameworkTaskDir>
+      <_XrmFrameworkLoggedServiceGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">$(_XrmFrameworkTaskDir)\XrmFramework.MSBuild.Reflection.exe</_XrmFrameworkLoggedServiceGenerator>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
+    </PropertyGroup>
+
+    <Delete Files="@(LoggedFiles)" ContinueOnError="true" />
+
     <PropertyGroup>
       <ProjectFile>$(ProjectFolderPath)\bin\ServicesProject\ServicesProject.csproj</ProjectFile>
       <ProjectOutputFile>$(ProjectFolderPath)\bin\ServicesProject\bin\$(Configuration)\net462\ServicesProject.dll</ProjectOutputFile>
     </PropertyGroup>
-    <Message Importance="High" Text="=============> ProjectOutputFile=$(ProjectOutputFile)" />
 
-    <MSBuild Projects="$(ProjectFile)" Targets="Restore;Build" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir)" ContinueOnError="false" />
+    <MSBuild
+     Projects="$(ProjectFile)"
+     Targets="Clean;Build"
+     Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);FakeProperty=one"
+     ContinueOnError="true" />
 
     <Exec Command="$(_XrmFrameworkLoggedServiceGenerator) &quot;$(ProjectOutputFile)&quot; &quot;$(ProjectFolderPath)\obj&quot; &quot;LoggedServices&quot;" YieldDuringToolExecution="true" StandardErrorImportance="High" />
 

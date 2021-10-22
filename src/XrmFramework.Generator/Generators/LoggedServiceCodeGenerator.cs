@@ -59,7 +59,7 @@ namespace XrmFramework.DeployUtils.Generators
             builder
                 .AppendLine()
                 .Append("namespace ")
-                .AppendLine(_code.Namespace(serviceType.Namespace, "LoggedServices"))
+                .AppendLine(serviceType.Namespace)
                 .AppendLine("{");
 
             using (builder.Indent())
