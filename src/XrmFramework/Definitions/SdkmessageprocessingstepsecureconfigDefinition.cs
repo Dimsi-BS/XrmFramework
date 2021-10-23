@@ -1,11 +1,13 @@
 using System.CodeDom.Compiler;
 using System.Diagnostics.CodeAnalysis;
+using XrmFramework.Definitions.Internal;
 
 namespace XrmFramework.Definitions
 {
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
 	[ExcludeFromCodeCoverage]
+    [DefinitionManagerIgnore]
 	public static class SdkMessageProcessingStepSecureConfigDefinition
 	{
 		public const string EntityName = "sdkmessageprocessingstepsecureconfig";

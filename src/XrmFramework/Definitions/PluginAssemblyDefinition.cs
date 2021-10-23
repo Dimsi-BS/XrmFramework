@@ -2,12 +2,14 @@ using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using XrmFramework.Definitions.Internal;
 
 namespace XrmFramework.Definitions
 {
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
 	[ExcludeFromCodeCoverage]
+    [DefinitionManagerIgnore]
 	public static class PluginAssemblyDefinition
 	{
 		public const string EntityName = "pluginassembly";
@@ -127,7 +129,8 @@ namespace XrmFramework.Definitions
 
 
     [OptionSetDefinition(PluginAssemblyDefinition.EntityName, PluginAssemblyDefinition.Columns.IsolationMode)]
-    public enum IsolationMode
+    [DefinitionManagerIgnore]
+	public enum IsolationMode
     {
         Null = 0,
         [Description("None")]

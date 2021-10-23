@@ -2,12 +2,14 @@ using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using XrmFramework.Definitions.Internal;
 
 namespace XrmFramework.Definitions
 {
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
 	[ExcludeFromCodeCoverage]
+    [DefinitionManagerIgnore]
 	public static class SdkMessageProcessingStepImageDefinition
 	{
 		public const string EntityName = "sdkmessageprocessingstepimage";
@@ -90,7 +92,8 @@ namespace XrmFramework.Definitions
     }
 
     [OptionSetDefinition(SdkMessageProcessingStepImageDefinition.EntityName, SdkMessageProcessingStepImageDefinition.Columns.ImageType)]
-    public enum ImageType
+    [DefinitionManagerIgnore]
+	public enum ImageType
     {
         [Description("PreImage")]
         Preimage = 0,

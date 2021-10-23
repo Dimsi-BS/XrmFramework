@@ -97,12 +97,18 @@ namespace XrmFramework.DefinitionManager
         private void InitEnumDefinitions()
         {
             var optionSetDefinitionAttributeType = GetExternalType("XrmFramework.OptionSetDefinitionAttribute");
+            var definitionManagerIgnoreAttributeType = GetExternalType("XrmFramework.Definitions.Internal.DefinitionManagerIgnoreAttribute");
 
             var definitionTypes = _iServiceType.Assembly.GetTypes()
                 .Where(t => t.GetCustomAttributes(optionSetDefinitionAttributeType, false).Any());
 
             foreach (var type in definitionTypes)
             {
+                if (type.GetCustomAttributes(definitionManagerIgnoreAttributeType).Any())
+                {
+                    continue;
+                }
+
                 dynamic attribute = type.GetCustomAttribute(optionSetDefinitionAttributeType);
 
                 var enumDefinition = new EnumDefinition
@@ -179,11 +185,17 @@ namespace XrmFramework.DefinitionManager
             var entityDefinitionAttributeType = GetExternalType("XrmFramework.EntityDefinitionAttribute");
             var definitionTypes = _iServiceType.Assembly.GetTypes().Where(t => t.GetCustomAttributes(entityDefinitionAttributeType, false).Any());
             var relationshipAttributeType = GetExternalType("XrmFramework.RelationshipAttribute");
+            var definitionManagerIgnoreAttributeType = GetExternalType("XrmFramework.Definitions.Internal.DefinitionManagerIgnoreAttribute");
 
             var definitionList = new List<EntityDefinition>();
 
             foreach (var t in definitionTypes)
             {
+                if (t.GetCustomAttributes(definitionManagerIgnoreAttributeType).Any())
+                {
+                    continue;
+                }
+
                 var definition = new EntityDefinition
                 {
                     Name = t.Name

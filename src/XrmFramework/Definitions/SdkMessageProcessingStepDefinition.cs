@@ -2,12 +2,14 @@ using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using XrmFramework.Definitions.Internal;
 
 namespace XrmFramework.Definitions
 {
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
 	[ExcludeFromCodeCoverage]
+    [DefinitionManagerIgnore]
 	public static class SdkMessageProcessingStepDefinition
 	{
 		public const string EntityName = "sdkmessageprocessingstep";
@@ -245,7 +247,8 @@ namespace XrmFramework.Definitions
     }
 
     [OptionSetDefinition("componentstate")]
-    public enum ComponentState
+    [DefinitionManagerIgnore]
+	public enum ComponentState
     {
         [Description("Published")]
         Published = 0,
@@ -258,7 +261,8 @@ namespace XrmFramework.Definitions
     }
 
     [OptionSetDefinition(SdkMessageProcessingStepDefinition.EntityName, SdkMessageProcessingStepDefinition.Columns.Mode)]
-    public enum Mode
+    [DefinitionManagerIgnore]
+	public enum Mode
     {
         [Description("Synchronous")]
         Synchronous = 0,
@@ -267,7 +271,8 @@ namespace XrmFramework.Definitions
     }
 
     [OptionSetDefinition(SdkMessageProcessingStepDefinition.EntityName, SdkMessageProcessingStepDefinition.Columns.StateCode)]
-    public enum SdkmessageprocessingstepState
+    [DefinitionManagerIgnore]
+	public enum SdkmessageprocessingstepState
     {
         [Description("Enabled")]
         Enabled = 0,

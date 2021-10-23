@@ -3,12 +3,14 @@ using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using XrmFramework.Definitions.Internal;
 
 namespace XrmFramework.Definitions
 {
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
 	[ExcludeFromCodeCoverage]
+    [DefinitionManagerIgnore]
 	public static class TeamDefinition
 	{
 		public const string EntityName = "team";
@@ -762,7 +764,8 @@ namespace XrmFramework.Definitions
     }
 
     [OptionSetDefinition(TeamDefinition.EntityName, TeamDefinition.Columns.TeamType)]
-    public enum TypeDEquipe
+    [DefinitionManagerIgnore]
+	public enum TypeDEquipe
     {
         [Description("Owner")]
         Proprietaire = 0,

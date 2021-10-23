@@ -2,12 +2,14 @@ using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using XrmFramework.Definitions.Internal;
 
 namespace XrmFramework.Definitions
 {
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
 	[ExcludeFromCodeCoverage]
+    [DefinitionManagerIgnore]
 	public static class EnvironmentVariableValueDefinition
 	{
 		public const string EntityName = "environmentvariablevalue";
@@ -131,7 +133,8 @@ namespace XrmFramework.Definitions
 	}
 
     [OptionSetDefinition(EnvironmentVariableValueDefinition.EntityName, EnvironmentVariableValueDefinition.Columns.Statecode)]
-    public enum EnvironmentVariableValueState
+    [DefinitionManagerIgnore]
+	public enum EnvironmentVariableValueState
     {
         [Description("Active")]
         Active = 0,
@@ -140,7 +143,8 @@ namespace XrmFramework.Definitions
     }
 
     [OptionSetDefinition(EnvironmentVariableValueDefinition.EntityName, EnvironmentVariableValueDefinition.Columns.Statuscode)]
-    public enum EnvironmentVariableValueStatus
+    [DefinitionManagerIgnore]
+	public enum EnvironmentVariableValueStatus
     {
         [Description("Active")]
         Active = 1,
