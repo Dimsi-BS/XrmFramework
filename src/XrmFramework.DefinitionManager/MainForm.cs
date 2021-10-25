@@ -649,6 +649,11 @@ namespace XrmFramework.DefinitionManager
                     {
                         var attribute = def.ReferencedBy.First();
 
+                        if (!attribute.ParentEntity.IsSelected)
+                        {
+                            continue;
+                        }
+
                         fc.AppendLine(string.Format("[OptionSetDefinition({0}.EntityName, {0}.Columns.{1})]",
                             attribute.ParentEntity.Name, attribute.Name));
                     }

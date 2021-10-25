@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -62,6 +63,8 @@ namespace XrmFramework.DeployUtils.Generators
                 var className = $"Logged{serviceType.Name.Substring(1)}";
 
                 builder
+                    .AppendLine("[DebuggerStepThrough]")
+
                     .Append("public class ")
                     .Append(_code.Identifier(className))
                     .Append(" : ")
