@@ -350,7 +350,7 @@ namespace XrmFramework.DefinitionManager
                 //    .Select(en => en.EnumName).Distinct().ToList();
 
                 //entity.Enums.RemoveAll(en => !enumsToKeep.Contains(en.LogicalName));
-                
+
                 //var entityTxt = JsonConvert.SerializeObject(entity, Formatting.Indented, new JsonSerializerSettings
                 //{
                 //    DefaultValueHandling = DefaultValueHandling.Ignore
@@ -385,7 +385,7 @@ namespace XrmFramework.DefinitionManager
                         {
                             sb.AppendLine();
                             sb.AppendLine(
-                                $"public const {t.Type} {t.Name} = {(t.Type == "String" ? "\"" + (string) t.Value + "\"" : t.Value)};");
+                                $"public const {t.Type} {t.Name} = {(t.Type == "String" ? "\"" + (string)t.Value + "\"" : t.Value)};");
                         }
 
                         sb.AppendLine();
@@ -604,7 +604,7 @@ namespace XrmFramework.DefinitionManager
                 File.WriteAllText(fileInfo.FullName, sb.ToString());
 
                 var fileInfo2 = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{item.Name.Replace("Definition", string.Empty)}.table");
-                
+
                 //File.WriteAllText(fileInfo2.FullName, entityTxt);
             }
 
@@ -639,7 +639,7 @@ namespace XrmFramework.DefinitionManager
             using (fc.Indent())
             {
                 foreach (var def in EnumDefinitionCollection.Instance.SelectedDefinitions)
-                {   
+                {
                     fc.AppendLine();
                     if (def.IsGlobal)
                     {
@@ -649,7 +649,7 @@ namespace XrmFramework.DefinitionManager
                     {
                         var attribute = def.ReferencedBy.First();
 
-                        if (!attribute.ParentEntity.IsSelected)
+                        if (!_entityCollection.SelectedDefinitions.Any(s => s.LogicalName == attribute.ParentEntity.LogicalName))
                         {
                             continue;
                         }
