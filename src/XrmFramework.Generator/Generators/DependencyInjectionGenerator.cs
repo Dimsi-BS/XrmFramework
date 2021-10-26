@@ -77,18 +77,33 @@ namespace XrmFramework.DeployUtils.Generators
 
                             using (sb.Indent())
                             {
-                                sb.Append("DynamicProxyLoggingDecorator.Decorate<")
-                                    .Append(Code.Reference(service.serviceType))
-                                    .AppendLine(">(");
+                                sb
+                                    .AppendLine("{");
 
                                 using (sb.Indent())
                                 {
-                                    sb.Append("ActivatorUtilities.GetServiceOrCreateInstance<")
+                                    sb.Append("var service = ActivatorUtilities.GetServiceOrCreateInstance<")
                                         .Append(Code.Reference(service.implementationType))
-                                        .AppendLine(">(sp)")
-                                        .AppendLine(")");
+                                        .AppendLine(">(sp);")
+                                        .AppendLine()
+
+                                        .AppendLine("if (service is IServiceWithSettings serviceWithSettings)")
+                                        .AppendLine("{");
+
+                                    using (sb.Indent())
+                                    {
+                                        sb.AppendLine("serviceWithSettings.InitSettings();");
+                                    }
+
+                                    sb
+                                        .AppendLine("}")
+                                        .AppendLine()
+
+                                        .Append("return DynamicProxyLoggingDecorator.Decorate<")
+                                    .Append(Code.Reference(service.serviceType))
+                                    .AppendLine(">(service);");
                                 }
-                                sb.AppendLine(")");
+                                sb.AppendLine("})");
                             }
 
                             sb.AppendLine(");");
