@@ -90,6 +90,20 @@ namespace XrmFramework.DeployUtils.Generators
                                     .Append("var service = objectContainer.Resolve<")
                                     .Append(Code.Reference(service.implementationType))
                                     .AppendLine(">();")
+                                    .AppendLine()
+
+                                    .AppendLine("if (service is IServiceWithSettings serviceWithSettings)")
+                                    .AppendLine("{");
+
+                                using (sb.Indent())
+                                {
+                                    sb
+                                        .AppendLine("serviceWithSettings.InitSettings();");                                        
+                                }
+
+                                sb
+                                    .AppendLine("}")
+                                    .AppendLine()
 
                                     .Append("return new ")
                                     .Append(GetLogServiceName(service.serviceType.Name))
