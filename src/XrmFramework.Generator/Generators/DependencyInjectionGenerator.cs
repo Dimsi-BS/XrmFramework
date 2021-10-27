@@ -32,7 +32,7 @@ namespace XrmFramework.DeployUtils.Generators
             {
                 foreach (var type in allTypes)
                 {
-                    if (t.IsAssignableFrom(type) && !type.IsAbstract && type.IsClass && t.FullName != "XrmFramework.IServiceWithSettings" &&
+                    if (t.IsAssignableFrom(type) && !type.IsAbstract && type.IsClass && 
                         (t == iServiceType && type == defaultServiceType || t != iServiceType))
                     {
                         namespaceSet.Add(t.Namespace);
@@ -73,40 +73,13 @@ namespace XrmFramework.DeployUtils.Generators
                     {
                         foreach (var service in listServices)
                         {
-                            sb.AppendLine("serviceCollection.Add(ServiceDescriptor.Scoped(sp =>");
-
-                            using (sb.Indent())
-                            {
-                                sb
-                                    .AppendLine("{");
-
-                                using (sb.Indent())
-                                {
-                                    sb.Append("var service = ActivatorUtilities.GetServiceOrCreateInstance<")
-                                        .Append(Code.Reference(service.implementationType))
-                                        .AppendLine(">(sp);")
-                                        .AppendLine()
-
-                                        .AppendLine("if (service is IServiceWithSettings serviceWithSettings)")
-                                        .AppendLine("{");
-
-                                    using (sb.Indent())
-                                    {
-                                        sb.AppendLine("serviceWithSettings.InitSettings();");
-                                    }
-
-                                    sb
-                                        .AppendLine("}")
-                                        .AppendLine()
-
-                                        .Append("return DynamicProxyLoggingDecorator.Decorate<")
-                                    .Append(Code.Reference(service.serviceType))
-                                    .AppendLine(">(service);");
-                                }
-                                sb.AppendLine("})");
-                            }
-
-                            sb.AppendLine(");");
+                            sb
+                                .Append("RegisterService<")
+                                .Append(Code.Reference(service.serviceType))
+                                .Append(", ")
+                                .Append(Code.Reference(service.implementationType))
+                                .AppendLine(">(serviceCollection);")
+                                .AppendLine();
                         }
                     }
 

@@ -33,7 +33,9 @@ namespace XrmFramework.DeployUtils
             Console.WriteLine($"You are about to deploy on {connectionString} organization. If ok press any key.");
             Console.ReadKey();
             Console.WriteLine("Connecting to CRM...");
-            
+
+            CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
+
             var service = new CrmServiceClient(connectionString);
 
             service.OrganizationServiceProxy?.EnableProxyTypes();

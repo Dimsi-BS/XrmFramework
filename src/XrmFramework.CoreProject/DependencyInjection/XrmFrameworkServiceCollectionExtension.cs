@@ -36,6 +36,25 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         static partial void RegisterServices(IServiceCollection serviceCollection);
+
+        private static void RegisterService<TIService, TImplementation>(IServiceCollection serviceCollection)
+            where TIService : IService
+            where TImplementation : DefaultService, IService
+        {
+            var serviceDescriptor  = new ServiceDescriptor(typeof(TIService), sp =>
+                {
+                    var service = ActivatorUtilities.GetServiceOrCreateInstance<TImplementation>(sp);
+
+                    if (service is IServiceWithSettings serviceWithSettings)
+                    {
+                        serviceWithSettings.InitSettings();
+                    }
+
+                    return DynamicProxyLoggingDecorator.Decorate<TIService>(service);
+                }, ServiceLifetime.Scoped);
+
+            serviceCollection.Add(serviceDescriptor);
+        }
     }
 }
 

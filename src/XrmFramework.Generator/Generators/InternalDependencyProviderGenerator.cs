@@ -69,49 +69,13 @@ namespace XrmFramework.DeployUtils.Generators
                         foreach (var service in listServices)
                         {
                             sb
-                                .Append("container.RegisterTypeAs<")
-                                .Append(Code.Reference(service.implementationType))
+                                .Append("RegisterService<")
+                                .Append(Code.Reference(service.serviceType))
                                 .Append(", ")
                                 .Append(Code.Reference(service.implementationType))
-                                .AppendLine(">();")
-                                
-                                .AppendLine()
-                                
-                                .Append("container.RegisterFactoryAs<")
-                                .Append(Code.Reference(service.serviceType))
-                                .AppendLine(">(objectContainer =>")
-                                .AppendLine("{");
-
-                            using (sb.Indent())
-                            {
-                                sb
-                                    .AppendLine("var context = objectContainer.Resolve<IServiceContext>();")
-
-                                    .Append("var service = objectContainer.Resolve<")
-                                    .Append(Code.Reference(service.implementationType))
-                                    .AppendLine(">();")
-                                    .AppendLine()
-
-                                    .AppendLine("if (service is IServiceWithSettings serviceWithSettings)")
-                                    .AppendLine("{");
-
-                                using (sb.Indent())
-                                {
-                                    sb
-                                        .AppendLine("serviceWithSettings.InitSettings();");                                        
-                                }
-
-                                sb
-                                    .AppendLine("}")
-                                    .AppendLine()
-
-                                    .Append("return new ")
-                                    .Append(GetLogServiceName(service.serviceType.Name))
-                                    .AppendLine("(context, service);")
-                                    .AppendLine();
-                            }
-
-                            sb.AppendLine("});");
+                                .Append(", ")
+                                .Append(GetLogServiceName(service.serviceType.Name))
+                                .Append(">(container);");
                         }
                     }
 

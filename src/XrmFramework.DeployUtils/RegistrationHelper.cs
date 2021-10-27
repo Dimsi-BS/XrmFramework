@@ -47,6 +47,8 @@ namespace XrmFramework.DeployUtils
             Console.ReadKey();
             Console.WriteLine("Connecting to CRM...");
 
+            CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
+
             var service = new CrmServiceClient(connectionString);
 
             service.OrganizationServiceProxy?.EnableProxyTypes();
