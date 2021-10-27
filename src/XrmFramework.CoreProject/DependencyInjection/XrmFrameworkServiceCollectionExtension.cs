@@ -45,9 +45,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     var service = ActivatorUtilities.GetServiceOrCreateInstance<TImplementation>(sp);
 
-                    if (service is IServiceWithSettings serviceWithSettings)
+                    if (service is IInitializableService serviceWithSettings)
                     {
-                        serviceWithSettings.InitSettings();
+                        serviceWithSettings.Init();
                     }
 
                     return DynamicProxyLoggingDecorator.Decorate<TIService>(service);

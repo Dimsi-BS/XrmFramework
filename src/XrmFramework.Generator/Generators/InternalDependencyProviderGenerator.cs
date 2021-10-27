@@ -75,7 +75,8 @@ namespace XrmFramework.DeployUtils.Generators
                                 .Append(Code.Reference(service.implementationType))
                                 .Append(", ")
                                 .Append(GetLogServiceName(service.serviceType.Name))
-                                .Append(">(container);");
+                                .AppendLine(">(container);")
+                                .AppendLine();
                         }
                     }
 

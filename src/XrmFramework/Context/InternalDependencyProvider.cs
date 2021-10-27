@@ -25,9 +25,9 @@ namespace XrmFramework
                 var context = objectContainer.Resolve<IServiceContext>();
                 var service = objectContainer.Resolve<TImplementation>();
 
-                if (service is IServiceWithSettings serviceWithSettings)
+                if (service is IInitializableService serviceWithSettings)
                 {
-                    serviceWithSettings.InitSettings();
+                    serviceWithSettings.Init();
                 }
 
                 return (TIService)Activator.CreateInstance(typeof(TLoggedService), context, service);
