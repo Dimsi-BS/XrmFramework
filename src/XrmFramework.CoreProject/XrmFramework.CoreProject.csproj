@@ -39,9 +39,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="0.5.7" />
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="0.5.7" />
-    <PackageReference Include="Microsoft.Dynamics.Sdk.Messages" Version="0.5.7" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="0.5.10" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="0.5.10" />
+    <PackageReference Include="Microsoft.Dynamics.Sdk.Messages" Version="0.5.10" />
   </ItemGroup>
 
   <ItemGroup>
