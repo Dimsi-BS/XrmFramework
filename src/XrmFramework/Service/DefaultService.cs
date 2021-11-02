@@ -484,6 +484,11 @@ namespace XrmFramework
         }
 
 
+        public void AddUsersToTeam(EntityReference teamRef, params EntityReference[] userRefs)
+        {
+            AddUsersToTeam(teamRef, false, userRefs);
+        }
+
         public void AddUsersToTeam(EntityReference teamRef, bool bypassCustomPluginExecution, params EntityReference[] userRefs)
         {
             if (userRefs.Length == 0)
@@ -498,6 +503,11 @@ namespace XrmFramework
             };
 
             Execute<AddMembersTeamRequest, AddMembersTeamResponse>(AdminOrganizationService, request, bypassCustomPluginExecution);
+        }
+
+        public void RemoveUsersFromTeam(EntityReference teamRef, params EntityReference[] userRefs)
+        {
+            RemoveUsersFromTeam(teamRef, false, userRefs);
         }
 
         public void RemoveUsersFromTeam(EntityReference teamRef, bool bypassCustomPluginExecution, params EntityReference[] userRefs)
@@ -646,6 +656,11 @@ namespace XrmFramework
             linkTeam.LinkCriteria.AddCondition(TeamDefinition.Columns.Id, ConditionOperator.Equal, teamRef.Id);
 
             return AdminOrganizationService.RetrieveAll(queryMembers, false).Select(e => e.ToEntityReference()).ToList();
+        }
+
+        public void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, params EntityReference[] entityReferences)
+        {
+            AssociateRecords(objectRef, relationName, false, entityReferences);
         }
 
         public void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, bool bypassCustomPluginExecution, params EntityReference[] entityReferences)

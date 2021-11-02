@@ -34,7 +34,11 @@ namespace XrmFramework
 
         void AssignEntity(EntityReference objectReference, [Nullable] EntityReference ownerRef, bool bypassCustomPluginExecution = false);
 
+        void AddUsersToTeam(EntityReference teamRef, params EntityReference[] userRefs);
+
         void AddUsersToTeam(EntityReference teamRef, bool bypassCustomPluginExecution, params EntityReference[] userRefs);
+
+        void RemoveUsersFromTeam(EntityReference teamRef, params EntityReference[] userRefs);
 
         void RemoveUsersFromTeam(EntityReference teamRef, bool bypassCustomPluginExecution, params EntityReference[] userRefs);
 
@@ -78,6 +82,8 @@ namespace XrmFramework
         Entity ToEntity<T>(T model) where T : IBindingModel;
 
         ICollection<EntityReference> GetTeamMemberRefs(EntityReference teamRef);
+
+        void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, params EntityReference[] entityReferences);
 
         void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, bool bypassCustomPluginExecution, params EntityReference[] entityReferences);
 

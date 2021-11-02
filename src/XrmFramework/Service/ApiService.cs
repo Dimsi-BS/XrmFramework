@@ -49,30 +49,39 @@ namespace XrmFramework
         {
         }
 
-        protected TResponse HttpPostData<TResponse>(string url, string requestContent)
+        protected TResponse HttpPostData<TResponse>(string url, string requestContent, bool useAuthenticationHeaders = true) =>
+            HttpPostData<TResponse>(url,
+                new StringContent(requestContent, System.Text.Encoding.UTF8, "application/json"), useAuthenticationHeaders);
+
+        protected TResponse HttpPostData<TResponse>(string url, HttpContent requestContent, bool useAuthenticationHeaders = true)
         {
             CheckOrInitConnection();
 
             var isSuccessfull = false;
-            var status = HttpStatusCode.Unused;
 
-            var apiRequest = requestContent;
+            #region Log Info
+
             string replyContent;
+
+            #endregion
 
             try
             {
                 var requestMessage = new HttpRequestMessage(HttpMethod.Post, url)
                 {
-                    Content = new StringContent(requestContent, System.Text.Encoding.UTF8, "application/json")
+                    Content = requestContent
                 };
-                AddAuthenticationHeader(requestMessage.Headers);
+
+                if (useAuthenticationHeaders)
+                {
+                    AddAuthenticationHeader(requestMessage.Headers);
+                }
 
                 var serviceResponse = Client.SendAsync(requestMessage).GetAwaiter().GetResult();
 
                 replyContent = serviceResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 isSuccessfull = serviceResponse.IsSuccessStatusCode;
 
-                status = serviceResponse.StatusCode;
             }
             catch (HttpRequestException e)
             {
@@ -94,7 +103,7 @@ namespace XrmFramework
             throw new InvalidPluginExecutionException(replyContent);
         }
 
-        protected TResponse HttpPostData<TRequest, TResponse>(string url, TRequest request)
+        protected TResponse HttpPostData<TRequest, TResponse>(string url, TRequest request, bool useAuthenticationHeaders = true)
         {
             var requestContent = JsonConvert.SerializeObject(request);
 
