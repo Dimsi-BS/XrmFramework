@@ -17,11 +17,20 @@ namespace Microsoft.Extensions.DependencyInjection
             optionsBuilderAction?.Invoke(optionsBuilder);
 
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IOrganizationService), sp =>
+                {
 #if NETCOREAPP
-                new Microsoft.PowerPlatform.Dataverse.Client.ServiceClient(optionsBuilder.ConnectionString)
+                var service = new Microsoft.PowerPlatform.Dataverse.Client.ServiceClient(optionsBuilder.ConnectionString);
+
+                if (optionsBuilder.UseWebApiForced)
+                {
+                    service.UseWebApi = optionsBuilder.UseWebApi;
+                }
+
+                return service;
 #else
-                new Xrm.Tooling.Connector.CrmServiceClient(optionsBuilder.ConnectionString)
+                return new Xrm.Tooling.Connector.CrmServiceClient(optionsBuilder.ConnectionString);
 #endif
+                }
 
                 , ServiceLifetime.Singleton));
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IServiceContext), sp =>

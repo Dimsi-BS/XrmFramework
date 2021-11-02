@@ -13,11 +13,23 @@ namespace XrmFramework.DependencyInjection
     {
         internal string ConnectionString { get; private set; }
 
+        internal bool UseWebApi { get; private set; }
+
+        internal bool UseWebApiForced { get; private set; }
+
         internal Assembly LoggedServiceAssembly { get; private set; }
 
         public XrmFrameworkOptionBuilder UseConnectionString(string connectionString)
         {
             ConnectionString = connectionString;
+
+            return this;
+        }
+
+        public XrmFrameworkOptionBuilder ForceUseWebApi(bool useWebApi)
+        {
+            UseWebApi = useWebApi;
+            UseWebApiForced = true;
 
             return this;
         }
