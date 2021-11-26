@@ -13,11 +13,9 @@ namespace XrmFramework.DependencyInjection
     {
         internal string ConnectionString { get; private set; }
 
-        internal bool UseWebApi { get; private set; }
+        internal bool WebApiUsage { get; private set; }
 
         internal bool UseWebApiForced { get; private set; }
-
-        internal Assembly LoggedServiceAssembly { get; private set; }
 
         public XrmFrameworkOptionBuilder UseConnectionString(string connectionString)
         {
@@ -26,20 +24,13 @@ namespace XrmFramework.DependencyInjection
             return this;
         }
 
-        public XrmFrameworkOptionBuilder ForceUseWebApi(bool useWebApi)
+        public XrmFrameworkOptionBuilder UseWebApi(bool useWebApi)
         {
-            UseWebApi = useWebApi;
+            WebApiUsage = useWebApi;
             UseWebApiForced = true;
 
             return this;
         }
-
-        // public XrmFrameworkOptionBuilder AddLoggedServices<TLoggedService>() where TLoggedService : LoggedServiceBase
-        // {
-        //     LoggedServiceAssembly = typeof(TLoggedService).Assembly;
-
-        //     return this;
-        // }
     }
 }
 

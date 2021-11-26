@@ -652,7 +652,9 @@ namespace XrmFramework.DeployUtils
             {
                 messagePropertyName = "Id";
             }
-            else if (step.Message == Model.Messages.SetState.ToString() || step.Message == Messages.SetStateDynamicEntity.ToString())
+#pragma warning disable 618
+            else if (step.Message == Messages.SetState.ToString() || step.Message == Messages.SetStateDynamicEntity.ToString())
+#pragma warning restore 618
             {
                 messagePropertyName = "EntityMoniker";
             }

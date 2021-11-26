@@ -246,7 +246,7 @@ namespace XrmFramework
 
         public virtual T GetSharedVariable<T>(string variableName)
         {
-            T value = default(T);
+            T value = default;
 
             if (ExecutionContext.SharedVariables.ContainsKey(variableName))
             {

@@ -615,7 +615,6 @@ namespace XrmFramework.DeployUtils.Generators
         {
             var sb = new StringBuilder();
 
-            var first = true;
             foreach (var tp in method.GetGenericArguments())
             {
                 if (tp.IsGenericParameter)

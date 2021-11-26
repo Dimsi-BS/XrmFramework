@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 if (optionsBuilder.UseWebApiForced)
                 {
-                    service.UseWebApi = optionsBuilder.UseWebApi;
+                    service.UseWebApi = optionsBuilder.WebApiUsage;
                 }
 
                 return service;

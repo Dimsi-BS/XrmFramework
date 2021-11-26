@@ -74,8 +74,7 @@ namespace XrmFramework.DeployUtils.Configuration
     [Serializable]
     public class ProjectCollection : ConfigurationElementCollection
     {
-        private static readonly ConfigurationProperty _projectProperty;
-        private static readonly ConfigurationPropertyCollection _properties;
+        private static readonly ConfigurationProperty ProjectProperty;
 
         protected override ConfigurationElement CreateNewElement()
         {
@@ -96,7 +95,7 @@ namespace XrmFramework.DeployUtils.Configuration
 
         static ProjectCollection()
         {
-            _projectProperty = new ConfigurationProperty("project", typeof(ProjectElement), null, ConfigurationPropertyOptions.IsRequired);
+            ProjectProperty = new ConfigurationProperty("project", typeof(ProjectElement), null, ConfigurationPropertyOptions.IsRequired);
         }
 
         //protected override ConfigurationPropertyCollection Properties => _properties;

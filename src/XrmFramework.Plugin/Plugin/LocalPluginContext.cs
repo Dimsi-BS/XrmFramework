@@ -13,7 +13,7 @@ namespace XrmFramework
         {
             if (PluginExecutionContext.ParentContext != null)
             {
-                ParentPluginContext = new LocalPluginContext(this, PluginExecutionContext.ParentContext);
+                ParentLocalContext = new LocalPluginContext(this, PluginExecutionContext.ParentContext);
             }
 
             ObjectContainer.RegisterInstanceAs(this, typeof(IPluginContext));
@@ -24,10 +24,8 @@ namespace XrmFramework
         {
             if (PluginExecutionContext.ParentContext != null)
             {
-                ParentPluginContext = new LocalPluginContext(this, PluginExecutionContext.ParentContext);
+                ParentLocalContext = new LocalPluginContext(this, PluginExecutionContext.ParentContext);
             }
-
-            ObjectContainer.RegisterInstanceAs(this, typeof(IPluginContext));
         }
 
         private IPluginExecutionContext PluginExecutionContext => (IPluginExecutionContext)ExecutionContext;
@@ -62,11 +60,7 @@ namespace XrmFramework
 
         public int Depth => PluginExecutionContext.Depth;
 
-        public ParameterCollection SharedVariables => PluginExecutionContext.SharedVariables;
-
-        public IPluginContext ParentContext => ParentPluginContext;
-
-        public LocalPluginContext ParentPluginContext { get; }
+        public IPluginContext ParentContext => (IPluginContext)ParentLocalContext;
 
         public bool IsMultiplePrePostOperation
         {

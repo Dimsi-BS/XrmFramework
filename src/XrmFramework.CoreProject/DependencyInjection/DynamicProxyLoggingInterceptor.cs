@@ -19,7 +19,7 @@ namespace XrmFramework.DependencyInjection
             // Setup the Serilog logger
             _logger = new LoggerConfiguration()
                 .WriteTo.Console().CreateLogger();
-            _logger.Information($"New logging decorator created{(string.IsNullOrWhiteSpace(typeName) ? string.Empty : " for object of type {TypeName}")}", typeName);
+            _logger.Verbose($"New logging decorator created{(string.IsNullOrWhiteSpace(typeName) ? string.Empty : " for object of type {TypeName}")}", typeName);
         }
 
         // The Intercept method is where the interceptor decides how to handle calls to the proxy object
@@ -36,12 +36,13 @@ namespace XrmFramework.DependencyInjection
                 invocation.Proceed();
 
                 // A little more logging.
-                _logger.Information("Finished calling method {TypeName}.{MethodName}", invocation.Method.DeclaringType.Name, invocation.Method.Name);
+                _logger.Information("Finished calling method {TypeName}.{MethodName}", invocation.Method.DeclaringType?.Name, invocation.Method.Name);
             }
             catch (TargetInvocationException exc)
+                when (exc.InnerException != null)
             {
                 // If the subsequent invocation fails, log a warning and then rethrow the exception
-                _logger.Warning(exc.InnerException, "Method {TypeName}.{MethodName} threw exception: {Exception}", invocation.Method.DeclaringType.Name, invocation.Method.Name, exc.InnerException);
+                _logger.Warning(exc.InnerException, "Method {TypeName}.{MethodName} threw exception: {Exception}", invocation.Method.DeclaringType?.Name, invocation.Method.Name, exc.InnerException);
 
                 throw exc.InnerException;
             }

@@ -13,8 +13,6 @@ namespace XrmFramework
     {
         private List<string> _filteringAttributes = new List<string>();
 
-        private bool _doNotFilterAttributes;
-
         private List<string> _preImageAttributes = new List<string>();
 
         private bool _preImageAllAttributes = false;

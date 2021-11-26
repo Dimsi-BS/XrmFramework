@@ -9,9 +9,9 @@ namespace XrmFramework.DeployUtils.Generators
     public abstract class CodeGeneratorBase
     {
         /// <summary>
-        ///     Gets the namespaces required for a list of <see cref="MigrationOperation" /> objects.
+        ///     Gets the namespaces required for a list of objects.
         /// </summary>
-        /// <param name="operations"> The operations. </param>
+        /// <param name="methods"> The methods. </param>
         /// <returns> The namespaces. </returns>
         protected IEnumerable<string> GetNamespaces([NotNull] IEnumerable<MethodInfo> methods)
         {
