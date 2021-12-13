@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FunctionMonkey" Version="4.0.56-beta.4" />
+    <PackageReference Include="FunctionMonkey.FluentValidation" Version="4.0.56-beta.4" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.19.0" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.13" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="6.0.24" />
+    <PackageReference Include="Refit.Newtonsoft.Json" Version="6.0.24" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Handlers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XrmFramework.CoreProject\XrmFramework.CoreProject.csproj" />
+  </ItemGroup>
+
+
+</Project>

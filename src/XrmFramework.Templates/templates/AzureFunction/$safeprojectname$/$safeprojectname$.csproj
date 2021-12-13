@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="XrmFramework.AzureFunctions" Version="#{GitBuildVersionSimple}#" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SolutionDir)\$(XrmFrameworkCoreProjectName)\$(XrmFrameworkCoreProjectName).csproj" />
+  </ItemGroup>
+  
+</Project>

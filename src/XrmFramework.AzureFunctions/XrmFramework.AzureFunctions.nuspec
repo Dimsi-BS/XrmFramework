@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>XrmFramework.AzureFunctions</id>
+    <version>$version$</version>
+    <title>XrmFramework Azure Function</title>
+    <authors>$author$</authors>
+    <owners>$owner$</owners>
+    <description>XrmFramework aims at simplifying Microsoft Dynamics 365 and Dataverse plugin, workflows development, deployment and testing</description>
+    <summary>XrmFramework aims at simplifying Microsoft Dynamics 365 and Dataverse plugin, workflows development, deployment and testing</summary>
+    <language>en-US</language>
+    <projectUrl>https://aka.ms/XrmFramework</projectUrl>
+    <license type="expression">MIT</license>
+    <tags>Dynamics365 CRM DynamicsCrm Dataverse PowerApps AzureFunctions</tags>
+    <copyright>$copyrigth$</copyright>
+    <dependencies>
+      <group targetFramework="netcoreapp3.1">
+        <dependency id="FunctionMonkey" version="4.0.56-beta.4" />
+        <dependency id="FunctionMonkey.Compiler" version="4.0.56-beta.4" />
+        <dependency id="FunctionMonkey.FluentValidation" version="4.0.56-beta.4" />
+        <dependency id="Microsoft.ApplicationInsights.AspNetCore" version="2.19.0" />
+        <dependency id="Microsoft.Extensions.Azure" version="1.1.1" />
+        <dependency id="Microsoft.Azure.Functions.Extensions" version="1.1.0" />
+        <dependency id="Microsoft.NET.Sdk.Functions" version="3.0.13" />
+        <dependency id="Refit.HttpClientFactory" version="6.0.24" />
+        <dependency id="Refit.Newtonsoft.Json" version="6.0.24" />
+      </group>
+    </dependencies>
+  </metadata>
+
+  <files>
+    <file src="bin\$config$\netcoreapp3.1\XrmFramework.AzureFunctions.*" target="lib\netcoreapp3.1" />
+    
+    <file src="build\**\*" target="build" />
+
+    <file src="$SolutionDir$\*.txt" target="" />
+  </files>
+</package>

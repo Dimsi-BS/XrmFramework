@@ -19,6 +19,10 @@
     <Compile Remove="**\*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="templates\AzureFunction\initXrm.ps1" />
+  </ItemGroup>
+
 
 
 </Project>

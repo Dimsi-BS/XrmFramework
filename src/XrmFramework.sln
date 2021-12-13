@@ -36,6 +36,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.Core", "XrmFra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.CoreProject", "XrmFramework.CoreProject\XrmFramework.CoreProject.csproj", "{D7B02AA8-700E-46FE-B4C4-B5E4B01B4FE7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmFramework.AzureFunctions", "XrmFramework.AzureFunctions\XrmFramework.AzureFunctions.csproj", "{65D99D3E-ACAD-4FF8-A641-B824640A29D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,6 +92,10 @@ Global
 		{D7B02AA8-700E-46FE-B4C4-B5E4B01B4FE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7B02AA8-700E-46FE-B4C4-B5E4B01B4FE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7B02AA8-700E-46FE-B4C4-B5E4B01B4FE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65D99D3E-ACAD-4FF8-A641-B824640A29D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65D99D3E-ACAD-4FF8-A641-B824640A29D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65D99D3E-ACAD-4FF8-A641-B824640A29D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65D99D3E-ACAD-4FF8-A641-B824640A29D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
