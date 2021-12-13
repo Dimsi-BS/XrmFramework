@@ -7,7 +7,6 @@
   <ItemGroup>
     <PackageReference Include="XrmFramework" Version="#{GitBuildVersionSimple}#" />
     <PackageReference Include="XrmFramework.Plugin" Version="#{GitBuildVersionSimple}#" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
   
   <ItemGroup>

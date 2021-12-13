@@ -11,9 +11,9 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static partial class XrmFrameworkServiceCollectionExtension
     {
-        public static IServiceCollection AddXrmFramework(this IServiceCollection serviceCollection, Action<XrmFrameworkOptionBuilder> optionsBuilderAction = null)
+        public static IServiceCollection AddXrmFramework(this IServiceCollection serviceCollection, Action<IXrmFrameworkOptionBuilder> optionsBuilderAction = null)
         {
-            var optionsBuilder = new XrmFrameworkOptionBuilder();
+            var optionsBuilder = new XrmFrameworkOptionBuilder(serviceCollection);
             optionsBuilderAction?.Invoke(optionsBuilder);
 
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IOrganizationService), sp =>

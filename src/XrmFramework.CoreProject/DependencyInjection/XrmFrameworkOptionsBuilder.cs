@@ -1,30 +1,39 @@
 ﻿
 #if !DISABLE_DI
 
-using System;
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Xrm.Sdk;
 
 namespace XrmFramework.DependencyInjection
 {
-    public class XrmFrameworkOptionBuilder
+    public interface IXrmFrameworkOptionBuilder
     {
+        IXrmFrameworkOptionBuilder UseConnectionString(string connectionString);
+        IXrmFrameworkOptionBuilder UseWebApi(bool useWebApi);
+    }
+
+    public class XrmFrameworkOptionBuilder : IXrmFrameworkOptionBuilder
+    {
+        public IServiceCollection ServiceCollection { get; }
+
+        public XrmFrameworkOptionBuilder(IServiceCollection serviceCollection)
+        {
+            ServiceCollection = serviceCollection;
+        }
+
         internal string ConnectionString { get; private set; }
 
         internal bool WebApiUsage { get; private set; }
 
         internal bool UseWebApiForced { get; private set; }
 
-        public XrmFrameworkOptionBuilder UseConnectionString(string connectionString)
+        public IXrmFrameworkOptionBuilder UseConnectionString(string connectionString)
         {
             ConnectionString = connectionString;
 
             return this;
         }
 
-        public XrmFrameworkOptionBuilder UseWebApi(bool useWebApi)
+        public IXrmFrameworkOptionBuilder UseWebApi(bool useWebApi)
         {
             WebApiUsage = useWebApi;
             UseWebApiForced = true;
