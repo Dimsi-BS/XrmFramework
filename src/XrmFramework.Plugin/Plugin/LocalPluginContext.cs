@@ -17,6 +17,7 @@ namespace XrmFramework
             }
 
             ObjectContainer.RegisterInstanceAs(this, typeof(IPluginContext));
+            ObjectContainer.RegisterInstanceAs(this, typeof(ICustomApiContext));
         }
 
         private LocalPluginContext(LocalPluginContext context, IPluginExecutionContext parentContext)
