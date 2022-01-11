@@ -77,10 +77,6 @@ namespace XrmFramework
                 return false;
             }
         }
-
-        public EntityReference ObjectRef => throw new NotImplementedException();
-        
-
     }
 
 }
