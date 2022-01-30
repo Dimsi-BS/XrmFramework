@@ -29,6 +29,6 @@ jobs:
       uses: NuGet/setup-nuget@v1.0.5
       with:
         # NuGet API Key to configure.
-        nuget-api-key: oy2azzio2wzgm6chjmiaagu7akdypywe5pfmvzmep6llha
+        nuget-api-key: secrets.NUGET_API_KEY
     - name: Upload NuGet packages
       run: nuget push **/*.nupkg
