@@ -11,6 +11,7 @@ using System.Windows.Navigation;
 using Deploy;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using XrmFramework.DeployUtils.Comparers;
@@ -310,6 +311,12 @@ namespace XrmFramework.DeployUtils
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Apis");
 
+            var entityRequest = new RetrieveEntityRequest {LogicalName = "customapi"};
+
+            var entityResponse = (RetrieveEntityResponse) service.Execute(entityRequest);
+
+            var customApiEntityTypeCode = entityResponse.EntityMetadata.ObjectTypeCode.GetValueOrDefault();
+
             foreach (var customApi in customApis)
             {
                 Console.WriteLine($@"  - {customApi.FullName}");
@@ -371,7 +378,8 @@ namespace XrmFramework.DeployUtils
                     }
                 }
 
-
+                AddSolutionComponentToSolution(service, pluginSolutionUniqueName, customApi.ToEntityReference(),
+                    customApiEntityTypeCode);
             }
 
             Console.WriteLine();
@@ -673,7 +681,7 @@ namespace XrmFramework.DeployUtils
             return t;
         }
 
-        private static void AddSolutionComponentToSolution(IOrganizationService service, string solutionUniqueName, EntityReference objectRef)
+        private static void AddSolutionComponentToSolution(IOrganizationService service, string solutionUniqueName, EntityReference objectRef, int? objectTypeCode = null)
         {
             if (GetRegisteredSolutionComponent(objectRef) == null)
             {
@@ -684,20 +692,27 @@ namespace XrmFramework.DeployUtils
                     SolutionUniqueName = solutionUniqueName
                 };
 
-                switch (objectRef.LogicalName)
+                if (objectTypeCode.HasValue)
                 {
-                    case PluginAssembly.EntityLogicalName:
-                        s.ComponentType = (int)componenttype.PluginAssembly;
-                        break;
-                    case PluginType.EntityLogicalName:
-                        s.ComponentType = (int)componenttype.PluginType;
-                        break;
-                    case SdkMessageProcessingStep.EntityLogicalName:
-                        s.ComponentType = (int)componenttype.SDKMessageProcessingStep;
-                        break;
-                    case SdkMessageProcessingStepImage.EntityLogicalName:
-                        s.ComponentType = (int)componenttype.SDKMessageProcessingStepImage;
-                        break;
+                    s.ComponentType = objectTypeCode.Value;
+                }
+                else
+                {
+                    switch (objectRef.LogicalName)
+                    {
+                        case PluginAssembly.EntityLogicalName:
+                            s.ComponentType = (int) componenttype.PluginAssembly;
+                            break;
+                        case PluginType.EntityLogicalName:
+                            s.ComponentType = (int) componenttype.PluginType;
+                            break;
+                        case SdkMessageProcessingStep.EntityLogicalName:
+                            s.ComponentType = (int) componenttype.SDKMessageProcessingStep;
+                            break;
+                        case SdkMessageProcessingStepImage.EntityLogicalName:
+                            s.ComponentType = (int) componenttype.SDKMessageProcessingStepImage;
+                            break;
+                    }
                 }
 
                 service.Execute(s);
