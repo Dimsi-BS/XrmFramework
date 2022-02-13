@@ -18,7 +18,7 @@ namespace XrmFramework.DeployUtils.Model
             DisplayName = displayName;
         }
 
-        public bool IsWorkflow => !string.IsNullOrEmpty(DisplayName);
+        public bool IsWorkflow => !string.IsNullOrWhiteSpace(DisplayName);
 
         public string FullName { get; }
 
