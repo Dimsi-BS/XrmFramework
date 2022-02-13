@@ -386,23 +386,24 @@ namespace XrmFramework.DeployUtils
                         customApiResponseEntityTypeCode);
                 }
 
-                if (registeredCustomApiRequestParameters.Any() || registeredCustomApiResponseProperties.Any())
-                {
-                    Console.WriteLine("Deleting unnecessary request parameters and response properties");
-
-                    foreach (var parameterToRemove in registeredCustomApiRequestParameters)
-                    {
-                        service.Delete(CustomApiRequestParameter.EntityLogicalName, parameterToRemove.Id);
-                    }
-
-                    foreach (var responseToRemove in registeredCustomApiResponseProperties)
-                    {
-                        service.Delete(CustomApiResponseProperty.EntityLogicalName, responseToRemove.Id);
-                    }
-                }
 
                 AddSolutionComponentToSolution(service, pluginSolutionUniqueName, customApi.ToEntityReference(),
                     customApiEntityTypeCode);
+            }
+
+            if (registeredCustomApiRequestParameters.Any() || registeredCustomApiResponseProperties.Any())
+            {
+                Console.WriteLine("Deleting unnecessary request parameters and response properties");
+
+                foreach (var parameterToRemove in registeredCustomApiRequestParameters)
+                {
+                    service.Delete(CustomApiRequestParameter.EntityLogicalName, parameterToRemove.Id);
+                }
+
+                foreach (var responseToRemove in registeredCustomApiResponseProperties)
+                {
+                    service.Delete(CustomApiResponseProperty.EntityLogicalName, responseToRemove.Id);
+                }
             }
 
             Console.WriteLine();
