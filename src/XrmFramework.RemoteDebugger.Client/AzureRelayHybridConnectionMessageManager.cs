@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Relay;
+using Microsoft.Xrm.Sdk;
 using XrmFramework.RemoteDebugger;
 
 using Newtonsoft.Json;
@@ -83,6 +84,7 @@ namespace XrmFramework.RemoteDebugger.Common
             if (CurrentResponseCache.TryGetValue(message.PluginExecutionId, out var currentResponse))
             {
                 var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
+                
                 try
                 {
                     currentResponse.OutputStream.Write(bytes, 0, bytes.Length);

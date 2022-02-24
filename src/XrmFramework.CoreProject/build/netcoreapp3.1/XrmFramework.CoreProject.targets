@@ -21,14 +21,14 @@
 
     <PropertyGroup>
       <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
-      <ProjectFile>$(ProjectFolderPath)\bin\DependencyProject\DependencyProject.csproj</ProjectFile>
+      <ProjectFile>$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\DependencyProject.csproj</ProjectFile>
     </PropertyGroup>
 
     <ItemGroup>
-      <FilesToCopy Include="$(MSBuildThisFileDirectory)\..\DependencyProject\**" />
+      <FilesToCopy Include="$([MSBuild]::Escape($(MSBuildThisFileDirectory)))..\DependencyProject\**" />
     </ItemGroup>
 
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(ProjectFolderPath)\bin\DependencyProject\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <MSBuild Projects="$(ProjectFile)" Targets="Restore" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);FakeProperty=restore" ContinueOnError="false" />
     <Message Importance="High" Text=">>>>>> Project DependencyProject Restored" />
@@ -40,7 +40,7 @@
 
     <PropertyGroup>
       <_XrmFrameworkTaskDir Condition=" '$(_XrmFrameworkTaskDir)'=='' ">$(MSBuildThisFileDirectory)tasks</_XrmFrameworkTaskDir>
-      <_XrmFrameworkLoggedServiceGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">$(_XrmFrameworkTaskDir)\XrmFramework.MSBuild.Reflection.dll</_XrmFrameworkLoggedServiceGenerator>
+      <_XrmFrameworkLoggedServiceGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">$([MSBuild]::Escape($(_XrmFrameworkTaskDir)))\XrmFramework.MSBuild.Reflection.dll</_XrmFrameworkLoggedServiceGenerator>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -49,11 +49,11 @@
 
     <Delete Files="@(LoggedFiles)" ContinueOnError="true" />
 
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(ProjectFolderPath)\bin\DependencyProject\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <PropertyGroup>
-      <ProjectFile>$(ProjectFolderPath)\bin\DependencyProject\DependencyProject.csproj</ProjectFile>
-      <ProjectOutputFile>$(ProjectFolderPath)\bin\DependencyProject\bin\$(Configuration)\netcoreapp3.1\DependencyProject.dll</ProjectOutputFile>
+      <ProjectFile>$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\DependencyProject.csproj</ProjectFile>
+      <ProjectOutputFile>$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\bin\$(Configuration)\netcoreapp3.1\DependencyProject.dll</ProjectOutputFile>
     </PropertyGroup>
 
     <MSBuild

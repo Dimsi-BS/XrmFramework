@@ -79,8 +79,19 @@ namespace XrmFramework
 
         public static EntityDefinition GetEntityDefinitionFromModelType(Type type)
         {
-            var crmEntityAttribute = type.GetCustomAttribute<CrmEntityAttribute>();
+            var crmEntityAttribute = type.GetCustomAttribute<CrmEntityAttribute>(true);
 
+            if (crmEntityAttribute == null)
+            {
+                var interfaceType = type.GetInterfaces()
+                    .FirstOrDefault(t => CustomAttributeExtensions.GetCustomAttribute<CrmEntityAttribute>((MemberInfo) t, true) != null);
+
+                if (interfaceType != null)
+                {
+                    crmEntityAttribute = interfaceType.GetCustomAttribute<CrmEntityAttribute>(true);
+                }
+            }
+            
             if (crmEntityAttribute == null)
             {
                 throw new Exception($"Type {type.Name} does not have a CrmEntityAttribute defined.");

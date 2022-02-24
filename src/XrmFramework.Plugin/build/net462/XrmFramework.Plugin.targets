@@ -23,14 +23,14 @@
 
     <PropertyGroup>
       <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
-      <ProjectFile>$(ProjectFolderPath)\bin\ServicesProject\ServicesProject.csproj</ProjectFile>
+      <ProjectFile>$([MSBuild]::Escape($(ProjectFolderPath)\bin\ServicesProject\ServicesProject.csproj))</ProjectFile>
     </PropertyGroup>
 
     <ItemGroup>
-      <FilesToCopy Include="$(MSBuildThisFileDirectory)\..\ServicesProject\**" />
+      <FilesToCopy Include="$([MSBuild]::Escape($(MSBuildThisFileDirectory)))..\ServicesProject\**" />
     </ItemGroup>
 
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(ProjectFolderPath)\bin\ServicesProject\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$([MSBuild]::Escape($(ProjectFolderPath)))\bin\ServicesProject\%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <MSBuild Projects="$(ProjectFile)" Targets="Restore" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);FakeProperty=restore" ContinueOnError="false" />
     <Message Importance="High" Text=">>>>>> Project ServicesProject Restored" />
@@ -41,8 +41,8 @@
     <Message Importance="High" Text="Building ServicesProject .Net Framework 4.6.2" />
 
     <PropertyGroup>
-      <_XrmFrameworkTaskDir Condition=" '$(_XrmFrameworkTaskDir)'=='' ">$(MSBuildThisFileDirectory)tasks</_XrmFrameworkTaskDir>
-      <_XrmFrameworkLoggedServiceGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">$(_XrmFrameworkTaskDir)\XrmFramework.MSBuild.Reflection.exe</_XrmFrameworkLoggedServiceGenerator>
+      <_XrmFrameworkTaskDir Condition=" '$(_XrmFrameworkTaskDir)'=='' ">$([MSBuild]::Escape($(MSBuildThisFileDirectory)))tasks</_XrmFrameworkTaskDir>
+      <_XrmFrameworkLoggedServiceGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">$([MSBuild]::Escape($(_XrmFrameworkTaskDir)))\XrmFramework.MSBuild.Reflection.exe</_XrmFrameworkLoggedServiceGenerator>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -52,8 +52,8 @@
     <Delete Files="@(LoggedFiles)" ContinueOnError="true" />
 
     <PropertyGroup>
-      <ProjectFile>$(ProjectFolderPath)\bin\ServicesProject\ServicesProject.csproj</ProjectFile>
-      <ProjectOutputFile>$(ProjectFolderPath)\bin\ServicesProject\bin\$(Configuration)\net462\ServicesProject.dll</ProjectOutputFile>
+      <ProjectFile>$([MSBuild]::Escape($(ProjectFolderPath)))\bin\ServicesProject\ServicesProject.csproj</ProjectFile>
+      <ProjectOutputFile>$([MSBuild]::Escape($(ProjectFolderPath)))\bin\ServicesProject\bin\$(Configuration)\net462\ServicesProject.dll</ProjectOutputFile>
     </PropertyGroup>
 
     <MSBuild
