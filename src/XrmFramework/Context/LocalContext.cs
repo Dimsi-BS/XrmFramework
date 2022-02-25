@@ -301,7 +301,7 @@ namespace XrmFramework
                 return ParentLocalContext.GetInitiatingUserId();
             }
 
-            return UserId;
+            return InitiatingUserId;
         }
 
         public void InvokeMethod(object obj, MethodInfo method)
