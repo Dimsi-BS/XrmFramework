@@ -141,7 +141,7 @@ namespace DefinitionManager
                     entityDefinition.AdditionalClassesCollection.Add(keyDefinition);
                     foreach (var key in entity.Keys)
                     {
-                        keyDefinition.Attributes.Add(new AttributeDefinition { LogicalName = key.LogicalName, Name = key.DisplayName.UserLocalizedLabel.Label.FormatText(), Value = key.LogicalName, Type = "String" });
+                        keyDefinition.Attributes.Add(new AttributeDefinition { LogicalName = key.LogicalName.Trim('"'), Name = key.DisplayName.UserLocalizedLabel.Label.FormatText(), Value = key.LogicalName.Trim('"'), Type = "String" });
 
                         var newKey = new Key
                         {
@@ -545,7 +545,7 @@ namespace DefinitionManager
                     {
                         foreach (var key in entity.Keys.Where(k => k.KeyAttributes.Contains(attributeDefinition.LogicalName)))
                         {
-                            attributeDefinition.KeyNames.Add(keyDefinition.Attributes[key.LogicalName].Name);
+                            attributeDefinition.KeyNames.Add(keyDefinition.Attributes[key.LogicalName.Trim('"')].Name);
                         }
                     }
 

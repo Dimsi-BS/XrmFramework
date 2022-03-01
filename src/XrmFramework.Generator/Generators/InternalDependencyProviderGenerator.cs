@@ -16,6 +16,8 @@ namespace XrmFramework.DeployUtils.Generators
 
         public static void Generate(string loggedServiceFolder, IEnumerable<Type> types, Type iServiceType, Type defaultServiceType, Type iLoggedServiceType)
         {
+            Console.WriteLine("InternalDependencyProviderGenerator.Generate");
+
             var namespaceSet = new HashSet<string>{ "BoDi"};
 
             var sb = new IndentedStringBuilder();

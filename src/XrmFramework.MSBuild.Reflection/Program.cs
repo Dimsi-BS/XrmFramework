@@ -9,6 +9,8 @@ namespace XrmFramework.MSBuild.Reflection
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Initialisation");
+            
             var assembly = Assembly.LoadFrom(args[0]);
             var folderPath = args[1];
 
@@ -24,11 +26,12 @@ namespace XrmFramework.MSBuild.Reflection
             if (generationType == "LoggedServices")
             {
                 MockGenerator.GenerateMocks(folderPath, types, nullableType);
+                Console.WriteLine("Logged service generation completed");
 
                 InternalDependencyProviderGenerator.Generate(folderPath, types, iServiceType, defaultServiceType,
                     iLoggedServiceType);
 
-                Console.WriteLine("Logged service generation completed");
+                Console.WriteLine("Dependency injection generation completed");
             }
             else if (generationType == "DependencyInjection")
             {

@@ -50,37 +50,4 @@
   </ItemGroup>-->
 
 
-  <ItemGroup>
-    <Compile Remove="Configuration\**" />
-    <Compile Remove="DefinitionConverter\**" />
-    <Compile Remove="Interfaces\**" />
-    <Compile Remove="Project\**" />
-    <EmbeddedResource Remove="Configuration\**" />
-    <EmbeddedResource Remove="DefinitionConverter\**" />
-    <EmbeddedResource Remove="Interfaces\**" />
-    <EmbeddedResource Remove="Project\**" />
-    <None Remove="Configuration\**" />
-    <None Remove="DefinitionConverter\**" />
-    <None Remove="Interfaces\**" />
-    <None Remove="Project\**" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Compile Remove="DefaultDependencyProvider.cs" />
-    <Compile Remove="GenerationTargetLanguage.cs" />
-    <Compile Remove="GenerationTargetPlatform.cs" />
-    <Compile Remove="GeneratorContainerBuilder.cs" />
-    <Compile Remove="GeneratorPluginInfo.cs" />
-    <Compile Remove="IndentProcessingWriter.cs" />
-    <Compile Remove="ITestHeaderWriter.cs" />
-    <Compile Remove="ITestUpToDateChecker.cs" />
-    <Compile Remove="TableFileInputExtensions.cs" />
-    <Compile Remove="TestClassGenerationContext.cs" />
-    <Compile Remove="TestGenerator.cs" />
-    <Compile Remove="TestGeneratorFactory.cs" />
-    <Compile Remove="XrmFrameworkDocument.cs" />
-    <Compile Remove="XrmFrameworkDocumentLocation.cs" />
-  </ItemGroup>
-
 </Project>
