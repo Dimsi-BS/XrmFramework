@@ -512,7 +512,7 @@ namespace XrmFramework.DeployUtils
         {
             var list = new List<SdkMessageProcessingStep>();
 
-            var query = new QueryExpression("sdkmessageprocessingstep");
+            var query = new QueryExpression(SdkMessageProcessingStep.EntityLogicalName);
             query.ColumnSet.AllColumns = true;
             query.Criteria.AddCondition("stage", ConditionOperator.NotEqual, 30);
 
@@ -532,7 +532,7 @@ namespace XrmFramework.DeployUtils
         {
             var list = new List<SdkMessageProcessingStepImage>();
 
-            var query = new QueryExpression("sdkmessageprocessingstepimage");
+            var query = new QueryExpression(SdkMessageProcessingStepImage.EntityLogicalName);
             query.ColumnSet.AllColumns = true;
             var stepLink = query.AddLink(SdkMessageProcessingStep.EntityLogicalName, "sdkmessageprocessingstepid", "sdkmessageprocessingstepid");
             var linkPluginType = stepLink.AddLink(PluginType.EntityLogicalName, "eventhandler", "plugintypeid");
@@ -551,7 +551,7 @@ namespace XrmFramework.DeployUtils
         {
             if (_list.Count == 0)
             {
-                var query = new QueryExpression("pluginassembly");
+                var query = new QueryExpression(PluginAssembly.EntityLogicalName);
                 query.ColumnSet.AddColumns("pluginassemblyid", "name");
                 query.Distinct = true;
                 query.Criteria.FilterOperator = LogicalOperator.And;
