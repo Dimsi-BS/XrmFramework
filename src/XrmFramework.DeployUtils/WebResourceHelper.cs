@@ -5,12 +5,9 @@ using System;
 using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.ServiceModel.Description;
-using System.Text;
 using Deploy;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using XrmFramework.DeployUtils.Configuration;
@@ -28,13 +25,11 @@ namespace XrmFramework.DeployUtils
 
             var solutionName = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>().Single(p => p.Name == projectName).TargetSolution;
 
-            string prefix = string.Empty;
-
             var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
 
-            Console.WriteLine($"You are about to deploy on {connectionString} organization. If ok press any key.");
+            Console.WriteLine($@"You are about to deploy on {connectionString} organization. If ok press any key.");
             Console.ReadKey();
-            Console.WriteLine("Connecting to CRM...");
+            Console.WriteLine(@"Connecting to CRM...");
 
             CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
 
@@ -52,13 +47,13 @@ namespace XrmFramework.DeployUtils
             var solution = result.Entities.FirstOrDefault();
             if (solution == null)
             {
-                Console.WriteLine("Error : Solution not found : {0}", solutionName);
+                Console.WriteLine(@"Error : Solution not found : {0}", solutionName);
                 return;
             }
-            var s = new Solution();
+
             if (solution.GetAttributeValue<bool>("ismanaged"))
             {
-                Console.WriteLine("Error : Solution {0} is managed, no deployment possible.", solutionName);
+                Console.WriteLine(@"Error : Solution {0} is managed, no deployment possible.", solutionName);
                 return;
             }
 
@@ -72,10 +67,11 @@ namespace XrmFramework.DeployUtils
             var publisher = result.Entities.FirstOrDefault();
             if (publisher == null)
             {
-                Console.WriteLine("Error : Publisher not found : {0}", solutionName);
+                Console.WriteLine(@"Error : Publisher not found : {0}", solutionName);
+                return;
             }
-            prefix = publisher.GetAttributeValue<string>("customizationprefix");
-            Console.WriteLine(" ==> Prefix : {0}", prefix);
+            var prefix = publisher.GetAttributeValue<string>("customizationprefix");
+            Console.WriteLine(@" ==> Prefix : {0}", prefix);
 
             DirectoryInfo root = new DirectoryInfo(webresourcesPath);
             var resourcesToPublish = string.Empty;
@@ -97,12 +93,11 @@ namespace XrmFramework.DeployUtils
                 var publish = false;
 
                 string webResourceUniqueName = fi.FullName;
-                Guid webResourceId = Guid.Empty;
+                Guid webResourceId;
 
                 var webResource = GetWebResource(webResourceUniqueName, service);
                 if (webResource == null)
                 {
-                    var newWebResource = new Entity("webresource");
                     webResourceId = CreateWebResource(webResourceUniqueName, fi, solutionName, service);
                     publish = true;
                 }
@@ -119,7 +114,7 @@ namespace XrmFramework.DeployUtils
                     else
                     {
                         var updatedWr = new Entity("webresource", webResource.Id);
-                        updatedWr["content"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(fi.Content));
+                        updatedWr["content"] = fi.Base64Content;
                         updatedWr["dependencyxml"] = fi.GetDependenciesXml();
 
                         service.Update(updatedWr);
@@ -127,7 +122,7 @@ namespace XrmFramework.DeployUtils
                     }
                 }
                 Console.ForegroundColor = publish ? ConsoleColor.DarkGreen : ConsoleColor.White;
-                Console.WriteLine($"{fi.FullName} => {webResourceUniqueName}");
+                Console.WriteLine($@"{fi.FullName} => {webResourceUniqueName}");
                 Console.ForegroundColor = ConsoleColor.White;
 
                 if (publish)
@@ -140,7 +135,7 @@ namespace XrmFramework.DeployUtils
             if (!string.IsNullOrEmpty(resourcesToPublish))
             {
                 Console.WriteLine();
-                Console.WriteLine($"Publishing {nbWebresources} Resources...");
+                Console.WriteLine($@"Publishing {nbWebresources} Resources...");
 
                 var request = new PublishXmlRequest
                 {
@@ -183,7 +178,7 @@ namespace XrmFramework.DeployUtils
             var wr = new Entity("webresource");
             wr["name"] = webResourceName;
             wr["displayname"] = webResourceName;
-            wr["content"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(fi.Content));
+            wr["content"] = fi.Base64Content;
             wr["dependencyxml"] = fi.GetDependenciesXml();
 
             if (string.IsNullOrEmpty(fi.Extension))
