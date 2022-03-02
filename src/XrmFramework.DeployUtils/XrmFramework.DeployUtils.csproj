@@ -49,4 +49,15 @@
     </Compile>
   </ItemGroup>
 
+	<ItemGroup>
+		<Compile Include="..\XrmFramework\Definitions\*.cs" Link="Definitions\%(RecursiveDir)%(Filename)%(Extension)" />
+		<Compile Include="..\XrmFramework\Attributes\*.cs" Link="Attributes\%(RecursiveDir)%(Filename)%(Extension)" />
+		<Reference Include="System.ComponentModel.DataAnnotations" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Include="..\XrmFramework\Utils\Relationship.cs" Link="Relationship.cs" />
+		<Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="SdkEnums.cs" />
+	</ItemGroup>
+
 </Project>

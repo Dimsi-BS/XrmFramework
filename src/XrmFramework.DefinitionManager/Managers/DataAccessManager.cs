@@ -11,6 +11,7 @@ using System.Security.Policy;
 using Deploy;
 using Microsoft.Xrm.Sdk.Client;
 using XrmFramework;
+using EntityRole = Microsoft.Xrm.Sdk.EntityRole;
 using AttributeMetadata = Microsoft.Xrm.Sdk.Metadata.AttributeMetadata;
 using AttributeTypeCode = Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode;
 using DateTimeAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.DateTimeAttributeMetadata;
