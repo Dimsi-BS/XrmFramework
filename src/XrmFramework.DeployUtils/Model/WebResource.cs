@@ -14,22 +14,35 @@ namespace XrmFramework.DeployUtils.Model
     {
         public WebResource(FileInfo fi, DirectoryInfo root, string prefix)
         {
-            AllLines.AddRange(File.ReadAllLines(fi.FullName));
-            Content = AllLines.Any() ? string.Join("\r\n", AllLines) : null;
-
             FullName = GetRelativePath(fi.FullName, root.FullName, prefix);
 
-            var regex = new Regex("///.*<reference.*path=\"(.*)\".*/>");
-
-            foreach (var line in AllLines)
+            if (Extension.ToLowerInvariant() == ".js")
             {
-                var match = regex.Match(line);
+                var allLines = File.ReadAllLines(fi.FullName);
 
-                if (!match.Success) continue;
+                var regex = new Regex("///.*<reference.*path=\"(.*)\".*/>");
+                
+                var fullContent = allLines.Any() ? string.Join("\r\n", allLines) : null;
 
-                var dependencyFullName = Path.Combine(fi.DirectoryName, match.Groups[1].Value);
+                if (!string.IsNullOrWhiteSpace(fullContent))
+                {
+                    Base64Content = Convert.ToBase64String(Encoding.UTF8.GetBytes(fullContent));
+                }
 
-                Dependencies.Add(GetRelativePath(dependencyFullName, root.FullName, prefix));
+                foreach (var line in allLines)
+                {
+                    var match = regex.Match(line);
+
+                    if (!match.Success) continue;
+
+                    var dependencyFullName = Path.Combine(fi.DirectoryName, match.Groups[1].Value);
+
+                    Dependencies.Add(GetRelativePath(dependencyFullName, root.FullName, prefix));
+                }
+            }
+            else
+            {
+                Base64Content = Convert.ToBase64String(File.ReadAllBytes(fi.FullName));
             }
         }
 
@@ -41,7 +54,7 @@ namespace XrmFramework.DeployUtils.Model
 
             if (!string.IsNullOrWhiteSpace(wrContent))
             {
-                Content = Encoding.UTF8.GetString(Convert.FromBase64String(wrContent));
+                Base64Content = Encoding.UTF8.GetString(Convert.FromBase64String(wrContent));
             }
 
             FullName = wr.GetAttributeValue<string>("name");
@@ -66,10 +79,8 @@ namespace XrmFramework.DeployUtils.Model
         public string FullName { get; set; }
 
         public string Extension => Path.GetExtension(FullName);
-
-        private List<string> AllLines { get; } = new();
-
-        public string Content { get; }
+        
+        public string Base64Content { get; }
 
         private SortedSet<string> Dependencies { get; } = new();
 
@@ -105,7 +116,7 @@ namespace XrmFramework.DeployUtils.Model
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return FullName == other.FullName && Content == other.Content && Dependencies.SequenceEqual(other.Dependencies);
+            return FullName == other.FullName && Base64Content == other.Base64Content && Dependencies.SequenceEqual(other.Dependencies);
         }
 
         public override bool Equals(object obj)
@@ -121,7 +132,7 @@ namespace XrmFramework.DeployUtils.Model
             unchecked
             {
                 var hashCode = (FullName != null ? FullName.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Content != null ? Content.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Base64Content != null ? Base64Content.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Dependencies != null ? Dependencies.GetHashCode() : 0);
                 return hashCode;
             }
