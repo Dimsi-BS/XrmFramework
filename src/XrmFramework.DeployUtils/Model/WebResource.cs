@@ -50,13 +50,8 @@ namespace XrmFramework.DeployUtils.Model
         {
             Id = wr.Id;
 
-            var wrContent = wr.GetAttributeValue<string>("content");
-
-            if (!string.IsNullOrWhiteSpace(wrContent))
-            {
-                Base64Content = Encoding.UTF8.GetString(Convert.FromBase64String(wrContent));
-            }
-
+            Base64Content = wr.GetAttributeValue<string>("content");
+            
             FullName = wr.GetAttributeValue<string>("name");
 
             var registeredDependencies = wr.GetAttributeValue<string>("dependencyxml");
