@@ -115,6 +115,15 @@ namespace XrmFramework.Definitions
             [OptionSet(typeof(WebResourceType))]
             public const string WebResourceType = "webresourcetype";
 
+            /// <summary>
+            /// 
+            /// Type : Memo
+            /// Validity :  Read | Create | Update 
+            /// </summary>
+            [AttributeMetadata(AttributeTypeCode.Memo)]
+            [StringLength(5000)]
+            public const string DependencyXml = "dependencyxml";
+
         }
 
         [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
