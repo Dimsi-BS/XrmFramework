@@ -27,6 +27,9 @@ namespace XrmFramework.DeployUtils
         
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
+            //GetProjectConfig
+            //Get configuration info for the project
+
             var xrmFrameworkConfigSection = ConfigHelper.GetSection();
 
             var projectConfig = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>()
@@ -41,8 +44,10 @@ namespace XrmFramework.DeployUtils
                 return;
             }
 
+            //  ------------------------------------------------------------------------
+            // Get name of the solution for which the plugins are made
             var pluginSolutionUniqueName = projectConfig.TargetSolution;
-
+            //Get the string required to connect to the CRM project
             var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
 
             Console.WriteLine($"You are about to deploy on {connectionString} organization. If ok press any key.");
@@ -51,26 +56,34 @@ namespace XrmFramework.DeployUtils
 
             CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
 
+            //Create the CrmServiceClient to interact with the CrmProject 
             var service = new CrmServiceClient(connectionString);
 
+            //Kind of deprecated, allow use of early bound classes like in DeployUtils.Model.Entities, to make a strongly typed object from a table 
             service.OrganizationServiceProxy?.EnableProxyTypes();
 
+            //------------------------------------------------------------------------------------------------
+            // Get all users, messages, messages filters for the solution 
             InitMetadata(service, pluginSolutionUniqueName);
-
+            //------------------------------------------------------------------------------------------------
+            // Get the assembly that contains the classes Plugin, CustomWorkflowActivity and CustomApi that are needed in order to understand what will be registered
             var pluginAssembly = typeof(TPlugin).Assembly;
-
+            //Get each possible type of plugin
             var pluginType = pluginAssembly.GetType("XrmFramework.Plugin");
             var customApiType = pluginAssembly.GetType("XrmFramework.CustomApi");
             var workflowType = pluginAssembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");
 
+            //-----------------------------------------------------------------------
             var pluginList = new List<Plugin>();
-
+            // Get all plugin types that were developped by the users
             var pluginTypes = pluginAssembly.GetTypes().Where(t => pluginType.IsAssignableFrom(t) && !customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
 
             var workflowTypes = pluginAssembly.GetTypes().Where(t => workflowType.IsAssignableFrom(t) && !t.IsAbstract && t.IsPublic).ToList();
             
             var customApiTypes = pluginAssembly.GetTypes().Where(t => customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
             
+            //------------------------------------------------------------------------------------
+            // Get each plugin data, the plugin class in deployUtils is not the same as in Plugin, it is metadata
             foreach (var type in pluginTypes)
             {
                 dynamic pluginTemp;
@@ -114,18 +127,18 @@ namespace XrmFramework.DeployUtils
                 var customApi = CustomApi.FromXrmFrameworkCustomApi(customApiTemp, _publisher.CustomizationPrefix);
 
                 customApis.Add(customApi);
-            }
-
-
-            var assembly = GetAssemblyByName(service, pluginAssembly.GetName().Name);
-
-            var profilerAssembly = GetProfilerAssembly(service);
-
-            var registeredPluginTypes = new List<PluginType>();
-            var registeredCustomApis = new List<CustomApi>();
+            }                                                                                                                      
+            // ------------------------------------------------------------------------------------------                          
+            // Get the plugin assembly from the CRM                                                                                
+            var assembly = GetAssemblyByName(service, pluginAssembly.GetName().Name);                                              
+            //Get plugin profiler assembly from the CRM                                                                            
+            var profilerAssembly = GetProfilerAssembly(service);                                                                   
+            var registeredPluginTypes = new List<PluginType>();                                                                    
+            var registeredCustomApis = new List<CustomApi>();                                                                      
             var registeredCustomApiRequestParameters = new List<CustomApiRequestParameter>();
             var registeredCustomApiResponseProperties = new List<CustomApiResponseProperty>();
             var profiledSteps = new List<SdkMessageProcessingStep>();
+            //Collection of the steps for when a plugin will need to execute 
             ICollection<SdkMessageProcessingStep> registeredSteps = Enumerable.Empty<SdkMessageProcessingStep>().ToList();
 
             var assemblyPath = pluginAssembly.Location;
@@ -182,9 +195,10 @@ namespace XrmFramework.DeployUtils
 
                 service.Update(updatedAssembly);
             }
-
+            // Adding assembly to solution
             AddSolutionComponentToSolution(service, pluginSolutionUniqueName, assembly.ToEntityReference());
 
+            // Get preimages of assembly
             var registeredImages = GetRegisteredImages(service, assembly.Id);
 
             Console.WriteLine();
@@ -193,15 +207,16 @@ namespace XrmFramework.DeployUtils
             foreach (var plugin in pluginList.Where(p => !p.IsWorkflow))
             {
                 Console.WriteLine($@"  - {plugin.FullName}");
-
+                // We get this plugin from the CRM
                 var registeredPluginType = registeredPluginTypes.FirstOrDefault(p => p.Name == plugin.FullName);
 
+                // If it is not yet registered, create it with the service
                 if (registeredPluginType == null)
                 {
                     registeredPluginType = GetPluginTypeToRegister(assembly.Id, plugin.FullName);
                     registeredPluginType.Id = service.Create(registeredPluginType);
                 }
-
+                // Get the registered steps corresponding to the plugin
                 var registeredStepsForPluginType = registeredSteps.Where(s => s.EventHandler.Id == registeredPluginType.Id).ToList();
 
                 var comparer = new SdkMessageStepComparer();
@@ -212,10 +227,12 @@ namespace XrmFramework.DeployUtils
 
                     var registeredStep = registeredStepsForPluginType.FirstOrDefault(s => comparer.Equals(s, stepToRegister));
 
+                    //If the step is not yet registered, meaning it is a new one, create it in the CRM
                     if (registeredStep == null)
                     {
                         stepToRegister.Id = service.Create(stepToRegister);
                     }
+                    //If the step is already registered, no need to register it twice, just update it
                     else
                     {
                         registeredSteps.Remove(registeredStep);
@@ -239,7 +256,7 @@ namespace XrmFramework.DeployUtils
                             service.Update(stepToRegister);
                         }
                     }
-
+                    // Add the new registered steps to the CRM
                     AddSolutionComponentToSolution(service, pluginSolutionUniqueName, stepToRegister.ToEntityReference());
 
                     if (convertedStep.Message != Messages.Associate.ToString() && convertedStep.Message != Messages.Lose.ToString() && convertedStep.Message != Messages.Win.ToString())
@@ -250,25 +267,26 @@ namespace XrmFramework.DeployUtils
                         {
                             if (registeredPostImage == null)
                             {
-                                registeredPostImage = GetImageToRegister(service, stepToRegister.Id, convertedStep, false);
-                                registeredPostImage.Id = service.Create(registeredPostImage);
-
-                            }
-                            else if (registeredPostImage.Attributes1 != convertedStep.JoinedPostImageAttributes)
-                            {
-                                registeredPostImage.Attributes1 = convertedStep.JoinedPostImageAttributes;
-                                service.Update(registeredPostImage);
-                            }
-                        }
-                        else if (registeredPostImage != null)
-                        {
-                            service.Delete(registeredPostImage.LogicalName, registeredPostImage.Id);
-                        }
-
-                        var registeredPreImage = registeredImages.FirstOrDefault(i => i.Name == "PreImage" && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);
-
-                        if (convertedStep.PreImageUsed)
-                        {
+                                registeredPostImage = GetImageToRegister(service, stepToRegister.Id, convertedStep, false);                       
+                                registeredPostImage.Id = service.Create(registeredPostImage);                                                     
+                                                                                                                                                  
+                            }                                                                                                                     
+                            else if (registeredPostImage.Attributes1 != convertedStep.JoinedPostImageAttributes)                                  
+                            {                                                                                                                     
+                                registeredPostImage.Attributes1 = convertedStep.JoinedPostImageAttributes;                                        
+                                service.Update(registeredPostImage);                                                                              
+                            }                                                                                                                     
+                        }                                                                                                                         
+                        else if (registeredPostImage != null)                                                                                     
+                        {                                                                                                                         
+                            service.Delete(registeredPostImage.LogicalName, registeredPostImage.Id);                                              
+                        }                                                                                                                                             
+                           
+                        //Add the relevant preimages for each step
+                        var registeredPreImage = registeredImages.FirstOrDefault(i => i.Name == "PreImage" && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);  
+                                                                                                                                                                      
+                        if (convertedStep.PreImageUsed)                                                                                                               
+                        {                                                                                                                                             
                             if (registeredPreImage == null)
                             {
                                 registeredPreImage = GetImageToRegister(service, stepToRegister.Id, convertedStep, true);
@@ -290,7 +308,7 @@ namespace XrmFramework.DeployUtils
 
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Workflow activities");
-
+            // Register the customWorkflows
             foreach (var customWf in pluginList.Where(p => p.IsWorkflow))
             {
                 var registeredPluginType = registeredPluginTypes.FirstOrDefault(p => p.TypeName == customWf.FullName);
@@ -309,6 +327,7 @@ namespace XrmFramework.DeployUtils
                 }
             }
 
+            // Add relevant custom api
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Apis");
             
@@ -773,6 +792,7 @@ namespace XrmFramework.DeployUtils
 
             var sw = Stopwatch.StartNew();
 
+            // Get the message filters that allow custom processing steps and are visible ?
             var query = new QueryExpression(SdkMessageFilter.EntityLogicalName);
             query.ColumnSet.AddColumns("sdkmessagefilterid", "sdkmessageid", "primaryobjecttypecode");
             query.Criteria.AddCondition("iscustomprocessingstepallowed", ConditionOperator.Equal, true);
@@ -782,9 +802,11 @@ namespace XrmFramework.DeployUtils
 
             //Console.WriteLine($"Retrieved {filters.Count} message filters in {sw.Elapsed}");
 
+            // Clear filters from the collection (est ce que c'est _filters qui contient tous les filtres utilisés ?, ce qui voudrait dire qu'on pourrait s'en servir pour le debugging ?)
             _filters.Clear();
             _filters.AddRange(filters.Select(f => f.ToEntity<SdkMessageFilter>()));
-
+            
+            //Get all the messages in the project (update, Create, Delete etc ??)
             sw.Restart();
             query = new QueryExpression(SdkMessage.EntityLogicalName);
             query.ColumnSet.AddColumns("sdkmessageid", "name");
@@ -799,8 +821,8 @@ namespace XrmFramework.DeployUtils
                 _messages.Add(e.Name, e.ToEntityReference());
             }
 
+            //Get the solution entity the plugins will be added to 
             sw.Restart();
-
             query = new QueryExpression(Solution.EntityLogicalName);
             query.ColumnSet.AllColumns = true;
             query.Criteria.AddCondition("uniquename", ConditionOperator.Equal, solutionName);
@@ -823,6 +845,7 @@ namespace XrmFramework.DeployUtils
             }
             else
             {
+                //If the solution is real and usable, get its publisher
                 _publisher = service.Retrieve(Publisher.EntityLogicalName, _solution.PublisherId.Id, new ColumnSet(true)).ToEntity<Publisher>();
 
 
@@ -835,6 +858,7 @@ namespace XrmFramework.DeployUtils
                 _components.AddRange(components);
             }
 
+            //Get users (pourquoi lui il est pas réinitialisé ?)
             query = new QueryExpression("systemuser");
             query.ColumnSet.AddColumn("domainname");
             query.Criteria.AddCondition("accessmode", ConditionOperator.NotEqual, 3);
