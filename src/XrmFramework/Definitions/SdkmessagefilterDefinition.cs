@@ -9,7 +9,7 @@ namespace XrmFramework.Definitions
     [EntityDefinition]
     [ExcludeFromCodeCoverage]
     [DefinitionManagerIgnore]
-    public static class SdkmessagefilterDefinition
+    public static class SdkMessageFilterDefinition
     {
         public const string EntityName = "sdkmessagefilter";
         public const string EntityCollectionName = "sdkmessagefilters";
@@ -74,9 +74,16 @@ namespace XrmFramework.Definitions
             /// Validity :  Read | Create | AdvancedFind 
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Lookup)]
-            [CrmLookup(SdkmessageDefinition.EntityName, SdkmessageDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.sdkmessageid_sdkmessagefilter)]
+            [CrmLookup(SdkMessageDefinition.EntityName, SdkMessageDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.sdkmessageid_sdkmessagefilter)]
             public const string SdkMessageId = "sdkmessageid";
 
+            /// <summary>
+            /// Not automatically generated, some metadata my be wrong
+            /// Type : String
+            /// Validity :  Read | Create | Update | AdvancedFind | Dunno
+            /// </summary>
+            [AttributeMetadata(AttributeTypeCode.String)]
+            public const string PrimaryObjectTypeCode = "primaryobjecttypecode";
         }
 
         [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
@@ -92,7 +99,7 @@ namespace XrmFramework.Definitions
             public const string modifiedby_sdkmessagefilter = "modifiedby_sdkmessagefilter";
             [Relationship("organization", EntityRole.Referencing, "organizationid", "organizationid")]
             public const string organization_sdkmessagefilter = "organization_sdkmessagefilter";
-            [Relationship(SdkmessageDefinition.EntityName, EntityRole.Referencing, "sdkmessageid", SdkmessagefilterDefinition.Columns.SdkMessageId)]
+            [Relationship(SdkMessageDefinition.EntityName, EntityRole.Referencing, "sdkmessageid", SdkMessageFilterDefinition.Columns.SdkMessageId)]
             public const string sdkmessageid_sdkmessagefilter = "sdkmessageid_sdkmessagefilter";
         }
 

@@ -190,7 +190,7 @@ namespace XrmFramework.Definitions
             public const string plugintypeid_sdkmessageprocessingstep = "plugintypeid_sdkmessageprocessingstep";
             [Relationship("userentityinstancedata", EntityRole.Referenced, "userentityinstancedata_plugintype", "objectid")]
             public const string userentityinstancedata_plugintype = "userentityinstancedata_plugintype";
-            [Relationship(CustomapiDefinition.EntityName, EntityRole.Referenced, "CustomAPIId", CustomapiDefinition.Columns.PluginTypeId)]
+            [Relationship(CustomApiDefinition.EntityName, EntityRole.Referenced, "CustomAPIId", CustomApiDefinition.Columns.PluginTypeId)]
             public const string plugintype_customapi = "plugintype_customapi";
         }
     }

@@ -9,7 +9,7 @@ namespace XrmFramework.Definitions
     [GeneratedCode("XrmFramework", "2.0")]
     [EntityDefinition]
     [ExcludeFromCodeCoverage]
-    public static class CustomapiDefinition
+    public static class CustomApiDefinition
     {
         public const string EntityName = "customapi";
         public const string EntityCollectionName = "customapis";
@@ -121,7 +121,7 @@ namespace XrmFramework.Definitions
             /// Validity :  Read | Create | AdvancedFind 
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Lookup)]
-            [CrmLookup(SdkmessageDefinition.EntityName, SdkmessageDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.sdkmessage_customapi)]
+            [CrmLookup(SdkMessageDefinition.EntityName, SdkMessageDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.sdkmessage_customapi)]
             public const string SdkMessageId = "sdkmessageid";
 
             /// <summary>
@@ -165,9 +165,9 @@ namespace XrmFramework.Definitions
             public const string lk_customapi_modifiedonbehalfby = "lk_customapi_modifiedonbehalfby";
             [Relationship("owner", EntityRole.Referencing, "ownerid", "ownerid")]
             public const string owner_customapi = "owner_customapi";
-            [Relationship(PluginTypeDefinition.EntityName, EntityRole.Referencing, "PluginTypeId", CustomapiDefinition.Columns.PluginTypeId)]
+            [Relationship(PluginTypeDefinition.EntityName, EntityRole.Referencing, "PluginTypeId", CustomApiDefinition.Columns.PluginTypeId)]
             public const string plugintype_customapi = "plugintype_customapi";
-            [Relationship(SdkmessageDefinition.EntityName, EntityRole.Referencing, "SdkMessageId", CustomapiDefinition.Columns.SdkMessageId)]
+            [Relationship(SdkMessageDefinition.EntityName, EntityRole.Referencing, "SdkMessageId", CustomApiDefinition.Columns.SdkMessageId)]
             public const string sdkmessage_customapi = "sdkmessage_customapi";
             [Relationship("team", EntityRole.Referencing, "owningteam", "owningteam")]
             public const string team_customapi = "team_customapi";
@@ -184,9 +184,9 @@ namespace XrmFramework.Definitions
             public const string customapi_AsyncOperations = "customapi_AsyncOperations";
             [Relationship("bulkdeletefailure", EntityRole.Referenced, "customapi_BulkDeleteFailures", "regardingobjectid")]
             public const string customapi_BulkDeleteFailures = "customapi_BulkDeleteFailures";
-            [Relationship(CustomapirequestparameterDefinition.EntityName, EntityRole.Referenced, "CustomAPIRequestParameters", CustomapirequestparameterDefinition.Columns.CustomAPIId)]
+            [Relationship(CustomApiRequestParameterDefinition.EntityName, EntityRole.Referenced, "CustomAPIRequestParameters", CustomApiRequestParameterDefinition.Columns.CustomAPIId)]
             public const string customapi_customapirequestparameter = "customapi_customapirequestparameter";
-            [Relationship(CustomapiresponsepropertyDefinition.EntityName, EntityRole.Referenced, "CustomAPIResponseProperties", CustomapiresponsepropertyDefinition.Columns.CustomAPIId)]
+            [Relationship(CustomApiResponsePropertyDefinition.EntityName, EntityRole.Referenced, "CustomAPIResponseProperties", CustomApiResponsePropertyDefinition.Columns.CustomAPIId)]
             public const string customapi_customapiresponseproperty = "customapi_customapiresponseproperty";
             [Relationship("mailboxtrackingfolder", EntityRole.Referenced, "customapi_MailboxTrackingFolders", "regardingobjectid")]
             public const string customapi_MailboxTrackingFolders = "customapi_MailboxTrackingFolders";

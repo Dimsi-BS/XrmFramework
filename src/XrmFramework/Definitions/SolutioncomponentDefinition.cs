@@ -10,7 +10,7 @@ namespace XrmFramework.Definitions
     [EntityDefinition]
     [ExcludeFromCodeCoverage]
     [DefinitionManagerIgnore]
-    public static class SolutioncomponentDefinition
+    public static class SolutionComponentDefinition
     {
         public const string EntityName = "solutioncomponent";
         public const string EntityCollectionName = "solutioncomponentss";
@@ -45,16 +45,16 @@ namespace XrmFramework.Definitions
             public const string lk_solutioncomponentbase_createdonbehalfby = "lk_solutioncomponentbase_createdonbehalfby";
             [Relationship(SystemUserDefinition.EntityName, EntityRole.Referencing, "modifiedonbehalfby", "modifiedonbehalfby")]
             public const string lk_solutioncomponentbase_modifiedonbehalfby = "lk_solutioncomponentbase_modifiedonbehalfby";
-            [Relationship(SolutionDefinition.EntityName, EntityRole.Referencing, "solutionid", SolutioncomponentDefinition.Columns.SolutionId)]
+            [Relationship(SolutionDefinition.EntityName, EntityRole.Referencing, "solutionid", SolutionComponentDefinition.Columns.SolutionId)]
             public const string solution_solutioncomponent = "solution_solutioncomponent";
-            [Relationship(SolutioncomponentDefinition.EntityName, EntityRole.Referencing, "rootsolutioncomponentid_solutioncomponent", "rootsolutioncomponentid")]
+            [Relationship(SolutionComponentDefinition.EntityName, EntityRole.Referencing, "rootsolutioncomponentid_solutioncomponent", "rootsolutioncomponentid")]
             public const string solutioncomponent_parent_solutioncomponent = "solutioncomponent_parent_solutioncomponent";
         }
 
         [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
         public static class OneToManyRelationships
         {
-            [Relationship(SolutioncomponentDefinition.EntityName, EntityRole.Referenced, "solutioncomponent_parent_solutioncomponent", "rootsolutioncomponentid")]
+            [Relationship(SolutionComponentDefinition.EntityName, EntityRole.Referenced, "solutioncomponent_parent_solutioncomponent", "rootsolutioncomponentid")]
             public const string solutioncomponent_parent_solutioncomponent = "solutioncomponent_parent_solutioncomponent";
             [Relationship("userentityinstancedata", EntityRole.Referenced, "userentityinstancedata_solutioncomponent", "objectid")]
             public const string userentityinstancedata_solutioncomponent = "userentityinstancedata_solutioncomponent";

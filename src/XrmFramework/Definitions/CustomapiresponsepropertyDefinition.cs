@@ -9,7 +9,7 @@ namespace XrmFramework.Definitions
     [GeneratedCode("XrmFramework", "2.0")]
     [EntityDefinition]
     [ExcludeFromCodeCoverage]
-    public static class CustomapiresponsepropertyDefinition
+    public static class CustomApiResponsePropertyDefinition
     {
         public const string EntityName = "customapiresponseproperty";
         public const string EntityCollectionName = "customapiresponseproperties";
@@ -34,7 +34,7 @@ namespace XrmFramework.Definitions
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Lookup)]
             [AlternateKey(AlternateKeyNames.CustomAPIResponsePropertyExportKey)]
-            [CrmLookup(CustomapiDefinition.EntityName, CustomapiDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.customapi_customapiresponseproperty)]
+            [CrmLookup(CustomApiDefinition.EntityName, CustomApiDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.customapi_customapiresponseproperty)]
             public const string CustomAPIId = "customapiid";
 
             /// <summary>
@@ -106,7 +106,7 @@ namespace XrmFramework.Definitions
         {
             [Relationship("businessunit", EntityRole.Referencing, "owningbusinessunit", "owningbusinessunit")]
             public const string business_unit_customapiresponseproperty = "business_unit_customapiresponseproperty";
-            [Relationship(CustomapiDefinition.EntityName, EntityRole.Referencing, "CustomAPIId", CustomapiresponsepropertyDefinition.Columns.CustomAPIId)]
+            [Relationship(CustomApiDefinition.EntityName, EntityRole.Referencing, "CustomAPIId", CustomApiResponsePropertyDefinition.Columns.CustomAPIId)]
             public const string customapi_customapiresponseproperty = "customapi_customapiresponseproperty";
             [Relationship(SystemUserDefinition.EntityName, EntityRole.Referencing, "createdby", "createdby")]
             public const string lk_customapiresponseproperty_createdby = "lk_customapiresponseproperty_createdby";

@@ -19,7 +19,7 @@ namespace XrmFramework.Definitions
         NonPublieSupprime = 3,
     }
 
-    [OptionSetDefinition(CustomapiDefinition.EntityName, CustomapiDefinition.Columns.BindingType)]
+    [OptionSetDefinition(CustomApiDefinition.EntityName, CustomApiDefinition.Columns.BindingType)]
     public enum BindingType
     {
         [Description("Global")]
@@ -90,7 +90,7 @@ namespace XrmFramework.Definitions
     }
 
 
-    [OptionSetDefinition(TransactioncurrencyDefinition.EntityName, TransactioncurrencyDefinition.Columns.StateCode)]
+    [OptionSetDefinition(TransactionCurrencyDefinition.EntityName, TransactionCurrencyDefinition.Columns.StateCode)]
     public enum TransactioncurrencyState
     {
         [Description("Actif")]
@@ -99,7 +99,7 @@ namespace XrmFramework.Definitions
         Inactif = 1,
     }
 
-    [OptionSetDefinition(TransactioncurrencyDefinition.EntityName, TransactioncurrencyDefinition.Columns.StatusCode)]
+    [OptionSetDefinition(TransactionCurrencyDefinition.EntityName, TransactionCurrencyDefinition.Columns.StatusCode)]
     public enum TransactioncurrencyStatus
     {
         [Description("Actif")]
@@ -108,7 +108,7 @@ namespace XrmFramework.Definitions
         Inactif = 2,
     }
 
-    [OptionSetDefinition(WebresourceDefinition.EntityName, WebresourceDefinition.Columns.WebResourceType)]
+    [OptionSetDefinition(WebResourceDefinition.EntityName, WebResourceDefinition.Columns.WebResourceType)]
     [DefinitionManagerIgnore]
     public enum WebResourceType
     {

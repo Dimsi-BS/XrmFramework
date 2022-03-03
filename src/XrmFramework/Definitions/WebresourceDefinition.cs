@@ -10,7 +10,7 @@ namespace XrmFramework.Definitions
     [EntityDefinition]
     [ExcludeFromCodeCoverage]
     [DefinitionManagerIgnore]
-    public static class WebresourceDefinition
+    public static class WebResourceDefinition
     {
         public const string EntityName = "webresource";
         public const string EntityCollectionName = "webresources";
@@ -132,7 +132,7 @@ namespace XrmFramework.Definitions
             public const string webresource_createdby = "webresource_createdby";
             [Relationship(SystemUserDefinition.EntityName, EntityRole.Referencing, "modifiedby", "modifiedby")]
             public const string webresource_modifiedby = "webresource_modifiedby";
-            [Relationship("organization", EntityRole.Referencing, "organizationid", WebresourceDefinition.Columns.OrganizationId)]
+            [Relationship("organization", EntityRole.Referencing, "organizationid", WebResourceDefinition.Columns.OrganizationId)]
             public const string webresource_organization = "webresource_organization";
         }
 

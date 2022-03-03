@@ -89,7 +89,7 @@ namespace XrmFramework.Definitions
             public const string organization_solution = "organization_solution";
             [Relationship(PublisherDefinition.EntityName, EntityRole.Referencing, "publisherid", SolutionDefinition.Columns.PublisherId)]
             public const string publisher_solution = "publisher_solution";
-            [Relationship(WebresourceDefinition.EntityName, EntityRole.Referencing, "configurationpageid", "configurationpageid")]
+            [Relationship(WebResourceDefinition.EntityName, EntityRole.Referencing, "configurationpageid", "configurationpageid")]
             public const string solution_configuration_webresource = "solution_configuration_webresource";
             [Relationship(SolutionDefinition.EntityName, EntityRole.Referencing, "parentsolutionid", "parentsolutionid")]
             public const string solution_parent_solution = "solution_parent_solution";
@@ -116,7 +116,7 @@ namespace XrmFramework.Definitions
             public const string solution_role = "solution_role";
             [Relationship("roleprivileges", EntityRole.Referenced, "solution_roleprivileges", "solutionid")]
             public const string solution_roleprivileges = "solution_roleprivileges";
-            [Relationship(SolutioncomponentDefinition.EntityName, EntityRole.Referenced, "solution_solutioncomponent", SolutioncomponentDefinition.Columns.SolutionId)]
+            [Relationship(SolutionComponentDefinition.EntityName, EntityRole.Referenced, "solution_solutioncomponent", SolutionComponentDefinition.Columns.SolutionId)]
             public const string solution_solutioncomponent = "solution_solutioncomponent";
             [Relationship("syncerror", EntityRole.Referenced, "Solution_SyncErrors", "regardingobjectid")]
             public const string Solution_SyncErrors = "Solution_SyncErrors";

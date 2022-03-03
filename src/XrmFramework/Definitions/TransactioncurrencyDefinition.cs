@@ -9,7 +9,7 @@ namespace XrmFramework.Definitions
     [GeneratedCode("XrmFramework", "2.0")]
     [EntityDefinition]
     [ExcludeFromCodeCoverage]
-    public static class TransactioncurrencyDefinition
+    public static class TransactionCurrencyDefinition
     {
         public const string EntityName = "transactioncurrency";
         public const string EntityCollectionName = "transactioncurrencies";

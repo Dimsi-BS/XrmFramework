@@ -181,7 +181,7 @@ namespace XrmFramework.Definitions
             public const string systemuser_defaultmailbox_mailbox = "systemuser_defaultmailbox_mailbox";
             [Relationship("territory", EntityRole.Referencing, "territoryid", "territoryid")]
             public const string territory_system_users = "territory_system_users";
-            [Relationship(TransactioncurrencyDefinition.EntityName, EntityRole.Referencing, "transactioncurrencyid", "transactioncurrencyid")]
+            [Relationship(TransactionCurrencyDefinition.EntityName, EntityRole.Referencing, "transactioncurrencyid", "transactioncurrencyid")]
             public const string TransactionCurrency_SystemUser = "TransactionCurrency_SystemUser";
             [Relationship(SystemUserDefinition.EntityName, EntityRole.Referencing, "parentsystemuserid", "parentsystemuserid")]
             public const string user_parent_user = "user_parent_user";
@@ -256,9 +256,9 @@ namespace XrmFramework.Definitions
             public const string createdby_relationship_role = "createdby_relationship_role";
             [Relationship("relationshiprolemap", EntityRole.Referenced, "createdby_relationship_role_map", "createdby")]
             public const string createdby_relationship_role_map = "createdby_relationship_role_map";
-            [Relationship(SdkmessageDefinition.EntityName, EntityRole.Referenced, "createdby_sdkmessage", "createdby")]
+            [Relationship(SdkMessageDefinition.EntityName, EntityRole.Referenced, "createdby_sdkmessage", "createdby")]
             public const string createdby_sdkmessage = "createdby_sdkmessage";
-            [Relationship(SdkmessagefilterDefinition.EntityName, EntityRole.Referenced, "createdby_sdkmessagefilter", "createdby")]
+            [Relationship(SdkMessageFilterDefinition.EntityName, EntityRole.Referenced, "createdby_sdkmessagefilter", "createdby")]
             public const string createdby_sdkmessagefilter = "createdby_sdkmessagefilter";
             [Relationship("sdkmessagepair", EntityRole.Referenced, "createdby_sdkmessagepair", "createdby")]
             public const string createdby_sdkmessagepair = "createdby_sdkmessagepair";
@@ -1472,29 +1472,29 @@ namespace XrmFramework.Definitions
             public const string lk_cr9a1_test_modifiedby = "lk_cr9a1_test_modifiedby";
             [Relationship("cr9a1_test", EntityRole.Referenced, "lk_cr9a1_test_modifiedonbehalfby", "modifiedonbehalfby")]
             public const string lk_cr9a1_test_modifiedonbehalfby = "lk_cr9a1_test_modifiedonbehalfby";
-            [Relationship(CustomapiDefinition.EntityName, EntityRole.Referenced, "lk_customapi_createdby", "createdby")]
+            [Relationship(CustomApiDefinition.EntityName, EntityRole.Referenced, "lk_customapi_createdby", "createdby")]
             public const string lk_customapi_createdby = "lk_customapi_createdby";
-            [Relationship(CustomapiDefinition.EntityName, EntityRole.Referenced, "lk_customapi_createdonbehalfby", "createdonbehalfby")]
+            [Relationship(CustomApiDefinition.EntityName, EntityRole.Referenced, "lk_customapi_createdonbehalfby", "createdonbehalfby")]
             public const string lk_customapi_createdonbehalfby = "lk_customapi_createdonbehalfby";
-            [Relationship(CustomapiDefinition.EntityName, EntityRole.Referenced, "lk_customapi_modifiedby", "modifiedby")]
+            [Relationship(CustomApiDefinition.EntityName, EntityRole.Referenced, "lk_customapi_modifiedby", "modifiedby")]
             public const string lk_customapi_modifiedby = "lk_customapi_modifiedby";
-            [Relationship(CustomapiDefinition.EntityName, EntityRole.Referenced, "lk_customapi_modifiedonbehalfby", "modifiedonbehalfby")]
+            [Relationship(CustomApiDefinition.EntityName, EntityRole.Referenced, "lk_customapi_modifiedonbehalfby", "modifiedonbehalfby")]
             public const string lk_customapi_modifiedonbehalfby = "lk_customapi_modifiedonbehalfby";
-            [Relationship(CustomapirequestparameterDefinition.EntityName, EntityRole.Referenced, "lk_customapirequestparameter_createdby", "createdby")]
+            [Relationship(CustomApiRequestParameterDefinition.EntityName, EntityRole.Referenced, "lk_customapirequestparameter_createdby", "createdby")]
             public const string lk_customapirequestparameter_createdby = "lk_customapirequestparameter_createdby";
-            [Relationship(CustomapirequestparameterDefinition.EntityName, EntityRole.Referenced, "lk_customapirequestparameter_createdonbehalfby", "createdonbehalfby")]
+            [Relationship(CustomApiRequestParameterDefinition.EntityName, EntityRole.Referenced, "lk_customapirequestparameter_createdonbehalfby", "createdonbehalfby")]
             public const string lk_customapirequestparameter_createdonbehalfby = "lk_customapirequestparameter_createdonbehalfby";
-            [Relationship(CustomapirequestparameterDefinition.EntityName, EntityRole.Referenced, "lk_customapirequestparameter_modifiedby", "modifiedby")]
+            [Relationship(CustomApiRequestParameterDefinition.EntityName, EntityRole.Referenced, "lk_customapirequestparameter_modifiedby", "modifiedby")]
             public const string lk_customapirequestparameter_modifiedby = "lk_customapirequestparameter_modifiedby";
-            [Relationship(CustomapirequestparameterDefinition.EntityName, EntityRole.Referenced, "lk_customapirequestparameter_modifiedonbehalfby", "modifiedonbehalfby")]
+            [Relationship(CustomApiRequestParameterDefinition.EntityName, EntityRole.Referenced, "lk_customapirequestparameter_modifiedonbehalfby", "modifiedonbehalfby")]
             public const string lk_customapirequestparameter_modifiedonbehalfby = "lk_customapirequestparameter_modifiedonbehalfby";
-            [Relationship(CustomapiresponsepropertyDefinition.EntityName, EntityRole.Referenced, "lk_customapiresponseproperty_createdby", "createdby")]
+            [Relationship(CustomApiResponsePropertyDefinition.EntityName, EntityRole.Referenced, "lk_customapiresponseproperty_createdby", "createdby")]
             public const string lk_customapiresponseproperty_createdby = "lk_customapiresponseproperty_createdby";
-            [Relationship(CustomapiresponsepropertyDefinition.EntityName, EntityRole.Referenced, "lk_customapiresponseproperty_createdonbehalfby", "createdonbehalfby")]
+            [Relationship(CustomApiResponsePropertyDefinition.EntityName, EntityRole.Referenced, "lk_customapiresponseproperty_createdonbehalfby", "createdonbehalfby")]
             public const string lk_customapiresponseproperty_createdonbehalfby = "lk_customapiresponseproperty_createdonbehalfby";
-            [Relationship(CustomapiresponsepropertyDefinition.EntityName, EntityRole.Referenced, "lk_customapiresponseproperty_modifiedby", "modifiedby")]
+            [Relationship(CustomApiResponsePropertyDefinition.EntityName, EntityRole.Referenced, "lk_customapiresponseproperty_modifiedby", "modifiedby")]
             public const string lk_customapiresponseproperty_modifiedby = "lk_customapiresponseproperty_modifiedby";
-            [Relationship(CustomapiresponsepropertyDefinition.EntityName, EntityRole.Referenced, "lk_customapiresponseproperty_modifiedonbehalfby", "modifiedonbehalfby")]
+            [Relationship(CustomApiResponsePropertyDefinition.EntityName, EntityRole.Referenced, "lk_customapiresponseproperty_modifiedonbehalfby", "modifiedonbehalfby")]
             public const string lk_customapiresponseproperty_modifiedonbehalfby = "lk_customapiresponseproperty_modifiedonbehalfby";
             [Relationship("customcontrol", EntityRole.Referenced, "lk_customcontrol_createdby", "createdby")]
             public const string lk_customcontrol_createdby = "lk_customcontrol_createdby";
@@ -5890,13 +5890,13 @@ namespace XrmFramework.Definitions
             public const string lk_savedqueryvisualizationbase_modifiedby = "lk_savedqueryvisualizationbase_modifiedby";
             [Relationship("savedqueryvisualization", EntityRole.Referenced, "lk_savedqueryvisualizationbase_modifiedonbehalfby", "modifiedonbehalfby")]
             public const string lk_savedqueryvisualizationbase_modifiedonbehalfby = "lk_savedqueryvisualizationbase_modifiedonbehalfby";
-            [Relationship(SdkmessageDefinition.EntityName, EntityRole.Referenced, "lk_sdkmessage_createdonbehalfby", "createdonbehalfby")]
+            [Relationship(SdkMessageDefinition.EntityName, EntityRole.Referenced, "lk_sdkmessage_createdonbehalfby", "createdonbehalfby")]
             public const string lk_sdkmessage_createdonbehalfby = "lk_sdkmessage_createdonbehalfby";
-            [Relationship(SdkmessageDefinition.EntityName, EntityRole.Referenced, "lk_sdkmessage_modifiedonbehalfby", "modifiedonbehalfby")]
+            [Relationship(SdkMessageDefinition.EntityName, EntityRole.Referenced, "lk_sdkmessage_modifiedonbehalfby", "modifiedonbehalfby")]
             public const string lk_sdkmessage_modifiedonbehalfby = "lk_sdkmessage_modifiedonbehalfby";
-            [Relationship(SdkmessagefilterDefinition.EntityName, EntityRole.Referenced, "lk_sdkmessagefilter_createdonbehalfby", "createdonbehalfby")]
+            [Relationship(SdkMessageFilterDefinition.EntityName, EntityRole.Referenced, "lk_sdkmessagefilter_createdonbehalfby", "createdonbehalfby")]
             public const string lk_sdkmessagefilter_createdonbehalfby = "lk_sdkmessagefilter_createdonbehalfby";
-            [Relationship(SdkmessagefilterDefinition.EntityName, EntityRole.Referenced, "lk_sdkmessagefilter_modifiedonbehalfby", "modifiedonbehalfby")]
+            [Relationship(SdkMessageFilterDefinition.EntityName, EntityRole.Referenced, "lk_sdkmessagefilter_modifiedonbehalfby", "modifiedonbehalfby")]
             public const string lk_sdkmessagefilter_modifiedonbehalfby = "lk_sdkmessagefilter_modifiedonbehalfby";
             [Relationship("sdkmessagepair", EntityRole.Referenced, "lk_sdkmessagepair_createdonbehalfby", "createdonbehalfby")]
             public const string lk_sdkmessagepair_createdonbehalfby = "lk_sdkmessagepair_createdonbehalfby";
@@ -6098,9 +6098,9 @@ namespace XrmFramework.Definitions
             public const string lk_solutioncomponentattributeconfiguration_modifiedby = "lk_solutioncomponentattributeconfiguration_modifiedby";
             [Relationship("solutioncomponentattributeconfiguration", EntityRole.Referenced, "lk_solutioncomponentattributeconfiguration_modifiedonbehalfby", "modifiedonbehalfby")]
             public const string lk_solutioncomponentattributeconfiguration_modifiedonbehalfby = "lk_solutioncomponentattributeconfiguration_modifiedonbehalfby";
-            [Relationship(SolutioncomponentDefinition.EntityName, EntityRole.Referenced, "lk_solutioncomponentbase_createdonbehalfby", "createdonbehalfby")]
+            [Relationship(SolutionComponentDefinition.EntityName, EntityRole.Referenced, "lk_solutioncomponentbase_createdonbehalfby", "createdonbehalfby")]
             public const string lk_solutioncomponentbase_createdonbehalfby = "lk_solutioncomponentbase_createdonbehalfby";
-            [Relationship(SolutioncomponentDefinition.EntityName, EntityRole.Referenced, "lk_solutioncomponentbase_modifiedonbehalfby", "modifiedonbehalfby")]
+            [Relationship(SolutionComponentDefinition.EntityName, EntityRole.Referenced, "lk_solutioncomponentbase_modifiedonbehalfby", "modifiedonbehalfby")]
             public const string lk_solutioncomponentbase_modifiedonbehalfby = "lk_solutioncomponentbase_modifiedonbehalfby";
             [Relationship("solutioncomponentbatchconfiguration", EntityRole.Referenced, "lk_solutioncomponentbatchconfiguration_createdby", "createdby")]
             public const string lk_solutioncomponentbatchconfiguration_createdby = "lk_solutioncomponentbatchconfiguration_createdby";
@@ -6296,13 +6296,13 @@ namespace XrmFramework.Definitions
             public const string lk_tracelog_modifiedby = "lk_tracelog_modifiedby";
             [Relationship("tracelog", EntityRole.Referenced, "lk_tracelog_modifiedonbehalfby", "modifiedonbehalfby")]
             public const string lk_tracelog_modifiedonbehalfby = "lk_tracelog_modifiedonbehalfby";
-            [Relationship(TransactioncurrencyDefinition.EntityName, EntityRole.Referenced, "lk_transactioncurrency_createdonbehalfby", "createdonbehalfby")]
+            [Relationship(TransactionCurrencyDefinition.EntityName, EntityRole.Referenced, "lk_transactioncurrency_createdonbehalfby", "createdonbehalfby")]
             public const string lk_transactioncurrency_createdonbehalfby = "lk_transactioncurrency_createdonbehalfby";
-            [Relationship(TransactioncurrencyDefinition.EntityName, EntityRole.Referenced, "lk_transactioncurrency_modifiedonbehalfby", "modifiedonbehalfby")]
+            [Relationship(TransactionCurrencyDefinition.EntityName, EntityRole.Referenced, "lk_transactioncurrency_modifiedonbehalfby", "modifiedonbehalfby")]
             public const string lk_transactioncurrency_modifiedonbehalfby = "lk_transactioncurrency_modifiedonbehalfby";
-            [Relationship(TransactioncurrencyDefinition.EntityName, EntityRole.Referenced, "lk_transactioncurrencybase_createdby", "createdby")]
+            [Relationship(TransactionCurrencyDefinition.EntityName, EntityRole.Referenced, "lk_transactioncurrencybase_createdby", "createdby")]
             public const string lk_transactioncurrencybase_createdby = "lk_transactioncurrencybase_createdby";
-            [Relationship(TransactioncurrencyDefinition.EntityName, EntityRole.Referenced, "lk_transactioncurrencybase_modifiedby", "modifiedby")]
+            [Relationship(TransactionCurrencyDefinition.EntityName, EntityRole.Referenced, "lk_transactioncurrencybase_modifiedby", "modifiedby")]
             public const string lk_transactioncurrencybase_modifiedby = "lk_transactioncurrencybase_modifiedby";
             [Relationship("transformationmapping", EntityRole.Referenced, "lk_transformationmapping_createdby", "createdby")]
             public const string lk_transformationmapping_createdby = "lk_transformationmapping_createdby";
@@ -6424,9 +6424,9 @@ namespace XrmFramework.Definitions
             public const string lk_virtualentitymetadata_modifiedby = "lk_virtualentitymetadata_modifiedby";
             [Relationship("virtualentitymetadata", EntityRole.Referenced, "lk_virtualentitymetadata_modifiedonbehalfby", "modifiedonbehalfby")]
             public const string lk_virtualentitymetadata_modifiedonbehalfby = "lk_virtualentitymetadata_modifiedonbehalfby";
-            [Relationship(WebresourceDefinition.EntityName, EntityRole.Referenced, "lk_webresourcebase_createdonbehalfby", "createdonbehalfby")]
+            [Relationship(WebResourceDefinition.EntityName, EntityRole.Referenced, "lk_webresourcebase_createdonbehalfby", "createdonbehalfby")]
             public const string lk_webresourcebase_createdonbehalfby = "lk_webresourcebase_createdonbehalfby";
-            [Relationship(WebresourceDefinition.EntityName, EntityRole.Referenced, "lk_webresourcebase_modifiedonbehalfby", "modifiedonbehalfby")]
+            [Relationship(WebResourceDefinition.EntityName, EntityRole.Referenced, "lk_webresourcebase_modifiedonbehalfby", "modifiedonbehalfby")]
             public const string lk_webresourcebase_modifiedonbehalfby = "lk_webresourcebase_modifiedonbehalfby";
             [Relationship("webwizard", EntityRole.Referenced, "lk_webwizard_createdby", "createdby")]
             public const string lk_webwizard_createdby = "lk_webwizard_createdby";
@@ -6494,9 +6494,9 @@ namespace XrmFramework.Definitions
             public const string modifiedby_relationship_role = "modifiedby_relationship_role";
             [Relationship("relationshiprolemap", EntityRole.Referenced, "modifiedby_relationship_role_map", "modifiedby")]
             public const string modifiedby_relationship_role_map = "modifiedby_relationship_role_map";
-            [Relationship(SdkmessageDefinition.EntityName, EntityRole.Referenced, "modifiedby_sdkmessage", "modifiedby")]
+            [Relationship(SdkMessageDefinition.EntityName, EntityRole.Referenced, "modifiedby_sdkmessage", "modifiedby")]
             public const string modifiedby_sdkmessage = "modifiedby_sdkmessage";
-            [Relationship(SdkmessagefilterDefinition.EntityName, EntityRole.Referenced, "modifiedby_sdkmessagefilter", "modifiedby")]
+            [Relationship(SdkMessageFilterDefinition.EntityName, EntityRole.Referenced, "modifiedby_sdkmessagefilter", "modifiedby")]
             public const string modifiedby_sdkmessagefilter = "modifiedby_sdkmessagefilter";
             [Relationship("sdkmessagepair", EntityRole.Referenced, "modifiedby_sdkmessagepair", "modifiedby")]
             public const string modifiedby_sdkmessagepair = "modifiedby_sdkmessagepair";
@@ -6878,11 +6878,11 @@ namespace XrmFramework.Definitions
             public const string user_convertrule = "user_convertrule";
             [Relationship("cr9a1_test", EntityRole.Referenced, "user_cr9a1_test", "owninguser")]
             public const string user_cr9a1_test = "user_cr9a1_test";
-            [Relationship(CustomapiDefinition.EntityName, EntityRole.Referenced, "user_customapi", "owninguser")]
+            [Relationship(CustomApiDefinition.EntityName, EntityRole.Referenced, "user_customapi", "owninguser")]
             public const string user_customapi = "user_customapi";
-            [Relationship(CustomapirequestparameterDefinition.EntityName, EntityRole.Referenced, "user_customapirequestparameter", "owninguser")]
+            [Relationship(CustomApiRequestParameterDefinition.EntityName, EntityRole.Referenced, "user_customapirequestparameter", "owninguser")]
             public const string user_customapirequestparameter = "user_customapirequestparameter";
-            [Relationship(CustomapiresponsepropertyDefinition.EntityName, EntityRole.Referenced, "user_customapiresponseproperty", "owninguser")]
+            [Relationship(CustomApiResponsePropertyDefinition.EntityName, EntityRole.Referenced, "user_customapiresponseproperty", "owninguser")]
             public const string user_customapiresponseproperty = "user_customapiresponseproperty";
             [Relationship("customeropportunityrole", EntityRole.Referenced, "user_customer_opportunity_roles", "owninguser")]
             public const string user_customer_opportunity_roles = "user_customer_opportunity_roles";
@@ -7632,9 +7632,9 @@ namespace XrmFramework.Definitions
             public const string userentityinstancedata_systemuser = "userentityinstancedata_systemuser";
             [Relationship("userentityuisettings", EntityRole.Referenced, "userentityuisettings_owning_user", "owninguser")]
             public const string userentityuisettings_owning_user = "userentityuisettings_owning_user";
-            [Relationship(WebresourceDefinition.EntityName, EntityRole.Referenced, "webresource_createdby", "createdby")]
+            [Relationship(WebResourceDefinition.EntityName, EntityRole.Referenced, "webresource_createdby", "createdby")]
             public const string webresource_createdby = "webresource_createdby";
-            [Relationship(WebresourceDefinition.EntityName, EntityRole.Referenced, "webresource_modifiedby", "modifiedby")]
+            [Relationship(WebResourceDefinition.EntityName, EntityRole.Referenced, "webresource_modifiedby", "modifiedby")]
             public const string webresource_modifiedby = "webresource_modifiedby";
             [Relationship("workflow", EntityRole.Referenced, "workflow_createdby", "createdby")]
             public const string workflow_createdby = "workflow_createdby";

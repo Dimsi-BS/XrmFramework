@@ -534,8 +534,8 @@ namespace XrmFramework
 
         public EntityReference GetDefaultCurrencyRef()
         {
-            var query = new QueryExpression("transactioncurrency");
-            query.Criteria.AddCondition("isocurrencycode", ConditionOperator.Equal, "EUR");
+            var query = new QueryExpression(TransactionCurrencyDefinition.EntityName);
+            query.Criteria.AddCondition(TransactionCurrencyDefinition.Columns.ISOCurrencyCode, ConditionOperator.Equal, "EUR");
 
             return AdminOrganizationService.RetrieveAll(query).Select(e => e.ToEntityReference()).FirstOrDefault();
         }

@@ -29,6 +29,7 @@ using Table = XrmFramework.Core.Table;
 using LocalizedLabel = XrmFramework.Core.LocalizedLabel;
 using System.Diagnostics;
 using XrmFramework.DefinitionManager;
+using XrmFramework.Definitions;
 
 namespace DefinitionManager
 {
@@ -73,17 +74,17 @@ namespace DefinitionManager
 
             var solutionName = ConfigHelper.GetEntitiesSolutionUniqueName();
 
-            var query = new QueryExpression(Solution.EntityLogicalName);
+            var query = new QueryExpression(SolutionDefinition.EntityName);
             query.ColumnSet.AllColumns = true;
-            var linkPublisher = query.AddLink(Deploy.Publisher.EntityLogicalName, "publisherid", "publisherid");
-            linkPublisher.EntityAlias = "publisher";
-            linkPublisher.Columns.AddColumn("customizationprefix");
+            var linkPublisher = query.AddLink(Deploy.Publisher.EntityLogicalName, PublisherDefinition.Columns.Id, PublisherDefinition.Columns.Id);
+            linkPublisher.EntityAlias = PublisherDefinition.EntityName;
+            linkPublisher.Columns.AddColumn(PublisherDefinition.Columns.CustomizationPrefix);
 
             var solutions = _service.RetrieveMultiple(query).Entities.Select(s => s.ToEntity<Solution>());
 
-            PublisherPrefixes.AddRange(solutions.Select(s => s.GetAttributeValue<AliasedValue>("publisher.customizationprefix").Value as string).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct());
+            PublisherPrefixes.AddRange(solutions.Select(s => s.GetAttributeValue<AliasedValue>($"{PublisherDefinition.EntityName}.{PublisherDefinition.Columns.CustomizationPrefix}").Value as string).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct());
 
-            _solution = solutions.FirstOrDefault(s => string.Compare(s.GetAttributeValue<string>("uniquename"), solutionName, true) == 0);
+            _solution = solutions.FirstOrDefault(s => string.Compare(s.GetAttributeValue<string>(SolutionDefinition.Columns.UniqueName), solutionName, true) == 0);
             return _service;
         }
 
@@ -108,10 +109,10 @@ namespace DefinitionManager
 
             SendStepChange($"Metadata retrieved in {sw.Elapsed}");
 
-            var queryPublishers = new QueryExpression(Deploy.Publisher.EntityLogicalName);
-            queryPublishers.ColumnSet.AddColumn("customizationprefix");
+            var queryPublishers = new QueryExpression(PublisherDefinition.EntityName);
+            queryPublishers.ColumnSet.AddColumn(PublisherDefinition.Columns.CustomizationPrefix);
 
-            var publisherPrefixes = _service.RetrieveMultiple(queryPublishers).Entities.Select(e => e.GetAttributeValue<string>("customizationprefix")).ToList();
+            var publisherPrefixes = _service.RetrieveMultiple(queryPublishers).Entities.Select(e => e.GetAttributeValue<string>(PublisherDefinition.Columns.CustomizationPrefix)).ToList();
 
             foreach (var entity in entitiesMetadata)
             {                

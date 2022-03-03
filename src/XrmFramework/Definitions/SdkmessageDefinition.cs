@@ -9,7 +9,7 @@ namespace XrmFramework.Definitions
     [EntityDefinition]
     [ExcludeFromCodeCoverage]
     [DefinitionManagerIgnore]
-    public static class SdkmessageDefinition
+    public static class SdkMessageDefinition
     {
         public const string EntityName = "sdkmessage";
         public const string EntityCollectionName = "sdkmessages";
@@ -58,11 +58,11 @@ namespace XrmFramework.Definitions
         {
             [Relationship("sdkmessagepair", EntityRole.Referenced, "message_sdkmessagepair", "sdkmessageid")]
             public const string message_sdkmessagepair = "message_sdkmessagepair";
-            [Relationship(CustomapiDefinition.EntityName, EntityRole.Referenced, "CustomAPIId", CustomapiDefinition.Columns.SdkMessageId)]
+            [Relationship(CustomApiDefinition.EntityName, EntityRole.Referenced, "CustomAPIId", CustomApiDefinition.Columns.SdkMessageId)]
             public const string sdkmessage_customapi = "sdkmessage_customapi";
             [Relationship("serviceplanmapping", EntityRole.Referenced, "sdkmessage_serviceplanmapping", "sdkmessage")]
             public const string sdkmessage_serviceplanmapping = "sdkmessage_serviceplanmapping";
-            [Relationship(SdkmessagefilterDefinition.EntityName, EntityRole.Referenced, "sdkmessageid_sdkmessagefilter", SdkmessagefilterDefinition.Columns.SdkMessageId)]
+            [Relationship(SdkMessageFilterDefinition.EntityName, EntityRole.Referenced, "sdkmessageid_sdkmessagefilter", SdkMessageFilterDefinition.Columns.SdkMessageId)]
             public const string sdkmessageid_sdkmessagefilter = "sdkmessageid_sdkmessagefilter";
             [Relationship(SdkMessageProcessingStepDefinition.EntityName, EntityRole.Referenced, "sdkmessageid_sdkmessageprocessingstep", SdkMessageProcessingStepDefinition.Columns.SdkMessageId)]
             public const string sdkmessageid_sdkmessageprocessingstep = "sdkmessageid_sdkmessageprocessingstep";

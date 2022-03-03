@@ -9,7 +9,7 @@ namespace XrmFramework.Definitions
     [GeneratedCode("XrmFramework", "2.0")]
     [EntityDefinition]
     [ExcludeFromCodeCoverage]
-    public static class CustomapirequestparameterDefinition
+    public static class CustomApiRequestParameterDefinition
     {
         public const string EntityName = "customapirequestparameter";
         public const string EntityCollectionName = "customapirequestparameters";
@@ -34,7 +34,7 @@ namespace XrmFramework.Definitions
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Lookup)]
             [AlternateKey(AlternateKeyNames.CustomAPIRequestParameterExportKey)]
-            [CrmLookup(CustomapiDefinition.EntityName, CustomapiDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.customapi_customapirequestparameter)]
+            [CrmLookup(CustomApiDefinition.EntityName, CustomApiDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.customapi_customapirequestparameter)]
             public const string CustomAPIId = "customapiid";
 
             /// <summary>
@@ -122,7 +122,7 @@ namespace XrmFramework.Definitions
         {
             [Relationship("businessunit", EntityRole.Referencing, "owningbusinessunit", "owningbusinessunit")]
             public const string business_unit_customapirequestparameter = "business_unit_customapirequestparameter";
-            [Relationship(CustomapiDefinition.EntityName, EntityRole.Referencing, "CustomAPIId", CustomapirequestparameterDefinition.Columns.CustomAPIId)]
+            [Relationship(CustomApiDefinition.EntityName, EntityRole.Referencing, "CustomAPIId", CustomApiRequestParameterDefinition.Columns.CustomAPIId)]
             public const string customapi_customapirequestparameter = "customapi_customapirequestparameter";
             [Relationship(SystemUserDefinition.EntityName, EntityRole.Referencing, "createdby", "createdby")]
             public const string lk_customapirequestparameter_createdby = "lk_customapirequestparameter_createdby";

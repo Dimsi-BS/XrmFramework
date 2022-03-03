@@ -15,6 +15,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
+using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
@@ -65,11 +66,19 @@ namespace XrmFramework.DeployUtils
 
             var pluginList = new List<Plugin>();
 
-            var pluginTypes = pluginAssembly.GetTypes().Where(t => pluginType.IsAssignableFrom(t) && !customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
+            var pluginTypes = pluginAssembly.GetTypes()
+                                            .Where(t => pluginType.IsAssignableFrom(t)
+                                                        && !customApiType.IsAssignableFrom(t)
+                                                        && t.IsPublic && !t.IsAbstract)
+                                            .ToList();
 
-            var workflowTypes = pluginAssembly.GetTypes().Where(t => workflowType.IsAssignableFrom(t) && !t.IsAbstract && t.IsPublic).ToList();
+            var workflowTypes = pluginAssembly.GetTypes()
+                                              .Where(t => workflowType.IsAssignableFrom(t) && !t.IsAbstract && t.IsPublic)
+                                              .ToList();
             
-            var customApiTypes = pluginAssembly.GetTypes().Where(t => customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
+            var customApiTypes = pluginAssembly.GetTypes()
+                                               .Where(t => customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract)
+                                               .ToList();
             
             foreach (var type in pluginTypes)
             {
@@ -142,10 +151,10 @@ namespace XrmFramework.DeployUtils
             {
                 Console.WriteLine("Updating plugin assembly");
 
-                var updatedAssembly = new Entity("pluginassembly")
+                var updatedAssembly = new Entity(PluginAssemblyDefinition.EntityName)
                 {
                     Id = assembly.Id, 
-                    ["content"] = Convert.ToBase64String(File.ReadAllBytes(assemblyPath))
+                    [PluginAssemblyDefinition.Columns.Content] = Convert.ToBase64String(File.ReadAllBytes(assemblyPath))
                 };
 
                 registeredPluginTypes = GetRegisteredPluginTypes(service, assembly.Id).ToList();
@@ -162,12 +171,14 @@ namespace XrmFramework.DeployUtils
                 
                 foreach (var registeredType in registeredPluginTypes)
                 {
-                    if (pluginList.All(p => p.FullName != registeredType.Name) && pluginList.Where(p => p.IsWorkflow).All(c => c.FullName != registeredType.TypeName) && customApis.All(c => c.FullName !=  registeredType.TypeName))
+                    if (pluginList.All(p => p.FullName != registeredType.Name)
+                                         && pluginList.Where(p => p.IsWorkflow).All(c => c.FullName != registeredType.TypeName)
+                                         && customApis.All(c => c.FullName !=  registeredType.TypeName))
                     {
                         var registeredStepsForPluginType = registeredSteps.Where(s => s.EventHandler.Id == registeredType.Id).ToList();
                         foreach (var step in registeredStepsForPluginType)
                         {
-                            service.Delete(SdkMessageProcessingStep.EntityLogicalName, step.Id);
+                            service.Delete(SdkMessageProcessingStepDefinition.EntityName, step.Id);
                             registeredSteps.Remove(step);
                         }
 
@@ -176,7 +187,7 @@ namespace XrmFramework.DeployUtils
                             service.Delete(customApi.LogicalName, customApi.Id);
                         }
 
-                        service.Delete(PluginType.EntityLogicalName, registeredType.Id);
+                        service.Delete(PluginTypeDefinition.EntityName, registeredType.Id);
                     }
                 }
 
@@ -242,9 +253,12 @@ namespace XrmFramework.DeployUtils
 
                     AddSolutionComponentToSolution(service, pluginSolutionUniqueName, stepToRegister.ToEntityReference());
 
-                    if (convertedStep.Message != Messages.Associate.ToString() && convertedStep.Message != Messages.Lose.ToString() && convertedStep.Message != Messages.Win.ToString())
+                    if (convertedStep.Message != Messages.Associate.ToString()
+                        && convertedStep.Message != Messages.Lose.ToString()
+                        && convertedStep.Message != Messages.Win.ToString())
                     {
-                        var registeredPostImage = registeredImages.FirstOrDefault(i => i.Name == "PostImage" && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);
+                        var registeredPostImage = registeredImages.FirstOrDefault(i => i.Name == "PostImage"
+                                                                                    && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);
 
                         if (convertedStep.PostImageUsed && convertedStep.Message != Messages.Delete.ToString())
                         {
@@ -265,7 +279,8 @@ namespace XrmFramework.DeployUtils
                             service.Delete(registeredPostImage.LogicalName, registeredPostImage.Id);
                         }
 
-                        var registeredPreImage = registeredImages.FirstOrDefault(i => i.Name == "PreImage" && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);
+                        var registeredPreImage = registeredImages.FirstOrDefault(i => i.Name == "PreImage"
+                                                                                   && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);
 
                         if (convertedStep.PreImageUsed)
                         {
@@ -312,9 +327,9 @@ namespace XrmFramework.DeployUtils
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Apis");
             
-            var customApiEntityTypeCode = GetEntityTypeCode("customapi", service);
-            var customApiParameterEntityTypeCode = GetEntityTypeCode("customapirequestparameter", service);
-            var customApiResponseEntityTypeCode = GetEntityTypeCode("customapiresponseproperty", service);
+            var customApiEntityTypeCode = GetEntityTypeCode(CustomApiDefinition.EntityName, service);
+            var customApiParameterEntityTypeCode = GetEntityTypeCode(CustomApiRequestParameterDefinition.EntityName, service);
+            var customApiResponseEntityTypeCode = GetEntityTypeCode(CustomApiResponsePropertyDefinition.EntityName, service);
 
             foreach (var customApi in customApis)
             {
@@ -328,7 +343,7 @@ namespace XrmFramework.DeployUtils
                     registeredPluginType.Id = service.Create(registeredPluginType);
                 }
 
-                customApi.PluginTypeId = new EntityReference(PluginType.EntityLogicalName, registeredPluginType.Id);
+                customApi.PluginTypeId = new EntityReference(PluginTypeDefinition.EntityName, registeredPluginType.Id);
 
                 var existingCustomApi = registeredCustomApis.FirstOrDefault(c => c.UniqueName == customApi.UniqueName);
 
@@ -346,9 +361,10 @@ namespace XrmFramework.DeployUtils
 
                 foreach (var customApiRequestParameter in customApi.InArguments)
                 {
-                    var existingRequestParameter = registeredCustomApiRequestParameters.FirstOrDefault(p => p.UniqueName == customApiRequestParameter.UniqueName && p.CustomApiId.Id == existingCustomApi.Id);
+                    var existingRequestParameter = registeredCustomApiRequestParameters.FirstOrDefault(p => p.UniqueName == customApiRequestParameter.UniqueName
+                                                                                                         && p.CustomApiId.Id == existingCustomApi.Id);
 
-                    customApiRequestParameter.CustomApiId = new EntityReference(CustomApi.EntityLogicalName, existingCustomApi.Id);
+                    customApiRequestParameter.CustomApiId = new EntityReference(CustomApiDefinition.EntityName, existingCustomApi.Id);
 
                     if (existingRequestParameter == null)
                     {
@@ -367,9 +383,10 @@ namespace XrmFramework.DeployUtils
 
                 foreach (var customApiResponseProperty in customApi.OutArguments)
                 {
-                    var existingResponseProperty = registeredCustomApiResponseProperties.FirstOrDefault(p => p.UniqueName == customApiResponseProperty.UniqueName && p.CustomApiId.Id == existingCustomApi.Id);
+                    var existingResponseProperty = registeredCustomApiResponseProperties.FirstOrDefault(p => p.UniqueName == customApiResponseProperty.UniqueName
+                                                                                                          && p.CustomApiId.Id == existingCustomApi.Id);
 
-                    customApiResponseProperty.CustomApiId = new EntityReference(CustomApi.EntityLogicalName, existingCustomApi.Id);
+                    customApiResponseProperty.CustomApiId = new EntityReference(CustomApiDefinition.EntityName, existingCustomApi.Id);
 
                     if (existingResponseProperty == null)
                     {
@@ -397,12 +414,12 @@ namespace XrmFramework.DeployUtils
 
                 foreach (var parameterToRemove in registeredCustomApiRequestParameters)
                 {
-                    service.Delete(CustomApiRequestParameter.EntityLogicalName, parameterToRemove.Id);
+                    service.Delete(CustomApiRequestParameterDefinition.EntityName, parameterToRemove.Id);
                 }
 
                 foreach (var responseToRemove in registeredCustomApiResponseProperties)
                 {
-                    service.Delete(CustomApiResponseProperty.EntityLogicalName, responseToRemove.Id);
+                    service.Delete(CustomApiResponsePropertyDefinition.EntityName, responseToRemove.Id);
                 }
             }
 
@@ -410,7 +427,7 @@ namespace XrmFramework.DeployUtils
 
             foreach (var step in registeredSteps)
             {
-                service.Delete(SdkMessageProcessingStep.EntityLogicalName, step.Id);
+                service.Delete(SdkMessageProcessingStepDefinition.EntityName, step.Id);
             }
         }
 
@@ -434,9 +451,9 @@ namespace XrmFramework.DeployUtils
         {
             var list = new List<PluginType>();
 
-            var query = new QueryExpression(PluginType.EntityLogicalName);
+            var query = new QueryExpression(PluginTypeDefinition.EntityName);
             query.ColumnSet.AllColumns = true;
-            query.Criteria.AddCondition("pluginassemblyid", ConditionOperator.Equal, pluginAssemblyId);
+            query.Criteria.AddCondition(PluginTypeDefinition.Columns.PluginAssemblyId, ConditionOperator.Equal, pluginAssemblyId);
 
             var result = RetrieveAll(service, query);
             foreach (var type in result)
@@ -451,11 +468,13 @@ namespace XrmFramework.DeployUtils
         {
             var list = new List<CustomApi>();
 
-            var query = new QueryExpression(CustomApi.EntityLogicalName);
+            var query = new QueryExpression(CustomApiDefinition.EntityName);
             query.ColumnSet.AllColumns = true;
-            query.Criteria.AddCondition("ismanaged", ConditionOperator.Equal, false); 
-            var linkPluginType = query.AddLink(PluginType.EntityLogicalName, "plugintypeid", "plugintypeid");
-            linkPluginType.LinkCriteria.AddCondition("pluginassemblyid", ConditionOperator.Equal, assemblyId);
+            query.Criteria.AddCondition(CustomApiDefinition.Columns.IsManaged, ConditionOperator.Equal, false); 
+            var linkPluginType = query.AddLink(PluginTypeDefinition.EntityName,
+                                               CustomApiDefinition.Columns.PluginTypeId,
+                                               PluginTypeDefinition.Columns.Id);
+            linkPluginType.LinkCriteria.AddCondition(PluginTypeDefinition.Columns.Id, ConditionOperator.Equal, assemblyId);
 
             var result = RetrieveAll(service, query);
             foreach (var type in result)
@@ -470,13 +489,17 @@ namespace XrmFramework.DeployUtils
         {
             var list = new List<CustomApiRequestParameter>();
 
-            var query = new QueryExpression(CustomApiRequestParameter.EntityLogicalName);
+            var query = new QueryExpression(CustomApiRequestParameterDefinition.EntityName);
             query.ColumnSet.AllColumns = true;
-            query.Criteria.AddCondition("ismanaged", ConditionOperator.Equal, false);
+            query.Criteria.AddCondition(CustomApiRequestParameterDefinition.Columns.IsManaged, ConditionOperator.Equal, false);
 
-            var linkCustomApi = query.AddLink(CustomApi.EntityLogicalName, "customapiid", "customapiid");
-            var linkPluginType = linkCustomApi.AddLink(PluginType.EntityLogicalName, "plugintypeid", "plugintypeid");
-            linkPluginType.LinkCriteria.AddCondition("pluginassemblyid", ConditionOperator.Equal, assemblyId);
+            var linkCustomApi = query.AddLink(CustomApiDefinition.EntityName,
+                                              CustomApiRequestParameterDefinition.Columns.CustomAPIId,
+                                              CustomApiDefinition.Columns.Id);
+            var linkPluginType = linkCustomApi.AddLink(PluginTypeDefinition.EntityName,
+                                                       CustomApiDefinition.Columns.PluginTypeId,
+                                                       PluginTypeDefinition.Columns.Id);
+            linkPluginType.LinkCriteria.AddCondition(PluginTypeDefinition.Columns.PluginAssemblyId, ConditionOperator.Equal, assemblyId);
 
             var result = RetrieveAll(service, query);
             foreach (var type in result)
@@ -491,13 +514,17 @@ namespace XrmFramework.DeployUtils
         {
             var list = new List<CustomApiResponseProperty>();
 
-            var query = new QueryExpression(CustomApiResponseProperty.EntityLogicalName);
+            var query = new QueryExpression(CustomApiResponsePropertyDefinition.EntityName);
             query.ColumnSet.AllColumns = true;
-            query.Criteria.AddCondition("ismanaged", ConditionOperator.Equal, false);
+            query.Criteria.AddCondition(CustomApiResponsePropertyDefinition.Columns.IsManaged, ConditionOperator.Equal, false);
 
-            var linkCustomApi = query.AddLink(CustomApi.EntityLogicalName, "customapiid", "customapiid");
-            var linkPluginType = linkCustomApi.AddLink(PluginType.EntityLogicalName, "plugintypeid", "plugintypeid");
-            linkPluginType.LinkCriteria.AddCondition("pluginassemblyid", ConditionOperator.Equal, assemblyId);
+            var linkCustomApi = query.AddLink(CustomApiDefinition.EntityName,
+                                              CustomApiResponsePropertyDefinition.Columns.CustomAPIId,
+                                              CustomApiDefinition.Columns.Id);
+            var linkPluginType = linkCustomApi.AddLink(PluginTypeDefinition.EntityName,
+                                                       CustomApiDefinition.Columns.PluginTypeId,
+                                                       PluginTypeDefinition.Columns.Id);
+            linkPluginType.LinkCriteria.AddCondition(PluginTypeDefinition.Columns.PluginAssemblyId, ConditionOperator.Equal, assemblyId);
 
             var result = RetrieveAll(service, query);
             foreach (var type in result)
@@ -512,12 +539,14 @@ namespace XrmFramework.DeployUtils
         {
             var list = new List<SdkMessageProcessingStep>();
 
-            var query = new QueryExpression(SdkMessageProcessingStep.EntityLogicalName);
+            var query = new QueryExpression(SdkMessageProcessingStepDefinition.EntityName);
             query.ColumnSet.AllColumns = true;
-            query.Criteria.AddCondition("stage", ConditionOperator.NotEqual, 30);
+            query.Criteria.AddCondition(SdkMessageProcessingStepDefinition.Columns.Stage, ConditionOperator.NotEqual, 30);
 
-            var linkPluginType = query.AddLink(PluginType.EntityLogicalName, "eventhandler", "plugintypeid");
-            linkPluginType.LinkCriteria.AddCondition("pluginassemblyid", ConditionOperator.Equal, assemblyId);
+            var linkPluginType = query.AddLink(PluginTypeDefinition.EntityName,
+                                               SdkMessageProcessingStepDefinition.Columns.EventHandler,
+                                               PluginTypeDefinition.Columns.Id);
+            linkPluginType.LinkCriteria.AddCondition(PluginTypeDefinition.Columns.PluginAssemblyId, ConditionOperator.Equal, assemblyId);
 
             var result = RetrieveAll(service, query);
             foreach (var type in result)
@@ -532,11 +561,15 @@ namespace XrmFramework.DeployUtils
         {
             var list = new List<SdkMessageProcessingStepImage>();
 
-            var query = new QueryExpression(SdkMessageProcessingStepImage.EntityLogicalName);
+            var query = new QueryExpression(SdkMessageProcessingStepImageDefinition.EntityName);
             query.ColumnSet.AllColumns = true;
-            var stepLink = query.AddLink(SdkMessageProcessingStep.EntityLogicalName, "sdkmessageprocessingstepid", "sdkmessageprocessingstepid");
-            var linkPluginType = stepLink.AddLink(PluginType.EntityLogicalName, "eventhandler", "plugintypeid");
-            linkPluginType.LinkCriteria.AddCondition("pluginassemblyid", ConditionOperator.Equal, assemblyId);
+            var stepLink = query.AddLink(SdkMessageProcessingStepDefinition.EntityName,
+                                         SdkMessageProcessingStepImageDefinition.Columns.SdkMessageProcessingStepId,
+                                         SdkMessageProcessingStepDefinition.Columns.Id);
+            var linkPluginType = stepLink.AddLink(PluginTypeDefinition.EntityName,
+                                                  SdkMessageProcessingStepDefinition.Columns.EventHandler,
+                                                  PluginTypeDefinition.Columns.Id);
+            linkPluginType.LinkCriteria.AddCondition(PluginTypeDefinition.Columns.PluginAssemblyId, ConditionOperator.Equal, assemblyId);
 
             var result = RetrieveAll(service, query);
             foreach (var type in result)
@@ -551,15 +584,15 @@ namespace XrmFramework.DeployUtils
         {
             if (_list.Count == 0)
             {
-                var query = new QueryExpression(PluginAssembly.EntityLogicalName);
-                query.ColumnSet.AddColumns("pluginassemblyid", "name");
+                var query = new QueryExpression(PluginAssemblyDefinition.EntityName);
+                query.ColumnSet.AddColumns(PluginAssemblyDefinition.Columns.Id, PluginAssemblyDefinition.Columns.Name);
                 query.Distinct = true;
                 query.Criteria.FilterOperator = LogicalOperator.And;
-                query.Criteria.AddCondition("name", ConditionOperator.NotLike, "CompiledWorkflow%");
+                query.Criteria.AddCondition(PluginAssemblyDefinition.Columns.Name, ConditionOperator.NotLike, "CompiledWorkflow%");
                 var filter = query.Criteria.AddFilter(LogicalOperator.Or);
-                filter.AddCondition("customizationlevel", ConditionOperator.Null);
-                filter.AddCondition("customizationlevel", ConditionOperator.NotEqual, 0);
-                filter.AddCondition("name", ConditionOperator.In, "Microsoft.Crm.ObjectModel", "Microsoft.Crm.ServiceBus");
+                filter.AddCondition(PluginAssemblyDefinition.Columns.CustomizationLevel, ConditionOperator.Null);
+                filter.AddCondition(PluginAssemblyDefinition.Columns.CustomizationLevel, ConditionOperator.NotEqual, 0);
+                filter.AddCondition(PluginAssemblyDefinition.Columns.Name, ConditionOperator.In, "Microsoft.Crm.ObjectModel", "Microsoft.Crm.ServiceBus");
 
                 var result = RetrieveAll(service, query);
                 foreach (var assembly in result)
@@ -609,7 +642,7 @@ namespace XrmFramework.DeployUtils
             {
                 PluginAssemblyId = new EntityReference()
                 {
-                    LogicalName = PluginAssembly.EntityLogicalName,
+                    LogicalName = PluginAssemblyDefinition.EntityName,
                     Id = pluginAssemblyId
                 },
                 TypeName = pluginFullName,
@@ -628,7 +661,7 @@ namespace XrmFramework.DeployUtils
             {
                 PluginAssemblyId = new EntityReference()
                 {
-                    LogicalName = PluginAssembly.EntityLogicalName,
+                    LogicalName = PluginAssemblyDefinition.EntityName,
                     Id = pluginAssemblyId
                 },
                 TypeName = pluginFullName,
@@ -665,9 +698,9 @@ namespace XrmFramework.DeployUtils
             {
                 AsyncAutoDelete = step.Mode == Model.Modes.Asynchronous,
                 Description = description,
-                EventHandler = new EntityReference(PluginType.EntityLogicalName, pluginTypeId),
+                EventHandler = new EntityReference(PluginTypeDefinition.EntityName, pluginTypeId),
                 FilteringAttributes = step.FilteringAttributes.Any() ? string.Join(",", step.FilteringAttributes) : null,
-                ImpersonatingUserId = string.IsNullOrEmpty(step.ImpersonationUsername) ? null : new EntityReference("systemuser", _users.First(u => u.Key == step.ImpersonationUsername).Value),
+                ImpersonatingUserId = string.IsNullOrEmpty(step.ImpersonationUsername) ? null : new EntityReference(SystemUserDefinition.EntityName, _users.First(u => u.Key == step.ImpersonationUsername).Value),
 #pragma warning disable 0612
                 InvocationSource = new OptionSetValue((int)sdkmessageprocessingstep_invocationsource.Child),
 #pragma warning restore 0612
@@ -676,7 +709,7 @@ namespace XrmFramework.DeployUtils
                 Mode = new OptionSetValue((int)step.Mode),
                 Name = description,
 #pragma warning disable 0612
-                PluginTypeId = new EntityReference(PluginType.EntityLogicalName, pluginTypeId),
+                PluginTypeId = new EntityReference(PluginTypeDefinition.EntityName, pluginTypeId),
 #pragma warning restore 0612
                 Rank = step.Order,
                 SdkMessageId = _messages[step.Message], //GetSdkMessageRef(service, step.Message),
@@ -714,11 +747,12 @@ namespace XrmFramework.DeployUtils
             {
                 Attributes1 = isAllColumns ? null : columns,
                 EntityAlias = name,
-                ImageType = new OptionSetValue(isPreImage ? (int)sdkmessageprocessingstepimage_imagetype.PreImage : (int)sdkmessageprocessingstepimage_imagetype.PostImage),
+                ImageType = new OptionSetValue(isPreImage ? (int)sdkmessageprocessingstepimage_imagetype.PreImage
+                                                          : (int)sdkmessageprocessingstepimage_imagetype.PostImage),
                 IsCustomizable = new BooleanManagedProperty(true),
                 MessagePropertyName = messagePropertyName,
                 Name = name,
-                SdkMessageProcessingStepId = new EntityReference(SdkMessageProcessingStep.EntityLogicalName, stepId)
+                SdkMessageProcessingStepId = new EntityReference(SdkMessageProcessingStepDefinition.EntityName, stepId)
             };
 
             return t;
@@ -743,16 +777,16 @@ namespace XrmFramework.DeployUtils
                 {
                     switch (objectRef.LogicalName)
                     {
-                        case PluginAssembly.EntityLogicalName:
+                        case PluginAssemblyDefinition.EntityName:
                             s.ComponentType = (int) componenttype.PluginAssembly;
                             break;
-                        case PluginType.EntityLogicalName:
+                        case PluginTypeDefinition.EntityName:
                             s.ComponentType = (int) componenttype.PluginType;
                             break;
-                        case SdkMessageProcessingStep.EntityLogicalName:
+                        case SdkMessageProcessingStepDefinition.EntityName:
                             s.ComponentType = (int) componenttype.SDKMessageProcessingStep;
                             break;
-                        case SdkMessageProcessingStepImage.EntityLogicalName:
+                        case SdkMessageProcessingStepImageDefinition.EntityName:
                             s.ComponentType = (int) componenttype.SDKMessageProcessingStepImage;
                             break;
                     }
@@ -773,10 +807,12 @@ namespace XrmFramework.DeployUtils
 
             var sw = Stopwatch.StartNew();
 
-            var query = new QueryExpression(SdkMessageFilter.EntityLogicalName);
-            query.ColumnSet.AddColumns("sdkmessagefilterid", "sdkmessageid", "primaryobjecttypecode");
-            query.Criteria.AddCondition("iscustomprocessingstepallowed", ConditionOperator.Equal, true);
-            query.Criteria.AddCondition("isvisible", ConditionOperator.Equal, true);
+            var query = new QueryExpression(SdkMessageFilterDefinition.EntityName);
+            query.ColumnSet.AddColumns(SdkMessageFilterDefinition.Columns.Id,
+                                       SdkMessageFilterDefinition.Columns.SdkMessageId,
+                                       SdkMessageFilterDefinition.Columns.PrimaryObjectTypeCode);
+            query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsCustomProcessingStepAllowed, ConditionOperator.Equal, true);
+            query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsVisible, ConditionOperator.Equal, true);
 
             var filters = RetrieveAll(service, query);
 
@@ -786,8 +822,8 @@ namespace XrmFramework.DeployUtils
             _filters.AddRange(filters.Select(f => f.ToEntity<SdkMessageFilter>()));
 
             sw.Restart();
-            query = new QueryExpression(SdkMessage.EntityLogicalName);
-            query.ColumnSet.AddColumns("sdkmessageid", "name");
+            query = new QueryExpression(SdkMessageDefinition.EntityName);
+            query.ColumnSet.AddColumns(SdkMessageDefinition.Columns.Id, SdkMessageDefinition.Columns.Name);
 
             var messages = RetrieveAll(service, query).Select(e => e.ToEntity<SdkMessage>());
 
@@ -801,9 +837,9 @@ namespace XrmFramework.DeployUtils
 
             sw.Restart();
 
-            query = new QueryExpression(Solution.EntityLogicalName);
+            query = new QueryExpression(SolutionDefinition.EntityName);
             query.ColumnSet.AllColumns = true;
-            query.Criteria.AddCondition("uniquename", ConditionOperator.Equal, solutionName);
+            query.Criteria.AddCondition(SolutionDefinition.Columns.UniqueName, ConditionOperator.Equal, solutionName);
 
             _solution = RetrieveAll(service, query).Select(s => s.ToEntity<Solution>()).FirstOrDefault();
 
@@ -816,33 +852,33 @@ namespace XrmFramework.DeployUtils
                 Console.ReadKey();
                 System.Environment.Exit(1);
             }
-            else if (_solution.GetAttributeValue<bool>("ismanaged"))
+            else if (_solution.GetAttributeValue<bool>(SolutionDefinition.Columns.IsManaged))
             {
                 Console.WriteLine("The solution {0} is managed in the CRM, modify App.config to point to a development environment.", solutionName);
                 System.Environment.Exit(1);
             }
             else
             {
-                _publisher = service.Retrieve(Publisher.EntityLogicalName, _solution.PublisherId.Id, new ColumnSet(true)).ToEntity<Publisher>();
+                _publisher = service.Retrieve(PublisherDefinition.EntityName, _solution.PublisherId.Id, new ColumnSet(true)).ToEntity<Publisher>();
 
 
-                query = new QueryExpression(SolutionComponent.EntityLogicalName);
+                query = new QueryExpression(SolutionComponentDefinition.EntityName);
                 query.ColumnSet.AllColumns = true;
-                query.Criteria.AddCondition("solutionid", ConditionOperator.Equal, _solution.Id);
+                query.Criteria.AddCondition(SolutionComponentDefinition.Columns.SolutionId, ConditionOperator.Equal, _solution.Id);
 
                 var components = RetrieveAll(service, query).Select(s => s.ToEntity<SolutionComponent>());
 
                 _components.AddRange(components);
             }
 
-            query = new QueryExpression("systemuser");
-            query.ColumnSet.AddColumn("domainname");
-            query.Criteria.AddCondition("accessmode", ConditionOperator.NotEqual, 3);
-            query.Criteria.AddCondition("isdisabled", ConditionOperator.Equal, false);
+            query = new QueryExpression(SystemUserDefinition.EntityName);
+            query.ColumnSet.AddColumn(SystemUserDefinition.Columns.DomainName);
+            query.Criteria.AddCondition(SystemUserDefinition.Columns.AccessMode, ConditionOperator.NotEqual, 3);
+            query.Criteria.AddCondition(SystemUserDefinition.Columns.IsDisabled, ConditionOperator.Equal, false);
 
             foreach (var user in RetrieveAll(service, query))
             {
-                _users.Add(new KeyValuePair<string, Guid>(user.GetAttributeValue<string>("domainname"), user.Id));
+                _users.Add(new KeyValuePair<string, Guid>(user.GetAttributeValue<string>(SystemUserDefinition.Columns.DomainName), user.Id));
             }
             //Console.WriteLine($"Retrieved {_users.Count} users in {sw.Elapsed}");
         }
