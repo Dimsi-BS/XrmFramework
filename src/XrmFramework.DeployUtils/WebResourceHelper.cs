@@ -38,41 +38,29 @@ namespace XrmFramework.DeployUtils
 
             service.OrganizationServiceProxy?.EnableProxyTypes();
 
-            var query = new QueryExpression(SolutionDefinition.EntityName);
-            query.ColumnSet.AddColumn(SolutionDefinition.Columns.UniqueName);
-            query.ColumnSet.AddColumn(SolutionDefinition.Columns.PublisherId);
-            query.ColumnSet.AddColumn(SolutionDefinition.Columns.IsManaged);
-            query.Criteria.AddCondition(SolutionDefinition.Columns.UniqueName, ConditionOperator.Equal, solutionName);
-            var result = service.RetrieveMultiple(query);
-
-            var solution = result.Entities.FirstOrDefault();
+            var solution = GetSolution(service, solutionName);
             if (solution == null)
             {
-                Console.WriteLine(@"Error : Solution not found : {0}", solutionName);
+                Console.WriteLine(@$"Error : Solution not found : {solutionName}");
                 return;
             }
 
             if (solution.GetAttributeValue<bool>(SolutionDefinition.Columns.IsManaged))
             {
-                Console.WriteLine(@"Error : Solution {0} is managed, no deployment possible.", solutionName);
+                Console.WriteLine(@$"Error : Solution {solutionName} is managed, no deployment possible.");
                 return;
             }
 
             var publisherId = solution.GetAttributeValue<EntityReference>(SolutionDefinition.Columns.PublisherId).Id;
 
-            query = new QueryExpression(PublisherDefinition.EntityName);
-            query.ColumnSet.AddColumn(PublisherDefinition.Columns.CustomizationPrefix);
-            query.Criteria.AddCondition(PublisherDefinition.Columns.Id, ConditionOperator.Equal, publisherId);
-            result = service.RetrieveMultiple(query);
-
-            var publisher = result.Entities.FirstOrDefault();
+            var publisher = GetPublisher(service, publisherId);
             if (publisher == null)
             {
-                Console.WriteLine(@"Error : Publisher not found : {0}", solutionName);
+                Console.WriteLine(@$"Error : Publisher not found : {solutionName}");
                 return;
             }
             var prefix = publisher.GetAttributeValue<string>(PublisherDefinition.Columns.CustomizationPrefix);
-            Console.WriteLine(" ==> Prefix : {0}", prefix);
+            Console.WriteLine($" ==> Prefix : {prefix}");
 
             DirectoryInfo root = new DirectoryInfo(webresourcesPath);
             var resourcesToPublish = string.Empty;
@@ -82,7 +70,7 @@ namespace XrmFramework.DeployUtils
                     .Select(file => new FileInfo(file))
                     .Where(fi => IsWebResource(fi.Extension))
                     .Select(fi => new WebResource(fi, root, prefix))
-                .ToList();
+                    .ToList();
 
             foreach (var fi in files)
             {
@@ -158,7 +146,9 @@ namespace XrmFramework.DeployUtils
         private static WebResource GetWebResource(string name, IOrganizationService service)
         {
             var query = new QueryExpression(WebResourceDefinition.EntityName);
-            query.ColumnSet.AddColumns(WebResourceDefinition.Columns.Content, WebResourceDefinition.Columns.DependencyXml, WebResourceDefinition.Columns.Name);
+            query.ColumnSet.AddColumns(WebResourceDefinition.Columns.Content,
+                                       WebResourceDefinition.Columns.DependencyXml,
+                                       WebResourceDefinition.Columns.Name);
             query.Criteria.AddCondition(WebResourceDefinition.Columns.Name, ConditionOperator.Equal, name);
             var result = service.RetrieveMultiple(query);
 
@@ -269,6 +259,38 @@ namespace XrmFramework.DeployUtils
                 default:
                     return false;
             }
+        }
+
+        /// <summary>
+        /// Gets the Solution
+        /// </summary>
+        /// <param name="service"></param>
+        /// <param name="solutionName"></param>
+        /// <returns></returns>
+        private static Entity GetSolution(CrmServiceClient service, string solutionName)
+        {
+            var query = new QueryExpression(SolutionDefinition.EntityName);
+            query.ColumnSet.AddColumns(SolutionDefinition.Columns.UniqueName,
+                                       SolutionDefinition.Columns.PublisherId,
+                                       SolutionDefinition.Columns.IsManaged);
+            query.Criteria.AddCondition(SolutionDefinition.Columns.UniqueName, ConditionOperator.Equal, solutionName);
+
+            return service.RetrieveMultiple(query).Entities.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Gets the Publisher
+        /// </summary>
+        /// <param name="service"></param>
+        /// <param name="publisherId"></param>
+        /// <returns></returns>
+        private static Entity GetPublisher(CrmServiceClient service, Guid publisherId)
+        {
+            var query = new QueryExpression(PublisherDefinition.EntityName);
+            query.ColumnSet.AddColumn(PublisherDefinition.Columns.CustomizationPrefix);
+            query.Criteria.AddCondition(PublisherDefinition.Columns.Id, ConditionOperator.Equal, publisherId);
+
+            return service.RetrieveMultiple(query).Entities.FirstOrDefault();
         }
     }
 }
