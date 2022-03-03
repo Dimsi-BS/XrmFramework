@@ -12,37 +12,28 @@ namespace XrmFramework.DeployUtils.Model
 {
     public class WebResource : IEquatable<WebResource>
     {
+
+        private readonly Regex ReferenceRegex = new Regex("///.*<reference.*path=\"(.*)\".*/>");
+
         public WebResource(FileInfo fi, DirectoryInfo root, string prefix)
         {
             FullName = GetRelativePath(fi.FullName, root.FullName, prefix);
+            Base64Content = Convert.ToBase64String(File.ReadAllBytes(fi.FullName));
 
             if (Extension.ToLowerInvariant() == ".js")
             {
                 var allLines = File.ReadAllLines(fi.FullName);
-
-                var regex = new Regex("///.*<reference.*path=\"(.*)\".*/>");
                 
-                var fullContent = allLines.Any() ? string.Join("\r\n", allLines) : null;
-
-                if (!string.IsNullOrWhiteSpace(fullContent))
-                {
-                    Base64Content = Convert.ToBase64String(Encoding.UTF8.GetBytes(fullContent));
-                }
-
                 foreach (var line in allLines)
                 {
-                    var match = regex.Match(line);
+                    var match = ReferenceRegex.Match(line);
 
-                    if (!match.Success) continue;
+                    if (!match.Success || fi.DirectoryName == null) continue;
 
                     var dependencyFullName = Path.Combine(fi.DirectoryName, match.Groups[1].Value);
 
                     Dependencies.Add(GetRelativePath(dependencyFullName, root.FullName, prefix));
                 }
-            }
-            else
-            {
-                Base64Content = Convert.ToBase64String(File.ReadAllBytes(fi.FullName));
             }
         }
 
