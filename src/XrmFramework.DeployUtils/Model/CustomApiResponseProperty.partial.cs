@@ -2,7 +2,7 @@
 
 namespace Deploy
 {
-    partial class CustomApiResponseProperty
+    partial class CustomApiResponseProperty : ICustomApiComponent
     {
         public static CustomApiResponseProperty FromXrmFrameworkArgument(string customApiName, dynamic argument)
         {
@@ -15,6 +15,11 @@ namespace Deploy
                 Type = new OptionSetValue((int)argument.ArgumentType),
                 UniqueName = argument.ArgumentName
             };
+        }
+
+        public Entity ToEntity()
+        {
+            return this;
         }
     }
 }

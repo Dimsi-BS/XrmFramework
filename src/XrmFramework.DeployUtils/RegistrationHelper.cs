@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
@@ -25,7 +26,7 @@ namespace XrmFramework.DeployUtils
     public static class RegistrationHelper
     {
         private static List<PluginAssembly> _list = new List<PluginAssembly>();
-        
+
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
             var xrmFrameworkConfigSection = ConfigHelper.GetSection();
@@ -64,66 +65,34 @@ namespace XrmFramework.DeployUtils
             var customApiType = pluginAssembly.GetType("XrmFramework.CustomApi");
             var workflowType = pluginAssembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");
 
-            var pluginList = new List<Plugin>();
 
             var pluginTypes = pluginAssembly.GetTypes()
                                             .Where(t => pluginType.IsAssignableFrom(t)
-                                                        && !customApiType.IsAssignableFrom(t)
-                                                        && t.IsPublic && !t.IsAbstract)
+                                                     && !customApiType.IsAssignableFrom(t)
+                                                     && t.IsPublic
+                                                     && !t.IsAbstract)
                                             .ToList();
 
             var workflowTypes = pluginAssembly.GetTypes()
-                                              .Where(t => workflowType.IsAssignableFrom(t) && !t.IsAbstract && t.IsPublic)
+                                              .Where(t => workflowType.IsAssignableFrom(t)
+                                                       && !t.IsAbstract
+                                                       && t.IsPublic)
                                               .ToList();
-            
+
             var customApiTypes = pluginAssembly.GetTypes()
-                                               .Where(t => customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract)
+                                               .Where(t => customApiType.IsAssignableFrom(t)
+                                                        && t.IsPublic
+                                                        && !t.IsAbstract)
                                                .ToList();
-            
-            foreach (var type in pluginTypes)
-            {
-                dynamic pluginTemp;
-                if (type.GetConstructor(new[] {typeof(string), typeof(string)}) != null)
-                {
-                    pluginTemp = Activator.CreateInstance(type, new object[] {null, null});
-                }
-                else
-                {
-                    pluginTemp = Activator.CreateInstance(type, new object[] { });
-                }
 
-                var plugin = Plugin.FromXrmFrameworkPlugin(pluginTemp, false);
+            var pluginList = CreateInstanceOfTypeList<Plugin>(pluginTypes, PluginRegistrationType.Plugin);
 
-                pluginList.Add(plugin);
-            }
+            var workflowList = CreateInstanceOfTypeList<Plugin>(workflowTypes, PluginRegistrationType.Workflow);
 
-            foreach (var type in workflowTypes)
-            {
-                dynamic pluginTemp = Activator.CreateInstance(type, new object[] { });
+            pluginList.AddRange(workflowList);
 
-                var plugin = Plugin.FromXrmFrameworkPlugin(pluginTemp, true);
+            var customApisList = CreateInstanceOfTypeList<CustomApi>(customApiTypes, PluginRegistrationType.CustomApi);
 
-                pluginList.Add(plugin);
-            }
-
-            var customApis = new List<CustomApi>();
-
-            foreach (var type in customApiTypes)
-            {
-                dynamic customApiTemp;
-                if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
-                {
-                    customApiTemp = Activator.CreateInstance(type, new object[] { null, null });
-                }
-                else
-                {
-                    customApiTemp = Activator.CreateInstance(type, new object[] { });
-                }
-
-                var customApi = CustomApi.FromXrmFrameworkCustomApi(customApiTemp, _publisher.CustomizationPrefix);
-
-                customApis.Add(customApi);
-            }
 
 
             var assembly = GetAssemblyByName(service, pluginAssembly.GetName().Name);
@@ -153,7 +122,7 @@ namespace XrmFramework.DeployUtils
 
                 var updatedAssembly = new Entity(PluginAssemblyDefinition.EntityName)
                 {
-                    Id = assembly.Id, 
+                    Id = assembly.Id,
                     [PluginAssemblyDefinition.Columns.Content] = Convert.ToBase64String(File.ReadAllBytes(assemblyPath))
                 };
 
@@ -168,28 +137,37 @@ namespace XrmFramework.DeployUtils
                 {
                     profiledSteps = GetRegisteredSteps(service, profilerAssembly.Id).ToList();
                 }
-                
-                foreach (var registeredType in registeredPluginTypes)
+
+                // Delete components that are not in the project anymore
+                // Find the types registered on the CRM which are not on the local project
+                var registeredTypesToDelete = FilterUnusedPluginsForLocal(registeredPluginTypes, pluginList, customApisList).ToList();
+
+                // Get all the steps related to those plugins
+                var registeredStepsForPluginTypeToDelete = registeredSteps
+                    .Where(s => registeredTypesToDelete.Any(t => s.EventHandler.Id == t.Id))
+                    .ToList();
+
+                // Same for CustomApis
+                var registeredCustomApisToDelete = registeredCustomApis
+                    .Where(c => registeredStepsForPluginTypeToDelete.Any(s => c.PluginTypeId?.Id == s.Id))
+                    .ToList();
+
+                // Delete
+                registeredStepsForPluginTypeToDelete.ForEach(s =>
                 {
-                    if (pluginList.All(p => p.FullName != registeredType.Name)
-                                         && pluginList.Where(p => p.IsWorkflow).All(c => c.FullName != registeredType.TypeName)
-                                         && customApis.All(c => c.FullName !=  registeredType.TypeName))
-                    {
-                        var registeredStepsForPluginType = registeredSteps.Where(s => s.EventHandler.Id == registeredType.Id).ToList();
-                        foreach (var step in registeredStepsForPluginType)
-                        {
-                            service.Delete(SdkMessageProcessingStepDefinition.EntityName, step.Id);
-                            registeredSteps.Remove(step);
-                        }
+                    service.Delete(SdkMessageProcessingStepDefinition.EntityName, s.Id);
+                    registeredSteps.Remove(s);
+                });
 
-                        foreach (var customApi in registeredCustomApis.Where(c => c.PluginTypeId?.Id == registeredType.Id))
-                        {
-                            service.Delete(customApi.LogicalName, customApi.Id);
-                        }
+                registeredCustomApisToDelete.ForEach(c =>
+                {
+                    service.Delete(CustomApiDefinition.EntityName, c.Id);
+                });
 
-                        service.Delete(PluginTypeDefinition.EntityName, registeredType.Id);
-                    }
-                }
+                registeredTypesToDelete.ForEach(t =>
+                {
+                    service.Delete(PluginTypeDefinition.EntityName, t.Id);
+                });
 
                 service.Update(updatedAssembly);
             }
@@ -231,74 +209,17 @@ namespace XrmFramework.DeployUtils
                     {
                         registeredSteps.Remove(registeredStep);
                         stepToRegister.Id = registeredStep.Id;
-                        if (comparer.NeedsUpdate(stepToRegister, registeredStep))
-                        {
-                            var profiledStep = profiledSteps.FirstOrDefault(p => p.Name.StartsWith(registeredStep.Name));
-
-                            if (profiledStep != null)
-                            {
-                                service.Delete(profiledStep.LogicalName, profiledStep.Id);
-
-                                service.Execute(new SetStateRequest
-                                {
-                                    EntityMoniker = registeredStep.ToEntityReference(),
-                                    State = new OptionSetValue((int)SdkMessageProcessingStepState.Enabled),
-                                    Status = new OptionSetValue(-1)
-                                });
-                            }
-
-                            service.Update(stepToRegister);
-                        }
+                        UpdateMessageStepIfNeeded(service, stepToRegister, registeredStep, profiledSteps);
                     }
 
                     AddSolutionComponentToSolution(service, pluginSolutionUniqueName, stepToRegister.ToEntityReference());
 
                     if (convertedStep.Message != Messages.Associate.ToString()
-                        && convertedStep.Message != Messages.Lose.ToString()
-                        && convertedStep.Message != Messages.Win.ToString())
+                     && convertedStep.Message != Messages.Lose.ToString()
+                     && convertedStep.Message != Messages.Win.ToString())
                     {
-                        var registeredPostImage = registeredImages.FirstOrDefault(i => i.Name == "PostImage"
-                                                                                    && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);
-
-                        if (convertedStep.PostImageUsed && convertedStep.Message != Messages.Delete.ToString())
-                        {
-                            if (registeredPostImage == null)
-                            {
-                                registeredPostImage = GetImageToRegister(service, stepToRegister.Id, convertedStep, false);
-                                registeredPostImage.Id = service.Create(registeredPostImage);
-
-                            }
-                            else if (registeredPostImage.Attributes1 != convertedStep.JoinedPostImageAttributes)
-                            {
-                                registeredPostImage.Attributes1 = convertedStep.JoinedPostImageAttributes;
-                                service.Update(registeredPostImage);
-                            }
-                        }
-                        else if (registeredPostImage != null)
-                        {
-                            service.Delete(registeredPostImage.LogicalName, registeredPostImage.Id);
-                        }
-
-                        var registeredPreImage = registeredImages.FirstOrDefault(i => i.Name == "PreImage"
-                                                                                   && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);
-
-                        if (convertedStep.PreImageUsed)
-                        {
-                            if (registeredPreImage == null)
-                            {
-                                registeredPreImage = GetImageToRegister(service, stepToRegister.Id, convertedStep, true);
-                                registeredPreImage.Id = service.Create(registeredPreImage);
-                            }
-                            else if (registeredPreImage.Attributes1 != convertedStep.JoinedPreImageAttributes)
-                            {
-                                registeredPreImage.Attributes1 = convertedStep.JoinedPreImageAttributes;
-                                service.Update(registeredPreImage);
-                            }
-                        }
-                        else if (registeredPreImage != null)
-                        {
-                            service.Delete(registeredPreImage.LogicalName, registeredPreImage.Id);
-                        }
+                        UpdateStepImage(service, registeredImages, stepToRegister, convertedStep, PluginImageType.PostImage);
+                        UpdateStepImage(service, registeredImages, stepToRegister, convertedStep, PluginImageType.PreImage);
                     }
                 }
             }
@@ -326,12 +247,12 @@ namespace XrmFramework.DeployUtils
 
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Apis");
-            
+
             var customApiEntityTypeCode = GetEntityTypeCode(CustomApiDefinition.EntityName, service);
             var customApiParameterEntityTypeCode = GetEntityTypeCode(CustomApiRequestParameterDefinition.EntityName, service);
             var customApiResponseEntityTypeCode = GetEntityTypeCode(CustomApiResponsePropertyDefinition.EntityName, service);
 
-            foreach (var customApi in customApis)
+            foreach (var customApi in customApisList)
             {
                 Console.WriteLine($@"  - {customApi.FullName}");
 
@@ -361,48 +282,20 @@ namespace XrmFramework.DeployUtils
 
                 foreach (var customApiRequestParameter in customApi.InArguments)
                 {
-                    var existingRequestParameter = registeredCustomApiRequestParameters.FirstOrDefault(p => p.UniqueName == customApiRequestParameter.UniqueName
-                                                                                                         && p.CustomApiId.Id == existingCustomApi.Id);
-
-                    customApiRequestParameter.CustomApiId = new EntityReference(CustomApiDefinition.EntityName, existingCustomApi.Id);
-
-                    if (existingRequestParameter == null)
-                    {
-                        customApiRequestParameter.Id = service.Create(customApiRequestParameter);
-                    }
-                    else
-                    {
-                        customApiRequestParameter.Id = existingRequestParameter.Id;
-                        service.Update(customApiRequestParameter);
-                        registeredCustomApiRequestParameters.Remove(existingRequestParameter);
-                    }
-
-                    AddSolutionComponentToSolution(service, pluginSolutionUniqueName, customApiRequestParameter.ToEntityReference(),
-                        customApiParameterEntityTypeCode);
+                    var removedRequestParameter = UpdateCustomApiComponent(service, existingCustomApi, customApiRequestParameter, registeredCustomApiRequestParameters);
+                    
+                    registeredCustomApiRequestParameters.Remove(removedRequestParameter);
+                    AddSolutionComponentToSolution(service, pluginSolutionUniqueName, customApiRequestParameter.ToEntityReference(),customApiParameterEntityTypeCode);
                 }
 
                 foreach (var customApiResponseProperty in customApi.OutArguments)
                 {
-                    var existingResponseProperty = registeredCustomApiResponseProperties.FirstOrDefault(p => p.UniqueName == customApiResponseProperty.UniqueName
-                                                                                                          && p.CustomApiId.Id == existingCustomApi.Id);
+                    var removedResponseProperty = UpdateCustomApiComponent(service, existingCustomApi, customApiResponseProperty, registeredCustomApiResponseProperties);
 
-                    customApiResponseProperty.CustomApiId = new EntityReference(CustomApiDefinition.EntityName, existingCustomApi.Id);
+                    registeredCustomApiResponseProperties.Remove(removedResponseProperty);
 
-                    if (existingResponseProperty == null)
-                    {
-                        customApiResponseProperty.Id = service.Create(customApiResponseProperty);
-                    }
-                    else
-                    {
-                        customApiResponseProperty.Id = existingResponseProperty.Id;
-                        service.Update(customApiResponseProperty);
-                        registeredCustomApiResponseProperties.Remove(existingResponseProperty);
-                    }
-
-                    AddSolutionComponentToSolution(service, pluginSolutionUniqueName, customApiResponseProperty.ToEntityReference(),
-                        customApiResponseEntityTypeCode);
+                    AddSolutionComponentToSolution(service, pluginSolutionUniqueName, customApiResponseProperty.ToEntityReference(), customApiResponseEntityTypeCode);
                 }
-
 
                 AddSolutionComponentToSolution(service, pluginSolutionUniqueName, customApi.ToEntityReference(),
                     customApiEntityTypeCode);
@@ -433,9 +326,9 @@ namespace XrmFramework.DeployUtils
 
         private static int GetEntityTypeCode(string logicalName, CrmServiceClient service)
         {
-            var entityRequest = new RetrieveEntityRequest {LogicalName = logicalName};
+            var entityRequest = new RetrieveEntityRequest { LogicalName = logicalName };
 
-            var entityResponse = (RetrieveEntityResponse) service.Execute(entityRequest);
+            var entityResponse = (RetrieveEntityResponse)service.Execute(entityRequest);
 
             return entityResponse.EntityMetadata.ObjectTypeCode.GetValueOrDefault();
         }
@@ -470,7 +363,7 @@ namespace XrmFramework.DeployUtils
 
             var query = new QueryExpression(CustomApiDefinition.EntityName);
             query.ColumnSet.AllColumns = true;
-            query.Criteria.AddCondition(CustomApiDefinition.Columns.IsManaged, ConditionOperator.Equal, false); 
+            query.Criteria.AddCondition(CustomApiDefinition.Columns.IsManaged, ConditionOperator.Equal, false);
             var linkPluginType = query.AddLink(PluginTypeDefinition.EntityName,
                                                CustomApiDefinition.Columns.PluginTypeId,
                                                PluginTypeDefinition.Columns.Id);
@@ -778,16 +671,16 @@ namespace XrmFramework.DeployUtils
                     switch (objectRef.LogicalName)
                     {
                         case PluginAssemblyDefinition.EntityName:
-                            s.ComponentType = (int) componenttype.PluginAssembly;
+                            s.ComponentType = (int)componenttype.PluginAssembly;
                             break;
                         case PluginTypeDefinition.EntityName:
-                            s.ComponentType = (int) componenttype.PluginType;
+                            s.ComponentType = (int)componenttype.PluginType;
                             break;
                         case SdkMessageProcessingStepDefinition.EntityName:
-                            s.ComponentType = (int) componenttype.SDKMessageProcessingStep;
+                            s.ComponentType = (int)componenttype.SDKMessageProcessingStep;
                             break;
                         case SdkMessageProcessingStepImageDefinition.EntityName:
-                            s.ComponentType = (int) componenttype.SDKMessageProcessingStepImage;
+                            s.ComponentType = (int)componenttype.SDKMessageProcessingStepImage;
                             break;
                     }
                 }
@@ -911,8 +804,158 @@ namespace XrmFramework.DeployUtils
             return result;
         }
 
+        public static dynamic CreateInstanceOfType(Type type, PluginRegistrationType kind)
+        {
+            dynamic instance;
+            switch (kind)
+            {
+                case PluginRegistrationType.Plugin:
+                    if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
+                    {
+                        instance = Activator.CreateInstance(type, new object[] { null, null });
+                    }
+                    else
+                    {
+                        instance = Activator.CreateInstance(type, new object[] { });
+                    }
+                    break;
+                case PluginRegistrationType.Workflow:
+                    instance = Activator.CreateInstance(type, new object[] { });
+                    break;
+                case PluginRegistrationType.CustomApi:
+                    if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
+                    {
+                        instance = Activator.CreateInstance(type, new object[] { null, null });
+                    }
+                    else
+                    {
+                        instance = Activator.CreateInstance(type, new object[] { });
+                    }
+                    break;
+                default:
+                    throw new InvalidEnumArgumentException("Unknown PluginRegistrationType");
+            }
+            return instance;
+        }
+
+        public static List<T> CreateInstanceOfTypeList<T>(List<Type> types, PluginRegistrationType kind)
+        {
+            List<T> list = new List<T>();
+            foreach (var type in types)
+            {
+                dynamic temp = CreateInstanceOfType(type, kind);
+                switch (kind)
+                {
+                    case PluginRegistrationType.Plugin:
+                        list.Add(Plugin.FromXrmFrameworkPlugin(temp, false));
+                        break;
+                    case PluginRegistrationType.Workflow:
+                        list.Add(Plugin.FromXrmFrameworkPlugin(temp, true));
+                        break;
+                    case PluginRegistrationType.CustomApi:
+                        list.Add(CustomApi.FromXrmFrameworkCustomApi(temp, _publisher.CustomizationPrefix));
+                        break;
+                    default:
+                        throw new InvalidEnumArgumentException("Unknown PluginRegistrationType");
+                }
+            }
+            return list;
+        }
+
+        public static IEnumerable<PluginType> FilterUnusedPluginsForLocal(List<PluginType> registeredTypesList,
+                                                                   List<Plugin> localPluginList,
+                                                                   List<CustomApi> localCustomApiList)
+        {
+            return registeredTypesList.Where(r => localPluginList.All(p => p.FullName != r.Name)
+                                               && localPluginList.Where(p => p.IsWorkflow).All(c => c.FullName != r.TypeName)
+                                               && localCustomApiList.All(c => c.FullName != r.TypeName));
+        }
+
+        public static void UpdateMessageStepIfNeeded(CrmServiceClient service, SdkMessageProcessingStep stepToRegister,
+                                          SdkMessageProcessingStep registeredStep, List<SdkMessageProcessingStep> profiledSteps)
+        {
+            var comparer = new SdkMessageStepComparer();
+            if (comparer.NeedsUpdate(stepToRegister, registeredStep))
+            {
+                var profiledStep = profiledSteps.FirstOrDefault(p => p.Name.StartsWith(registeredStep.Name));
+
+                if (profiledStep != null)
+                {
+                    service.Delete(SdkMessageProcessingStepDefinition.EntityName, profiledStep.Id);
+
+                    service.Execute(new SetStateRequest
+                    {
+                        EntityMoniker = registeredStep.ToEntityReference(),
+                        State = new OptionSetValue((int)SdkMessageProcessingStepState.Enabled),
+                        Status = new OptionSetValue(-1)
+                    });
+                }
+
+                service.Update(stepToRegister);
+            }
+        }
+
+        public static void UpdateStepImage(CrmServiceClient service, ICollection<SdkMessageProcessingStepImage> registeredImages,
+                                           SdkMessageProcessingStep stepToRegister, Step convertedStep, PluginImageType imageType)
+        {
+            SdkMessageProcessingStepImage registeredImage;
+            bool imageUsed;
+            switch(imageType)
+            {
+                case PluginImageType.PostImage:
+                    registeredImage = registeredImages.FirstOrDefault(i => i.Name == "PostImage"
+                                                                        && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);
+                    imageUsed = convertedStep.PostImageUsed;
+                    break;
+                case PluginImageType.PreImage:
+                    registeredImage = registeredImages.FirstOrDefault(i => i.Name == "PreImage"
+                                                                        && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);
+                    imageUsed = convertedStep.PreImageUsed;
+                    break;
+                default:
+                    throw new InvalidEnumArgumentException("Unknown Enum");
+            }
 
 
+            if (imageUsed && convertedStep.Message != Messages.Delete.ToString())
+            {
+                if (registeredImage == null)
+                {
+                    registeredImage = GetImageToRegister(service, stepToRegister.Id, convertedStep, imageType == PluginImageType.PreImage);
+                    registeredImage.Id = service.Create(registeredImage);
+
+                }
+                else if (registeredImage.Attributes1 != convertedStep.JoinedPostImageAttributes)
+                {
+                    registeredImage.Attributes1 = convertedStep.JoinedPostImageAttributes;
+                    service.Update(registeredImage);
+                }
+            }
+            else if (registeredImage != null)
+            {
+                service.Delete(registeredImage.LogicalName, registeredImage.Id);
+            }
+        }
+
+        private static T UpdateCustomApiComponent<T>(CrmServiceClient service, CustomApi existingCustomApi,
+                                                     T customApiComponent, IEnumerable<T> registeredCustomApiComponents) where T : ICustomApiComponent
+        {
+            var existingComponent = registeredCustomApiComponents.FirstOrDefault(p => p.UniqueName == customApiComponent.UniqueName
+                                                                                   && p.CustomApiId.Id == existingCustomApi.Id);
+
+            customApiComponent.CustomApiId = new EntityReference(CustomApiDefinition.EntityName, existingCustomApi.Id);
+
+            if (existingComponent == null)
+            {
+                customApiComponent.Id = service.Create(customApiComponent.ToEntity());
+            }
+            else
+            {
+                customApiComponent.Id = existingComponent.Id;
+                service.Update(customApiComponent.ToEntity());
+            }
+            return existingComponent;
+        }
         private static Solution _solution = null;
         private static Publisher _publisher = null;
 
