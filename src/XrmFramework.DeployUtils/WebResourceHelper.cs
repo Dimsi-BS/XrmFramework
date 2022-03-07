@@ -38,7 +38,7 @@ namespace XrmFramework.DeployUtils
 
             service.OrganizationServiceProxy?.EnableProxyTypes();
 
-            var solution = GetSolution(service, solutionName);
+            var solution = GetSolutionByName(service, solutionName);
             if (solution == null)
             {
                 Console.WriteLine(@$"Error : Solution not found : {solutionName}");
@@ -53,7 +53,7 @@ namespace XrmFramework.DeployUtils
 
             var publisherId = solution.GetAttributeValue<EntityReference>(SolutionDefinition.Columns.PublisherId).Id;
 
-            var publisher = GetPublisher(service, publisherId);
+            var publisher = GetPublisherById(service, publisherId);
             if (publisher == null)
             {
                 Console.WriteLine(@$"Error : Publisher not found : {solutionName}");
@@ -267,7 +267,7 @@ namespace XrmFramework.DeployUtils
         /// <param name="service"></param>
         /// <param name="solutionName"></param>
         /// <returns></returns>
-        private static Entity GetSolution(CrmServiceClient service, string solutionName)
+        private static Entity GetSolutionByName(CrmServiceClient service, string solutionName)
         {
             var query = new QueryExpression(SolutionDefinition.EntityName);
             query.ColumnSet.AddColumns(SolutionDefinition.Columns.UniqueName,
@@ -284,7 +284,7 @@ namespace XrmFramework.DeployUtils
         /// <param name="service"></param>
         /// <param name="publisherId"></param>
         /// <returns></returns>
-        private static Entity GetPublisher(CrmServiceClient service, Guid publisherId)
+        private static Entity GetPublisherById(CrmServiceClient service, Guid publisherId)
         {
             var query = new QueryExpression(PublisherDefinition.EntityName);
             query.ColumnSet.AddColumn(PublisherDefinition.Columns.CustomizationPrefix);
