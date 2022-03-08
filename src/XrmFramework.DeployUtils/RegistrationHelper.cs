@@ -367,7 +367,7 @@ namespace XrmFramework.DeployUtils
             var linkPluginType = query.AddLink(PluginTypeDefinition.EntityName,
                                                CustomApiDefinition.Columns.PluginTypeId,
                                                PluginTypeDefinition.Columns.Id);
-            linkPluginType.LinkCriteria.AddCondition(PluginTypeDefinition.Columns.Id, ConditionOperator.Equal, assemblyId);
+            linkPluginType.LinkCriteria.AddCondition(PluginTypeDefinition.Columns.PluginAssemblyId, ConditionOperator.Equal, assemblyId);
 
             var result = RetrieveAll(service, query);
             foreach (var type in result)
