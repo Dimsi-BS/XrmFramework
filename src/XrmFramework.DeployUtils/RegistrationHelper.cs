@@ -128,7 +128,6 @@ namespace XrmFramework.DeployUtils
 
                 registeredPluginTypes = GetRegisteredPluginTypes(service, assembly.Id).ToList();
                 registeredCustomApis = GetRegisteredCustomApis(service, assembly.Id).ToList();
-
                 registeredSteps = GetRegisteredSteps(service, assembly.Id);
 
                 if (profilerAssembly != null)
@@ -285,17 +284,17 @@ namespace XrmFramework.DeployUtils
 
                 foreach (var customApiRequestParameter in customApi.InArguments)
                 {
-                    var removedRequestParameter = UpdateCustomApiComponent(service, existingCustomApi, customApiRequestParameter, registeredCustomApiRequestParameters);
+                    var updatedRequestParameter = UpdateCustomApiComponent(service, existingCustomApi, customApiRequestParameter, registeredCustomApiRequestParameters);
                     
-                    registeredCustomApiRequestParameters.Remove(removedRequestParameter);
+                    registeredCustomApiRequestParameters.Remove(updatedRequestParameter);
                     AddSolutionComponentToSolution(service, pluginSolutionUniqueName, customApiRequestParameter.ToEntityReference(),customApiParameterEntityTypeCode);
                 }
 
                 foreach (var customApiResponseProperty in customApi.OutArguments)
                 {
-                    var removedResponseProperty = UpdateCustomApiComponent(service, existingCustomApi, customApiResponseProperty, registeredCustomApiResponseProperties);
+                    var updatedResponseProperty = UpdateCustomApiComponent(service, existingCustomApi, customApiResponseProperty, registeredCustomApiResponseProperties);
 
-                    registeredCustomApiResponseProperties.Remove(removedResponseProperty);
+                    registeredCustomApiResponseProperties.Remove(updatedResponseProperty);
 
                     AddSolutionComponentToSolution(service, pluginSolutionUniqueName, customApiResponseProperty.ToEntityReference(), customApiResponseEntityTypeCode);
                 }
@@ -327,7 +326,7 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        private static int GetEntityTypeCode(string logicalName, CrmServiceClient service)
+        private static int GetEntityTypeCode(string logicalName, IOrganizationService service)
         {
             var entityRequest = new RetrieveEntityRequest { LogicalName = logicalName };
 
@@ -874,7 +873,7 @@ namespace XrmFramework.DeployUtils
                                                && localCustomApiList.All(c => c.FullName != r.TypeName));
         }
 
-        public static void UpdateMessageStepIfNeeded(CrmServiceClient service, SdkMessageProcessingStep stepToRegister,
+        public static void UpdateMessageStepIfNeeded(IOrganizationService service, SdkMessageProcessingStep stepToRegister,
                                           SdkMessageProcessingStep registeredStep, List<SdkMessageProcessingStep> profiledSteps)
         {
             var comparer = new SdkMessageStepComparer();
@@ -898,29 +897,29 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        public static void UpdateStepImage(CrmServiceClient service, ICollection<SdkMessageProcessingStepImage> registeredImages,
+        public static void UpdateStepImage(IOrganizationService service, ICollection<SdkMessageProcessingStepImage> registeredImages,
                                            SdkMessageProcessingStep stepToRegister, Step convertedStep, PluginImageType imageType)
         {
             SdkMessageProcessingStepImage registeredImage;
-            bool imageUsed;
+            bool doRegisterImage;
             switch(imageType)
             {
                 case PluginImageType.PostImage:
                     registeredImage = registeredImages.FirstOrDefault(i => i.Name == "PostImage"
                                                                         && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);
-                    imageUsed = convertedStep.PostImageUsed;
+                    doRegisterImage = convertedStep.PostImageUsed;
                     break;
                 case PluginImageType.PreImage:
                     registeredImage = registeredImages.FirstOrDefault(i => i.Name == "PreImage"
                                                                         && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);
-                    imageUsed = convertedStep.PreImageUsed;
+                    doRegisterImage = convertedStep.PreImageUsed;
                     break;
                 default:
                     throw new InvalidEnumArgumentException("Unknown Enum");
             }
 
 
-            if (imageUsed && convertedStep.Message != Messages.Delete.ToString())
+            if (doRegisterImage)
             {
                 if (registeredImage == null)
                 {
@@ -940,8 +939,8 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        private static T UpdateCustomApiComponent<T>(CrmServiceClient service, CustomApi existingCustomApi,
-                                                     T customApiComponent, IEnumerable<T> registeredCustomApiComponents) where T : ICustomApiComponent
+        private static T UpdateCustomApiComponent<T>(IOrganizationService service, CustomApi existingCustomApi,
+                                                     T customApiComponent, IEnumerable<T> registeredCustomApiComponents) where T : Entity, ICustomApiComponent
         {
             var existingComponent = registeredCustomApiComponents.FirstOrDefault(p => p.UniqueName == customApiComponent.UniqueName
                                                                                    && p.CustomApiId.Id == existingCustomApi.Id);
@@ -950,12 +949,12 @@ namespace XrmFramework.DeployUtils
 
             if (existingComponent == null)
             {
-                customApiComponent.Id = service.Create(customApiComponent.ToEntity());
+                customApiComponent.Id = service.Create(customApiComponent);
             }
             else
             {
                 customApiComponent.Id = existingComponent.Id;
-                service.Update(customApiComponent.ToEntity());
+                service.Update(customApiComponent);
             }
             return existingComponent;
         }

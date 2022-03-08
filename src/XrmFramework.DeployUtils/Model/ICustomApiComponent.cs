@@ -16,7 +16,5 @@ namespace Deploy
 
         public Guid Id { get; set; }
 
-        public Entity ToEntity();
-        public EntityReference ToEntityReference();
     }
 }
