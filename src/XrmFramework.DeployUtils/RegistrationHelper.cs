@@ -907,7 +907,7 @@ namespace XrmFramework.DeployUtils
                 case PluginImageType.PostImage:
                     registeredImage = registeredImages.FirstOrDefault(i => i.Name == "PostImage"
                                                                         && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);
-                    doRegisterImage = convertedStep.PostImageUsed;
+                    doRegisterImage = convertedStep.PostImageUsed && convertedStep.Message != Messages.Delete.ToString();
                     break;
                 case PluginImageType.PreImage:
                     registeredImage = registeredImages.FirstOrDefault(i => i.Name == "PreImage"
