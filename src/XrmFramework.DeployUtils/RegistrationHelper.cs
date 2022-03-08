@@ -149,7 +149,7 @@ namespace XrmFramework.DeployUtils
 
                 // Same for CustomApis
                 var registeredCustomApisToDelete = registeredCustomApis
-                    .Where(c => registeredStepsForPluginTypeToDelete.Any(s => c.PluginTypeId?.Id == s.Id))
+                    .Where(c => registeredTypesToDelete.Any(s => c.PluginTypeId?.Id == s.Id))
                     .ToList();
 
                 // Delete
