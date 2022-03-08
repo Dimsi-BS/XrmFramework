@@ -128,8 +128,6 @@ namespace XrmFramework.DeployUtils
 
                 registeredPluginTypes = GetRegisteredPluginTypes(service, assembly.Id).ToList();
                 registeredCustomApis = GetRegisteredCustomApis(service, assembly.Id).ToList();
-                registeredCustomApiRequestParameters = GetRegisteredCustomApiRequestParameters(service, assembly.Id).ToList();
-                registeredCustomApiResponseProperties = GetRegisteredCustomApiResponseProperties(service, assembly.Id).ToList();
 
                 registeredSteps = GetRegisteredSteps(service, assembly.Id);
 
@@ -170,7 +168,11 @@ namespace XrmFramework.DeployUtils
                 });
 
                 service.Update(updatedAssembly);
+
+                registeredCustomApiRequestParameters = GetRegisteredCustomApiRequestParameters(service, assembly.Id).ToList();
+                registeredCustomApiResponseProperties = GetRegisteredCustomApiResponseProperties(service, assembly.Id).ToList();
             }
+
 
             AddSolutionComponentToSolution(service, pluginSolutionUniqueName, assembly.ToEntityReference());
 
@@ -247,6 +249,7 @@ namespace XrmFramework.DeployUtils
 
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Apis");
+
 
             var customApiEntityTypeCode = GetEntityTypeCode(CustomApiDefinition.EntityName, service);
             var customApiParameterEntityTypeCode = GetEntityTypeCode(CustomApiRequestParameterDefinition.EntityName, service);
