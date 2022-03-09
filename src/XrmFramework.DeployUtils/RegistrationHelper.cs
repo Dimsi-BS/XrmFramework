@@ -284,17 +284,14 @@ namespace XrmFramework.DeployUtils
 
                 foreach (var customApiRequestParameter in customApi.InArguments)
                 {
-                    var updatedRequestParameter = UpdateCustomApiComponent(service, existingCustomApi, customApiRequestParameter, registeredCustomApiRequestParameters);
+                    UpdateCustomApiComponent(service, existingCustomApi, customApiRequestParameter, registeredCustomApiRequestParameters);
                     
-                    registeredCustomApiRequestParameters.Remove(updatedRequestParameter);
                     AddSolutionComponentToSolution(service, pluginSolutionUniqueName, customApiRequestParameter.ToEntityReference(),customApiParameterEntityTypeCode);
                 }
 
                 foreach (var customApiResponseProperty in customApi.OutArguments)
                 {
-                    var updatedResponseProperty = UpdateCustomApiComponent(service, existingCustomApi, customApiResponseProperty, registeredCustomApiResponseProperties);
-
-                    registeredCustomApiResponseProperties.Remove(updatedResponseProperty);
+                    UpdateCustomApiComponent(service, existingCustomApi, customApiResponseProperty, registeredCustomApiResponseProperties);
 
                     AddSolutionComponentToSolution(service, pluginSolutionUniqueName, customApiResponseProperty.ToEntityReference(), customApiResponseEntityTypeCode);
                 }
@@ -939,8 +936,9 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        private static T UpdateCustomApiComponent<T>(IOrganizationService service, CustomApi existingCustomApi,
-                                                     T customApiComponent, IEnumerable<T> registeredCustomApiComponents) where T : Entity, ICustomApiComponent
+        private static void UpdateCustomApiComponent<T> (IOrganizationService service, CustomApi existingCustomApi,
+                                                     T customApiComponent, List<T> registeredCustomApiComponents) 
+            where T : Entity, ICustomApiComponent
         {
             var existingComponent = registeredCustomApiComponents.FirstOrDefault(p => p.UniqueName == customApiComponent.UniqueName
                                                                                    && p.CustomApiId.Id == existingCustomApi.Id);
@@ -956,7 +954,7 @@ namespace XrmFramework.DeployUtils
                 customApiComponent.Id = existingComponent.Id;
                 service.Update(customApiComponent);
             }
-            return existingComponent;
+            registeredCustomApiComponents.Remove(existingComponent);
         }
         private static Solution _solution = null;
         private static Publisher _publisher = null;
