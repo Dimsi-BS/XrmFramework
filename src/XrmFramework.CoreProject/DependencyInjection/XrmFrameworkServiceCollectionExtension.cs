@@ -48,12 +48,12 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static void RegisterService<TIService, TImplementation>(IServiceCollection serviceCollection)
             where TIService : IService
-            where TImplementation : DefaultService, IService
+            where TImplementation : DefaultService, TIService
         {
             var serviceDescriptor  = new ServiceDescriptor(typeof(TIService), sp =>
                 {
                     var service = ActivatorUtilities.GetServiceOrCreateInstance<TImplementation>(sp);
-
+                    
                     if (service is IInitializableService serviceWithSettings)
                     {
                         serviceWithSettings.Init();
