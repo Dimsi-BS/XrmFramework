@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
@@ -50,14 +50,12 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<Compile Include="..\XrmFramework\Definitions\*.cs" Link="Definitions\%(RecursiveDir)%(Filename)%(Extension)" />
-		<Compile Include="..\XrmFramework\Attributes\*.cs" Link="Attributes\%(RecursiveDir)%(Filename)%(Extension)" />
+		<Compile Include="..\XrmFramework\Definitions\*.cs" Link="_Imports\XrmFramework\Definitions\%(RecursiveDir)%(Filename)%(Extension)" />
+		<Compile Include="..\XrmFramework\Attributes\*.cs" Link="_Imports\XrmFramework\Attributes\%(RecursiveDir)%(Filename)%(Extension)" />
 		<Reference Include="System.ComponentModel.DataAnnotations" />
-	</ItemGroup>
+		<Compile Include="..\XrmFramework\Utils\Relationship.cs" Link="_Imports\XrmFramework\Utils\Relationship.cs" />
+		<Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="_Imports\XrmFramework\Utils\SdkEnums.cs" />
 
-	<ItemGroup>
-		<Compile Include="..\XrmFramework\Utils\Relationship.cs" Link="Relationship.cs" />
-		<Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="SdkEnums.cs" />
 	</ItemGroup>
 
 </Project>
