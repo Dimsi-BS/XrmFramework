@@ -20,15 +20,15 @@
     <Message Importance="High" Text="Preparing DependencyProject .Net Core 3.1" />
 
     <PropertyGroup>
-      <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
-      <ProjectFile>$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\DependencyProject.csproj</ProjectFile>
+      <ProjectFolderPath>$([MSBuild]::Escape($([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))))</ProjectFolderPath>
+      <ProjectFile>$(ProjectFolderPath)\bin\DependencyProject\DependencyProject.csproj</ProjectFile>
     </PropertyGroup>
 
     <ItemGroup>
       <FilesToCopy Include="$([MSBuild]::Escape($(MSBuildThisFileDirectory)))..\DependencyProject\**" />
     </ItemGroup>
 
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(ProjectFolderPath)\bin\DependencyProject\%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <MSBuild Projects="$(ProjectFile)" Targets="Restore" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);FakeProperty=restore" ContinueOnError="false" />
     <Message Importance="High" Text=">>>>>> Project DependencyProject Restored" />
@@ -44,16 +44,16 @@
     </PropertyGroup>
 
     <PropertyGroup>
-      <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
+      <ProjectFolderPath>$([MSBuild]::Escape($([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))))</ProjectFolderPath>
     </PropertyGroup>
 
     <Delete Files="@(LoggedFiles)" ContinueOnError="true" />
 
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(ProjectFolderPath)\bin\DependencyProject\%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <PropertyGroup>
-      <ProjectFile>$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\DependencyProject.csproj</ProjectFile>
-      <ProjectOutputFile>$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\bin\$(Configuration)\netcoreapp3.1\DependencyProject.dll</ProjectOutputFile>
+      <ProjectFile>$(ProjectFolderPath)\bin\DependencyProject\DependencyProject.csproj</ProjectFile>
+      <ProjectOutputFile>$(ProjectFolderPath)\bin\DependencyProject\bin\$(Configuration)\netcoreapp3.1\DependencyProject.dll</ProjectOutputFile>
     </PropertyGroup>
 
     <MSBuild

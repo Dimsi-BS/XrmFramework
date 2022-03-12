@@ -22,15 +22,15 @@
     <Message Importance="High" Text="Preparing ServicesProject .Net Framework 4.6.2" />
 
     <PropertyGroup>
-      <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
-      <ProjectFile>$([MSBuild]::Escape($(ProjectFolderPath)\bin\ServicesProject\ServicesProject.csproj))</ProjectFile>
+      <ProjectFolderPath>$([MSBuild]::Escape($([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))))</ProjectFolderPath>
+      <ProjectFile>$(ProjectFolderPath)\bin\ServicesProject\ServicesProject.csproj</ProjectFile>
     </PropertyGroup>
 
     <ItemGroup>
       <FilesToCopy Include="$([MSBuild]::Escape($(MSBuildThisFileDirectory)))..\ServicesProject\**" />
     </ItemGroup>
 
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$([MSBuild]::Escape($(ProjectFolderPath)))\bin\ServicesProject\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(ProjectFolderPath)\bin\ServicesProject\%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <MSBuild Projects="$(ProjectFile)" Targets="Restore" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);FakeProperty=restore" ContinueOnError="false" />
     <Message Importance="High" Text=">>>>>> Project ServicesProject Restored" />
@@ -46,14 +46,14 @@
     </PropertyGroup>
 
     <PropertyGroup>
-      <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
+      <ProjectFolderPath>$([MSBuild]::Escape($([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))))</ProjectFolderPath>
     </PropertyGroup>
 
     <Delete Files="@(LoggedFiles)" ContinueOnError="true" />
 
     <PropertyGroup>
-      <ProjectFile>$([MSBuild]::Escape($(ProjectFolderPath)))\bin\ServicesProject\ServicesProject.csproj</ProjectFile>
-      <ProjectOutputFile>$([MSBuild]::Escape($(ProjectFolderPath)))\bin\ServicesProject\bin\$(Configuration)\net462\ServicesProject.dll</ProjectOutputFile>
+      <ProjectFile>$(ProjectFolderPath)\bin\ServicesProject\ServicesProject.csproj</ProjectFile>
+      <ProjectOutputFile>$(ProjectFolderPath)\bin\ServicesProject\bin\$(Configuration)\net462\ServicesProject.dll</ProjectOutputFile>
     </PropertyGroup>
 
     <MSBuild
