@@ -17,11 +17,11 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Navigation;
 using XrmFramework.Definitions;
-using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
+using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils
 {
@@ -175,7 +175,7 @@ namespace XrmFramework.DeployUtils
 
                 if (registeredPluginType == null)
                 {
-                    registeredPluginType = GetPluginTypeToRegister(registeredAssembly.Id, plugin.FullName);
+                    registeredPluginType = AssemblyBridge.ToRegisterPluginType(registeredAssembly.Id, plugin.FullName);
                     registeredPluginType.Id = service.Create(registeredPluginType);
                 }
 
@@ -185,7 +185,7 @@ namespace XrmFramework.DeployUtils
 
                 foreach (var convertedStep in plugin.Steps)
                 {
-                    var stepToRegister = GetStepToRegister(registeredPluginType.Id, convertedStep);
+                    var stepToRegister = AssemblyBridge.ToRegisterStep(registeredPluginType.Id, convertedStep, _registrationContext);
 
                     var registeredStep = registeredStepsForPluginType.FirstOrDefault(s => comparer.Equals(s, stepToRegister));
 
@@ -222,7 +222,7 @@ namespace XrmFramework.DeployUtils
 
                 if (registeredPluginType == null)
                 {
-                    registeredPluginType = GetCustomWorkflowTypeToRegister(registeredAssembly.Id, customWf.FullName, customWf.DisplayName);
+                    registeredPluginType = AssemblyBridge.ToRegisterCustomWorkflowType(registeredAssembly.Id, customWf.FullName, customWf.DisplayName);
                     registeredPluginType.Id = service.Create(registeredPluginType);
                 }
                 if (registeredPluginType.Name != customWf.DisplayName)
@@ -251,7 +251,7 @@ namespace XrmFramework.DeployUtils
 
                 if (registeredPluginType == null)
                 {
-                    registeredPluginType = GetPluginTypeToRegister(registeredAssembly.Id, customApi.FullName);
+                    registeredPluginType = AssemblyBridge.ToRegisterPluginType(registeredAssembly.Id, customApi.FullName);
                     registeredPluginType.Id = service.Create(registeredPluginType);
                 }
 
@@ -289,77 +289,6 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        private static PluginType GetCustomWorkflowTypeToRegister(Guid pluginAssemblyId, string pluginFullName, string displayName)
-        {
-            var t = new PluginType()
-            {
-                PluginAssemblyId = new EntityReference()
-                {
-                    LogicalName = PluginAssemblyDefinition.EntityName,
-                    Id = pluginAssemblyId
-                },
-                TypeName = pluginFullName,
-                FriendlyName = pluginFullName,
-                Name = displayName,
-                Description = string.Empty,
-                WorkflowActivityGroupName = "Workflows"
-            };
-
-            return t;
-        }
-
-        private static SdkMessageProcessingStepImage GetImageToRegister(Guid stepId, Model.Step step, bool isPreImage)
-        {
-            var isAllColumns = isPreImage ? step.PreImageAllAttributes : step.PostImageAllAttributes;
-            var columns = isPreImage ? step.JoinedPreImageAttributes : step.JoinedPostImageAttributes;
-            var name = isPreImage ? "PreImage" : "PostImage";
-
-            var messagePropertyName = "Target";
-
-            if (step.Message == Model.Messages.Create.ToString() && !isPreImage)
-            {
-                messagePropertyName = "Id";
-            }
-#pragma warning disable 618
-            else if (step.Message == Messages.SetState.ToString() || step.Message == Messages.SetStateDynamicEntity.ToString())
-#pragma warning restore 618
-            {
-                messagePropertyName = "EntityMoniker";
-            }
-
-            var t = new SdkMessageProcessingStepImage()
-            {
-                Attributes1 = isAllColumns ? null : columns,
-                EntityAlias = name,
-                ImageType = new OptionSetValue(isPreImage ? (int)sdkmessageprocessingstepimage_imagetype.PreImage
-                                                          : (int)sdkmessageprocessingstepimage_imagetype.PostImage),
-                IsCustomizable = new BooleanManagedProperty(true),
-                MessagePropertyName = messagePropertyName,
-                Name = name,
-                SdkMessageProcessingStepId = new EntityReference(SdkMessageProcessingStepDefinition.EntityName, stepId)
-            };
-
-            return t;
-        }
-
-        private static PluginType GetPluginTypeToRegister(Guid pluginAssemblyId, string pluginFullName)
-        {
-            var t = new PluginType()
-            {
-                PluginAssemblyId = new EntityReference()
-                {
-                    LogicalName = PluginAssemblyDefinition.EntityName,
-                    Id = pluginAssemblyId
-                },
-                TypeName = pluginFullName,
-                FriendlyName = pluginFullName,
-                Name = pluginFullName,
-                Description = pluginFullName
-            };
-
-            return t;
-        }
-
         private static void AddSolutionComponentToSolution(IRegistrationService service, string solutionUniqueName, EntityReference objectRef, int? objectTypeCode = null)
         {
             if (GetRegisteredSolutionComponent(objectRef) == null)
@@ -371,57 +300,6 @@ namespace XrmFramework.DeployUtils
         private static SolutionComponent GetRegisteredSolutionComponent(EntityReference objectRef)
         {
             return _registrationContext.Components.FirstOrDefault(c => c.ObjectId.Equals(objectRef.Id));
-        }
-
-        public static SdkMessageProcessingStep GetStepToRegister(Guid pluginTypeId, Model.Step step)
-        {
-            // Issue with CRM SDK / Description field max length = 256 characters
-            var descriptionAttributeMaxLength = 256;
-            var description = $"{step.PluginTypeName} : {step.Stage} {step.Message} of {step.EntityName} ({step.MethodsDisplayName})";
-            description = description.Length <= descriptionAttributeMaxLength ? description : description.Substring(0, descriptionAttributeMaxLength - 4) + "...)";
-
-            if (!string.IsNullOrEmpty(step.ImpersonationUsername))
-            {
-                var count = _registrationContext.Users.Count(u => u.Key == step.ImpersonationUsername);
-
-                if (count == 0)
-                {
-                    throw new Exception($"{description} : No user have fullname '{step.ImpersonationUsername}' in CRM.");
-                }
-                if (count > 1)
-                {
-                    throw new Exception($"{description} : {count} users have the fullname '{step.ImpersonationUsername}' in CRM.");
-                }
-            }
-
-            var t = new SdkMessageProcessingStep()
-            {
-                AsyncAutoDelete = step.Mode == Model.Modes.Asynchronous,
-                Description = description,
-                EventHandler = new EntityReference(PluginTypeDefinition.EntityName, pluginTypeId),
-                FilteringAttributes = step.FilteringAttributes.Any() ? string.Join(",", step.FilteringAttributes) : null,
-                ImpersonatingUserId = string.IsNullOrEmpty(step.ImpersonationUsername) ? null : new EntityReference(SystemUserDefinition.EntityName, _registrationContext.Users.First(u => u.Key == step.ImpersonationUsername).Value),
-#pragma warning disable 0612
-                InvocationSource = new OptionSetValue((int)sdkmessageprocessingstep_invocationsource.Child),
-#pragma warning restore 0612
-                IsCustomizable = new BooleanManagedProperty(true),
-                IsHidden = new BooleanManagedProperty(false),
-                Mode = new OptionSetValue((int)step.Mode),
-                Name = description,
-#pragma warning disable 0612
-                PluginTypeId = new EntityReference(PluginTypeDefinition.EntityName, pluginTypeId),
-#pragma warning restore 0612
-                Rank = step.Order,
-                SdkMessageId = _registrationContext.Messages[step.Message], //GetSdkMessageRef(service, step.Message),
-                SdkMessageFilterId = _registrationContext.Filters.Where(f => f.SdkMessageId.Name == step.Message && f.PrimaryObjectTypeCode == step.EntityName)
-                                             .Select(f => f.ToEntityReference()).FirstOrDefault(), //GetSdkMessageFilterRef(service, step),
-                //SdkMessageProcessingStepSecureConfigId = GetSdkMessageProcessingStepSecureConfigRef(service, step),
-                Stage = new OptionSetValue((int)step.Stage),
-                SupportedDeployment = new OptionSetValue((int)sdkmessageprocessingstep_supporteddeployment.ServerOnly),
-                Configuration = step.UnsecureConfig
-            };
-
-            return t;
         }
 
         private static void UpdateCustomApiComponent<T>(IRegistrationService service, CustomApi existingCustomApi,
@@ -489,7 +367,7 @@ namespace XrmFramework.DeployUtils
             {
                 if (registeredImage == null)
                 {
-                    registeredImage = GetImageToRegister(stepToRegister.Id, convertedStep, imageType == PluginImageType.PreImage);
+                    registeredImage = AssemblyBridge.ToRegisterImage(stepToRegister.Id, convertedStep, imageType == PluginImageType.PreImage);
                     registeredImage.Id = service.Create(registeredImage);
                 }
                 else if (registeredImage.Attributes1 != convertedStep.JoinedPostImageAttributes)

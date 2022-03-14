@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
+using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Context
 {
@@ -70,7 +71,7 @@ namespace XrmFramework.DeployUtils.Context
             {
                 foreach (var s in p.Steps)
                 {
-                    Steps.Add(RegistrationHelper.GetStepToRegister(new Guid(), s));
+                    Steps.Add(AssemblyBridge.ToRegisterStep(new Guid(), s, _registrationContext));
                 }
 
             });

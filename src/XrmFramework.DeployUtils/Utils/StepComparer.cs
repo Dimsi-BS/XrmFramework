@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Deploy;
 
-namespace XrmFramework.DeployUtils.Comparers
+namespace XrmFramework.DeployUtils.Utils
 {
     public class SdkMessageStepComparer : IEqualityComparer<SdkMessageProcessingStep>
     {
