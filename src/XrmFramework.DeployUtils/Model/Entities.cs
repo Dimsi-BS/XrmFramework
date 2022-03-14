@@ -71,6 +71,24 @@ namespace Deploy
 			}
 		}
 
+		/// <summary>
+		/// Unique identifier of the plug-in associated with the step.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("customapiidname")]
+		public string CustomApiIdName
+		{
+			get
+			{
+				return this.GetAttributeValue<string>("customapiidname");
+			}
+			set
+			{
+				this.OnPropertyChanging("customapiidname");
+				this.SetAttributeValue("customapiidname", value);
+				this.OnPropertyChanged("customapiidname");
+			}
+		}
+
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("description")]
 		public string Description
 		{
@@ -244,7 +262,7 @@ namespace Deploy
             }
         }
 
-        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("description")]
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("description")]
         public string Description
         {
             get

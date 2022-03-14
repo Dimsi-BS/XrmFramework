@@ -34,6 +34,18 @@ namespace XrmFramework.DeployUtils.Context
             Messages = new Dictionary<string, EntityReference>();
             Users = new List<KeyValuePair<string, Guid>>();
         }
+        
+        public RegistrationContext()
+        {
+            SolutionName = null;
+
+            Solution = null;
+            Publisher = null;
+            Components = new List<SolutionComponent>();
+            Filters = new List<SdkMessageFilter>();
+            Messages = new Dictionary<string, EntityReference>();
+            Users = new List<KeyValuePair<string, Guid>>();
+        }
 
         public void InitMetadata(IRegistrationService service, string solutionName)
         {

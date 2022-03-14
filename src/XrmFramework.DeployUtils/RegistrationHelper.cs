@@ -31,23 +31,9 @@ namespace XrmFramework.DeployUtils
 
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
-            var xrmFrameworkConfigSection = ConfigHelper.GetSection();
+            string pluginSolutionUniqueName, connectionString;
 
-            var projectConfig = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>()
-                .FirstOrDefault(p => p.Name == projectName);
-
-            if (projectConfig == null)
-            {
-                var defaultColor = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"No reference to the project {projectName} has been found in the xrmFramework.config file.");
-                Console.ForegroundColor = defaultColor;
-                return;
-            }
-
-            var pluginSolutionUniqueName = projectConfig.TargetSolution;
-
-            var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
+            initConnection(projectName, out pluginSolutionUniqueName, out connectionString);
 
             Console.WriteLine($"You are about to deploy on {connectionString} organization. If ok press any key.");
             Console.ReadKey();
@@ -62,124 +48,126 @@ namespace XrmFramework.DeployUtils
             _registrationContext = new RegistrationContext(pluginSolutionUniqueName);
             _registrationContext.InitMetadata(service);
 
-            var pluginAssembly = typeof(TPlugin).Assembly;
+            var assemblyFactory = new AssemblyFactory(_registrationContext);
 
-            var pluginType = pluginAssembly.GetType("XrmFramework.Plugin");
-            var customApiType = pluginAssembly.GetType("XrmFramework.CustomApi");
-            var workflowType = pluginAssembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");
+            var localAssembly = assemblyFactory.LocalAssemblyContext(typeof(TPlugin));
 
-            var pluginTypes = pluginAssembly.GetTypes()
-                                            .Where(t => pluginType.IsAssignableFrom(t)
-                                                     && !customApiType.IsAssignableFrom(t)
-                                                     && t.IsPublic
-                                                     && !t.IsAbstract)
-                                            .ToList();
+            var registeredAssembly = assemblyFactory.RegisteredAssemblyContext(service, localAssembly.Name);
 
-            var workflowTypes = pluginAssembly.GetTypes()
-                                              .Where(t => workflowType.IsAssignableFrom(t)
-                                                       && !t.IsAbstract
-                                                       && t.IsPublic)
-                                              .ToList();
+            Console.WriteLine();
+            Console.WriteLine("Registering assembly");
 
-            var customApiTypes = pluginAssembly.GetTypes()
-                                               .Where(t => customApiType.IsAssignableFrom(t)
-                                                        && t.IsPublic
-                                                        && !t.IsAbstract)
-                                               .ToList();
+            RegisterAssembly(service, localAssembly, registeredAssembly);
 
-            var pluginList = CreateInstanceOfTypeList<Plugin>(pluginTypes, PluginRegistrationType.Plugin);
-
-            var workflowList = CreateInstanceOfTypeList<Plugin>(workflowTypes, PluginRegistrationType.Workflow);
-
-            pluginList.AddRange(workflowList);
-
-            var customApisList = CreateInstanceOfTypeList<CustomApi>(customApiTypes, PluginRegistrationType.CustomApi);
-
-            var assembly = service.GetAssemblyByName(pluginAssembly.GetName().Name);
-
-            var profilerAssembly = service.GetProfilerAssembly();
-
-            var registeredPluginTypes = new List<PluginType>();
-            var registeredCustomApis = new List<CustomApi>();
-            var registeredCustomApiRequestParameters = new List<CustomApiRequestParameter>();
-            var registeredCustomApiResponseProperties = new List<CustomApiResponseProperty>();
-            var profiledSteps = new List<SdkMessageProcessingStep>();
-            ICollection<SdkMessageProcessingStep> registeredSteps = Enumerable.Empty<SdkMessageProcessingStep>().ToList();
-
-            var assemblyPath = pluginAssembly.Location;
-
-            if (assembly == null)
-            {
-                Console.WriteLine("Registering assembly");
-
-                assembly = GetAssemblyToRegister(pluginAssembly, assemblyPath);
-
-                assembly.Id = service.Create(assembly);
-            }
-            else
-            {
-                Console.WriteLine("Updating plugin assembly");
-
-                var updatedAssembly = new Entity(PluginAssemblyDefinition.EntityName)
-                {
-                    Id = assembly.Id,
-                    [PluginAssemblyDefinition.Columns.Content] = Convert.ToBase64String(File.ReadAllBytes(assemblyPath))
-                };
-
-                registeredPluginTypes = service.GetRegisteredPluginTypes(assembly.Id).ToList();
-                registeredCustomApis = service.GetRegisteredCustomApis(assembly.Id).ToList();
-                registeredSteps = service.GetRegisteredSteps(assembly.Id);
-
-                if (profilerAssembly != null)
-                {
-                    profiledSteps = service.GetRegisteredSteps(profilerAssembly.Id).ToList();
-                }
-
-                // Delete components that are not in the project anymore
-                // Find the types registered on the CRM which are not on the local project
-                var registeredTypesToDelete = FilterUnusedPluginsForLocal(registeredPluginTypes, pluginList, customApisList).ToList();
-
-                // Get all the steps related to those plugins
-                var registeredStepsForPluginTypeToDelete = registeredSteps
-                    .Where(s => registeredTypesToDelete.Any(t => s.EventHandler.Id == t.Id))
-                    .ToList();
-
-                // Same for CustomApis
-                var registeredCustomApisToDelete = registeredCustomApis
-                    .Where(c => registeredTypesToDelete.Any(s => c.PluginTypeId?.Id == s.Id))
-                    .ToList();
-
-                // Delete
-                registeredStepsForPluginTypeToDelete.ForEach(s =>
-                {
-                    service.Delete(SdkMessageProcessingStepDefinition.EntityName, s.Id);
-                    registeredSteps.Remove(s);
-                });
-
-                registeredCustomApisToDelete.ForEach(c =>
-                {
-                    service.Delete(CustomApiDefinition.EntityName, c.Id);
-                });
-
-                registeredTypesToDelete.ForEach(t =>
-                {
-                    service.Delete(PluginTypeDefinition.EntityName, t.Id);
-                });
-
-                service.Update(updatedAssembly);
-
-                registeredCustomApiRequestParameters = service.GetRegisteredCustomApiRequestParameters(assembly.Id).ToList();
-                registeredCustomApiResponseProperties = service.GetRegisteredCustomApiResponseProperties(assembly.Id).ToList();
-            }
-
-            AddSolutionComponentToSolution(service, pluginSolutionUniqueName, assembly.ToEntityReference());
-
-            var registeredImages = service.GetRegisteredImages(assembly.Id);
 
             Console.WriteLine();
             Console.WriteLine(@"Registering Plugins");
 
-            foreach (var plugin in pluginList.Where(p => !p.IsWorkflow))
+            RegisterPlugins(service, localAssembly, registeredAssembly);
+
+            Console.WriteLine();
+            Console.WriteLine(@"Registering Custom Workflow activities");
+
+            RegisterWorkflows(service, localAssembly, registeredAssembly);
+
+            Console.WriteLine();
+            Console.WriteLine(@"Registering Custom Apis");
+
+            RegisterCustomApis(service, localAssembly, registeredAssembly);
+
+
+            ////TODO: Figure out wtf this code is supposed to do and have the same result
+            //foreach (var step in registeredSteps)
+            //{
+            //    service.Delete(SdkMessageProcessingStepDefinition.EntityName, step.Id);
+            //}
+        }
+
+        public static void RegisterAssembly(RegistrationService service, ILocalAssemblyContext localAssembly, IRegisteredAssemblyContext registeredAssembly)
+        {
+            if (registeredAssembly.IsNull)
+            {
+                Console.WriteLine("Creating assembly");
+
+                registeredAssembly.Assembly = localAssembly.ToPluginAssembly();
+
+                registeredAssembly.Id = service.Create(registeredAssembly);
+            }
+            else
+            {
+                Console.WriteLine();
+                Console.WriteLine(@"Assembly Exists, Cleaning Assembly");
+
+                CleanAssembly(service, localAssembly, registeredAssembly);
+
+                Console.WriteLine("Updating plugin assembly");
+
+                registeredAssembly.Assembly = localAssembly.ToPluginAssembly(registeredAssembly.Id);
+
+                service.Update(registeredAssembly.Assembly);
+            }
+            AddSolutionComponentToSolution(service, _registrationContext.SolutionName, registeredAssembly.EntityReference) ;
+        }
+
+        public static void CleanAssembly(RegistrationService service, ILocalAssemblyContext localAssembly, IRegisteredAssemblyContext registeredAssembly)
+        {
+            // Delete components that are not in the project anymore
+            // Find the types registered on the CRM which are not on the local project
+            var registeredTypesToDelete = FilterUnusedPluginsForLocal(localAssembly, registeredAssembly).ToList();
+
+            // Get all the steps related to those plugins
+            var registeredStepsForPluginTypeToDelete = registeredAssembly.Steps
+                .Where(s => registeredTypesToDelete.Any(t => s.EventHandler.Id == t.Id))
+                .ToList();
+
+            // Same for CustomApis
+            var registeredCustomApisToDelete = registeredAssembly.CustomApis
+                .Where(c => registeredTypesToDelete.Any(s => c.PluginTypeId?.Id == s.Id))
+                .ToList();
+
+            // Here goes CustomApiRequestParameters
+            var requestParametersToDelete = registeredAssembly.CustomApiRequestParameters
+                .Where(r => localAssembly.CustomApiRequestParameters.All(l => r.UniqueName != l.UniqueName))
+                .ToList();
+            var responseParametersToDelete = registeredAssembly.CustomApiResponseProperties
+                .Where(r => localAssembly.CustomApiRequestParameters.All(l => r.UniqueName != l.UniqueName))
+                .ToList();
+
+            // Delete
+            service.DeleteMany(registeredStepsForPluginTypeToDelete);
+
+            service.DeleteMany(responseParametersToDelete);
+
+            service.DeleteMany(requestParametersToDelete);
+
+            service.DeleteMany(registeredCustomApisToDelete);
+
+            service.DeleteMany(registeredTypesToDelete);
+
+            //Remove from Fetched lists
+            registeredAssembly.Steps = registeredAssembly.Steps
+                .Where(s => !registeredStepsForPluginTypeToDelete.Contains(s));
+
+            registeredAssembly.CustomApis = registeredAssembly.CustomApis
+                .Where(s => !registeredCustomApisToDelete.Contains(s));
+
+            registeredAssembly.CustomApiRequestParameters = registeredAssembly.CustomApiRequestParameters
+                .Where(s => !requestParametersToDelete.Contains(s));
+
+            registeredAssembly.CustomApiResponseProperties = registeredAssembly.CustomApiResponseProperties
+                .Where(s => !responseParametersToDelete.Contains(s));
+
+            registeredAssembly.PluginTypes = registeredAssembly.PluginTypes
+                .Where(s => !registeredTypesToDelete.Contains(s));
+        }
+
+        public static void RegisterPlugins(RegistrationService service, ILocalAssemblyContext localAssembly, IRegisteredAssemblyContext registeredAssembly)
+        {
+            var registeredPluginTypes = registeredAssembly.PluginTypes;
+            var registeredSteps = registeredAssembly.Steps;
+            var registeredImages = registeredAssembly.ImageSteps;
+
+            foreach (var plugin in localAssembly.Plugins.Where(p => !p.IsWorkflow))
             {
                 Console.WriteLine($@"  - {plugin.FullName}");
 
@@ -187,7 +175,7 @@ namespace XrmFramework.DeployUtils
 
                 if (registeredPluginType == null)
                 {
-                    registeredPluginType = GetPluginTypeToRegister(assembly.Id, plugin.FullName);
+                    registeredPluginType = GetPluginTypeToRegister(registeredAssembly.Id, plugin.FullName);
                     registeredPluginType.Id = service.Create(registeredPluginType);
                 }
 
@@ -207,12 +195,11 @@ namespace XrmFramework.DeployUtils
                     }
                     else
                     {
-                        registeredSteps.Remove(registeredStep);
                         stepToRegister.Id = registeredStep.Id;
-                        UpdateMessageStepIfNeeded(service, stepToRegister, registeredStep, profiledSteps);
+                        UpdateMessageStepIfNeeded(service, stepToRegister, registeredStep);
                     }
 
-                    AddSolutionComponentToSolution(service, pluginSolutionUniqueName, stepToRegister.ToEntityReference());
+                    AddSolutionComponentToSolution(service, _registrationContext.SolutionName, stepToRegister.ToEntityReference());
 
                     if (convertedStep.Message != Messages.Associate.ToString()
                      && convertedStep.Message != Messages.Lose.ToString()
@@ -223,11 +210,11 @@ namespace XrmFramework.DeployUtils
                     }
                 }
             }
-
-            Console.WriteLine();
-            Console.WriteLine(@"Registering Custom Workflow activities");
-
-            foreach (var customWf in pluginList.Where(p => p.IsWorkflow))
+        }
+        public static void RegisterWorkflows(RegistrationService service, ILocalAssemblyContext localAssembly, IRegisteredAssemblyContext registeredAssembly)
+        {
+            var registeredPluginTypes = registeredAssembly.PluginTypes;
+            foreach (var customWf in localAssembly.Plugins.Where(p => p.IsWorkflow))
             {
                 var registeredPluginType = registeredPluginTypes.FirstOrDefault(p => p.TypeName == customWf.FullName);
 
@@ -235,7 +222,7 @@ namespace XrmFramework.DeployUtils
 
                 if (registeredPluginType == null)
                 {
-                    registeredPluginType = GetCustomWorkflowTypeToRegister(assembly.Id, customWf.FullName, customWf.DisplayName);
+                    registeredPluginType = GetCustomWorkflowTypeToRegister(registeredAssembly.Id, customWf.FullName, customWf.DisplayName);
                     registeredPluginType.Id = service.Create(registeredPluginType);
                 }
                 if (registeredPluginType.Name != customWf.DisplayName)
@@ -244,15 +231,19 @@ namespace XrmFramework.DeployUtils
                     service.Update(registeredPluginType);
                 }
             }
+        }
 
-            Console.WriteLine();
-            Console.WriteLine(@"Registering Custom Apis");
+        public static void RegisterCustomApis(RegistrationService service, ILocalAssemblyContext localAssembly, IRegisteredAssemblyContext registeredAssembly)
+        {
+            var customApiEntityTypeCode = service.GetIntEntityTypeCode(CustomApiDefinition.EntityName);
+            var customApiParameterEntityTypeCode = service.GetIntEntityTypeCode(CustomApiRequestParameterDefinition.EntityName);
+            var customApiResponseEntityTypeCode = service.GetIntEntityTypeCode(CustomApiResponsePropertyDefinition.EntityName);
 
-            var customApiEntityTypeCode = GetEntityTypeCode(CustomApiDefinition.EntityName, service);
-            var customApiParameterEntityTypeCode = GetEntityTypeCode(CustomApiRequestParameterDefinition.EntityName, service);
-            var customApiResponseEntityTypeCode = GetEntityTypeCode(CustomApiResponsePropertyDefinition.EntityName, service);
-
-            foreach (var customApi in customApisList)
+            var registeredPluginTypes = registeredAssembly.PluginTypes;
+            var registeredCustomApis = registeredAssembly.CustomApis;
+            var registeredCustomApiRequestParameters = registeredAssembly.CustomApiRequestParameters;
+            var registeredCustomApiResponseProperties = registeredAssembly.CustomApiResponseProperties;
+            foreach (var customApi in localAssembly.CustomApis)
             {
                 Console.WriteLine($@"  - {customApi.FullName}");
 
@@ -260,7 +251,7 @@ namespace XrmFramework.DeployUtils
 
                 if (registeredPluginType == null)
                 {
-                    registeredPluginType = GetPluginTypeToRegister(assembly.Id, customApi.FullName);
+                    registeredPluginType = GetPluginTypeToRegister(registeredAssembly.Id, customApi.FullName);
                     registeredPluginType.Id = service.Create(registeredPluginType);
                 }
 
@@ -284,107 +275,18 @@ namespace XrmFramework.DeployUtils
                 {
                     UpdateCustomApiComponent(service, existingCustomApi, customApiRequestParameter, registeredCustomApiRequestParameters);
 
-                    AddSolutionComponentToSolution(service, pluginSolutionUniqueName, customApiRequestParameter.ToEntityReference(), customApiParameterEntityTypeCode);
+                    AddSolutionComponentToSolution(service, _registrationContext.SolutionName, customApiRequestParameter.ToEntityReference(), customApiParameterEntityTypeCode);
                 }
 
                 foreach (var customApiResponseProperty in customApi.OutArguments)
                 {
                     UpdateCustomApiComponent(service, existingCustomApi, customApiResponseProperty, registeredCustomApiResponseProperties);
 
-                    AddSolutionComponentToSolution(service, pluginSolutionUniqueName, customApiResponseProperty.ToEntityReference(), customApiResponseEntityTypeCode);
+                    AddSolutionComponentToSolution(service, _registrationContext.SolutionName, customApiResponseProperty.ToEntityReference(), customApiResponseEntityTypeCode);
                 }
 
-                AddSolutionComponentToSolution(service, pluginSolutionUniqueName, customApi.ToEntityReference(),
-                    customApiEntityTypeCode);
+                AddSolutionComponentToSolution(service, _registrationContext.SolutionName, customApi.ToEntityReference(), customApiEntityTypeCode);
             }
-
-            if (registeredCustomApiRequestParameters.Any() || registeredCustomApiResponseProperties.Any())
-            {
-                Console.WriteLine("Deleting unnecessary request parameters and response properties");
-
-                foreach (var parameterToRemove in registeredCustomApiRequestParameters)
-                {
-                    service.Delete(CustomApiRequestParameterDefinition.EntityName, parameterToRemove.Id);
-                }
-
-                foreach (var responseToRemove in registeredCustomApiResponseProperties)
-                {
-                    service.Delete(CustomApiResponsePropertyDefinition.EntityName, responseToRemove.Id);
-                }
-            }
-
-            Console.WriteLine();
-
-            foreach (var step in registeredSteps)
-            {
-                service.Delete(SdkMessageProcessingStepDefinition.EntityName, step.Id);
-            }
-        }
-
-        private static void AddSolutionComponentToSolution(IRegistrationService service, string solutionUniqueName, EntityReference objectRef, int? objectTypeCode = null)
-        {
-            if (GetRegisteredSolutionComponent(objectRef) == null)
-            {
-                var s = new AddSolutionComponentRequest
-                {
-                    AddRequiredComponents = false,
-                    ComponentId = objectRef.Id,
-                    SolutionUniqueName = solutionUniqueName
-                };
-
-                if (objectTypeCode.HasValue)
-                {
-                    s.ComponentType = objectTypeCode.Value;
-                }
-                else
-                {
-                    switch (objectRef.LogicalName)
-                    {
-                        case PluginAssemblyDefinition.EntityName:
-                            s.ComponentType = (int)componenttype.PluginAssembly;
-                            break;
-
-                        case PluginTypeDefinition.EntityName:
-                            s.ComponentType = (int)componenttype.PluginType;
-                            break;
-
-                        case SdkMessageProcessingStepDefinition.EntityName:
-                            s.ComponentType = (int)componenttype.SDKMessageProcessingStep;
-                            break;
-
-                        case SdkMessageProcessingStepImageDefinition.EntityName:
-                            s.ComponentType = (int)componenttype.SDKMessageProcessingStepImage;
-                            break;
-                    }
-                }
-
-                service.Execute(s);
-            }
-        }
-
-        private static PluginAssembly GetAssemblyToRegister(Assembly a, string assemblyPath)
-        {
-            var fullNameSplit = a.FullName.Split(',');
-
-            var name = fullNameSplit[0];
-            var version = fullNameSplit[1].Substring(fullNameSplit[1].IndexOf('=') + 1);
-            var culture = fullNameSplit[2].Substring(fullNameSplit[2].IndexOf('=') + 1);
-            var publicKeyToken = fullNameSplit[3].Substring(fullNameSplit[3].IndexOf('=') + 1);
-            var description = string.Format("{0} plugin assembly", name);
-
-            var t = new PluginAssembly()
-            {
-                Name = name,
-                SourceType = new OptionSetValue((int)pluginassembly_sourcetype.Database),
-                IsolationMode = new OptionSetValue((int)pluginassembly_isolationmode.Sandbox),
-                Culture = culture,
-                PublicKeyToken = publicKeyToken,
-                Version = version,
-                Description = description,
-                Content = Convert.ToBase64String(File.ReadAllBytes(assemblyPath))
-            };
-
-            return t;
         }
 
         private static PluginType GetCustomWorkflowTypeToRegister(Guid pluginAssemblyId, string pluginFullName, string displayName)
@@ -404,15 +306,6 @@ namespace XrmFramework.DeployUtils
             };
 
             return t;
-        }
-
-        private static int GetEntityTypeCode(string logicalName, IRegistrationService service)
-        {
-            var entityRequest = new RetrieveEntityRequest { LogicalName = logicalName };
-
-            var entityResponse = (RetrieveEntityResponse)service.Execute(entityRequest);
-
-            return entityResponse.EntityMetadata.ObjectTypeCode.GetValueOrDefault();
         }
 
         private static SdkMessageProcessingStepImage GetImageToRegister(Guid stepId, Model.Step step, bool isPreImage)
@@ -467,12 +360,20 @@ namespace XrmFramework.DeployUtils
             return t;
         }
 
+        private static void AddSolutionComponentToSolution(IRegistrationService service, string solutionUniqueName, EntityReference objectRef, int? objectTypeCode = null)
+        {
+            if (GetRegisteredSolutionComponent(objectRef) == null)
+            {
+                service.AddSolutionComponentToSolution(solutionUniqueName, objectRef, objectTypeCode);
+            }
+
+        }
         private static SolutionComponent GetRegisteredSolutionComponent(EntityReference objectRef)
         {
             return _registrationContext.Components.FirstOrDefault(c => c.ObjectId.Equals(objectRef.Id));
         }
 
-        private static SdkMessageProcessingStep GetStepToRegister(Guid pluginTypeId, Model.Step step)
+        public static SdkMessageProcessingStep GetStepToRegister(Guid pluginTypeId, Model.Step step)
         {
             // Issue with CRM SDK / Description field max length = 256 characters
             var descriptionAttributeMaxLength = 256;
@@ -524,7 +425,7 @@ namespace XrmFramework.DeployUtils
         }
 
         private static void UpdateCustomApiComponent<T>(IRegistrationService service, CustomApi existingCustomApi,
-                                                     T customApiComponent, List<T> registeredCustomApiComponents)
+                                                     T customApiComponent, IEnumerable<T> registeredCustomApiComponents)
             where T : Entity, ICustomApiComponent
         {
             var existingComponent = registeredCustomApiComponents.FirstOrDefault(p => p.UniqueName == customApiComponent.UniqueName
@@ -541,103 +442,22 @@ namespace XrmFramework.DeployUtils
                 customApiComponent.Id = existingComponent.Id;
                 service.Update(customApiComponent);
             }
-            registeredCustomApiComponents.Remove(existingComponent);
-        }
-
-        public static dynamic CreateInstanceOfType(Type type, PluginRegistrationType kind)
-        {
-            dynamic instance;
-            switch (kind)
-            {
-                case PluginRegistrationType.Plugin:
-                    if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
-                    {
-                        instance = Activator.CreateInstance(type, new object[] { null, null });
-                    }
-                    else
-                    {
-                        instance = Activator.CreateInstance(type, new object[] { });
-                    }
-                    break;
-
-                case PluginRegistrationType.Workflow:
-                    instance = Activator.CreateInstance(type, new object[] { });
-                    break;
-
-                case PluginRegistrationType.CustomApi:
-                    if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
-                    {
-                        instance = Activator.CreateInstance(type, new object[] { null, null });
-                    }
-                    else
-                    {
-                        instance = Activator.CreateInstance(type, new object[] { });
-                    }
-                    break;
-
-                default:
-                    throw new InvalidEnumArgumentException("Unknown PluginRegistrationType");
-            }
-            return instance;
         }
 
 
-        public static List<T> CreateInstanceOfTypeList<T>(List<Type> types, PluginRegistrationType kind)
+        public static IEnumerable<PluginType> FilterUnusedPluginsForLocal(ILocalAssemblyContext local, IRegisteredAssemblyContext remote)
         {
-            List<T> list = new List<T>();
-            foreach (var type in types)
-            {
-                dynamic temp = CreateInstanceOfType(type, kind);
-                switch (kind)
-                {
-                    case PluginRegistrationType.Plugin:
-                        list.Add(Plugin.FromXrmFrameworkPlugin(temp, false));
-                        break;
-
-                    case PluginRegistrationType.Workflow:
-                        list.Add(Plugin.FromXrmFrameworkPlugin(temp, true));
-                        break;
-
-                    case PluginRegistrationType.CustomApi:
-                        list.Add(CustomApi.FromXrmFrameworkCustomApi(temp, _registrationContext.Publisher.CustomizationPrefix));
-                        break;
-
-                    default:
-                        throw new InvalidEnumArgumentException("Unknown PluginRegistrationType");
-                }
-            }
-            return list;
-        }
-
-        public static IEnumerable<PluginType> FilterUnusedPluginsForLocal(List<PluginType> registeredTypesList,
-                                                                   List<Plugin> localPluginList,
-                                                                   List<CustomApi> localCustomApiList)
-        {
-            return registeredTypesList.Where(r => localPluginList.All(p => p.FullName != r.Name)
-                                               && localPluginList.Where(p => p.IsWorkflow).All(c => c.FullName != r.TypeName)
-                                               && localCustomApiList.All(c => c.FullName != r.TypeName));
+            return remote.PluginTypes.Where(r => local.Plugins.All(p => p.FullName != r.Name)
+                                              && local.Plugins.Where(p => p.IsWorkflow).All(c => c.FullName != r.TypeName)
+                                              && local.CustomApis.All(c => c.FullName != r.TypeName));
         }
 
         public static void UpdateMessageStepIfNeeded(IRegistrationService service, SdkMessageProcessingStep stepToRegister,
-                                          SdkMessageProcessingStep registeredStep, List<SdkMessageProcessingStep> profiledSteps)
+                                          SdkMessageProcessingStep registeredStep)
         {
             var comparer = new SdkMessageStepComparer();
             if (comparer.NeedsUpdate(stepToRegister, registeredStep))
             {
-                var profiledStep = profiledSteps.FirstOrDefault(p => p.Name.StartsWith(registeredStep.Name));
-
-                if (profiledStep != null)
-                {
-                    service.Delete(SdkMessageProcessingStepDefinition.EntityName, profiledStep.Id);
-
-                    service.Execute(new SetStateRequest
-                    {
-                        EntityMoniker = registeredStep.ToEntityReference(),
-                        State = new OptionSetValue((int)SdkMessageProcessingStepState.Enabled),
-                        Status = new OptionSetValue(-1)
-                    });
-                }
-
                 service.Update(stepToRegister);
             }
         }
@@ -682,6 +502,27 @@ namespace XrmFramework.DeployUtils
             {
                 service.Delete(registeredImage.LogicalName, registeredImage.Id);
             }
+        }
+    
+        private static void initConnection(string projectName, out string pluginSolutionUniqueName, out string connectionString)
+        {
+            var xrmFrameworkConfigSection = ConfigHelper.GetSection();
+
+            var projectConfig = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>()
+                .FirstOrDefault(p => p.Name == projectName);
+
+            if (projectConfig == null)
+            {
+                var defaultColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"No reference to the project {projectName} has been found in the xrmFramework.config file.");
+                Console.ForegroundColor = defaultColor;
+                System.Environment.Exit(1);
+            }
+
+            pluginSolutionUniqueName = projectConfig.TargetSolution;
+
+            connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
         }
     }
 }

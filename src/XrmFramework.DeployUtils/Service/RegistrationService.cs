@@ -1,5 +1,8 @@
 ﻿using Deploy;
+using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Client;
+using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using System;
@@ -8,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XrmFramework.Definitions;
+using XrmFramework.DeployUtils.Context;
 
 namespace XrmFramework.DeployUtils.Service
 {
@@ -45,13 +49,6 @@ namespace XrmFramework.DeployUtils.Service
             var assemblies = GetAssemblies();
 
             return assemblies.FirstOrDefault(a => assemblyName == a.Name);
-        }
-
-        public PluginAssembly GetProfilerAssembly()
-        {
-            var assemblies = GetAssemblies();
-
-            return assemblies.FirstOrDefault(a => a.Name.Contains("PluginProfiler"));
         }
 
         public IEnumerable<CustomApiRequestParameter> GetRegisteredCustomApiRequestParameters(Guid assemblyId)
@@ -213,6 +210,84 @@ namespace XrmFramework.DeployUtils.Service
             } while (ec.MoreRecords);
 
             return result;
+        }
+
+        public Guid Create(IRegisteredAssemblyContext context) => Create(context.Assembly);
+        public void Delete(IRegisteredAssemblyContext context) => Delete(PluginAssemblyDefinition.EntityName, context.Id);
+        public void Update(IRegisteredAssemblyContext context) => Update(context.Assembly);
+
+        public ICollection<Guid> CreateMany<T>(ICollection<T> entities) where T : Entity
+        {
+            ICollection<Guid> result = new List<Guid>();
+            foreach (var entity in entities)
+            {
+                result.Add(Create(entity));
+            }
+            return result;
+        }
+
+        public void DeleteMany<T>(ICollection<T> entities) where T : Entity
+        {
+            foreach (var entity in entities)
+            {
+                Delete(entity.LogicalName, entity.Id);
+            }
+        }
+
+        public void UpdateMany<T>(ICollection<T> entities) where T : Entity
+        {
+            foreach (var entity in entities)
+            {
+                Update(entity);
+            }
+        }
+
+        public void AddSolutionComponentToSolution(string solutionUniqueName, EntityReference component, int? objectTypeCode = null)
+        {
+
+            var s = new AddSolutionComponentRequest
+            {
+                AddRequiredComponents = false,
+                ComponentId = component.Id,
+                SolutionUniqueName = solutionUniqueName
+            };
+
+            if (objectTypeCode.HasValue)
+            {
+                s.ComponentType = objectTypeCode.Value;
+            }
+            else
+            {
+                switch (component.LogicalName)
+                {
+                    case PluginAssemblyDefinition.EntityName:
+                        s.ComponentType = (int)componenttype.PluginAssembly;
+                        break;
+
+                    case PluginTypeDefinition.EntityName:
+                        s.ComponentType = (int)componenttype.PluginType;
+                        break;
+
+                    case SdkMessageProcessingStepDefinition.EntityName:
+                        s.ComponentType = (int)componenttype.SDKMessageProcessingStep;
+                        break;
+
+                    case SdkMessageProcessingStepImageDefinition.EntityName:
+                        s.ComponentType = (int)componenttype.SDKMessageProcessingStepImage;
+                        break;
+                }
+            }
+
+            Execute(s);
+        }
+        
+        public int GetIntEntityTypeCode(string logicalName)
+        {
+            var entityRequest = new RetrieveEntityRequest { LogicalName = logicalName };
+
+            var entityResponse = (RetrieveEntityResponse)Execute(entityRequest);
+
+            return entityResponse.EntityMetadata.ObjectTypeCode.GetValueOrDefault();
         }
     }
 }
