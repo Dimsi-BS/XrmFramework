@@ -33,7 +33,7 @@ namespace XrmFramework.DeployUtils
         {
             string pluginSolutionUniqueName, connectionString;
 
-            initConnection(projectName, out pluginSolutionUniqueName, out connectionString);
+            InitConnection(projectName, out pluginSolutionUniqueName, out connectionString);
 
             Console.WriteLine($"You are about to deploy on {connectionString} organization. If ok press any key.");
             Console.ReadKey();
@@ -504,7 +504,7 @@ namespace XrmFramework.DeployUtils
             }
         }
     
-        private static void initConnection(string projectName, out string pluginSolutionUniqueName, out string connectionString)
+        private static void InitConnection(string projectName, out string pluginSolutionUniqueName, out string connectionString)
         {
             var xrmFrameworkConfigSection = ConfigHelper.GetSection();
 
