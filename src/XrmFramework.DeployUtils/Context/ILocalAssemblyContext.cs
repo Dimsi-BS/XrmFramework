@@ -12,7 +12,7 @@ namespace XrmFramework.DeployUtils.Context
     {
         Assembly Assembly { get; }
 
-        IEnumerable<Plugin> Plugins { get; set; }
+        ICollection<Plugin> Plugins { get; set; }
         PluginAssembly ToPluginAssembly();
         PluginAssembly ToPluginAssembly(Guid Id);
 

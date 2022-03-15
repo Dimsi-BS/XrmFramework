@@ -28,11 +28,11 @@ namespace XrmFramework.DeployUtils.Context
         }
         public Assembly Assembly { get; set; }
 
-        public IEnumerable<CustomApi> CustomApis { get; set; }
-        public IEnumerable<CustomApiRequestParameter> CustomApiRequestParameters { get; set; }
-        public IEnumerable<CustomApiResponseProperty> CustomApiResponseProperties { get; set; }
-        public IEnumerable<Plugin> Plugins { get; set; }
-        public IEnumerable<SdkMessageProcessingStep> Steps { get; set; }
+        public ICollection<CustomApi> CustomApis { get; set; }
+        public ICollection<CustomApiRequestParameter> CustomApiRequestParameters { get; set; }
+        public ICollection<CustomApiResponseProperty> CustomApiResponseProperties { get; set; }
+        public ICollection<Plugin> Plugins { get; set; }
+        public ICollection<SdkMessageProcessingStep> Steps { get; set; }
 
 
         public string Name { get => Assembly.GetName().Name; }

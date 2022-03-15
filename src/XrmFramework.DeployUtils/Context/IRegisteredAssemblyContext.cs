@@ -14,7 +14,7 @@ namespace XrmFramework.DeployUtils.Context
         Guid Id { get; set; }
         EntityReference EntityReference { get; }
 
-        IEnumerable<PluginType> PluginTypes { get; set; }
+        ICollection<PluginType> PluginTypes { get; set; }
 
         ICollection<SdkMessageProcessingStepImage> ImageSteps { get; }
 

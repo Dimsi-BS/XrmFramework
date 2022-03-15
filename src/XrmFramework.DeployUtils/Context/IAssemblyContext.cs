@@ -10,10 +10,10 @@ namespace XrmFramework.DeployUtils.Context
     public interface IAssemblyContext
     {
         string Name { get; }
-        IEnumerable<SdkMessageProcessingStep> Steps { get; set; }
-        IEnumerable<CustomApi> CustomApis { get; set; }
-        IEnumerable<CustomApiRequestParameter> CustomApiRequestParameters { get; set; }
-        IEnumerable<CustomApiResponseProperty> CustomApiResponseProperties { get; set; }
+        ICollection<SdkMessageProcessingStep> Steps { get; set; }
+        ICollection<CustomApi> CustomApis { get; set; }
+        ICollection<CustomApiRequestParameter> CustomApiRequestParameters { get; set; }
+        ICollection<CustomApiResponseProperty> CustomApiResponseProperties { get; set; }
 
     }
 }

@@ -49,7 +49,7 @@ namespace XrmFramework.DeployUtils.Service
             return assemblies.FirstOrDefault(a => assemblyName == a.Name);
         }
 
-        public IEnumerable<CustomApiRequestParameter> GetRegisteredCustomApiRequestParameters(Guid assemblyId)
+        public ICollection<CustomApiRequestParameter> GetRegisteredCustomApiRequestParameters(Guid assemblyId)
         {
             var list = new List<CustomApiRequestParameter>();
 
@@ -74,7 +74,7 @@ namespace XrmFramework.DeployUtils.Service
             return list;
         }
 
-        public IEnumerable<CustomApiResponseProperty> GetRegisteredCustomApiResponseProperties(Guid assemblyId)
+        public ICollection<CustomApiResponseProperty> GetRegisteredCustomApiResponseProperties(Guid assemblyId)
         {
             var list = new List<CustomApiResponseProperty>();
 
@@ -99,7 +99,7 @@ namespace XrmFramework.DeployUtils.Service
             return list;
         }
 
-        public IEnumerable<CustomApi> GetRegisteredCustomApis(Guid assemblyId)
+        public ICollection<CustomApi> GetRegisteredCustomApis(Guid assemblyId)
         {
             var list = new List<CustomApi>();
 
@@ -143,7 +143,7 @@ namespace XrmFramework.DeployUtils.Service
             return list;
         }
 
-        public IEnumerable<PluginType> GetRegisteredPluginTypes(Guid pluginAssemblyId)
+        public ICollection<PluginType> GetRegisteredPluginTypes(Guid pluginAssemblyId)
         {
             var list = new List<PluginType>();
 

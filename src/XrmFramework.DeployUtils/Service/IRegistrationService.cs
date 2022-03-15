@@ -14,15 +14,15 @@ namespace XrmFramework.DeployUtils.Service
 
         PluginAssembly GetAssemblyByName(string assemblyName);
 
-        IEnumerable<CustomApiRequestParameter> GetRegisteredCustomApiRequestParameters(Guid assemblyId);
+        ICollection<CustomApiRequestParameter> GetRegisteredCustomApiRequestParameters(Guid assemblyId);
 
-        IEnumerable<CustomApiResponseProperty> GetRegisteredCustomApiResponseProperties(Guid assemblyId);
+        ICollection<CustomApiResponseProperty> GetRegisteredCustomApiResponseProperties(Guid assemblyId);
 
-        IEnumerable<CustomApi> GetRegisteredCustomApis(Guid assemblyId);
+        ICollection<CustomApi> GetRegisteredCustomApis(Guid assemblyId);
 
         ICollection<SdkMessageProcessingStepImage> GetRegisteredImages(Guid assemblyId);
 
-        IEnumerable<PluginType> GetRegisteredPluginTypes(Guid pluginAssemblyId);
+        ICollection<PluginType> GetRegisteredPluginTypes(Guid pluginAssemblyId);
 
         ICollection<SdkMessageProcessingStep> GetRegisteredSteps(Guid assemblyId);
 

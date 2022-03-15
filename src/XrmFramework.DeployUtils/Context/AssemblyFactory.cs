@@ -117,15 +117,5 @@ namespace XrmFramework.DeployUtils.Context
             }
             return registeredAssembly;
         }
-
-        public void TemperWithAssembly(ILocalAssemblyContext context)
-        {
-            //context.Steps.ToList().ForEach(step =>
-            //{
-            //    step.MethodNames = new List<string>();
-
-            //}
-            
-        }
     }
 }

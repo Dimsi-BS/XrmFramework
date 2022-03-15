@@ -28,12 +28,12 @@ namespace XrmFramework.DeployUtils.Context
         public string Name => Assembly.Name;
         public EntityReference EntityReference { get => Assembly.ToEntityReference(); }
 
-        public IEnumerable<CustomApi> CustomApis { get; set; }
-        public IEnumerable<CustomApiRequestParameter> CustomApiRequestParameters { get ; set; }
-        public IEnumerable<CustomApiResponseProperty> CustomApiResponseProperties { get; set; }
-        public IEnumerable<SdkMessageProcessingStep> Steps { get; set; }
+        public ICollection<CustomApi> CustomApis { get; set; }
+        public ICollection<CustomApiRequestParameter> CustomApiRequestParameters { get ; set; }
+        public ICollection<CustomApiResponseProperty> CustomApiResponseProperties { get; set; }
+        public ICollection<SdkMessageProcessingStep> Steps { get; set; }
 
-        public IEnumerable<PluginType> PluginTypes { get; set; }      
+        public ICollection<PluginType> PluginTypes { get; set; }      
         public ICollection<SdkMessageProcessingStepImage> ImageSteps { get; set; }
 
 
