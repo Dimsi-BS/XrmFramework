@@ -13,6 +13,166 @@ namespace XrmFramework.DeployUtils.Utils
 {
     public static class AssemblyBridge
     {
+
+        public static dynamic CreateInstanceOfType(Type type, PluginRegistrationType kind)
+        {
+            dynamic instance;
+            switch (kind)
+            {
+                case PluginRegistrationType.Plugin:
+                    if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
+                    {
+                        instance = Activator.CreateInstance(type, new object[] { null, null });
+                    }
+                    else
+                    {
+                        instance = Activator.CreateInstance(type, new object[] { });
+                    }
+                    break;
+
+                case PluginRegistrationType.Workflow:
+                    instance = Activator.CreateInstance(type, new object[] { });
+                    break;
+
+                case PluginRegistrationType.CustomApi:
+                    if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
+                    {
+                        instance = Activator.CreateInstance(type, new object[] { null, null });
+                    }
+                    else
+                    {
+                        instance = Activator.CreateInstance(type, new object[] { });
+                    }
+                    break;
+
+                default:
+                    throw new InvalidEnumArgumentException("Unknown PluginRegistrationType");
+            }
+            return instance;
+        }
+
+        public static List<T> CreateInstanceOfTypeList<T>(List<Type> types, PluginRegistrationType kind, IRegistrationContext context)
+        {
+            List<T> list = new List<T>();
+            foreach (var type in types)
+            {
+                dynamic temp = CreateInstanceOfType(type, kind);
+                switch (kind)
+                {
+                    case PluginRegistrationType.Plugin:
+                        list.Add(FromXrmFrameworkPlugin(temp, false));
+                        break;
+
+                    case PluginRegistrationType.Workflow:
+                        list.Add(FromXrmFrameworkPlugin(temp, true));
+                        break;
+
+                    case PluginRegistrationType.CustomApi:
+                        list.Add(FromXrmFrameworkCustomApi(temp, context.Publisher.CustomizationPrefix));
+                        break;
+
+                    default:
+                        throw new InvalidEnumArgumentException("Unknown PluginRegistrationType");
+                }
+            }
+            return list;
+        }
+
+        public static Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false)
+        {
+            var pluginTemp = !isWorkflow ? new Plugin(plugin.GetType().FullName) : new Plugin(plugin.GetType().FullName, plugin.DisplayName);
+
+            if (!isWorkflow)
+            {
+                foreach (var step in plugin.Steps)
+                {
+                    pluginTemp.Steps.Add(FromXrmFrameworkStep(step));
+                }
+            }
+
+            return pluginTemp;
+        }
+
+        public static Step FromXrmFrameworkStep(dynamic s)
+        {
+            var step = new Step(s.Plugin.GetType().Name, s.Message.ToString(), (Stages)(int)s.Stage, (Modes)(int)s.Mode, s.EntityName);
+
+            step.FilteringAttributes.AddRange(s.FilteringAttributes);
+            step.ImpersonationUsername = s.ImpersonationUsername;
+            step.Order = s.Order;
+            step.PostImageAllAttributes = s.PostImageAllAttributes;
+            step.PostImageAttributes.AddRange(s.PostImageAttributes);
+            step.PreImageAllAttributes = s.PreImageAllAttributes;
+            step.PreImageAttributes.AddRange(s.PreImageAttributes);
+            step.UnsecureConfig = s.UnsecureConfig;
+
+            step.MethodNames.AddRange(s.MethodNames);
+
+            return step;
+        }
+
+        public static CustomApi FromXrmFrameworkCustomApi(dynamic record, string prefix)
+        {
+            var type = (Type)record.GetType();
+
+            dynamic customApiAttribute = type.GetCustomAttributes().FirstOrDefault(a => a.GetType().FullName == "XrmFramework.CustomApiAttribute");
+
+            if (customApiAttribute == null)
+            {
+                throw new Exception($"The custom api type {type.FullName} must have a CustomApiAttribute defined");
+            }
+
+            var name = string.IsNullOrWhiteSpace(customApiAttribute.Name) ? type.Name : customApiAttribute.Name;
+
+            var customApi = new CustomApi
+            {
+                DisplayName = string.IsNullOrWhiteSpace(customApiAttribute.DisplayName) ? name : customApiAttribute.DisplayName,
+                Name = name,
+                AllowedCustomProcessingStepType = new OptionSetValue((int)customApiAttribute.AllowedCustomProcessing),
+                BindingType = new OptionSetValue((int)customApiAttribute.BindingType),
+                BoundEntityLogicalName = customApiAttribute.BoundEntityLogicalName,
+                Description = string.IsNullOrWhiteSpace(customApiAttribute.Description) ? name : customApiAttribute.Description,
+                ExecutePrivilegeName = customApiAttribute.ExecutePrivilegeName,
+                IsFunction = customApiAttribute.IsFunction,
+                IsPrivate = customApiAttribute.IsPrivate,
+                UniqueName = $"{prefix}_{name}",
+                WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled,
+                FullName = type.FullName
+            };
+
+            foreach (var argument in record.Arguments)
+            {
+                if (argument.IsInArgument)
+                {
+                    customApi.InArguments.Add(FromXrmFrameworkArgument<CustomApiRequestParameter>(customApi.Name, argument));
+                }
+                else
+                {
+                    customApi.OutArguments.Add(FromXrmFrameworkArgument<CustomApiResponseProperty>(customApi.Name, argument));
+                }
+            }
+
+            return customApi;
+        }
+
+        public static T FromXrmFrameworkArgument<T>(string customApiName, dynamic argument) where T : ICustomApiComponent, new()
+        {
+            var res = new T
+            {
+                Description = string.IsNullOrWhiteSpace(argument.Description) ? $"{customApiName}.{argument.ArgumentName}" : argument.Description,
+                UniqueName = $"{customApiName}.{argument.ArgumentName}",
+                DisplayName = string.IsNullOrWhiteSpace(argument.DisplayName) ? $"{customApiName}.{argument.ArgumentName}" : argument.DisplayName,
+                LogicalEntityName = argument.LogicalEntityName,
+                Type = new OptionSetValue((int)argument.ArgumentType),
+                Name = argument.ArgumentName
+            };
+
+            if (typeof(T).IsAssignableFrom(typeof(CustomApiRequestParameter)))
+            {
+                res.IsOptional = argument.IsOptional;
+            }
+            return res;
+        }
         public static PluginType ToRegisterCustomWorkflowType(Guid pluginAssemblyId, string pluginFullName, string displayName)
         {
             var t = new PluginType()
@@ -138,167 +298,6 @@ namespace XrmFramework.DeployUtils.Utils
             };
 
             return t;
-        }
-
-        public static dynamic CreateInstanceOfType(Type type, PluginRegistrationType kind)
-        {
-            dynamic instance;
-            switch (kind)
-            {
-                case PluginRegistrationType.Plugin:
-                    if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
-                    {
-                        instance = Activator.CreateInstance(type, new object[] { null, null });
-                    }
-                    else
-                    {
-                        instance = Activator.CreateInstance(type, new object[] { });
-                    }
-                    break;
-
-                case PluginRegistrationType.Workflow:
-                    instance = Activator.CreateInstance(type, new object[] { });
-                    break;
-
-                case PluginRegistrationType.CustomApi:
-                    if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
-                    {
-                        instance = Activator.CreateInstance(type, new object[] { null, null });
-                    }
-                    else
-                    {
-                        instance = Activator.CreateInstance(type, new object[] { });
-                    }
-                    break;
-
-                default:
-                    throw new InvalidEnumArgumentException("Unknown PluginRegistrationType");
-            }
-            return instance;
-        }
-
-
-        public static List<T> CreateInstanceOfTypeList<T>(List<Type> types, PluginRegistrationType kind, IRegistrationContext context)
-        {
-            List<T> list = new List<T>();
-            foreach (var type in types)
-            {
-                dynamic temp = CreateInstanceOfType(type, kind);
-                switch (kind)
-                {
-                    case PluginRegistrationType.Plugin:
-                        list.Add(FromXrmFrameworkPlugin(temp, false));
-                        break;
-
-                    case PluginRegistrationType.Workflow:
-                        list.Add(FromXrmFrameworkPlugin(temp, true));
-                        break;
-
-                    case PluginRegistrationType.CustomApi:
-                        list.Add(FromXrmFrameworkCustomApi(temp, context.Publisher.CustomizationPrefix));
-                        break;
-
-                    default:
-                        throw new InvalidEnumArgumentException("Unknown PluginRegistrationType");
-                }
-            }
-            return list;
-        }
-
-        public static Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false)
-        {
-            var pluginTemp = !isWorkflow ? new Plugin(plugin.GetType().FullName) : new Plugin(plugin.GetType().FullName, plugin.DisplayName);
-
-            if (!isWorkflow)
-            {
-                foreach (var step in plugin.Steps)
-                {
-                    pluginTemp.Steps.Add(FromXrmFrameworkStep(step));
-                }
-            }
-
-            return pluginTemp;
-        }
-
-        public static Step FromXrmFrameworkStep(dynamic s)
-        {
-            var step = new Step(s.Plugin.GetType().Name, s.Message.ToString(), (Stages)(int)s.Stage, (Modes)(int)s.Mode, s.EntityName);
-
-            step.FilteringAttributes.AddRange(s.FilteringAttributes);
-            step.ImpersonationUsername = s.ImpersonationUsername;
-            step.Order = s.Order;
-            step.PostImageAllAttributes = s.PostImageAllAttributes;
-            step.PostImageAttributes.AddRange(s.PostImageAttributes);
-            step.PreImageAllAttributes = s.PreImageAllAttributes;
-            step.PreImageAttributes.AddRange(s.PreImageAttributes);
-            step.UnsecureConfig = s.UnsecureConfig;
-
-            step.MethodNames.AddRange(s.MethodNames);
-
-            return step;
-        }
-
-        public static CustomApi FromXrmFrameworkCustomApi(dynamic record, string prefix)
-        {
-            var type = (Type)record.GetType();
-
-            dynamic customApiAttribute = type.GetCustomAttributes().FirstOrDefault(a => a.GetType().FullName == "XrmFramework.CustomApiAttribute");
-
-            if (customApiAttribute == null)
-            {
-                throw new Exception($"The custom api type {type.FullName} must have a CustomApiAttribute defined");
-            }
-
-            var name = string.IsNullOrWhiteSpace(customApiAttribute.Name) ? type.Name : customApiAttribute.Name;
-
-            var customApi = new CustomApi
-            {
-                DisplayName = string.IsNullOrWhiteSpace(customApiAttribute.DisplayName) ? name : customApiAttribute.DisplayName,
-                Name = name,
-                AllowedCustomProcessingStepType = new OptionSetValue((int)customApiAttribute.AllowedCustomProcessing),
-                BindingType = new OptionSetValue((int)customApiAttribute.BindingType),
-                BoundEntityLogicalName = customApiAttribute.BoundEntityLogicalName,
-                Description = string.IsNullOrWhiteSpace(customApiAttribute.Description) ? name : customApiAttribute.Description,
-                ExecutePrivilegeName = customApiAttribute.ExecutePrivilegeName,
-                IsFunction = customApiAttribute.IsFunction,
-                IsPrivate = customApiAttribute.IsPrivate,
-                UniqueName = $"{prefix}_{name}",
-                WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled,
-                FullName = type.FullName
-            };
-
-            foreach (var argument in record.Arguments)
-            {
-                if (argument.IsInArgument)
-                {
-                    customApi.InArguments.Add(FromXrmFrameworkArgument<CustomApiRequestParameter>(customApi.Name, argument));
-                }
-                else
-                {
-                    customApi.OutArguments.Add(FromXrmFrameworkArgument<CustomApiResponseProperty>(customApi.Name, argument));
-                }
-            }
-
-            return customApi;
-        }
-
-        public static T FromXrmFrameworkArgument<T>(string customApiName, dynamic argument) where T : ICustomApiComponent, new()
-        {
-            var res = new T
-            {
-                Description = string.IsNullOrWhiteSpace(argument.Description) ? $"{customApiName}.{argument.ArgumentName}" : argument.Description,
-                UniqueName = $"{customApiName}.{argument.ArgumentName}",
-                DisplayName = string.IsNullOrWhiteSpace(argument.DisplayName) ? $"{customApiName}.{argument.ArgumentName}" : argument.DisplayName,
-                LogicalEntityName = argument.LogicalEntityName,
-                Type = new OptionSetValue((int)argument.ArgumentType),
-                Name = argument.ArgumentName
-            };
-
-            if (typeof(T).IsAssignableFrom(typeof(CustomApiRequestParameter)))
-            {
-                res.IsOptional = argument.IsOptional;
-            }
-            return res;
         }
     }
 }
