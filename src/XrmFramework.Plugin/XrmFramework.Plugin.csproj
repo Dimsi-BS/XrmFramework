@@ -42,6 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj" />
     <ProjectReference Include="..\XrmFramework.MSBuild.Reflection\XrmFramework.MSBuild.Reflection.csproj" />
   </ItemGroup>
 

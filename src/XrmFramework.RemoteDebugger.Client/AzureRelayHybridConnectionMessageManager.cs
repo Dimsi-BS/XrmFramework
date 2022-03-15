@@ -25,11 +25,14 @@ namespace XrmFramework.RemoteDebugger.Common
         
         public AzureRelayHybridConnectionMessageManager()
         {
+
+
+            // Check that a debug session exists for this project
             if (ConfigurationManager.ConnectionStrings["DebugConnectionString"] == null)
             {
                 throw new Exception("The connectionString \"DebugConnectionString\" is not defined.");
             }
-
+            
             // create a connection string with the listener profile
             Listener = new HybridConnectionListener(ConfigurationManager.ConnectionStrings["DebugConnectionString"].ConnectionString);
 
@@ -48,24 +51,28 @@ namespace XrmFramework.RemoteDebugger.Common
             // reading the body
             var requestContent = streamReader.ReadToEnd();
 
-
+            // Get the message object through deserialization
             var message = JsonConvert.DeserializeObject<RemoteDebuggerMessage>(requestContent);
-
+            // Cache it
             CurrentResponseCache.AddOrUpdate(message.PluginExecutionId, context.Response, (guid, response) => context.Response);
+            
             
             if (message.MessageType == RemoteDebuggerMessageType.Context)
             {
+                // Get context info
                 var remoteContext = message.GetContext<RemoteDebugExecutionContext>();
                 OnContextReceived(remoteContext);
-
+                // Cache a response to be sent with the new context
                 MessageSendCache.TryAdd(remoteContext.Id, new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id));
             }
 
             if (message.MessageType == RemoteDebuggerMessageType.Response)
             {
+                // Cache it
                 MessageReceiveCache.TryAdd(message.PluginExecutionId, message);
 
                 RemoteDebuggerMessage response;
+                // Loop while until it is possible to remove the response from cache which means it is ready to be sent
                 while (!MessageSendCache.TryRemove(message.PluginExecutionId, out response))
                 {
                     // Waiting for the response to come
