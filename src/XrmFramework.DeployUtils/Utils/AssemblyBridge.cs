@@ -299,5 +299,14 @@ namespace XrmFramework.DeployUtils.Utils
 
             return t;
         }
+    
+        public static void AttachStepToPlugin(Guid pluginTypeId, SdkMessageProcessingStep step)
+        {
+            var t = new EntityReference(PluginTypeDefinition.EntityName, pluginTypeId);
+            step.EventHandler = t;
+#pragma warning disable 0612
+            step.PluginTypeId = t;
+#pragma warning restore 0612
+        }
     }
 }
