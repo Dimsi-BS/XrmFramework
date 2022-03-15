@@ -15,6 +15,11 @@ namespace Deploy
         public string UniqueName {get; set;}
 
         public Guid Id { get; set; }
-
+        string Description { get; set; }
+        string DisplayName { get; set; }
+        string LogicalEntityName { get; set; }
+        bool IsOptional { get; set; }
+        OptionSetValue Type { get; set; }
+        string Name { get; set; }
     }
 }

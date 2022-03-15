@@ -12,11 +12,11 @@ namespace XrmFramework.DeployUtils.Context
     public interface IRegistrationContext
     {
         string SolutionName { get; }
-        Solution Solution { get; set; }
-        Publisher Publisher { get; set; }
+        Solution Solution { get; }
+        Publisher Publisher { get; }
 
-        List<SolutionComponent> Components { get; set; }
-        List<SdkMessageFilter> Filters { get; set; }
+        List<SolutionComponent> Components { get; }
+        List<SdkMessageFilter> Filters { get; }
         Dictionary<string, EntityReference> Messages { get; }
         List<KeyValuePair<string, Guid>> Users { get; }
 

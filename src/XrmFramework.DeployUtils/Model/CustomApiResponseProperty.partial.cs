@@ -4,22 +4,6 @@ namespace Deploy
 {
     partial class CustomApiResponseProperty : ICustomApiComponent
     {
-        public static CustomApiResponseProperty FromXrmFrameworkArgument(string customApiName, dynamic argument)
-        {
-            return new CustomApiResponseProperty
-            {
-                Description = string.IsNullOrWhiteSpace(argument.Description) ? $"{customApiName}.{argument.ArgumentName}" : argument.Description,
-                UniqueName = $"{customApiName}.{argument.ArgumentName}",
-                DisplayName = string.IsNullOrWhiteSpace(argument.DisplayName) ? $"{customApiName}.{argument.ArgumentName}" : argument.DisplayName,
-                LogicalEntityName = argument.LogicalEntityName,
-                Type = new OptionSetValue((int)argument.ArgumentType),
-                Name = argument.ArgumentName
-            };
-        }
-
-        public Entity ToEntity()
-        {
-            return this;
-        }
+        public bool IsOptional { get; set; }
     }
 }

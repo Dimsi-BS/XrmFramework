@@ -15,11 +15,11 @@ namespace XrmFramework.DeployUtils.Context
     public class RegistrationContext : IRegistrationContext
     {
         public string SolutionName { get; private set; }
-        public Solution Solution { get; set; }
-        public Publisher Publisher { get; set; }
+        public Solution Solution { get; private set; }
+        public Publisher Publisher { get; private set; }
 
-        public List<SolutionComponent> Components { get; set; }
-        public List<SdkMessageFilter> Filters { get; set; }
+        public List<SolutionComponent> Components { get; private set; }
+        public List<SdkMessageFilter> Filters { get; private set; }
         public Dictionary<string, EntityReference> Messages { get; private set; }
         public List<KeyValuePair<string, Guid>> Users { get; private set; }
 
@@ -127,7 +127,6 @@ namespace XrmFramework.DeployUtils.Context
                 Messages.Add(e.Name, e.ToEntityReference());
             }
         }
-
 
         private void InitFilters(IRegistrationService service)
         {

@@ -85,24 +85,6 @@ namespace XrmFramework.DeployUtils.Model
 
             MethodNames.AddRange(step.MethodNames);
         }
-
-        public static Step FromXrmFrameworkStep(dynamic s)
-        {
-            var step = new Step(s.Plugin.GetType().Name, s.Message.ToString(), (Stages)(int)s.Stage, (Modes)(int)s.Mode, s.EntityName);
-
-            step.FilteringAttributes.AddRange(s.FilteringAttributes);
-            step.ImpersonationUsername = s.ImpersonationUsername;
-            step.Order = s.Order;
-            step.PostImageAllAttributes = s.PostImageAllAttributes;
-            step.PostImageAttributes.AddRange(s.PostImageAttributes);
-            step.PreImageAllAttributes = s.PreImageAllAttributes;
-            step.PreImageAttributes.AddRange(s.PreImageAttributes);
-            step.UnsecureConfig = s.UnsecureConfig;
-
-            step.MethodNames.AddRange(s.MethodNames);
-
-            return step;
-        }
     }
 
 }
