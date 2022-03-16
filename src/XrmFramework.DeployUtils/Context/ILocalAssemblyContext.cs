@@ -13,6 +13,8 @@ namespace XrmFramework.DeployUtils.Context
         Assembly Assembly { get; }
 
         ICollection<Plugin> Plugins { get; set; }
+        StepCollection Steps { get; set; }
+
         PluginAssembly ToPluginAssembly();
         PluginAssembly ToPluginAssembly(Guid Id);
 

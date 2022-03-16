@@ -23,7 +23,7 @@ namespace XrmFramework.DeployUtils.Context
             CustomApiRequestParameters = new List<CustomApiRequestParameter>();
             CustomApiResponseProperties = new List<CustomApiResponseProperty>();
             Plugins = new List<Plugin>();
-            Steps = new List<SdkMessageProcessingStep>();
+            Steps = new StepCollection();
 
         }
         public Assembly Assembly { get; set; }
@@ -32,7 +32,7 @@ namespace XrmFramework.DeployUtils.Context
         public ICollection<CustomApiRequestParameter> CustomApiRequestParameters { get; set; }
         public ICollection<CustomApiResponseProperty> CustomApiResponseProperties { get; set; }
         public ICollection<Plugin> Plugins { get; set; }
-        public ICollection<SdkMessageProcessingStep> Steps { get; set; }
+        public StepCollection Steps { get; set; }
 
 
         public string Name { get => Assembly.GetName().Name; }

@@ -63,13 +63,13 @@ namespace XrmFramework.DeployUtils.Context
                 CustomApiRequestParameters.AddRange(c.InArguments);
                 CustomApiResponseProperties.AddRange(c.OutArguments);
             });
-            var Steps = new List<SdkMessageProcessingStep>();
+            var Steps = new StepCollection();
 
             Plugins.ForEach(p =>
             {
                 foreach (var s in p.Steps)
                 {
-                    Steps.Add(AssemblyBridge.ToRegisterStep(new Guid(), s, _registrationContext));
+                    Steps.Add(s);
                 }
 
             });

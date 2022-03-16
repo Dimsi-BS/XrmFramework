@@ -15,6 +15,8 @@ namespace XrmFramework.DeployUtils.Context
         EntityReference EntityReference { get; }
 
         ICollection<PluginType> PluginTypes { get; set; }
+        ICollection<SdkMessageProcessingStep> Steps { get; set; }
+
 
         ICollection<SdkMessageProcessingStepImage> ImageSteps { get; }
 
