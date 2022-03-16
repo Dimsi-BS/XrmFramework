@@ -50,9 +50,10 @@ namespace XrmFramework.DeployUtils
 
             var assemblyFactory = new AssemblyFactory(_registrationContext);
 
+            var registeredAssembly = assemblyFactory.RegisteredAssemblyContext(service, projectName);
+
             var localAssembly = assemblyFactory.LocalAssemblyContext(typeof(TPlugin));
 
-            var registeredAssembly = assemblyFactory.RegisteredAssemblyContext(service, localAssembly.Name);
 
             Console.WriteLine();
             Console.WriteLine("Registering assembly");
@@ -120,6 +121,8 @@ namespace XrmFramework.DeployUtils
                 .Where(s => registeredTypesToDelete.Any(t => s.EventHandler.Id == t.Id))
                 .ToList();
 
+            //var registeredUnusedSteps = FilterUnusedStepsForLocal(localAssembly, registeredAssembly).ToList();
+
             // Same for CustomApis
             var registeredCustomApisToDelete = registeredAssembly.CustomApis
                 .Where(c => registeredTypesToDelete.Any(s => c.PluginTypeId?.Id == s.Id))
@@ -130,7 +133,7 @@ namespace XrmFramework.DeployUtils
                 .Where(r => localAssembly.CustomApiRequestParameters.All(l => r.UniqueName != l.UniqueName))
                 .ToList();
             var responseParametersToDelete = registeredAssembly.CustomApiResponseProperties
-                .Where(r => localAssembly.CustomApiRequestParameters.All(l => r.UniqueName != l.UniqueName))
+                .Where(r => localAssembly.CustomApiResponseProperties.All(l => r.UniqueName != l.UniqueName))
                 .ToList();
 
             // Delete
@@ -145,20 +148,19 @@ namespace XrmFramework.DeployUtils
             service.DeleteMany(registeredTypesToDelete);
 
             //Remove from Fetched lists
-            registeredAssembly.Steps = registeredAssembly.Steps
-                .Where(s => !registeredStepsForPluginTypeToDelete.Contains(s));
+
 
             registeredAssembly.CustomApis = registeredAssembly.CustomApis
-                .Where(s => !registeredCustomApisToDelete.Contains(s));
+                .Where(s => !registeredCustomApisToDelete.Contains(s)).ToList();
 
             registeredAssembly.CustomApiRequestParameters = registeredAssembly.CustomApiRequestParameters
-                .Where(s => !requestParametersToDelete.Contains(s));
+                .Where(s => !requestParametersToDelete.Contains(s)).ToList();
 
             registeredAssembly.CustomApiResponseProperties = registeredAssembly.CustomApiResponseProperties
-                .Where(s => !responseParametersToDelete.Contains(s));
+                .Where(s => !responseParametersToDelete.Contains(s)).ToList();
 
             registeredAssembly.PluginTypes = registeredAssembly.PluginTypes
-                .Where(s => !registeredTypesToDelete.Contains(s));
+                .Where(s => !registeredTypesToDelete.Contains(s)).ToList();
         }
 
         public static void RegisterPlugins(RegistrationService service, ILocalAssemblyContext localAssembly, IRegisteredAssemblyContext registeredAssembly)

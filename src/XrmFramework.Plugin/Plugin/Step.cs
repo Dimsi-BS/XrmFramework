@@ -21,6 +21,8 @@ namespace XrmFramework
 
         private bool _postImageAllAttributes = false;
 
+        private bool _isDebugFunction = false;
+
         public Step(Plugin plugin, Messages message, Stages stage, Modes mode, string entityName)
         {
             Plugin = plugin;
@@ -39,6 +41,12 @@ namespace XrmFramework
             if (Method != null)
             {
                 MethodNames.Add(Method.Name);
+
+                var debugAttribute = Method.GetCustomAttribute<DebugAttribute>();
+                if(debugAttribute != null)
+                {
+                    _isDebugFunction = debugAttribute.IsDebugFunction;
+                }
 
                 var filteringAttributes = Method.GetCustomAttribute<FilteringAttributesAttribute>();
                 if (filteringAttributes != null)
@@ -130,6 +138,8 @@ namespace XrmFramework
 
         public bool PostImageAllAttributes => _postImageAllAttributes;
         public IReadOnlyCollection<string> PostImageAttributes => _postImageAttributes;
+
+        public bool IsDebugFunction => _isDebugFunction;
 
         public int Order { get; }
 

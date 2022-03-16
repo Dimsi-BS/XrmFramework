@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
 using Microsoft.Xrm.Sdk;
+using XrmFramework.RemoteDebugger.Common;
 
 namespace XrmFramework
 {
@@ -145,7 +146,7 @@ namespace XrmFramework
                 {
                     return;
                 }
-                
+
                 IEnumerable<Step> steps;
 
                 if (_isCustomApi)
@@ -159,14 +160,14 @@ namespace XrmFramework
                 {
                     steps =
                         (from a in _newRegisteredEvents
-                            where (
-                                localContext.IsStage(a.Stage) &&
-                                localContext.IsMessage(a.Message) &&
-                                localContext.Mode == a.Mode &&
-                                (string.IsNullOrWhiteSpace(a.EntityName) ||
-                                 a.EntityName == localContext.PrimaryEntityName)
-                            )
-                            select a);
+                         where (
+                             localContext.IsStage(a.Stage) &&
+                             localContext.IsMessage(a.Message) &&
+                             localContext.Mode == a.Mode &&
+                             (string.IsNullOrWhiteSpace(a.EntityName) ||
+                              a.EntityName == localContext.PrimaryEntityName)
+                         )
+                         select a);
                 }
 
                 var stage = Enum.ToObject(typeof(Stages), localContext.Stage);
@@ -207,6 +208,19 @@ namespace XrmFramework
                     }
 
                     var entityAction = step.Method;
+                    var wtf = serviceProvider.GetType().IsAssignableFrom(typeof(LocalServiceProvider));
+
+                    if (step.IsDebugFunction && !localContext.IsDebugContext)
+                    {
+                        localContext.Log(
+                            "\r\n{0}.{5} is not fired because it has Debug Attribute.",
+                            ChildClassName,
+                            localContext.PrimaryEntityName,
+                            localContext.MessageName,
+                            stage,
+                            localContext.Mode, step.Method.Name);
+                        continue;
+                    }
 
                     localContext.Log($"\r\n\r\n{ChildClassName}.{step.Method.Name} is firing");
 
