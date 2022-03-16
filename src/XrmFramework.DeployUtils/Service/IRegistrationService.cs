@@ -33,8 +33,8 @@ namespace XrmFramework.DeployUtils.Service
         void Update(IRegisteredAssemblyContext context);
 
         ICollection<Guid> CreateMany<T>(ICollection<T> entities) where T : Entity;
-        void DeleteMany<T>(ICollection<T> entities) where T : Entity;
-        void UpdateMany<T>(ICollection<T> entities) where T : Entity;
+        void DeleteMany<T>(IEnumerable<T> entities) where T : Entity;
+        void UpdateMany<T>(IEnumerable<T> entities) where T : Entity;
 
         void AddSolutionComponentToSolution(string solutionUniqueName, EntityReference objectRef, int? objectTypeCode = null);
 

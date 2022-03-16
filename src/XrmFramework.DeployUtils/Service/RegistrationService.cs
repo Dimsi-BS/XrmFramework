@@ -224,7 +224,7 @@ namespace XrmFramework.DeployUtils.Service
             return result;
         }
 
-        public void DeleteMany<T>(ICollection<T> entities) where T : Entity
+        public void DeleteMany<T>(IEnumerable<T> entities) where T : Entity
         {
             foreach (var entity in entities)
             {
@@ -232,7 +232,7 @@ namespace XrmFramework.DeployUtils.Service
             }
         }
 
-        public void UpdateMany<T>(ICollection<T> entities) where T : Entity
+        public void UpdateMany<T>(IEnumerable<T> entities) where T : Entity
         {
             foreach (var entity in entities)
             {
