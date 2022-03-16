@@ -19,11 +19,12 @@ namespace XrmFramework.DeployUtils.Model
         }
 
         public string PluginTypeName { get; }
-
         public string Message { get; }
         public Stages Stage { get; }
         public Modes Mode { get; }
         public string EntityName { get; }
+
+        public string PluginTypeFullName { get; set; }
 
         public Guid MessageId { get; set; }
 
