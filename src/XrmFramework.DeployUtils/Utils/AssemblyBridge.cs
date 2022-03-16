@@ -97,6 +97,7 @@ namespace XrmFramework.DeployUtils.Utils
         {
             var step = new Step(s.Plugin.GetType().Name, s.Message.ToString(), (Stages)(int)s.Stage, (Modes)(int)s.Mode, s.EntityName);
 
+            step.PluginTypeFullName = s.Plugin.GetType().FullName;
             step.FilteringAttributes.AddRange(s.FilteringAttributes);
             step.ImpersonationUsername = s.ImpersonationUsername;
             step.Order = s.Order;
@@ -299,14 +300,53 @@ namespace XrmFramework.DeployUtils.Utils
 
             return t;
         }
-    
-        public static void AttachStepToPlugin(Guid pluginTypeId, SdkMessageProcessingStep step)
+
+        public static IEnumerable<PluginType> PluginTypeDeleteDiff(ILocalAssemblyContext local, IRegisteredAssemblyContext remote)
         {
-            var t = new EntityReference(PluginTypeDefinition.EntityName, pluginTypeId);
-            step.EventHandler = t;
-#pragma warning disable 0612
-            step.PluginTypeId = t;
-#pragma warning restore 0612
+            return remote.PluginTypes.Where(r => local.Plugins.All(p => p.FullName != r.Name)
+                                              && local.Plugins.Where(p => p.IsWorkflow).All(c => c.FullName != r.TypeName)
+                                              && local.CustomApis.All(c => c.FullName != r.TypeName));
+        }
+        public static IEnumerable<CustomApi> CustomApiDeleteDiff(ILocalAssemblyContext local, IRegisteredAssemblyContext remote)
+        {
+            var localCustomApi = local.CustomApis;
+            var remoteCustomApi = remote.CustomApis;
+
+            var unusedPlugins = PluginTypeDeleteDiff(local, remote);
+
+            return remote.CustomApis
+                    .Where(c => unusedPlugins.Any(s => c.PluginTypeId?.Id == s.Id));
+        }
+
+        public static IEnumerable<CustomApiRequestParameter> CustomApiRequestParameterDeleteDiff(ILocalAssemblyContext local, IRegisteredAssemblyContext remote)
+        {
+            return remote.CustomApiRequestParameters
+                        .Where(r => local.CustomApiRequestParameters.All(l => r.UniqueName != l.UniqueName));
+        }
+        
+        public static IEnumerable<CustomApiResponseProperty> CustomApiResponsePropertyDeleteDiff(ILocalAssemblyContext local, IRegisteredAssemblyContext remote)
+        {
+            return remote.CustomApiResponseProperties
+                        .Where(r => local.CustomApiResponseProperties.All(l => r.UniqueName != l.UniqueName));
+        }
+
+        private static PluginType RegisteredCorrespondingPlugin(Plugin localPlugin, IRegisteredAssemblyContext remoteAssembly)
+        {
+            return remoteAssembly.PluginTypes.FirstOrDefault(r => r.Name == localPlugin.FullName);
+        }
+        
+
+        public static SdkMessageProcessingStep RegisteredCorrespondingStep(Step localStep, ILocalAssemblyContext localAssembly, IRegisteredAssemblyContext remoteAssembly)
+        {
+            return remoteAssembly.Steps.FirstOrDefault(s => MixedStepsEquals(localStep, s));
+        }
+
+        private static bool MixedStepsEquals(Step local, SdkMessageProcessingStep remote)
+        {
+            return local.PluginTypeFullName == remote.EventHandler.Name
+                && local.Message == remote.SdkMessageId.Name
+                && (int)local.Mode == (int)remote.ModeEnum
+                && (int)local.Stage == (int)remote.StageEnum;
         }
     }
 }
