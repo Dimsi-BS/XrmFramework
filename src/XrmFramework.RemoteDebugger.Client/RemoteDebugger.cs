@@ -20,7 +20,7 @@ namespace XrmFramework.RemoteDebugger.Common
             Manager = new T();
         }
 
-        public void Start<P>()
+        public void Start<P>(string solutionName)
         {
             // Get registered steps
 
@@ -28,9 +28,11 @@ namespace XrmFramework.RemoteDebugger.Common
             //RegistrationHelper<XrmFramework.RemoteDebuggerPlugin>
 
 
-
+            RegistrationHelper.UpdateRemoteDebuggerPlugin<P>(solutionName);
+            Console.WriteLine("testey");
             Manager.ContextReceived += remoteContext =>
                 {
+                    Console.WriteLine("tapadamorda");
                     // Create local service provider from remote context
                     var serviceProvider = new LocalServiceProvider(remoteContext);
 
@@ -57,7 +59,7 @@ namespace XrmFramework.RemoteDebugger.Common
                         var typeQualifiedName = remoteContext.TypeAssemblyQualifiedName.Split(new [] {", "}, StringSplitOptions.RemoveEmptyEntries).ToList();
                         // Remove the version part of the list and the public key token
                         typeQualifiedName.RemoveAll(i => i.StartsWith("Version") || i.StartsWith("PublicKeyToken") );
-                        Console.WriteLine(typeQualifiedName);
+                        //Console.WriteLine(typeQualifiedName);
 
                         /*foreach(var pluginToBeExecuted in pluginsToBeExecuted)
                         {
@@ -66,10 +68,10 @@ namespace XrmFramework.RemoteDebugger.Common
                             
                         }*/
                         var typeName = string.Join(", ", typeQualifiedName);
-                        Console.WriteLine(typeName);
+                        //Console.WriteLine(typeName);
                         // Get the pluginType from the newly constructed typeName ?????
                         var pluginType = Type.GetType(typeName);
-                        Console.WriteLine(pluginType.Name);
+                        //Console.WriteLine(pluginType.Name);
 
                         // If no plugin found, return
                         if (pluginType == null)

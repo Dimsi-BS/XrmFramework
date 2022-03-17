@@ -29,21 +29,30 @@ namespace XrmFramework.RemoteDebuggerPlugin
 
             // On modifie le contexte en utilisant unsecuredConfig pour obtenir le nom du plugin qu'on est censé utiliser
             var pluginToExecute = UnsecuredConfig;
+            var typeQualifiedName = localContext.RemoteContext.TypeAssemblyQualifiedName.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+            Console.WriteLine("type qualified name");
+            Console.WriteLine(typeQualifiedName[0]);
+            Console.WriteLine("type qualified name");
+
+            //typeQualifiedName
+
             localContext.RemoteContext.TypeAssemblyQualifiedName = pluginToExecute;
 
-            if (SendToRemoteDebugger(localContext))
+            if (!localContext.IsDebugContext)
             {
+                
                 return;
             }
             // On met le nom du plugin dans remoteContext.TypeAssemblyQualifiedName
+            //localContext.RemoteContext.TypeAssemblyQualifiedName = UnsecuredConfig;
+            //localContext.RemoteContext.TypeAssemblyQualifiedName =
+
 
             // On renvoie le tout au remote debugger
 
         }
 
-        private bool SendToRemoteDebugger(LocalPluginContext context)
-        {
-            return true;
-        }
+        
     }
+    
 }

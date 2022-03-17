@@ -392,6 +392,7 @@ namespace XrmFramework.DeployUtils
 
         public static void UpdateRemoteDebuggerPlugin<TPlugin>(string projectName)
         {
+            Console.WriteLine(projectName);
             // Connect a service to the debug session
             var xrmFrameworkConfigSection = ConfigHelper.GetSection();
             var projectConfig = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>()
@@ -418,6 +419,11 @@ namespace XrmFramework.DeployUtils
             //Kind of deprecated, allow use of early bound classes like in DeployUtils.Model.Entities, to make a strongly typed object from a table 
             service.OrganizationServiceProxy?.EnableProxyTypes();
             var debugAssembly = GetAssemblyByName(service, "XrmFramework.RemoteDebuggerPlugin");
+
+            InitMetadata(service, pluginSolutionUniqueName);
+
+            
+
             //Now get the local assembly for the plugin(s) to be debugged
             var pluginAssembly = typeof(TPlugin).Assembly;
             //Get each possible type of plugin
@@ -432,16 +438,23 @@ namespace XrmFramework.DeployUtils
             // Now for each local plugin we assign steps to the debug plugin
             GetPluginData(pluginTypes, pluginList);
 
+
             // Now we get the remoteDebugger plugin
             var debuggerPlugin = GetRegisteredPluginTypes(service, debugAssembly.Id).ToList()[0];
             var registeredSteps = GetRegisteredSteps(service, debugAssembly.Id);
+            var registeredImages = GetRegisteredImages(service, debugAssembly.Id);
 
             var registeredStepsForPluginType = registeredSteps.Where(s => s.EventHandler.Id == debuggerPlugin.Id).ToList();
             foreach(var step in registeredStepsForPluginType)
             {
 
                 service.Delete(SdkMessageProcessingStep.EntityLogicalName, step.Id);
-                registeredStepsForPluginType.Remove(step);
+                //registeredStepsForPluginType.Remove(step);
+            }
+            foreach(var image in registeredImages)
+            {
+                service.Delete(SdkMessageProcessingStepImage.EntityLogicalName, image.Id);
+                //registeredImages.Remove(image);
             }
 
             foreach (var plugin in pluginTypes)
@@ -456,10 +469,40 @@ namespace XrmFramework.DeployUtils
 
                             if (convertedStep.Message != Messages.Associate.ToString() && convertedStep.Message != Messages.Lose.ToString() && convertedStep.Message != Messages.Win.ToString())
                             {
+                                convertedStep.UnsecureConfig = plugin.FullName;
+                                //convertedStep.SecuredConfig = "oulalalalolo";
                                 var stepToRegister = GetStepToRegister(debuggerPlugin.Id, convertedStep);
+
                                 //Console.WriteLine(s.ImpersonationUsername);
+                                //stepToRegister.
+                                
                                 stepToRegister.Id = service.Create(stepToRegister);
                                 AddSolutionComponentToSolution(service, pluginSolutionUniqueName, stepToRegister.ToEntityReference());
+
+                                if (convertedStep.PostImageUsed && convertedStep.Message != Messages.Delete.ToString())
+                                {
+
+                                    var postImage = GetImageToRegister(service, stepToRegister.Id, convertedStep, false);
+                                    postImage.Id = service.Create(postImage);
+                                    AddSolutionComponentToSolution(service, pluginSolutionUniqueName, postImage.ToEntityReference());
+
+
+                                }
+
+
+                                //Add the relevant preimages for each step
+                                //var registeredPreImage = registeredImages.FirstOrDefault(i => i.Name == "PreImage" && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);
+
+                                if (convertedStep.PreImageUsed)
+                                {
+                                    var preImage  = GetImageToRegister(service, stepToRegister.Id, convertedStep, true);
+                                    preImage.Id = service.Create(preImage);
+                                    AddSolutionComponentToSolution(service, pluginSolutionUniqueName, preImage.ToEntityReference());
+
+
+
+                                }
+
                             }
                         }
                     }
