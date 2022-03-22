@@ -3,6 +3,7 @@ using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using XrmFramework.Definitions;
@@ -51,7 +52,7 @@ namespace XrmFramework.DeployUtils.Utils
             return instance;
         }
 
-        public static List<T> CreateInstanceOfTypeList<T>(List<Type> types, PluginRegistrationType kind, IRegistrationContext context)
+        public static List<T> CreateInstanceOfTypeList<T>(IEnumerable<Type> types, PluginRegistrationType kind, IRegistrationContext context)
         {
             List<T> list = new List<T>();
             foreach (var type in types)
@@ -101,15 +102,130 @@ namespace XrmFramework.DeployUtils.Utils
             step.FilteringAttributes.AddRange(s.FilteringAttributes);
             step.ImpersonationUsername = s.ImpersonationUsername;
             step.Order = s.Order;
-            step.PostImageAllAttributes = s.PostImageAllAttributes;
-            step.PostImageAttributes.AddRange(s.PostImageAttributes);
-            step.PreImageAllAttributes = s.PreImageAllAttributes;
-            step.PreImageAttributes.AddRange(s.PreImageAttributes);
+
+            step.PreImage.AllAttributes = s.PreImageAllAttributes;
+            step.PreImage.Attributes.AddRange(s.PreImageAttributes);
+
+            step.PostImage.AllAttributes = s.PostImageAllAttributes;
+            step.PostImage.Attributes.AddRange(s.PostImageAttributes);
+
             step.UnsecureConfig = s.UnsecureConfig;
 
             step.MethodNames.AddRange(s.MethodNames);
-
+            
             return step;
+        }
+
+        public static ICollection<CustomApi> FromCrmCustomApis(ICollection<CustomApi> registeredCustomApis,
+                                                               ICollection<CustomApiRequestParameter> registeredRequestParameters,
+                                                               ICollection<CustomApiResponseProperty> registeredResponseProperties,
+                                                               IRegistrationContext registrationContext)
+        {
+            var customApis = new List<CustomApi>();
+            foreach(var request in registeredRequestParameters)
+            {
+                request.RegistrationState = RegistrationState.NotComputed;
+            }
+            foreach (var response in registeredResponseProperties)
+            {
+                response.RegistrationState = RegistrationState.NotComputed;
+            }
+
+            foreach (var customApi in registeredCustomApis)
+            {
+                var requestParameters = registeredRequestParameters.Where(r => r.CustomApiId.Id == customApi.Id).ToList();
+                var responseProperties = registeredResponseProperties.Where(r => r.CustomApiId.Id == customApi.Id).ToList();
+                customApi.InArguments.AddRange(requestParameters);
+                customApi.OutArguments.AddRange(responseProperties);
+                customApi.RegistrationState = RegistrationState.NotComputed;
+                customApis.Add(customApi);
+            }
+            return customApis;
+        }
+
+        public static ICollection<Plugin> FromCrmPlugins(ICollection<PluginType> registeredPluginTypes,
+                                                         ICollection<SdkMessageProcessingStep> registeredSteps,
+                                                         ICollection<SdkMessageProcessingStepImage> registeredStepImages,
+                                                         IRegistrationContext registrationContext)
+        {
+            var steps = FromCrmSteps(registeredSteps, registeredStepImages, registrationContext);
+            var plugins = new List<Plugin>();
+            foreach (var pluginType in registeredPluginTypes)
+            {
+                plugins.Add(FromCrmPlugin(pluginType, steps));
+            }
+            return plugins;
+        }
+
+        private static ICollection<Step> FromCrmSteps(ICollection<SdkMessageProcessingStep> registeredSteps,
+                                                      ICollection<SdkMessageProcessingStepImage> registeredStepImages,
+                                                      IRegistrationContext registrationContext)
+        {
+            var steps = new List<Step>();
+            foreach (var registeredStep in registeredSteps)
+            {
+                var entityName = registrationContext.Filters.FirstOrDefault(f => f.SdkMessageFilterId == registeredStep.SdkMessageFilterId?.Id)?.PrimaryObjectTypeCode;
+
+#pragma warning disable CS0612 // Type or member is obsolete
+                var step = new Step(registeredStep.PluginTypeId.Name,
+                                    registeredStep.SdkMessageId.Name,
+                                    (Stages)(int)registeredStep.StageEnum,
+                                    (Modes)(int)registeredStep.ModeEnum,
+                                    entityName);
+#pragma warning restore CS0612 // Type or member is obsolete
+                step.Id = registeredStep.Id;
+
+                step.PluginTypeFullName = registeredStep.EventHandler.Name;
+                step.PluginId = registeredStep.EventHandler.Id;
+
+                step.FilteringAttributes.Add(registeredStep.FilteringAttributes);
+                step.ImpersonationUsername = registeredStep.ImpersonatingUserId?.Name;
+                step.Order = (int)registeredStep.Rank;
+                step.UnsecureConfig = registeredStep.Configuration;
+
+                var preImage = registeredStepImages.FirstOrDefault(i => i.ImageTypeEnum == sdkmessageprocessingstepimage_imagetype.PreImage
+                                                     && i.SdkMessageProcessingStepId.Id == registeredStep.Id);
+                if (preImage != null)
+                {
+                    step.PreImage.Id = preImage.Id;
+                    step.PreImage.StepId = step.Id;
+                    step.PreImage.AllAttributes = preImage.Attributes1 == null;
+                    step.PreImage.Attributes.Add(preImage.Attributes1);
+                }
+                var postImage = registeredStepImages.FirstOrDefault(i => i.ImageTypeEnum == sdkmessageprocessingstepimage_imagetype.PostImage
+                                                                      && i.SdkMessageProcessingStepId.Id == registeredStep.Id);
+                if(postImage != null)
+                {
+                    step.PostImage.Id = postImage.Id;
+                    step.PostImage.StepId= step.Id;
+                    step.PostImage.AllAttributes = postImage.Attributes1 == null;
+                    step.PostImage.Attributes.Add(postImage.Attributes1);
+                }
+                steps.Add(step);
+            }
+            return steps;
+        }
+
+        public static Plugin FromCrmPlugin(PluginType pluginType, ICollection<Step> steps)
+        {
+            Plugin plugin;
+            if(pluginType.WorkflowActivityGroupName != null)
+            {
+                plugin = new Plugin(pluginType.TypeName, pluginType.Name);
+                plugin.Id = pluginType.Id;
+                plugin.AssemblyId = pluginType.PluginAssemblyId.Id;
+            }
+            else
+            {
+                plugin = new Plugin(pluginType.TypeName);
+                plugin.Id = pluginType.Id;
+                plugin.AssemblyId = pluginType.PluginAssemblyId.Id;
+                foreach(var s in steps.Where(s => s.PluginId == plugin.Id))
+                {
+                    plugin.Steps.Add(s);
+                }
+            }
+            return plugin;
         }
 
         public static CustomApi FromXrmFrameworkCustomApi(dynamic record, string prefix)
@@ -138,7 +254,8 @@ namespace XrmFramework.DeployUtils.Utils
                 IsPrivate = customApiAttribute.IsPrivate,
                 UniqueName = $"{prefix}_{name}",
                 WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled,
-                FullName = type.FullName
+                FullName = type.FullName,
+                RegistrationState = RegistrationState.NotComputed
             };
 
             foreach (var argument in record.Arguments)
@@ -165,7 +282,8 @@ namespace XrmFramework.DeployUtils.Utils
                 DisplayName = string.IsNullOrWhiteSpace(argument.DisplayName) ? $"{customApiName}.{argument.ArgumentName}" : argument.DisplayName,
                 LogicalEntityName = argument.LogicalEntityName,
                 Type = new OptionSetValue((int)argument.ArgumentType),
-                Name = argument.ArgumentName
+                Name = argument.ArgumentName,
+                RegistrationState = RegistrationState.NotComputed
             };
 
             if (typeof(T).IsAssignableFrom(typeof(CustomApiRequestParameter)))
@@ -173,6 +291,39 @@ namespace XrmFramework.DeployUtils.Utils
                 res.IsOptional = argument.IsOptional;
             }
             return res;
+        }
+
+        public static PluginAssembly ToPluginAssembly(Assembly assembly)
+        {
+            var fullNameSplit = assembly.FullName.Split(',');
+
+            var name = fullNameSplit[0];
+            var version = fullNameSplit[1].Substring(fullNameSplit[1].IndexOf('=') + 1);
+            var culture = fullNameSplit[2].Substring(fullNameSplit[2].IndexOf('=') + 1);
+            var publicKeyToken = fullNameSplit[3].Substring(fullNameSplit[3].IndexOf('=') + 1);
+            var description = string.Format("{0} plugin assembly", name);
+
+            var t = new PluginAssembly()
+            {
+                Name = name,
+                SourceType = new OptionSetValue((int)pluginassembly_sourcetype.Database),
+                IsolationMode = new OptionSetValue((int)pluginassembly_isolationmode.Sandbox),
+                Culture = culture,
+                PublicKeyToken = publicKeyToken,
+                Version = version,
+                Description = description,
+                Content = Convert.ToBase64String(File.ReadAllBytes(assembly.Location))
+            };
+
+            return t;
+        }
+        public static PluginAssembly ToPluginAssembly(Assembly assembly, Guid registeredId)
+        {
+            return new PluginAssembly()
+            {
+                Id = registeredId,
+                Content = Convert.ToBase64String(File.ReadAllBytes(assembly.Location))
+            };
         }
         public static PluginType ToRegisterCustomWorkflowType(Guid pluginAssemblyId, string pluginFullName, string displayName)
         {
@@ -193,20 +344,20 @@ namespace XrmFramework.DeployUtils.Utils
             return t;
         }
 
-        public static SdkMessageProcessingStepImage ToRegisterImage(Guid stepId, Model.Step step, bool isPreImage)
+        public static SdkMessageProcessingStepImage ToRegisterImage(StepImage image)
         {
-            var isAllColumns = isPreImage ? step.PreImageAllAttributes : step.PostImageAllAttributes;
-            var columns = isPreImage ? step.JoinedPreImageAttributes : step.JoinedPostImageAttributes;
-            var name = isPreImage ? "PreImage" : "PostImage";
+            var isAllColumns = image.AllAttributes;
+            var columns = image.JoinedAttributes;
+            var name = image.IsPreImage ? "PreImage" : "PostImage";
 
             var messagePropertyName = "Target";
 
-            if (step.Message == Model.Messages.Create.ToString() && !isPreImage)
+            if (image.Message == Model.Messages.Create.ToString() && !image.IsPreImage)
             {
                 messagePropertyName = "Id";
             }
 #pragma warning disable 618
-            else if (step.Message == Messages.SetState.ToString() || step.Message == Messages.SetStateDynamicEntity.ToString())
+            else if (image.Message == Messages.SetState.ToString() || image.Message == Messages.SetStateDynamicEntity.ToString())
 #pragma warning restore 618
             {
                 messagePropertyName = "EntityMoniker";
@@ -216,12 +367,12 @@ namespace XrmFramework.DeployUtils.Utils
             {
                 Attributes1 = isAllColumns ? null : columns,
                 EntityAlias = name,
-                ImageType = new OptionSetValue(isPreImage ? (int)sdkmessageprocessingstepimage_imagetype.PreImage
-                                                          : (int)sdkmessageprocessingstepimage_imagetype.PostImage),
+                ImageType = new OptionSetValue(image.IsPreImage ? (int)sdkmessageprocessingstepimage_imagetype.PreImage
+                                                                : (int)sdkmessageprocessingstepimage_imagetype.PostImage),
                 IsCustomizable = new BooleanManagedProperty(true),
                 MessagePropertyName = messagePropertyName,
                 Name = name,
-                SdkMessageProcessingStepId = new EntityReference(SdkMessageProcessingStepDefinition.EntityName, stepId)
+                SdkMessageProcessingStepId = new EntityReference(SdkMessageProcessingStepDefinition.EntityName, image.StepId)
             };
 
             return t;
@@ -292,7 +443,7 @@ namespace XrmFramework.DeployUtils.Utils
                 SdkMessageFilterId = context.Filters.Where(f => f.SdkMessageId.Name == step.Message
                                                              && f.PrimaryObjectTypeCode == step.EntityName)
                                              .Select(f => f.ToEntityReference()).FirstOrDefault(), //GetSdkMessageFilterRef(service, step),
-                //SdkMessageProcessingStepSecureConfigId = GetSdkMessageProcessingStepSecureConfigRef(service, step),
+                                                                                                   //SdkMessageProcessingStepSecureConfigId = GetSdkMessageProcessingStepSecureConfigRef(service, step),
                 Stage = new OptionSetValue((int)step.Stage),
                 SupportedDeployment = new OptionSetValue((int)sdkmessageprocessingstep_supporteddeployment.ServerOnly),
                 Configuration = step.UnsecureConfig
@@ -301,52 +452,5 @@ namespace XrmFramework.DeployUtils.Utils
             return t;
         }
 
-        public static IEnumerable<PluginType> PluginTypeDeleteDiff(ILocalAssemblyContext local, IRegisteredAssemblyContext remote)
-        {
-            return remote.PluginTypes.Where(r => local.Plugins.All(p => p.FullName != r.Name)
-                                              && local.Plugins.Where(p => p.IsWorkflow).All(c => c.FullName != r.TypeName)
-                                              && local.CustomApis.All(c => c.FullName != r.TypeName));
-        }
-        public static IEnumerable<CustomApi> CustomApiDeleteDiff(ILocalAssemblyContext local, IRegisteredAssemblyContext remote)
-        {
-            var localCustomApi = local.CustomApis;
-            var remoteCustomApi = remote.CustomApis;
-
-            var unusedPlugins = PluginTypeDeleteDiff(local, remote);
-
-            return remote.CustomApis
-                    .Where(c => unusedPlugins.Any(s => c.PluginTypeId?.Id == s.Id));
-        }
-
-        public static IEnumerable<CustomApiRequestParameter> CustomApiRequestParameterDeleteDiff(ILocalAssemblyContext local, IRegisteredAssemblyContext remote)
-        {
-            return remote.CustomApiRequestParameters
-                        .Where(r => local.CustomApiRequestParameters.All(l => r.UniqueName != l.UniqueName));
-        }
-        
-        public static IEnumerable<CustomApiResponseProperty> CustomApiResponsePropertyDeleteDiff(ILocalAssemblyContext local, IRegisteredAssemblyContext remote)
-        {
-            return remote.CustomApiResponseProperties
-                        .Where(r => local.CustomApiResponseProperties.All(l => r.UniqueName != l.UniqueName));
-        }
-
-        private static PluginType RegisteredCorrespondingPlugin(Plugin localPlugin, IRegisteredAssemblyContext remoteAssembly)
-        {
-            return remoteAssembly.PluginTypes.FirstOrDefault(r => r.Name == localPlugin.FullName);
-        }
-        
-
-        public static SdkMessageProcessingStep RegisteredCorrespondingStep(Step localStep, ILocalAssemblyContext localAssembly, IRegisteredAssemblyContext remoteAssembly)
-        {
-            return remoteAssembly.Steps.FirstOrDefault(s => MixedStepsEquals(localStep, s));
-        }
-
-        private static bool MixedStepsEquals(Step local, SdkMessageProcessingStep remote)
-        {
-            return local.PluginTypeFullName == remote.EventHandler.Name
-                && local.Message == remote.SdkMessageId.Name
-                && (int)local.Mode == (int)remote.ModeEnum
-                && (int)local.Stage == (int)remote.StageEnum;
-        }
     }
 }
