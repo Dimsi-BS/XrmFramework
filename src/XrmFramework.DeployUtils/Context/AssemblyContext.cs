@@ -11,8 +11,6 @@ namespace XrmFramework.DeployUtils.Context
     public class AssemblyContext : IAssemblyContext
     {
         public string Name => Assembly.Name;
-        public bool IsNull => Assembly == null;
-        public Guid Id { get => Assembly.Id; set => Assembly.Id = value; }
 
         public PluginAssembly Assembly { get; set; }
 
