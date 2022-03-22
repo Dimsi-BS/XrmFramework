@@ -16,8 +16,8 @@ namespace XrmFramework.DeployUtils.Model
             Stage = stage;
             Mode = mode;
             EntityName = entityName;
-            PreImage = new StepImage(Message, true);
-            PostImage = new StepImage(Message, false);            
+            PreImage = new StepImage(Message, true, stage);
+            PostImage = new StepImage(Message, false, stage);            
             RegistrationState = RegistrationState.NotComputed;
         }
 
