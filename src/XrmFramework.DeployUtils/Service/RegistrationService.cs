@@ -210,10 +210,6 @@ namespace XrmFramework.DeployUtils.Service
             return result;
         }
 
-        public Guid Create(IRegisteredAssemblyContext context) => Create(context.Assembly);
-        public void Delete(IRegisteredAssemblyContext context) => Delete(PluginAssemblyDefinition.EntityName, context.Id);
-        public void Update(IRegisteredAssemblyContext context) => Update(context.Assembly);
-
         public ICollection<Guid> CreateMany<T>(ICollection<T> entities) where T : Entity
         {
             ICollection<Guid> result = new List<Guid>();
@@ -278,7 +274,7 @@ namespace XrmFramework.DeployUtils.Service
 
             Execute(s);
         }
-        
+
         public int GetIntEntityTypeCode(string logicalName)
         {
             var entityRequest = new RetrieveEntityRequest { LogicalName = logicalName };

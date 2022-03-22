@@ -27,11 +27,6 @@ namespace XrmFramework.DeployUtils.Service
         ICollection<SdkMessageProcessingStep> GetRegisteredSteps(Guid assemblyId);
 
         IList<Entity> RetrieveAll(QueryExpression query, bool cleanLinks = true);
-
-        Guid Create(IRegisteredAssemblyContext context);
-        void Delete(IRegisteredAssemblyContext context);
-        void Update(IRegisteredAssemblyContext context);
-
         ICollection<Guid> CreateMany<T>(ICollection<T> entities) where T : Entity;
         void DeleteMany<T>(IEnumerable<T> entities) where T : Entity;
         void UpdateMany<T>(IEnumerable<T> entities) where T : Entity;
