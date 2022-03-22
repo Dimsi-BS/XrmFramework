@@ -13,8 +13,22 @@ namespace XrmFramework.DeployUtils.Utils
     {
         private static StepComparer _stepComparer = new StepComparer();
 
-        public static void ComputeDiff(IAssemblyContext x, IAssemblyContext y)
+        public static void ComputeAssemblyDiff(IAssemblyContext x, IAssemblyContext y)
         {
+            if(y == null || y.Assembly == null)
+            {
+                x.Assembly.RegistrationState = RegistrationState.ToCreate;
+            }
+            else
+            {
+                x.Assembly.RegistrationState = RegistrationState.ToUpdate;
+                x.Assembly.Id = y.Assembly.Id;
+                ComputeAssemblyComponentsDiff(x, y);
+            }
+        }
+        public static void ComputeAssemblyComponentsDiff(IAssemblyContext x, IAssemblyContext y)
+        {
+
             foreach (var plugin in x.Plugins)
             {
                 var correspondingPlugin = AssemblyComparer.CorrespondingPlugin(plugin, y);
@@ -231,7 +245,7 @@ namespace XrmFramework.DeployUtils.Utils
             {
                 x.Id = y.Id;
                 x.StepId = y.StepId;
-                FlagStepImage(x, RegistrationState.ToDelete);
+                x.RegistrationState = RegistrationState.ToDelete;
             }
             else
             {

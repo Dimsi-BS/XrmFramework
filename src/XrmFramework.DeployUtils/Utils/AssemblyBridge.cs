@@ -396,7 +396,7 @@ namespace XrmFramework.DeployUtils.Utils
             return t;
         }
 
-        public static SdkMessageProcessingStep ToRegisterStep(Guid pluginTypeId, Model.Step step, IRegistrationContext context)
+        public static SdkMessageProcessingStep ToRegisterStep(Model.Step step, IRegistrationContext context)
         {
             // Issue with CRM SDK / Description field max length = 256 characters
             var descriptionAttributeMaxLength = 256;
@@ -421,7 +421,7 @@ namespace XrmFramework.DeployUtils.Utils
             {
                 AsyncAutoDelete = step.Mode == Model.Modes.Asynchronous,
                 Description = description,
-                EventHandler = new EntityReference(PluginTypeDefinition.EntityName, pluginTypeId),
+                EventHandler = new EntityReference(PluginTypeDefinition.EntityName, step.PluginId),
                 FilteringAttributes = step.FilteringAttributes.Any() ? string.Join(",", step.FilteringAttributes) : null,
                 ImpersonatingUserId = string.IsNullOrEmpty(step.ImpersonationUsername)
                      ? null :
@@ -436,7 +436,7 @@ namespace XrmFramework.DeployUtils.Utils
                 Mode = new OptionSetValue((int)step.Mode),
                 Name = description,
 #pragma warning disable 0612
-                PluginTypeId = new EntityReference(PluginTypeDefinition.EntityName, pluginTypeId),
+                PluginTypeId = new EntityReference(PluginTypeDefinition.EntityName, step.PluginId),
 #pragma warning restore 0612
                 Rank = step.Order,
                 SdkMessageId = context.Messages[step.Message], //GetSdkMessageRef(service, step.Message),
