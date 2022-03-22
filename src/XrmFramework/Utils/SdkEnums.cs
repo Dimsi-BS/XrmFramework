@@ -153,4 +153,13 @@ namespace XrmFramework
         Workflow,
         CustomApi
     }
+
+    public enum RegistrationState
+    {
+        ToCreate,
+        ToUpdate,
+        ToDelete,
+        Ignore,
+        NotComputed
+    }
 }
