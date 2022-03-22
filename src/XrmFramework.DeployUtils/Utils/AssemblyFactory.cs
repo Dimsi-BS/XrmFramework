@@ -110,5 +110,46 @@ namespace XrmFramework.DeployUtils.Utils
             }
             return registeredAssembly;
         }
+
+        public IFlatAssemblyContext CreateFlatAssemblyContextFromAssemblyContext(IAssemblyContext from)
+        {
+            var assembly = from.Assembly;
+            var plugins = from.Plugins;
+            var steps = new List<Step>();
+            foreach (var plugin in plugins)
+            {
+                steps.AddRange(plugin.Steps);
+            }
+
+            var stepImages = new List<StepImage>();
+            foreach (var step in steps)
+            {
+                stepImages.Add(step.PreImage);
+                stepImages.Add(step.PostImage);
+            }
+
+            var workflows = from.Workflows;
+            var customApis = from.CustomApis;
+            var customApiRequestParameters = new List<CustomApiRequestParameter>();
+            var customApiResponseProperties = new List<CustomApiResponseProperty>();
+            foreach (var customApi in customApis)
+            {
+                customApiRequestParameters.AddRange(customApi.InArguments);
+                customApiResponseProperties.AddRange(customApi.OutArguments);
+            }
+
+            var flatAssembly = new FlatAssemblyContext()
+            {
+                Assembly = assembly,
+                Plugins = plugins,
+                Steps = steps,
+                StepImages = stepImages,
+                Workflows = workflows,
+                CustomApis = customApis,
+                CustomApiRequestParameters = customApiRequestParameters,
+                CustomApiResponseProperties = customApiResponseProperties
+            };
+            return flatAssembly;
+        }
     }
 }
