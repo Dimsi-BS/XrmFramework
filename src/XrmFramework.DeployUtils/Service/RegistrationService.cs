@@ -220,11 +220,11 @@ namespace XrmFramework.DeployUtils.Service
             return result;
         }
 
-        public void DeleteMany<T>(IEnumerable<T> entities) where T : Entity
+        public void DeleteMany(string entityName, IEnumerable<Guid> guids)
         {
-            foreach (var entity in entities)
+            foreach (var guid in guids)
             {
-                Delete(entity.LogicalName, entity.Id);
+                Delete(entityName, guid);
             }
         }
 
