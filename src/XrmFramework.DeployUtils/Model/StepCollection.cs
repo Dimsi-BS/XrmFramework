@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -56,6 +57,11 @@ namespace XrmFramework.DeployUtils.Model
             return _internalList.Remove(item);
         }
 
+        //public bool Any(Func<Step, bool> predicate)
+        //{ 
+        //    return _internalList.Any(predicate);
+        //}
+
         public int Count => _internalList.Count;
 
         public bool IsReadOnly => ((ICollection<Step>)_internalList).IsReadOnly;
@@ -68,7 +74,7 @@ namespace XrmFramework.DeployUtils.Model
             public bool Equals(Step x, Step y) =>
                 x == null && y == null 
                 ||  
-                x?.PluginTypeName == y?.PluginTypeName
+                x?.PluginTypeFullName == y?.PluginTypeFullName
                 && x?.EntityName == y?.EntityName 
                 && x?.Message == y?.Message 
                 && x?.Stage == y?.Stage 
@@ -80,6 +86,13 @@ namespace XrmFramework.DeployUtils.Model
                    + obj.Message.GetHashCode() 
                    + obj.Stage.GetHashCode() 
                    + obj.Mode.GetHashCode();
+
+            public bool NeedsUpdate(Step x, Step y) =>
+                   x?.DoNotFilterAttributes != y?.DoNotFilterAttributes
+                || x.FilteringAttributes.Any() != x.FilteringAttributes.Any()
+                || string.Join(",", x.FilteringAttributes) != string.Join(",", y.FilteringAttributes)
+                || x?.UnsecureConfig != y?.UnsecureConfig
+                || x.ImpersonationUsername != y.ImpersonationUsername;
         }
     }
 }
