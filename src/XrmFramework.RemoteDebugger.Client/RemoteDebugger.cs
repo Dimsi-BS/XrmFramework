@@ -29,10 +29,8 @@ namespace XrmFramework.RemoteDebugger.Common
 
 
             RegistrationHelper.UpdateRemoteDebuggerPlugin<P>(solutionName);
-            Console.WriteLine("testey");
             Manager.ContextReceived += remoteContext =>
                 {
-                    Console.WriteLine("tapadamorda");
                     // Create local service provider from remote context
                     var serviceProvider = new LocalServiceProvider(remoteContext);
 
@@ -40,38 +38,16 @@ namespace XrmFramework.RemoteDebugger.Common
                     List<string> pluginsToBeExecuted = new List<string>();
                     var pluginExecutionTask = Task.Run(() =>
                     {
-                        /*Console.WriteLine("Stage is {0}, Message is {1}, Mode is {2}, EntityName is {3}",(Stages)remoteContext.Stage,remoteContext.MessageName,(Modes)remoteContext.Mode,remoteContext.PrimaryEntityName);
-                        foreach(var p in plugins)
-                        {
-                            Console.WriteLine(p.FullName);
-                            foreach(var step in p.Steps)
-                            {
-                                if(step.Stage == (Stages)remoteContext.Stage && step.Message == remoteContext.MessageName && step.Mode == (Modes)remoteContext.Mode && step.EntityName == remoteContext.PrimaryEntityName)
-                                {
-                                    Console.WriteLine("This step, the plugin {0} should be executed", p.FullName);
-                                    pluginsToBeExecuted.Add(p.FullName);
-                                }
-                            }
-                        }*/
-
-
-                        // Get the assembly qualified name of the context which includes the name of the assembly from which this Type object was loaded ????????
+                        // Get the assembly qualified name of the plugin to be executed
                         var typeQualifiedName = remoteContext.TypeAssemblyQualifiedName.Split(new [] {", "}, StringSplitOptions.RemoveEmptyEntries).ToList();
                         // Remove the version part of the list and the public key token
                         typeQualifiedName.RemoveAll(i => i.StartsWith("Version") || i.StartsWith("PublicKeyToken") );
                         //Console.WriteLine(typeQualifiedName);
 
-                        /*foreach(var pluginToBeExecuted in pluginsToBeExecuted)
-                        {
-                            typeQualifiedName[0] = pluginToBeExecuted;
-                            // Reconstruct the string without the deleted elements
-                            
-                        }*/
+                        
                         var typeName = string.Join(", ", typeQualifiedName);
-                        //Console.WriteLine(typeName);
-                        // Get the pluginType from the newly constructed typeName ?????
+                        // Get the pluginType from the newly constructed typeName
                         var pluginType = Type.GetType(typeName);
-                        //Console.WriteLine(pluginType.Name);
 
                         // If no plugin found, return
                         if (pluginType == null)

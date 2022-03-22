@@ -409,8 +409,19 @@ namespace XrmFramework.DeployUtils
             var pluginSolutionUniqueName = projectConfig.TargetSolution;
             var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
 
-            Console.WriteLine($"You are about to modify the debug session press any key to continue");
-            Console.ReadKey();
+            Console.WriteLine($"You are about to modify the debug session");
+            Console.WriteLine($"Do you want to register new debugg steps (y/n)");
+            var r = Console.ReadLine();
+            while(r != "y" && r != "n")
+            {
+                Console.WriteLine($"Do you want to register new debugg steps (y/n)");
+                r = Console.ReadLine();
+            }
+            if(r == "n")
+            {
+                return;
+            }
+            
             Console.WriteLine("Connecting to CRM...");
             CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
 
@@ -441,6 +452,7 @@ namespace XrmFramework.DeployUtils
 
             // Now we get the remoteDebugger plugin
             var debuggerPlugin = GetRegisteredPluginTypes(service, debugAssembly.Id).ToList()[0];
+            Console.WriteLine("name of debugger plugin is {0}", debuggerPlugin.Name);
             var registeredSteps = GetRegisteredSteps(service, debugAssembly.Id);
             var registeredImages = GetRegisteredImages(service, debugAssembly.Id);
 
@@ -469,7 +481,7 @@ namespace XrmFramework.DeployUtils
 
                             if (convertedStep.Message != Messages.Associate.ToString() && convertedStep.Message != Messages.Lose.ToString() && convertedStep.Message != Messages.Win.ToString())
                             {
-                                convertedStep.UnsecureConfig = plugin.FullName;
+                                convertedStep.UnsecureConfig = plugin.AssemblyQualifiedName;
                                 //convertedStep.SecuredConfig = "oulalalalolo";
                                 var stepToRegister = GetStepToRegister(debuggerPlugin.Id, convertedStep);
 
