@@ -16,14 +16,19 @@ namespace XrmFramework.DeployUtils.Model
             Stage = stage;
             Mode = mode;
             EntityName = entityName;
+            PreImage = new StepImage(Message, true);
+            PostImage = new StepImage(Message, false);            
+            RegistrationState = RegistrationState.NotComputed;
         }
 
+        public Guid Id { get; set; }
         public string PluginTypeName { get; }
         public string Message { get; }
         public Stages Stage { get; }
         public Modes Mode { get; }
         public string EntityName { get; }
 
+        public Guid PluginId { get; set; }
         public string PluginTypeFullName { get; set; }
 
         public Guid MessageId { get; set; }
@@ -32,17 +37,9 @@ namespace XrmFramework.DeployUtils.Model
 
         public List<string> FilteringAttributes { get; } = new List<string>();
 
-        public bool PreImageUsed => Message != "Create" && Message != "Book" && (PreImageAllAttributes || PreImageAttributes.Any());
-        public bool PreImageAllAttributes { get; set; }
-        public List<string> PreImageAttributes { get; } = new List<string>();
+        public StepImage PreImage  { get; set; }
 
-        public string JoinedPreImageAttributes => string.Join(",", PreImageAttributes);
-
-        public bool PostImageUsed => Stage == Stages.PostOperation && (PostImageAllAttributes || PostImageAttributes.Any());
-        public bool PostImageAllAttributes { get; set; }
-        public List<string> PostImageAttributes { get; } = new List<string>();
-
-        public string JoinedPostImageAttributes => string.Join(",", PostImageAttributes);
+        public StepImage PostImage { get; set; }
 
         public string UnsecureConfig { get; set; }
 
@@ -53,6 +50,7 @@ namespace XrmFramework.DeployUtils.Model
         public List<string> MethodNames { get; } = new List<string>();
         public string MethodsDisplayName => string.Join(",", MethodNames);
 
+        public RegistrationState RegistrationState { get; set; }
 
 
         public void Merge(Step step)
@@ -64,24 +62,24 @@ namespace XrmFramework.DeployUtils.Model
 
             FilteringAttributes.AddRange(step.FilteringAttributes);
 
-            if (step.PreImageAllAttributes)
+            if (step.PreImage.AllAttributes)
             {
-                PreImageAllAttributes = true;
-                PreImageAttributes.Clear();
+                PreImage.AllAttributes = true;
+                PreImage.Attributes.Clear();
             }
             else
             {
-                PreImageAttributes.AddRange(step.PreImageAttributes);
+                PreImage.Attributes.AddRange(step.PreImage.Attributes);
             }
 
-            if (step.PostImageAllAttributes)
+            if (step.PostImage.AllAttributes)
             {
-                PostImageAllAttributes = true;
-                PostImageAttributes.Clear();
+                PostImage.AllAttributes = true;
+                PostImage.Attributes.Clear();
             }
             else
             {
-                PostImageAttributes.AddRange(step.PostImageAttributes);
+                PostImage.Attributes.AddRange(step.PostImage.Attributes);
             }
 
             MethodNames.AddRange(step.MethodNames);
