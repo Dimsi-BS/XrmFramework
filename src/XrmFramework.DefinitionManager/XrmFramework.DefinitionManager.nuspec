@@ -18,6 +18,11 @@
         <dependency id="XrmFramework.DeployUtils" version="$version$" />
       </group>
     </dependencies>
+    <repository
+      type="git"
+      url="https://github.com/cgoconseils/XrmFramework"
+      commit="$commit$"
+    />
   </metadata>
 
   <files>
