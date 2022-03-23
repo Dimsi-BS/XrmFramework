@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -26,6 +27,10 @@ namespace XrmFramework.Analyzers
 
         public override void Initialize(AnalysisContext context)
         {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            context.EnableConcurrentExecution();
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
             context.RegisterSyntaxNodeAction(AnalyzeInvocationExpression, SyntaxKind.AttributeArgument);
         }
 
@@ -41,7 +46,7 @@ namespace XrmFramework.Analyzers
                 return;
             }
 
-            if (attributeArgumentSyntax.Expression is LiteralExpressionSyntax les)
+            if (attributeArgumentSyntax.Expression is LiteralExpressionSyntax)
             {
                 var diag = Diagnostic.Create(Xrm0200, attributeArgumentSyntax.GetLocation(), attributeArgumentSyntax.GetText());
                 context.ReportDiagnostic(diag);
