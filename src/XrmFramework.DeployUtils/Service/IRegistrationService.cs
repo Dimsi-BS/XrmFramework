@@ -29,6 +29,7 @@ namespace XrmFramework.DeployUtils.Service
         IList<Entity> RetrieveAll(QueryExpression query, bool cleanLinks = true);
         ICollection<Guid> CreateMany<T>(ICollection<T> entities) where T : Entity;
         void DeleteMany(string entityName, IEnumerable<Guid> guids);
+        void DeleteMany<T>(IEnumerable<T> entities) where T : Entity;
         void UpdateMany<T>(IEnumerable<T> entities) where T : Entity;
 
         void AddSolutionComponentToSolution(string solutionUniqueName, EntityReference objectRef, int? objectTypeCode = null);

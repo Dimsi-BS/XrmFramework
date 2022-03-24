@@ -228,6 +228,14 @@ namespace XrmFramework.DeployUtils.Service
             }
         }
 
+        public void DeleteMany<T>(IEnumerable<T> entities) where T : Entity
+        {
+            foreach (var entity in entities)
+            {
+                Delete(entity.LogicalName, entity.Id);
+            }
+        }
+
         public void UpdateMany<T>(IEnumerable<T> entities) where T : Entity
         {
             foreach (var entity in entities)
