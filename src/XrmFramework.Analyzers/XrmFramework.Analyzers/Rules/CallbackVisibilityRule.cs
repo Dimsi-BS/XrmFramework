@@ -148,7 +148,7 @@ namespace XrmFramework.Analyzers
 
             if (root == null)
             {
-                throw new ArgumentNullException(nameof(root));
+                return document;
             }
 
             var newModifiers = SyntaxFactory.TokenList(new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) });
