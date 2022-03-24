@@ -20,8 +20,7 @@ namespace XrmFramework.DeployUtils.Context
         Dictionary<string, EntityReference> Messages { get; }
         List<KeyValuePair<string, Guid>> Users { get; }
 
-        void InitMetadata(IRegistrationService service);
-        void InitMetadata(IRegistrationService service, string solutionName);
+        void InitMetadata();
 
 
     }
