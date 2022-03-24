@@ -46,16 +46,29 @@ namespace XrmFramework.DeployUtils
 
             service.OrganizationServiceProxy?.EnableProxyTypes();
 
-            _registrationContext = new RegistrationContext(pluginSolutionUniqueName);
-            _registrationContext.InitMetadata(service);
+            _registrationContext = new RegistrationContext(service, pluginSolutionUniqueName);
 
             var assemblyFactory = new AssemblyFactory(_registrationContext);
 
-            var registeredAssembly = assemblyFactory.CreateFromRemoteAssemblyContext(service, projectName);
+
+
+            Console.Write("Fetching Local Assembly...");
 
             var localAssembly = assemblyFactory.CreateFromLocalAssemblyContext(typeof(TPlugin));
+            Console.WriteLine("\tDone");
+
+            Console.WriteLine("Fetching Registered Assembly...");
+
+            var registeredAssembly = assemblyFactory.CreateFromRemoteAssemblyContext(service, projectName);
+            Console.WriteLine("\tDone");
+
+
+            Console.Write("Computing Difference...");
 
             AssemblyDiffFactory.ComputeAssemblyDiff(localAssembly, registeredAssembly);
+
+            Console.WriteLine("\tDone");
+
 
             var flatAssembly = assemblyFactory.CreateFlatAssemblyContextFromAssemblyContext(localAssembly);
 
@@ -67,28 +80,18 @@ namespace XrmFramework.DeployUtils
             Console.WriteLine();
             Console.WriteLine(@"Registering Plugins");
 
-            RegisterPlugins(service, flatAssembly);
+            RegisterPluginsV2(service, flatAssembly);
+
 
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Workflow activities");
 
-            //RegisterWorkflows(service, localAssembly, registeredAssembly);
+            RegisterWorkflowsV2(service, flatAssembly);
 
-            //Console.WriteLine();
-            //Console.WriteLine(@"Registering Custom Apis");
+            Console.WriteLine();
+            Console.WriteLine(@"Registering Custom Apis");
 
-            //RegisterCustomApis(service, localAssembly, registeredAssembly);
-
-
-
-            //TODO: Figure out wtf this code is supposed to do and have the same result
-            //Edit : I understood, In the original 2.1 branch only the steps where a deleted plugin were deleted.
-            //It was like this because it seems pretty hard to figure out which steps are not in the local assembly on the go.
-            //So let's figure THAT sh*t now
-            //foreach (var step in registeredSteps)
-            //{
-            //    service.Delete(SdkMessageProcessingStepDefinition.EntityName, step.Id);
-            //}
+            RegisterCustomApisV2(service, flatAssembly);
         }
 
         public static void RegisterAssembly(IRegistrationService service, IFlatAssemblyContext assembly)
@@ -115,55 +118,129 @@ namespace XrmFramework.DeployUtils
 
         public static void CleanAssembly(IRegistrationService service, IFlatAssemblyContext assembly)
         {
-            // Delete components that are not in the project anymore
-            // Find the types registered on the CRM which are not on the local project
-            var pluginsToDelete = assembly.Plugins
-                .Where(p => p.RegistrationState == RegistrationState.ToDelete)
-                .Select(x => x.Id)
-                .ToList();
+            // Delete
 
-            // Get all the steps related to those plugins
-            var stepsToDelete = assembly.Steps
-                .Where(s => s.RegistrationState == RegistrationState.ToDelete)
-                .Select(x => x.Id)
-                .ToList();
+            DeleteAllComponents(service, assembly.StepImages);
+            DeleteAllComponents(service, assembly.Steps);
+            DeleteAllComponents(service, assembly.Plugins);
+            DeleteAllComponents(service, assembly.CustomApiRequestParameters);
+            DeleteAllComponents(service, assembly.CustomApiResponseProperties);
+            DeleteAllComponents(service, assembly.CustomApis);
 
-            var stepImagesToDelete = assembly.StepImages
-                .Where(s => s.RegistrationState == RegistrationState.ToDelete)
-                .Select(x => x.Id)
-                .ToList();
 
-            // Same for CustomApis
             var customApisTypeToDelete = assembly.CustomApis
-                .Where(x => x.RegistrationState == RegistrationState.ToDelete)
-                .Select(x => x.PluginTypeId.Id)
-                .ToList();
+                    .Where(x => x.RegistrationState == RegistrationState.ToDelete)
+                    .Select(x => x.PluginTypeId.Id)
+                    .ToList();
 
-            var customApisToDelete = assembly.CustomApis
-                .Where(x => x.RegistrationState == RegistrationState.ToDelete)
-                .Select(x => x.Id)
-                .ToList();
-
-            // Here goes CustomApiRequestParameters
-            var requestParametersToDelete = assembly.CustomApiRequestParameters
-                .Where(x => x.RegistrationState == RegistrationState.ToDelete)
-                .Select(x => x.Id)
-                .ToList();
-
-            var responsePropertiesToDelete = assembly.CustomApiResponseProperties
-                .Where(x => x.RegistrationState == RegistrationState.ToDelete)
-                .Select(x => x.Id)
-                .ToList();
-
-
-            //// Delete
-            service.DeleteMany(SdkMessageProcessingStepImageDefinition.EntityName, stepImagesToDelete);
-            service.DeleteMany(SdkMessageProcessingStepDefinition.EntityName, stepsToDelete);
-            service.DeleteMany(PluginTypeDefinition.EntityName, pluginsToDelete);
-            service.DeleteMany(CustomApiResponsePropertyDefinition.EntityName, responsePropertiesToDelete);
-            service.DeleteMany(CustomApiRequestParameterDefinition.EntityName, requestParametersToDelete);
-            service.DeleteMany(CustomApiDefinition.EntityName, customApisToDelete);
             service.DeleteMany(PluginTypeDefinition.EntityName, customApisTypeToDelete);
+        }
+
+        public static void RegisterPluginsV2(IRegistrationService service, IFlatAssemblyContext context)
+        {
+            CreateAllComponents(service, context.Plugins);
+            CreateAllComponents(service, context.Steps, doAddToSolution: true);
+            CreateAllComponents(service, context.StepImages);
+
+            UpdateAllComponents(service, context.Plugins);
+            UpdateAllComponents(service, context.Steps);
+            UpdateAllComponents(service, context.StepImages);
+        }
+
+        public static void RegisterWorkflowsV2(IRegistrationService service, IFlatAssemblyContext context)
+        {
+            CreateAllComponents(service, context.Workflows);
+
+            UpdateAllComponents(service, context.Workflows);
+        }
+
+        public static void RegisterCustomApisV2(IRegistrationService service, IFlatAssemblyContext context)
+        {
+            var customApisTypeToCreate = context.CustomApis
+                    .Where(x => x.RegistrationState == RegistrationState.ToCreate)
+                    .ToList();
+            foreach(var customApi in customApisTypeToCreate)
+            {
+                var customApiPluginType = customApi.ToPluginType(context.Assembly.Id);
+                var id = service.Create(customApiPluginType);
+                customApi.PluginTypeId = new EntityReference(PluginTypeDefinition.EntityName, id);
+            }
+
+            CreateAllComponents(service, context.CustomApis, true, true);
+            CreateAllComponents(service, context.CustomApiRequestParameters, true, true);
+            CreateAllComponents(service, context.CustomApiResponseProperties, true, true);
+
+            UpdateAllComponents(service, context.CustomApis);
+            UpdateAllComponents(service, context.CustomApiRequestParameters);
+            UpdateAllComponents(service, context.CustomApiResponseProperties);
+        }
+
+        private static void UpdateAllComponents<T>(IRegistrationService service,
+                                                  IEnumerable<T> components) where T : ISolutionComponent
+        {
+            var updateComponents = components
+                .Where(x => x.RegistrationState == RegistrationState.ToUpdate)
+                .ToList();
+            foreach (var component in updateComponents)
+            {
+                var registeringComponent = component.ToRegisterComponent(_registrationContext);
+                service.Update(registeringComponent);
+            }
+        }
+
+        public static void CreateAllComponents<T>(IRegistrationService service,
+                                                  IEnumerable<T> components,
+                                                  bool doAddToSolution = false,
+                                                  bool doFetchCode = false) where T : ISolutionComponent
+        {
+            if (!components.Any()) return;
+            int? entityTypeCode = doFetchCode ? service?.GetIntEntityTypeCode(components.FirstOrDefault()?.EntityTypeName) : null;
+            var createComponents = components
+                .Where(x => x.RegistrationState == RegistrationState.ToCreate)
+                .ToList();
+            foreach (var component in createComponents)
+            {
+                var registeringComponent = component.ToRegisterComponent(_registrationContext);
+                component.Id = service.Create(registeringComponent);
+                registeringComponent.Id = component.Id;
+                if (doAddToSolution)
+                {
+                    AddSolutionComponentToSolution(service, _registrationContext.SolutionName, registeringComponent.ToEntityReference(), entityTypeCode);
+                }
+            }
+        }
+
+        private static void DeleteAllComponents<T>(IRegistrationService service,
+                                                   IEnumerable<T> components) where T : ISolutionComponent
+        {
+            var deleteComponents = components
+                .Where(x => x.RegistrationState == RegistrationState.ToDelete)
+                .ToList();
+            foreach (var component in deleteComponents)
+            {
+                service.Delete(component.EntityTypeName, component.Id);
+            }
+        }
+        public static void RegisterComponents<T>(IRegistrationService service, IEnumerable<T> components, RegistrationState state) where T : ISolutionComponent
+        {
+            var stateComponents = components
+                .Where(x => x.RegistrationState == state)
+                .Select(x => x.ToRegisterComponent(_registrationContext))
+                .ToList();
+
+            switch (state)
+            {
+                case RegistrationState.ToCreate:
+                    //CreateAllComponents(service, stateComponents);
+                    break;
+                case RegistrationState.ToUpdate:
+                    service.UpdateMany(stateComponents);
+                    break;
+                case RegistrationState.ToDelete:
+                    service.DeleteMany(stateComponents);
+                    break;
+            }
+
         }
 
         public static void RegisterPlugins(IRegistrationService service, IAssemblyContext assembly)
@@ -180,7 +257,7 @@ namespace XrmFramework.DeployUtils
                         }
                         break;
                     case RegistrationState.ToCreate:
-                        var registeringPluginType = AssemblyBridge.ToRegisterPluginType(assembly.Assembly.Id, plugin.FullName);
+                        var registeringPluginType = AssemblyBridge.ToRegisterPluginType(plugin);
                         plugin.Id = service.Create(registeringPluginType);
                         foreach (var step in plugin.Steps)
                         {
@@ -203,9 +280,11 @@ namespace XrmFramework.DeployUtils
             switch (step.RegistrationState)
             {
                 case RegistrationState.Ignore:
+                    RegisterStepImage(service, step.PreImage);
+                    RegisterStepImage(service, step.PostImage);
                     break;
                 case RegistrationState.ToCreate:
-                    Console.WriteLine($"\t\t Creating {step.Stage} {step.Message} of {step.EntityName} ({step.MethodsDisplayName})");
+                    Console.WriteLine($"\t\t Creating {step.Stage} {step.Message} of {step.EntityTypeName} ({step.MethodsDisplayName})");
 
                     step.Id = service.Create(AssemblyBridge.ToRegisterStep(step, _registrationContext));
                     step.PreImage.StepId = step.Id;
@@ -218,15 +297,12 @@ namespace XrmFramework.DeployUtils
                                    new EntityReference(SdkMessageProcessingStepDefinition.EntityName, step.Id));
                     break;
                 case RegistrationState.ToUpdate:
-                    Console.WriteLine($"\t\t Updating {step.Stage} {step.Message} of {step.EntityName} ({step.MethodsDisplayName})");
+                    Console.WriteLine($"\t\t Updating {step.Stage} {step.Message} of {step.EntityTypeName} ({step.MethodsDisplayName})");
                     service.Update(AssemblyBridge.ToRegisterStep(step, _registrationContext));
-                    if (step.Message != Messages.Associate.ToString()
-                     && step.Message != Messages.Lose.ToString()
-                     && step.Message != Messages.Win.ToString())
-                    {
-                        RegisterStepImage(service, step.PreImage);
-                        RegisterStepImage(service, step.PostImage);
-                    }
+
+                    RegisterStepImage(service, step.PreImage);
+                    RegisterStepImage(service, step.PostImage);
+
                     break;
                 case RegistrationState.ToDelete:
                     break;
@@ -333,7 +409,6 @@ namespace XrmFramework.DeployUtils
             {
                 service.AddSolutionComponentToSolution(solutionUniqueName, objectRef, objectTypeCode);
             }
-
         }
         private static SolutionComponent GetRegisteredSolutionComponent(EntityReference objectRef)
         {
@@ -364,15 +439,6 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        public static void UpdateMessageStepIfNeeded(IRegistrationService service, Step stepToRegister,
-                                          Step registeredStep)
-        {
-            throw new NotImplementedException();
-            //if (SdkMessageStepComparer.NeedsUpdate(stepToRegister, registeredStep))
-            //{
-            //    service.Update(stepToRegister);
-            //}
-        }
 
         public static void UpdateStepImages(IRegistrationService service, Step convertedStep, Step registeredStep, PluginImageType imageType)
         {
