@@ -75,14 +75,14 @@ namespace XrmFramework.DeployUtils.Model
                 x == null && y == null 
                 ||  
                 x?.PluginTypeFullName == y?.PluginTypeFullName
-                && x?.EntityName == y?.EntityName 
+                && x?.EntityTypeName == y?.EntityTypeName 
                 && x?.Message == y?.Message 
                 && x?.Stage == y?.Stage 
                 && x.Mode == y.Mode;
 
             public int GetHashCode(Step obj)
                 => obj.PluginTypeName.GetHashCode() 
-                   + obj.EntityName.GetHashCode() 
+                   + obj.EntityTypeName.GetHashCode() 
                    + obj.Message.GetHashCode() 
                    + obj.Stage.GetHashCode() 
                    + obj.Mode.GetHashCode();

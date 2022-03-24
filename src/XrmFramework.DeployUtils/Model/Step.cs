@@ -1,14 +1,21 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Deploy;
+using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using XrmFramework.Definitions;
+using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Model
 {
-    public class Step
+    public class Step : ISolutionComponent
     {
+        private Guid _id;
+
         public Step(string pluginTypeName, string message, Stages stage, Modes mode, string entityName)
         {
             PluginTypeName = pluginTypeName;
@@ -21,7 +28,16 @@ namespace XrmFramework.DeployUtils.Model
             RegistrationState = RegistrationState.NotComputed;
         }
 
-        public Guid Id { get; set; }
+        public Guid Id
+        {
+            get => _id;
+            set
+            {
+                PreImage.StepId = value;
+                PostImage.StepId = value;
+                _id = value;
+            }
+        }
         public string PluginTypeName { get; }
         public string Message { get; }
         public Stages Stage { get; }
@@ -51,7 +67,6 @@ namespace XrmFramework.DeployUtils.Model
         public string MethodsDisplayName => string.Join(",", MethodNames);
 
         public RegistrationState RegistrationState { get; set; }
-
 
         public void Merge(Step step)
         {
@@ -83,6 +98,13 @@ namespace XrmFramework.DeployUtils.Model
             }
 
             MethodNames.AddRange(step.MethodNames);
+        }
+
+        public string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
+
+        public Entity ToRegisterComponent(IRegistrationContext context)
+        {
+            return AssemblyBridge.ToRegisterStep(this, context);
         }
     }
 

@@ -4,18 +4,26 @@
 using System;
 using System.Collections.Generic;
 using Deploy;
+using Microsoft.Xrm.Sdk;
+using XrmFramework.Definitions;
+using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Model
 {
-    public class Plugin
+    public class Plugin : ISolutionComponent
     {
+        private Guid _id;
+        public string EntityTypeName => PluginTypeDefinition.EntityName;
+
+
         public Plugin(string fullName)
         {
             FullName = fullName;
             RegistrationState = RegistrationState.NotComputed;
         }
 
-        public Plugin(string fullName, string displayName) :this(fullName)
+        public Plugin(string fullName, string displayName) : this(fullName)
         {
             DisplayName = displayName;
             RegistrationState = RegistrationState.NotComputed;
@@ -27,7 +35,18 @@ namespace XrmFramework.DeployUtils.Model
 
         public string DisplayName { get; }
 
-        public Guid Id { get; set; }
+        public Guid Id
+        {
+            get => _id; 
+            set
+            {
+                foreach (var step in Steps)
+                {
+                    step.PluginId = value;
+                }
+                _id = value;
+            }
+        }
 
         public Guid AssemblyId { get; set; }
 
@@ -35,5 +54,9 @@ namespace XrmFramework.DeployUtils.Model
 
         public RegistrationState RegistrationState { get; set; }
 
+        public Entity ToRegisterComponent(IRegistrationContext context)
+        {
+            return AssemblyBridge.ToRegisterPluginType(this);
+        }
     }
 }

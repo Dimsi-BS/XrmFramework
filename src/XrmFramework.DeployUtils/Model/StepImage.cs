@@ -1,12 +1,17 @@
-﻿using System;
+﻿using Deploy;
+using Microsoft.Xrm.Sdk;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using XrmFramework.Definitions;
+using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Model
 {
-    public class StepImage
+    public class StepImage : ISolutionComponent
     {
         public StepImage(string message, bool isPreImage, Stages stage)
         {
@@ -14,10 +19,6 @@ namespace XrmFramework.DeployUtils.Model
             Stage = stage;
             RegistrationState = RegistrationState.NotComputed;
             IsPreImage = isPreImage;
-            UniversalImageUsedPrefix = 
-                        Message != Messages.Associate.ToString()
-                     && Message != Messages.Lose.ToString()
-                     && Message != Messages.Win.ToString();
         }
 
         public Guid Id { get; set; }
@@ -30,7 +31,10 @@ namespace XrmFramework.DeployUtils.Model
 
         public bool IsUsed => UniversalImageUsedPrefix && ImageUsedPrefix && (AllAttributes || Attributes.Any());
 
-        private bool UniversalImageUsedPrefix;
+        private bool UniversalImageUsedPrefix => Message != Messages.Associate.ToString()
+                                              && Message != Messages.Lose.ToString()
+                                              && Message != Messages.Win.ToString();
+
         private bool ImageUsedPrefix => IsPreImage ? Message != "Create" && Message != "Book" : Stage == Stages.PostOperation && Message != "Delete";
         public bool AllAttributes { get; set; }
         public List<string> Attributes { get; private set; } = new List<string>();
@@ -39,6 +43,11 @@ namespace XrmFramework.DeployUtils.Model
 
         public RegistrationState RegistrationState { get; set; }
 
+        public string EntityTypeName => SdkMessageProcessingStepImageDefinition.EntityName;
 
+        public Entity ToRegisterComponent(IRegistrationContext context)
+        {
+            return AssemblyBridge.ToRegisterImage(this);
+        }
     }
 }
