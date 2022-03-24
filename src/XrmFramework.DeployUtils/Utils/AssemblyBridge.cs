@@ -82,7 +82,6 @@ namespace XrmFramework.DeployUtils.Utils
         public static Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false)
         {
             var pluginTemp = !isWorkflow ? new Plugin(plugin.GetType().FullName) : new Plugin(plugin.GetType().FullName, plugin.DisplayName);
-
             if (!isWorkflow)
             {
                 foreach (var step in plugin.Steps)
@@ -283,7 +282,8 @@ namespace XrmFramework.DeployUtils.Utils
                 LogicalEntityName = argument.LogicalEntityName,
                 Type = new OptionSetValue((int)argument.ArgumentType),
                 Name = argument.ArgumentName,
-                RegistrationState = RegistrationState.NotComputed
+                RegistrationState = RegistrationState.NotComputed,
+                CustomApiId = new EntityReference(CustomApiDefinition.EntityName, default(Guid))
             };
 
             if (typeof(T).IsAssignableFrom(typeof(CustomApiRequestParameter)))
@@ -375,9 +375,35 @@ namespace XrmFramework.DeployUtils.Utils
                 SdkMessageProcessingStepId = new EntityReference(SdkMessageProcessingStepDefinition.EntityName, image.StepId)
             };
 
+            if (image.Id != Guid.Empty)
+            {
+                t.Id = image.Id;
+            }
+
             return t;
         }
 
+        public static PluginType ToRegisterPluginType(Plugin plugin)
+        {
+            var t = new PluginType()
+            {
+                PluginAssemblyId = new EntityReference()
+                {
+                    LogicalName = PluginAssemblyDefinition.EntityName,
+                    Id = plugin.AssemblyId
+                },
+                TypeName = plugin.FullName,
+                FriendlyName = plugin.FullName,
+                Name = plugin.FullName,
+                Description = plugin.FullName
+            };
+            if (plugin.Id != Guid.Empty)
+            {
+                t.Id = plugin.Id;
+            }
+
+            return t;
+        }
         public static PluginType ToRegisterPluginType(Guid pluginAssemblyId, string pluginFullName)
         {
             var t = new PluginType()
@@ -400,7 +426,7 @@ namespace XrmFramework.DeployUtils.Utils
         {
             // Issue with CRM SDK / Description field max length = 256 characters
             var descriptionAttributeMaxLength = 256;
-            var description = $"{step.PluginTypeName} : {step.Stage} {step.Message} of {step.EntityName} ({step.MethodsDisplayName})";
+            var description = $"{step.PluginTypeName} : {step.Stage} {step.Message} of {step.EntityTypeName} ({step.MethodsDisplayName})";
             description = description.Length <= descriptionAttributeMaxLength ? description : description.Substring(0, descriptionAttributeMaxLength - 4) + "...)";
 
             if (!string.IsNullOrEmpty(step.ImpersonationUsername))
@@ -441,13 +467,18 @@ namespace XrmFramework.DeployUtils.Utils
                 Rank = step.Order,
                 SdkMessageId = context.Messages[step.Message], //GetSdkMessageRef(service, step.Message),
                 SdkMessageFilterId = context.Filters.Where(f => f.SdkMessageId.Name == step.Message
-                                                             && f.PrimaryObjectTypeCode == step.EntityName)
+                                                             && f.PrimaryObjectTypeCode == step.EntityTypeName)
                                              .Select(f => f.ToEntityReference()).FirstOrDefault(), //GetSdkMessageFilterRef(service, step),
                                                                                                    //SdkMessageProcessingStepSecureConfigId = GetSdkMessageProcessingStepSecureConfigRef(service, step),
                 Stage = new OptionSetValue((int)step.Stage),
                 SupportedDeployment = new OptionSetValue((int)sdkmessageprocessingstep_supporteddeployment.ServerOnly),
                 Configuration = step.UnsecureConfig
             };
+
+            if (step.Id != Guid.Empty)
+            {
+                t.Id = step.Id;
+            }
 
             return t;
         }

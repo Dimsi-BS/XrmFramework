@@ -31,6 +31,7 @@ namespace XrmFramework.DeployUtils.Utils
 
             foreach (var plugin in x.Plugins)
             {
+                plugin.AssemblyId = y.Assembly.Id;
                 var correspondingPlugin = AssemblyComparer.CorrespondingPlugin(plugin, y);
                 if (correspondingPlugin == null)
                 {
@@ -178,7 +179,6 @@ namespace XrmFramework.DeployUtils.Utils
 
         private static void ComputePluginDiff(Model.Plugin x, Model.Plugin y)
         {
-            x.AssemblyId = y.AssemblyId;
             x.Id = y.Id;
             x.RegistrationState = RegistrationState.Ignore;
 

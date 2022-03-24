@@ -67,6 +67,7 @@ namespace XrmFramework.DeployUtils.Utils
 
             if (assembly != null)
             {
+                Console.WriteLine("Remote Assembly Exists, Fetching Components...");
                 var registeredPluginTypes = service.GetRegisteredPluginTypes(assembly.Id);
 
                 var registeredSteps = service.GetRegisteredSteps(assembly.Id);
@@ -77,6 +78,8 @@ namespace XrmFramework.DeployUtils.Utils
 
                 var registeredRequestParameters = service.GetRegisteredCustomApiRequestParameters(assembly.Id);
                 var registeredResponseProperties = service.GetRegisteredCustomApiResponseProperties(assembly.Id);
+
+                Console.WriteLine("Parsing...");
 
                 registeredPluginTypes = registeredPluginTypes.Where(p => !registeredCustomApis.Any(c => c.PluginTypeId.Id == p.Id)).ToList();
 
