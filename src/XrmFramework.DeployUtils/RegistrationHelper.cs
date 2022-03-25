@@ -22,7 +22,6 @@ using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.DeployUtils.Utils;
-using static XrmFramework.DeployUtils.Model.StepCollection;
 
 namespace XrmFramework.DeployUtils
 {
@@ -65,7 +64,8 @@ namespace XrmFramework.DeployUtils
 
             Console.Write("Computing Difference...");
 
-            AssemblyDiffFactory.ComputeAssemblyDiff(localAssembly, registeredAssembly);
+            var diffFactory = new AssemblyDiffFactory();
+            var guidBridge = diffFactory.ComputeAssemblyDiff(localAssembly, registeredAssembly);
 
             Console.WriteLine("\tDone");
 
@@ -75,26 +75,26 @@ namespace XrmFramework.DeployUtils
             Console.WriteLine();
             Console.WriteLine("Registering assembly");
 
-            RegisterAssembly(service, flatAssembly);
+            RegisterAssembly(service, flatAssembly, guidBridge);
 
             Console.WriteLine();
             Console.WriteLine(@"Registering Plugins");
 
-            RegisterPluginsV2(service, flatAssembly);
+            RegisterPluginsV2(service, flatAssembly, guidBridge);
 
 
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Workflow activities");
 
-            RegisterWorkflowsV2(service, flatAssembly);
+            RegisterWorkflowsV2(service, flatAssembly, guidBridge);
 
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Apis");
 
-            RegisterCustomApisV2(service, flatAssembly);
+            RegisterCustomApisV2(service, flatAssembly, guidBridge);
         }
 
-        public static void RegisterAssembly(IRegistrationService service, IFlatAssemblyContext assembly)
+        public static void RegisterAssembly(IRegistrationService service, IFlatAssemblyContext assembly, IDictionary<Guid, Guid> bridge)
         {
 
             if (assembly.Assembly.RegistrationState == RegistrationState.ToCreate)
@@ -111,7 +111,13 @@ namespace XrmFramework.DeployUtils
                 CleanAssembly(service, assembly);
 
                 Console.WriteLine("Updating plugin assembly");
+
+                var temp = assembly.Assembly.Id;
+                assembly.Assembly.Id = bridge[temp];
+
                 service.Update(assembly.Assembly);
+
+                assembly.Assembly.Id = temp;
             }
             AddSolutionComponentToSolution(service, _registrationContext.SolutionName, assembly.Assembly.ToEntityReference());
         }
@@ -136,25 +142,25 @@ namespace XrmFramework.DeployUtils
             service.DeleteMany(PluginTypeDefinition.EntityName, customApisTypeToDelete);
         }
 
-        public static void RegisterPluginsV2(IRegistrationService service, IFlatAssemblyContext context)
+        public static void RegisterPluginsV2(IRegistrationService service, IFlatAssemblyContext context, IDictionary<Guid, Guid> bridge)
         {
             CreateAllComponents(service, context.Plugins);
             CreateAllComponents(service, context.Steps, doAddToSolution: true);
             CreateAllComponents(service, context.StepImages);
 
-            UpdateAllComponents(service, context.Plugins);
-            UpdateAllComponents(service, context.Steps);
-            UpdateAllComponents(service, context.StepImages);
+            UpdateAllComponents(service, context.Plugins, bridge);
+            UpdateAllComponents(service, context.Steps, bridge);
+            UpdateAllComponents(service, context.StepImages, bridge);
         }
 
-        public static void RegisterWorkflowsV2(IRegistrationService service, IFlatAssemblyContext context)
+        public static void RegisterWorkflowsV2(IRegistrationService service, IFlatAssemblyContext context, IDictionary<Guid, Guid> bridge)
         {
             CreateAllComponents(service, context.Workflows);
 
-            UpdateAllComponents(service, context.Workflows);
+            UpdateAllComponents(service, context.Workflows, bridge);
         }
 
-        public static void RegisterCustomApisV2(IRegistrationService service, IFlatAssemblyContext context)
+        public static void RegisterCustomApisV2(IRegistrationService service, IFlatAssemblyContext context, IDictionary<Guid, Guid> bridge)
         {
             var customApisTypeToCreate = context.CustomApis
                     .Where(x => x.RegistrationState == RegistrationState.ToCreate)
@@ -170,13 +176,14 @@ namespace XrmFramework.DeployUtils
             CreateAllComponents(service, context.CustomApiRequestParameters, true, true);
             CreateAllComponents(service, context.CustomApiResponseProperties, true, true);
 
-            UpdateAllComponents(service, context.CustomApis);
-            UpdateAllComponents(service, context.CustomApiRequestParameters);
-            UpdateAllComponents(service, context.CustomApiResponseProperties);
+            UpdateAllComponents(service, context.CustomApis, bridge);
+            UpdateAllComponents(service, context.CustomApiRequestParameters, bridge);
+            UpdateAllComponents(service, context.CustomApiResponseProperties, bridge);
         }
 
         private static void UpdateAllComponents<T>(IRegistrationService service,
-                                                  IEnumerable<T> components) where T : ISolutionComponent
+                                                   IEnumerable<T> components,
+                                                   IDictionary<Guid, Guid> bridge) where T : ISolutionComponent
         {
             var updateComponents = components
                 .Where(x => x.RegistrationState == RegistrationState.ToUpdate)
@@ -184,7 +191,12 @@ namespace XrmFramework.DeployUtils
             foreach (var component in updateComponents)
             {
                 var registeringComponent = component.ToRegisterComponent(_registrationContext);
+
+                var temp = registeringComponent.Id;
+
+                registeringComponent.Id = bridge[temp];
                 service.Update(registeringComponent);
+                registeringComponent.Id = temp;
             }
         }
 
@@ -221,27 +233,42 @@ namespace XrmFramework.DeployUtils
                 service.Delete(component.EntityTypeName, component.Id);
             }
         }
-        public static void RegisterComponents<T>(IRegistrationService service, IEnumerable<T> components, RegistrationState state) where T : ISolutionComponent
-        {
-            var stateComponents = components
-                .Where(x => x.RegistrationState == state)
-                .Select(x => x.ToRegisterComponent(_registrationContext))
-                .ToList();
 
-            switch (state)
+
+        private static void AddSolutionComponentToSolution(IRegistrationService service, string solutionUniqueName, EntityReference objectRef, int? objectTypeCode = null)
+        {
+            if (GetRegisteredSolutionComponent(objectRef) == null)
             {
-                case RegistrationState.ToCreate:
-                    //CreateAllComponents(service, stateComponents);
-                    break;
-                case RegistrationState.ToUpdate:
-                    service.UpdateMany(stateComponents);
-                    break;
-                case RegistrationState.ToDelete:
-                    service.DeleteMany(stateComponents);
-                    break;
+                service.AddSolutionComponentToSolution(solutionUniqueName, objectRef, objectTypeCode);
+            }
+        }
+        private static SolutionComponent GetRegisteredSolutionComponent(EntityReference objectRef)
+        {
+            return _registrationContext.Components.FirstOrDefault(c => c.ObjectId.Equals(objectRef.Id));
+        }
+
+
+        public static void ParseSolutionSettings(string projectName, out string pluginSolutionUniqueName, out string connectionString)
+        {
+            var xrmFrameworkConfigSection = ConfigHelper.GetSection();
+
+            var projectConfig = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>()
+                .FirstOrDefault(p => p.Name == projectName);
+
+            if (projectConfig == null)
+            {
+                var defaultColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"No reference to the project {projectName} has been found in the xrmFramework.config file.");
+                Console.ForegroundColor = defaultColor;
+                System.Environment.Exit(1);
             }
 
+            pluginSolutionUniqueName = projectConfig.TargetSolution;
+
+            connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
         }
+
 
         public static void RegisterPlugins(IRegistrationService service, IAssemblyContext assembly)
         {
@@ -403,21 +430,9 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        private static void AddSolutionComponentToSolution(IRegistrationService service, string solutionUniqueName, EntityReference objectRef, int? objectTypeCode = null)
-        {
-            if (GetRegisteredSolutionComponent(objectRef) == null)
-            {
-                service.AddSolutionComponentToSolution(solutionUniqueName, objectRef, objectTypeCode);
-            }
-        }
-        private static SolutionComponent GetRegisteredSolutionComponent(EntityReference objectRef)
-        {
-            return _registrationContext.Components.FirstOrDefault(c => c.ObjectId.Equals(objectRef.Id));
-        }
-
         private static void UpdateCustomApiComponent<T>(IRegistrationService service, CustomApi existingCustomApi,
-                                                     T customApiComponent)
-            where T : Entity, ICustomApiComponent
+                                             T customApiComponent)
+    where T : Entity, ICustomApiComponent
         {
             ICustomApiComponent existingComponent = existingCustomApi.InArguments.FirstOrDefault(p => p.UniqueName == customApiComponent.UniqueName);
 
@@ -487,25 +502,5 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        public static void ParseSolutionSettings(string projectName, out string pluginSolutionUniqueName, out string connectionString)
-        {
-            var xrmFrameworkConfigSection = ConfigHelper.GetSection();
-
-            var projectConfig = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>()
-                .FirstOrDefault(p => p.Name == projectName);
-
-            if (projectConfig == null)
-            {
-                var defaultColor = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"No reference to the project {projectName} has been found in the xrmFramework.config file.");
-                Console.ForegroundColor = defaultColor;
-                System.Environment.Exit(1);
-            }
-
-            pluginSolutionUniqueName = projectConfig.TargetSolution;
-
-            connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
-        }
     }
 }
