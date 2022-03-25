@@ -1,8 +1,10 @@
 ﻿using Deploy;
+using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
@@ -50,9 +52,20 @@ namespace XrmFramework.DeployUtils.Utils
 
             var customApis = AssemblyBridge.CreateInstanceOfTypeList<CustomApi>(CustomApiTypes, PluginRegistrationType.CustomApi, _registrationContext);
 
+            var assembly = AssemblyBridge.ToPluginAssembly(Assembly);
+
+            foreach(var plugin in plugins)
+            {
+                plugin.AssemblyId = assembly.Id;
+            }
+            foreach(var workflow in workflows)
+            {
+                workflow.AssemblyId = assembly.Id;
+            }
+
             var localAssembly = new AssemblyContext
             {
-                Assembly = AssemblyBridge.ToPluginAssembly(Assembly),
+                Assembly = assembly,
                 Plugins = plugins,
                 Workflows = workflows,
                 CustomApis = customApis,

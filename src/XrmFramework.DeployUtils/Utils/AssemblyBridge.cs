@@ -89,6 +89,7 @@ namespace XrmFramework.DeployUtils.Utils
                     pluginTemp.Steps.Add(FromXrmFrameworkStep(step));
                 }
             }
+            pluginTemp.Id = Guid.NewGuid();
 
             return pluginTemp;
         }
@@ -111,6 +112,9 @@ namespace XrmFramework.DeployUtils.Utils
             step.UnsecureConfig = s.UnsecureConfig;
 
             step.MethodNames.AddRange(s.MethodNames);
+            step.Id = Guid.NewGuid();
+            step.PreImage.Id = Guid.NewGuid();
+            step.PostImage.Id = Guid.NewGuid();
             
             return step;
         }
@@ -254,7 +258,8 @@ namespace XrmFramework.DeployUtils.Utils
                 UniqueName = $"{prefix}_{name}",
                 WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled,
                 FullName = type.FullName,
-                RegistrationState = RegistrationState.NotComputed
+                RegistrationState = RegistrationState.NotComputed,
+                PluginTypeId = new EntityReference(PluginTypeDefinition.EntityName, Guid.NewGuid())
             };
 
             foreach (var argument in record.Arguments)
@@ -268,6 +273,7 @@ namespace XrmFramework.DeployUtils.Utils
                     customApi.OutArguments.Add(FromXrmFrameworkArgument<CustomApiResponseProperty>(customApi.Name, argument));
                 }
             }
+            customApi.Id = Guid.NewGuid();
 
             return customApi;
         }
@@ -276,6 +282,7 @@ namespace XrmFramework.DeployUtils.Utils
         {
             var res = new T
             {
+                Id = Guid.NewGuid(),
                 Description = string.IsNullOrWhiteSpace(argument.Description) ? $"{customApiName}.{argument.ArgumentName}" : argument.Description,
                 UniqueName = $"{customApiName}.{argument.ArgumentName}",
                 DisplayName = string.IsNullOrWhiteSpace(argument.DisplayName) ? $"{customApiName}.{argument.ArgumentName}" : argument.DisplayName,
@@ -305,6 +312,7 @@ namespace XrmFramework.DeployUtils.Utils
 
             var t = new PluginAssembly()
             {
+                Id = Guid.NewGuid(),
                 Name = name,
                 SourceType = new OptionSetValue((int)pluginassembly_sourcetype.Database),
                 IsolationMode = new OptionSetValue((int)pluginassembly_isolationmode.Sandbox),
