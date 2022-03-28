@@ -27,7 +27,7 @@ namespace XrmFramework.DeployUtils
 {
     public static class RegistrationHelper
     {
-        private static IRegistrationContext _registrationContext;
+        private static ISolutionContext _solutionContext;
 
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
@@ -45,9 +45,9 @@ namespace XrmFramework.DeployUtils
 
             service.OrganizationServiceProxy?.EnableProxyTypes();
 
-            _registrationContext = new RegistrationContext(service, pluginSolutionUniqueName);
+            _solutionContext = new SolutionContext(service, pluginSolutionUniqueName);
 
-            var assemblyFactory = new AssemblyFactory(_registrationContext);
+            var assemblyFactory = new AssemblyFactory(_solutionContext);
 
 
 
@@ -64,8 +64,7 @@ namespace XrmFramework.DeployUtils
 
             Console.Write("Computing Difference...");
 
-            var diffFactory = new AssemblyDiffFactory();
-            var guidBridge = diffFactory.ComputeAssemblyDiff(localAssembly, registeredAssembly);
+            AssemblyDiffFactory.ComputeAssemblyDiff(localAssembly, registeredAssembly);
 
             Console.WriteLine("\tDone");
 
@@ -75,26 +74,26 @@ namespace XrmFramework.DeployUtils
             Console.WriteLine();
             Console.WriteLine("Registering assembly");
 
-            RegisterAssembly(service, flatAssembly, guidBridge);
+            RegisterAssembly(service, flatAssembly);
 
             Console.WriteLine();
             Console.WriteLine(@"Registering Plugins");
 
-            RegisterPluginsV2(service, flatAssembly, guidBridge);
+            RegisterPluginsV2(service, flatAssembly);
 
 
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Workflow activities");
 
-            RegisterWorkflowsV2(service, flatAssembly, guidBridge);
+            RegisterWorkflowsV2(service, flatAssembly);
 
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Apis");
 
-            RegisterCustomApisV2(service, flatAssembly, guidBridge);
+            RegisterCustomApisV2(service, flatAssembly);
         }
 
-        public static void RegisterAssembly(IRegistrationService service, IFlatAssemblyContext assembly, IDictionary<Guid, Guid> bridge)
+        public static void RegisterAssembly(IRegistrationService service, IFlatAssemblyContext assembly)
         {
 
             if (assembly.Assembly.RegistrationState == RegistrationState.ToCreate)
@@ -112,14 +111,9 @@ namespace XrmFramework.DeployUtils
 
                 Console.WriteLine("Updating plugin assembly");
 
-                var temp = assembly.Assembly.Id;
-                assembly.Assembly.Id = bridge[temp];
-
                 service.Update(assembly.Assembly);
-
-                assembly.Assembly.Id = temp;
             }
-            AddSolutionComponentToSolution(service, _registrationContext.SolutionName, assembly.Assembly.ToEntityReference());
+            AddSolutionComponentToSolution(service, _solutionContext.SolutionName, assembly.Assembly.ToEntityReference());
         }
 
         public static void CleanAssembly(IRegistrationService service, IFlatAssemblyContext assembly)
@@ -142,25 +136,25 @@ namespace XrmFramework.DeployUtils
             service.DeleteMany(PluginTypeDefinition.EntityName, customApisTypeToDelete);
         }
 
-        public static void RegisterPluginsV2(IRegistrationService service, IFlatAssemblyContext context, IDictionary<Guid, Guid> bridge)
+        public static void RegisterPluginsV2(IRegistrationService service, IFlatAssemblyContext context)
         {
             CreateAllComponents(service, context.Plugins);
             CreateAllComponents(service, context.Steps, doAddToSolution: true);
             CreateAllComponents(service, context.StepImages);
 
-            UpdateAllComponents(service, context.Plugins, bridge);
-            UpdateAllComponents(service, context.Steps, bridge);
-            UpdateAllComponents(service, context.StepImages, bridge);
+            UpdateAllComponents(service, context.Plugins);
+            UpdateAllComponents(service, context.Steps);
+            UpdateAllComponents(service, context.StepImages);
         }
 
-        public static void RegisterWorkflowsV2(IRegistrationService service, IFlatAssemblyContext context, IDictionary<Guid, Guid> bridge)
+        public static void RegisterWorkflowsV2(IRegistrationService service, IFlatAssemblyContext context)
         {
             CreateAllComponents(service, context.Workflows);
 
-            UpdateAllComponents(service, context.Workflows, bridge);
+            UpdateAllComponents(service, context.Workflows);
         }
 
-        public static void RegisterCustomApisV2(IRegistrationService service, IFlatAssemblyContext context, IDictionary<Guid, Guid> bridge)
+        public static void RegisterCustomApisV2(IRegistrationService service, IFlatAssemblyContext context)
         {
             var customApisTypeToCreate = context.CustomApis
                     .Where(x => x.RegistrationState == RegistrationState.ToCreate)
@@ -176,27 +170,22 @@ namespace XrmFramework.DeployUtils
             CreateAllComponents(service, context.CustomApiRequestParameters, true, true);
             CreateAllComponents(service, context.CustomApiResponseProperties, true, true);
 
-            UpdateAllComponents(service, context.CustomApis, bridge);
-            UpdateAllComponents(service, context.CustomApiRequestParameters, bridge);
-            UpdateAllComponents(service, context.CustomApiResponseProperties, bridge);
+            UpdateAllComponents(service, context.CustomApis);
+            UpdateAllComponents(service, context.CustomApiRequestParameters);
+            UpdateAllComponents(service, context.CustomApiResponseProperties);
         }
 
         private static void UpdateAllComponents<T>(IRegistrationService service,
-                                                   IEnumerable<T> components,
-                                                   IDictionary<Guid, Guid> bridge) where T : ISolutionComponent
+                                                   IEnumerable<T> components) where T : ISolutionComponent
         {
             var updateComponents = components
                 .Where(x => x.RegistrationState == RegistrationState.ToUpdate)
                 .ToList();
             foreach (var component in updateComponents)
             {
-                var registeringComponent = component.ToRegisterComponent(_registrationContext);
+                var registeringComponent = component.ToRegisterComponent(_solutionContext);
 
-                var temp = registeringComponent.Id;
-
-                registeringComponent.Id = bridge[temp];
                 service.Update(registeringComponent);
-                registeringComponent.Id = temp;
             }
         }
 
@@ -205,19 +194,20 @@ namespace XrmFramework.DeployUtils
                                                   bool doAddToSolution = false,
                                                   bool doFetchCode = false) where T : ISolutionComponent
         {
-            if (!components.Any()) return;
-            int? entityTypeCode = doFetchCode ? service?.GetIntEntityTypeCode(components.FirstOrDefault()?.EntityTypeName) : null;
             var createComponents = components
                 .Where(x => x.RegistrationState == RegistrationState.ToCreate)
                 .ToList();
+
+            if (!createComponents.Any()) return;
+            int? entityTypeCode = doFetchCode ? service?.GetIntEntityTypeCode(createComponents.FirstOrDefault()?.EntityTypeName) : null;
             foreach (var component in createComponents)
             {
-                var registeringComponent = component.ToRegisterComponent(_registrationContext);
+                var registeringComponent = component.ToRegisterComponent(_solutionContext);
                 component.Id = service.Create(registeringComponent);
                 registeringComponent.Id = component.Id;
                 if (doAddToSolution)
                 {
-                    AddSolutionComponentToSolution(service, _registrationContext.SolutionName, registeringComponent.ToEntityReference(), entityTypeCode);
+                    AddSolutionComponentToSolution(service, _solutionContext.SolutionName, registeringComponent.ToEntityReference(), entityTypeCode);
                 }
             }
         }
@@ -244,7 +234,7 @@ namespace XrmFramework.DeployUtils
         }
         private static SolutionComponent GetRegisteredSolutionComponent(EntityReference objectRef)
         {
-            return _registrationContext.Components.FirstOrDefault(c => c.ObjectId.Equals(objectRef.Id));
+            return _solutionContext.Components.FirstOrDefault(c => c.ObjectId.Equals(objectRef.Id));
         }
 
 
@@ -288,7 +278,7 @@ namespace XrmFramework.DeployUtils
                         plugin.Id = service.Create(registeringPluginType);
                         foreach (var step in plugin.Steps)
                         {
-                            step.PluginId = plugin.Id;
+                            step.ParentId = plugin.Id;
                             RegisterStep(service, step);
                         }
                         break;
@@ -313,19 +303,19 @@ namespace XrmFramework.DeployUtils
                 case RegistrationState.ToCreate:
                     Console.WriteLine($"\t\t Creating {step.Stage} {step.Message} of {step.EntityTypeName} ({step.MethodsDisplayName})");
 
-                    step.Id = service.Create(AssemblyBridge.ToRegisterStep(step, _registrationContext));
-                    step.PreImage.StepId = step.Id;
-                    step.PostImage.StepId = step.Id;
+                    step.Id = service.Create(AssemblyBridge.ToRegisterStep(step, _solutionContext));
+                    step.PreImage.ParentId = step.Id;
+                    step.PostImage.ParentId = step.Id;
 
                     RegisterStepImage(service, step.PreImage);
                     RegisterStepImage(service, step.PostImage);
 
-                    AddSolutionComponentToSolution(service, _registrationContext.SolutionName,
+                    AddSolutionComponentToSolution(service, _solutionContext.SolutionName,
                                    new EntityReference(SdkMessageProcessingStepDefinition.EntityName, step.Id));
                     break;
                 case RegistrationState.ToUpdate:
                     Console.WriteLine($"\t\t Updating {step.Stage} {step.Message} of {step.EntityTypeName} ({step.MethodsDisplayName})");
-                    service.Update(AssemblyBridge.ToRegisterStep(step, _registrationContext));
+                    service.Update(AssemblyBridge.ToRegisterStep(step, _solutionContext));
 
                     RegisterStepImage(service, step.PreImage);
                     RegisterStepImage(service, step.PostImage);
@@ -416,17 +406,17 @@ namespace XrmFramework.DeployUtils
                 {
                     UpdateCustomApiComponent(service, existingCustomApi, customApiRequestParameter);
 
-                    AddSolutionComponentToSolution(service, _registrationContext.SolutionName, customApiRequestParameter.ToEntityReference(), customApiParameterEntityTypeCode);
+                    AddSolutionComponentToSolution(service, _solutionContext.SolutionName, customApiRequestParameter.ToEntityReference(), customApiParameterEntityTypeCode);
                 }
 
                 foreach (var customApiResponseProperty in customApi.OutArguments)
                 {
                     UpdateCustomApiComponent(service, existingCustomApi, customApiResponseProperty);
 
-                    AddSolutionComponentToSolution(service, _registrationContext.SolutionName, customApiResponseProperty.ToEntityReference(), customApiResponseEntityTypeCode);
+                    AddSolutionComponentToSolution(service, _solutionContext.SolutionName, customApiResponseProperty.ToEntityReference(), customApiResponseEntityTypeCode);
                 }
 
-                AddSolutionComponentToSolution(service, _registrationContext.SolutionName, customApi.ToEntityReference(), customApiEntityTypeCode);
+                AddSolutionComponentToSolution(service, _solutionContext.SolutionName, customApi.ToEntityReference(), customApiEntityTypeCode);
             }
         }
 

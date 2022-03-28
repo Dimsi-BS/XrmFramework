@@ -11,27 +11,27 @@ namespace XrmFramework.DeployUtils.Utils
 {
     public class AssemblyDiffFactory
     {
-        private static readonly StepComparer _stepComparer = new();
-        private readonly Dictionary<Guid, Guid> _guidBridge = new();
+        private static StepComparer _stepComparer = new StepComparer();
 
-        public Dictionary<Guid, Guid> ComputeAssemblyDiff(IAssemblyContext x, IAssemblyContext y)
+        public static void ComputeAssemblyDiff(IAssemblyContext x, IAssemblyContext y)
         {
-            if(y == null || y.Assembly == null)
+            if (y == null || y.Assembly == null)
             {
                 x.Assembly.RegistrationState = RegistrationState.ToCreate;
             }
             else
             {
                 x.Assembly.RegistrationState = RegistrationState.ToUpdate;
-                _guidBridge.Add(x.Assembly.Id, y.Assembly.Id);
+                x.Assembly.Id = y.Assembly.Id;
                 ComputeAssemblyComponentsDiff(x, y);
             }
-            return _guidBridge;
         }
-        public void ComputeAssemblyComponentsDiff(IAssemblyContext x, IAssemblyContext y)
+        public static void ComputeAssemblyComponentsDiff(IAssemblyContext x, IAssemblyContext y)
         {
+
             foreach (var plugin in x.Plugins)
             {
+                plugin.ParentId = y.Assembly.Id;
                 var correspondingPlugin = AssemblyComparer.CorrespondingPlugin(plugin, y);
                 if (correspondingPlugin == null)
                 {
@@ -61,7 +61,8 @@ namespace XrmFramework.DeployUtils.Utils
                 }
                 else
                 {
-                    _guidBridge.Add(wf.Id, correspondingWf.Id);
+                    wf.ParentId = correspondingWf.ParentId;
+                    wf.Id = correspondingWf.Id;
                     if (wf.DisplayName != correspondingWf.FullName)
                     {
                         wf.RegistrationState = RegistrationState.ToUpdate;
@@ -105,10 +106,10 @@ namespace XrmFramework.DeployUtils.Utils
             }
         }
 
-        private void ComputeCustomApiDiff(CustomApi x, CustomApi y)
+        private static void ComputeCustomApiDiff(CustomApi x, CustomApi y)
         {
-            _guidBridge.Add(x.PluginTypeId.Id, y.PluginTypeId.Id);
-            _guidBridge.Add(x.Id, y.Id);
+            x.PluginTypeId = y.PluginTypeId;
+            x.Id = y.Id;
 
             foreach (var request in x.InArguments)
             {
@@ -119,7 +120,8 @@ namespace XrmFramework.DeployUtils.Utils
                 }
                 else if (AssemblyComparer.NeedsUpdate(request, correspondingRequest))
                 {
-                    _guidBridge.Add(request.Id, correspondingRequest.Id);
+                    request.Id = correspondingRequest.Id;
+                    request.CustomApiId = correspondingRequest.CustomApiId;
                     request.RegistrationState = RegistrationState.ToUpdate;
                 }
                 else
@@ -127,10 +129,10 @@ namespace XrmFramework.DeployUtils.Utils
                     request.RegistrationState = RegistrationState.Ignore;
                 }
             }
-            foreach(var request in y.InArguments)
+            foreach (var request in y.InArguments)
             {
                 var correspondingRequest = AssemblyComparer.CorrespondingCustomApiComponent(request, x);
-                if(correspondingRequest == null)
+                if (correspondingRequest == null)
                 {
                     request.RegistrationState = RegistrationState.ToDelete;
                     x.InArguments.Add(request);
@@ -146,7 +148,8 @@ namespace XrmFramework.DeployUtils.Utils
                 }
                 else if (AssemblyComparer.NeedsUpdate(response, correspondingResponse))
                 {
-                    _guidBridge.Add(response.Id, correspondingResponse.Id);
+                    response.Id = correspondingResponse.Id;
+                    response.CustomApiId = correspondingResponse.CustomApiId;
                     response.RegistrationState = RegistrationState.ToUpdate;
                 }
                 else
@@ -174,9 +177,9 @@ namespace XrmFramework.DeployUtils.Utils
             }
         }
 
-        private void ComputePluginDiff(Model.Plugin x, Model.Plugin y)
+        private static void ComputePluginDiff(Model.Plugin x, Model.Plugin y)
         {
-            _guidBridge.Add(x.Id, y.Id);
+            x.Id = y.Id;
             x.RegistrationState = RegistrationState.Ignore;
 
             foreach (var step in x.Steps)
@@ -184,10 +187,12 @@ namespace XrmFramework.DeployUtils.Utils
                 var correspondingStep = AssemblyComparer.CorrespondingStep(step, y);
                 if (correspondingStep == null)
                 {
+                    step.ParentId = x.Id;
                     FlagAllFromStep(step, RegistrationState.ToCreate);
                 }
                 else
                 {
+                    step.ParentId = x.Id;
                     ComputeStepDiff(step, correspondingStep);
                 }
             }
@@ -202,9 +207,9 @@ namespace XrmFramework.DeployUtils.Utils
             }
         }
 
-        private void ComputeStepDiff(Model.Step x, Model.Step y)
+        private static void ComputeStepDiff(Model.Step x, Model.Step y)
         {
-            _guidBridge.Add(x.Id, y.Id);
+            x.Id = y.Id;
             ComputeStepImageDiff(x.PreImage, y.PreImage);
             ComputeStepImageDiff(x.PostImage, y.PostImage);
             if (_stepComparer.NeedsUpdate(x, y))
@@ -217,11 +222,12 @@ namespace XrmFramework.DeployUtils.Utils
             }
         }
 
-        private void ComputeStepImageDiff(Model.StepImage x, Model.StepImage y)
+        private static void ComputeStepImageDiff(Model.StepImage x, Model.StepImage y)
         {
             if (x.IsUsed && y.IsUsed)
             {
-                _guidBridge.Add(x.Id, y.Id);
+                x.ParentId = y.ParentId;
+                x.Id = y.Id;
                 if (x.JoinedAttributes != y.JoinedAttributes)
                 {
                     FlagStepImage(x, RegistrationState.ToUpdate);
@@ -237,7 +243,8 @@ namespace XrmFramework.DeployUtils.Utils
             }
             else if (y.IsUsed && !x.IsUsed)
             {
-                _guidBridge.Add(x.Id, y.Id);
+                x.Id = y.Id;
+                x.ParentId = y.ParentId;
                 x.RegistrationState = RegistrationState.ToDelete;
             }
             else
