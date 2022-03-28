@@ -23,7 +23,7 @@ namespace XrmFramework.DeployUtils.Model
 
         public Guid Id { get; set; }
 
-        public Guid StepId { get; set; }
+        public Guid ParentId { get; set; }
         public string Message { get; }
         public Stages Stage { get; }
 
@@ -45,7 +45,7 @@ namespace XrmFramework.DeployUtils.Model
 
         public string EntityTypeName => SdkMessageProcessingStepImageDefinition.EntityName;
 
-        public Entity ToRegisterComponent(IRegistrationContext context)
+        public Entity ToRegisterComponent(ISolutionContext context)
         {
             return AssemblyBridge.ToRegisterImage(this);
         }

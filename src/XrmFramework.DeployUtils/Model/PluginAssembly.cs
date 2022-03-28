@@ -14,10 +14,10 @@ namespace Deploy
     partial class PluginAssembly : ISolutionComponent
     {
         public RegistrationState RegistrationState { get; set; }
-
+        public Guid ParentId { get; set; }
         public string EntityTypeName => PluginAssemblyDefinition.EntityName;
 
-        public Entity ToRegisterComponent(IRegistrationContext context)
+        public Entity ToRegisterComponent(ISolutionContext context)
         {
             return this;
         }

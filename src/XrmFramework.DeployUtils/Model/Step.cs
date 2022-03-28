@@ -28,13 +28,14 @@ namespace XrmFramework.DeployUtils.Model
             RegistrationState = RegistrationState.NotComputed;
         }
 
+
         public Guid Id
         {
             get => _id;
             set
             {
-                PreImage.StepId = value;
-                PostImage.StepId = value;
+                PreImage.ParentId = value;
+                PostImage.ParentId = value;
                 _id = value;
             }
         }
@@ -44,7 +45,7 @@ namespace XrmFramework.DeployUtils.Model
         public Modes Mode { get; }
         public string EntityName { get; }
 
-        public Guid PluginId { get; set; }
+        public Guid ParentId { get; set; }
         public string PluginTypeFullName { get; set; }
 
         public Guid MessageId { get; set; }
@@ -102,7 +103,7 @@ namespace XrmFramework.DeployUtils.Model
 
         public string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
 
-        public Entity ToRegisterComponent(IRegistrationContext context)
+        public Entity ToRegisterComponent(ISolutionContext context)
         {
             return AssemblyBridge.ToRegisterStep(this, context);
         }

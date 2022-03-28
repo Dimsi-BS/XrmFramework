@@ -19,6 +19,8 @@ namespace Deploy
         public List<CustomApiResponseProperty> OutArguments { get; } = new List<CustomApiResponseProperty>();
         public RegistrationState RegistrationState { get; set; }
 
+        public Guid ParentId { get => PluginTypeId.Id; set => PluginTypeId.Id = value; }
+
         public override Guid Id
         {
             get => base.Id;
@@ -46,7 +48,7 @@ namespace Deploy
             set => UniqueName = $"{value}{Name}";
         }
 
-        public Entity ToRegisterComponent(IRegistrationContext context)
+        public Entity ToRegisterComponent(ISolutionContext context)
         {
             return this;
         }

@@ -35,6 +35,7 @@ namespace XrmFramework.DeployUtils.Model
 
         public string DisplayName { get; }
 
+
         public Guid Id
         {
             get => _id; 
@@ -42,19 +43,19 @@ namespace XrmFramework.DeployUtils.Model
             {
                 foreach (var step in Steps)
                 {
-                    step.PluginId = value;
+                    step.ParentId = value;
                 }
                 _id = value;
             }
         }
 
-        public Guid AssemblyId { get; set; }
+        public Guid ParentId { get; set; }
 
         public StepCollection Steps { get; } = new StepCollection();
 
         public RegistrationState RegistrationState { get; set; }
 
-        public Entity ToRegisterComponent(IRegistrationContext context)
+        public Entity ToRegisterComponent(ISolutionContext context)
         {
             return AssemblyBridge.ToRegisterPluginType(this);
         }
