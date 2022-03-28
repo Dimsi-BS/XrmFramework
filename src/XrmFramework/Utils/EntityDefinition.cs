@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
-
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,8 +9,10 @@ using System.Reflection;
 
 namespace XrmFramework
 {
+    [JsonObject(MemberSerialization.OptOut)]
     public class EntityDefinition
     {
+
         public Type DefinitionType { get; private set; }
 
         public IReadOnlyCollection<AttributeDefinition> Attributes => new ReadOnlyCollection<AttributeDefinition>(_attributes);
@@ -34,6 +36,7 @@ namespace XrmFramework
         private readonly IList<string> _attributeNames = new List<string>();
 
         internal EntityDefinition(Type type)
+
         {
             DefinitionType = type;
 

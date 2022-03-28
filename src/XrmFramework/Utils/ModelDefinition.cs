@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,30 +9,27 @@ using XrmFramework.BindingModel;
 
 namespace XrmFramework
 {
+    [JsonObject(MemberSerialization.OptIn)]
+    [JsonArray]
     public class ModelDefinition
     {
         public Type BindingType { get; set; }
-
+        [JsonProperty]
         public string TypeFullName { get; set; }
 
         public Type[] ImplementedInterfaces { get; set; }
-
+        [JsonProperty]
         public readonly IList<AttributeDefinition> _attributes = new List<AttributeDefinition>();
-
         public IReadOnlyCollection<AttributeDefinition> CrmAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.CrmMappingAttribute != null).ToList());
-
         public IReadOnlyCollection<AttributeDefinition> ExtendBindingAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.IsExtendBindingModel).ToList());
-
         public IReadOnlyCollection<AttributeDefinition> RelationshipAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.RelationshipAttribute != null).ToList());
-
         public IReadOnlyCollection<AttributeDefinition> XmlMappingAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.XmlMappingAttribute != null).ToList());
-
         public IReadOnlyCollection<AttributeDefinition> UpsertableAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.IsUpsertable()).ToList());
 
         public EntityDefinition MainDefinition { get; set; }
 
         public XmlMappingAttribute XmlMappingAttribute { get; set; }
-
+        
         public ModelDefinition(Type bindingType)
         {
             /*
@@ -63,7 +61,8 @@ namespace XrmFramework
             }
             */
         }
-
+        
+        [JsonConstructor]
         public ModelDefinition()
         {
             
@@ -102,10 +101,11 @@ namespace XrmFramework
             return BindingType.Name;
         }*/
     }
-
+    [JsonObject(MemberSerialization.OptIn)]
     public class AttributeDefinition
     {
         public ModelDefinition Model { get; internal set; }
+        
         public PropertyInfo Property { get; internal set; }
 
         public Type PropertyType => ModelImplementationAttribute?.ImplementationType ?? Property.PropertyType;
@@ -113,9 +113,9 @@ namespace XrmFramework
         public Type ObjectType { get; internal set; }
 
         public int? UpsertOrder { get; internal set; }
-
+        [JsonProperty]
         public string Name => Property.Name;
-
+        [JsonProperty]
         public bool IsNullable { get; internal set; }
 
         public bool IsExtendBindingModel { get; internal set; }
@@ -125,7 +125,6 @@ namespace XrmFramework
         public CrmMappingAttribute CrmMappingAttribute { get; internal set; }
 
         public CrmLookupAttribute CrmLookupAttribute { get; internal set; }
-
         internal AttributeDefinition()
         {
 

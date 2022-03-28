@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using XrmFramework.BindingModel;
 using XrmFramework.Definitions;
 using XrmFramework.RemoteDebugger;
+using XrmFramework.Utils;
 
 namespace XrmFramework.RemoteDebugger
 {
@@ -25,6 +26,7 @@ namespace XrmFramework.RemoteDebugger
 
         public void Execute(IServiceProvider serviceProvider)
         {
+            
             if (serviceProvider == null)
             {
                 throw new ArgumentNullException(nameof(serviceProvider));

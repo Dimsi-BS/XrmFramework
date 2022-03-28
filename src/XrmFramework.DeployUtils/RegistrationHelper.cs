@@ -410,11 +410,11 @@ namespace XrmFramework.DeployUtils
             var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
 
             Console.WriteLine($"You are about to modify the debug session");
-            Console.WriteLine($"Do you want to register new debugg steps (y/n)");
+            Console.WriteLine($"Do you want to register new steps to debug ? (y/n)");
             var r = Console.ReadLine();
             while(r != "y" && r != "n")
             {
-                Console.WriteLine($"Do you want to register new debugg steps (y/n)");
+                Console.WriteLine($"Do you want to register new steps to debug ? (y/n)");
                 r = Console.ReadLine();
             }
             if(r == "n")
@@ -427,12 +427,13 @@ namespace XrmFramework.DeployUtils
 
             //Create the CrmServiceClient to interact with the CrmProject 
             var service = new CrmServiceClient(connectionString);
+            Console.WriteLine("Created serviceClient");
             //Kind of deprecated, allow use of early bound classes like in DeployUtils.Model.Entities, to make a strongly typed object from a table 
-            service.OrganizationServiceProxy?.EnableProxyTypes();
+            //service.OrganizationServiceProxy?.EnableProxyTypes();
             var debugAssembly = GetAssemblyByName(service, "XrmFramework.RemoteDebuggerPlugin");
 
-            InitMetadata(service, pluginSolutionUniqueName);
-
+            //InitMetadata(service, pluginSolutionUniqueName);
+            InitStepMetadata(service, pluginSolutionUniqueName);
             
 
             //Now get the local assembly for the plugin(s) to be debugged
@@ -875,6 +876,91 @@ namespace XrmFramework.DeployUtils
         private static SolutionComponent GetRegisteredSolutionComponent(EntityReference objectRef)
         {
             return _components.FirstOrDefault(c => c.ObjectId.Equals(objectRef.Id));
+        }
+
+
+        private static void InitStepMetadata(IOrganizationService service, string solutionName)
+        {
+            Console.WriteLine("Metadata initialization");
+
+            var sw = Stopwatch.StartNew();
+
+            // Get the message filters that allow custom processing steps and are visible ?
+            var query = new QueryExpression(SdkMessageFilter.EntityLogicalName);
+            query.ColumnSet.AddColumns("sdkmessagefilterid", "sdkmessageid", "primaryobjecttypecode");
+            query.Criteria.AddCondition("iscustomprocessingstepallowed", ConditionOperator.Equal, true);
+            query.Criteria.AddCondition("isvisible", ConditionOperator.Equal, true);
+
+            var filters = RetrieveAll(service, query);
+
+            //Console.WriteLine($"Retrieved {filters.Count} message filters in {sw.Elapsed}");
+
+            // Clear filters from the collection (est ce que c'est _filters qui contient tous les filtres utilisés ?, ce qui voudrait dire qu'on pourrait s'en servir pour le debugging ?)
+            _filters.Clear();
+            _filters.AddRange(filters.Select(f => f.ToEntity<SdkMessageFilter>()));
+
+            //Get all the messages in the project (update, Create, Delete etc ??)
+            sw.Restart();
+            query = new QueryExpression(SdkMessage.EntityLogicalName);
+            query.ColumnSet.AddColumns("sdkmessageid", "name");
+
+            var messages = RetrieveAll(service, query).Select(e => e.ToEntity<SdkMessage>());
+
+            //Console.WriteLine($"Retrieved {messages.Count()} messages in {sw.Elapsed}");
+
+            _messages.Clear();
+            foreach (SdkMessage e in messages)
+            {
+                _messages.Add(e.Name, e.ToEntityReference());
+            }
+            /*
+            //Get the solution entity the plugins will be added to 
+            sw.Restart();
+            query = new QueryExpression(Solution.EntityLogicalName);
+            query.ColumnSet.AllColumns = true;
+            query.Criteria.AddCondition("uniquename", ConditionOperator.Equal, solutionName);
+
+            _solution = RetrieveAll(service, query).Select(s => s.ToEntity<Solution>()).FirstOrDefault();
+
+            //Console.WriteLine($"Retrieved solution by name in {sw.Elapsed}");
+
+            if (_solution == null)
+            {
+                Console.WriteLine("The solution {0} does not exist in the CRM, modify App.config to point to an existing solution.", solutionName);
+                Console.WriteLine("\r\nAppuyez sur une touche pour arrêter.");
+                Console.ReadKey();
+                System.Environment.Exit(1);
+            }
+            else if (_solution.GetAttributeValue<bool>("ismanaged"))
+            {
+                Console.WriteLine("The solution {0} is managed in the CRM, modify App.config to point to a development environment.", solutionName);
+                System.Environment.Exit(1);
+            }
+            else
+            {
+                //If the solution is real and usable, get its publisher
+                _publisher = service.Retrieve(Publisher.EntityLogicalName, _solution.PublisherId.Id, new ColumnSet(true)).ToEntity<Publisher>();
+
+
+                query = new QueryExpression(SolutionComponent.EntityLogicalName);
+                query.ColumnSet.AllColumns = true;
+                query.Criteria.AddCondition("solutionid", ConditionOperator.Equal, _solution.Id);
+
+                var components = RetrieveAll(service, query).Select(s => s.ToEntity<SolutionComponent>());
+
+                _components.AddRange(components);
+            }*/
+
+            query = new QueryExpression("systemuser");
+            query.ColumnSet.AddColumn("domainname");
+            query.Criteria.AddCondition("accessmode", ConditionOperator.NotEqual, 3);
+            query.Criteria.AddCondition("isdisabled", ConditionOperator.Equal, false);
+
+            foreach (var user in RetrieveAll(service, query))
+            {
+                _users.Add(new KeyValuePair<string, Guid>(user.GetAttributeValue<string>("domainname"), user.Id));
+            }
+            //Console.WriteLine($"Retrieved {_users.Count} users in {sw.Elapsed}");
         }
 
         private static void InitMetadata(IOrganizationService service, string solutionName)

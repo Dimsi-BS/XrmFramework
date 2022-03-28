@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using XrmFramework.BindingModel;
 
 namespace XrmFramework.Utils
@@ -44,6 +42,8 @@ namespace XrmFramework.Utils
 
             return modelDefinition;
         }
+
+
 
         public static Object GetInstanceFromModel(ModelDefinition model)
         {
@@ -203,5 +203,7 @@ namespace XrmFramework.Utils
         {
             attribute._addMethod.Invoke(attribute.Property.GetValue(instance), new[] { model });
         }
+
+        
     }
 }
