@@ -52,7 +52,7 @@ namespace XrmFramework.DeployUtils.Utils
             return instance;
         }
 
-        public static List<T> CreateInstanceOfTypeList<T>(IEnumerable<Type> types, PluginRegistrationType kind, IRegistrationContext context)
+        public static List<T> CreateInstanceOfTypeList<T>(IEnumerable<Type> types, PluginRegistrationType kind, ISolutionContext context)
         {
             List<T> list = new List<T>();
             foreach (var type in types)
@@ -122,7 +122,7 @@ namespace XrmFramework.DeployUtils.Utils
         public static ICollection<CustomApi> FromCrmCustomApis(ICollection<CustomApi> registeredCustomApis,
                                                                ICollection<CustomApiRequestParameter> registeredRequestParameters,
                                                                ICollection<CustomApiResponseProperty> registeredResponseProperties,
-                                                               IRegistrationContext registrationContext)
+                                                               ISolutionContext solutionContext)
         {
             var customApis = new List<CustomApi>();
             foreach(var request in registeredRequestParameters)
@@ -149,9 +149,9 @@ namespace XrmFramework.DeployUtils.Utils
         public static ICollection<Plugin> FromCrmPlugins(ICollection<PluginType> registeredPluginTypes,
                                                          ICollection<SdkMessageProcessingStep> registeredSteps,
                                                          ICollection<SdkMessageProcessingStepImage> registeredStepImages,
-                                                         IRegistrationContext registrationContext)
+                                                         ISolutionContext solutionContext)
         {
-            var steps = FromCrmSteps(registeredSteps, registeredStepImages, registrationContext);
+            var steps = FromCrmSteps(registeredSteps, registeredStepImages, solutionContext);
             var plugins = new List<Plugin>();
             foreach (var pluginType in registeredPluginTypes)
             {
@@ -162,12 +162,12 @@ namespace XrmFramework.DeployUtils.Utils
 
         private static ICollection<Step> FromCrmSteps(ICollection<SdkMessageProcessingStep> registeredSteps,
                                                       ICollection<SdkMessageProcessingStepImage> registeredStepImages,
-                                                      IRegistrationContext registrationContext)
+                                                      ISolutionContext solutionContext)
         {
             var steps = new List<Step>();
             foreach (var registeredStep in registeredSteps)
             {
-                var entityName = registrationContext.Filters.FirstOrDefault(f => f.SdkMessageFilterId == registeredStep.SdkMessageFilterId?.Id)?.PrimaryObjectTypeCode;
+                var entityName = solutionContext.Filters.FirstOrDefault(f => f.SdkMessageFilterId == registeredStep.SdkMessageFilterId?.Id)?.PrimaryObjectTypeCode;
 
 #pragma warning disable CS0612 // Type or member is obsolete
                 var step = new Step(registeredStep.PluginTypeId.Name,
@@ -179,7 +179,7 @@ namespace XrmFramework.DeployUtils.Utils
                 step.Id = registeredStep.Id;
 
                 step.PluginTypeFullName = registeredStep.EventHandler.Name;
-                step.PluginId = registeredStep.EventHandler.Id;
+                step.ParentId = registeredStep.EventHandler.Id;
 
                 step.FilteringAttributes.Add(registeredStep.FilteringAttributes);
                 step.ImpersonationUsername = registeredStep.ImpersonatingUserId?.Name;
@@ -191,7 +191,7 @@ namespace XrmFramework.DeployUtils.Utils
                 if (preImage != null)
                 {
                     step.PreImage.Id = preImage.Id;
-                    step.PreImage.StepId = step.Id;
+                    step.PreImage.ParentId = step.Id;
                     step.PreImage.AllAttributes = preImage.Attributes1 == null;
                     step.PreImage.Attributes.Add(preImage.Attributes1);
                 }
@@ -200,7 +200,7 @@ namespace XrmFramework.DeployUtils.Utils
                 if(postImage != null)
                 {
                     step.PostImage.Id = postImage.Id;
-                    step.PostImage.StepId= step.Id;
+                    step.PostImage.ParentId= step.Id;
                     step.PostImage.AllAttributes = postImage.Attributes1 == null;
                     step.PostImage.Attributes.Add(postImage.Attributes1);
                 }
@@ -216,14 +216,14 @@ namespace XrmFramework.DeployUtils.Utils
             {
                 plugin = new Plugin(pluginType.TypeName, pluginType.Name);
                 plugin.Id = pluginType.Id;
-                plugin.AssemblyId = pluginType.PluginAssemblyId.Id;
+                plugin.ParentId = pluginType.PluginAssemblyId.Id;
             }
             else
             {
                 plugin = new Plugin(pluginType.TypeName);
                 plugin.Id = pluginType.Id;
-                plugin.AssemblyId = pluginType.PluginAssemblyId.Id;
-                foreach(var s in steps.Where(s => s.PluginId == plugin.Id))
+                plugin.ParentId = pluginType.PluginAssemblyId.Id;
+                foreach(var s in steps.Where(s => s.ParentId == plugin.Id))
                 {
                     plugin.Steps.Add(s);
                 }
@@ -380,7 +380,7 @@ namespace XrmFramework.DeployUtils.Utils
                 IsCustomizable = new BooleanManagedProperty(true),
                 MessagePropertyName = messagePropertyName,
                 Name = name,
-                SdkMessageProcessingStepId = new EntityReference(SdkMessageProcessingStepDefinition.EntityName, image.StepId)
+                SdkMessageProcessingStepId = new EntityReference(SdkMessageProcessingStepDefinition.EntityName, image.ParentId)
             };
 
             if (image.Id != Guid.Empty)
@@ -398,7 +398,7 @@ namespace XrmFramework.DeployUtils.Utils
                 PluginAssemblyId = new EntityReference()
                 {
                     LogicalName = PluginAssemblyDefinition.EntityName,
-                    Id = plugin.AssemblyId
+                    Id = plugin.ParentId
                 },
                 TypeName = plugin.FullName,
                 FriendlyName = plugin.FullName,
@@ -430,11 +430,11 @@ namespace XrmFramework.DeployUtils.Utils
             return t;
         }
 
-        public static SdkMessageProcessingStep ToRegisterStep(Model.Step step, IRegistrationContext context)
+        public static SdkMessageProcessingStep ToRegisterStep(Model.Step step, ISolutionContext context)
         {
             // Issue with CRM SDK / Description field max length = 256 characters
             var descriptionAttributeMaxLength = 256;
-            var description = $"{step.PluginTypeName} : {step.Stage} {step.Message} of {step.EntityTypeName} ({step.MethodsDisplayName})";
+            var description = $"{step.PluginTypeName} : {step.Stage} {step.Message} of {step.EntityName} ({step.MethodsDisplayName})";
             description = description.Length <= descriptionAttributeMaxLength ? description : description.Substring(0, descriptionAttributeMaxLength - 4) + "...)";
 
             if (!string.IsNullOrEmpty(step.ImpersonationUsername))
@@ -455,7 +455,7 @@ namespace XrmFramework.DeployUtils.Utils
             {
                 AsyncAutoDelete = step.Mode == Model.Modes.Asynchronous,
                 Description = description,
-                EventHandler = new EntityReference(PluginTypeDefinition.EntityName, step.PluginId),
+                EventHandler = new EntityReference(PluginTypeDefinition.EntityName, step.ParentId),
                 FilteringAttributes = step.FilteringAttributes.Any() ? string.Join(",", step.FilteringAttributes) : null,
                 ImpersonatingUserId = string.IsNullOrEmpty(step.ImpersonationUsername)
                      ? null :
@@ -470,12 +470,12 @@ namespace XrmFramework.DeployUtils.Utils
                 Mode = new OptionSetValue((int)step.Mode),
                 Name = description,
 #pragma warning disable 0612
-                PluginTypeId = new EntityReference(PluginTypeDefinition.EntityName, step.PluginId),
+                PluginTypeId = new EntityReference(PluginTypeDefinition.EntityName, step.ParentId),
 #pragma warning restore 0612
                 Rank = step.Order,
                 SdkMessageId = context.Messages[step.Message], //GetSdkMessageRef(service, step.Message),
                 SdkMessageFilterId = context.Filters.Where(f => f.SdkMessageId.Name == step.Message
-                                                             && f.PrimaryObjectTypeCode == step.EntityTypeName)
+                                                             && f.PrimaryObjectTypeCode == step.EntityName)
                                              .Select(f => f.ToEntityReference()).FirstOrDefault(), //GetSdkMessageFilterRef(service, step),
                                                                                                    //SdkMessageProcessingStepSecureConfigId = GetSdkMessageProcessingStepSecureConfigRef(service, step),
                 Stage = new OptionSetValue((int)step.Stage),
