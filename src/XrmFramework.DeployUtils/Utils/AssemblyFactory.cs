@@ -13,11 +13,11 @@ namespace XrmFramework.DeployUtils.Utils
 {
     public class AssemblyFactory
     {
-        private readonly IRegistrationContext _registrationContext;
+        private readonly ISolutionContext solutionContext;
 
-        public AssemblyFactory(IRegistrationContext context)
+        public AssemblyFactory(ISolutionContext context)
         {
-            _registrationContext = context;
+            solutionContext = context;
         }
 
         public IAssemblyContext CreateFromLocalAssemblyContext(Type TPlugin)
@@ -46,21 +46,21 @@ namespace XrmFramework.DeployUtils.Utils
                                                  && !t.IsAbstract)
                                         .ToList();
 
-            var plugins = AssemblyBridge.CreateInstanceOfTypeList<Plugin>(PluginTypes, PluginRegistrationType.Plugin, _registrationContext);
+            var plugins = AssemblyBridge.CreateInstanceOfTypeList<Plugin>(PluginTypes, PluginRegistrationType.Plugin, solutionContext);
 
-            var workflows = AssemblyBridge.CreateInstanceOfTypeList<Plugin>(WorkFlowTypes, PluginRegistrationType.Workflow, _registrationContext);
+            var workflows = AssemblyBridge.CreateInstanceOfTypeList<Plugin>(WorkFlowTypes, PluginRegistrationType.Workflow, solutionContext);
 
-            var customApis = AssemblyBridge.CreateInstanceOfTypeList<CustomApi>(CustomApiTypes, PluginRegistrationType.CustomApi, _registrationContext);
+            var customApis = AssemblyBridge.CreateInstanceOfTypeList<CustomApi>(CustomApiTypes, PluginRegistrationType.CustomApi, solutionContext);
 
             var assembly = AssemblyBridge.ToPluginAssembly(Assembly);
 
             foreach(var plugin in plugins)
             {
-                plugin.AssemblyId = assembly.Id;
+                plugin.ParentId = assembly.Id;
             }
             foreach(var workflow in workflows)
             {
-                workflow.AssemblyId = assembly.Id;
+                workflow.ParentId = assembly.Id;
             }
 
             var localAssembly = new AssemblyContext
@@ -96,13 +96,13 @@ namespace XrmFramework.DeployUtils.Utils
 
                 registeredPluginTypes = registeredPluginTypes.Where(p => !registeredCustomApis.Any(c => c.PluginTypeId.Id == p.Id)).ToList();
 
-                var pluginsAndWorkflows = AssemblyBridge.FromCrmPlugins(registeredPluginTypes, registeredSteps, registeredStepImages, _registrationContext);
+                var pluginsAndWorkflows = AssemblyBridge.FromCrmPlugins(registeredPluginTypes, registeredSteps, registeredStepImages, solutionContext);
 
                 var plugins = pluginsAndWorkflows.Where(p => !p.IsWorkflow).ToList();
                 var workflows = pluginsAndWorkflows.Where(p => p.IsWorkflow).ToList();
 
 
-                var customApis = AssemblyBridge.FromCrmCustomApis(registeredCustomApis, registeredRequestParameters, registeredResponseProperties, _registrationContext);
+                var customApis = AssemblyBridge.FromCrmCustomApis(registeredCustomApis, registeredRequestParameters, registeredResponseProperties, solutionContext);
 
 
                 registeredAssembly = new AssemblyContext()
