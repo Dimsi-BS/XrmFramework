@@ -9,7 +9,7 @@ using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Context
 {
-    public interface IRegistrationContext
+    public interface ISolutionContext
     {
         string SolutionName { get; }
         Solution Solution { get; }

@@ -12,7 +12,7 @@ using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Context
 {
-    public class RegistrationContext : IRegistrationContext
+    public class SolutionContext : ISolutionContext
     {
         private readonly IRegistrationService _service;
 
@@ -35,7 +35,7 @@ namespace XrmFramework.DeployUtils.Context
         public Dictionary<string, EntityReference> Messages => _messages.Count == 0 ? InitMessages() : _messages;
         public List<KeyValuePair<string, Guid>> Users => _users.Count == 0 ? InitUsers() : _users;
 
-        public RegistrationContext(IRegistrationService service, string solutionName)
+        public SolutionContext(IRegistrationService service, string solutionName)
         {
             _service = service;
 
