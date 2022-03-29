@@ -49,7 +49,7 @@ namespace XrmFramework.Analyzers.Utils
 
         private static readonly object SyncRoot = new object();
 
-        private static readonly Dictionary<INamedTypeSymbol, EntityDefinition> Cache = new Dictionary<INamedTypeSymbol, EntityDefinition>();
+        private static readonly Dictionary<INamedTypeSymbol, EntityDefinition> Cache = new(SymbolEqualityComparer.Default);
 
         internal static void ClearCache()
         {
