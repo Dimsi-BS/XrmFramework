@@ -13,11 +13,11 @@ namespace XrmFramework.DeployUtils.Utils
 {
     public class AssemblyFactory
     {
-        private readonly ISolutionContext solutionContext;
+        private readonly IAssemblyImporter _importer;
 
-        public AssemblyFactory(ISolutionContext context)
+        public AssemblyFactory(IAssemblyImporter importer)
         {
-            solutionContext = context;
+            _importer = importer;
         }
 
         public IAssemblyContext CreateFromLocalAssemblyContext(Type TPlugin)
@@ -27,32 +27,29 @@ namespace XrmFramework.DeployUtils.Utils
             var customApiType = Assembly.GetType("XrmFramework.CustomApi");
             var workflowType = Assembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");
 
-            var PluginTypes = Assembly.GetTypes()
-                                     .Where(t => pluginType.IsAssignableFrom(t)
+            var plugins = Assembly.GetTypes()
+                                  .Where(t =>    pluginType.IsAssignableFrom(t)
                                               && !customApiType.IsAssignableFrom(t)
                                               && t.IsPublic
                                               && !t.IsAbstract)
-                                     .ToList();
+                                  .Select(t => _importer.CreatePluginFromType(t))
+                                  .ToList();
 
-            var WorkFlowTypes = Assembly.GetTypes()
-                                       .Where(t => workflowType.IsAssignableFrom(t)
+            var workflows = Assembly.GetTypes()
+                                    .Where(t =>    workflowType.IsAssignableFrom(t)
                                                 && !t.IsAbstract
                                                 && t.IsPublic)
-                                       .ToList();
+                                    .Select(t => _importer.CreateWorkflowFromType(t)) 
+                                    .ToList();
 
-            var CustomApiTypes = Assembly.GetTypes()
-                                        .Where(t => customApiType.IsAssignableFrom(t)
+            var customApis = Assembly.GetTypes()
+                                     .Where(t =>    customApiType.IsAssignableFrom(t)
                                                  && t.IsPublic
                                                  && !t.IsAbstract)
-                                        .ToList();
+                                     .Select(t => _importer.CreateCustomApiFromType(t))
+                                     .ToList();
 
-            var plugins = AssemblyBridge.CreateInstanceOfTypeList<Plugin>(PluginTypes, PluginRegistrationType.Plugin, solutionContext);
-
-            var workflows = AssemblyBridge.CreateInstanceOfTypeList<Plugin>(WorkFlowTypes, PluginRegistrationType.Workflow, solutionContext);
-
-            var customApis = AssemblyBridge.CreateInstanceOfTypeList<CustomApi>(CustomApiTypes, PluginRegistrationType.CustomApi, solutionContext);
-
-            var assembly = AssemblyBridge.ToPluginAssembly(Assembly);
+            var assembly = _importer.CreateAssemblyFromLocal(Assembly);
 
             foreach(var plugin in plugins)
             {
@@ -96,14 +93,16 @@ namespace XrmFramework.DeployUtils.Utils
 
                 registeredPluginTypes = registeredPluginTypes.Where(p => !registeredCustomApis.Any(c => c.PluginTypeId.Id == p.Id)).ToList();
 
-                var pluginsAndWorkflows = AssemblyBridge.FromCrmPlugins(registeredPluginTypes, registeredSteps, registeredStepImages, solutionContext);
+                var steps = registeredSteps.Select(s => _importer.CreateStepFromRemote(s, registeredStepImages));
+                var pluginsAndWorkflows = registeredPluginTypes.Select(p => _importer.CreatePluginFromRemote(p, steps));
 
                 var plugins = pluginsAndWorkflows.Where(p => !p.IsWorkflow).ToList();
                 var workflows = pluginsAndWorkflows.Where(p => p.IsWorkflow).ToList();
 
 
-                var customApis = AssemblyBridge.FromCrmCustomApis(registeredCustomApis, registeredRequestParameters, registeredResponseProperties, solutionContext);
-
+                var customApis = registeredCustomApis
+                    .Select(c => _importer.CreateCustomApiFromRemote(c, registeredRequestParameters, registeredResponseProperties))
+                    .ToList();
 
                 registeredAssembly = new AssemblyContext()
                 {
