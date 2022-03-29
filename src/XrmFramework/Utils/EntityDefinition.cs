@@ -9,11 +9,12 @@ using System.Reflection;
 
 namespace XrmFramework
 {
-    [JsonObject(MemberSerialization.OptOut)]
+    [JsonObject(MemberSerialization.OptIn)]
     public class EntityDefinition
     {
 
         public Type DefinitionType { get; private set; }
+
 
         public IReadOnlyCollection<AttributeDefinition> Attributes => new ReadOnlyCollection<AttributeDefinition>(_attributes);
 
@@ -123,7 +124,7 @@ namespace XrmFramework
         }
 
         public IReadOnlyCollection<string> AttributeNames => new ReadOnlyCollection<string>(_attributeNames);
-
+        [JsonProperty]
         public string EntityName { get; }
         public string EntityCollectionName { get; }
 

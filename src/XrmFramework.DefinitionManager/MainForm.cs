@@ -12,9 +12,12 @@ using System.Windows.Forms;
 using DefinitionManager;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Xrm.Sdk.Messages;
+using Microsoft.Xrm.Sdk.Metadata;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using XrmFramework.Core;
+
 using RelationshipAttributeDefinition = DefinitionManager.Definitions.RelationshipAttributeDefinition;
 
 namespace XrmFramework.DefinitionManager
@@ -182,6 +185,7 @@ namespace XrmFramework.DefinitionManager
 
         private IEnumerable<EntityDefinition> GetCodedEntityDefinitions()
         {
+            Console.WriteLine(_tables.Count);
             var entityDefinitionAttributeType = GetExternalType("XrmFramework.EntityDefinitionAttribute");
             var definitionTypes = _iServiceType.Assembly.GetTypes().Where(t => t.GetCustomAttributes(entityDefinitionAttributeType, false).Any());
             var relationshipAttributeType = GetExternalType("XrmFramework.RelationshipAttribute");
@@ -206,6 +210,8 @@ namespace XrmFramework.DefinitionManager
                     ,
                     IsSelected = true
                 };
+               
+
 
                 foreach (var field in t.GetNestedType("Columns").GetFields())
                 {
@@ -219,6 +225,9 @@ namespace XrmFramework.DefinitionManager
                         ,
                         ParentEntity = definition
                     });
+                    
+
+
                 }
 
                 foreach (var field in t.GetFields())
@@ -336,12 +345,24 @@ namespace XrmFramework.DefinitionManager
 
         private void generateDefinitionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            TableCollection selectedTables = new TableCollection();
+            foreach(var item in _entityCollection.SelectedDefinitions)
+            {
+                var table = _tables.FirstOrDefault(t => t.LogicalName == item.LogicalName);
+                table.Selected = true;
+                foreach(var a in item.AttributesCollection.SelectedDefinitions)
+                {
+                    table.Columns.FirstOrDefault(c => c.LogicalName == a.LogicalName).Selected = true;
+                }
+
+                selectedTables.Add(table);
+                
+            }
             foreach (var item in this._entityCollection.SelectedDefinitions)
             {
                 var sb = new IndentedStringBuilder();
 
                 //var entity = _tables.FirstOrDefault(e => e.LogicalName == item.LogicalName);
-
                 //var selectedAttributes = item.AttributesCollection.SelectedDefinitions;
 
                 //entity.Columns.RemoveAll(a => selectedAttributes.All(s => s.LogicalName != a.LogicalName));
@@ -356,6 +377,7 @@ namespace XrmFramework.DefinitionManager
                 //    DefaultValueHandling = DefaultValueHandling.Ignore
                 //});
 
+                
                 sb.AppendLine("");
                 sb.AppendLine("using System;");
                 sb.AppendLine("using System.CodeDom.Compiler;");
@@ -382,7 +404,7 @@ namespace XrmFramework.DefinitionManager
 
                         sb.AppendLine($"public const string EntityName = \"{item.LogicalName}\";");
                         sb.AppendLine($"public const string EntityCollectionName = \"{item.LogicalCollectionName}\";");
-
+                        
                         foreach (var t in item.AdditionalInfoCollection.Definitions)
                         {
                             sb.AppendLine();
@@ -397,6 +419,7 @@ namespace XrmFramework.DefinitionManager
 
                         using (sb.Indent())
                         {
+                            
                             foreach (var attr in item.AttributesCollection.SelectedDefinitions)
                             {
                                 AddAttributeSummary(sb, attr);
@@ -691,6 +714,47 @@ namespace XrmFramework.DefinitionManager
             fc.AppendLine("}");
             File.WriteAllText($"../../../../../{CoreProjectName}/Definitions/OptionSetDefinitions.cs", fc.ToString());
 
+            foreach(var table in selectedTables)
+            {
+                //MessageBox.Show(table.Name);
+
+                table.Columns.RemoveNonSelectedColumns();
+
+                
+                var serializedTable = JsonConvert.SerializeObject(table, Formatting.Indented, new JsonSerializerSettings
+                {
+                    DefaultValueHandling = DefaultValueHandling.Ignore
+                });
+
+                JObject test = JObject.Parse(serializedTable);
+
+                //MessageBox.Show(test["LogName"].ToString());
+                //MessageBox.Show(test.ToString());
+
+
+                
+
+                var fileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{table.Name}.json");
+                
+                var definitionFolder = new DirectoryInfo($"../../../../../{CoreProjectName}/Definitions");
+                if (definitionFolder.Exists == false)
+                {
+                    definitionFolder.Create();
+                }
+                
+                
+                File.WriteAllText(fileInfo.FullName, serializedTable);
+                
+            }
+
+            var fileInfo3 = new FileInfo($"../../../../../{CoreProjectName}/Definitions/Particulier.json");
+            var text = File.ReadAllText(fileInfo3.FullName);
+            
+            Table testTable = JsonConvert.DeserializeObject<Table>(text, new JsonSerializerSettings
+            {
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            });
+            
             MessageBox.Show(@"Definition files generation succeeded");
         }
 
@@ -748,6 +812,353 @@ namespace XrmFramework.DefinitionManager
                 }
             }
             return null;
+        }
+
+        private void GenerateDefinitionCodeFromTable(Table table)
+        {
+            var sb = new IndentedStringBuilder();
+
+            sb.AppendLine("");
+            sb.AppendLine("using System;");
+            sb.AppendLine("using System.CodeDom.Compiler;");
+            sb.AppendLine("using System.ComponentModel.DataAnnotations;");
+            sb.AppendLine("using System.Diagnostics.CodeAnalysis;");
+            sb.AppendLine("using XrmFramework;");
+            sb.AppendLine();
+            sb.AppendLine($"namespace {CoreProjectName}");
+            sb.AppendLine("{");
+
+            using (sb.Indent())
+            {
+
+                sb.AppendLine("[GeneratedCode(\"XrmFramework\", \"2.0\")]");
+                sb.AppendLine("[EntityDefinition]");
+                sb.AppendLine("[ExcludeFromCodeCoverage]");
+
+
+                sb.AppendLine($"public static class {table.Name}Definition2");
+                sb.AppendLine("{");
+
+                using (sb.Indent())
+                {
+
+                    sb.AppendLine($"public const string EntityName = \"{table.LogicalName}\";");
+                    sb.AppendLine($"public const string EntityCollectionName = \"{table.CollectionName}\";");
+                    
+                   // foreach (var t in item.AdditionalInfoCollection.Definitions)
+                   // {
+                   //     sb.AppendLine();
+                   //     sb.AppendLine(
+                   //         $"public const {t.Type} {t.Name} = {(t.Type == "String" ? "\"" + (string)t.Value + "\"" : t.Value)};");
+                   // }
+
+                    sb.AppendLine();
+                    sb.AppendLine("[SuppressMessage(\"Microsoft.Design\", \"CA1034:NestedTypesShouldNotBeVisible\")]");
+                    sb.AppendLine("public static class Columns");
+                    sb.AppendLine("{");
+
+                    using (sb.Indent())
+                    {
+                        foreach(var col in table.Columns)
+                        {
+                            //AddAttributeSummary(sb, attr);
+                            if (col.Type != null)
+                            {
+                                sb.AppendLine($"[AttributeMetadata(AttributeTypeCode.{col.Type.ToString()})]");
+                            }
+
+                            if (col.EnumName != null)
+                            {
+                                sb.AppendLine($"[OptionSet(typeof({col.EnumName}))]");
+                            }
+
+                            if (col.PrimaryType == PrimaryType.Id)
+                            {
+                                sb.AppendLine("[PrimaryAttribute(PrimaryAttributeType.Id)]");
+                            }
+                            if (col.EnumName != null && col.EnumName != "")
+                            {
+                                sb.AppendLine($"[OptionSet(typeof({col.EnumName}))]");
+                            }
+
+                            if (col.PrimaryType == PrimaryType.Name)
+                            {
+                                sb.AppendLine("[PrimaryAttribute(PrimaryAttributeType.Name)]");
+                            }
+
+                            if (col.PrimaryType == PrimaryType.Image)
+                            {
+                                sb.AppendLine("[PrimaryAttribute(PrimaryAttributeType.Image)]");
+                            }
+                            if (col.StringLength.HasValue)
+                            {
+                                sb.AppendLine($"[StringLength({col.StringLength.Value})]");
+                            }
+
+                            if (col.MinRange.HasValue && col.MaxRange.HasValue)
+                            {
+                                sb.AppendLine($"[Range({col.MinRange.Value}, {col.MaxRange.Value})]");
+                            }
+                            //foreach (var keyName in attr.KeyNames)
+                            //{
+                            //    sb.AppendLine($"[AlternateKey(AlternateKeyNames.{keyName})]");
+                            //}
+
+                            if (col.DateTimeBehavior != null)
+                            {
+                                var behavior = string.Empty;
+                                if (col.DateTimeBehavior == Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.DateOnly)
+                                {
+                                    behavior = "DateOnly";
+                                }
+                                else if (col.DateTimeBehavior ==
+                                         Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.TimeZoneIndependent)
+                                {
+                                    behavior = "TimeZoneIndependent";
+                                }
+                                else if (col.DateTimeBehavior ==
+                                         Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.UserLocal)
+                                {
+                                    behavior = "UserLocal";
+                                }
+
+                                sb.AppendLine($"[DateTimeBehavior(DateTimeBehavior.{behavior})]");
+                            }
+
+                            sb.AppendLine($"public const string {col.Name} = \"{col.LogicalName}\";\r\n");
+                        }
+                        
+                        if(table.ManyToOneRelationships.Any())
+                        {
+                            sb.AppendLine("public static class ManyToOneRelationships");
+                            sb.AppendLine("{");
+                            using (sb.Indent())
+                            {
+                                foreach (var relationship in table.ManyToOneRelationships)
+                                {
+                                    sb.Append("[Relationship(");
+                                    if (this._tables.Any(t =>
+                                        t.LogicalName == relationship.LookupFieldName .TargetEntityName))
+                                    {
+                                        sb.Append($"{_entityCollection[rAttr.TargetEntityName].Name}.EntityName");
+                                    }
+                                    else
+                                    {
+                                        sb.Append($"\"{rAttr.TargetEntityName}\"");
+                                    }
+
+                                    sb.Append($", EntityRole.{rAttr.Role}, \"{rAttr.NavigationPropertyName}\", ");
+
+                                    if (rAttr.Role == "Referencing")
+                                    {
+                                        var ec = _entityCollection.Definitions.FirstOrDefault(d =>
+                                            d.LogicalName == item.LogicalName);
+                                        var att = ec?.AttributesCollection.SelectedDefinitions
+                                            .FirstOrDefault(
+                                                d =>
+                                                    d.LogicalName == rAttr.LookupFieldName);
+
+                                        if (att != null)
+                                        {
+                                            sb.Append($"{ec.Name}.Columns.{att.Name}");
+                                        }
+                                        else
+                                        {
+                                            sb.Append($"\"{rAttr.LookupFieldName}\"");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var ec = _entityCollection.SelectedDefinitions.FirstOrDefault(d =>
+                                            d.LogicalName == rAttr.TargetEntityName);
+                                        var att = ec?.AttributesCollection.SelectedDefinitions
+                                            .FirstOrDefault(
+                                                d =>
+                                                    d.LogicalName == rAttr.LookupFieldName);
+
+                                        if (att != null)
+                                        {
+                                            sb.Append($"{ec.Name}.Columns.{att.Name}");
+                                        }
+                                        else
+                                        {
+                                            sb.Append($"\"{rAttr.LookupFieldName}\"");
+                                        }
+                                    }
+
+                                    sb.AppendLine(")]");
+                                }
+
+                                sb.AppendLine($"public const string {attr.Name} = \"{attr.Value}\";");
+                            }
+                            }
+                            sb.AppendLine("}");
+                        }
+                        if (table.ManyToManyRelationships.Any())
+                        {
+                            sb.AppendLine("public static class ManyToManyRelationships");
+                            sb.AppendLine("{");
+                            using (sb.Indent())
+                            {
+                                foreach (var relationship in table.ManyToManyRelationships)
+                                {
+
+                                }
+                            }
+                            sb.AppendLine("}");
+                        }
+                        if (table.OneToManyRelationships.Any())
+                        {
+                            sb.AppendLine("public static class OneToManyRelationships");
+                            sb.AppendLine("{");
+                            using (sb.Indent())
+                            {
+                                foreach (var relationship in table.OneToManyRelationships)
+                                {
+
+                                }
+                            }
+                            sb.AppendLine("}");
+                        }
+
+                        
+
+                        //foreach (var relationship in table.Relationships)
+                        //{
+                        //if (this._entityCollection.SelectedDefinitions.Any(d =>
+                        //  d.LogicalName == relationship.ReferencedEntity))
+                        //{
+                        //    var eC = this._entityCollection[relationship.ReferencedEntity];
+                        //    sb.AppendLine(string.Format(
+                        //    "[CrmLookup({0}.EntityName, {0}.Columns.{1}, RelationshipName = ManyToOneRelationships.{2})]",
+                        //        eC.Name, eC.AttributesCollection[relationship.ReferencedAttribute].Name,
+                        //        relationship.SchemaName));
+                        //}
+                        //else if (relationship.ReferencedEntity != "owner")
+                        //{
+                        //    sb.AppendLine(
+                        //         $"[CrmLookup(\"{relationship.ReferencedEntity}\", \"{relationship.ReferencedAttribute}\", RelationshipName = \"{relationship.SchemaName}\")]");
+                        //}
+                        //else if (relationship.ReferencedEntity == "owner")
+                        //{
+                        //    sb.AppendLine(
+                        //    $"[CrmLookup(\"{relationship.ReferencedEntity}\", \"{relationship.ReferencedAttribute}\", RelationshipName = \"{relationship.SchemaName}\")]");
+                        //}
+                        //}
+
+
+
+                    }
+
+                    sb.AppendLine("}");
+
+
+                 /*foreach (var def in item.AdditionalClassesCollection.Definitions)
+                 {
+                     sb.AppendLine();
+                     if (def.IsEnum)
+                     {
+                         sb.AppendLine($"public enum {def.Name}");
+                     }
+                     else
+                     {
+                         sb.AppendLine("[SuppressMessage(\"Microsoft.Design\", \"CA1034:NestedTypesShouldNotBeVisible\")]");
+                         sb.AppendLine($"public static class {def.Name}");
+                     }
+                 
+                     sb.AppendLine("{");
+                 
+                     using (sb.Indent())
+                     {
+                         if (def.IsEnum)
+                         {
+                             foreach (var attr in def.Attributes.Definitions.OrderBy(a => a.Value))
+                             {
+                                 sb.AppendLine($"{attr.Name} = {attr.Value},");
+                             }
+                         }
+                         else
+                         {
+                             foreach (var attr in def.Attributes.Definitions.OrderBy(a => a.Name))
+                             {
+                                 if (attr.Type == "String")
+                                 {
+                                     if (attr is RelationshipAttributeDefinition rAttr)
+                                     {
+                                         sb.Append("[Relationship(");
+                                         if (this._entityCollection.SelectedDefinitions.Any(d =>
+                                             d.LogicalName == rAttr.TargetEntityName))
+                                         {
+                                             sb.Append($"{_entityCollection[rAttr.TargetEntityName].Name}.EntityName");
+                                         }
+                                         else
+                                         {
+                                             sb.Append($"\"{rAttr.TargetEntityName}\"");
+                                         }
+                 
+                                         sb.Append($", EntityRole.{rAttr.Role}, \"{rAttr.NavigationPropertyName}\", ");
+                 
+                                         if (rAttr.Role == "Referencing")
+                                         {
+                                             var ec = _entityCollection.Definitions.FirstOrDefault(d =>
+                                                 d.LogicalName == item.LogicalName);
+                                             var att = ec?.AttributesCollection.SelectedDefinitions
+                                                 .FirstOrDefault(
+                                                     d =>
+                                                         d.LogicalName == rAttr.LookupFieldName);
+                 
+                                             if (att != null)
+                                             {
+                                                 sb.Append($"{ec.Name}.Columns.{att.Name}");
+                                             }
+                                             else
+                                             {
+                                                 sb.Append($"\"{rAttr.LookupFieldName}\"");
+                                             }
+                                         }
+                                         else
+                                         {
+                                             var ec = _entityCollection.SelectedDefinitions.FirstOrDefault(d =>
+                                                 d.LogicalName == rAttr.TargetEntityName);
+                                             var att = ec?.AttributesCollection.SelectedDefinitions
+                                                 .FirstOrDefault(
+                                                     d =>
+                                                         d.LogicalName == rAttr.LookupFieldName);
+                 
+                                             if (att != null)
+                                             {
+                                                 sb.Append($"{ec.Name}.Columns.{att.Name}");
+                                             }
+                                             else
+                                             {
+                                                 sb.Append($"\"{rAttr.LookupFieldName}\"");
+                                             }
+                                         }
+                 
+                                         sb.AppendLine(")]");
+                                     }
+                 
+                                     sb.AppendLine($"public const string {attr.Name} = \"{attr.Value}\";");
+                                 }
+                                 else
+                                 {
+                                     sb.AppendLine($"public const int {attr.Name} = {attr.Value};");
+                                 }
+                             }
+                         }
+                     }
+                 
+                     sb.AppendLine("}");
+                 }*/
+                }
+
+                sb.AppendLine("}");
+            }
+
+            sb.AppendLine("}");
+
+
+            MessageBox.Show(sb.ToString());
         }
     }
 }

@@ -26,6 +26,7 @@ namespace XrmFramework
         public IReadOnlyCollection<AttributeDefinition> XmlMappingAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.XmlMappingAttribute != null).ToList());
         public IReadOnlyCollection<AttributeDefinition> UpsertableAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.IsUpsertable()).ToList());
 
+        [JsonProperty]
         public EntityDefinition MainDefinition { get; set; }
 
         public XmlMappingAttribute XmlMappingAttribute { get; set; }

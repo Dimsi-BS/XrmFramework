@@ -1,22 +1,19 @@
-﻿
-using Microsoft.Xrm.Sdk;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using XrmFramework;
-using XrmFramework.Utils;
+﻿pourquoi on supprime les prefixes
+	pour l'affichage ?
+	parce que les commandes c# n'acceptent pas les prefixes ?
+	
 
-namespace XrmFramework
-{
-    public static class ModelManager
-    {
-        
-        public static void GenerateNewBindingModel(Entity entity)
-        {
-            //ModelDefinition lol = ModelFactory.CreateFromType(null);
+opt out
+opt in
 
-        }
-    }
-}
+Serialiser un model et le console write
+
+normalement entityDefinition + modelDefinition = BindingModel
+
+Il faut intervenir sur la gestion des tables
+Il faut dire que les tables sont selectionnées en même temps que les entity definitions
+Et que les colonnes soient selectionnées en même temps que celles des entity definitions
+
+selected table à check
+colonnes à check
+
