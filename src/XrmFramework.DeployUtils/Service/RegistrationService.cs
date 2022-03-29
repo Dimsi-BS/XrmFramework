@@ -244,45 +244,6 @@ namespace XrmFramework.DeployUtils.Service
             }
         }
 
-        public void AddSolutionComponentToSolution(string solutionUniqueName, EntityReference component, int? objectTypeCode = null)
-        {
-
-            var s = new AddSolutionComponentRequest
-            {
-                AddRequiredComponents = false,
-                ComponentId = component.Id,
-                SolutionUniqueName = solutionUniqueName
-            };
-
-            if (objectTypeCode.HasValue)
-            {
-                s.ComponentType = objectTypeCode.Value;
-            }
-            else
-            {
-                switch (component.LogicalName)
-                {
-                    case PluginAssemblyDefinition.EntityName:
-                        s.ComponentType = (int)componenttype.PluginAssembly;
-                        break;
-
-                    case PluginTypeDefinition.EntityName:
-                        s.ComponentType = (int)componenttype.PluginType;
-                        break;
-
-                    case SdkMessageProcessingStepDefinition.EntityName:
-                        s.ComponentType = (int)componenttype.SDKMessageProcessingStep;
-                        break;
-
-                    case SdkMessageProcessingStepImageDefinition.EntityName:
-                        s.ComponentType = (int)componenttype.SDKMessageProcessingStepImage;
-                        break;
-                }
-            }
-
-            Execute(s);
-        }
-
         public int GetIntEntityTypeCode(string logicalName)
         {
             var entityRequest = new RetrieveEntityRequest { LogicalName = logicalName };

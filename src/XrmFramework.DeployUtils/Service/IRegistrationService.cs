@@ -10,6 +10,7 @@ namespace XrmFramework.DeployUtils.Service
 {
     public interface IRegistrationService : IOrganizationService, IDisposable
     {
+        OrganizationServiceProxy OrganizationServiceProxy { get; }
         IEnumerable<PluginAssembly> GetAssemblies();
 
         PluginAssembly GetAssemblyByName(string assemblyName);
@@ -31,8 +32,6 @@ namespace XrmFramework.DeployUtils.Service
         void DeleteMany(string entityName, IEnumerable<Guid> guids);
         void DeleteMany<T>(IEnumerable<T> entities) where T : Entity;
         void UpdateMany<T>(IEnumerable<T> entities) where T : Entity;
-
-        void AddSolutionComponentToSolution(string solutionUniqueName, EntityReference objectRef, int? objectTypeCode = null);
 
         int GetIntEntityTypeCode(string logicalName);
     }
