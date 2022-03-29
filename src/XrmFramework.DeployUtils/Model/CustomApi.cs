@@ -13,11 +13,10 @@ namespace Deploy
 {
     partial class CustomApi : ISolutionComponent
     {
-        public PluginType PluginType { get; set; }
         public List<CustomApiRequestParameter> InArguments { get; } = new List<CustomApiRequestParameter>();
 
         public List<CustomApiResponseProperty> OutArguments { get; } = new List<CustomApiResponseProperty>();
-        public RegistrationState RegistrationState { get; set; }
+        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
         public Guid ParentId { get => PluginTypeId.Id; set => PluginTypeId.Id = value; }
 
@@ -54,6 +53,5 @@ namespace Deploy
         }
         public string EntityTypeName => CustomApiDefinition.EntityName;
 
-        public PluginType ToPluginType(Guid assemblyId) => AssemblyBridge.ToRegisterPluginType(assemblyId, FullName);
     }
 }

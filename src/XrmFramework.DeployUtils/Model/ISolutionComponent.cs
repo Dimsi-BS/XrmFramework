@@ -13,7 +13,6 @@ namespace XrmFramework.DeployUtils.Model
         RegistrationState RegistrationState { get; set; }
         Guid Id { get; set; }
         Guid ParentId { get; set; }
-        Entity ToRegisterComponent(ISolutionContext context);
         string EntityTypeName { get; }
     }
 }

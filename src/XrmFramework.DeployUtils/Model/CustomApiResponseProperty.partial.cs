@@ -11,12 +11,8 @@ namespace Deploy
         public string EntityTypeName => CustomApiResponsePropertyDefinition.EntityName;
 
         public bool IsOptional { get; set; }
-        public RegistrationState RegistrationState { get; set; }
+        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
         public Guid ParentId { get => CustomApiId.Id; set => CustomApiId.Id = value; }
 
-        public Entity ToRegisterComponent(ISolutionContext context)
-        {
-            return this;
-        }
     }
 }

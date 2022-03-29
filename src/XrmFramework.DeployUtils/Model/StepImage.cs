@@ -17,7 +17,6 @@ namespace XrmFramework.DeployUtils.Model
         {
             Message = message;
             Stage = stage;
-            RegistrationState = RegistrationState.NotComputed;
             IsPreImage = isPreImage;
         }
 
@@ -41,13 +40,9 @@ namespace XrmFramework.DeployUtils.Model
         public string JoinedAttributes => string.Join(",", Attributes);
 
 
-        public RegistrationState RegistrationState { get; set; }
+        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
         public string EntityTypeName => SdkMessageProcessingStepImageDefinition.EntityName;
 
-        public Entity ToRegisterComponent(ISolutionContext context)
-        {
-            return AssemblyBridge.ToRegisterImage(this);
-        }
     }
 }

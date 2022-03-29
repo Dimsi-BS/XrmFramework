@@ -20,13 +20,11 @@ namespace XrmFramework.DeployUtils.Model
         public Plugin(string fullName)
         {
             FullName = fullName;
-            RegistrationState = RegistrationState.NotComputed;
         }
 
         public Plugin(string fullName, string displayName) : this(fullName)
         {
             DisplayName = displayName;
-            RegistrationState = RegistrationState.NotComputed;
         }
 
         public bool IsWorkflow => !string.IsNullOrWhiteSpace(DisplayName);
@@ -38,7 +36,7 @@ namespace XrmFramework.DeployUtils.Model
 
         public Guid Id
         {
-            get => _id; 
+            get => _id;
             set
             {
                 foreach (var step in Steps)
@@ -53,11 +51,7 @@ namespace XrmFramework.DeployUtils.Model
 
         public StepCollection Steps { get; } = new StepCollection();
 
-        public RegistrationState RegistrationState { get; set; }
+        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
-        public Entity ToRegisterComponent(ISolutionContext context)
-        {
-            return AssemblyBridge.ToRegisterPluginType(this);
-        }
     }
 }

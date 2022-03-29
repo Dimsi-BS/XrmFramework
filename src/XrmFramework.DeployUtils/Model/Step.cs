@@ -25,7 +25,6 @@ namespace XrmFramework.DeployUtils.Model
             EntityName = entityName;
             PreImage = new StepImage(Message, true, stage);
             PostImage = new StepImage(Message, false, stage);            
-            RegistrationState = RegistrationState.NotComputed;
         }
 
 
@@ -67,7 +66,7 @@ namespace XrmFramework.DeployUtils.Model
         public List<string> MethodNames { get; } = new List<string>();
         public string MethodsDisplayName => string.Join(",", MethodNames);
 
-        public RegistrationState RegistrationState { get; set; }
+        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
         public void Merge(Step step)
         {
@@ -103,10 +102,6 @@ namespace XrmFramework.DeployUtils.Model
 
         public string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
 
-        public Entity ToRegisterComponent(ISolutionContext context)
-        {
-            return AssemblyBridge.ToRegisterStep(this, context);
-        }
     }
 
 }
