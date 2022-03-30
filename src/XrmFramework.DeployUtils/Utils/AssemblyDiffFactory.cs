@@ -87,7 +87,7 @@ namespace XrmFramework.DeployUtils.Utils
             }
             foreach(var targetChild in target.Children)
             {
-                if(AssemblyComparer.CorrespondingComponent(target, from.Children) == null)
+                if(AssemblyComparer.CorrespondingComponent(targetChild, from.Children) == null)
                 {
                     FlagAllFromComponent(targetChild, RegistrationState.ToDelete);
                     from.AddChild(targetChild);

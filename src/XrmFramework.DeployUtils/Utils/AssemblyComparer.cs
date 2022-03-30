@@ -44,7 +44,7 @@ namespace XrmFramework.DeployUtils.Utils
                 case Step:
                     return _stepComparer.NeedsUpdate((Step)x, (Step)y);
                 case StepImage:
-                    return ((StepImage)x).JoinedAttributes == ((StepImage)y).JoinedAttributes;
+                    return ((StepImage)x).JoinedAttributes != ((StepImage)y).JoinedAttributes;
                 case CustomApi:
                     return NeedsUpdate((CustomApi)x, (CustomApi)y);
                 case ICustomApiComponent:
