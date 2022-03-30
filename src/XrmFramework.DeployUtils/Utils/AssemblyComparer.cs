@@ -54,39 +54,6 @@ namespace XrmFramework.DeployUtils.Utils
             }
         }
 
-        public static Plugin CorrespondingPlugin(Plugin plugin, IAssemblyContext assembly)
-        {
-            return assembly.Plugins.FirstOrDefault(p => p.FullName == plugin.FullName);
-        }
-
-        public static Plugin CorrespondingWorkflow(Plugin wf, IAssemblyContext assembly)
-        {
-            return assembly.Workflows.FirstOrDefault(p => p.FullName == wf.FullName);
-        }
-
-        public static CustomApi CorrespondingCustomApi(CustomApi customApi, IAssemblyContext assembly)
-        {
-            return assembly.CustomApis.FirstOrDefault(p => p.UniqueName == customApi.UniqueName);
-        }
-
-        public static Step CorrespondingStep(Step step, Plugin y)
-        {
-            return y.Steps.FirstOrDefault(s => _stepComparer.Equals(step, s));
-        }
-
-        public static ICustomApiComponent CorrespondingCustomApiComponent(ICustomApiComponent component, CustomApi y)
-        {
-            if (component.GetType().IsAssignableFrom(typeof(CustomApiRequestParameter)))
-            {
-                return y.InArguments.FirstOrDefault(p => p.UniqueName == component.UniqueName);
-            }
-            else
-            {
-                return y.OutArguments.FirstOrDefault(p => p.UniqueName == component.UniqueName);
-
-            }
-        }
-
         public static bool NeedsUpdate(ICustomApiComponent x, ICustomApiComponent y)
         {
             return !x.Type.Equals(y.Type);
