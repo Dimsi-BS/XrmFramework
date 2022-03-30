@@ -25,7 +25,6 @@ namespace XrmFramework.DeployUtils.Model
             }
         }
 
-
         #region ICollection Members
         public IEnumerator<Step> GetEnumerator()
         {

@@ -9,13 +9,11 @@ namespace XrmFramework.DeployUtils.Context
 {
     public interface IAssemblyContext
     {
-        string Name { get; }
+        PluginAssembly Assembly { get; }
 
-        PluginAssembly Assembly { get; set; }
-
-        ICollection<Plugin> Plugins { get; set; }
-        ICollection<Plugin> Workflows { get; set; }
-        ICollection<CustomApi> CustomApis { get; set; }
+        ICollection<Plugin> Plugins { get; }
+        ICollection<Plugin> Workflows { get; }
+        ICollection<CustomApi> CustomApis { get; }
 
     }
 }

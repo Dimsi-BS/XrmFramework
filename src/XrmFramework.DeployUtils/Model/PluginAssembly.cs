@@ -17,5 +17,10 @@ namespace Deploy
 
         public Guid ParentId { get; set; }
         public string EntityTypeName => PluginAssemblyDefinition.EntityName;
+
+        public string UniqueName => Name;
+
+        public IEnumerable<ISolutionComponent> Children => new List<ISolutionComponent>();
+        public void AddChild(ISolutionComponent child) => throw new ArgumentException("PluginAssembly doesn't take children");
     }
 }

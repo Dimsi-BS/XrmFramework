@@ -101,7 +101,30 @@ namespace XrmFramework.DeployUtils.Model
         }
 
         public string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
-
+        public string UniqueName => PluginTypeFullName;
+        public IEnumerable<ISolutionComponent> Children
+        {
+            get
+            {
+                var res = new List<ISolutionComponent>();
+                if(PreImage.IsUsed) res.Add(PreImage);
+                if(PostImage.IsUsed) res.Add(PostImage);
+                return res;
+            }
+        }
+        public void AddChild(ISolutionComponent child)
+        {
+            if (!child.GetType().IsAssignableFrom(typeof(StepImage))) throw new ArgumentException("Step doesn't take this type of children");
+            var stepChild = (StepImage)child;
+            if(stepChild.IsPreImage)
+            {
+                PreImage = stepChild;
+            }
+            else
+            {
+                PostImage = stepChild;
+            }
+        }
     }
 
 }

@@ -13,6 +13,47 @@ namespace XrmFramework.DeployUtils.Utils
 {
     public class AssemblyComparer
     {
+        public static readonly StepComparer _stepComparer = new();
+        public static ISolutionComponent CorrespondingComponent<T>(T from, IEnumerable<T> target) where T : ISolutionComponent
+        {
+            return target.FirstOrDefault(x => ComponentEqual(from, x));
+        }
+
+        private static bool ComponentEqual(ISolutionComponent x, ISolutionComponent y)
+        {
+            if (x.GetType() != y.GetType()) return false;
+
+            switch (x)
+            {
+                case Step:
+                    return _stepComparer.Equals((Step)x, (Step)y);
+                case StepImage:
+                    return ((StepImage)x).IsPreImage == ((StepImage)y).IsPreImage;
+                default:
+                    return x.UniqueName == y.UniqueName;
+            }
+        }
+
+        public static bool NeedsUpdate(ISolutionComponent x, ISolutionComponent y)
+        {
+            if (x.GetType() != y.GetType()) return false;
+            switch (x)
+            {
+                case Plugin:
+                    return false;
+                case Step:
+                    return _stepComparer.NeedsUpdate((Step)x, (Step)y);
+                case StepImage:
+                    return ((StepImage)x).JoinedAttributes == ((StepImage)y).JoinedAttributes;
+                case CustomApi:
+                    return NeedsUpdate((CustomApi)x, (CustomApi)y);
+                case ICustomApiComponent:
+                    return NeedsUpdate((ICustomApiComponent)x, (ICustomApiComponent)y);
+                default:
+                    throw new ArgumentException("SolutionComponent not recognised");
+            }
+        }
+
         public static Plugin CorrespondingPlugin(Plugin plugin, IAssemblyContext assembly)
         {
             return assembly.Plugins.FirstOrDefault(p => p.FullName == plugin.FullName);
@@ -30,13 +71,12 @@ namespace XrmFramework.DeployUtils.Utils
 
         public static Step CorrespondingStep(Step step, Plugin y)
         {
-            var comparer = new StepComparer();
-            return y.Steps.FirstOrDefault(s => comparer.Equals(step, s));
+            return y.Steps.FirstOrDefault(s => _stepComparer.Equals(step, s));
         }
 
         public static ICustomApiComponent CorrespondingCustomApiComponent(ICustomApiComponent component, CustomApi y)
         {
-            if(component.GetType().IsAssignableFrom(typeof(CustomApiRequestParameter)))
+            if (component.GetType().IsAssignableFrom(typeof(CustomApiRequestParameter)))
             {
                 return y.InArguments.FirstOrDefault(p => p.UniqueName == component.UniqueName);
             }
@@ -55,8 +95,8 @@ namespace XrmFramework.DeployUtils.Utils
         public static bool NeedsUpdate(CustomApi x, CustomApi y)
         {
             return !x.BindingType.Equals(y.BindingType)
-                ||  x.IsFunction ^ y.IsFunction
-                ||  x.WorkflowSdkStepEnabled ^ y.WorkflowSdkStepEnabled
+                || x.IsFunction ^ y.IsFunction
+                || x.WorkflowSdkStepEnabled ^ y.WorkflowSdkStepEnabled
                 || !x.AllowedCustomProcessingStepType.Equals(y.AllowedCustomProcessingStepType);
         }
     }

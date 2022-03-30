@@ -16,6 +16,31 @@ namespace Deploy
         public List<CustomApiRequestParameter> InArguments { get; } = new List<CustomApiRequestParameter>();
 
         public List<CustomApiResponseProperty> OutArguments { get; } = new List<CustomApiResponseProperty>();
+        public IEnumerable<ISolutionComponent> Children
+        {
+            get
+            {
+                var children = new List<ISolutionComponent>();
+                children.AddRange(InArguments);
+                children.AddRange(OutArguments);
+                return children;
+            }
+        }
+        public void AddChild(ISolutionComponent child)
+        {
+            switch (child)
+            {
+                case CustomApiRequestParameter:
+                    InArguments.Add((CustomApiRequestParameter)child);
+                    break;
+                case CustomApiResponseProperty:
+                    OutArguments.Add((CustomApiResponseProperty)child);
+                    break;
+                default:
+                    throw new ArgumentException("CustomApi doesn't take this type of children");
+            }
+        }
+
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
         public Guid ParentId { get => PluginTypeId.Id; set => PluginTypeId.Id = value; }

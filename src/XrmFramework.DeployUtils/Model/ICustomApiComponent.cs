@@ -12,10 +12,8 @@ namespace Deploy
         /// </summary>
         [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("customapiid")]
         public Microsoft.Xrm.Sdk.EntityReference CustomApiId {get; set;}
-
+        new string UniqueName { get; set; }
         [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("uniquename")]
-        public string UniqueName {get; set;}
-
         string Description { get; set; }
         string DisplayName { get; set; }
         string LogicalEntityName { get; set; }

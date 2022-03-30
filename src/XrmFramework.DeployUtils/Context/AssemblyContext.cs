@@ -10,12 +10,10 @@ namespace XrmFramework.DeployUtils.Context
 {
     public class AssemblyContext : IAssemblyContext
     {
-        public string Name => Assembly.Name;
-
         public PluginAssembly Assembly { get; set; }
 
-        public ICollection<Plugin> Plugins { get; set; }
-        public ICollection<CustomApi> CustomApis { get; set; }
-        public ICollection<Plugin> Workflows { get; set; }
+        public ICollection<Plugin> Plugins { get; } = new List<Plugin>();
+        public ICollection<CustomApi> CustomApis { get; } = new List<CustomApi>();
+        public ICollection<Plugin> Workflows { get; } = new List<Plugin>();
     }
 }

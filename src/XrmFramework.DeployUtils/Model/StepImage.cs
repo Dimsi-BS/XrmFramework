@@ -43,6 +43,9 @@ namespace XrmFramework.DeployUtils.Model
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
         public string EntityTypeName => SdkMessageProcessingStepImageDefinition.EntityName;
+        public string UniqueName => "ISolutionComponent Implementation";
 
+        public IEnumerable<ISolutionComponent> Children => new List<ISolutionComponent>();
+        public void AddChild(ISolutionComponent child) => throw new ArgumentException("StepImage doesn't take children");
     }
 }

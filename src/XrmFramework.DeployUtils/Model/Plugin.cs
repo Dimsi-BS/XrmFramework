@@ -33,6 +33,7 @@ namespace XrmFramework.DeployUtils.Model
 
         public string DisplayName { get; }
 
+        public string UniqueName => FullName;
 
         public Guid Id
         {
@@ -52,6 +53,13 @@ namespace XrmFramework.DeployUtils.Model
         public StepCollection Steps { get; } = new StepCollection();
 
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
+
+        public IEnumerable<ISolutionComponent> Children => Steps;
+        public void AddChild(ISolutionComponent child)
+        {
+            if(!child.GetType().IsAssignableFrom(typeof(Step))) throw new ArgumentException("Plugin doesn't take this type of children");
+            Steps.Add((Step)child);
+        }
 
     }
 }
