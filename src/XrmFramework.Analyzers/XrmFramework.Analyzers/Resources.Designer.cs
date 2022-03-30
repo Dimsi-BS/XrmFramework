@@ -10,7 +10,6 @@
 
 namespace XrmFramework.Analyzers {
     using System;
-    using System.Reflection;
     
     
     /// <summary>
@@ -20,10 +19,10 @@ namespace XrmFramework.Analyzers {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class Resources {
+    internal class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -37,10 +36,10 @@ namespace XrmFramework.Analyzers {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Resources.ResourceManager ResourceManager {
+        internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("XrmFramework.Analyzers.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("XrmFramework.Analyzers.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -52,7 +51,7 @@ namespace XrmFramework.Analyzers {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Globalization.CultureInfo Culture {
+        internal static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -62,9 +61,9 @@ namespace XrmFramework.Analyzers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The callback must be public, not static and not abstract.
+        ///   Looks up a localized string similar to The callback must be public, not static and not abstract..
         /// </summary>
-        public static string CheckCallbackVisibilityDescription {
+        internal static string CheckCallbackVisibilityDescription {
             get {
                 return ResourceManager.GetString("CheckCallbackVisibilityDescription", resourceCulture);
             }
@@ -73,7 +72,7 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to The Method &apos;{0}.{1}&apos; should be public, not static and not abstract.
         /// </summary>
-        public static string CheckCallbackVisibilityMessageFormat {
+        internal static string CheckCallbackVisibilityMessageFormat {
             get {
                 return ResourceManager.GetString("CheckCallbackVisibilityMessageFormat", resourceCulture);
             }
@@ -82,16 +81,16 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to Callback must be visible.
         /// </summary>
-        public static string CheckCallbackVisibilityTitle {
+        internal static string CheckCallbackVisibilityTitle {
             get {
                 return ResourceManager.GetString("CheckCallbackVisibilityTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A plugin class must be public.
+        ///   Looks up a localized string similar to A plugin class must be public..
         /// </summary>
-        public static string PluginVisibilityDescription {
+        internal static string PluginVisibilityDescription {
             get {
                 return ResourceManager.GetString("PluginVisibilityDescription", resourceCulture);
             }
@@ -100,7 +99,7 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to The Plugin class &apos;{0}&apos; should be public.
         /// </summary>
-        public static string PluginVisibilityMessageFormat {
+        internal static string PluginVisibilityMessageFormat {
             get {
                 return ResourceManager.GetString("PluginVisibilityMessageFormat", resourceCulture);
             }
@@ -109,16 +108,16 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to A plugin class must be public.
         /// </summary>
-        public static string PluginVisibilityTitle {
+        internal static string PluginVisibilityTitle {
             get {
                 return ResourceManager.GetString("PluginVisibilityTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Method not found.
+        ///   Looks up a localized string similar to Method not found..
         /// </summary>
-        public static string Xrm0010_Description {
+        internal static string Xrm0010_Description {
             get {
                 return ResourceManager.GetString("Xrm0010_Description", resourceCulture);
             }
@@ -127,7 +126,7 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to The method &apos;{0}&apos; does not exist in type &apos;{1}&apos; or parent types.
         /// </summary>
-        public static string Xrm0010_MessageFormat {
+        internal static string Xrm0010_MessageFormat {
             get {
                 return ResourceManager.GetString("Xrm0010_MessageFormat", resourceCulture);
             }
@@ -136,16 +135,16 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to Callback not found.
         /// </summary>
-        public static string Xrm0010_Title {
+        internal static string Xrm0010_Title {
             get {
                 return ResourceManager.GetString("Xrm0010_Title", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Prefer using call to ...Definition.EntityName.
+        ///   Looks up a localized string similar to Prefer using call to ...Definition.EntityName..
         /// </summary>
-        public static string Xrm0011_Description {
+        internal static string Xrm0011_Description {
             get {
                 return ResourceManager.GetString("Xrm0011_Description", resourceCulture);
             }
@@ -154,7 +153,7 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to Prefer using call to ...Definition.EntityName.
         /// </summary>
-        public static string Xrm0011_MessageFormat {
+        internal static string Xrm0011_MessageFormat {
             get {
                 return ResourceManager.GetString("Xrm0011_MessageFormat", resourceCulture);
             }
@@ -163,16 +162,16 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to Prefer using call to ...Definition.EntityName.
         /// </summary>
-        public static string Xrm0011_Title {
+        internal static string Xrm0011_Title {
             get {
                 return ResourceManager.GetString("Xrm0011_Title", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Reference the method by using the nameof expression pattern.
+        ///   Looks up a localized string similar to Reference the method by using the nameof expression pattern..
         /// </summary>
-        public static string Xrm0012_Description {
+        internal static string Xrm0012_Description {
             get {
                 return ResourceManager.GetString("Xrm0012_Description", resourceCulture);
             }
@@ -181,7 +180,7 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to Use &apos;nameof&apos; expression to reference parameter &apos;{0}&apos; name.
         /// </summary>
-        public static string Xrm0012_MessageFormat {
+        internal static string Xrm0012_MessageFormat {
             get {
                 return ResourceManager.GetString("Xrm0012_MessageFormat", resourceCulture);
             }
@@ -190,16 +189,16 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to Use &apos;nameof&apos; expression.
         /// </summary>
-        public static string Xrm0012_Title {
+        internal static string Xrm0012_Title {
             get {
                 return ResourceManager.GetString("Xrm0012_Title", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The referenced element should be a method declared in the containing class.
+        ///   Looks up a localized string similar to The referenced element should be a method declared in the containing class..
         /// </summary>
-        public static string Xrm0013_Description {
+        internal static string Xrm0013_Description {
             get {
                 return ResourceManager.GetString("Xrm0013_Description", resourceCulture);
             }
@@ -208,7 +207,7 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to The referenced element &apos;{0}&apos; should be a method declared in the containing class.
         /// </summary>
-        public static string Xrm0013_MessageFormat {
+        internal static string Xrm0013_MessageFormat {
             get {
                 return ResourceManager.GetString("Xrm0013_MessageFormat", resourceCulture);
             }
@@ -217,16 +216,16 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to Invalid callback method.
         /// </summary>
-        public static string Xrm0013_Title {
+        internal static string Xrm0013_Title {
             get {
                 return ResourceManager.GetString("Xrm0013_Title", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to AddStep should be called from AddSteps method.
+        ///   Looks up a localized string similar to AddStep should be called from AddSteps method..
         /// </summary>
-        public static string Xrm0014_Description {
+        internal static string Xrm0014_Description {
             get {
                 return ResourceManager.GetString("Xrm0014_Description", resourceCulture);
             }
@@ -235,7 +234,7 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to AddStep should be called from AddSteps method.
         /// </summary>
-        public static string Xrm0014_MessageFormat {
+        internal static string Xrm0014_MessageFormat {
             get {
                 return ResourceManager.GetString("Xrm0014_MessageFormat", resourceCulture);
             }
@@ -244,16 +243,16 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to AddStep should be called from AddSteps method.
         /// </summary>
-        public static string Xrm0014_Title {
+        internal static string Xrm0014_Title {
             get {
                 return ResourceManager.GetString("Xrm0014_Title", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to BindingModel class should be partial.
+        ///   Looks up a localized string similar to BindingModel class should be partial..
         /// </summary>
-        public static string Xrm0100_Description {
+        internal static string Xrm0100_Description {
             get {
                 return ResourceManager.GetString("Xrm0100_Description", resourceCulture);
             }
@@ -262,7 +261,7 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to Make the class partial.
         /// </summary>
-        public static string Xrm0100_MessageFormat {
+        internal static string Xrm0100_MessageFormat {
             get {
                 return ResourceManager.GetString("Xrm0100_MessageFormat", resourceCulture);
             }
@@ -271,16 +270,16 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to BindingModel class should be partial.
         /// </summary>
-        public static string Xrm0100_Title {
+        internal static string Xrm0100_Title {
             get {
                 return ResourceManager.GetString("Xrm0100_Title", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The object is missing Converter methods, please add &quot;BindingModelSdkCodeGenerator&quot; as a custom tool for the file.
+        ///   Looks up a localized string similar to The object is missing Converter methods, please add &quot;BindingModelSdkCodeGenerator&quot; as a custom tool for the file..
         /// </summary>
-        public static string Xrm0101_Description {
+        internal static string Xrm0101_Description {
             get {
                 return ResourceManager.GetString("Xrm0101_Description", resourceCulture);
             }
@@ -289,7 +288,7 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to Converter methods not generated properly.
         /// </summary>
-        public static string Xrm0101_MessageFormat {
+        internal static string Xrm0101_MessageFormat {
             get {
                 return ResourceManager.GetString("Xrm0101_MessageFormat", resourceCulture);
             }
@@ -298,16 +297,16 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to Converter methods not generated properly.
         /// </summary>
-        public static string Xrm0101_Title {
+        internal static string Xrm0101_Title {
             get {
                 return ResourceManager.GetString("Xrm0101_Title", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Use Definition class .EntityName in CrmEntityAttribute declaration.
+        ///   Looks up a localized string similar to Use Definition class .EntityName in CrmEntityAttribute declaration..
         /// </summary>
-        public static string Xrm0200_Description {
+        internal static string Xrm0200_Description {
             get {
                 return ResourceManager.GetString("Xrm0200_Description", resourceCulture);
             }
@@ -316,7 +315,7 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to Use Definition class .EntityName in CrmEntityAttribute declaration.
         /// </summary>
-        public static string Xrm0200_MessageFormat {
+        internal static string Xrm0200_MessageFormat {
             get {
                 return ResourceManager.GetString("Xrm0200_MessageFormat", resourceCulture);
             }
@@ -325,7 +324,7 @@ namespace XrmFramework.Analyzers {
         /// <summary>
         ///   Looks up a localized string similar to Use Definition class .EntityName in CrmEntityAttribute declaration.
         /// </summary>
-        public static string Xrm0200_Title {
+        internal static string Xrm0200_Title {
             get {
                 return ResourceManager.GetString("Xrm0200_Title", resourceCulture);
             }

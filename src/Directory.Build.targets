@@ -7,6 +7,7 @@
       <NuspecProperties>$(NuspecProperties);copyright=$(XrmFramework_Copyright)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);author=$(XrmFramework_Authors)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);owner=$(XrmFramework_Owners)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);commit=$(GitCommitId)</NuspecProperties>
 
       <NuspecProperties>$(NuspecProperties);XrmFramework_Net5_TFM=$(XrmFramework_Net5_TFM)</NuspecProperties>
 

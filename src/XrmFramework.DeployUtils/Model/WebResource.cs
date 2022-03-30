@@ -23,7 +23,7 @@ namespace XrmFramework.DeployUtils.Model
             if (Extension.ToLowerInvariant() == ".js")
             {
                 var allLines = File.ReadAllLines(fi.FullName);
-                
+
                 foreach (var line in allLines)
                 {
                     var match = ReferenceRegex.Match(line);
@@ -42,7 +42,7 @@ namespace XrmFramework.DeployUtils.Model
             Id = wr.Id;
 
             Base64Content = wr.GetAttributeValue<string>("content");
-            
+
             FullName = wr.GetAttributeValue<string>("name");
 
             var registeredDependencies = wr.GetAttributeValue<string>("dependencyxml");
@@ -65,23 +65,23 @@ namespace XrmFramework.DeployUtils.Model
         public string FullName { get; set; }
 
         public string Extension => Path.GetExtension(FullName);
-        
+
         public string Base64Content { get; }
 
         private SortedSet<string> Dependencies { get; } = new();
 
         public string GetDependenciesXml()
             => Dependencies.Any() ? new XElement("Dependencies",
-            Dependencies.Select(d =>
             new XElement("Dependency", new XAttribute("componentType", "WebResource"),
+            Dependencies.Select(d =>
                 new XElement("Library",
                     new XAttribute("name", d),
                     new XAttribute("displayName", d),
                     new XAttribute("languagecode", string.Empty),
                     new XAttribute("description", string.Empty),
                     new XAttribute("libraryUniqueId", Guid.NewGuid())
-                ))).Cast<object>().ToArray()
-            ).ToString() : null;
+                )).Cast<object>().ToArray()
+            )).ToString() : null;
 
         private static string GetRelativePath(string fileFullName, string folderName, string prefix)
         {
