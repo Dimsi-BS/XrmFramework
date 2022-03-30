@@ -10,7 +10,6 @@ namespace XrmFramework.DeployUtils.Service
 {
     public interface IRegistrationService : IOrganizationService, IDisposable
     {
-        OrganizationServiceProxy OrganizationServiceProxy { get; }
         IEnumerable<PluginAssembly> GetAssemblies();
 
         PluginAssembly GetAssemblyByName(string assemblyName);

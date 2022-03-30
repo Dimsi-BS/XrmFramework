@@ -27,6 +27,8 @@
     <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.42" />
     <PackageReference Include="Microsoft.CrmSdk.Deployment" Version="9.0.2.34" />
     <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.92" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>

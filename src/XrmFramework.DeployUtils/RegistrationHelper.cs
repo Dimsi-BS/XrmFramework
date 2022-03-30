@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -12,45 +11,68 @@ using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Utils;
 using XrmFramework.DeployUtils.Service;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace XrmFramework.DeployUtils
-{
-    public static class RegistrationHelper
+{ 
+    public class RegistrationHelper
     {
-        private static IRegistrationService _registrationService;
-        private static IAssemblyExporter _assemblyExporter;
-        private static IFlatAssemblyContext _flatAssemblyContext;
+        private readonly IRegistrationService _registrationService;
+        private readonly IAssemblyExporter _assemblyExporter;
+        private readonly IAssemblyFactory _assemblyFactory;
+        private IFlatAssemblyContext _flatAssemblyContext;
+
+        public RegistrationHelper(IRegistrationService registrationService,
+                                  IAssemblyExporter assemblyExporter,
+                                  IAssemblyFactory assemblyFactory)
+        {
+            _registrationService = registrationService;
+            _assemblyExporter = assemblyExporter;
+            _assemblyFactory = assemblyFactory;
+        }
 
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddScoped<IRegistrationService, RegistrationService>();
+            serviceCollection.AddScoped<ISolutionContext, SolutionContext>();
+            serviceCollection.AddScoped<IAssemblyExporter, AssemblyExporter>();
+            serviceCollection.AddScoped<IAssemblyImporter, AssemblyImporter>();
+            serviceCollection.AddSingleton<IAssemblyFactory, AssemblyFactory>();
+            serviceCollection.AddSingleton<RegistrationHelper>();
+
             string pluginSolutionUniqueName, connectionString;
 
             ParseSolutionSettings(projectName, out pluginSolutionUniqueName, out connectionString);
+
+            serviceCollection.Configure<SolutionSettings>((settings) => 
+            {
+                settings.ConnectionString = connectionString;
+                settings.PluginSolutionUniqueName = pluginSolutionUniqueName;
+            });
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
             Console.WriteLine($"You are about to deploy on {connectionString} organization. If ok press any key.");
             Console.ReadKey();
             Console.WriteLine("Connecting to CRM...");
 
-            RegistrationService.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
+            var registrationHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
 
-            _registrationService = new RegistrationService(connectionString);
-
-            _registrationService.OrganizationServiceProxy?.EnableProxyTypes();
-
-            var solutionContext = new SolutionContext(_registrationService, pluginSolutionUniqueName);
-
-            var assemblyImporter = new AssemblyImporter(solutionContext);
-            _assemblyExporter = new AssemblyExporter(solutionContext);
-            var assemblyFactory = new AssemblyFactory(assemblyImporter);
+            registrationHelper.Register<TPlugin>(projectName);
+        }
 
 
+        private void Register<TPlugin>(string projectName)
+        {
             Console.Write("Fetching Local Assembly...");
 
-            var localAssembly = assemblyFactory.CreateFromLocalAssemblyContext(typeof(TPlugin));
+            var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(typeof(TPlugin));
 
             Console.WriteLine("Fetching Registered Assembly...");
 
-            var registeredAssembly = assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, projectName);
+            var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, projectName);
 
 
             Console.Write("Computing Difference...");
@@ -58,7 +80,7 @@ namespace XrmFramework.DeployUtils
             AssemblyDiffFactory.ComputeAssemblyDiff(localAssembly, registeredAssembly);
 
 
-            _flatAssemblyContext = assemblyFactory.CreateFlatAssemblyContextFromAssemblyContext(localAssembly);
+            _flatAssemblyContext = _assemblyFactory.CreateFlatAssemblyContextFromAssemblyContext(localAssembly);
 
             Console.WriteLine();
             Console.WriteLine("Registering assembly");
@@ -69,7 +91,6 @@ namespace XrmFramework.DeployUtils
             Console.WriteLine(@"Registering Plugins");
 
             RegisterPlugins();
-
 
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Workflow activities");
@@ -82,9 +103,8 @@ namespace XrmFramework.DeployUtils
             RegisterCustomApis();
         }
 
-        public static void RegisterAssembly()
+        private void RegisterAssembly()
         {
-
             if (_flatAssemblyContext.Assembly.RegistrationState == RegistrationState.ToCreate)
             {
                 Console.WriteLine("Creating assembly");
@@ -109,17 +129,15 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        public static void CleanAssembly()
+        private void CleanAssembly()
         {
             // Delete
-
             DeleteAllComponents(_flatAssemblyContext.StepImages);
             DeleteAllComponents(_flatAssemblyContext.Steps);
             DeleteAllComponents(_flatAssemblyContext.Plugins);
             DeleteAllComponents(_flatAssemblyContext.CustomApiRequestParameters);
             DeleteAllComponents(_flatAssemblyContext.CustomApiResponseProperties);
             DeleteAllComponents(_flatAssemblyContext.CustomApis);
-
 
             var customApisTypeToDelete = _flatAssemblyContext.CustomApis
                     .Where(x => x.RegistrationState == RegistrationState.ToDelete)
@@ -129,7 +147,7 @@ namespace XrmFramework.DeployUtils
             _registrationService.DeleteMany(PluginTypeDefinition.EntityName, customApisTypeToDelete);
         }
 
-        public static void RegisterPlugins()
+        private void RegisterPlugins()
         {
             CreateAllComponents(_flatAssemblyContext.Plugins);
             CreateAllComponents(_flatAssemblyContext.Steps, doAddToSolution: true);
@@ -140,14 +158,14 @@ namespace XrmFramework.DeployUtils
             UpdateAllComponents(_flatAssemblyContext.StepImages);
         }
 
-        public static void RegisterWorkflows()
+        private void RegisterWorkflows()
         {
             CreateAllComponents(_flatAssemblyContext.Workflows);
 
             UpdateAllComponents(_flatAssemblyContext.Workflows);
         }
 
-        public static void RegisterCustomApis()
+        private void RegisterCustomApis()
         {
             var customApisTypeToCreate = _flatAssemblyContext.CustomApis
                     .Where(x => x.RegistrationState == RegistrationState.ToCreate)
@@ -168,7 +186,7 @@ namespace XrmFramework.DeployUtils
             UpdateAllComponents(_flatAssemblyContext.CustomApiResponseProperties);
         }
 
-        private static void UpdateAllComponents<T>(IEnumerable<T> components) where T : ISolutionComponent
+        private void UpdateAllComponents<T>(IEnumerable<T> components) where T : ISolutionComponent
         {
             var updateComponents = components
                 .Where(x => x.RegistrationState == RegistrationState.ToUpdate)
@@ -180,9 +198,9 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        private static void CreateAllComponents<T>(IEnumerable<T> components,
-                                                  bool doAddToSolution = false,
-                                                  bool doFetchCode = false) where T : ISolutionComponent
+        private void CreateAllComponents<T>(IEnumerable<T> components,
+                                            bool doAddToSolution = false,
+                                            bool doFetchCode = false) where T : ISolutionComponent
         {
             var createComponents = components
                 .Where(x => x.RegistrationState == RegistrationState.ToCreate)
@@ -206,7 +224,7 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        private static void DeleteAllComponents<T>(IEnumerable<T> components) where T : ISolutionComponent
+        private void DeleteAllComponents<T>(IEnumerable<T> components) where T : ISolutionComponent
         {
             var deleteComponents = components
                 .Where(x => x.RegistrationState == RegistrationState.ToDelete)

@@ -1,4 +1,5 @@
 ﻿using Deploy;
+using Microsoft.Extensions.Options;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using System;
@@ -8,12 +9,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XrmFramework.Definitions;
+using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Context
 {
     public class SolutionContext : ISolutionContext
     {
+        public SolutionContext(IRegistrationService service, IOptions<SolutionSettings> settings)
+        {
+            _service = service;
+
+            SolutionName = settings.Value.PluginSolutionUniqueName;
+
+            InitSolution();
+        }
         private readonly IRegistrationService _service;
 
         private Solution _solution = null;
@@ -35,14 +45,7 @@ namespace XrmFramework.DeployUtils.Context
         public Dictionary<string, EntityReference> Messages => _messages.Count == 0 ? InitMessages() : _messages;
         public List<KeyValuePair<string, Guid>> Users => _users.Count == 0 ? InitUsers() : _users;
 
-        public SolutionContext(IRegistrationService service, string solutionName)
-        {
-            _service = service;
 
-            SolutionName = solutionName;
-
-            InitSolution();
-        }
 
         public void InitMetadata()
         {

@@ -11,7 +11,7 @@ using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Utils
 {
-    public class AssemblyFactory
+    public class AssemblyFactory : IAssemblyFactory
     {
         private readonly IAssemblyImporter _importer;
 
@@ -51,29 +51,18 @@ namespace XrmFramework.DeployUtils.Utils
 
             var assembly = _importer.CreateAssemblyFromLocal(Assembly);
 
-            foreach(var plugin in plugins)
-            {
-                plugin.ParentId = assembly.Id;
-            }
-            foreach(var workflow in workflows)
-            {
-                workflow.ParentId = assembly.Id;
-            }
-
-            var localAssembly = new AssemblyContext
-            {
-                Assembly = assembly,
-                Plugins = plugins,
-                Workflows = workflows,
-                CustomApis = customApis,
-            };
+            var localAssembly = new AssemblyContext();
+            localAssembly.Assembly = assembly;
+            plugins.ForEach(localAssembly.Plugins.Add);
+            customApis.ForEach(localAssembly.CustomApis.Add);
+            workflows.ForEach(localAssembly.Workflows.Add);
             return localAssembly;
         }
 
         public IAssemblyContext CreateFromRemoteAssemblyContext(IRegistrationService service, string assemblyName)
         {
             var assembly = service.GetAssemblyByName(assemblyName);
-            AssemblyContext registeredAssembly;
+            AssemblyContext registeredAssembly = new AssemblyContext();
 
             if (assembly != null)
             {
@@ -104,24 +93,11 @@ namespace XrmFramework.DeployUtils.Utils
                     .Select(c => _importer.CreateCustomApiFromRemote(c, registeredRequestParameters, registeredResponseProperties))
                     .ToList();
 
-                registeredAssembly = new AssemblyContext()
-                {
-                    Assembly = assembly,
-                    Plugins = plugins,
-                    CustomApis = customApis,
-                    Workflows = workflows
 
-                };
-            }
-            else
-            {
-                registeredAssembly = new AssemblyContext()
-                {
-                    Assembly = assembly,
-                    Plugins = new List<Plugin>(),
-                    Workflows = new List<Plugin>(),
-                    CustomApis = new List<CustomApi>(),
-                };
+                registeredAssembly.Assembly = assembly;
+                plugins.ForEach(registeredAssembly.Plugins.Add);
+                customApis.ForEach(registeredAssembly.CustomApis.Add);
+                workflows.ForEach(registeredAssembly.Workflows.Add);
             }
             return registeredAssembly;
         }

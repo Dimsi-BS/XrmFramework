@@ -1,5 +1,6 @@
 ﻿using Deploy;
 using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Extensions.Options;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Messages;
@@ -9,14 +10,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.Definitions;
+using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 
 namespace XrmFramework.DeployUtils.Service
 {
-    public class RegistrationService : CrmServiceClient, IRegistrationService
+    public class RegistrationService : IRegistrationService
     {
-        public RegistrationService(string crmConnectionString) : base(crmConnectionString)
+        private readonly CrmServiceClient _client;
+
+        public RegistrationService(IOptions<SolutionSettings> settings)
         {
+            _client = new CrmServiceClient(settings.Value.ConnectionString);
         }
 
         public IEnumerable<PluginAssembly> GetAssemblies()
@@ -195,7 +200,7 @@ namespace XrmFramework.DeployUtils.Service
 
             do
             {
-                ec = RetrieveMultiple(query);
+                ec = _client.RetrieveMultiple(query);
 
                 result.AddRange(ec.Entities);
 
@@ -215,7 +220,7 @@ namespace XrmFramework.DeployUtils.Service
             ICollection<Guid> result = new List<Guid>();
             foreach (var entity in entities)
             {
-                result.Add(Create(entity));
+                result.Add(_client.Create(entity));
             }
             return result;
         }
@@ -224,7 +229,7 @@ namespace XrmFramework.DeployUtils.Service
         {
             foreach (var guid in guids)
             {
-                Delete(entityName, guid);
+                _client.Delete(entityName, guid);
             }
         }
 
@@ -232,7 +237,7 @@ namespace XrmFramework.DeployUtils.Service
         {
             foreach (var entity in entities)
             {
-                Delete(entity.LogicalName, entity.Id);
+                _client.Delete(entity.LogicalName, entity.Id);
             }
         }
 
@@ -240,7 +245,7 @@ namespace XrmFramework.DeployUtils.Service
         {
             foreach (var entity in entities)
             {
-                Update(entity);
+                _client.Update(entity);
             }
         }
 
@@ -248,9 +253,54 @@ namespace XrmFramework.DeployUtils.Service
         {
             var entityRequest = new RetrieveEntityRequest { LogicalName = logicalName };
 
-            var entityResponse = (RetrieveEntityResponse)Execute(entityRequest);
+            var entityResponse = (RetrieveEntityResponse)_client.Execute(entityRequest);
 
             return entityResponse.EntityMetadata.ObjectTypeCode.GetValueOrDefault();
+        }
+
+        public Guid Create(Entity entity)
+        {
+            return _client.Create(entity);
+        }
+
+        public Entity Retrieve(string entityName, Guid id, ColumnSet columnSet)
+        {
+            return _client.Retrieve(entityName, id, columnSet);
+        }
+
+        public void Update(Entity entity)
+        {
+            _client.Update(entity);
+        }
+
+        public void Delete(string entityName, Guid id)
+        {
+            _client.Delete(entityName, id);
+        }
+
+        public OrganizationResponse Execute(OrganizationRequest request)
+        {
+            return _client.Execute(request);
+        }
+
+        public void Associate(string entityName, Guid entityId, Microsoft.Xrm.Sdk.Relationship relationship, EntityReferenceCollection relatedEntities)
+        {
+            _client.Associate(entityName, entityId, relationship, relatedEntities);
+        }
+
+        public void Disassociate(string entityName, Guid entityId, Microsoft.Xrm.Sdk.Relationship relationship, EntityReferenceCollection relatedEntities)
+        {
+            _client.Disassociate(entityName, entityId, relationship, relatedEntities);
+        }
+
+        public EntityCollection RetrieveMultiple(QueryBase query)
+        {
+            return _client.RetrieveMultiple(query);
+        }
+
+        public void Dispose()
+        {
+            _client?.Dispose();
         }
     }
 }
