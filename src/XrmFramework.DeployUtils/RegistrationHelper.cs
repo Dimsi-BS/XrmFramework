@@ -64,7 +64,7 @@ namespace XrmFramework.DeployUtils
         }
 
 
-        private void Register<TPlugin>(string projectName)
+        public void Register<TPlugin>(string projectName)
         {
             Console.Write("Fetching Local Assembly...");
 
