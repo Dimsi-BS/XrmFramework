@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp;
@@ -20,12 +21,16 @@ namespace XrmFramework.Analyzers
         private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.CheckCallbackVisibilityDescription), Resources.ResourceManager, typeof(Resources));
         private const string Category = "Naming";
 
-        private static readonly DiagnosticDescriptor _rule = new(DiagnosticIds.CheckCallbackVisibility, Title, MessageFormat, Category, DiagnosticSeverity.Error, true, description: Description);
+        private static readonly DiagnosticDescriptor Rule = new(DiagnosticIds.CheckCallbackVisibility, Title, MessageFormat, Category, DiagnosticSeverity.Error, true, description: Description);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(_rule);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
         public override void Initialize(AnalysisContext context)
         {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            
+            context.EnableConcurrentExecution();
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
             context.RegisterSyntaxNodeAction(AnalyzeMethodAnalysis, SyntaxKind.MethodDeclaration);
         }
 
@@ -60,7 +65,7 @@ namespace XrmFramework.Analyzers
 
                 foreach (var methodCall in methodCalls)
                 {
-                    var semanticModel = context.SemanticModel.Compilation.GetSemanticModel(methodCall.SyntaxTree);
+                    var semanticModel = context.SemanticModel;//.Compilation.GetSemanticModel(methodCall.SyntaxTree);
 
 
                     if (semanticModel.GetSymbolInfo(methodCall).Symbol is not IMethodSymbol calledMethodSymbol || calledMethodSymbol.Name != "AddStep" || calledMethodSymbol.ContainingType.Name != "Plugin")
@@ -103,7 +108,7 @@ namespace XrmFramework.Analyzers
 
             if (methodIsUsed)
             {
-                var diagnostic = Diagnostic.Create(_rule, methodDeclaration.Identifier.GetLocation(), methodSymbol.ContainingType.Name, methodSymbol.Name);
+                var diagnostic = Diagnostic.Create(Rule, methodDeclaration.Identifier.GetLocation(), methodSymbol.ContainingType.Name, methodSymbol.Name);
                 context.ReportDiagnostic(diagnostic);
             }
         }
@@ -135,9 +140,16 @@ namespace XrmFramework.Analyzers
             }
         }
 
+        public override FixAllProvider GetFixAllProvider() => null;
+
         private async Task<Document> MakePublic(Document document, MethodDeclarationSyntax methodDecl, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+
+            if (root == null)
+            {
+                return document;
+            }
 
             var newModifiers = SyntaxFactory.TokenList(new[] { SyntaxFactory.Token(SyntaxKind.PublicKeyword) });
             var newMethodDeclaration = methodDecl.WithModifiers(newModifiers);

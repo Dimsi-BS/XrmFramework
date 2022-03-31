@@ -40,7 +40,7 @@
 
     <PropertyGroup>
       <_XrmFrameworkTaskDir Condition=" '$(_XrmFrameworkTaskDir)'=='' ">$(MSBuildThisFileDirectory)tasks</_XrmFrameworkTaskDir>
-      <_XrmFrameworkDependencyProjectGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">$([MSBuild]::Escape($(_XrmFrameworkTaskDir)))\XrmFramework.MSBuild.Reflection.exe</_XrmFrameworkDependencyProjectGenerator>
+      <_XrmFrameworkDependencyProjectGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">XrmFramework.MSBuild.Reflection.exe</_XrmFrameworkDependencyProjectGenerator>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -60,7 +60,10 @@
      Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);FakeProperty=one"
      ContinueOnError="true" />
 
-    <Exec Command="$(_XrmFrameworkDependencyProjectGenerator) &quot;$(ProjectOutputFile)&quot; &quot;$(ProjectFolderPath)\obj&quot; &quot;DependencyInjection&quot;" YieldDuringToolExecution="true" StandardErrorImportance="High" />
+    <Exec Command="$(_XrmFrameworkDependencyProjectGenerator) &quot;$(ProjectOutputFile)&quot; &quot;$([MSBuild]::Escape($(ProjectFolderPath)))\obj&quot; &quot;DependencyInjection&quot;"
+          WorkingDirectory="$([MSBuild]::Escape($(_XrmFrameworkTaskDir)))"
+          YieldDuringToolExecution="true" 
+          StandardErrorImportance="High" />
 
   </Target>
 
