@@ -16,8 +16,9 @@ namespace XrmFramework
         {
             if (!localContext.IsDebugContext)
             {
+                
+
                 localContext.Log("The context is genuine");
-                localContext.Log($"UnSecuredConfig : {UnSecuredConfig}");
 
                 //if (!string.IsNullOrEmpty(UnSecuredConfig) && UnSecuredConfig.Contains("debugSessions"))
                 //{
@@ -25,82 +26,44 @@ namespace XrmFramework
 
                 //    localContext.Log($"Debug session ids : {string.Join(",", debuggerUnsecuredConfig.DebugSessionIds)}");
 
-                    var initiatingUserId = localContext.GetInitiatingUserId();
+                var initiatingUserId = localContext.GetInitiatingUserId();
 
-                    localContext.Log($"Initiating user Id : {initiatingUserId}");
+                localContext.Log($"Initiating user Id : {initiatingUserId}");
 
-                    var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
-                    queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.DebugeeId, ConditionOperator.Equal, initiatingUserId);
-                    queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
+                var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
+                queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.DebugeeId, ConditionOperator.Equal, initiatingUserId);
+                queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
 
-                    //queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Id, ConditionOperator.In, debuggerUnsecuredConfig.DebugSessionIds.Cast<object>().ToArray());
+                //queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Id, ConditionOperator.In, debuggerUnsecuredConfig.DebugSessionIds.Cast<object>().ToArray());
 
-                    var debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
+                var debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
 
-                    localContext.Log($"Debug session : {debugSession}");
+                localContext.Log($"Debug session : {debugSession}");
 
-                    if (debugSession != null)
+                if (debugSession != null)
+                {
+                    localContext.Log("Debug session is non null");
+                    if (initiatingUserId != debugSession.DebugeeId)
                     {
-                        if (debugSession.SessionEnd >= DateTime.Today)
-                        {
-
-                            var remoteContext = localContext.RemoteContext;
-                            remoteContext.Id = Guid.NewGuid();
-                            remoteContext.TypeAssemblyQualifiedName = GetType().AssemblyQualifiedName;
-                            remoteContext.UnsecureConfig = UnSecuredConfig;
-                            remoteContext.SecureConfig = SecuredConfig;
-
-                            var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
-
-                            try
-                            {
-                                using var hybridConnection = new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri);
-                                var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
-
-                                RemoteDebuggerMessage response;
-                                while (true)
-                                {
-                                    localContext.Log("Sending context to local machine : {0}", message);
-
-                                    response = hybridConnection.SendMessage(message).GetAwaiter().GetResult();
-
-                                    localContext.Log("Received response : {0}", response);
-
-                                    if (response.MessageType == RemoteDebuggerMessageType.Context || response.MessageType == RemoteDebuggerMessageType.Exception)
-                                    {
-                                        break;
-                                    }
-
-                                    var request = response.GetOrganizationRequest();
-
-                                    var service = response.UserId.HasValue ? localContext.GetService(response.UserId.Value) : localContext.AdminOrganizationService;
-
-                                    var organizationResponse = service.Execute(request);
-
-                                    message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Response, organizationResponse, remoteContext.Id);
-                                }
-
-                                if (response.MessageType == RemoteDebuggerMessageType.Exception)
-                                {
-                                    throw response.GetException();
-                                }
-
-                                var updatedContext = response.GetContext<RemoteDebugExecutionContext>();
-
-                                localContext.UpdateContext(updatedContext);
-
-
-                                return true;
-                            }
-                            catch (HttpRequestException)
-                            {
-                                // Run the plugin as deploy if the remote debugger is not connected
-                            }
-                        }
+                        localContext.Log("Is currently debugging but not for this user, execute the step normally");
+                        return false;
                     }
-                //}
+                    // We have to check wether the remoteDebugger has this step, if not we need to send context to remote debugger ourself
+                    else
+                    {
+                        //Context will be sent by remote debugger plugin
+                        
+                        return true;
+                    }
+                }
+                else
+                {
+                    localContext.Log("Debug session is null");
+                    return false;
+                }
+                    
             }
-
+            localContext.Log("Went false");
             return false;
         }
     }

@@ -36,10 +36,12 @@ namespace XrmFramework
         public Step(Plugin plugin, Messages message, Stages stage, Modes mode, string entityName, string methodName, params string[] columns)
             : this(plugin, message, stage, mode, entityName)
         {
+            // Get the method corresponding to that step
             Method = plugin.GetType().GetMethod(methodName);
 
             if (Method != null)
             {
+                
                 MethodNames.Add(Method.Name);
 
                 var debugAttribute = Method.GetCustomAttribute<DebugAttribute>();
@@ -49,16 +51,19 @@ namespace XrmFramework
                 }
 
                 var filteringAttributes = Method.GetCustomAttribute<FilteringAttributesAttribute>();
+                //Add the filtering attributes corresponding to the method (defines which attribute should be modified in order to trigger the method)
                 if (filteringAttributes != null)
                 {
                     _filteringAttributes.AddRange(filteringAttributes.Attributes);
                 }
+                //Add the columns corresponding to the method (defines which attribute columns should be transmitted to the method)
                 else if (columns != null)
                 {
                     _filteringAttributes.AddRange(columns);
                 }
-
+                
                 var preImageAttribute = Method.GetCustomAttribute<PreImageAttribute>();
+                // Add preimages attribute to be saved for the method
                 if (preImageAttribute != null)
                 {
                     _preImageAllAttributes = preImageAttribute.AllColumns;
@@ -67,12 +72,14 @@ namespace XrmFramework
                         _preImageAttributes.AddRange(preImageAttribute.Columns);
                     }
                 }
+                //Add the columns corresponding to the method (defines which attribute columns should be transmitted to the method)
                 else if (columns != null)
                 {
                     _preImageAttributes.AddRange(columns);
                 }
 
                 var postImageAttribute = Method.GetCustomAttribute<PostImageAttribute>();
+                // Add preimages attribute to be saved for the method
                 if (postImageAttribute != null)
                 {
                     _postImageAllAttributes = postImageAttribute.AllColumns;
@@ -87,17 +94,18 @@ namespace XrmFramework
                 }
 
                 var executionOrderAttribute = Method.GetCustomAttribute<ExecutionOrderAttribute>();
+                //Get execution order attribute ???????
                 if (executionOrderAttribute != null)
                 {
                     Order = executionOrderAttribute.Order;
                 }
-
+                // C'est quoi ImpersonationAttribute ?????
                 var impersonationUserAttribute = Method.GetCustomAttribute<ImpersonationAttribute>();
                 if (impersonationUserAttribute != null)
                 {
                     ImpersonationUsername = impersonationUserAttribute.ImpersonationUsername;
                 }
-
+                // C'est quoi UnsecureConfigAttribute ?????
                 var unsecureConfigAttribute = Method.GetCustomAttribute<UnsecureConfigAttribute>();
                 if (unsecureConfigAttribute != null)
                 {

@@ -20,8 +20,9 @@ namespace XrmFramework
     //[DebuggerNonUserCode]
     public abstract partial class Plugin : IPlugin
     {
+        //Steps at which this plugin will invoke a method
         private readonly IList<Step> _newRegisteredEvents = new Collection<Step>();
-
+        
         protected const string PreImageName = "PreImage";
 
         protected const string PostImageName = "PostImage";
@@ -59,6 +60,7 @@ namespace XrmFramework
             StepsInitialized = true;
         }
 
+        
         protected abstract void AddSteps();
 
         public ReadOnlyCollection<Step> Steps => new ReadOnlyCollection<Step>(_newRegisteredEvents);
@@ -66,9 +68,9 @@ namespace XrmFramework
         protected void AddStep(Stages stage, Messages messageName, Modes mode, string entityName, string actionName, params string[] columns)
         {
             var list = _newRegisteredEvents;
-
+            // Create a new step with the input parameters 
             var step = new Step(this, messageName, stage, mode, entityName, actionName, columns);
-
+            // Invoked method must exist, be public and non static
             if (step.Method == null)
             {
                 throw new InvalidPluginExecutionException($"The method {ChildClassName}.{actionName} used during {messageName} message does not exist or is private");
@@ -80,6 +82,7 @@ namespace XrmFramework
 
             foreach (var param in step.Method.GetParameters())
             {
+                //Parameters for the step method must be an interface like IPluginContext and IService
                 if (!param.ParameterType.IsInterface || (    !typeof(IPluginContext).IsAssignableFrom(param.ParameterType)
                                                           && !typeof(IService).IsAssignableFrom(param.ParameterType)))
                 {
@@ -142,13 +145,14 @@ namespace XrmFramework
 
             try
             {
+                // If currently relite debugging, no need to go on
                 if (SendToRemoteDebugger(localContext))
                 {
                     return;
                 }
 
                 IEnumerable<Step> steps;
-
+                // If customAPI, ??????
                 if (_isCustomApi)
                 {
                     steps = new List<Step>
@@ -156,6 +160,7 @@ namespace XrmFramework
                         new Step(this, localContext.MessageName, Stages.PostOperation, Modes.Synchronous, _customApiEntityName, _customApiMethodName)
                     };
                 }
+                // If simple plugin, steps have to be valid in this context (same stage, message, mode and target entity)
                 else
                 {
                     steps =
@@ -169,7 +174,7 @@ namespace XrmFramework
                          )
                          select a);
                 }
-
+                // Create stage enum value with local context
                 var stage = Enum.ToObject(typeof(Stages), localContext.Stage);
                 sw.Restart();
                 localContext.Log("------------------ Input Variables (before) ------------------");
@@ -178,21 +183,23 @@ namespace XrmFramework
                 localContext.DumpSharedVariables();
                 localContext.Log("\r\n---------------------------------------------------------------");
 
+                // Execute the action corresponding to each step
                 foreach (var step in steps)
                 {
                     sw.Restart();
+                    //Proceed to filtering
                     if (step.Message == Messages.Update && step.FilteringAttributes.Any())
                     {
 
                         var target = localContext.GetInputParameter<Entity>(InputParameters.Target);
-
+                        //Create a variable of which the value signals one or more of the filtered attributes is present
                         var useStep = false;
-
+                        //Test the target to determine the value of useStep
                         foreach (var attributeName in target.Attributes.Select(a => a.Key))
                         {
                             useStep |= step.FilteringAttributes.Contains(attributeName);
                         }
-
+                        // If the filtering condition are not met, proceed to the next step without executing the action corresponding to this one
                         if (!useStep)
                         {
                             localContext.Log(
@@ -206,9 +213,8 @@ namespace XrmFramework
                         }
 
                     }
-
+                    // Get the info regarding the method corresponding to the step
                     var entityAction = step.Method;
-                    var wtf = serviceProvider.GetType().IsAssignableFrom(typeof(LocalServiceProvider));
 
                     if (step.IsDebugFunction && !localContext.IsDebugContext)
                     {
@@ -227,7 +233,7 @@ namespace XrmFramework
                     sw.Restart();
 
                     localContext.Log($"{ChildClassName}.{step.Method.Name} Start");
-
+                    //Call the method corresponding to the step
                     localContext.InvokeMethod(this, entityAction);
 
                     localContext.Log($"{ChildClassName}.{step.Method.Name} End, duration : {sw.Elapsed}");

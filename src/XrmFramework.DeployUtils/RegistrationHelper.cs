@@ -62,6 +62,142 @@ namespace XrmFramework.DeployUtils
 
             registrationHelper.Register<TPlugin>(projectName);
         }
+        public static void UpdateRemoteDebuggerPlugin<TPlugin>(string projectName)
+        {
+            Console.WriteLine(projectName);
+            // Connect a service to the debug session
+            var xrmFrameworkConfigSection = ConfigHelper.GetSection();
+            var projectConfig = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>()
+                .FirstOrDefault(p => p.Name == projectName);
+            if (projectConfig == null)
+            {
+                var defaultColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"No reference to the project {projectName} has been found in the xrmFramework.config file.");
+                Console.ForegroundColor = defaultColor;
+                return;
+            }
+            //var pluginSolutionUniqueName = "dimsi_debugsession";
+            var pluginSolutionUniqueName = projectConfig.TargetSolution;
+            var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
+
+            Console.WriteLine($"You are about to modify the debug session");
+            Console.WriteLine($"Do you want to register new steps to debug ? (y/n)");
+            var r = Console.ReadLine();
+            while (r != "y" && r != "n")
+            {
+                Console.WriteLine($"Do you want to register new steps to debug ? (y/n)");
+                r = Console.ReadLine();
+            }
+            if (r == "n")
+            {
+                return;
+            }
+
+            Console.WriteLine("Connecting to CRM...");
+            CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
+
+            //Create the CrmServiceClient to interact with the CrmProject 
+            var service = new CrmServiceClient(connectionString);
+            Console.WriteLine("Created serviceClient");
+            //Kind of deprecated, allow use of early bound classes like in DeployUtils.Model.Entities, to make a strongly typed object from a table 
+            //service.OrganizationServiceProxy?.EnableProxyTypes();
+            var debugAssembly = GetAssemblyByName(service, "XrmFramework.RemoteDebuggerPlugin");
+
+            //InitMetadata(service, pluginSolutionUniqueName);
+            InitStepMetadata(service, pluginSolutionUniqueName);
+
+
+            //Now get the local assembly for the plugin(s) to be debugged
+            var pluginAssembly = typeof(TPlugin).Assembly;
+            //Get each possible type of plugin
+            var pluginType = pluginAssembly.GetType("XrmFramework.Plugin");
+            var customApiType = pluginAssembly.GetType("XrmFramework.CustomApi");
+            var workflowType = pluginAssembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");
+            Console.WriteLine(pluginType.Name);
+            var pluginList = new List<Plugin>();
+            var customApis = new List<CustomApi>();
+            // Get all plugin types that were developped by the users
+            var pluginTypes = pluginAssembly.GetTypes().Where(t => pluginType.IsAssignableFrom(t) && !customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
+            // Now for each local plugin we assign steps to the debug plugin
+            GetPluginData(pluginTypes, pluginList);
+
+
+            // Now we get the remoteDebugger plugin
+            var debuggerPlugin = GetRegisteredPluginTypes(service, debugAssembly.Id).ToList()[0];
+            Console.WriteLine("name of debugger plugin is {0}", debuggerPlugin.Name);
+            var registeredSteps = GetRegisteredSteps(service, debugAssembly.Id);
+            var registeredImages = GetRegisteredImages(service, debugAssembly.Id);
+
+            var registeredStepsForPluginType = registeredSteps.Where(s => s.EventHandler.Id == debuggerPlugin.Id).ToList();
+            foreach (var step in registeredStepsForPluginType)
+            {
+
+                service.Delete(SdkMessageProcessingStep.EntityLogicalName, step.Id);
+                //registeredStepsForPluginType.Remove(step);
+            }
+            foreach (var image in registeredImages)
+            {
+                service.Delete(SdkMessageProcessingStepImage.EntityLogicalName, image.Id);
+                //registeredImages.Remove(image);
+            }
+
+            foreach (var plugin in pluginTypes)
+            {
+                foreach (var pluginData in pluginList)
+                {
+                    if (pluginData.FullName == plugin.FullName)
+                    {
+                        foreach (var convertedStep in pluginData.Steps)
+                        {
+                            Console.WriteLine("There is a step here");
+
+                            if (convertedStep.Message != Messages.Associate.ToString() && convertedStep.Message != Messages.Lose.ToString() && convertedStep.Message != Messages.Win.ToString())
+                            {
+                                convertedStep.UnsecureConfig = plugin.AssemblyQualifiedName;
+                                //convertedStep.SecuredConfig = "oulalalalolo";
+                                var stepToRegister = GetStepToRegister(debuggerPlugin.Id, convertedStep);
+
+                                //Console.WriteLine(s.ImpersonationUsername);
+                                //stepToRegister.
+
+                                stepToRegister.Id = service.Create(stepToRegister);
+                                AddSolutionComponentToSolution(service, pluginSolutionUniqueName, stepToRegister.ToEntityReference());
+
+                                if (convertedStep.PostImageUsed && convertedStep.Message != Messages.Delete.ToString())
+                                {
+
+                                    var postImage = GetImageToRegister(service, stepToRegister.Id, convertedStep, false);
+                                    postImage.Id = service.Create(postImage);
+                                    AddSolutionComponentToSolution(service, pluginSolutionUniqueName, postImage.ToEntityReference());
+
+
+                                }
+
+
+                                //Add the relevant preimages for each step
+                                //var registeredPreImage = registeredImages.FirstOrDefault(i => i.Name == "PreImage" && i.SdkMessageProcessingStepId.Id == stepToRegister.Id);
+
+                                if (convertedStep.PreImageUsed)
+                                {
+                                    var preImage = GetImageToRegister(service, stepToRegister.Id, convertedStep, true);
+                                    preImage.Id = service.Create(preImage);
+                                    AddSolutionComponentToSolution(service, pluginSolutionUniqueName, preImage.ToEntityReference());
+
+
+
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+            }
+
+
+        }
+
 
 
         public void Register<TPlugin>(string projectName)
@@ -79,6 +215,13 @@ namespace XrmFramework.DeployUtils
 
             AssemblyDiffFactory.ComputeAssemblyDiff(localAssembly, registeredAssembly);
 
+            InitMetadata(service, pluginSolutionUniqueName);
+            // Get the assembly that contains the classes Plugin, CustomWorkflowActivity and CustomApi that are needed in order to understand what will be registered
+            var pluginAssembly = typeof(TPlugin).Assembly;
+            //Get each possible type of plugin
+            var pluginType = pluginAssembly.GetType("XrmFramework.Plugin");
+            var customApiType = pluginAssembly.GetType("XrmFramework.CustomApi");
+            var workflowType = pluginAssembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");
 
             _flatAssemblyContext = _assemblyFactory.CreateFlatAssemblyContextFromAssemblyContext(localAssembly);
 
@@ -256,4 +399,6 @@ namespace XrmFramework.DeployUtils
             connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
         }
     }
+
+    
 }

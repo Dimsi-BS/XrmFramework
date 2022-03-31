@@ -43,6 +43,22 @@ namespace XrmFramework.Core
             }
         }
 
+        public void RemoveNonSelectedColumns()
+        {
+            List<string> keysToDelete = new List<string>();
+            foreach(var column in _columns)
+            {
+                if(!column.Value.Selected)
+                {
+                    keysToDelete.Add(column.Key);
+                    
+                }
+            }
+            foreach(var key in keysToDelete)
+            {
+                _columns.Remove(key);
+            }
+        }
         #region ICollection implementation
 
         public void Clear() => _columns.Clear();

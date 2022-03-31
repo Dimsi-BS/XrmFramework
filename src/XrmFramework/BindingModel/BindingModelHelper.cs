@@ -11,6 +11,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
 using XrmFramework.Model;
+using XrmFramework.Utils;
 using EntityReference = Microsoft.Xrm.Sdk.EntityReference;
 
 namespace XrmFramework.BindingModel
@@ -123,9 +124,11 @@ namespace XrmFramework.BindingModel
 
             var modelDefinition = DefinitionCache.GetModelDefinition(type);
 
-            var bindingModel = modelDefinition.GetInstance();
+            //var bindingModel = modelDefinition.GetInstance();
+            var bindingModel = ModelFactory.GetInstanceFromModel(modelDefinition);
 
-            modelDefinition.SetId(bindingModel, entity.Id);
+            //modelDefinition.SetId(bindingModel, entity.Id);
+            ModelFactory.SetId(modelDefinition, bindingModel, entity.Id);
 
             if (bindingModel is IEntityModel m)
             {
@@ -161,7 +164,8 @@ namespace XrmFramework.BindingModel
 
                 if (property.HasConverter)
                 {
-                    value = property.ConvertFrom(entity[crmAttribute.AttributeName]);
+                    //value = property.ConvertFrom(entity[crmAttribute.AttributeName]);
+                    value = ModelFactory.ConvertAttributeFrom(property, entity[crmAttribute.AttributeName]);
                 }
                 else
                 {
@@ -363,13 +367,15 @@ namespace XrmFramework.BindingModel
                             break;
                     }
                 }
-                property.SetValue(bindingModel, value);
+                //property.SetValue(bindingModel, value);
+                ModelFactory.SetAttributeValue(property, bindingModel, value);
             }
 
 
             foreach (var property in modelDefinition.ExtendBindingAttributes)
             {
-                property.SetValue(bindingModel, entity.CachedToBindingModel(property.PropertyType, cache));
+                //property.SetValue(bindingModel, entity.CachedToBindingModel(property.PropertyType, cache));
+                ModelFactory.SetAttributeValue(property, bindingModel, entity.CachedToBindingModel(property.PropertyType, cache));
             }
 
             foreach (var property in modelDefinition.RelationshipAttributes)
@@ -377,13 +383,14 @@ namespace XrmFramework.BindingModel
                 var relationship = property.Relationship;
                 Type bindingType;
 
-                if (entity.RelatedEntities.Keys.Any(r => r.SchemaName == relationship.SchemaName) && property.IsCollectionProperty(out bindingType))
+                if (entity.RelatedEntities.Keys.Any(r => r.SchemaName == relationship.SchemaName) && ModelFactory.IsAttributeCollectionProperty(property,out bindingType))//property.IsCollectionProperty(out bindingType))
                 {
                     foreach (var entityTemp in entity.RelatedEntities.First(r => r.Key.SchemaName == relationship.SchemaName).Value.Entities)
                     {
                         var model = entityTemp.CachedToBindingModel(bindingType, cache);
 
-                        property.AddElement(bindingModel, model);
+                        //property.AddElement(bindingModel, model);
+                        ModelFactory.AddElementToAttribute(property, bindingModel, model);
                     }
                 }
             }
@@ -519,11 +526,13 @@ namespace XrmFramework.BindingModel
                     continue;
                 }
 
-                var value = property.GetValue(bindingModel);
+                //var value = property.GetValue(bindingModel);
+                var value = ModelFactory.GetAttributeValue(property, bindingModel);
 
                 if (property.HasConverter)
                 {
-                    SetValue(entity, crmAttribute.AttributeName, property.ConvertFrom(value), keyInfos, isKey);
+                                                                //property.ConvertFrom(value)
+                    SetValue(entity, crmAttribute.AttributeName, ModelFactory.ConvertAttributeFrom(property,value), keyInfos, isKey);
                 }
                 else
                 {
@@ -634,7 +643,9 @@ namespace XrmFramework.BindingModel
 
             foreach (var property in modelDefinition.ExtendBindingAttributes)
             {
-                FillEntity(property.GetValue(bindingModel), service, fillRelatedEntities, entity, keyInfos);
+                FillEntity(ModelFactory.GetAttributeValue(property,bindingModel), service, fillRelatedEntities, entity, keyInfos);
+
+                //FillEntity(property.GetValue(bindingModel), service, fillRelatedEntities, entity, keyInfos);
             }
 
             if (fillRelatedEntities)
@@ -653,7 +664,8 @@ namespace XrmFramework.BindingModel
 
                     var entityCollection = new EntityCollection();
 
-                    var values = property.GetValue(bindingModel) as IEnumerable;
+                    //var values = property.GetValue(bindingModel) as IEnumerable;
+                    var values = ModelFactory.GetAttributeValue(property, bindingModel) as IEnumerable;
                     var bindingType = property.PropertyType.GenericTypeArguments.First();
 
                     foreach (var value in values)
@@ -861,7 +873,8 @@ namespace XrmFramework.BindingModel
 
             var modelDefinition = DefinitionCache.GetModelDefinition(type);
 
-            var bindingModel = modelDefinition.GetInstance();
+            //var bindingModel = modelDefinition.GetInstance();
+            var bindingModel = ModelFactory.GetInstanceFromModel(modelDefinition);
 
             var properties = new Queue<AttributeDefinition>();
 
@@ -917,11 +930,14 @@ namespace XrmFramework.BindingModel
 
                         if (xmlAttribute.IsAttribute)
                         {
-                            property.SetValue(bindingModel, converter.ConvertFromXElement(new XElement(propElement.Name, propElement.Value)));
+                            //property.SetValue(bindingModel, converter.ConvertFromXElement(new XElement(propElement.Name, propElement.Value)));
+                            ModelFactory.SetAttributeValue(property, bindingModel, converter.ConvertFromXElement(new XElement(propElement.Name, propElement.Value)));
                         }
                         else
                         {
-                            property.SetValue(bindingModel, converter.ConvertFromXElement(propElement));
+                            //property.SetValue(bindingModel, converter.ConvertFromXElement(propElement));
+                            ModelFactory.SetAttributeValue(property, bindingModel, converter.ConvertFromXElement(propElement));
+
                         }
 
                     }
@@ -958,7 +974,8 @@ namespace XrmFramework.BindingModel
                             continue;
                         }
 
-                        var list = property.GetValue(bindingModel);
+                        //var list = property.GetValue(bindingModel);
+                        var list = ModelFactory.GetAttributeValue(property, bindingModel);
 
                         if (bindingType == typeof(string))
                         {
@@ -1000,8 +1017,8 @@ namespace XrmFramework.BindingModel
                     else if (typeof(IXmlModel).IsAssignableFrom(property.PropertyType))
                     {
                         var b = ((XElement)propElement).ToBindingModel(property.PropertyType);
-
-                        property.SetValue(bindingModel, b);
+                        ModelFactory.SetAttributeValue(property, bindingModel, b);
+                        //property.SetValue(bindingModel, b);
                     }
                     else
                     {
@@ -1106,7 +1123,8 @@ namespace XrmFramework.BindingModel
                                 break;
                         }
 
-                        property.SetValue(bindingModel, value);
+                        //property.SetValue(bindingModel, value);
+                        ModelFactory.SetAttributeValue(property, bindingModel, value);
                     }
                 }
 
@@ -1209,7 +1227,8 @@ namespace XrmFramework.BindingModel
                 var element = new XElement(xmlAttribute.RelativePath);
                 el.Add(element);
 
-                var propertyValue = property.GetValue(bindingModel);
+                //var propertyValue = property.GetValue(bindingModel);
+                var propertyValue = ModelFactory.GetAttributeValue(property, bindingModel);
 
                 if (xmlAttribute.ConverterType != null)
                 {
@@ -1225,7 +1244,7 @@ namespace XrmFramework.BindingModel
                 {
                     Type bindingType;
 
-                    if (property.IsCollectionProperty(out bindingType))
+                    if (ModelFactory.IsAttributeCollectionProperty(property,out bindingType))//property.IsCollectionProperty(out bindingType))
                     {
                         var xmlAttributeTemp = bindingType.GetCustomAttribute<XmlMappingAttribute>();
 
@@ -1234,7 +1253,8 @@ namespace XrmFramework.BindingModel
                             continue;
                         }
 
-                        var values = property.GetValue(bindingModel) as IEnumerable;
+                        //var values = property.GetValue(bindingModel) as IEnumerable;
+                        var values = ModelFactory.GetAttributeValue(property, bindingModel) as IEnumerable;
 
                         foreach (var value in values)
                         {
@@ -1348,7 +1368,8 @@ namespace XrmFramework.BindingModel
 
             if (typeof(IBindingModel).IsAssignableFrom(property.PropertyType))
             {
-                var bindingModel = (IBindingModel)property.GetValue(model);
+                //var bindingModel = (IBindingModel)property.GetValue(model);
+                var bindingModel = (IBindingModel)ModelFactory.GetAttributeValue(property, model);
 
                 if (bindingModel == null)
                 {
@@ -1364,7 +1385,8 @@ namespace XrmFramework.BindingModel
             }
             else
             {
-                foreach (IXmlModel value in (IEnumerable)property.GetValue(model))
+                //foreach (IXmlModel value in (IEnumerable)property.GetValue(model))
+                foreach (IXmlModel value in (IEnumerable)ModelFactory.GetAttributeValue(property, model)) 
                 {
                     FillUpsertRequests(value, service, container, extendedModel);
                 }
@@ -1536,7 +1558,7 @@ namespace XrmFramework.BindingModel
             foreach (var property in modelDefinition.RelationshipAttributes)
             {
                 Type bindingType;
-                if (property.IsCollectionProperty(out bindingType))
+                if (ModelFactory.IsAttributeCollectionProperty(property,out bindingType))// property.IsCollectionProperty(out bindingType))
                 {
                     var query = GetRetrieveAllQuery(bindingType);
 

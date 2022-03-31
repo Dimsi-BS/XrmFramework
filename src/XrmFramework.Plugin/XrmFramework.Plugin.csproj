@@ -49,8 +49,9 @@
 		<None Include="build\ServicesProject\ServicesProject.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\XrmFramework.MSBuild.Reflection\XrmFramework.MSBuild.Reflection.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj" />
+    <ProjectReference Include="..\XrmFramework.MSBuild.Reflection\XrmFramework.MSBuild.Reflection.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -12,22 +12,27 @@ namespace XrmFramework
 
         protected CustomApi(string methodName) : base(null, null)
         {
+            //Sets methodInfo and _isCustomApi
             SetCustomApiInfos(methodName);
 
+            //Loop through every property
             foreach (var property in GetType().GetProperties())
             {
                 var inArgumentAttribute = property.GetCustomAttribute<CustomApiInputAttribute>();
                 var outArgumentAttribute = property.GetCustomAttribute<CustomApiOutputAttribute>();
-
+                //The property has to have an input or output attribute (c'est quoi un attribute)
                 var argumentAttribute = (CustomApiArgumentAttribute)inArgumentAttribute ?? outArgumentAttribute;
 
+                // If it is neither then skip to next property
                 if (argumentAttribute == null)
                 {
                     continue;
                 }
 
+                
+                // Get the name if the attribute
                 var argumentName = argumentAttribute.Name ?? property.Name;
-
+                // Get property generic type ?
                 var objectType = property.PropertyType.GenericTypeArguments.Single();
 
                 CustomApiArgumentType argumentType;
@@ -101,9 +106,9 @@ namespace XrmFramework
                         argumentAttribute.LogicalEntityName,
                         argumentAttribute.IsOptional
                         });
-
+                // Add the newly created argument to the list
                 Arguments.Add(propertyValue);
-
+                // Set the property valye to the newly created argument ??? Pourquoi ?
                 property.SetValue(this, propertyValue);
             }
 
