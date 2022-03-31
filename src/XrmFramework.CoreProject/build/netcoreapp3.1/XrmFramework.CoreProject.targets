@@ -62,7 +62,7 @@
 		Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);FakeProperty=one"
 		ContinueOnError="true" />
 
-    <Exec Command="dotnet &quot;$(_XrmFrameworkLoggedServiceGenerator)&quot; &quot;$(ProjectOutputFile)&quot; &quot;$(ProjectFolderPath)\obj&quot; &quot;DependencyInjection&quot;" YieldDuringToolExecution="true" StandardErrorImportance="High" />
+    <Exec Command="dotnet &quot;$(_XrmFrameworkLoggedServiceGenerator)&quot; &quot;$(ProjectOutputFile)&quot; &quot;$([MSBuild]::Escape($(ProjectFolderPath)))\obj&quot; &quot;DependencyInjection&quot;" YieldDuringToolExecution="true" StandardErrorImportance="High" />
 
   </Target>
 

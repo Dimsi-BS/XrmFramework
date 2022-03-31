@@ -42,7 +42,7 @@
 
     <PropertyGroup>
       <_XrmFrameworkTaskDir Condition=" '$(_XrmFrameworkTaskDir)'=='' ">$([MSBuild]::Escape($(MSBuildThisFileDirectory)))tasks</_XrmFrameworkTaskDir>
-      <_XrmFrameworkLoggedServiceGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">$([MSBuild]::Escape($(_XrmFrameworkTaskDir)))\XrmFramework.MSBuild.Reflection.exe</_XrmFrameworkLoggedServiceGenerator>
+      <_XrmFrameworkLoggedServiceGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">XrmFramework.MSBuild.Reflection.exe</_XrmFrameworkLoggedServiceGenerator>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -62,7 +62,10 @@
      Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);FakeProperty=one"
      ContinueOnError="true" />
 
-    <Exec Command="$(_XrmFrameworkLoggedServiceGenerator) &quot;$(ProjectOutputFile)&quot; &quot;$(ProjectFolderPath)\obj&quot; &quot;LoggedServices&quot;" YieldDuringToolExecution="true" StandardErrorImportance="High" />
+    <Exec Command="$(_XrmFrameworkLoggedServiceGenerator) &quot;$(ProjectOutputFile)&quot; &quot;$([MSBuild]::Escape($(ProjectFolderPath)))\obj&quot; &quot;LoggedServices&quot;" 
+          WorkingDirectory="$([MSBuild]::Escape($(_XrmFrameworkTaskDir)))"
+          YieldDuringToolExecution="true" 
+          StandardErrorImportance="High" />
 
   </Target>
 

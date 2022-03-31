@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CheckCallbackVisibilityDescription" xml:space="preserve">
-    <value>The callback must be public, not static and not abstract</value>
+    <value>The callback must be public, not static and not abstract.</value>
   </data>
   <data name="CheckCallbackVisibilityMessageFormat" xml:space="preserve">
     <value>The Method '{0}.{1}' should be public, not static and not abstract</value>
@@ -127,7 +127,7 @@
     <value>Callback must be visible</value>
   </data>
   <data name="PluginVisibilityDescription" xml:space="preserve">
-    <value>A plugin class must be public</value>
+    <value>A plugin class must be public.</value>
   </data>
   <data name="PluginVisibilityMessageFormat" xml:space="preserve">
     <value>The Plugin class '{0}' should be public</value>
@@ -136,7 +136,7 @@
     <value>A plugin class must be public</value>
   </data>
   <data name="Xrm0010_Description" xml:space="preserve">
-    <value>Method not found</value>
+    <value>Method not found.</value>
   </data>
   <data name="Xrm0010_MessageFormat" xml:space="preserve">
     <value>The method '{0}' does not exist in type '{1}' or parent types</value>
@@ -145,7 +145,7 @@
     <value>Callback not found</value>
   </data>
   <data name="Xrm0011_Description" xml:space="preserve">
-    <value>Prefer using call to ...Definition.EntityName</value>
+    <value>Prefer using call to ...Definition.EntityName.</value>
   </data>
   <data name="Xrm0011_MessageFormat" xml:space="preserve">
     <value>Prefer using call to ...Definition.EntityName</value>
@@ -154,7 +154,7 @@
     <value>Prefer using call to ...Definition.EntityName</value>
   </data>
   <data name="Xrm0012_Description" xml:space="preserve">
-    <value>Reference the method by using the nameof expression pattern</value>
+    <value>Reference the method by using the nameof expression pattern.</value>
   </data>
   <data name="Xrm0012_MessageFormat" xml:space="preserve">
     <value>Use 'nameof' expression to reference parameter '{0}' name</value>
@@ -163,7 +163,7 @@
     <value>Use 'nameof' expression</value>
   </data>
   <data name="Xrm0013_Description" xml:space="preserve">
-    <value>The referenced element should be a method declared in the containing class</value>
+    <value>The referenced element should be a method declared in the containing class.</value>
   </data>
   <data name="Xrm0013_MessageFormat" xml:space="preserve">
     <value>The referenced element '{0}' should be a method declared in the containing class</value>
@@ -172,7 +172,7 @@
     <value>Invalid callback method</value>
   </data>
   <data name="Xrm0014_Description" xml:space="preserve">
-    <value>AddStep should be called from AddSteps method</value>
+    <value>AddStep should be called from AddSteps method.</value>
   </data>
   <data name="Xrm0014_MessageFormat" xml:space="preserve">
     <value>AddStep should be called from AddSteps method</value>
@@ -181,7 +181,7 @@
     <value>AddStep should be called from AddSteps method</value>
   </data>
   <data name="Xrm0100_Description" xml:space="preserve">
-    <value>BindingModel class should be partial</value>
+    <value>BindingModel class should be partial.</value>
   </data>
   <data name="Xrm0100_MessageFormat" xml:space="preserve">
     <value>Make the class partial</value>
@@ -190,7 +190,7 @@
     <value>BindingModel class should be partial</value>
   </data>
   <data name="Xrm0101_Description" xml:space="preserve">
-    <value>The object is missing Converter methods, please add "BindingModelSdkCodeGenerator" as a custom tool for the file</value>
+    <value>The object is missing Converter methods, please add "BindingModelSdkCodeGenerator" as a custom tool for the file.</value>
   </data>
   <data name="Xrm0101_MessageFormat" xml:space="preserve">
     <value>Converter methods not generated properly</value>
@@ -199,7 +199,7 @@
     <value>Converter methods not generated properly</value>
   </data>
   <data name="Xrm0200_Description" xml:space="preserve">
-    <value>Use Definition class .EntityName in CrmEntityAttribute declaration</value>
+    <value>Use Definition class .EntityName in CrmEntityAttribute declaration.</value>
   </data>
   <data name="Xrm0200_MessageFormat" xml:space="preserve">
     <value>Use Definition class .EntityName in CrmEntityAttribute declaration</value>

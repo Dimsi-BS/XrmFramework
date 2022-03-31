@@ -6,6 +6,10 @@
     <XrmFramework_Copyright>Copyright © XrmFramework Team</XrmFramework_Copyright>
     <XrmFramework_Authors>Christophe Gondouin and the XrmFramework Team</XrmFramework_Authors>
     <XrmFramework_Owners>XrmFramework Team</XrmFramework_Owners>
+
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +21,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" />
   </ItemGroup>
 
   <PropertyGroup>

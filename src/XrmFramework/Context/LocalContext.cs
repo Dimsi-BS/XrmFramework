@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using BoDi;
 using Microsoft.Xrm.Sdk;
 using XrmFramework.Definitions;
@@ -313,7 +314,12 @@ namespace XrmFramework
                 listParamValues.Add(ObjectContainer.Resolve(param.ParameterType));
             }
 
-            method.Invoke(obj, listParamValues.ToArray());
+            var result = method.Invoke(obj, listParamValues.ToArray());
+
+            if (result is Task taskResult)
+            {
+                Task.WaitAll(taskResult);
+            }
         }
     }
 }
