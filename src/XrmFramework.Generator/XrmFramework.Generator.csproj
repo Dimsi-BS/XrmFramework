@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\XrmFramework.Core\XrmFramework.Core.csproj" />
     <ProjectReference Include="..\XrmFramework.Utils\XrmFramework.Utils.csproj" />
   </ItemGroup>
 
