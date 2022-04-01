@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
 using Microsoft.Xrm.Sdk;
-using XrmFramework.RemoteDebugger.Common;
 
 namespace XrmFramework
 {

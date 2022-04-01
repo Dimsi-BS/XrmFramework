@@ -982,7 +982,7 @@ namespace XrmFramework.DefinitionManager
                                 {
 
                                     sb.AppendLine($"[AttributeMetadata(AttributeTypeCode.{col.Type.ToString()})]");
-                                    if (col.Type == AttributeTypeCode.Lookup)
+                                    if (col.Type.Equals(AttributeTypeCode.Lookup))
                                     {
                                         var relation = table.ManyToOneRelationships.FirstOrDefault(r => r.Name == col.LogicalName);
                                         if (relation != null)
