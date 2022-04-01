@@ -28,7 +28,7 @@ namespace XrmFramework.DeployUtils.Utils
             var workflowType = Assembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");
 
             var plugins = Assembly.GetTypes()
-                                  .Where(t =>    pluginType.IsAssignableFrom(t)
+                                  .Where(t => pluginType.IsAssignableFrom(t)
                                               && !customApiType.IsAssignableFrom(t)
                                               && t.IsPublic
                                               && !t.IsAbstract)
@@ -36,14 +36,14 @@ namespace XrmFramework.DeployUtils.Utils
                                   .ToList();
 
             var workflows = Assembly.GetTypes()
-                                    .Where(t =>    workflowType.IsAssignableFrom(t)
+                                    .Where(t => workflowType.IsAssignableFrom(t)
                                                 && !t.IsAbstract
                                                 && t.IsPublic)
-                                    .Select(t => _importer.CreateWorkflowFromType(t)) 
+                                    .Select(t => _importer.CreateWorkflowFromType(t))
                                     .ToList();
 
             var customApis = Assembly.GetTypes()
-                                     .Where(t =>    customApiType.IsAssignableFrom(t)
+                                     .Where(t => customApiType.IsAssignableFrom(t)
                                                  && t.IsPublic
                                                  && !t.IsAbstract)
                                      .Select(t => _importer.CreateCustomApiFromType(t))
@@ -102,6 +102,7 @@ namespace XrmFramework.DeployUtils.Utils
             return registeredAssembly;
         }
 
+
         public IFlatAssemblyContext CreateFlatAssemblyContextFromAssemblyContext(IAssemblyContext from)
         {
             var assembly = from.Assembly;
@@ -120,6 +121,7 @@ namespace XrmFramework.DeployUtils.Utils
             }
 
             var workflows = from.Workflows;
+
             var customApis = from.CustomApis;
             var customApiRequestParameters = new List<CustomApiRequestParameter>();
             var customApiResponseProperties = new List<CustomApiResponseProperty>();
