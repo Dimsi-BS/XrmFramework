@@ -739,7 +739,7 @@ namespace XrmFramework.DefinitionManager
 
                 
 
-                var fileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{table.Name}.definition.json");
+                var fileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{table.Name}.table");
                 
                 var definitionFolder = new DirectoryInfo($"../../../../../{CoreProjectName}/Definitions");
                 if (definitionFolder.Exists == false)
@@ -766,7 +766,7 @@ namespace XrmFramework.DefinitionManager
                     DefaultValueHandling = DefaultValueHandling.Ignore
                 });
 
-                var enumFileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/OptionSet.definition.json");
+                var enumFileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/OptionSet.table");
 
                 var definitionFolder = new DirectoryInfo($"../../../../../{CoreProjectName}/Definitions");
                 if (definitionFolder.Exists == false)
@@ -884,9 +884,9 @@ namespace XrmFramework.DefinitionManager
             FileInfo fileInfo;
             String text;
             Table currentTable;
-            foreach (string fileName in Directory.GetFiles($"../../../../../{CoreProjectName}/Definitions", "*.definition.json"))
+            foreach (string fileName in Directory.GetFiles($"../../../../../{CoreProjectName}/Definitions", "*.table"))
             {
-                if(!fileName.Contains("OptionSet.definition.json"))
+                if(!fileName.Contains("OptionSet.table"))
                 {
                     MessageBox.Show(fileName);
                     fileInfo = new FileInfo(fileName);
@@ -1031,7 +1031,7 @@ namespace XrmFramework.DefinitionManager
                                 }
                                 if (col.EnumName != null && col.EnumName != "")
                                 {
-                                    foreach(var e in _enums)
+                                    foreach(var e in table.Enums)
                                     {
                                         if(e.LogicalName == col.EnumName)
                                         {

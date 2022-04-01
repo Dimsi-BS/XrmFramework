@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Xrm.Sdk.Metadata;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -16,36 +17,46 @@ namespace XrmFramework.Generator.Generators
         public static void  GeneratorDefinitionClasses(string projectPath,string CoreProjectName)
         {
             TableCollection tables = new TableCollection();
+            List<OptionSetEnum> globalEnums = new List<OptionSetEnum>();
             FileInfo fileInfo;
             String text;
             Table currentTable;
-            List<OptionSetEnum> _enums = new();
 
 
-            foreach (string fileName in Directory.GetFiles($"{projectPath}/**", "*definition.json"))
+
+            foreach (string fileName in Directory.GetFiles($"{projectPath}/**", "*.table"))
             {
-                //Get OptionSetEnumCollection
-                fileInfo = new FileInfo(fileName);
-                text = File.ReadAllText(fileInfo.FullName);
-                JObject jTable = JObject.Parse(text);
-
-
-                currentTable = jTable.ToObject<Table>();
-                /*currentTable = JsonConvert.DeserializeObject<Table>(text,new JsonSerializerSettings
+                if (!fileName.Contains("OptionSet.table"))
                 {
-                    DefaultValueHandling = DefaultValueHandling.Ignore
-                });*/
+                    fileInfo = new FileInfo(fileName);
+                    text = File.ReadAllText(fileInfo.FullName);
+                    JObject jTable = JObject.Parse(text);
 
-                if (jTable["Cols"].Any())
-                {
-                    Column currentColumn;
-                    foreach (var jColumn in jTable["Cols"])
+
+                    currentTable = jTable.ToObject<Table>();
+                   
+
+                    if (jTable["Cols"].Any())
                     {
-                        currentColumn = jColumn.ToObject<Column>();
-                        currentTable.Columns.Add(currentColumn);
+                        Column currentColumn;
+                        foreach (var jColumn in jTable["Cols"])
+                        {
+                            currentColumn = jColumn.ToObject<Column>();
+                            currentTable.Columns.Add(currentColumn);
+                        }
                     }
+                    tables.Add(currentTable);
                 }
-                tables.Add(currentTable);
+                else
+                {
+                    fileInfo = new FileInfo(fileName);
+                    text = File.ReadAllText(fileInfo.FullName);
+                    globalEnums = JsonConvert.DeserializeObject<List<OptionSetEnum>>(text, new JsonSerializerSettings
+                    {
+                        DefaultValueHandling = DefaultValueHandling.Ignore
+                    });
+                }
+
             }
 
 
@@ -58,6 +69,7 @@ namespace XrmFramework.Generator.Generators
                 sb.AppendLine("using System.CodeDom.Compiler;");
                 sb.AppendLine("using System.ComponentModel.DataAnnotations;");
                 sb.AppendLine("using System.Diagnostics.CodeAnalysis;");
+                sb.AppendLine("using System.ComponentModel;");
                 sb.AppendLine("using XrmFramework;");
                 sb.AppendLine();
                 sb.AppendLine($"namespace {CoreProjectName}");
@@ -152,7 +164,7 @@ namespace XrmFramework.Generator.Generators
                                 }
                                 if (col.EnumName != null && col.EnumName != "")
                                 {
-                                    foreach (var e in _enums)
+                                    foreach (var e in table.Enums)
                                     {
                                         if (e.LogicalName == col.EnumName)
                                         {
@@ -225,9 +237,13 @@ namespace XrmFramework.Generator.Generators
 
 
 
+
+
                         }
 
                         sb.AppendLine("}");
+
+                        //if(table.Enums.Any(e=>table.Columns.Any())
 
                         if (table.Keys != null && table.Keys.Any())
                         {
@@ -436,6 +452,62 @@ namespace XrmFramework.Generator.Generators
                             sb.AppendLine("}");
                         }
 
+                        if (table.Enums.Any())
+                        {
+                            foreach (var ose in table.Enums)
+                            {
+                                sb.AppendLine();
+                                if (ose.IsGlobal)
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    var referencedColumns = table.Columns.Where(c => c.EnumName == ose.LogicalName);
+                                    //var attribute = def.ReferencedBy.First();
+
+                                    if (!referencedColumns.Any())
+                                    {
+                                        continue;
+                                    }
+                                    foreach (var col in referencedColumns)
+                                    {
+                                        sb.AppendLine(string.Format("[OptionSetDefinition({0}Definition.EntityName, {0}Definition.Columns.{1})]",
+                                        table.Name, col.Name));
+                                    }
+
+                                }
+
+                                sb.AppendLine($"public enum {ose.Name}");
+                                sb.AppendLine("{");
+
+                                using (sb.Indent())
+                                {
+
+                                    if (ose.HasNullValue)
+                                    {
+                                        sb.AppendLine("Null = 0,");
+                                    }
+
+                                    foreach (var val in ose.Values)
+                                    {
+                                        sb.AppendLine($"[Description(\"{val.Name}\")]");
+
+                                        if (!string.IsNullOrEmpty(val.ExternalValue))
+                                        {
+                                            sb.AppendLine($"[ExternalValue(\"{val.ExternalValue}\")]");
+                                        }
+
+                                        sb.AppendLine($"{val.Name} = {val.Value},");
+                                    }
+                                }
+
+                                sb.AppendLine("}");
+                            }
+
+                        }
+
+
                     }
 
                     sb.AppendLine("}");
@@ -454,7 +526,73 @@ namespace XrmFramework.Generator.Generators
                 }
 
                 File.WriteAllText(classFileInfo.FullName, sb.ToString());
+
+
+
+
+
+
             }
+
+            var fc = new IndentedStringBuilder();
+            fc.AppendLine("using System.ComponentModel;");
+            fc.AppendLine("using XrmFramework;");
+            fc.AppendLine();
+            fc.AppendLine($"namespace {CoreProjectName}");
+            fc.AppendLine("{");
+
+            using (fc.Indent())
+            {
+                foreach (var ose in globalEnums)
+                {
+                    fc.AppendLine();
+                    if (ose.IsGlobal)
+                    {
+                        fc.AppendLine($"[OptionSetDefinition(\"{ose.LogicalName}\")]");
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    fc.AppendLine($"public enum {ose.Name}");
+                    fc.AppendLine("{");
+
+                    using (fc.Indent())
+                    {
+
+                        if (ose.HasNullValue)
+                        {
+                            fc.AppendLine("Null = 0,");
+                        }
+
+                        foreach (var val in ose.Values)
+                        {
+                            fc.AppendLine($"[Description(\"{val.Name}\")]");
+
+                            if (!string.IsNullOrEmpty(val.ExternalValue))
+                            {
+                                fc.AppendLine($"[ExternalValue(\"{val.ExternalValue}\")]");
+                            }
+
+                            fc.AppendLine($"{val.Name} = {val.Value},");
+                        }
+                    }
+
+                    fc.AppendLine("}");
+                }
+            }
+            fc.AppendLine("}");
+
+
+
+
+            var optionSetFileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/GlobalOptionSet.definition.cs");
+
+            File.WriteAllText(optionSetFileInfo.FullName, fc.ToString());
+
+
+
 
         }
 
