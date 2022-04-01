@@ -3,11 +3,14 @@ using System.Activities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
 using XrmFramework.DeployUtils;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.RemoteDebugger;
+using XrmFramework.RemoteDebugger.Client.Configuration;
+using XrmFramework.RemoteDebugger.Client.Utils;
 
 namespace XrmFramework.RemoteDebugger.Common
 {
@@ -27,8 +30,25 @@ namespace XrmFramework.RemoteDebugger.Common
             //var plugins = RegistrationHelper.UpdateCrmData<P>("FrameworkTests.Plugins");
             //RegistrationHelper<XrmFramework.RemoteDebuggerPlugin>
 
+            var serviceProvider = ServiceCollectionHelper.ConfigureServiceProvider(solutionName);
 
-            RegistrationHelper.UpdateRemoteDebuggerPlugin<P>(solutionName);
+            var remoteDebuggerHelper = serviceProvider.GetRequiredService<RemoteDebuggerPluginHandler>();
+
+            Console.WriteLine($"You are about to modify the debug session");
+            Console.WriteLine($"Do you want to register new steps to debug ? (y/n)");
+            var r = Console.ReadLine();
+            while (r != "y" && r != "n")
+            {
+                Console.WriteLine($"Do you want to register new steps to debug ? (y/n)");
+                r = Console.ReadLine();
+            }
+            if (r == "n")
+            {
+                return;
+            }
+
+            remoteDebuggerHelper.UpdateDebugger<P>(solutionName);
+
             Manager.ContextReceived += remoteContext =>
                 {
                     // Create local service provider from remote context

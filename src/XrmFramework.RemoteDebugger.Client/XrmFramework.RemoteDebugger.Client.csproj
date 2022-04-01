@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
@@ -34,7 +34,6 @@
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\DataCollectionConverters.cs" Link="Converters\DataCollectionConverters.cs" />
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\EntityConverter.cs" Link="Converters\EntityConverter.cs" />
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\ObjectSerializationConverter.cs" Link="Converters\ObjectSerializationConverter.cs" />
-    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\DebuggerUnsecureConfig.cs" Link="DebuggerUnsecureConfig.cs" />
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\HybridConnection.cs" Link="HybridConnection.cs" />
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\IDebuggerCommunicationManager.cs" Link="IDebuggerCommunicationManager.cs" />
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\RemoteDebuggerMessage.cs" Link="RemoteDebuggerMessage.cs" />
