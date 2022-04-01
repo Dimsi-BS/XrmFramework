@@ -269,6 +269,28 @@ namespace XrmFramework.ModelManager
                     {
                         sb.AppendLine("[CrmMapping({correspondingTable.Name}Definition.Columns.Id)");
                         sb.AppendLine("public Guid Id { get; set; }");
+
+                        foreach(var prop in model.Properties)
+                        {
+                            var correspondingColumn = correspondingTable.Columns.FirstOrDefault(c => c.LogicalName == prop.LogicalName);
+                            {   
+                                if (correspondingColumn != null)
+                                {   //This property is a column
+                                    sb.AppendLine($"[CrmMapping({correspondingTable.Name}.Columns.{correspondingColumn.Name})]");
+                                    
+
+
+
+                                }
+                                else
+                                {
+                                    //This property is a OneToMany relation
+
+                                    var correspondingRelation = correspondingTable.OneToManyRelationships.FirstOrDefault(r => r.Name == prop.LogicalName);
+
+                                }
+                            }
+                        }
                     }
                     sb.AppendLine("}");
 
