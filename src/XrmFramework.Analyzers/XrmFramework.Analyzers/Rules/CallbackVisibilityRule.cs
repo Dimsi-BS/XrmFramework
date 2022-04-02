@@ -1,15 +1,16 @@
-﻿using System;
-using System.Linq;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System;
 using System.Collections.Immutable;
 using System.Composition;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+// ReSharper disable ArrangeObjectCreationWhenTypeEvident
 
 namespace XrmFramework.Analyzers
 {
@@ -21,14 +22,14 @@ namespace XrmFramework.Analyzers
         private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.CheckCallbackVisibilityDescription), Resources.ResourceManager, typeof(Resources));
         private const string Category = "Naming";
 
-        private static readonly DiagnosticDescriptor Rule = new(DiagnosticIds.CheckCallbackVisibility, Title, MessageFormat, Category, DiagnosticSeverity.Error, true, description: Description);
+        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticIds.Xrm0002Id, Title, MessageFormat, Category, DiagnosticSeverity.Error, true, description: Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
         public override void Initialize(AnalysisContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
-            
+
             context.EnableConcurrentExecution();
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
             context.RegisterSyntaxNodeAction(AnalyzeMethodAnalysis, SyntaxKind.MethodDeclaration);
@@ -65,7 +66,9 @@ namespace XrmFramework.Analyzers
 
                 foreach (var methodCall in methodCalls)
                 {
-                    var semanticModel = context.SemanticModel;//.Compilation.GetSemanticModel(methodCall.SyntaxTree);
+#pragma warning disable RS1030 // Do not invoke Compilation.GetSemanticModel() method within a diagnostic analyzer
+                    var semanticModel = context.SemanticModel.Compilation.GetSemanticModel(methodCall.SyntaxTree);
+#pragma warning restore RS1030 // Do not invoke Compilation.GetSemanticModel() method within a diagnostic analyzer
 
 
                     if (semanticModel.GetSymbolInfo(methodCall).Symbol is not IMethodSymbol calledMethodSymbol || calledMethodSymbol.Name != "AddStep" || calledMethodSymbol.ContainingType.Name != "Plugin")
@@ -117,7 +120,7 @@ namespace XrmFramework.Analyzers
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(CallbackVisibilityRuleCodeFixProvider)), Shared]
     public class CallbackVisibilityRuleCodeFixProvider : CodeFixProvider
     {
-        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(DiagnosticIds.CheckCallbackVisibility);
+        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(DiagnosticIds.Xrm0002Id);
 
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {

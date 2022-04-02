@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Threading.Tasks;
 using System.Composition;
-using Microsoft.CodeAnalysis.CodeActions;
+using System.Linq;
+using System.Threading.Tasks;
+// ReSharper disable ArrangeObjectCreationWhenTypeEvident
 
 namespace XrmFramework.Analyzers
 {
@@ -21,7 +22,7 @@ namespace XrmFramework.Analyzers
         private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.PluginVisibilityDescription), Resources.ResourceManager, typeof(Resources));
         private const string Category = "Syntax";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticIds.CheckPluginVisibility, Title, MessageFormat, Category, DiagnosticSeverity.Error, true, description: Description);
+        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticIds.Xrm0003Id, Title, MessageFormat, Category, DiagnosticSeverity.Error, true, description: Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
@@ -39,7 +40,7 @@ namespace XrmFramework.Analyzers
             if (context.Node is ClassDeclarationSyntax classDeclaration)
             {
                 var classSymbol = context.SemanticModel.GetDeclaredSymbol(classDeclaration);
-                
+
                 if (classSymbol == null || classSymbol.AllInterfaces.All(i => i.Name != "IPlugin"))
                 {
                     return;
@@ -71,7 +72,7 @@ namespace XrmFramework.Analyzers
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(PluginVisibilityRuleCodeFixProvider)), Shared]
     public class PluginVisibilityRuleCodeFixProvider : CodeFixProvider
     {
-        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(DiagnosticIds.CheckPluginVisibility);
+        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(DiagnosticIds.Xrm0003Id);
 
         public override FixAllProvider GetFixAllProvider()
         {
