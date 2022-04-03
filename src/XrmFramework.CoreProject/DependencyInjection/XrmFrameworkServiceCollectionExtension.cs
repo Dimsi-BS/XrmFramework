@@ -1,8 +1,9 @@
 #if !DISABLE_DI
 
-using System;
+using BoDi;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Xrm.Sdk;
+using System;
 using XrmFramework;
 using XrmFramework.DependencyInjection;
 
@@ -19,16 +20,16 @@ namespace Microsoft.Extensions.DependencyInjection
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IOrganizationService), sp =>
                 {
 #if NETCOREAPP
-                var service = new Microsoft.PowerPlatform.Dataverse.Client.ServiceClient(optionsBuilder.ConnectionString);
+                    var service = new Microsoft.PowerPlatform.Dataverse.Client.ServiceClient(optionsBuilder.ConnectionString);
 
-                if (optionsBuilder.UseWebApiForced)
-                {
-                    service.UseWebApi = optionsBuilder.WebApiUsage;
-                }
+                    if (optionsBuilder.UseWebApiForced)
+                    {
+                        service.UseWebApi = optionsBuilder.WebApiUsage;
+                    }
 
-                return service;
+                    return service;
 #else
-                return new Xrm.Tooling.Connector.CrmServiceClient(optionsBuilder.ConnectionString);
+                    return new Xrm.Tooling.Connector.CrmServiceClient(optionsBuilder.ConnectionString);
 #endif
                 }
 
@@ -39,6 +40,19 @@ namespace Microsoft.Extensions.DependencyInjection
                 return new ServiceContextBase(orgService);
             }, ServiceLifetime.Singleton));
 
+            serviceCollection.TryAdd(new ServiceDescriptor(typeof(IObjectContainer), sp =>
+            {
+                var serviceContext = sp.GetRequiredService<IServiceContext>();
+
+                var objectContainer = new ObjectContainer();
+
+                objectContainer.RegisterInstanceAs(serviceContext);
+
+                InternalDependencyProvider.RegisterDefaults(objectContainer);
+
+                return objectContainer;
+            }, ServiceLifetime.Scoped));
+
             RegisterServices(serviceCollection);
 
             return serviceCollection;
@@ -46,21 +60,15 @@ namespace Microsoft.Extensions.DependencyInjection
 
         static partial void RegisterServices(IServiceCollection serviceCollection);
 
-        private static void RegisterService<TIService, TImplementation>(IServiceCollection serviceCollection)
+        private static void RegisterService<TIService>(IServiceCollection serviceCollection)
             where TIService : IService
-            where TImplementation : DefaultService, IService
         {
-            var serviceDescriptor  = new ServiceDescriptor(typeof(TIService), sp =>
-                {
-                    var service = ActivatorUtilities.GetServiceOrCreateInstance<TImplementation>(sp);
+            var serviceDescriptor = new ServiceDescriptor(typeof(TIService), sp =>
+           {
+               var objectContainer = sp.GetRequiredService<IObjectContainer>();
 
-                    if (service is IInitializableService serviceWithSettings)
-                    {
-                        serviceWithSettings.Init();
-                    }
-
-                    return DynamicProxyLoggingDecorator.Decorate<TIService>(service);
-                }, ServiceLifetime.Scoped);
+               return objectContainer.Resolve(typeof(TIService));
+           }, ServiceLifetime.Scoped);
 
             serviceCollection.Add(serviceDescriptor);
         }

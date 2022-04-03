@@ -18,11 +18,4 @@
     <Content Include="templates\**\*" Exclude="templates\**\bin\**;templates\**\obj\**;templates\**\.vs\**" />
     <Compile Remove="**\*" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="templates\Plugin\initXrm.cmd" />
-  </ItemGroup>
-
-
-
 </Project>

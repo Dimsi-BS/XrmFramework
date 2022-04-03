@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace XrmFramework.DeployUtils.Generators
 {
@@ -16,9 +16,14 @@ namespace XrmFramework.DeployUtils.Generators
 
         public static void Generate(string loggedServiceFolder, IEnumerable<Type> types, Type iServiceType, Type defaultServiceType, Type iLoggedServiceType)
         {
+            if (!Directory.Exists(loggedServiceFolder))
+            {
+                Directory.CreateDirectory(loggedServiceFolder);
+            }
+
             Console.WriteLine("InternalDependencyProviderGenerator.Generate");
 
-            var namespaceSet = new HashSet<string>{ "BoDi"};
+            var namespaceSet = new HashSet<string> { "BoDi" };
 
             var sb = new IndentedStringBuilder();
 

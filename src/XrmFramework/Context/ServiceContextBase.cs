@@ -2,8 +2,8 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
-using System;
 using Microsoft.Xrm.Sdk.Query;
+using System;
 
 namespace XrmFramework
 {
@@ -13,7 +13,7 @@ namespace XrmFramework
 
         public ServiceContextBase(IOrganizationService service)
         {
-            Logger ??= LoggerFactory.GetLogger(this, Console.WriteLine);
+            Logger = LoggerFactory.GetLogger(this, Console.WriteLine);
             AdminOrganizationService = service;
             OrganizationService = service;
             CorrelationId = Guid.NewGuid();
@@ -44,14 +44,14 @@ namespace XrmFramework
             AdminOrganizationService = adminService;
         }
 
-        public Microsoft.Xrm.Sdk.IOrganizationService AdminOrganizationService
+        public IOrganizationService AdminOrganizationService
         {
             get;
         }
 
         public Guid CorrelationId { get; }
 
-        public Microsoft.Xrm.Sdk.IOrganizationService OrganizationService
+        public IOrganizationService OrganizationService
         {
             get;
         }

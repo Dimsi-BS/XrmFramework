@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using XrmFramework.Generator.Generators;
 
 namespace XrmFramework.DeployUtils.Generators
 {
@@ -10,6 +11,11 @@ namespace XrmFramework.DeployUtils.Generators
     {
         public static void GenerateMocks(string loggedServiceFolder, IEnumerable<Type> types, Type nullableAttributeType)
         {
+            if (!Directory.Exists(loggedServiceFolder))
+            {
+                Directory.CreateDirectory(loggedServiceFolder);
+            }
+
             foreach (var type in types)
             {
                 GenerateLogServiceFile(loggedServiceFolder, type, nullableAttributeType);
