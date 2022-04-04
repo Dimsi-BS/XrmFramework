@@ -350,6 +350,7 @@ namespace XrmFramework.Generator.Generators
                 if (param.ParameterType.IsPrimitive) continue;
                 if (param.ParameterType.IsEnum) continue;
                 if (param.HasDefaultValue) continue;
+                if (param.ParameterType == typeof(decimal)) continue;
 
                 if (param.ParameterType == typeof(string))
                 {
