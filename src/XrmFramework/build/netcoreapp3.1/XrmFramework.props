@@ -1,3 +1,7 @@
 ﻿<Project>
 
+  <ItemGroup>
+    <Compile Include="obj\LoggedServices\*.cs" />
+  </ItemGroup>
+
 </Project>
