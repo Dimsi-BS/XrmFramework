@@ -25,7 +25,6 @@
       <group targetFramework="netcoreapp3.1">
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="0.6.1" exclude="Build,Analyzers" />
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="0.6.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.Dynamics.Sdk.Messages" version="0.5.17" exclude="Build,Analyzers" />
         <dependency id="System.Reflection.DispatchProxy" version="4.7.1" exclude="Build,Analyzers" />
         <dependency id="XrmFramework.Analyzers" version="[$version$]" />
       </group>
