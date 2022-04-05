@@ -75,13 +75,14 @@ namespace XrmFramework.RemoteDebugger.Client.Utils
 
             var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(typeof(TPlugin));
 
-            Console.WriteLine("Fetching Debug Assembly...");
+            localAssembly.Workflows.Clear();
+            localAssembly.CustomApis.Clear();
 
+            Console.WriteLine("Fetching Debug Assembly...");
 
             var debugAssembly = _assemblyFactory.CreateFromDebugAssembly(_registrationService, "XrmFramework.RemoteDebuggerPlugin", out Guid debugPluginId);
 
-
-            Console.Write("Computing Difference...");
+            Console.WriteLine("Computing Difference...");
 
             AssemblyDiffFactory.ComputeAssemblyDiff(localAssembly, debugAssembly);
 
@@ -89,6 +90,7 @@ namespace XrmFramework.RemoteDebugger.Client.Utils
 
             _flatAssemblyContext = _assemblyFactory.CreateFlatAssemblyContextFromAssemblyContext(updatedDebugAssembly);
 
+            Console.WriteLine("Updating Steps...");
 
             DeleteAllComponents(_flatAssemblyContext.StepImages);
             DeleteAllComponents(_flatAssemblyContext.Steps);

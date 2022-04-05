@@ -16,12 +16,12 @@ namespace XrmFramework.RemoteDebugger.Client.Utils
     public class RemoteDebuggerAssemblyHandler : IRemoteDebuggerAssemblyHandler
     {
         private readonly IAssemblyFactory _assemblyFactory;
-        private readonly string _debugUser;
+        private readonly Guid _debugSessionId;
 
         public RemoteDebuggerAssemblyHandler(IAssemblyFactory assemblyFactory, IOptions<DebugSessionSettings> debugSettings)
         {
             _assemblyFactory = assemblyFactory;
-            _debugUser = debugSettings.Value.userUniqueUri;
+            _debugSessionId = debugSettings.Value.DebugSessionId;
         }
 
         public IAssemblyContext CreateFromDebugAssembly(IRegistrationService service, string debugAssemblyName, out Guid debugPluginId)
@@ -39,14 +39,17 @@ namespace XrmFramework.RemoteDebugger.Client.Utils
 
             foreach (var stepRaw in pluginRaw.Steps)
             {
-                var unsecureConfig = JsonConvert.DeserializeObject<DebugUnsecureConfig>(stepRaw.UnsecureConfig);
+                var unsecureConfig = JsonConvert.DeserializeObject<DebuggerUnsecureConfig>(stepRaw.UnsecureConfig);
+
                 //Skip if this user wasn't the one who registered this step
-                if (unsecureConfig.DebugUserUri != _debugUser) continue;
+                if (unsecureConfig.DebugSessionId != _debugSessionId) continue;
                 
                 var pluginName = unsecureConfig.PluginName;
                 var pluginParsed = new Plugin(pluginName);
 
                 var existingPlugin = AssemblyComparer.CorrespondingComponent(pluginParsed, debugAssemblyParsed.Plugins);
+                stepRaw.PluginTypeFullName = pluginName;
+
                 if (existingPlugin != null)
                 {
                     existingPlugin.AddChild(stepRaw);
@@ -71,10 +74,10 @@ namespace XrmFramework.RemoteDebugger.Client.Utils
 
             foreach (var plugin in from.Plugins)
             {
-                var unsecureConfig = new DebugUnsecureConfig()
+                var unsecureConfig = new DebuggerUnsecureConfig()
                 {
                     AssemblyQualifiedName = localPlugins.FirstOrDefault(p => p.FullName == plugin.FullName)?.AssemblyQualifiedName,
-                    DebugUserUri = _debugUser,
+                    DebugSessionId = _debugSessionId,
                     PluginName = plugin.FullName
                 };
 

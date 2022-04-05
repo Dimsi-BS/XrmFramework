@@ -1,25 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
-    <AssemblyName>XrmFramework.RemoteDebugger.Client</AssemblyName>
-    <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
-    <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
-    <PublicSign>$(XrmFramework_PublicSign)</PublicSign>
-    <PackageId>XrmFramework.RemoteDebugger.Client</PackageId>
+	<PropertyGroup>
+		<TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
+		<AssemblyName>XrmFramework.RemoteDebugger.Client</AssemblyName>
+		<AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
+		<SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
+		<PublicSign>$(XrmFramework_PublicSign)</PublicSign>
+		<PackageId>XrmFramework.RemoteDebugger.Client</PackageId>
 
-    <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.RemoteDebugger.Client.nuspec</NuspecFile>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>    
+		<NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.RemoteDebugger.Client.nuspec</NuspecFile>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 
-    <NoWarn>$(NoWarn);1591</NoWarn>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-	  
-  </PropertyGroup>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+	</PropertyGroup>
 
 
 	<ItemGroup>
@@ -27,32 +27,34 @@
 		<ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj" />
 	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\AliasedValueConverter.cs" Link="Converters\AliasedValueConverter.cs" />
-    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\ConditionExpressionConverter.cs" Link="Converters\ConditionExpressionConverter.cs" />
-    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\CustomKeyValuePairConverter.cs" Link="Converters\CustomKeyValuePairConverter.cs" />
-    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\DataCollectionConverters.cs" Link="Converters\DataCollectionConverters.cs" />
-    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\EntityConverter.cs" Link="Converters\EntityConverter.cs" />
-    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\ObjectSerializationConverter.cs" Link="Converters\ObjectSerializationConverter.cs" />
-    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\HybridConnection.cs" Link="HybridConnection.cs" />
-    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\IDebuggerCommunicationManager.cs" Link="IDebuggerCommunicationManager.cs" />
-    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\RemoteDebuggerMessage.cs" Link="RemoteDebuggerMessage.cs" />
-    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\RemoteDebuggerMessageType.cs" Link="RemoteDebuggerMessageType.cs" />
-    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\RemoteExecutionContext.cs" Link="RemoteExecutionContext.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\AliasedValueConverter.cs" Link="_Imports\XrmFramework\Converters\AliasedValueConverter.cs" />
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\ConditionExpressionConverter.cs" Link="_Imports\XrmFramework\Converters\ConditionExpressionConverter.cs" />
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\CustomKeyValuePairConverter.cs" Link="_Imports\XrmFramework\Converters\CustomKeyValuePairConverter.cs" />
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\DataCollectionConverters.cs" Link="_Imports\XrmFramework\Converters\DataCollectionConverters.cs" />
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\EntityConverter.cs" Link="_Imports\XrmFramework\Converters\EntityConverter.cs" />
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\ObjectSerializationConverter.cs" Link="_Imports\XrmFramework\Converters\ObjectSerializationConverter.cs" />
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Definitions\DebugSessionDefinition.cs" Link="_Imports\XrmFramework\RemoteDebugger\%(RecursiveDir)%(Filename)%(Extension)" />
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\HybridConnection.cs" Link="HybridConnection.cs" />
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\IDebuggerCommunicationManager.cs" Link="IDebuggerCommunicationManager.cs" />
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\RemoteDebuggerMessage.cs" Link="RemoteDebuggerMessage.cs" />
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\RemoteDebuggerMessageType.cs" Link="RemoteDebuggerMessageType.cs" />
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\RemoteExecutionContext.cs" Link="RemoteExecutionContext.cs" />
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\DebuggerUnsecureConfig.cs" Link="_Imports\XrmFramework\Configuration/DebuggerUnsecureConfig.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Relay" Version="2.0.15596" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Azure.Relay" Version="2.0.15596" />
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+	</ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.42" />
-    <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.42" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <Reference Include="System.Configuration" />
-  </ItemGroup>
-  <!--
+	<ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+		<PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.42" />
+		<PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.42" />
+		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+		<Reference Include="System.Configuration" />
+	</ItemGroup>
+	<!--
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="0.4.11" />
   </ItemGroup>-->

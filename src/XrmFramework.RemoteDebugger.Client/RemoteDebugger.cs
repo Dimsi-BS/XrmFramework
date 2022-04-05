@@ -30,22 +30,13 @@ namespace XrmFramework.RemoteDebugger.Common
             //var plugins = RegistrationHelper.UpdateCrmData<P>("FrameworkTests.Plugins");
             //RegistrationHelper<XrmFramework.RemoteDebuggerPlugin>
 
+            Console.WriteLine($"You are about to modify the debug session");
+
             var serviceProvider = ServiceCollectionHelper.ConfigureServiceProvider(solutionName);
+
 
             var remoteDebuggerHelper = serviceProvider.GetRequiredService<RemoteDebuggerPluginHandler>();
 
-            Console.WriteLine($"You are about to modify the debug session");
-            Console.WriteLine($"Do you want to register new steps to debug ? (y/n)");
-            var r = Console.ReadLine();
-            while (r != "y" && r != "n")
-            {
-                Console.WriteLine($"Do you want to register new steps to debug ? (y/n)");
-                r = Console.ReadLine();
-            }
-            if (r == "n")
-            {
-                return;
-            }
 
             remoteDebuggerHelper.UpdateDebugger<P>(solutionName);
 
@@ -107,8 +98,8 @@ namespace XrmFramework.RemoteDebugger.Common
                         {
                             // If a plugin or a custom API, juste create the instance and execute it using the local service provider
                             var plugin = (IPlugin)Activator.CreateInstance(pluginType, (string)null, (string)null);
-
                             plugin.Execute(serviceProvider);
+                            Manager.SendMessage(new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id));
                         }
                     });
 
