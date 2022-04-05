@@ -11,4 +11,15 @@
       <Private>true</Private>
     </Reference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="$(RootFolder)\$(XrmFrameworkCoreProjectName)\**\*.cs" Exclude="$(RootFolder)\$(XrmFrameworkCoreProjectName)\obj\**;$(RootFolder)\$(XrmFrameworkCoreProjectName)\bin\**" Link="__Imports\$(XrmFrameworkCoreProjectName)\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(RootFolder)\$(XrmFrameworkCoreProjectName)\obj\LoggedServices\*.cs" Link="__Imports\$(XrmFrameworkCoreProjectName)\LoggedServices\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(RootFolder)\$(XrmFrameworkCoreProjectName)\$(XrmFrameworkCoreProjectName).csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

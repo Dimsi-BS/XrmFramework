@@ -31,8 +31,6 @@
     <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <MSBuild Projects="$(ProjectFile)" Targets="Restore" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);FakeProperty=restore" ContinueOnError="false" />
-    <Message Importance="High" Text=">>>>>> Project DependencyProject Restored" />
-
   </Target>
 
   <Target Name="GenerateDependencyInjection" DependsOnTargets="RestoreDependencyProject" Condition="'$(XrmFrameworkDisableDependencyProjectGeneration)' == '' AND '$(BuildingProject)' == 'true'">
@@ -59,10 +57,10 @@
     <MSBuild
 		Projects="$(ProjectFile)"
 		Targets="Clean;Build"
-		Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);FakeProperty=one"
+		Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);RootFolder=$(RootFolder);FakeProperty=one"
 		ContinueOnError="true" />
 
-    <Exec Command="dotnet &quot;$(_XrmFrameworkLoggedServiceGenerator)&quot; &quot;$(ProjectOutputFile)&quot; &quot;$([MSBuild]::Escape($(ProjectFolderPath)))\obj&quot; &quot;DependencyInjection&quot;" YieldDuringToolExecution="true" StandardErrorImportance="High" />
+    <Exec Command="dotnet &quot;$(_XrmFrameworkLoggedServiceGenerator)&quot; &quot;$(ProjectOutputFile)&quot; &quot;$([MSBuild]::Escape($(ProjectFolderPath)))\obj&quot;" YieldDuringToolExecution="true" StandardErrorImportance="High" />
 
   </Target>
 

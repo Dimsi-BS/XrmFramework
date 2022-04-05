@@ -1,14 +1,15 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using System.Threading.Tasks;
+using XrmFramework.DeployUtils.Generators;
 
-namespace XrmFramework.DeployUtils.Generators
+namespace XrmFramework.Generator.Generators
 {
     public class LoggedServiceCodeGenerator : CodeGeneratorBase
     {
@@ -23,11 +24,11 @@ namespace XrmFramework.DeployUtils.Generators
 
         public string Generate(Type serviceType)
         {
-            var namespaces = new List<string> { "System.Diagnostics", "System", "XrmFramework"};
+            var namespaces = new List<string> { "System.Diagnostics", "System", "System.Runtime.CompilerServices" };
 
             namespaces.AddRange(serviceType.GetNamespaces());
 
-            if (serviceType.BaseType != null)
+            if (serviceType.BaseType != default)
             {
                 namespaces.Add(serviceType.BaseType.Namespace);
             }
@@ -41,7 +42,7 @@ namespace XrmFramework.DeployUtils.Generators
                     .Concat(GetAttributeNamespaces(p.CustomAttributes))));
 
             var isIService = serviceType.FullName == "XrmFramework.IService";
-            
+
             var builder = new IndentedStringBuilder();
 
             foreach (var ns in namespaces.Where(n => !string.IsNullOrEmpty(n)).OrderBy(n => n).Distinct())
@@ -55,7 +56,7 @@ namespace XrmFramework.DeployUtils.Generators
             builder
                 .AppendLine()
                 .Append("namespace ")
-                .AppendLine(serviceType.Namespace)
+                .AppendLine(serviceType.Namespace ?? throw new NotSupportedException($"Service type {serviceType} has no namespace"))
                 .AppendLine("{");
 
             using (builder.Indent())
@@ -63,7 +64,7 @@ namespace XrmFramework.DeployUtils.Generators
                 var className = $"Logged{serviceType.Name.Substring(1)}";
 
                 builder
-                    .AppendLine("[DebuggerStepThrough]")
+                    .AppendLine("[DebuggerStepThrough, CompilerGenerated]")
 
                     .Append("public class ")
                     .Append(_code.Identifier(className))
@@ -115,6 +116,8 @@ namespace XrmFramework.DeployUtils.Generators
 
         private void GenerateMethod(MethodInfo m, IndentedStringBuilder builder)
         {
+            var isAsyncMethod = typeof(Task).IsAssignableFrom(m.ReturnType);
+
             builder
                 .AppendLine()
                 .Append("public ");
@@ -125,6 +128,11 @@ namespace XrmFramework.DeployUtils.Generators
             }
             else
             {
+                if (isAsyncMethod)
+                {
+                    builder.Append("async ");
+                }
+
                 builder.Append(_code.Reference(m.ReturnType));
             }
 
@@ -153,10 +161,15 @@ namespace XrmFramework.DeployUtils.Generators
                     .AppendLine()
                     ;
 
-                if (m.ReturnType != typeof(void))
+                if (m.ReturnType != typeof(void) && m.ReturnType != typeof(Task))
                 {
                     builder
                         .Append("var returnValue = ");
+                }
+
+                if (isAsyncMethod)
+                {
+                    builder.Append("await ");
                 }
 
                 builder
@@ -170,7 +183,7 @@ namespace XrmFramework.DeployUtils.Generators
 
                 GetMethodLog(m, false, builder);
 
-                if (m.ReturnType != typeof(void))
+                if (m.ReturnType != typeof(void) && m.ReturnType != typeof(Task))
                 {
                     builder
                         .AppendLine()
@@ -269,8 +282,9 @@ namespace XrmFramework.DeployUtils.Generators
 
         private void GetMethodLog(MethodInfo method, bool start, IndentedStringBuilder builder)
         {
-            builder.Append("Log(")
-                .Append(_code.Literal(method.Name))
+            builder
+                .Append("Log(")
+                .Append(_code.Literal((method.DeclaringType != null ? $"{method.DeclaringType.Name}." : "") + method.Name))
                 .Append(", \"")
                 .Append(start ? "Start" : "End : duration = {0}");
 
@@ -302,7 +316,7 @@ namespace XrmFramework.DeployUtils.Generators
                 }
             }
 
-            if (!start && method.ReturnType != typeof(void))
+            if (!start && method.ReturnType != typeof(void) && method.ReturnType != typeof(Task))
             {
                 if (!builder.ToString().Contains(": "))
                 {

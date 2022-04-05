@@ -1,9 +1,10 @@
 ﻿
-using System;
 using BoDi;
+using System;
 
 namespace XrmFramework
 {
+    // ReSharper disable once PartialTypeWithSinglePart
     public static partial class InternalDependencyProvider
     {
         static partial void RegisterServices(IObjectContainer container);
@@ -13,6 +14,7 @@ namespace XrmFramework
             RegisterServices(container);
         }
 
+        // ReSharper disable once UnusedMember.Local
         private static void RegisterService<TIService, TImplementation, TLoggedService>(IObjectContainer container)
             where TIService : IService
             where TImplementation : class, TIService
@@ -25,6 +27,7 @@ namespace XrmFramework
                 var context = objectContainer.Resolve<IServiceContext>();
                 var service = objectContainer.Resolve<TImplementation>();
 
+                // ReSharper disable once SuspiciousTypeConversion.Global
                 if (service is IInitializableService serviceWithSettings)
                 {
                     serviceWithSettings.Init();

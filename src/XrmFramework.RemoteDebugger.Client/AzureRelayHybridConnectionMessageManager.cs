@@ -1,19 +1,15 @@
-﻿using System;
+﻿using Microsoft.Azure.Relay;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Concurrent;
 using System.Configuration;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.Relay;
-using Microsoft.Xrm.Sdk;
-using XrmFramework.RemoteDebugger;
+using XrmFramework.RemoteDebugger.Common;
 
-using Newtonsoft.Json;
-
-
-
-namespace XrmFramework.RemoteDebugger.Common
+namespace XrmFramework.RemoteDebugger.Client
 {
     public class AzureRelayHybridConnectionMessageManager : IRemoteDebuggerMessageManager
     {
@@ -22,7 +18,7 @@ namespace XrmFramework.RemoteDebugger.Common
         private static readonly ConcurrentDictionary<Guid, RemoteDebuggerMessage> MessageReceiveCache = new ConcurrentDictionary<Guid, RemoteDebuggerMessage>();
 
         public event Action<RemoteDebugExecutionContext> ContextReceived;
-        
+
         public AzureRelayHybridConnectionMessageManager()
         {
 
@@ -36,9 +32,9 @@ namespace XrmFramework.RemoteDebugger.Common
             // create a connection string with the listener profile
             Listener = new HybridConnectionListener(ConfigurationManager.ConnectionStrings["DebugConnectionString"].ConnectionString);
 
-            Listener.Connecting += (o, e) => { Console.WriteLine("Listener is connecting to Azure…"); };
-            Listener.Offline += (o, e) => { Console.WriteLine("Listener is about to go offline…"); };
-            Listener.Online += (o, e) => { Console.WriteLine("Listener is online…"); };
+            Listener.Connecting += (_, _) => { Console.WriteLine("Listener is connecting to Azure…"); };
+            Listener.Offline += (_, _) => { Console.WriteLine("Listener is about to go offline…"); };
+            Listener.Online += (_, _) => { Console.WriteLine("Listener is online…"); };
 
             Listener.RequestHandler = RequestHandler;
         }
@@ -53,14 +49,14 @@ namespace XrmFramework.RemoteDebugger.Common
 
             // Get the message object through deserialization
             var message = JsonConvert.DeserializeObject<RemoteDebuggerMessage>(requestContent);
-            // Cache it
-            CurrentResponseCache.AddOrUpdate(message.PluginExecutionId, context.Response, (guid, response) => context.Response);
-            
-            
+
+            CurrentResponseCache.AddOrUpdate(message.PluginExecutionId, context.Response, (_, _) => context.Response);
+
             if (message.MessageType == RemoteDebuggerMessageType.Context)
             {
                 // Get context info
                 var remoteContext = message.GetContext<RemoteDebugExecutionContext>();
+
                 OnContextReceived(remoteContext);
                 // Cache a response to be sent with the new context
                 MessageSendCache.TryAdd(remoteContext.Id, new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id));
@@ -91,7 +87,7 @@ namespace XrmFramework.RemoteDebugger.Common
             if (CurrentResponseCache.TryGetValue(message.PluginExecutionId, out var currentResponse))
             {
                 var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
-                
+
                 try
                 {
                     currentResponse.OutputStream.Write(bytes, 0, bytes.Length);

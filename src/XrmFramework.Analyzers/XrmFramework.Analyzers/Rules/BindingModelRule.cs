@@ -1,15 +1,4 @@
-﻿using System.Linq;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
-using System.Composition;
-using System.Threading;
-using Microsoft.CodeAnalysis.CodeActions;
-using XrmFramework.Analyzers.Utils;
+﻿// ReSharper disable ArrangeObjectCreationWhenTypeEvident
 
 namespace XrmFramework.Analyzers
 {/*

@@ -20,7 +20,9 @@
         "redirectStandardOutput": "false"
       },
       "manualInstructions": [
-        { "text": "Initialisation Console App" }
+        {
+          "text": "Initialisation Console App"
+        }
       ],
       "continueOnError": false,
       "description": "Finalize XrmFramework solution initialization"
