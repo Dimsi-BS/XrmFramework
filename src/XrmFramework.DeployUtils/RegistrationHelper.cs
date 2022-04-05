@@ -12,6 +12,7 @@ using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Utils;
 using XrmFramework.DeployUtils.Service;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace XrmFramework.DeployUtils
 {
@@ -33,10 +34,10 @@ namespace XrmFramework.DeployUtils
 
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
-            ServiceProvider serviceProvider;
-            var connectionString = NewMethod(projectName, out serviceProvider);
+            var serviceProvider = InitServiceProvider(projectName);
 
-            Console.WriteLine($"You are about to deploy on {connectionString} organization. If ok press any key.");
+            var solutionSettings = serviceProvider.GetRequiredService<IOptions<SolutionSettings>>();
+            Console.WriteLine($"You are about to deploy on organization:\n{solutionSettings.Value.ConnectionString.Replace(";", "\n")} If ok press any key.");
             Console.ReadKey();
             Console.WriteLine("Connecting to CRM...");
 
@@ -45,7 +46,7 @@ namespace XrmFramework.DeployUtils
             registrationHelper.Register<TPlugin>(projectName);
         }
 
-        private static string NewMethod(string projectName, out ServiceProvider serviceProvider)
+        private static IServiceProvider InitServiceProvider(string projectName)
         {
             var serviceCollection = new ServiceCollection();
 
@@ -56,9 +57,7 @@ namespace XrmFramework.DeployUtils
             serviceCollection.AddSingleton<IAssemblyFactory, AssemblyFactory>();
             serviceCollection.AddSingleton<RegistrationHelper>();
 
-            string pluginSolutionUniqueName;
-
-            ParseSolutionSettings(projectName, out pluginSolutionUniqueName, out string connectionString);
+            ParseSolutionSettings(projectName, out string pluginSolutionUniqueName, out string connectionString);
 
             serviceCollection.Configure<SolutionSettings>((settings) =>
             {
@@ -66,9 +65,7 @@ namespace XrmFramework.DeployUtils
                 settings.PluginSolutionUniqueName = pluginSolutionUniqueName;
             });
 
-            serviceProvider = serviceCollection.BuildServiceProvider();
-
-            return connectionString;
+            return serviceCollection.BuildServiceProvider();
         }
 
         protected void Register<TPlugin>(string projectName)

@@ -23,6 +23,10 @@ namespace XrmFramework.DeployUtils.Service
         {
             _client = new CrmServiceClient(settings.Value.ConnectionString);
         }
+        public RegistrationService(string connectionString)
+        {
+            _client = new CrmServiceClient(connectionString);
+        }
 
         public IEnumerable<PluginAssembly> GetAssemblies()
         {
