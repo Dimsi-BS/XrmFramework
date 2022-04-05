@@ -134,11 +134,9 @@ namespace XrmFramework
             // Construct the Local plug-in context.
             var localContext = new LocalPluginContext(serviceProvider);
 
-            localContext.Log($"Entity: {localContext.PrimaryEntityName}, Message: {localContext.MessageName}, Stage: {Enum.ToObject(typeof(Stages), localContext.Stage)}, Mode: {localContext.Mode}");
-
             localContext.Log($"\r\nClass {ChildClassName}");
-            localContext.Log($"\r\nUserId\t\t\t\t{localContext.UserId}\r\nInitiatingUserId\t{localContext.InitiatingUserId}");
-            localContext.Log($"\r\nStart : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}");
+            localContext.LogStart();
+
             sw.Restart();
 
 
@@ -176,11 +174,8 @@ namespace XrmFramework
                 // Create stage enum value with local context
                 var stage = Enum.ToObject(typeof(Stages), localContext.Stage);
                 sw.Restart();
-                localContext.Log("------------------ Input Variables (before) ------------------");
-                localContext.DumpInputParameters();
-                localContext.Log("\r\n------------------ Shared Variables (before) ------------------");
-                localContext.DumpSharedVariables();
-                localContext.Log("\r\n---------------------------------------------------------------");
+
+                localContext.LogContextEntry();
 
                 // Execute the action corresponding to each step
                 foreach (var step in steps)
@@ -238,14 +233,7 @@ namespace XrmFramework
                     localContext.Log($"{ChildClassName}.{step.Method.Name} End, duration : {sw.Elapsed}");
                 }
 
-                if (localContext.IsStage(Stages.PreValidation) || localContext.IsStage(Stages.PreOperation))
-                {
-                    localContext.Log("\r\n\r\n------------------ Input Variables (after) ------------------");
-                    localContext.DumpInputParameters();
-                    localContext.Log("\r\n------------------ Shared Variables (after) ------------------");
-                    localContext.DumpSharedVariables();
-                    localContext.Log("\r\n---------------------------------------------------------------");
-                }
+                localContext.LogContextExit();
             }
             catch (FaultException<OrganizationServiceFault> e)
             {
@@ -277,8 +265,7 @@ namespace XrmFramework
             finally
             {
                 localContext.Log($"Exiting {ChildClassName}.Execute()");
-
-                localContext.Log($"End : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}\r\n");
+                localContext.LogExit();
             }
         }
     }
