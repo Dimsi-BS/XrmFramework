@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
+// Currently USESLESS 
+
 namespace XrmFramework.Core
 {
     
@@ -23,10 +26,19 @@ namespace XrmFramework.Core
             {AttributeTypeCode.BigInt,"Long" },
             {AttributeTypeCode.Memo,"string" },
 
+            //{AttributeTypeCode.CalendarRules,"string" },
+            //{AttributeTypeCode.Status,"string" },
+            //{AttributeTypeCode.Uniqueidentifier,"Guid" },
+            //{AttributeTypeCode.Virtual,"string" },
+            //{AttributeTypeCode.State,"string" },
+            //{AttributeTypeCode.Money,"string" },
+            //{AttributeTypeCode.Owner,"string" },
             //{AttributeTypeCode.Lookup,"" },
             //{AttributeTypeCode.ManagedProperty,"" },
             //{AttributeTypeCode.Customer,"" },
             //{AttributeTypeCode.PartyList,"" },
+            //{AttributeTypeCode.PartyList,"string" },
+
 
         };
 

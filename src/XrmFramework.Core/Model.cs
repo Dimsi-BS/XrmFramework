@@ -11,10 +11,12 @@ namespace XrmFramework.Core
     public class Model
     {
         [JsonProperty("tName")]
-        public string tableName;
+        public string tableLogicalName;
 
         [JsonProperty("Name")]
         public string Name;
+
+        public string ModelNamespace;
 
         //Contains the logical name of the columns we want to include in the binding model
         [JsonProperty("Cols")]

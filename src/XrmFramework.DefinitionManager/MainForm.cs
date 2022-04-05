@@ -1013,6 +1013,10 @@ namespace XrmFramework.DefinitionManager
 
                                             
                                         }
+                                        else
+                                        {
+                                            MessageBox.Show("The corresponding relationShip is null ??");
+                                        }
 
 
 

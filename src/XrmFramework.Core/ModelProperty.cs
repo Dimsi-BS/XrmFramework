@@ -15,7 +15,10 @@ namespace XrmFramework.Core
         public string Name;
         [JsonProperty("UsePropCh")]
         public bool useOnPropertyChanged;
+        
         public string jsonName = null;
+        [JsonProperty("Type")]
+        public string TypeFullName;
 
     }
 }
