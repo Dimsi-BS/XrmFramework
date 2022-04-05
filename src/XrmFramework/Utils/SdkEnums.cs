@@ -146,13 +146,6 @@ namespace XrmFramework
         DateOnly = 1,
         TimeZoneIndependent = 2
     }
-    
-    public enum PluginRegistrationType
-    {
-        Plugin,
-        Workflow,
-        CustomApi
-    }
 
     public enum RegistrationState
     {
