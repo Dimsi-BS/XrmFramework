@@ -1,27 +1,25 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
-using XrmFramework.DeployUtils.Model;
-using XrmFramework.DeployUtils.Utils;
 using XrmFramework.DeployUtils.Service;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils
 {
     public class RegistrationHelper
     {
-        protected readonly IRegistrationService _registrationService;
-        protected readonly IAssemblyExporter _assemblyExporter;
-        protected readonly IAssemblyFactory _assemblyFactory;
-        protected IFlatAssemblyContext _flatAssemblyContext;
+        private readonly IRegistrationService _registrationService;
+        private readonly IAssemblyExporter _assemblyExporter;
+        private readonly IAssemblyFactory _assemblyFactory;
+        private IFlatAssemblyContext _flatAssemblyContext;
 
         public RegistrationHelper(IRegistrationService registrationService,
                                   IAssemblyExporter assemblyExporter,
@@ -135,12 +133,12 @@ namespace XrmFramework.DeployUtils
         private void CleanAssembly()
         {
             // Delete
-            DeleteAllComponents(_flatAssemblyContext.StepImages);
-            DeleteAllComponents(_flatAssemblyContext.Steps);
-            DeleteAllComponents(_flatAssemblyContext.Plugins);
-            DeleteAllComponents(_flatAssemblyContext.CustomApiRequestParameters);
-            DeleteAllComponents(_flatAssemblyContext.CustomApiResponseProperties);
-            DeleteAllComponents(_flatAssemblyContext.CustomApis);
+            _assemblyExporter.DeleteAllComponents(_flatAssemblyContext.StepImages);
+            _assemblyExporter.DeleteAllComponents(_flatAssemblyContext.Steps);
+            _assemblyExporter.DeleteAllComponents(_flatAssemblyContext.Plugins);
+            _assemblyExporter.DeleteAllComponents(_flatAssemblyContext.CustomApiRequestParameters);
+            _assemblyExporter.DeleteAllComponents(_flatAssemblyContext.CustomApiResponseProperties);
+            _assemblyExporter.DeleteAllComponents(_flatAssemblyContext.CustomApis);
 
             var customApisTypeToDelete = _flatAssemblyContext.CustomApis
                     .Where(x => x.RegistrationState == RegistrationState.ToDelete)
@@ -152,20 +150,20 @@ namespace XrmFramework.DeployUtils
 
         private void RegisterPlugins()
         {
-            CreateAllComponents(_flatAssemblyContext.Plugins);
-            CreateAllComponents(_flatAssemblyContext.Steps, doAddToSolution: true);
-            CreateAllComponents(_flatAssemblyContext.StepImages);
+            _assemblyExporter.CreateAllComponents(_flatAssemblyContext.Plugins);
+            _assemblyExporter.CreateAllComponents(_flatAssemblyContext.Steps, doAddToSolution: true);
+            _assemblyExporter.CreateAllComponents(_flatAssemblyContext.StepImages);
 
-            UpdateAllComponents(_flatAssemblyContext.Plugins);
-            UpdateAllComponents(_flatAssemblyContext.Steps);
-            UpdateAllComponents(_flatAssemblyContext.StepImages);
+            _assemblyExporter.UpdateAllComponents(_flatAssemblyContext.Plugins);
+            _assemblyExporter.UpdateAllComponents(_flatAssemblyContext.Steps);
+            _assemblyExporter.UpdateAllComponents(_flatAssemblyContext.StepImages);
         }
 
         private void RegisterWorkflows()
         {
-            CreateAllComponents(_flatAssemblyContext.Workflows);
+            _assemblyExporter.CreateAllComponents(_flatAssemblyContext.Workflows);
 
-            UpdateAllComponents(_flatAssemblyContext.Workflows);
+            _assemblyExporter.UpdateAllComponents(_flatAssemblyContext.Workflows);
         }
 
         private void RegisterCustomApis()
@@ -180,63 +178,15 @@ namespace XrmFramework.DeployUtils
                 customApi.PluginTypeId.Id = id;
             }
 
-            CreateAllComponents(_flatAssemblyContext.CustomApis, true, true);
-            CreateAllComponents(_flatAssemblyContext.CustomApiRequestParameters, true, true);
-            CreateAllComponents(_flatAssemblyContext.CustomApiResponseProperties, true, true);
+            _assemblyExporter.CreateAllComponents(_flatAssemblyContext.CustomApis, true, true);
+            _assemblyExporter.CreateAllComponents(_flatAssemblyContext.CustomApiRequestParameters, true, true);
+            _assemblyExporter.CreateAllComponents(_flatAssemblyContext.CustomApiResponseProperties, true, true);
 
-            UpdateAllComponents(_flatAssemblyContext.CustomApis);
-            UpdateAllComponents(_flatAssemblyContext.CustomApiRequestParameters);
-            UpdateAllComponents(_flatAssemblyContext.CustomApiResponseProperties);
+            _assemblyExporter.UpdateAllComponents(_flatAssemblyContext.CustomApis);
+            _assemblyExporter.UpdateAllComponents(_flatAssemblyContext.CustomApiRequestParameters);
+            _assemblyExporter.UpdateAllComponents(_flatAssemblyContext.CustomApiResponseProperties);
         }
 
-        protected void UpdateAllComponents<T>(IEnumerable<T> components) where T : ISolutionComponent
-        {
-            var updateComponents = components
-                .Where(x => x.RegistrationState == RegistrationState.ToUpdate)
-                .ToList();
-            foreach (var component in updateComponents)
-            {
-                var registeringComponent = _assemblyExporter.ToRegisterComponent(component);
-                _registrationService.Update(registeringComponent);
-            }
-        }
-
-        protected void CreateAllComponents<T>(IEnumerable<T> components,
-                                            bool doAddToSolution = false,
-                                            bool doFetchCode = false) where T : ISolutionComponent
-        {
-            var createComponents = components
-                .Where(x => x.RegistrationState == RegistrationState.ToCreate)
-                .ToList();
-
-            if (!createComponents.Any()) return;
-            int? entityTypeCode = doFetchCode ? _registrationService?.GetIntEntityTypeCode(createComponents.FirstOrDefault()?.EntityTypeName) : null;
-            foreach (var component in createComponents)
-            {
-                var registeringComponent = _assemblyExporter.ToRegisterComponent(component);
-                component.Id = _registrationService.Create(registeringComponent);
-                registeringComponent.Id = component.Id;
-                if (doAddToSolution)
-                {
-                    var addSolutionComponentRequest = _assemblyExporter.CreateAddSolutionComponentRequest(registeringComponent.ToEntityReference(), entityTypeCode);
-                    if (addSolutionComponentRequest != null)
-                    {
-                        _registrationService.Execute(addSolutionComponentRequest);
-                    }
-                }
-            }
-        }
-
-        protected void DeleteAllComponents<T>(IEnumerable<T> components) where T : ISolutionComponent
-        {
-            var deleteComponents = components
-                .Where(x => x.RegistrationState == RegistrationState.ToDelete)
-                .ToList();
-            foreach (var component in deleteComponents)
-            {
-                _registrationService.Delete(component.EntityTypeName, component.Id);
-            }
-        }
 
         public static void ParseSolutionSettings(string projectName, out string pluginSolutionUniqueName, out string connectionString)
         {

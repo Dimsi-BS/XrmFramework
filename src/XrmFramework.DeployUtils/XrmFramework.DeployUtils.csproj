@@ -40,28 +40,14 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
 	<ItemGroup>
 		<Compile Include="..\XrmFramework\Definitions\*.cs" Link="_Imports\XrmFramework\Definitions\%(RecursiveDir)%(Filename)%(Extension)" />
 		<Compile Include="..\XrmFramework\Attributes\*.cs" Link="_Imports\XrmFramework\Attributes\%(RecursiveDir)%(Filename)%(Extension)" />
-		<Reference Include="System.ComponentModel.DataAnnotations" />
 		<Compile Include="..\XrmFramework\Utils\Relationship.cs" Link="_Imports\XrmFramework\Utils\Relationship.cs" />
 		<Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="_Imports\XrmFramework\Utils\SdkEnums.cs" />
+		<Compile Include="..\XrmFramework\Utils\Statics.cs" Link="_Imports\XrmFramework\Utils\Statics.cs" />
 
+		<Reference Include="System.ComponentModel.DataAnnotations" />
 	</ItemGroup>
 
 </Project>
