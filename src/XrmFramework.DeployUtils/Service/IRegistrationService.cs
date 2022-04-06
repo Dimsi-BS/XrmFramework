@@ -1,14 +1,12 @@
 ﻿using Deploy;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Query;
 using System;
 using System.Collections.Generic;
-using XrmFramework.DeployUtils.Context;
 
 namespace XrmFramework.DeployUtils.Service
 {
-    public interface IRegistrationService : IOrganizationService, IDisposable
+    public interface IRegistrationService : IOrganizationService
     {
         IEnumerable<PluginAssembly> GetAssemblies();
 

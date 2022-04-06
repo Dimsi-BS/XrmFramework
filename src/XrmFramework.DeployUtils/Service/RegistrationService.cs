@@ -1,8 +1,6 @@
 ﻿using Deploy;
-using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Extensions.Options;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
@@ -11,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Configuration;
-using XrmFramework.DeployUtils.Context;
 
 namespace XrmFramework.DeployUtils.Service
 {
@@ -262,6 +259,7 @@ namespace XrmFramework.DeployUtils.Service
             return entityResponse.EntityMetadata.ObjectTypeCode.GetValueOrDefault();
         }
 
+        #region IOrganizationService proxy implementation
         public Guid Create(Entity entity)
         {
             return _client.Create(entity);
@@ -301,10 +299,6 @@ namespace XrmFramework.DeployUtils.Service
         {
             return _client.RetrieveMultiple(query);
         }
-
-        public void Dispose()
-        {
-            _client?.Dispose();
-        }
+        #endregion
     }
 }
