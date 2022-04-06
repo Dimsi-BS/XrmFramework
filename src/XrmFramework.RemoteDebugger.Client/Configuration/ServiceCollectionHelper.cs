@@ -30,7 +30,7 @@ namespace XrmFramework.RemoteDebugger.Client.Configuration
             serviceCollection.AddScoped<IAssemblyImporter, AssemblyImporter>();
             serviceCollection.AddSingleton<IAssemblyFactory, AssemblyFactory>();
             serviceCollection.AddSingleton<IRemoteDebuggerAssemblyHandler, RemoteDebuggerAssemblyHandler>();
-            serviceCollection.AddSingleton<RemoteDebuggerPluginHandler>();
+            serviceCollection.AddSingleton<RemoteDebuggerPluginHelper>();
 
 
             ChooseSolutionSettings(projectName, out string pluginSolutionUniqueName, out string connectionString);

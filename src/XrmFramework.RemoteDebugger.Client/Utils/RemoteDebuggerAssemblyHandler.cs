@@ -1,15 +1,13 @@
 ﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.DeployUtils.Utils;
 using XrmFramework.RemoteDebugger.Client.Configuration;
+
 
 namespace XrmFramework.RemoteDebugger.Client.Utils
 {
@@ -34,37 +32,30 @@ namespace XrmFramework.RemoteDebugger.Client.Utils
             debugAssemblyParsed.Assembly = debugAssemblyRaw.Assembly;
 
             var pluginRaw = debugAssemblyRaw.Plugins.FirstOrDefault();
-
             debugPluginId = pluginRaw.Id;
 
-            foreach (var stepRaw in pluginRaw.Steps)
-            {
-                var unsecureConfig = JsonConvert.DeserializeObject<DebuggerUnsecureConfig>(stepRaw.UnsecureConfig);
-
-                //Skip if this user wasn't the one who registered this step
-                if (unsecureConfig.DebugSessionId != _debugSessionId) continue;
-                
-                var pluginName = unsecureConfig.PluginName;
-                var pluginParsed = new Plugin(pluginName);
-
-                var existingPlugin = AssemblyComparer.CorrespondingComponent(pluginParsed, debugAssemblyParsed.Plugins);
-                stepRaw.PluginTypeFullName = pluginName;
-
-                if (existingPlugin != null)
+            pluginRaw.Steps
+                .Select(s => (s, s.StepConfiguration))
+                .Where(su => su.Item2.DebugSessionId == _debugSessionId)
+                .GroupBy(su => su.Item2.PluginName)
+                .Select(stepGroup =>
                 {
-                    existingPlugin.AddChild(stepRaw);
-                }
-                else
-                {
-                    pluginParsed.AddChild(stepRaw);
-                    debugAssemblyParsed.Plugins.Add(pluginParsed);
-                }
-            }
+                    var pluginParsed = new Plugin(stepGroup.Key);
+                    foreach (var step in stepGroup)
+                    {
+                        pluginParsed.Steps.Add(step.s);
+                    }
+                    pluginParsed.Id = pluginRaw.Id;
+
+                    return pluginParsed;
+                })
+                .ToList()
+                .ForEach(p => debugAssemblyParsed.Plugins.Add(p));
 
             return debugAssemblyParsed;
         }
 
-        public IAssemblyContext CreateDebugAssemblyFromAssembly(IAssemblyContext from, Type TPlugin, Guid debugPluginId)
+        public IAssemblyContext CreateDebugAssemblyFromAssembly(IAssemblyContext from, Type TPlugin)
         {
             var debugAssembly = new AssemblyContext();
 
@@ -74,20 +65,20 @@ namespace XrmFramework.RemoteDebugger.Client.Utils
 
             foreach (var plugin in from.Plugins)
             {
-                var unsecureConfig = new DebuggerUnsecureConfig()
-                {
-                    AssemblyQualifiedName = localPlugins.FirstOrDefault(p => p.FullName == plugin.FullName)?.AssemblyQualifiedName,
-                    DebugSessionId = _debugSessionId,
-                    PluginName = plugin.FullName
-                };
+                var assemblyQualifiedName = localPlugins.FirstOrDefault(p => p.FullName == plugin.FullName)?.AssemblyQualifiedName;
+                var pluginName = plugin.FullName;
 
                 foreach (var step in plugin.Steps)
                 {
-                    step.UnsecureConfig = JsonConvert.SerializeObject(unsecureConfig);
+                    var config = step.UnsecureConfig != null ? JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig) : new StepConfiguration();
+                    config.PluginName = pluginName;
+                    config.AssemblyQualifiedName = assemblyQualifiedName;
+                    config.DebugSessionId = _debugSessionId;
+
+                    step.UnsecureConfig = JsonConvert.SerializeObject(config);
                     debugPlugin.AddChild(step);
                 }
             }
-            debugPlugin.Id = debugPluginId;
             debugAssembly.Plugins.Add(debugPlugin);
 
             return debugAssembly;
