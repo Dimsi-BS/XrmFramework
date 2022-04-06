@@ -4,10 +4,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Service;
@@ -31,18 +28,18 @@ namespace XrmFramework.DeployUtils.Context
 
         private readonly List<SolutionComponent> _components = new();
         private readonly List<SdkMessageFilter> _filters = new();
-        private readonly Dictionary<string, EntityReference> _messages = new();
+        private readonly Dictionary<Messages, EntityReference> _messages = new();
         private readonly List<KeyValuePair<string, Guid>> _users = new();
 
 
 
-        public string SolutionName { get; private set; }
-        public Solution Solution => _solution == null ? InitSolution() : _solution;
-        public Publisher Publisher => _publisher == null ? InitPublisher() : _publisher;
+        public string SolutionName { get; }
+        public Solution Solution => _solution ?? InitSolution();
+        public Publisher Publisher => _publisher ?? InitPublisher();
 
         public List<SolutionComponent> Components => _components.Count == 0 ? InitComponents() : _components;
         public List<SdkMessageFilter> Filters => _filters.Count == 0 ? InitFilters() : _filters;
-        public Dictionary<string, EntityReference> Messages => _messages.Count == 0 ? InitMessages() : _messages;
+        public Dictionary<Messages, EntityReference> Messages => _messages.Count == 0 ? InitMessages() : _messages;
         public List<KeyValuePair<string, Guid>> Users => _users.Count == 0 ? InitUsers() : _users;
 
 
@@ -118,7 +115,7 @@ namespace XrmFramework.DeployUtils.Context
             return _components;
         }
 
-        private Dictionary<string, EntityReference> InitMessages()
+        private Dictionary<Messages, EntityReference> InitMessages()
         {
             var query = new QueryExpression(SdkMessageDefinition.EntityName);
             query.ColumnSet.AddColumns(SdkMessageDefinition.Columns.Id, SdkMessageDefinition.Columns.Name);
@@ -128,7 +125,7 @@ namespace XrmFramework.DeployUtils.Context
             _messages.Clear();
             foreach (SdkMessage e in messages)
             {
-                _messages.Add(e.Name, e.ToEntityReference());
+                _messages.Add(XrmFramework.Messages.GetMessage(e.Name), e.ToEntityReference());
             }
             return _messages;
         }

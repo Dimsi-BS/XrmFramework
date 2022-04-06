@@ -1,19 +1,13 @@
-﻿using Deploy;
-using Microsoft.Xrm.Sdk;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XrmFramework.Definitions;
-using XrmFramework.DeployUtils.Context;
-using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Model
 {
     public class StepImage : ISolutionComponent
     {
-        public StepImage(string message, bool isPreImage, Stages stage)
+        public StepImage(Messages message, bool isPreImage, Stages stage)
         {
             Message = message;
             Stage = stage;
@@ -23,18 +17,18 @@ namespace XrmFramework.DeployUtils.Model
         public Guid Id { get; set; }
 
         public Guid ParentId { get; set; }
-        public string Message { get; }
+        public Messages Message { get; }
         public Stages Stage { get; }
 
         public bool IsPreImage { get; set; }
 
         public bool IsUsed => UniversalImageUsedPrefix && ImageUsedPrefix && (AllAttributes || Attributes.Any());
 
-        private bool UniversalImageUsedPrefix => Message != Messages.Associate.ToString()
-                                              && Message != Messages.Lose.ToString()
-                                              && Message != Messages.Win.ToString();
+        private bool UniversalImageUsedPrefix => Message != Messages.Associate
+                                                 && Message != Messages.Lose
+                                                 && Message != Messages.Win;
 
-        private bool ImageUsedPrefix => IsPreImage ? Message != "Create" && Message != "Book" : Stage == Stages.PostOperation && Message != "Delete";
+        private bool ImageUsedPrefix => IsPreImage ? Message != Messages.Create && Message != Messages.Book : Stage == Stages.PostOperation && Message != Messages.Delete;
         public bool AllAttributes { get; set; }
         public List<string> Attributes { get; private set; } = new List<string>();
         public string JoinedAttributes => string.Join(",", Attributes);

@@ -1,14 +1,11 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Deploy;
-using Microsoft.Xrm.Sdk;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.Definitions;
-using XrmFramework.DeployUtils.Context;
-using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Model
 {
@@ -16,7 +13,7 @@ namespace XrmFramework.DeployUtils.Model
     {
         private Guid _id;
 
-        public Step(string pluginTypeName, string message, Stages stage, Modes mode, string entityName)
+        public Step(string pluginTypeName, Messages message, Stages stage, Modes mode, string entityName)
         {
             PluginTypeName = pluginTypeName;
             Message = message;
@@ -24,7 +21,7 @@ namespace XrmFramework.DeployUtils.Model
             Mode = mode;
             EntityName = entityName;
             PreImage = new StepImage(Message, true, stage);
-            PostImage = new StepImage(Message, false, stage);            
+            PostImage = new StepImage(Message, false, stage);
         }
 
 
@@ -39,7 +36,7 @@ namespace XrmFramework.DeployUtils.Model
             }
         }
         public string PluginTypeName { get; }
-        public string Message { get; }
+        public Messages Message { get; }
         public Stages Stage { get; }
         public Modes Mode { get; }
         public string EntityName { get; }
@@ -53,7 +50,7 @@ namespace XrmFramework.DeployUtils.Model
 
         public List<string> FilteringAttributes { get; } = new List<string>();
 
-        public StepImage PreImage  { get; set; }
+        public StepImage PreImage { get; set; }
 
         public StepImage PostImage { get; set; }
 
@@ -65,6 +62,9 @@ namespace XrmFramework.DeployUtils.Model
 
         public List<string> MethodNames { get; } = new List<string>();
         public string MethodsDisplayName => string.Join(",", MethodNames);
+
+        public StepConfiguration StepConfiguration => JsonConvert.DeserializeObject<StepConfiguration>(UnsecureConfig);
+
 
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
@@ -107,8 +107,8 @@ namespace XrmFramework.DeployUtils.Model
             get
             {
                 var res = new List<ISolutionComponent>();
-                if(PreImage.IsUsed) res.Add(PreImage);
-                if(PostImage.IsUsed) res.Add(PostImage);
+                if (PreImage.IsUsed) res.Add(PreImage);
+                if (PostImage.IsUsed) res.Add(PostImage);
                 return res;
             }
         }
@@ -116,7 +116,7 @@ namespace XrmFramework.DeployUtils.Model
         {
             if (!child.GetType().IsAssignableFrom(typeof(StepImage))) throw new ArgumentException("Step doesn't take this type of children");
             var stepChild = (StepImage)child;
-            if(stepChild.IsPreImage)
+            if (stepChild.IsPreImage)
             {
                 PreImage = stepChild;
             }

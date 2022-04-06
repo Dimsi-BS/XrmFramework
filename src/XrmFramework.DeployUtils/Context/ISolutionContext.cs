@@ -2,10 +2,6 @@
 using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Context
 {
@@ -17,7 +13,7 @@ namespace XrmFramework.DeployUtils.Context
 
         List<SolutionComponent> Components { get; }
         List<SdkMessageFilter> Filters { get; }
-        Dictionary<string, EntityReference> Messages { get; }
+        Dictionary<Messages, EntityReference> Messages { get; }
         List<KeyValuePair<string, Guid>> Users { get; }
 
         void InitMetadata();
