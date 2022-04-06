@@ -3,7 +3,7 @@
 namespace XrmFramework
 {
     [JsonObject(MemberSerialization.OptIn)]
-    internal partial class StepConfiguration
+    public partial class StepConfiguration
     {
         [JsonProperty("relName")]
         public string RelationshipName { get; set; }
