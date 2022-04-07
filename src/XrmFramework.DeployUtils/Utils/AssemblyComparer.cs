@@ -1,11 +1,7 @@
 ﻿using Deploy;
-using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using static XrmFramework.DeployUtils.Model.StepCollection;
 
@@ -41,14 +37,14 @@ namespace XrmFramework.DeployUtils.Utils
             {
                 case Plugin:
                     return false;
-                case Step:
-                    return _stepComparer.NeedsUpdate((Step)x, (Step)y);
-                case StepImage:
-                    return ((StepImage)x).JoinedAttributes != ((StepImage)y).JoinedAttributes;
-                case CustomApi:
-                    return NeedsUpdate((CustomApi)x, (CustomApi)y);
-                case ICustomApiComponent:
-                    return NeedsUpdate((ICustomApiComponent)x, (ICustomApiComponent)y);
+                case Step step:
+                    return _stepComparer.NeedsUpdate(step, (Step)y);
+                case StepImage image:
+                    return image.JoinedAttributes != ((StepImage)y).JoinedAttributes;
+                case CustomApi api:
+                    return NeedsUpdate(api, (CustomApi)y);
+                case ICustomApiComponent component:
+                    return NeedsUpdate(component, (ICustomApiComponent)y);
                 default:
                     throw new ArgumentException("SolutionComponent not recognised");
             }

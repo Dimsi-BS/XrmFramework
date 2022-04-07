@@ -16,5 +16,6 @@ namespace XrmFramework.DeployUtils.Utils
         void DeleteAllComponents<T>(IEnumerable<T> components) where T : ISolutionComponent;
         void UpdateAllComponents<T>(IEnumerable<T> components) where T : ISolutionComponent;
 
+        void InitExportMetadata(IEnumerable<Step> steps);
     }
 }

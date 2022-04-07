@@ -2,7 +2,6 @@
 using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -82,11 +81,11 @@ namespace XrmFramework.DeployUtils.Utils
 
         public Step CreateStepFromRemote(SdkMessageProcessingStep sdkStep, IEnumerable<SdkMessageProcessingStepImage> sdkImages)
         {
-            var entityName = _solutionContext.Filters.FirstOrDefault(f => f.SdkMessageFilterId == sdkStep.SdkMessageFilterId?.Id)?.PrimaryObjectTypeCode;
+            var entityName = sdkStep.EntityName;
 
 #pragma warning disable CS0612 // Type or member is obsolete
             var step = new Step(sdkStep.PluginTypeId.Name,
-                                sdkStep.SdkMessageId.Name,
+                                Messages.GetMessage(sdkStep.SdkMessageId.Name),
                                 (Stages)(int)sdkStep.StageEnum,
                                 (Modes)(int)sdkStep.ModeEnum,
                                 entityName);
@@ -97,12 +96,26 @@ namespace XrmFramework.DeployUtils.Utils
             step.ParentId = sdkStep.EventHandler.Id;
 
             step.FilteringAttributes.Add(sdkStep.FilteringAttributes);
-            step.ImpersonationUsername = sdkStep.ImpersonatingUserId?.Name;
+            step.ImpersonationUsername = sdkStep.ImpersonatingUserId?.Name ?? "";
             step.Order = (int)sdkStep.Rank;
             step.UnsecureConfig = sdkStep.Configuration;
 
-            var preImage = sdkImages.FirstOrDefault(i => i.ImageTypeEnum == sdkmessageprocessingstepimage_imagetype.PreImage
-                                                      && i.SdkMessageProcessingStepId.Id == sdkStep.Id);
+
+            CreateStepImageFromRemote(step, true, sdkImages);
+            CreateStepImageFromRemote(step, false, sdkImages);
+
+            return step;
+        }
+
+        private void CreateStepImageFromRemote(Step step, bool isPreImage,
+            IEnumerable<SdkMessageProcessingStepImage> stepImages)
+        {
+            var imageType = isPreImage
+                ? sdkmessageprocessingstepimage_imagetype.PreImage
+                : sdkmessageprocessingstepimage_imagetype.PostImage;
+            var preImage = stepImages.FirstOrDefault(i => i.ImageTypeEnum == imageType
+                                                          && i.SdkMessageProcessingStepId.Id == step.Id);
+
             if (preImage != null)
             {
                 step.PreImage.Id = preImage.Id;
@@ -110,17 +123,6 @@ namespace XrmFramework.DeployUtils.Utils
                 step.PreImage.AllAttributes = preImage.Attributes1 == null;
                 step.PreImage.Attributes.Add(preImage.Attributes1);
             }
-            var postImage = sdkImages.FirstOrDefault(i => i.ImageTypeEnum == sdkmessageprocessingstepimage_imagetype.PostImage
-                                                       && i.SdkMessageProcessingStepId.Id == sdkStep.Id);
-            if (postImage != null)
-            {
-                step.PostImage.Id = postImage.Id;
-                step.PostImage.ParentId = step.Id;
-                step.PostImage.AllAttributes = postImage.Attributes1 == null;
-                step.PostImage.Attributes.Add(postImage.Attributes1);
-            }
-
-            return step;
         }
 
         public Plugin CreatePluginFromRemote(PluginType pluginType, IEnumerable<Step> steps)
@@ -173,11 +175,11 @@ namespace XrmFramework.DeployUtils.Utils
 
         private Step FromXrmFrameworkStep(dynamic s)
         {
-            var step = new Step(s.Plugin.GetType().Name, s.Message.ToString(), (Stages)(int)s.Stage, (Modes)(int)s.Mode, s.EntityName);
+            var step = new Step(s.Plugin.GetType().Name, Messages.GetMessage(s.Message.ToString()), (Stages)(int)s.Stage, (Modes)(int)s.Mode, s.EntityName);
 
             step.PluginTypeFullName = s.Plugin.GetType().FullName;
             step.FilteringAttributes.AddRange(s.FilteringAttributes);
-            step.ImpersonationUsername = s.ImpersonationUsername;
+            step.ImpersonationUsername = s.ImpersonationUsername ?? "";
             step.Order = s.Order;
 
             step.PreImage.AllAttributes = s.PreImageAllAttributes;
@@ -192,7 +194,7 @@ namespace XrmFramework.DeployUtils.Utils
             step.Id = Guid.NewGuid();
             step.PreImage.Id = Guid.NewGuid();
             step.PostImage.Id = Guid.NewGuid();
-            
+
             return step;
         }
 

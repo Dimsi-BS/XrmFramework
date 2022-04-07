@@ -121,6 +121,11 @@ public class AssemblyExporter : IAssemblyExporter
             _registrationService.Update(registeringComponent);
     }
 
+    public void InitExportMetadata(IEnumerable<Step> steps)
+    {
+        _solutionContext.InitExportMetadata(steps);
+    }
+
     private Entity ToRegisterComponent(ISolutionComponent component)
     {
         switch (component.EntityTypeName)

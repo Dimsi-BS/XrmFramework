@@ -1,10 +1,7 @@
 ﻿using Deploy;
-using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
@@ -67,6 +64,7 @@ namespace XrmFramework.DeployUtils.Utils
             if (assembly != null)
             {
                 Console.WriteLine("Remote Assembly Exists, Fetching Components...");
+
                 var registeredPluginTypes = service.GetRegisteredPluginTypes(assembly.Id);
 
                 var registeredSteps = service.GetRegisteredSteps(assembly.Id);
@@ -78,9 +76,10 @@ namespace XrmFramework.DeployUtils.Utils
                 var registeredRequestParameters = service.GetRegisteredCustomApiRequestParameters(assembly.Id);
                 var registeredResponseProperties = service.GetRegisteredCustomApiResponseProperties(assembly.Id);
 
-                Console.WriteLine("Parsing...");
 
                 registeredPluginTypes = registeredPluginTypes.Where(p => !registeredCustomApis.Any(c => c.PluginTypeId.Id == p.Id)).ToList();
+
+                Console.WriteLine("Parsing...");
 
                 var steps = registeredSteps.Select(s => _importer.CreateStepFromRemote(s, registeredStepImages));
                 var pluginsAndWorkflows = registeredPluginTypes.Select(p => _importer.CreatePluginFromRemote(p, steps));

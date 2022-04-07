@@ -68,7 +68,7 @@ namespace XrmFramework.DeployUtils
 
         protected void Register<TPlugin>(string projectName)
         {
-            Console.Write("Fetching Local Assembly...");
+            Console.WriteLine("Fetching Local Assembly...");
 
             var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(typeof(TPlugin));
 
@@ -82,6 +82,8 @@ namespace XrmFramework.DeployUtils
             AssemblyDiffFactory.ComputeAssemblyDiff(localAssembly, registeredAssembly);
 
             _flatAssemblyContext = _assemblyFactory.CreateFlatAssemblyContextFromAssemblyContext(localAssembly);
+
+            _assemblyExporter.InitExportMetadata(_flatAssemblyContext.Steps);
 
             Console.WriteLine();
             Console.WriteLine("Registering assembly");
@@ -119,6 +121,7 @@ namespace XrmFramework.DeployUtils
 
                 CleanAssembly();
 
+                Console.WriteLine();
                 Console.WriteLine("Updating plugin assembly");
 
                 _registrationService.Update(_flatAssemblyContext.Assembly);
