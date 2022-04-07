@@ -111,33 +111,33 @@ namespace XrmFramework.RemoteDebugger
 
             debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
 
-            #region checkers, if wrong returns null
-            var goodSession = true;
+            #region checkers, if wrong returns false
             if (debugSession == null)
             {
                 localContext.Log("debugSession is null");
+                return false;
             }
 
             if (debugSession.StateCode == DebugSessionState.Inactive)
             {
                 localContext.Log("Debug Session is inactive");
-                goodSession = false;
+                return false;
             }
 
-            if (initiatingUserId != debugSession.DebugeeId)
+            if (debugSession.DebugeeId != initiatingUserId)
             {
-                localContext.Log($"Debug Session Id : {debugSession.Id}");
-                localContext.Log($"Debuggee Id :\t {debugSession.DebugeeId}");
-                localContext.Log($"\nThis user was not meant to debug this step on this debug session");
-                goodSession = false;
+                localContext.Log($"Debugee Id: \t{debugSession.DebugeeId}");
+                localContext.Log("This user was not meant to debug this step on this debug session");
+                return false;
             }
+
             if (debugSession.SessionEnd <= DateTime.Today)
             {
                 localContext.Log("Debug Session expired, please contact your admin");
-                goodSession = false;
+                return false;
             }
             #endregion
-            return goodSession;
+            return true;
         }
     }
 }

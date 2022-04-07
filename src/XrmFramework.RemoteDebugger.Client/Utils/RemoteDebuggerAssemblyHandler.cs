@@ -34,7 +34,7 @@ namespace XrmFramework.RemoteDebugger.Client.Utils
             var pluginRaw = debugAssemblyRaw.Plugins.FirstOrDefault();
             debugPluginId = pluginRaw.Id;
 
-            pluginRaw.Steps
+            var pluginsParsed = pluginRaw.Steps
                 .Select(s => (s, s.StepConfiguration))
                 .Where(su => su.Item2.DebugSessionId == _debugSessionId)
                 .GroupBy(su => su.Item2.PluginName)
@@ -49,8 +49,9 @@ namespace XrmFramework.RemoteDebugger.Client.Utils
 
                     return pluginParsed;
                 })
-                .ToList()
-                .ForEach(p => debugAssemblyParsed.Plugins.Add(p));
+                .ToList();
+
+            pluginsParsed.ForEach(p => debugAssemblyParsed.Plugins.Add(p));
 
             return debugAssemblyParsed;
         }
@@ -70,7 +71,7 @@ namespace XrmFramework.RemoteDebugger.Client.Utils
 
                 foreach (var step in plugin.Steps)
                 {
-                    var config = step.UnsecureConfig != null ? JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig) : new StepConfiguration();
+                    var config = string.IsNullOrWhiteSpace(step.UnsecureConfig) ? new StepConfiguration() : JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig);
                     config.PluginName = pluginName;
                     config.AssemblyQualifiedName = assemblyQualifiedName;
                     config.DebugSessionId = _debugSessionId;
