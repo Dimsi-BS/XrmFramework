@@ -179,6 +179,13 @@ namespace XrmFramework.DeployUtils.Service
                                                PluginTypeDefinition.Columns.Id);
             linkPluginType.LinkCriteria.AddCondition(PluginTypeDefinition.Columns.PluginAssemblyId, ConditionOperator.Equal, assemblyId);
 
+            var filterLink = query.AddLink(SdkMessageFilterDefinition.EntityName,
+                SdkMessageProcessingStepDefinition.Columns.SdkMessageFilterId, SdkMessageFilterDefinition.Columns.Id);
+
+            filterLink.EntityAlias = "filter";
+            filterLink.Columns.AddColumn(SdkMessageFilterDefinition.Columns.PrimaryObjectTypeCode);
+
+
             var result = RetrieveAll(query);
             foreach (var type in result)
             {

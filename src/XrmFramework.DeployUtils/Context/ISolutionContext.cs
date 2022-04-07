@@ -2,6 +2,7 @@
 using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
+using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Context
 {
@@ -17,6 +18,9 @@ namespace XrmFramework.DeployUtils.Context
         List<KeyValuePair<string, Guid>> Users { get; }
 
         void InitMetadata();
+
+        void InitExportMetadata(IEnumerable<Step> steps);
+
 
 
     }

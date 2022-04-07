@@ -78,9 +78,9 @@ namespace XrmFramework.Definitions
             public const string SdkMessageId = "sdkmessageid";
 
             /// <summary>
-            /// Not automatically generated, some metadata my be wrong
             /// Type : String
             /// Validity :  Read | Create | Update | AdvancedFind | Dunno
+            /// (Not automatically generated, some metadata my be wrong)
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.String)]
             public const string PrimaryObjectTypeCode = "primaryobjecttypecode";

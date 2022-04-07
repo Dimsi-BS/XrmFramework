@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Configuration;
+using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Context
@@ -18,13 +19,14 @@ namespace XrmFramework.DeployUtils.Context
             _service = service;
 
             SolutionName = settings.Value.PluginSolutionUniqueName;
-
             InitSolution();
+            InitPublisher();
+            InitComponents();
         }
         private readonly IRegistrationService _service;
 
-        private Solution _solution = null;
-        private Publisher _publisher = null;
+        private Solution _solution;
+        private Publisher _publisher;
 
         private readonly List<SolutionComponent> _components = new();
         private readonly List<SdkMessageFilter> _filters = new();
@@ -34,13 +36,13 @@ namespace XrmFramework.DeployUtils.Context
 
 
         public string SolutionName { get; }
-        public Solution Solution => _solution ?? InitSolution();
-        public Publisher Publisher => _publisher ?? InitPublisher();
+        public Solution Solution => _solution;
+        public Publisher Publisher => _publisher;
+        public List<SolutionComponent> Components => _components;
 
-        public List<SolutionComponent> Components => _components.Count == 0 ? InitComponents() : _components;
-        public List<SdkMessageFilter> Filters => _filters.Count == 0 ? InitFilters() : _filters;
-        public Dictionary<Messages, EntityReference> Messages => _messages.Count == 0 ? InitMessages() : _messages;
-        public List<KeyValuePair<string, Guid>> Users => _users.Count == 0 ? InitUsers() : _users;
+        public List<SdkMessageFilter> Filters => _filters;
+        public Dictionary<Messages, EntityReference> Messages => _messages;
+        public List<KeyValuePair<string, Guid>> Users => _users;
 
 
 
@@ -48,15 +50,98 @@ namespace XrmFramework.DeployUtils.Context
         {
             Console.WriteLine("Metadata initialization");
 
-            InitFilters();
-
-            InitMessages();
+            InitSolution();
 
             InitPublisher();
 
             InitComponents();
 
+            InitFilters();
+
+            InitMessages();
+
             InitUsers();
+        }
+
+        public void InitExportMetadata(IEnumerable<Step> steps)
+        {
+            ImportUsersForSteps(steps);
+            ImportMessagesForSteps(steps);
+            ImportFiltersForSteps(steps);
+        }
+        private void ImportUsersForSteps(IEnumerable<Step> steps)
+        {
+            var interestingUsers = steps
+                .GroupBy(s => s.ImpersonationUsername)
+                .Select(g => g.Key);
+
+            var query = new QueryExpression(SystemUserDefinition.EntityName);
+            query.ColumnSet.AddColumn(SystemUserDefinition.Columns.DomainName);
+
+
+            query.Criteria.AddCondition(SystemUserDefinition.Columns.AccessMode, ConditionOperator.NotEqual, 3);
+            query.Criteria.AddCondition(SystemUserDefinition.Columns.IsDisabled, ConditionOperator.Equal, false);
+
+            query.Criteria.AddCondition(SystemUserDefinition.Columns.DomainName, ConditionOperator.NotNull);
+
+            query.Criteria.AddCondition(SystemUserDefinition.Columns.DomainName, ConditionOperator.In, interestingUsers.ToArray<object>());
+
+            foreach (var user in _service.RetrieveAll(query))
+            {
+                _users.Add(new KeyValuePair<string, Guid>(user.GetAttributeValue<string>(SystemUserDefinition.Columns.DomainName), user.Id));
+            }
+        }
+
+        private void ImportFiltersForSteps(IEnumerable<Step> steps)
+        {
+            var interestingMessages = steps
+                .GroupBy(m => m.Message)
+                .Select(g => g.Key.ToString());
+
+            var iterestingEntityNames = steps
+                .GroupBy(s => s.EntityName)
+                .Select(g => g.Key);
+
+            var query = new QueryExpression(SdkMessageFilterDefinition.EntityName);
+
+            query.ColumnSet.AddColumns(SdkMessageFilterDefinition.Columns.Id,
+                SdkMessageFilterDefinition.Columns.SdkMessageId,
+                SdkMessageFilterDefinition.Columns.PrimaryObjectTypeCode);
+            query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsCustomProcessingStepAllowed, ConditionOperator.Equal, true);
+            query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsVisible, ConditionOperator.Equal, true);
+
+            query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.PrimaryObjectTypeCode, ConditionOperator.In, iterestingEntityNames.ToArray<object>());
+
+            var messageLink = query.AddLink(SdkMessageDefinition.EntityName,
+                SdkMessageFilterDefinition.Columns.SdkMessageId, SdkMessageDefinition.Columns.Id);
+            messageLink.LinkCriteria.AddCondition(SdkMessageDefinition.Columns.Name, ConditionOperator.In, interestingMessages.ToArray<object>());
+
+            var filters = _service.RetrieveAll(query);
+
+            _filters.Clear();
+            _filters.AddRange(filters.Select(f => f.ToEntity<SdkMessageFilter>()));
+        }
+
+
+
+        private void ImportMessagesForSteps(IEnumerable<Step> steps)
+        {
+            var interestingMessages = steps
+                .GroupBy(m => m.Message)
+                .Select(g => g.Key.ToString());
+
+            var query = new QueryExpression(SdkMessageDefinition.EntityName);
+            query.ColumnSet.AddColumns(SdkMessageDefinition.Columns.Id, SdkMessageDefinition.Columns.Name);
+
+            query.Criteria.AddCondition(SdkMessageDefinition.Columns.Name, ConditionOperator.In, interestingMessages.ToArray<object>());
+
+            var messages = _service.RetrieveAll(query).Select(e => e.ToEntity<SdkMessage>());
+
+            _messages.Clear();
+            foreach (SdkMessage e in messages)
+            {
+                _messages.Add(XrmFramework.Messages.GetMessage(e.Name), e.ToEntityReference());
+            }
         }
 
         private List<KeyValuePair<string, Guid>> InitUsers()
@@ -74,7 +159,7 @@ namespace XrmFramework.DeployUtils.Context
         }
 
 
-        private Solution InitSolution()
+        private void InitSolution()
         {
             var query = new QueryExpression(SolutionDefinition.EntityName);
             query.ColumnSet.AllColumns = true;
@@ -94,15 +179,13 @@ namespace XrmFramework.DeployUtils.Context
                 Console.WriteLine("The solution {0} is managed in the CRM, modify App.config to point to a development environment.", SolutionName);
                 System.Environment.Exit(1);
             }
-            return _solution;
         }
-        private Publisher InitPublisher()
+        private void InitPublisher()
         {
             _publisher = _service.Retrieve(PublisherDefinition.EntityName, Solution.PublisherId.Id, new ColumnSet(true)).ToEntity<Publisher>();
-            return _publisher;
         }
 
-        private List<SolutionComponent> InitComponents()
+        private void InitComponents()
         {
             var query = new QueryExpression(SolutionComponentDefinition.EntityName);
             query.ColumnSet.AllColumns = true;
@@ -111,8 +194,6 @@ namespace XrmFramework.DeployUtils.Context
             var components = _service.RetrieveAll(query).Select(s => s.ToEntity<SolutionComponent>());
 
             _components.AddRange(components);
-
-            return _components;
         }
 
         private Dictionary<Messages, EntityReference> InitMessages()
