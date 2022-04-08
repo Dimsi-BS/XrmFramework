@@ -246,11 +246,10 @@ public class AssemblyExporter : IAssemblyExporter
     {
         // Issue with CRM SDK / Description field max length = 256 characters
         var descriptionAttributeMaxLength = 256;
-        var description =
-            $"{step.PluginTypeName} : {step.Stage} {step.Message} of {step.EntityName} ({step.MethodsDisplayName})";
+        var description = step.Description;
         description = description.Length <= descriptionAttributeMaxLength
-            ? description
-            : description.Substring(0, descriptionAttributeMaxLength - 4) + "...)";
+        ? description
+        : description.Substring(0, descriptionAttributeMaxLength - 4) + "...)";
 
         if (!string.IsNullOrEmpty(step.ImpersonationUsername))
         {

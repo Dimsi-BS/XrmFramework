@@ -1,15 +1,14 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System;
-using System.Configuration;
-using System.IO;
-using System.Linq;
-using Deploy;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
+using System;
+using System.Configuration;
+using System.IO;
+using System.Linq;
 using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
@@ -32,11 +31,7 @@ namespace XrmFramework.DeployUtils
             Console.ReadKey();
             Console.WriteLine(@"Connecting to CRM...");
 
-            CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
-
             var service = new CrmServiceClient(connectionString);
-
-            service.OrganizationServiceProxy?.EnableProxyTypes();
 
             var solution = GetSolutionByName(service, solutionName);
             if (solution == null)
@@ -222,7 +217,7 @@ namespace XrmFramework.DeployUtils
                 default:
                     throw new Exception("Unsupported extension: " + fi.Extension.Remove(0, 1).ToLower());
             }
-            
+
             var id = service.Create(wr);
 
             // Add current web resource to defined solution

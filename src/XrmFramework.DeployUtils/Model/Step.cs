@@ -100,6 +100,8 @@ namespace XrmFramework.DeployUtils.Model
             MethodNames.AddRange(step.MethodNames);
         }
 
+        public string Description => $"{PluginTypeName} : {Stage} {Message} of {EntityName} ({MethodsDisplayName})";
+
         public string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
         public string UniqueName => PluginTypeFullName;
         public IEnumerable<ISolutionComponent> Children
