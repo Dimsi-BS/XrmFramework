@@ -1,11 +1,8 @@
-﻿using System;
+﻿using Microsoft.Xrm.Sdk.Query;
 using System.Linq;
-using System.Net.Http;
-using Microsoft.Xrm.Sdk.Query;
-using Newtonsoft.Json;
 using XrmFramework.BindingModel;
-using XrmFramework.RemoteDebugger;
 using XrmFramework.Definitions;
+using XrmFramework.RemoteDebugger;
 
 // ReSharper disable once CheckNamespace
 namespace XrmFramework
@@ -16,7 +13,7 @@ namespace XrmFramework
         {
             if (!localContext.IsDebugContext)
             {
-                
+
 
                 localContext.Log("The context is genuine");
 
@@ -52,7 +49,7 @@ namespace XrmFramework
                     else
                     {
                         //Context will be sent by remote debugger plugin
-                        
+
                         return true;
                     }
                 }
@@ -61,7 +58,7 @@ namespace XrmFramework
                     localContext.Log("Debug session is null");
                     return false;
                 }
-                    
+
             }
             localContext.Log("Went false");
             return false;
