@@ -43,6 +43,7 @@ namespace XrmFramework.RemoteDebugger.Client.Utils
                     var pluginParsed = new Plugin(stepGroup.Key);
                     foreach (var step in stepGroup)
                     {
+                        step.s.PluginTypeFullName = step.StepConfiguration.PluginName;
                         pluginParsed.Steps.Add(step.s);
                     }
                     pluginParsed.Id = pluginRaw.Id;
