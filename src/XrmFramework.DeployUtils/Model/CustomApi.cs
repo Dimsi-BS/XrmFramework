@@ -1,13 +1,10 @@
-﻿using System;
+﻿using Microsoft.Xrm.Sdk;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Microsoft.Xrm.Sdk;
 using XrmFramework;
 using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
-using XrmFramework.DeployUtils.Utils;
 
 namespace Deploy
 {
@@ -30,11 +27,11 @@ namespace Deploy
         {
             switch (child)
             {
-                case CustomApiRequestParameter:
-                    InArguments.Add((CustomApiRequestParameter)child);
+                case CustomApiRequestParameter parameter:
+                    InArguments.Add(parameter);
                     break;
-                case CustomApiResponseProperty:
-                    OutArguments.Add((CustomApiResponseProperty)child);
+                case CustomApiResponseProperty property:
+                    OutArguments.Add(property);
                     break;
                 default:
                     throw new ArgumentException("CustomApi doesn't take this type of children");

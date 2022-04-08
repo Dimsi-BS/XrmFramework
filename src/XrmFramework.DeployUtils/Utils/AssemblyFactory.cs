@@ -115,8 +115,8 @@ namespace XrmFramework.DeployUtils.Utils
             var stepImages = new List<StepImage>();
             foreach (var step in steps)
             {
-                stepImages.Add(step.PreImage);
-                stepImages.Add(step.PostImage);
+                if (step.PreImage.RegistrationState == RegistrationState.NotComputed) stepImages.Add(step.PreImage);
+                if (step.PostImage.RegistrationState == RegistrationState.NotComputed) stepImages.Add(step.PostImage);
             }
 
             var workflows = from.Workflows;

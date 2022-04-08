@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Model
 {
@@ -66,32 +66,5 @@ namespace XrmFramework.DeployUtils.Model
         public bool IsReadOnly => ((ICollection<Step>)_internalList).IsReadOnly;
         #endregion
 
-        
-
-        public class StepComparer : IEqualityComparer<Step>
-        {
-            public bool Equals(Step x, Step y) =>
-                x == null && y == null 
-                ||  
-                x?.PluginTypeFullName == y?.PluginTypeFullName
-                && x?.EntityName == y?.EntityName
-                && x?.Message == y?.Message 
-                && x?.Stage == y?.Stage 
-                && x.Mode == y.Mode;
-
-            public int GetHashCode(Step obj)
-                => obj.PluginTypeName.GetHashCode() 
-                   + obj.EntityName.GetHashCode() 
-                   + obj.Message.GetHashCode() 
-                   + obj.Stage.GetHashCode() 
-                   + obj.Mode.GetHashCode();
-
-            public bool NeedsUpdate(Step x, Step y) =>
-                   x?.DoNotFilterAttributes != y?.DoNotFilterAttributes
-                || x.FilteringAttributes.Any() != x.FilteringAttributes.Any()
-                || string.Join(",", x.FilteringAttributes) != string.Join(",", y.FilteringAttributes)
-                || x?.UnsecureConfig != y?.UnsecureConfig
-                || x.ImpersonationUsername != y.ImpersonationUsername;
-        }
     }
 }

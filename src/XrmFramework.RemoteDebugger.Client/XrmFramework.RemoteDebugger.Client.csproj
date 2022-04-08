@@ -23,15 +23,16 @@
 
 
 	<ItemGroup>
-		<Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
-		<Compile Include="..\XrmFramework.DeployUtils\**\*.cs" Link="_Imports\XrmFramework.DeployUtils\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.DeployUtils\bin\**;..\XrmFramework.DeployUtils\obj\**" />
-		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\**\*.cs" Link="_Imports\XrmFramework.Plugin\RemoteDebugger\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\**\StepConfiguration*.cs;..\XrmFramework.Plugin\RemoteDebugger\RemoteDebugger.Remote\*.cs" />
+		<Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**;..\XrmFramework\**\*Dummy*.cs" />
+		<Compile Include="..\XrmFramework.DeployUtils\**\*.cs" Link="_Imports\XrmFramework.DeployUtils\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.DeployUtils\bin\**;..\XrmFramework.DeployUtils\obj\**;..\XrmFramework.DeployUtils\**\*partial*.cs" />
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\**\*.cs" Link="_Imports\XrmFramework.Plugin\RemoteDebugger\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\**\*partial*.cs;..\XrmFramework.Plugin\RemoteDebugger\RemoteDebugger.Remote\*.cs" />
 		<Compile Include="..\XrmFramework.Plugin\**\StepConfiguration*.cs" Link="Model\StepConfigurations\%(RecursiveDir)%(Filename)%(Extension)" />
 
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Azure.Relay" Version="2.0.15596" />
+		<PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.108" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />

@@ -194,7 +194,6 @@ namespace XrmFramework.DeployUtils.Utils
             step.Id = Guid.NewGuid();
             step.PreImage.Id = Guid.NewGuid();
             step.PostImage.Id = Guid.NewGuid();
-
             return step;
         }
 
@@ -258,7 +257,7 @@ namespace XrmFramework.DeployUtils.Utils
                 CustomApiId = new EntityReference(CustomApiDefinition.EntityName, default(Guid))
             };
 
-            if (typeof(T).IsAssignableFrom(typeof(CustomApiRequestParameter)))
+            if (argument is CustomApiRequestParameter)
             {
                 res.IsOptional = argument.IsOptional;
             }
