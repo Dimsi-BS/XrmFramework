@@ -29,7 +29,6 @@ namespace XrmFramework.RemoteDebugger.Client.Configuration
             serviceCollection.AddScoped<IAssemblyExporter, AssemblyExporter>();
             serviceCollection.AddScoped<IAssemblyImporter, AssemblyImporter>();
             serviceCollection.AddSingleton<IAssemblyFactory, AssemblyFactory>();
-            serviceCollection.AddSingleton<IRemoteDebuggerAssemblyHandler, RemoteDebuggerAssemblyHandler>();
             serviceCollection.AddSingleton<RemoteDebuggerPluginHelper>();
 
 

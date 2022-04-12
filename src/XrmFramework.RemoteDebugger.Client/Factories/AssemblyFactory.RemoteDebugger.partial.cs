@@ -5,26 +5,24 @@ using System.Linq;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
-using XrmFramework.DeployUtils.Utils;
 using XrmFramework.RemoteDebugger.Client.Configuration;
 
 
-namespace XrmFramework.RemoteDebugger.Client.Utils
+namespace XrmFramework.DeployUtils.Utils
 {
-    public class RemoteDebuggerAssemblyHandler : IRemoteDebuggerAssemblyHandler
+    public partial class AssemblyFactory
     {
-        private readonly IAssemblyFactory _assemblyFactory;
         private readonly Guid _debugSessionId;
 
-        public RemoteDebuggerAssemblyHandler(IAssemblyFactory assemblyFactory, IOptions<DebugSessionSettings> debugSettings)
+        public AssemblyFactory(IOptions<DebugSessionSettings> debugSettings, IAssemblyImporter importer)
         {
-            _assemblyFactory = assemblyFactory;
             _debugSessionId = debugSettings.Value.DebugSessionId;
+            _importer = importer;
         }
 
         public IAssemblyContext CreateFromDebugAssembly(IRegistrationService service, string debugAssemblyName, out Guid debugPluginId)
         {
-            var debugAssemblyRaw = _assemblyFactory.CreateFromRemoteAssemblyContext(service, debugAssemblyName);
+            var debugAssemblyRaw = CreateFromRemoteAssemblyContext(service, debugAssemblyName);
             var debugAssemblyParsed = new AssemblyContext();
             debugPluginId = Guid.Empty;
             if (debugAssemblyRaw.Assembly == null) return debugAssemblyParsed;
@@ -84,21 +82,6 @@ namespace XrmFramework.RemoteDebugger.Client.Utils
             debugAssembly.Plugins.Add(debugPlugin);
 
             return debugAssembly;
-        }
-
-        public IAssemblyContext CreateFromLocalAssemblyContext(Type TPlugin)
-        {
-            return _assemblyFactory.CreateFromLocalAssemblyContext(TPlugin);
-        }
-
-        public IAssemblyContext CreateFromRemoteAssemblyContext(IRegistrationService service, string assemblyName)
-        {
-            return _assemblyFactory.CreateFromRemoteAssemblyContext(service, assemblyName);
-        }
-
-        public IFlatAssemblyContext CreateFlatAssemblyContextFromAssemblyContext(IAssemblyContext from)
-        {
-            return _assemblyFactory.CreateFlatAssemblyContextFromAssemblyContext(from);
         }
     }
 }

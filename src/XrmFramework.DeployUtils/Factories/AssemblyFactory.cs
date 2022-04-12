@@ -8,7 +8,7 @@ using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Utils
 {
-    public class AssemblyFactory : IAssemblyFactory
+    public partial class AssemblyFactory : IAssemblyFactory
     {
         private readonly IAssemblyImporter _importer;
 
