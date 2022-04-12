@@ -1,29 +1,27 @@
-﻿using Microsoft.Xrm.Sdk;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using XrmFramework;
 using XrmFramework.Definitions;
-using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 
 namespace Deploy
 {
-    partial class CustomApi : ISolutionComponent
+    partial class CustomApi : ICrmComponent
     {
         public List<CustomApiRequestParameter> InArguments { get; } = new List<CustomApiRequestParameter>();
 
         public List<CustomApiResponseProperty> OutArguments { get; } = new List<CustomApiResponseProperty>();
-        public IEnumerable<ISolutionComponent> Children
+        public IEnumerable<ICrmComponent> Children
         {
             get
             {
-                var children = new List<ISolutionComponent>();
+                var children = new List<ICrmComponent>();
                 children.AddRange(InArguments);
                 children.AddRange(OutArguments);
                 return children;
             }
         }
-        public void AddChild(ISolutionComponent child)
+        public void AddChild(ICrmComponent child)
         {
             switch (child)
             {
@@ -38,9 +36,14 @@ namespace Deploy
             }
         }
 
+        public int Rank { get; } = 2;
+        public bool DoAddToSolution { get; } = true;
+        public bool DoFetchTypeCode { get; } = true;
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
         public Guid ParentId { get => PluginTypeId.Id; set => PluginTypeId.Id = value; }
+
+        public Guid AssemblyId { get; set; }
 
         public override Guid Id
         {
@@ -69,10 +72,6 @@ namespace Deploy
             set => UniqueName = $"{value}{Name}";
         }
 
-        public Entity ToRegisterComponent(ISolutionContext context)
-        {
-            return this;
-        }
         public string EntityTypeName => CustomApiDefinition.EntityName;
 
     }

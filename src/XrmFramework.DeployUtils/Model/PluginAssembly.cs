@@ -1,17 +1,12 @@
-﻿using Microsoft.Xrm.Sdk;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XrmFramework;
 using XrmFramework.Definitions;
-using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 
 namespace Deploy
 {
-    partial class PluginAssembly : ISolutionComponent
+    partial class PluginAssembly : ICrmComponent
     {
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
@@ -20,7 +15,11 @@ namespace Deploy
 
         public string UniqueName => Name;
 
-        public IEnumerable<ISolutionComponent> Children => new List<ISolutionComponent>();
-        public void AddChild(ISolutionComponent child) => throw new ArgumentException("PluginAssembly doesn't take children");
+        public IEnumerable<ICrmComponent> Children => new List<ICrmComponent>();
+        public void AddChild(ICrmComponent child) => throw new ArgumentException("PluginAssembly doesn't take children");
+
+        public int Rank { get; } = 0;
+        public bool DoAddToSolution { get; } = true;
+        public bool DoFetchTypeCode { get; } = false;
     }
 }

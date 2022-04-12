@@ -1,106 +1,106 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
-using static XrmFramework.DeployUtils.Model.StepCollection;
 
 namespace XrmFramework.DeployUtils.Utils
 {
     public class AssemblyDiffFactory
     {
-        private static StepComparer _stepComparer = new StepComparer();
-
-        public static void ComputeAssemblyDiff(IAssemblyContext x, IAssemblyContext y)
+        private readonly ICrmComponentComparer _comparer;
+        public AssemblyDiffFactory(ICrmComponentComparer comparer)
         {
-            if (y?.Assembly == null)
-            {
-                x.Assembly.RegistrationState = RegistrationState.ToCreate;
-            }
-            else
-            {
-                x.Assembly.RegistrationState = RegistrationState.ToUpdate;
-                x.Assembly.Id = y.Assembly.Id;
-
-                foreach(var plugin in x.Plugins)
-                {
-                    plugin.ParentId = y.Assembly.Id;
-                }
-                foreach(var workflow in x.Workflows)
-                {
-                    workflow.ParentId = y.Assembly.Id;
-                }
-
-                ComputeComponentDiffRoot(x.Plugins, y.Plugins);
-                ComputeComponentDiffRoot(x.Workflows, y.Workflows);
-                ComputeComponentDiffRoot(x.CustomApis, y.CustomApis);
-            }
+            _comparer = comparer;
         }
 
-        private static void ComputeComponentDiffRoot<T>(ICollection<T> from, ICollection<T> target) where T : ISolutionComponent
+        public IDiffPatch ComputeDiffFromPools(IAssemblyContext from, IAssemblyContext target)
         {
-            foreach (var component in from)
+            /*
+             * Some explanation here :
+             * Collections are ordered such as a component's parent is always before it.
+             * This way, once we encounter a parent whose all children can be computed fast (FlagAllFromComponent),
+             * We can compute them ahead of time and they won't be computed a second time when encountered later on.
+             * This is done because CorrespondingComponent is a costly function.
+             */
+            var fromPool = from.ComponentsOrderedPool;
+            var targetPool = target.ComponentsOrderedPool;
+
+            /*
+             * Reset registration states if already computed
+             */
+
+            #region Reset
+            if (fromPool.Any(c => c.RegistrationState != RegistrationState.NotComputed))
             {
-                var correspondingComponent = AssemblyComparer.CorrespondingComponent(component, target);
-                if (correspondingComponent == null)
+                foreach (var crmComponent in fromPool)
                 {
-                    FlagAllFromComponent(component, RegistrationState.ToCreate);
-                }
-                else
-                {
-                    ComputeComponentDiff(component, correspondingComponent);
+                    crmComponent.RegistrationState = RegistrationState.NotComputed;
                 }
             }
-            foreach (var component in target)
+
+            if (targetPool.Any(c => c.RegistrationState != RegistrationState.NotComputed))
             {
-                var correspondingComponent = AssemblyComparer.CorrespondingComponent(component, from);
-                if (correspondingComponent == null)
+                foreach (var crmComponent in targetPool)
                 {
-                    FlagAllFromComponent(component, RegistrationState.ToDelete);
-                    from.Add(component);
+                    crmComponent.RegistrationState = RegistrationState.NotComputed;
                 }
             }
+            #endregion
+
+
+            var diffComponents = new List<DiffComponent>();
+            foreach (var fromComponent in fromPool)
+            {
+                if (fromComponent.RegistrationState != RegistrationState.NotComputed)
+                {
+                    continue;
+                }
+                var targetComponent = _comparer.CorrespondingComponent(fromComponent, targetPool);
+                if (targetComponent == null)
+                {
+                    FlagAllFromComponent(fromComponent, diffComponents, RegistrationState.ToCreate);
+                    continue;
+                }
+
+                var diffComponent = new DiffComponent()
+                {
+                    Component = fromComponent,
+                    OriginalId = fromComponent.Id,
+                    OriginalParentId = fromComponent.ParentId,
+                    DiffResult = _comparer.NeedsUpdate(fromComponent, targetComponent)
+                        ? RegistrationState.ToUpdate
+                        : RegistrationState.Ignore
+                };
+                diffComponents.Add(diffComponent);
+
+                fromComponent.Id = targetComponent.Id;
+                fromComponent.ParentId = targetComponent.ParentId;
+
+                fromComponent.RegistrationState = RegistrationState.Computed;
+                targetComponent.RegistrationState = RegistrationState.Computed;
+            }
+
+            foreach (var targetComponent in targetPool)
+            {
+                if (targetComponent.RegistrationState != RegistrationState.NotComputed)
+                {
+                    continue;
+                }
+
+                FlagAllFromComponent(targetComponent, diffComponents, RegistrationState.ToDelete);
+            }
+
+            return new DiffPatch(diffComponents);
         }
 
-        private static void ComputeComponentDiff(ISolutionComponent from, ISolutionComponent target)
-        {
-            from.ParentId = target.ParentId;
-            from.Id = target.Id;
-            if(AssemblyComparer.NeedsUpdate(from, target))
-            {
-                from.RegistrationState = RegistrationState.ToUpdate;
-            }
-            else
-            {
-                from.RegistrationState = RegistrationState.Ignore;
-            }
-            foreach(var fromChild in from.Children)
-            {
-                var targetChild = AssemblyComparer.CorrespondingComponent(fromChild, target.Children);
-                if(targetChild == null)
-                {
-                    FlagAllFromComponent(fromChild, RegistrationState.ToCreate);
-                    fromChild.RegistrationState = RegistrationState.ToCreate;
-                }
-                else
-                {
-                    ComputeComponentDiff(fromChild, targetChild);
-                }
-            }
-            foreach(var targetChild in target.Children)
-            {
-                if(AssemblyComparer.CorrespondingComponent(targetChild, from.Children) == null)
-                {
-                    FlagAllFromComponent(targetChild, RegistrationState.ToDelete);
-                    from.AddChild(targetChild);
-                }
-            }
-        }
 
-        private static void FlagAllFromComponent(ISolutionComponent target, RegistrationState state)
+        private static void FlagAllFromComponent(ICrmComponent target, ICollection<DiffComponent> terminalStack, RegistrationState state)
         {
-            target.RegistrationState = state;
-            foreach(var child in target.Children)
+            terminalStack.Add(new DiffComponent(target, state));
+            target.RegistrationState = RegistrationState.Computed;
+            foreach (var child in target.Children)
             {
-                FlagAllFromComponent(child, state);
+                FlagAllFromComponent(child, terminalStack, state);
             }
         }
     }

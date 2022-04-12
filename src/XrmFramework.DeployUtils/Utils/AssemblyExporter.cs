@@ -81,43 +81,62 @@ public class AssemblyExporter : IAssemblyExporter
         return t;
     }
 
-    public void CreateAllComponents<T>(IEnumerable<T> components, bool doAddToSolution = false,
-        bool doFetchCode = false) where T : ISolutionComponent
+    public void CreateAllComponents(IEnumerable<ICrmComponent> createComponents)
     {
-        var createComponents = components
-            .Where(x => x.RegistrationState == RegistrationState.ToCreate)
-            .ToList();
+        if (!createComponents.Any())
+        {
+            return;
+        }
 
-        if (!createComponents.Any()) return;
-        var entityTypeCode = doFetchCode
-            ? _registrationService?.GetIntEntityTypeCode(createComponents.FirstOrDefault()?.EntityTypeName)
-            : null;
         foreach (var component in createComponents)
         {
+            int? entityTypeCode = component.DoFetchTypeCode
+                ? _registrationService.GetIntEntityTypeCode(component.EntityTypeName)
+                : null;
+
+            if (component is CustomApi customApi)
+            {
+                var customApiPluginType = ToRegisterPluginType(customApi.AssemblyId, customApi.FullName);
+                var id = _registrationService.Create(customApiPluginType);
+                customApi.PluginTypeId.Id = id;
+            }
+
             var registeringComponent = ToRegisterComponent(component);
             component.Id = _registrationService.Create(registeringComponent);
             registeringComponent.Id = component.Id;
-            if (!doAddToSolution) continue;
-            var addSolutionComponentRequest =
-                CreateAddSolutionComponentRequest(registeringComponent.ToEntityReference(), entityTypeCode);
-            if (addSolutionComponentRequest != null) _registrationService.Execute(addSolutionComponentRequest);
+
+            if (component.DoAddToSolution)
+            {
+                var addSolutionComponentRequest = CreateAddSolutionComponentRequest(registeringComponent.ToEntityReference(), entityTypeCode);
+
+                if (addSolutionComponentRequest != null)
+                {
+                    _registrationService.Execute(addSolutionComponentRequest);
+                }
+            }
+
+
         }
     }
 
-    public void DeleteAllComponents<T>(IEnumerable<T> components) where T : ISolutionComponent
+    public void DeleteAllComponents(IEnumerable<ICrmComponent> deleteComponents)
     {
-        var deleteComponents = components
-            .Where(x => x.RegistrationState == RegistrationState.ToDelete)
-            .ToList();
-        foreach (var component in deleteComponents) _registrationService.Delete(component.EntityTypeName, component.Id);
+        foreach (var component in deleteComponents)
+        {
+            _registrationService.Delete(component.EntityTypeName, component.Id);
+
+            if (component is CustomApi customApi)
+            {
+                _registrationService.Delete(PluginTypeDefinition.EntityName, customApi.PluginTypeId.Id);
+            }
+        }
     }
 
-    public void UpdateAllComponents<T>(IEnumerable<T> components) where T : ISolutionComponent
+    public void UpdateAllComponents(IEnumerable<ICrmComponent> updateComponents)
     {
-        var updateComponents = components
-            .Where(x => x.RegistrationState == RegistrationState.ToUpdate)
-            .ToList();
-        foreach (var registeringComponent in updateComponents.Select(component => ToRegisterComponent(component)))
+        var updatedComponents = updateComponents.Select(ToRegisterComponent);
+
+        foreach (var registeringComponent in updatedComponents)
             _registrationService.Update(registeringComponent);
     }
 
@@ -126,7 +145,7 @@ public class AssemblyExporter : IAssemblyExporter
         _solutionContext.InitExportMetadata(steps);
     }
 
-    private Entity ToRegisterComponent(ISolutionComponent component)
+    private Entity ToRegisterComponent(ICrmComponent component)
     {
         switch (component.EntityTypeName)
         {
@@ -144,20 +163,17 @@ public class AssemblyExporter : IAssemblyExporter
 
             case PluginTypeDefinition.EntityName:
                 var plugin = (Plugin)component;
-                if (plugin.IsWorkflow)
-                    return ToRegisterCustomWorkflowType(plugin);
-                else
-                    return ToRegisterPluginType((Plugin)component);
+                return plugin.IsWorkflow
+                    ? ToRegisterCustomWorkflowType(plugin)
+                    : ToRegisterPluginType((Plugin)component);
             case SdkMessageProcessingStepDefinition.EntityName:
                 return ToRegisterStep((Step)component);
 
             case SdkMessageProcessingStepImageDefinition.EntityName:
                 return ToRegisterImage((StepImage)component);
 
-            default: throw new ArgumentException("Unknown Solution Component given during Crm export");
+            default: throw new ArgumentException("Unknown Crm Component given during Crm export");
         }
-
-        throw new NotImplementedException();
     }
 
     public PluginAssembly ToPluginAssembly(Assembly assembly, Guid registeredId)

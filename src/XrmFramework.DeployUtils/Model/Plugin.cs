@@ -3,20 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using Deploy;
-using Microsoft.Xrm.Sdk;
 using XrmFramework.Definitions;
-using XrmFramework.DeployUtils.Context;
-using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Model
 {
-    public class Plugin : ISolutionComponent
+    public class Plugin : ICrmComponent
     {
         private Guid _id;
         public string EntityTypeName => PluginTypeDefinition.EntityName;
-
-
         public Plugin(string fullName)
         {
             FullName = fullName;
@@ -54,12 +48,16 @@ namespace XrmFramework.DeployUtils.Model
 
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
-        public IEnumerable<ISolutionComponent> Children => Steps;
-        public void AddChild(ISolutionComponent child)
+        public IEnumerable<ICrmComponent> Children => Steps;
+        public void AddChild(ICrmComponent child)
         {
-            if(!child.GetType().IsAssignableFrom(typeof(Step))) throw new ArgumentException("Plugin doesn't take this type of children");
+            if (!child.GetType().IsAssignableFrom(typeof(Step))) throw new ArgumentException("Plugin doesn't take this type of children");
             Steps.Add((Step)child);
         }
+
+        public int Rank { get; } = 1;
+        public bool DoAddToSolution { get; } = false;
+        public bool DoFetchTypeCode { get; } = false;
 
     }
 }

@@ -3,14 +3,17 @@ using System.Collections.Generic;
 
 namespace XrmFramework.DeployUtils.Model
 {
-    public interface ISolutionComponent
+    public interface ICrmComponent
     {
         string UniqueName { get; }
+        int Rank { get; }
+        bool DoAddToSolution { get; }
+        bool DoFetchTypeCode { get; }
         RegistrationState RegistrationState { get; set; }
         Guid Id { get; set; }
         Guid ParentId { get; set; }
         string EntityTypeName { get; }
-        IEnumerable<ISolutionComponent> Children { get; }
-        void AddChild(ISolutionComponent child);
+        IEnumerable<ICrmComponent> Children { get; }
+        void AddChild(ICrmComponent child);
     }
 }

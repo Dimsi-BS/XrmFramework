@@ -5,7 +5,7 @@ using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
 {
-    public class StepImage : ISolutionComponent
+    public class StepImage : ICrmComponent
     {
         public StepImage(Messages message, bool isPreImage, Stages stage)
         {
@@ -30,7 +30,7 @@ namespace XrmFramework.DeployUtils.Model
 
         private bool ImageUsedPrefix => IsPreImage ? Message != Messages.Create && Message != Messages.Book : Stage == Stages.PostOperation && Message != Messages.Delete;
         public bool AllAttributes { get; set; }
-        public List<string> Attributes { get; private set; } = new List<string>();
+        public List<string> Attributes { get; } = new List<string>();
         public string JoinedAttributes => string.Join(",", Attributes);
 
 
@@ -39,7 +39,11 @@ namespace XrmFramework.DeployUtils.Model
         public string EntityTypeName => SdkMessageProcessingStepImageDefinition.EntityName;
         public string UniqueName => "ISolutionComponent Implementation";
 
-        public IEnumerable<ISolutionComponent> Children => new List<ISolutionComponent>();
-        public void AddChild(ISolutionComponent child) => throw new ArgumentException("StepImage doesn't take children");
+        public Step FatherStep { get; set; }
+        public IEnumerable<ICrmComponent> Children => new List<ICrmComponent>();
+        public void AddChild(ICrmComponent child) => throw new ArgumentException("StepImage doesn't take children");
+        public int Rank { get; } = 3;
+        public bool DoAddToSolution { get; } = false;
+        public bool DoFetchTypeCode { get; } = false;
     }
 }

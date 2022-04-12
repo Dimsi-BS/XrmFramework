@@ -1,9 +1,7 @@
-﻿using Microsoft.Xrm.Sdk;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using XrmFramework;
 using XrmFramework.Definitions;
-using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 
 namespace Deploy
@@ -16,9 +14,13 @@ namespace Deploy
 
         public Guid ParentId { get => CustomApiId.Id; set => CustomApiId.Id = value; }
 
-        public IEnumerable<ISolutionComponent> Children => new List<ISolutionComponent>();
+        public IEnumerable<ICrmComponent> Children => new List<ICrmComponent>();
 
-        public void AddChild(ISolutionComponent child) => throw new ArgumentException("CustomApiRequestParameter doesn't take children");
+        public void AddChild(ICrmComponent child) => throw new ArgumentException("CustomApiRequestParameter doesn't take children");
+
+        public int Rank { get; } = 3;
+        public bool DoAddToSolution { get; } = true;
+        public bool DoFetchTypeCode { get; } = true;
 
     }
 }

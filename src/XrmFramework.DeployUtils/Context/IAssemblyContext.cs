@@ -1,8 +1,5 @@
 ﻿using Deploy;
-using Microsoft.Xrm.Sdk;
-using System;
 using System.Collections.Generic;
-using System.Reflection;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Context
@@ -15,5 +12,6 @@ namespace XrmFramework.DeployUtils.Context
         ICollection<Plugin> Workflows { get; }
         ICollection<CustomApi> CustomApis { get; }
 
+        IReadOnlyCollection<ICrmComponent> ComponentsOrderedPool { get; }
     }
 }

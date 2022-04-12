@@ -65,6 +65,7 @@ namespace XrmFramework.DeployUtils.Context
 
         public void InitExportMetadata(IEnumerable<Step> steps)
         {
+            if (!steps.Any()) return;
             ImportUsersForSteps(steps);
             ImportMessagesForSteps(steps);
             ImportFiltersForSteps(steps);

@@ -9,7 +9,7 @@ using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
 {
-    public class Step : ISolutionComponent
+    public class Step : ICrmComponent
     {
         private Guid _id;
 
@@ -20,8 +20,14 @@ namespace XrmFramework.DeployUtils.Model
             Stage = stage;
             Mode = mode;
             EntityName = entityName;
-            PreImage = new StepImage(Message, true, stage);
-            PostImage = new StepImage(Message, false, stage);
+            PreImage = new StepImage(Message, true, stage)
+            {
+                FatherStep = this
+            };
+            PostImage = new StepImage(Message, false, stage)
+            {
+                FatherStep = this
+            };
         }
 
 
@@ -103,21 +109,20 @@ namespace XrmFramework.DeployUtils.Model
         public string Description => $"{PluginTypeName} : {Stage} {Message} of {EntityName} ({MethodsDisplayName})";
 
         public string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
-        public string UniqueName => PluginTypeFullName;
-        public IEnumerable<ISolutionComponent> Children
+        public string UniqueName => $"{PluginTypeFullName}.{Stage}.{Message}.{EntityName}.{MethodsDisplayName}";
+        public IEnumerable<ICrmComponent> Children
         {
             get
             {
-                var res = new List<ISolutionComponent>();
+                var res = new List<ICrmComponent>();
                 if (PreImage.IsUsed) res.Add(PreImage);
                 if (PostImage.IsUsed) res.Add(PostImage);
                 return res;
             }
         }
-        public void AddChild(ISolutionComponent child)
+        public void AddChild(ICrmComponent child)
         {
-            if (!child.GetType().IsAssignableFrom(typeof(StepImage))) throw new ArgumentException("Step doesn't take this type of children");
-            var stepChild = (StepImage)child;
+            if (child is not StepImage stepChild) throw new ArgumentException("Step doesn't take this type of children");
             if (stepChild.IsPreImage)
             {
                 PreImage = stepChild;
@@ -127,6 +132,9 @@ namespace XrmFramework.DeployUtils.Model
                 PostImage = stepChild;
             }
         }
+        public int Rank { get; } = 2;
+        public bool DoAddToSolution { get; } = true;
+        public bool DoFetchTypeCode { get; } = false;
     }
 
 }

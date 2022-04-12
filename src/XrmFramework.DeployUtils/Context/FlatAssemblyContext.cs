@@ -1,9 +1,5 @@
 ﻿using Deploy;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Context
@@ -19,7 +15,24 @@ namespace XrmFramework.DeployUtils.Context
         public ICollection<Plugin> Workflows { get; set; }
         public ICollection<CustomApi> CustomApis { get; set; }
         public ICollection<CustomApiRequestParameter> CustomApiRequestParameters { get; set; }
-
         public ICollection<CustomApiResponseProperty> CustomApiResponseProperties { get; set; }
+
+        public IReadOnlyCollection<ICrmComponent> ComponentsOrderedPool
+        {
+            get
+            {
+                var res = new List<ICrmComponent>();
+                res.Add(Assembly);
+                res.AddRange(Plugins);
+                res.AddRange(Steps);
+                res.AddRange(StepImages);
+                res.AddRange(Workflows);
+                res.AddRange(CustomApis);
+                res.AddRange(CustomApiRequestParameters);
+                res.AddRange(CustomApiResponseProperties);
+                return res;
+            }
+        }
+
     }
 }
