@@ -162,6 +162,7 @@ If ok press any key.");
             serviceCollection.AddScoped<IAssemblyExporter, AssemblyExporter>();
             serviceCollection.AddScoped<IAssemblyImporter, AssemblyImporter>();
             serviceCollection.AddScoped<ICrmComponentComparer, CrmComponentComparer>();
+            serviceCollection.AddScoped<ICrmComponentConverter, CrmComponentConverter>();
             serviceCollection.AddScoped<AssemblyDiffFactory>();
             serviceCollection.AddSingleton<IAssemblyFactory, AssemblyFactory>();
             serviceCollection.AddSingleton<RegistrationHelper>();
