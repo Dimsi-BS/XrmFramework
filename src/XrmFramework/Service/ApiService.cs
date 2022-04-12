@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Xrm.Sdk;
+using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using Microsoft.Xrm.Sdk;
 
 namespace XrmFramework
 {
