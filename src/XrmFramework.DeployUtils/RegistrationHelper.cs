@@ -70,7 +70,7 @@ If ok press any key.");
         private void ExecuteRegistrationStrategy()
         {
             var stepsForMetadata = _registrationStrategy
-                .RetrieveWhere(c => c.Component is Step)
+                .GetComponentsWhere(c => c.Component is Step)
                 .Select(s => (Step)s)
                 .ToList();
 
@@ -82,12 +82,12 @@ If ok press any key.");
             RegisterAssembly();
 
             var componentsToCreate = _registrationStrategy
-                .RetrieveWhere(d => d.DiffResult == RegistrationState.ToCreate);
+                .GetComponentsWhere(d => d.DiffResult == RegistrationState.ToCreate);
 
             _assemblyExporter.CreateAllComponents(componentsToCreate);
 
             var componentsToUpdate = _registrationStrategy
-                .RetrieveWhere(d => d.DiffResult == RegistrationState.ToUpdate);
+                .GetComponentsWhere(d => d.DiffResult == RegistrationState.ToUpdate);
 
             _assemblyExporter.UpdateAllComponents(componentsToUpdate);
         }
@@ -124,7 +124,7 @@ If ok press any key.");
         private void CleanAssembly()
         {
             var componentsToDelete = _registrationStrategy
-                .RetrieveWhere(d => d.DiffResult == RegistrationState.ToDelete);
+                .GetComponentsWhere(d => d.DiffResult == RegistrationState.ToDelete);
 
             //Sort in descending order so that children are deleted before their parent
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using AutoMapper;
+using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
@@ -8,14 +9,17 @@ namespace XrmFramework.DeployUtils.Utils
     public class AssemblyDiffFactory
     {
         private readonly ICrmComponentComparer _comparer;
-        public AssemblyDiffFactory(ICrmComponentComparer comparer)
+        private readonly IMapper _mapper;
+        public AssemblyDiffFactory(ICrmComponentComparer comparer, IMapper mapper)
         {
             _comparer = comparer;
+            _mapper = mapper;
         }
 
         public IDiffPatch ComputeDiffPatchFromAssemblies(IAssemblyContext from, IAssemblyContext target)
         {
-            var fromPool = from.ComponentsOrderedPool;
+            var fromCopy = _mapper.Map<AssemblyContext>(from);
+            var fromPool = fromCopy.ComponentsOrderedPool;
             var targetPool = target.ComponentsOrderedPool;
             return ComputeDiffPatchFromPool(fromPool, targetPool);
         }
