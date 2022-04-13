@@ -5,32 +5,21 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using XrmFramework.Definitions;
-using XrmFramework.DeployUtils.Configuration;
-using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Service;
-using XrmFramework.DeployUtils.Utils;
-using XrmFramework.RemoteDebugger.Client.Utils;
+using XrmFramework.RemoteDebugger.Client.Configuration;
 
-namespace XrmFramework.RemoteDebugger.Client.Configuration
+namespace XrmFramework.DeployUtils.Configuration
 {
-    internal class ServiceCollectionHelper
+    internal partial class ServiceCollectionHelper
     {
-        public static IServiceProvider ConfigureServiceProvider(string projectName)
+        public static IServiceProvider ConfigureForRemoteDebug(string projectName)
         {
             if (ConfigurationManager.ConnectionStrings["DebugConnectionString"] == null)
             {
                 throw new Exception("The connectionString \"DebugConnectionString\" is not defined.");
             }
 
-            var serviceCollection = new ServiceCollection();
-
-            serviceCollection.AddScoped<IRegistrationService, RegistrationService>();
-            serviceCollection.AddScoped<ISolutionContext, SolutionContext>();
-            serviceCollection.AddScoped<IAssemblyExporter, AssemblyExporter>();
-            serviceCollection.AddScoped<IAssemblyImporter, AssemblyImporter>();
-            serviceCollection.AddSingleton<IAssemblyFactory, AssemblyFactory>();
-            serviceCollection.AddSingleton<RemoteDebuggerPluginHelper>();
-
+            var serviceCollection = InitServiceCollection();
 
             ChooseSolutionSettings(projectName, out string pluginSolutionUniqueName, out string connectionString);
 
@@ -48,9 +37,7 @@ namespace XrmFramework.RemoteDebugger.Client.Configuration
                 settings.DebugSessionId = debugSessionId;
             });
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            return serviceProvider;
+            return serviceCollection.BuildServiceProvider();
         }
 
         public static void ChooseSolutionSettings(string projectName, out string pluginSolutionUniqueName, out string connectionString)

@@ -4,7 +4,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
-using System.Configuration;
 using System.Linq;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
@@ -14,7 +13,7 @@ using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils
 {
-    public class RegistrationHelper
+    public partial class RegistrationHelper
     {
         private readonly IRegistrationService _registrationService;
         private readonly IAssemblyExporter _assemblyExporter;
@@ -36,9 +35,10 @@ namespace XrmFramework.DeployUtils
 
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
-            var serviceProvider = InitServiceProvider(projectName);
+            var serviceProvider = ServiceCollectionHelper.ConfigureForDeploy(projectName);
 
             var solutionSettings = serviceProvider.GetRequiredService<IOptions<SolutionSettings>>();
+
             Console.WriteLine($@"You are about to deploy on organization:\n
 {solutionSettings.Value.ConnectionString.Replace(";", "\n")}
 If ok press any key.");
@@ -62,8 +62,13 @@ If ok press any key.");
 
             Console.Write("Computing Difference...");
 
-            _registrationStrategy = _assemblyDiffFactory.ComputeDiffFromPools(localAssembly, registeredAssembly);
+            _registrationStrategy = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(localAssembly, registeredAssembly);
 
+            ExecuteRegistrationStrategy();
+        }
+
+        private void ExecuteRegistrationStrategy()
+        {
             var stepsForMetadata = _registrationStrategy
                 .RetrieveWhere(c => c.Component is Step)
                 .Select(s => (Step)s)
@@ -77,16 +82,12 @@ If ok press any key.");
             RegisterAssembly();
 
             var componentsToCreate = _registrationStrategy
-                .RetrieveWhere(d => d.DiffResult == RegistrationState.ToCreate)
-                .ToList();
-
-            componentsToCreate.Sort((x, y) => x.Rank.CompareTo(y.Rank));
+                .RetrieveWhere(d => d.DiffResult == RegistrationState.ToCreate);
 
             _assemblyExporter.CreateAllComponents(componentsToCreate);
 
             var componentsToUpdate = _registrationStrategy
-                .RetrieveWhere(d => d.DiffResult == RegistrationState.ToUpdate)
-                .ToList();
+                .RetrieveWhere(d => d.DiffResult == RegistrationState.ToUpdate);
 
             _assemblyExporter.UpdateAllComponents(componentsToUpdate);
         }
@@ -123,60 +124,11 @@ If ok press any key.");
         private void CleanAssembly()
         {
             var componentsToDelete = _registrationStrategy
-                .RetrieveWhere(d => d.DiffResult == RegistrationState.ToDelete)
-                .ToList();
+                .RetrieveWhere(d => d.DiffResult == RegistrationState.ToDelete);
 
             //Sort in descending order so that children are deleted before their parent
-            componentsToDelete.Sort((x, y) => -x.Rank.CompareTo(y.Rank));
 
             _assemblyExporter.DeleteAllComponents(componentsToDelete);
         }
-
-        private static void ParseSolutionSettings(string projectName, out string pluginSolutionUniqueName, out string connectionString)
-        {
-            var xrmFrameworkConfigSection = ConfigHelper.GetSection();
-
-            var projectConfig = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>()
-                .FirstOrDefault(p => p.Name == projectName);
-
-            if (projectConfig == null)
-            {
-                var defaultColor = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"No reference to the project {projectName} has been found in the xrmFramework.config file.");
-                Console.ForegroundColor = defaultColor;
-                System.Environment.Exit(1);
-            }
-
-            pluginSolutionUniqueName = projectConfig.TargetSolution;
-
-            connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
-        }
-
-        private static IServiceProvider InitServiceProvider(string projectName)
-        {
-            var serviceCollection = new ServiceCollection();
-
-            serviceCollection.AddScoped<IRegistrationService, RegistrationService>();
-            serviceCollection.AddScoped<ISolutionContext, SolutionContext>();
-            serviceCollection.AddScoped<IAssemblyExporter, AssemblyExporter>();
-            serviceCollection.AddScoped<IAssemblyImporter, AssemblyImporter>();
-            serviceCollection.AddScoped<ICrmComponentComparer, CrmComponentComparer>();
-            serviceCollection.AddScoped<ICrmComponentConverter, CrmComponentConverter>();
-            serviceCollection.AddScoped<AssemblyDiffFactory>();
-            serviceCollection.AddSingleton<IAssemblyFactory, AssemblyFactory>();
-            serviceCollection.AddSingleton<RegistrationHelper>();
-
-            ParseSolutionSettings(projectName, out string pluginSolutionUniqueName, out string connectionString);
-
-            serviceCollection.Configure<SolutionSettings>((settings) =>
-            {
-                settings.ConnectionString = connectionString;
-                settings.PluginSolutionUniqueName = pluginSolutionUniqueName;
-            });
-
-            return serviceCollection.BuildServiceProvider();
-        }
-
     }
 }
