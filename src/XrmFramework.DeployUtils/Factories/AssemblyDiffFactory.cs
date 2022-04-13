@@ -13,7 +13,14 @@ namespace XrmFramework.DeployUtils.Utils
             _comparer = comparer;
         }
 
-        public IDiffPatch ComputeDiffFromPools(IAssemblyContext from, IAssemblyContext target)
+        public IDiffPatch ComputeDiffPatchFromAssemblies(IAssemblyContext from, IAssemblyContext target)
+        {
+            var fromPool = from.ComponentsOrderedPool;
+            var targetPool = target.ComponentsOrderedPool;
+            return ComputeDiffPatchFromPool(fromPool, targetPool);
+        }
+
+        public IDiffPatch ComputeDiffPatchFromPool(IReadOnlyCollection<ICrmComponent> fromPool, IReadOnlyCollection<ICrmComponent> targetPool)
         {
             /*
              * Some explanation here :
@@ -22,8 +29,9 @@ namespace XrmFramework.DeployUtils.Utils
              * We can compute them ahead of time and they won't be computed a second time when encountered later on.
              * This is done because CorrespondingComponent is a costly function.
              */
-            var fromPool = from.ComponentsOrderedPool;
-            var targetPool = target.ComponentsOrderedPool;
+
+            fromPool.ToList().Sort((x, y) => x.Rank.CompareTo(y.Rank));
+            targetPool.ToList().Sort((x, y) => x.Rank.CompareTo(y.Rank));
 
             /*
              * Reset registration states if already computed
@@ -46,7 +54,6 @@ namespace XrmFramework.DeployUtils.Utils
                 }
             }
             #endregion
-
 
             var diffComponents = new List<DiffComponent>();
             foreach (var fromComponent in fromPool)

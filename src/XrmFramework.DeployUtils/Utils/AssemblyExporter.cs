@@ -25,6 +25,68 @@ public class AssemblyExporter : IAssemblyExporter
         _registrationService = service;
         _converter = converter;
     }
+    public void CreateAllComponents(IEnumerable<ICrmComponent> componentsToCreate)
+    {
+        if (!componentsToCreate.Any())
+        {
+            return;
+        }
+
+        var sortedList = componentsToCreate.ToList();
+        sortedList.Sort((x, y) => x.Rank.CompareTo(y.Rank));
+
+        foreach (var component in sortedList)
+        {
+            int? entityTypeCode = component.DoFetchTypeCode
+                ? _registrationService.GetIntEntityTypeCode(component.EntityTypeName)
+                : null;
+
+            if (component is CustomApi customApi)
+            {
+                var customApiPluginType = ToRegisterPluginType(customApi.AssemblyId, customApi.FullName);
+                var id = _registrationService.Create(customApiPluginType);
+                customApi.PluginTypeId.Id = id;
+            }
+
+            var registeringComponent = ToRegisterComponent(component);
+            component.Id = _registrationService.Create(registeringComponent);
+            registeringComponent.Id = component.Id;
+
+            if (component.DoAddToSolution)
+            {
+                var addSolutionComponentRequest = CreateAddSolutionComponentRequest(registeringComponent.ToEntityReference(), entityTypeCode);
+
+                if (addSolutionComponentRequest != null)
+                {
+                    _registrationService.Execute(addSolutionComponentRequest);
+                }
+            }
+        }
+    }
+
+    public void DeleteAllComponents(IEnumerable<ICrmComponent> componentsToDelete)
+    {
+        var sortedList = componentsToDelete.ToList();
+        sortedList.Sort((x, y) => -x.Rank.CompareTo(y.Rank));
+
+        foreach (var component in sortedList)
+        {
+            _registrationService.Delete(component.EntityTypeName, component.Id);
+
+            if (component is CustomApi customApi)
+            {
+                _registrationService.Delete(PluginTypeDefinition.EntityName, customApi.PluginTypeId.Id);
+            }
+        }
+    }
+
+    public void UpdateAllComponents(IEnumerable<ICrmComponent> componentsToUpdate)
+    {
+        var updatedComponents = componentsToUpdate.Select(ToRegisterComponent);
+
+        foreach (var registeringComponent in updatedComponents)
+            _registrationService.Update(registeringComponent);
+    }
 
     public AddSolutionComponentRequest CreateAddSolutionComponentRequest(EntityReference objectRef,
         int? objectTypeCode = null)
@@ -64,6 +126,10 @@ public class AssemblyExporter : IAssemblyExporter
 
         return res;
     }
+    public void InitExportMetadata(IEnumerable<Step> steps)
+    {
+        _solutionContext.InitExportMetadata(steps);
+    }
 
     public PluginType ToRegisterPluginType(Guid pluginAssemblyId, string pluginFullName)
     {
@@ -81,70 +147,6 @@ public class AssemblyExporter : IAssemblyExporter
         };
 
         return t;
-    }
-
-    public void CreateAllComponents(IEnumerable<ICrmComponent> createComponents)
-    {
-        if (!createComponents.Any())
-        {
-            return;
-        }
-
-        foreach (var component in createComponents)
-        {
-            int? entityTypeCode = component.DoFetchTypeCode
-                ? _registrationService.GetIntEntityTypeCode(component.EntityTypeName)
-                : null;
-
-            if (component is CustomApi customApi)
-            {
-                var customApiPluginType = ToRegisterPluginType(customApi.AssemblyId, customApi.FullName);
-                var id = _registrationService.Create(customApiPluginType);
-                customApi.PluginTypeId.Id = id;
-            }
-
-            var registeringComponent = ToRegisterComponent(component);
-            component.Id = _registrationService.Create(registeringComponent);
-            registeringComponent.Id = component.Id;
-
-            if (component.DoAddToSolution)
-            {
-                var addSolutionComponentRequest = CreateAddSolutionComponentRequest(registeringComponent.ToEntityReference(), entityTypeCode);
-
-                if (addSolutionComponentRequest != null)
-                {
-                    _registrationService.Execute(addSolutionComponentRequest);
-                }
-            }
-
-
-        }
-    }
-
-    public void DeleteAllComponents(IEnumerable<ICrmComponent> deleteComponents)
-    {
-        foreach (var component in deleteComponents)
-        {
-            _registrationService.Delete(component.EntityTypeName, component.Id);
-
-            if (component is CustomApi customApi)
-            {
-                _registrationService.Delete(PluginTypeDefinition.EntityName, customApi.PluginTypeId.Id);
-            }
-        }
-    }
-
-    public void UpdateAllComponents(IEnumerable<ICrmComponent> updateComponents)
-    {
-        var updatedComponents = updateComponents.Select(ToRegisterComponent);
-
-        foreach (var registeringComponent in updatedComponents)
-            _registrationService.Update(registeringComponent);
-    }
-
-    public void InitExportMetadata(IEnumerable<Step> steps)
-    {
-        _solutionContext.InitExportMetadata(steps);
     }
 
     private Entity ToRegisterComponent(ICrmComponent component)

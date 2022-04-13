@@ -12,9 +12,9 @@ namespace XrmFramework.DeployUtils.Utils
         PluginType ToRegisterPluginType(Guid pluginAssemblyId, string pluginFullName);
         AddSolutionComponentRequest CreateAddSolutionComponentRequest(EntityReference objectRef, int? objectTypeCode = null);
 
-        void CreateAllComponents(IEnumerable<ICrmComponent> components);
-        void DeleteAllComponents(IEnumerable<ICrmComponent> components);
-        void UpdateAllComponents(IEnumerable<ICrmComponent> components);
+        void CreateAllComponents(IEnumerable<ICrmComponent> componentsToCreate);
+        void DeleteAllComponents(IEnumerable<ICrmComponent> componentsToDelete);
+        void UpdateAllComponents(IEnumerable<ICrmComponent> componentsToUpdate);
 
         void InitExportMetadata(IEnumerable<Step> steps);
     }
