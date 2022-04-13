@@ -4,6 +4,9 @@ using BoDi;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Xrm.Sdk;
 using System;
+#if NETCOREAPP
+using Microsoft.PowerPlatform.Dataverse.Client;
+#endif
 using XrmFramework;
 using XrmFramework.DependencyInjection;
 
@@ -12,15 +15,30 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static partial class XrmFrameworkServiceCollectionExtension
     {
-        public static IServiceCollection AddXrmFramework(this IServiceCollection serviceCollection, Action<IXrmFrameworkOptionBuilder> optionsBuilderAction = null)
+        public static IServiceCollection AddXrmFramework(this IServiceCollection serviceCollection,
+            Action<IXrmFrameworkOptionBuilder> optionsBuilderAction = null)
         {
             var optionsBuilder = new XrmFrameworkOptionBuilder(serviceCollection);
             optionsBuilderAction?.Invoke(optionsBuilder);
 
-            serviceCollection.TryAdd(new ServiceDescriptor(typeof(IOrganizationService), sp =>
-                {
 #if NETCOREAPP
-                    var service = new Microsoft.PowerPlatform.Dataverse.Client.ServiceClient(optionsBuilder.ConnectionString);
+            serviceCollection.TryAdd(new ServiceDescriptor(typeof(IOrganizationServiceAsync), sp =>
+                {
+                    var serviceClient = sp.GetRequiredService<ServiceClient>();
+
+                    return serviceClient;
+                }, ServiceLifetime.Scoped));
+
+            serviceCollection.TryAdd(new ServiceDescriptor(typeof(IOrganizationServiceAsync2), sp =>
+                {
+                    var serviceClient = sp.GetRequiredService<ServiceClient>();
+
+                    return serviceClient;
+                }, ServiceLifetime.Scoped));
+
+            serviceCollection.TryAdd(new ServiceDescriptor(typeof(ServiceClient), sp =>
+                {
+                    var service = new ServiceClient(optionsBuilder.ConnectionString);
 
                     if (optionsBuilder.UseWebApiForced)
                     {
@@ -28,17 +46,23 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
 
                     return service;
+                }, ServiceLifetime.Scoped));
+#endif
+
+            serviceCollection.TryAdd(new ServiceDescriptor(typeof(IOrganizationService), sp =>
+                {
+#if NETCOREAPP
+                    return sp.GetRequiredService<ServiceClient>();
 #else
                     return new Xrm.Tooling.Connector.CrmServiceClient(optionsBuilder.ConnectionString);
 #endif
-                }
+                }, ServiceLifetime.Scoped));
 
-                , ServiceLifetime.Singleton));
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IServiceContext), sp =>
             {
                 var orgService = sp.GetService<IOrganizationService>();
                 return new ServiceContextBase(orgService);
-            }, ServiceLifetime.Singleton));
+            }, ServiceLifetime.Scoped));
 
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IObjectContainer), sp =>
             {
@@ -64,11 +88,11 @@ namespace Microsoft.Extensions.DependencyInjection
             where TIService : IService
         {
             var serviceDescriptor = new ServiceDescriptor(typeof(TIService), sp =>
-           {
-               var objectContainer = sp.GetRequiredService<IObjectContainer>();
+            {
+                var objectContainer = sp.GetRequiredService<IObjectContainer>();
 
-               return objectContainer.Resolve(typeof(TIService));
-           }, ServiceLifetime.Scoped);
+                return objectContainer.Resolve(typeof(TIService));
+            }, ServiceLifetime.Scoped);
 
             serviceCollection.Add(serviceDescriptor);
         }
