@@ -64,6 +64,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\XrmFramework.MSBuild.Reflection\XrmFramework.MSBuild.Reflection.csproj" />
+    <ProjectReference Include="..\XrmFramework.MSBuild.TableClasses\XrmFramework.MSBuild.TableClasses.csproj" />
   </ItemGroup>
 
 </Project>

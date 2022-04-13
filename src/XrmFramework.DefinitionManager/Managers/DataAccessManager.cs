@@ -689,7 +689,7 @@ namespace DefinitionManager
 
 
 
-        private string RemovePrefix(string name)
+        public string RemovePrefix(string name)
         {
             foreach (var prefix in PublisherPrefixes)
             {

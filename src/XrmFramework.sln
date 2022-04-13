@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29306.81
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{D89922A5-D1C2-4EDC-BCA9-300160187485}"
 EndProject
@@ -38,7 +38,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.CoreProject", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.RemoteDebuggerPlugin", "XrmFramework.RemoteDebuggerPlugin\XrmFramework.RemoteDebuggerPlugin.csproj", "{AE0EA3E1-F398-4A89-BEE4-58386D000433}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmFramework.ModelManager", "XrmFramework.ModelManager\XrmFramework.ModelManager\XrmFramework.ModelManager.csproj", "{034A7986-A11D-45B3-A871-664AEA170DC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.ModelManager", "XrmFramework.ModelManager\XrmFramework.ModelManager.csproj", "{8EF7F42B-303A-4025-AB13-F48EDF1E75AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmFramework.MSBuild.TableClasses", "XrmFramework.MSBuild.TableClasses\XrmFramework.MSBuild.TableClasses.csproj", "{E33C4362-DA7A-4AF2-B585-FE6E9A72D0FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,10 +100,14 @@ Global
 		{AE0EA3E1-F398-4A89-BEE4-58386D000433}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE0EA3E1-F398-4A89-BEE4-58386D000433}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE0EA3E1-F398-4A89-BEE4-58386D000433}.Release|Any CPU.Build.0 = Release|Any CPU
-		{034A7986-A11D-45B3-A871-664AEA170DC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{034A7986-A11D-45B3-A871-664AEA170DC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{034A7986-A11D-45B3-A871-664AEA170DC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{034A7986-A11D-45B3-A871-664AEA170DC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EF7F42B-303A-4025-AB13-F48EDF1E75AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EF7F42B-303A-4025-AB13-F48EDF1E75AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EF7F42B-303A-4025-AB13-F48EDF1E75AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EF7F42B-303A-4025-AB13-F48EDF1E75AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E33C4362-DA7A-4AF2-B585-FE6E9A72D0FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E33C4362-DA7A-4AF2-B585-FE6E9A72D0FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E33C4362-DA7A-4AF2-B585-FE6E9A72D0FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E33C4362-DA7A-4AF2-B585-FE6E9A72D0FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

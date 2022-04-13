@@ -11,6 +11,7 @@ using System.Text;
 using System.Windows.Forms;
 using DefinitionManager;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using Newtonsoft.Json;
@@ -49,7 +50,58 @@ namespace XrmFramework.DefinitionManager
 
             this.attributeListView.SelectionChanged += attributeListView_SelectionChanged;
 
-            GenerateDefinitionCodeFromJson();
+            //Load selected tables 
+            foreach (string fileName in Directory.GetFiles($"../../../../../{CoreProjectName}/Definitions", "*.table"))
+            {
+                if (!fileName.Contains("OptionSet.table"))
+                {
+                    //MessageBox.Show(fileName);
+                    var fileInfo = new FileInfo(fileName);
+                    var text = File.ReadAllText(fileInfo.FullName);
+                    JObject jTable = JObject.Parse(text);
+
+
+                    var currentTable = jTable.ToObject<Table>();
+                    /*currentTable = JsonConvert.DeserializeObject<Table>(text,new JsonSerializerSettings
+                    {
+                        DefaultValueHandling = DefaultValueHandling.Ignore
+                    });*/
+
+                    if (jTable["Cols"].Any())
+                    {
+                        Column currentColumn;
+                        foreach (var jColumn in jTable["Cols"])
+                        {
+                            currentColumn = jColumn.ToObject<Column>();
+                            currentTable.Columns.Add(currentColumn);
+                        }
+                    }
+                    _selectedTables.Add(currentTable);
+                }
+                else
+                {
+                    /*
+                    fileInfo = new FileInfo(fileName);
+                    text = File.ReadAllText(fileInfo.FullName);
+                    globalEnums = JsonConvert.DeserializeObject<List<OptionSetEnum>>(text, new JsonSerializerSettings
+                    {
+                        DefaultValueHandling = DefaultValueHandling.Ignore
+                    });
+                    MessageBox.Show($"There are {globalEnums.Count} enums");
+                    */
+                }
+
+            }
+            MessageBox.Show($"There are currently {_selectedTables.Count} tables selected in this project.");
+            if(_selectedTables.Count == 0)
+            {
+                MessageBox.Show("No *.table file found for this project, an attempt at recreating the tables from *Definition.cs files will be made.");
+
+
+            }
+
+
+            
         }
 
         void attributeListView_SelectionChanged(object sender, CustomListViewControl<AttributeDefinition>.SelectionChangedEventArgs e)
@@ -76,6 +128,11 @@ namespace XrmFramework.DefinitionManager
 
             _entityCollection.AddRange(entities.Item1);
             _tables.AddRange(entities.Item2);
+            MessageBox.Show($"There are {_tables.Count} tables");
+            if (_tables.Any(t => t.LogicalName == "account"))
+            {
+                MessageBox.Show("ofizheofihzeoihvoeizfhzeijfoezjfoezj");
+            }
             _enums.AddRange(entities.Item3);
             this.generateDefinitionsToolStripMenuItem.Enabled = true;
             this.entityListView.Enabled = true;
@@ -350,19 +407,60 @@ namespace XrmFramework.DefinitionManager
         private void generateDefinitionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //GenerateDefinitionCodeFromJson();
+            // Add new selected tables
             foreach(var item in _entityCollection.SelectedDefinitions)
             {
-                var table = _tables.FirstOrDefault(t => t.LogicalName == item.LogicalName);
-                table.Selected = true;
-                foreach(var a in item.AttributesCollection.SelectedDefinitions)
+                if(!_selectedTables.Any(t=>t.LogicalName == item.LogicalName))
                 {
-                    table.Columns.FirstOrDefault(c => c.LogicalName == a.LogicalName).Selected = true;
-                }
+                    var table = _tables.FirstOrDefault(t => t.LogicalName == item.LogicalName);
+                    table.Selected = true;
+                    foreach (var a in item.AttributesCollection.SelectedDefinitions)
+                    {
+                        table.Columns.FirstOrDefault(c => c.LogicalName == a.LogicalName).Selected = true;
+                    }
 
-                _selectedTables.Add(table);
-                
+                    _selectedTables.Add(table);
+
+                    MessageBox.Show("Added a new table to selected tables");
+                    MessageBox.Show($"Added {table.Name}");
+                }
+                else
+                {
+                    var tableToRemove = _selectedTables.FirstOrDefault(t => t.LogicalName == item.LogicalName);
+                    _selectedTables.Remove(tableToRemove);
+
+                    var table = _tables.FirstOrDefault(t => t.LogicalName == item.LogicalName);
+                    if(table == null)
+                    {
+                        throw new Exception($"Table named {item.LogicalName} does not exist in the list _tables, _tables.Count is {_tables.Count}");
+                    }
+                    table.Selected = true;
+                    foreach (var a in item.AttributesCollection.SelectedDefinitions)
+                    {
+                        table.Columns.FirstOrDefault(c => c.LogicalName == a.LogicalName).Selected = true;
+                    }
+
+                    _selectedTables.Add(table);
+
+                }
             }
-            foreach (var item in this._entityCollection.SelectedDefinitions)
+
+            var nameOfTablesToDelete = new List<String>();
+            // Delete tables that aren't selected
+            foreach(var table in _selectedTables)
+            {
+                if (!_entityCollection.SelectedDefinitions.Any(e => e.LogicalName == table.LogicalName))
+                {
+                    nameOfTablesToDelete.Add(table.LogicalName);
+                }
+            }
+
+            foreach(var name in nameOfTablesToDelete)
+            {
+                _selectedTables.Remove(_selectedTables.FirstOrDefault(t => t.LogicalName == name));
+            }
+
+                foreach (var item in this._entityCollection.SelectedDefinitions)
             {
                 var sb = new IndentedStringBuilder();
 
@@ -381,6 +479,7 @@ namespace XrmFramework.DefinitionManager
                 //    DefaultValueHandling = DefaultValueHandling.Ignore
                 //});
 
+                /*
                 
                 sb.AppendLine("");
                 sb.AppendLine("using System;");
@@ -624,13 +723,17 @@ namespace XrmFramework.DefinitionManager
 
                 var fileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{item.Name}.cs");
 
+
+                */
+
+
                 var definitionFolder = new DirectoryInfo($"../../../../../{CoreProjectName}/Definitions");
                 if (definitionFolder.Exists == false)
                 {
                     definitionFolder.Create();
                 }
 
-                File.WriteAllText(fileInfo.FullName, sb.ToString());
+                //File.WriteAllText(fileInfo.FullName, sb.ToString());
 
                 var fileInfo2 = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{item.Name.Replace("Definition", string.Empty)}.table");
 
@@ -646,7 +749,7 @@ namespace XrmFramework.DefinitionManager
             var globalOptionSets = new Table
             {
                 LogicalName = "globalEnums",
-                Name = "OptionSets"
+                Name = "OptionSet"
             };
             globalOptionSets.Enums.AddRange(_enums.Where(en => globalEnums.Contains(en.LogicalName) && en.IsGlobal));
 
@@ -659,6 +762,7 @@ namespace XrmFramework.DefinitionManager
 
             File.WriteAllText(fileInfoOptionSets.FullName, optionSetsTxt);
 
+            /*
             var fc = new IndentedStringBuilder();
             fc.AppendLine("using System.ComponentModel;");
             fc.AppendLine("using XrmFramework;");
@@ -718,14 +822,23 @@ namespace XrmFramework.DefinitionManager
 
             fc.AppendLine("}");
             File.WriteAllText($"../../../../../{CoreProjectName}/Definitions/OptionSetDefinitions.cs", fc.ToString());
-
+            */
             foreach(var table in _selectedTables)
             {
                 //MessageBox.Show(table.Name);
 
-                table.Columns.RemoveNonSelectedColumns();
-
+                foreach(var column in table.Columns)
+                {
+                    MessageBox.Show(column.Name);
+                }
                 
+                table.Columns.RemoveNonSelectedColumns();
+                MessageBox.Show("Non selected columns have been removed");
+                foreach (var column in table.Columns)
+                {
+                    MessageBox.Show(column.Name);
+                }
+
                 var serializedTable = JsonConvert.SerializeObject(table, Formatting.Indented, new JsonSerializerSettings
                 {
                     DefaultValueHandling = DefaultValueHandling.Ignore
@@ -875,12 +988,15 @@ namespace XrmFramework.DefinitionManager
             return null;
         }
 
+
+        // Is now deprecated
         private void GenerateDefinitionCodeFromJson()
         {
             TableCollection tables = new TableCollection();
             List<OptionSetEnum> globalEnums = new List<OptionSetEnum>();
             List<OptionSetEnum> referencedSelectedOptionSet = new List<OptionSetEnum>();
-            MessageBox.Show($"../../../../../{CoreProjectName}/Definitions");
+            //
+            //MessageBox.Show($"../../../../../{CoreProjectName}/Definitions");
             FileInfo fileInfo;
             String text;
             Table currentTable;
@@ -888,7 +1004,7 @@ namespace XrmFramework.DefinitionManager
             {
                 if(!fileName.Contains("OptionSet.table"))
                 {
-                    MessageBox.Show(fileName);
+                    //MessageBox.Show(fileName);
                     fileInfo = new FileInfo(fileName);
                     text = File.ReadAllText(fileInfo.FullName);
                     JObject jTable = JObject.Parse(text);
@@ -919,7 +1035,7 @@ namespace XrmFramework.DefinitionManager
                     {
                         DefaultValueHandling = DefaultValueHandling.Ignore
                     });
-                    MessageBox.Show($"There are {globalEnums.Count} enums");
+                    //MessageBox.Show($"There are {globalEnums.Count} enums");
                 }
                 
             }
@@ -984,12 +1100,13 @@ namespace XrmFramework.DefinitionManager
                                     sb.AppendLine($"[AttributeMetadata(AttributeTypeCode.{col.Type.ToString()})]");
                                     if (col.Type == AttributeTypeCode.Lookup)
                                     {
-                                        var relation = table.ManyToOneRelationships.FirstOrDefault(r => r.Name == col.LogicalName);
+                                        var relation = table.ManyToOneRelationships.FirstOrDefault(r => r.LookupFieldName == col.LogicalName);
                                         if (relation != null)
                                         {
                                             var tb = tables.FirstOrDefault(t => t.LogicalName == relation.EntityName);
                                             //var eC = this._entityCollection[relationship.ReferencedEntity];
-                                            var rcol = tb?.Columns.FirstOrDefault(c => c.LogicalName == relation.LookupFieldName);
+                                            var rcol = tb?.Columns.FirstOrDefault(c => c.PrimaryType == PrimaryType.Id);
+                                            
                                             if (tb != null)
                                             {
                                                 sb.Append($"[CrmLookup({tb.Name}Definition.EntityName,");
@@ -999,18 +1116,19 @@ namespace XrmFramework.DefinitionManager
                                                 }
                                                 else
                                                 {
+                                                    throw new Exception("No primaryType was found for the referenced table");
                                                     sb.Append($"{relation.LookupFieldName},");
                                                 }
                                                 
                                             }
                                             else
                                             {
-                                                sb.Append($"[CrmLookup({relation.EntityName},");
-                                                sb.Append($"{relation.LookupFieldName},");
+                                                sb.Append($"[CrmLookup(\"{relation.EntityName}\",");
+                                                sb.Append($"\"{relation.LookupFieldName}\",");
                                                 
                                             }
-                                            sb.AppendLine($"RelationshipName = ManyToOneRelationships.{relation.Name}");
-
+                                            sb.AppendLine($"RelationshipName = ManyToOneRelationships.{relation.Name})]");
+                                            
                                             
                                         }
                                         else
@@ -1388,7 +1506,7 @@ namespace XrmFramework.DefinitionManager
 
 
 
-                var classFileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{table.Name}Definition.cs");
+                var classFileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{table.Name}.table.cs");
 
                 var definitionFolder = new DirectoryInfo($"../../../../../{CoreProjectName}/Definitions");
                 if (definitionFolder.Exists == false)
@@ -1456,7 +1574,7 @@ namespace XrmFramework.DefinitionManager
             fc.AppendLine("}");
 
 
-            var optionSetFileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/GlobalOptionSet.definition.cs");
+            var optionSetFileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/OptionSet.table.cs");
             
             File.WriteAllText(optionSetFileInfo.FullName, fc.ToString());
             MessageBox.Show("Finished writing option set");
@@ -1469,7 +1587,226 @@ namespace XrmFramework.DefinitionManager
 
             //MessageBox.Show(sb.ToString());
         }
+
+        public void GetTablesFromFormerDefinitionCode()
+        {
+
+            //MessageBox.Show("Getting ");
+            // Get entity definitions
+            var definitionsToBeConverted = GetCodedEntityDefinitions();
+            Table table;
+            Column column;
+            Relation relation;
+
+            foreach(var entity in definitionsToBeConverted)
+            {
+                table = new Table()
+                {
+                    LogicalName = entity.LogicalName,
+                    CollectionName = entity.LogicalCollectionName,
+                    Name = entity.Name,
+                };
+
+
+                foreach (var def in entity.AdditionalClassesCollection.Definitions)
+                {
+                    if (def.IsEnum)
+                    {
+
+                    }
+                    else
+                    {
+                        if (def.LogicalName == "OneToManyRelationships")
+                        {
+                            // Assign OneToManyRelationship
+                            foreach (var attr in def.Attributes.Definitions)
+                            {
+                                if (attr is RelationshipAttributeDefinition rattr)
+                                {
+                                    relation = new Relation()
+                                    {
+                                        Name = rattr.Name,
+                                        EntityName = rattr.TargetEntityName,
+                                        Role = (EntityRole)Enum.Parse(typeof(EntityRole), rattr.Role),
+                                        NavigationPropertyName = rattr.NavigationPropertyName,
+                                        LookupFieldName = rattr.LookupFieldName,
+                                    };
+
+                                    table.OneToManyRelationships.Add(relation);
+                                }
+                            }
+
+                        }
+                        else if (def.LogicalName == "ManyToManyRelationships")
+                        {
+                            // Assign ManyToManyRelationShip
+                            foreach (var attr in def.Attributes.Definitions)
+                            {
+                                if (attr is RelationshipAttributeDefinition rattr)
+                                {
+                                    relation = new Relation()
+                                    {
+                                        Name = rattr.Name,
+                                        EntityName = rattr.TargetEntityName,
+                                        Role = (EntityRole)Enum.Parse(typeof(EntityRole), rattr.Role),
+                                        NavigationPropertyName = rattr.NavigationPropertyName,
+                                        LookupFieldName = rattr.LookupFieldName,
+                                    };
+
+                                    table.ManyToManyRelationships.Add(relation);
+                                }
+                            }
+
+                        }
+                        else if (def.LogicalName == "ManyToOneRelationships")
+                        {
+                            // Assign ManyToOneRelationship
+                            foreach (var attr in def.Attributes.Definitions)
+                            {
+                                if (attr is RelationshipAttributeDefinition rattr)
+                                {
+                                    relation = new Relation()
+                                    {
+                                        Name = rattr.Name,
+                                        EntityName = rattr.TargetEntityName,
+                                        Role = (EntityRole)Enum.Parse(typeof(EntityRole), rattr.Role),
+                                        NavigationPropertyName = rattr.NavigationPropertyName,
+                                        LookupFieldName = rattr.LookupFieldName,
+                                    };
+
+                                    table.ManyToOneRelationships.Add(relation);
+                                }
+                            }
+
+                        }
+                        else if( def.LogicalName == "AlternateKeyNames")
+                        {
+                            foreach (var attr in def.Attributes.Definitions)
+                            {
+                                var key = new Key()
+                                {
+                                    Name = attr.Name,
+                                    LogicalName = attr.LogicalName,
+                                };
+                            }
+                        }
+
+                    }
+                }
+
+
+                // Assign columns
+                foreach (var attr in entity.AttributesCollection.Definitions)
+                {
+                    column = new Column()
+                    {
+                        LogicalName =attr.LogicalName,
+                        Name = attr.Name,
+                        
+                    };
+
+                    // Assign Primary type
+                    if(attr.IsPrimaryIdAttribute)
+                    {
+                        column.PrimaryType = PrimaryType.Id;
+                    }
+                    else if(attr.IsPrimaryImageAttribute)
+                    {
+                        column.PrimaryType = PrimaryType.Image;
+                    }
+                    else if(attr.IsPrimaryNameAttribute)
+                    {
+                        column.PrimaryType = PrimaryType.Name;
+                    }
+                    else
+                    {
+                        column.PrimaryType = PrimaryType.None;
+                    }
+                    
+                    // Assign AttributeTypeCode Type
+                    if(!string.IsNullOrEmpty(attr.Type))
+                    {
+                        column.Type = (AttributeTypeCode)Enum.Parse(typeof(AttributeTypeCode), attr.Type);
+                    }
+                    //Assign Capabilities
+                    if(attr.IsValidForAdvancedFind)
+                    {
+                        column.Capabilities |= AttributeCapabilities.AdvancedFind;
+                    }
+                    if (attr.IsValidForCreate)
+                    {
+                        column.Capabilities |= AttributeCapabilities.Create;
+                    }
+                    if (attr.IsValidForRead)
+                    {
+                        column.Capabilities |= AttributeCapabilities.Read;
+                    }
+                    if (attr.IsValidForUpdate)
+                    {
+                        column.Capabilities |= AttributeCapabilities.Update;
+                    }
+                    // Assign Labels ? 
+
+                    // Assign StringLength
+                    column.StringLength = attr.StringMaxLength;
+                    // Assign MinRange
+                    column.MinRange = attr.MinRange;
+                    // Assign MaxRange
+                    column.MaxRange = attr.MaxRange;
+                    // DateTimeBehavior
+                    column.DateTimeBehavior = attr.DateTimeBehavior;
+                    //IsMultiSelect ?
+
+                    //EnumName
+                    column.EnumName = attr.EnumName;
+                    //Selected
+                    column.Selected = true;
+                    if(attr.Relationships != null && attr.Relationships.Any())
+                    {
+                        column.Type = AttributeTypeCode.Lookup;
+                    }
+
+                    // Assign keys
+                    if(attr.KeyNames != null && attr.KeyNames.Any())
+                    {
+                        foreach(var keyAttr in attr.KeyNames)
+                        {
+                            var correspondingkey = table.Keys.FirstOrDefault(k => k.Name == keyAttr);
+                            if (correspondingkey != null)
+                            {
+                                correspondingkey.FieldNames.Add(attr.LogicalName);
+                            }
+                        }
+                    }
+                }
+
+
+
+
+
+                // Assign Enums
+
+                // Assign selected
+                table.Selected = true;
+            }
+
+
+            // Penser aussi à checker pour récupérer les enums globaux s'il y en a; ou juste a les mettre en tant qu'enum selectionné
+            
+
+
+
+        }
+
+        private void dzadzaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            GetTablesFromFormerDefinitionCode();
+        }
+
+        //public void 
     }
+    
+
 }
 
 

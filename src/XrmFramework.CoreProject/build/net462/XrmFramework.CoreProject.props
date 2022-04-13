@@ -1,3 +1,21 @@
 ﻿<Project>
+
+	<ItemGroup>
+		<Compile Update="**\*.table.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>%(RecursiveDir)%(Filename)</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	
   
 </Project>
+
+<!--
+<ItemGroup>
+		<TableFiles Include ="**\*.table">
+			<CodeBehindTable>%(RelativeDir)%(Filename).table$(DefaultLanguageSourceExtension)</CodeBehindTable>
+		</TableFiles>
+	</ItemGroup>
+	-->

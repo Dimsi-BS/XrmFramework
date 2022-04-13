@@ -9,17 +9,25 @@ namespace XrmFramework.MSBuild.Reflection
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Initialisation");
             
+            Console.WriteLine(args.Length);
+
+
             var assembly = Assembly.LoadFrom(args[0]);
             var folderPath = args[1];
+            
+            
 
             var generationType = args[2];
-
+            
             var nullableType = assembly.GetType("XrmFramework.NullableAttribute");
             var iServiceType = assembly.GetType("XrmFramework.IService");
             var defaultServiceType = assembly.GetType("XrmFramework.DefaultService");
             var iLoggedServiceType = assembly.GetType("XrmFramework.ILoggedService");
+
+
+            
+
 
             var types = assembly.GetTypes().Where(t => iServiceType.IsAssignableFrom(t) && t.IsInterface).ToList();
 

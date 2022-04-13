@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(XrmFramework_Tools_TFM)</TargetFrameworks>
-  </PropertyGroup>
+  </PropertyGroup> 
 
   <ItemGroup>
     <ProjectReference Include="..\XrmFramework.Generator\XrmFramework.Generator.csproj" />
@@ -14,3 +14,4 @@
   </ItemGroup>
 
 </Project>
+  

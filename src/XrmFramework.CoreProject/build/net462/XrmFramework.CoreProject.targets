@@ -9,12 +9,15 @@
   <PropertyGroup>
     <!-- Here you need to experiment with [Build/Compile/SomeOther]DependsOn property -->
     <CoreCompileDependsOn>
+	  GenerateTableCode;
       GenerateDependencyInjection;
       $(CoreCompileDependsOn)
     </CoreCompileDependsOn>
   </PropertyGroup>
 
-
+	<!--CoreProjectPath=""
+		TableFiles="@(TableFiles)"-->
+	<Target Name="GenerateTableCode"></Target >
 
   <Target Name="RestoreDependencyProject" Condition="'$(XrmFrameworkDisableDependencyProjectGeneration)' == '' AND '$(BuildingProject)' == 'true' AND $(DefineConstants.IndexOf('XRMFRAMEWORK_PLUGIN')) == -1">
     <Message Importance="High" Text="Preparing DependencyProject .Net Framework 4.6.2" />

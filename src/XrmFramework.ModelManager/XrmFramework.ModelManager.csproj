@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\XrmFramework.Core\XrmFramework.Core.csproj" />
+    <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj" />
+  </ItemGroup>
+
+</Project>
