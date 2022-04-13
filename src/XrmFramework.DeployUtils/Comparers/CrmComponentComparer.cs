@@ -85,5 +85,10 @@ namespace XrmFramework.DeployUtils.Utils
                 || x.WorkflowSdkStepEnabled ^ y.WorkflowSdkStepEnabled
                 || !x.AllowedCustomProcessingStepType.Equals(y.AllowedCustomProcessingStepType);
         }
+
+        public int GetHashCode(ICrmComponent obj)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

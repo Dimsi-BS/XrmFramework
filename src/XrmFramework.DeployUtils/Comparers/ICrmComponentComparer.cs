@@ -3,10 +3,9 @@ using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
 {
-    public interface ICrmComponentComparer : IComparer<ICrmComponent>
+    public interface ICrmComponentComparer : IEqualityComparer<ICrmComponent>
     {
         ICrmComponent CorrespondingComponent(ICrmComponent component, IReadOnlyCollection<ICrmComponent> target);
-        bool Equals(ICrmComponent x, ICrmComponent y);
         bool NeedsUpdate(ICrmComponent x, ICrmComponent y);
     }
 }
