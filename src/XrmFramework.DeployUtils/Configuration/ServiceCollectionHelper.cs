@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AutoMapper.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Configuration;
 using System.Linq;
@@ -13,6 +14,11 @@ namespace XrmFramework.DeployUtils.Configuration
         public static IServiceProvider ConfigureForDeploy(string projectName)
         {
             var serviceCollection = InitServiceCollection();
+
+            var mapperExpression = new MapperConfigurationExpression();
+            MapperConfigurationHelper.ConfigureMapperExpression(mapperExpression);
+
+            serviceCollection.AddAutoMapper(MapperConfigurationHelper.ConfigureMapperExpression);
 
             ParseSolutionSettings(projectName, out string pluginSolutionUniqueName, out string connectionString);
 
