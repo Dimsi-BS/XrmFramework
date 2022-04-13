@@ -6,8 +6,8 @@ using System.Activities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using XrmFramework.RemoteDebugger.Client.Configuration;
-using XrmFramework.RemoteDebugger.Client.Utils;
+using XrmFramework.DeployUtils;
+using XrmFramework.DeployUtils.Configuration;
 
 namespace XrmFramework.RemoteDebugger.Common
 {
@@ -29,10 +29,10 @@ namespace XrmFramework.RemoteDebugger.Common
 
             Console.WriteLine($"You are about to modify the debug session");
 
-            var serviceProvider = ServiceCollectionHelper.ConfigureServiceProvider(solutionName);
+            var serviceProvider = ServiceCollectionHelper.ConfigureForRemoteDebug(solutionName);
 
 
-            var remoteDebuggerHelper = serviceProvider.GetRequiredService<RemoteDebuggerPluginHelper>();
+            var remoteDebuggerHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
 
 
             remoteDebuggerHelper.UpdateDebugger<P>(solutionName);

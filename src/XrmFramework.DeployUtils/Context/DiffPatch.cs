@@ -36,10 +36,19 @@ namespace XrmFramework.DeployUtils.Context
 
         public PluginAssembly PluginAssembly { get; }
 
-        public IEnumerable<ICrmComponent> RetrieveWhere(Func<DiffComponent, bool> predicate)
+        public IEnumerable<ICrmComponent> GetComponentsWhere(Func<DiffComponent, bool> predicate)
         {
             return _diffResults.Where(predicate)
                 .Select(d => d.Component);
         }
+
+        public void SetComputedWhere(Func<DiffComponent, bool> predicate)
+        {
+            foreach (var diffComponent in _diffResults.Where(predicate))
+            {
+                diffComponent.DiffResult = RegistrationState.Computed;
+            }
+        }
+
     }
 }

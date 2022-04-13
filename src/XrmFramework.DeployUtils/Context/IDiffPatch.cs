@@ -8,6 +8,7 @@ namespace XrmFramework.DeployUtils.Context
     public interface IDiffPatch
     {
         PluginAssembly PluginAssembly { get; }
-        IEnumerable<ICrmComponent> RetrieveWhere(Func<DiffComponent, bool> predicate);
+        IEnumerable<ICrmComponent> GetComponentsWhere(Func<DiffComponent, bool> predicate);
+        void SetComputedWhere(Func<DiffComponent, bool> predicate);
     }
 }
