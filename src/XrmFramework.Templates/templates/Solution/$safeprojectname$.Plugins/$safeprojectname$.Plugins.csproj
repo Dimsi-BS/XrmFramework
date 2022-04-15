@@ -8,6 +8,5 @@
     <PackageReference Include="XrmFramework" Version="#{GitBuildVersionSimple}#" />
     <PackageReference Include="XrmFramework.Plugin" Version="#{GitBuildVersionSimple}#" />
   </ItemGroup>
-
   
 </Project>
