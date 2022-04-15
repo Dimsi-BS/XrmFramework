@@ -1,20 +1,13 @@
 ﻿using Microsoft.Xrm.Sdk;
-using XrmFramework.DeployUtils.Model;
 
-namespace Deploy
+namespace XrmFramework.DeployUtils.Model
 {
     public interface ICustomApiComponent : ICrmComponent
     {
-        /// <summary>
-        /// Unique identifier of the plug-in type associated with the step.
-        /// </summary>
-        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("customapiid")]
-        public Microsoft.Xrm.Sdk.EntityReference CustomApiId { get; set; }
         new string UniqueName { get; set; }
-        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("uniquename")]
         string Description { get; set; }
         string DisplayName { get; set; }
-        string LogicalEntityName { get; set; }
+        string LogicalEntityName { get; }
         bool IsOptional { get; set; }
         OptionSetValue Type { get; set; }
         string Name { get; set; }

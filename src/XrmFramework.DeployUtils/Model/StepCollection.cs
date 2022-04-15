@@ -9,7 +9,7 @@ namespace XrmFramework.DeployUtils.Model
     {
         private readonly StepComparer _stepComparer = new StepComparer();
 
-        private readonly List<Step> _internalList = new List<Step>();
+        private List<Step> _internalList = new List<Step>();
 
         public void Add(Step step)
         {

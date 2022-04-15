@@ -1,12 +1,11 @@
-﻿using Deploy;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Context
 {
-    public class AssemblyContext : IAssemblyContext
+    class AssemblyContext : IAssemblyContext
     {
-        public PluginAssembly Assembly { get; set; }
+        public PluginAssembly Assembly { get; set; } = new();
 
         public ICollection<Plugin> Plugins { get; } = new List<Plugin>();
         public ICollection<CustomApi> CustomApis { get; } = new List<CustomApi>();

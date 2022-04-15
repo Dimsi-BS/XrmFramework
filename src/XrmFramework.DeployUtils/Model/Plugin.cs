@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
@@ -48,11 +49,12 @@ namespace XrmFramework.DeployUtils.Model
 
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
-        public IEnumerable<ICrmComponent> Children => Steps;
+        public IEnumerable<ICrmComponent> Children => Steps.ToList<ICrmComponent>();
+
         public void AddChild(ICrmComponent child)
         {
-            if (!child.GetType().IsAssignableFrom(typeof(Step))) throw new ArgumentException("Plugin doesn't take this type of children");
-            Steps.Add((Step)child);
+            if (child is not Step step) throw new ArgumentException("Plugin doesn't take this type of children");
+            Steps.Add(step);
         }
 
         public int Rank { get; } = 1;

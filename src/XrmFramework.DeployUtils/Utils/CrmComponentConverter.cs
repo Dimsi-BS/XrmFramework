@@ -1,5 +1,4 @@
-﻿using Deploy;
-using Microsoft.Xrm.Sdk;
+﻿using Microsoft.Xrm.Sdk;
 using System;
 using System.Linq;
 using XrmFramework.Definitions;
@@ -15,9 +14,69 @@ namespace XrmFramework.DeployUtils.Utils
         {
             _context = context;
         }
-        public PluginType ToRegisterPluginType(Plugin plugin)
+
+        public Entity ToRegisterComponent(ICrmComponent component)
         {
-            var t = new PluginType
+            switch (component)
+            {
+                case PluginAssembly assembly:
+                    return ToRegisterPluginAssembly(assembly);
+
+                case CustomApi customApi:
+                    return ToRegisterCustomApi(customApi);
+
+                case CustomApiRequestParameter request:
+                    return ToRegisterCustomApiRequestParameter(request);
+
+                case CustomApiResponseProperty response:
+                    return ToRegisterCustomApiResponseProperty(response);
+
+                case Plugin plugin:
+                    return ToRegisterPluginType(plugin);
+                case Step step:
+                    return ToRegisterStep(step);
+
+                case StepImage image:
+                    return ToRegisterImage(image);
+
+                default: throw new ArgumentException("Unknown Crm Component given during Crm export");
+            }
+        }
+
+        private Deploy.CustomApiResponseProperty ToRegisterCustomApiResponseProperty(CustomApiResponseProperty response)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Deploy.CustomApiRequestParameter ToRegisterCustomApiRequestParameter(CustomApiRequestParameter request)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Deploy.CustomApi ToRegisterCustomApi(CustomApi customApi)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static Deploy.PluginAssembly ToRegisterPluginAssembly(PluginAssembly assembly)
+        {
+            var pluginAssembly = new Deploy.PluginAssembly()
+            {
+                Name = assembly.Name,
+                SourceType = assembly.SourceType,
+                IsolationMode = assembly.IsolationMode,
+                Culture = assembly.Culture,
+                PublicKeyToken = assembly.PublicKeyToken,
+                Version = assembly.Version,
+                Description = assembly.Description,
+                Content = Convert.ToBase64String(assembly.Content)
+            };
+            return pluginAssembly;
+        }
+
+        public Deploy.PluginType ToRegisterPluginType(Plugin plugin)
+        {
+            var t = new Deploy.PluginType
             {
                 PluginAssemblyId = new EntityReference
                 {
@@ -26,34 +85,27 @@ namespace XrmFramework.DeployUtils.Utils
                 },
                 TypeName = plugin.FullName,
                 FriendlyName = plugin.FullName,
-                Name = plugin.FullName,
-                Description = plugin.FullName
             };
+
+            if (plugin.IsWorkflow)
+            {
+                t.Name = plugin.DisplayName;
+                t.Description = string.Empty;
+                t.WorkflowActivityGroupName = "Workflows";
+
+            }
+            else
+            {
+                t.Name = plugin.FullName;
+                t.Description = plugin.FullName;
+
+            }
             if (plugin.Id != Guid.Empty) t.Id = plugin.Id;
 
             return t;
         }
 
-        public PluginType ToRegisterCustomWorkflowType(Plugin plugin)
-        {
-            var t = new PluginType
-            {
-                PluginAssemblyId = new EntityReference
-                {
-                    LogicalName = PluginAssemblyDefinition.EntityName,
-                    Id = plugin.ParentId
-                },
-                TypeName = plugin.FullName,
-                FriendlyName = plugin.FullName,
-                Name = plugin.DisplayName,
-                Description = string.Empty,
-                WorkflowActivityGroupName = "Workflows"
-            };
-
-            return t;
-        }
-
-        public SdkMessageProcessingStep ToRegisterStep(Step step)
+        public Deploy.SdkMessageProcessingStep ToRegisterStep(Step step)
         {
             // Issue with CRM SDK / Description field max length = 256 characters
             var descriptionAttributeMaxLength = 256;
@@ -73,7 +125,7 @@ namespace XrmFramework.DeployUtils.Utils
                         $"{description} : {count} users have the fullname '{step.ImpersonationUsername}' in CRM.");
             }
 
-            var t = new SdkMessageProcessingStep
+            var t = new Deploy.SdkMessageProcessingStep
             {
                 AsyncAutoDelete = step.Mode.Equals(Modes.Asynchronous),
                 Description = description,
@@ -85,7 +137,7 @@ namespace XrmFramework.DeployUtils.Utils
                         _context.Users.First(u => u.Key == step.ImpersonationUsername).Value),
 
 #pragma warning disable 0612
-                InvocationSource = new OptionSetValue((int)sdkmessageprocessingstep_invocationsource.Child),
+                InvocationSource = new OptionSetValue((int)Deploy.sdkmessageprocessingstep_invocationsource.Child),
 #pragma warning restore 0612
                 IsCustomizable = new BooleanManagedProperty(true),
                 IsHidden = new BooleanManagedProperty(false),
@@ -101,7 +153,7 @@ namespace XrmFramework.DeployUtils.Utils
                     .Select(f => f.ToEntityReference()).FirstOrDefault(), //GetSdkMessageFilterRef(service, step),
                                                                           //SdkMessageProcessingStepSecureConfigId = GetSdkMessageProcessingStepSecureConfigRef(service, step),
                 Stage = new OptionSetValue((int)step.Stage),
-                SupportedDeployment = new OptionSetValue((int)sdkmessageprocessingstep_supporteddeployment.ServerOnly),
+                SupportedDeployment = new OptionSetValue((int)Deploy.sdkmessageprocessingstep_supporteddeployment.ServerOnly),
                 Configuration = step.UnsecureConfig
             };
 
@@ -110,7 +162,7 @@ namespace XrmFramework.DeployUtils.Utils
             return t;
         }
 
-        public SdkMessageProcessingStepImage ToRegisterImage(StepImage image)
+        public Deploy.SdkMessageProcessingStepImage ToRegisterImage(StepImage image)
         {
             var isAllColumns = image.AllAttributes;
             var columns = image.JoinedAttributes;
@@ -126,13 +178,13 @@ namespace XrmFramework.DeployUtils.Utils
 #pragma warning restore 618
                 messagePropertyName = "EntityMoniker";
 
-            var t = new SdkMessageProcessingStepImage
+            var t = new Deploy.SdkMessageProcessingStepImage
             {
                 Attributes1 = isAllColumns ? null : columns,
                 EntityAlias = name,
                 ImageType = new OptionSetValue(image.IsPreImage
-                    ? (int)sdkmessageprocessingstepimage_imagetype.PreImage
-                    : (int)sdkmessageprocessingstepimage_imagetype.PostImage),
+                    ? (int)Deploy.sdkmessageprocessingstepimage_imagetype.PreImage
+                    : (int)Deploy.sdkmessageprocessingstepimage_imagetype.PostImage),
                 IsCustomizable = new BooleanManagedProperty(true),
                 MessagePropertyName = messagePropertyName,
                 Name = name,

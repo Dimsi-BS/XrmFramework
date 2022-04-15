@@ -8,6 +8,5 @@ namespace XrmFramework.DeployUtils.Utils
     {
         IAssemblyContext CreateFromLocalAssemblyContext(Type TPlugin);
         IAssemblyContext CreateFromRemoteAssemblyContext(IRegistrationService service, string assemblyName);
-        IFlatAssemblyContext CreateFlatAssemblyContextFromAssemblyContext(IAssemblyContext from);
     }
 }

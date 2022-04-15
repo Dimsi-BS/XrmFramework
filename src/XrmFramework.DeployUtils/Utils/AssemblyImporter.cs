@@ -1,22 +1,23 @@
-﻿using Deploy;
+﻿using AutoMapper;
 using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
 {
-    public class AssemblyImporter : IAssemblyImporter
+    class AssemblyImporter : IAssemblyImporter
     {
         private readonly ISolutionContext _solutionContext;
-        public AssemblyImporter(ISolutionContext solutionContext)
+        private readonly IMapper _mapper;
+        public AssemblyImporter(ISolutionContext solutionContext, IMapper mapper)
         {
             _solutionContext = solutionContext;
+            _mapper = mapper;
         }
 
         public PluginAssembly CreateAssemblyFromLocal(Assembly assembly)
@@ -33,16 +34,22 @@ namespace XrmFramework.DeployUtils.Utils
             {
                 Id = Guid.NewGuid(),
                 Name = name,
-                SourceType = new OptionSetValue((int)pluginassembly_sourcetype.Database),
-                IsolationMode = new OptionSetValue((int)pluginassembly_isolationmode.Sandbox),
+                SourceType = new OptionSetValue((int)Deploy.pluginassembly_sourcetype.Database),
+                IsolationMode = new OptionSetValue((int)Deploy.pluginassembly_isolationmode.Sandbox),
                 Culture = culture,
                 PublicKeyToken = publicKeyToken,
                 Version = version,
                 Description = description,
-                Content = Convert.ToBase64String(File.ReadAllBytes(assembly.Location))
+                Content = File.ReadAllBytes(assembly.Location)
+                //Convert.ToBase64String(File.ReadAllBytes(assembly.Location))
             };
 
             return t;
+        }
+
+        public PluginAssembly CreateAssemblyFromRemote(Deploy.PluginAssembly assembly)
+        {
+            return _mapper.Map<PluginAssembly>(assembly);
         }
 
         public Plugin CreatePluginFromType(Type type)
@@ -79,7 +86,7 @@ namespace XrmFramework.DeployUtils.Utils
             return FromXrmFrameworkCustomApi(instance);
         }
 
-        public Step CreateStepFromRemote(SdkMessageProcessingStep sdkStep, IEnumerable<SdkMessageProcessingStepImage> sdkImages)
+        public Step CreateStepFromRemote(Deploy.SdkMessageProcessingStep sdkStep, IEnumerable<Deploy.SdkMessageProcessingStepImage> sdkImages)
         {
             var entityName = sdkStep.EntityName;
 
@@ -108,24 +115,24 @@ namespace XrmFramework.DeployUtils.Utils
         }
 
         private void CreateStepImageFromRemote(Step step, bool isPreImage,
-            IEnumerable<SdkMessageProcessingStepImage> stepImages)
+            IEnumerable<Deploy.SdkMessageProcessingStepImage> stepImages)
         {
             var imageType = isPreImage
-                ? sdkmessageprocessingstepimage_imagetype.PreImage
-                : sdkmessageprocessingstepimage_imagetype.PostImage;
-            var preImage = stepImages.FirstOrDefault(i => i.ImageTypeEnum == imageType
+                ? Deploy.sdkmessageprocessingstepimage_imagetype.PreImage
+                : Deploy.sdkmessageprocessingstepimage_imagetype.PostImage;
+            var existingImage = stepImages.FirstOrDefault(i => i.ImageTypeEnum == imageType
                                                           && i.SdkMessageProcessingStepId.Id == step.Id);
 
-            if (preImage != null)
+            if (existingImage != null)
             {
-                step.PreImage.Id = preImage.Id;
+                step.PreImage.Id = existingImage.Id;
                 step.PreImage.ParentId = step.Id;
-                step.PreImage.AllAttributes = preImage.Attributes1 == null;
-                step.PreImage.Attributes.Add(preImage.Attributes1);
+                step.PreImage.AllAttributes = existingImage.Attributes1 == null;
+                step.PreImage.Attributes.Add(existingImage.Attributes1);
             }
         }
 
-        public Plugin CreatePluginFromRemote(PluginType pluginType, IEnumerable<Step> steps)
+        public Plugin CreatePluginFromRemote(Deploy.PluginType pluginType, IEnumerable<Step> steps)
         {
             Plugin plugin;
             if (pluginType.WorkflowActivityGroupName != null)
@@ -147,15 +154,51 @@ namespace XrmFramework.DeployUtils.Utils
             return plugin;
         }
 
-        public CustomApi CreateCustomApiFromRemote(CustomApi customApi,
-                                                   IEnumerable<CustomApiRequestParameter> registeredRequestParameters,
-                                                   IEnumerable<CustomApiResponseProperty> registeredResponseProperties)
+        public CustomApi CreateCustomApiFromRemote(Deploy.CustomApi customApi,
+                                                   IEnumerable<Deploy.CustomApiRequestParameter> registeredRequestParameters,
+                                                   IEnumerable<Deploy.CustomApiResponseProperty> registeredResponseProperties)
         {
-            var requestParameters = registeredRequestParameters.Where(r => r.ParentId == customApi.Id).ToList();
-            var responseProperties = registeredResponseProperties.Where(r => r.ParentId == customApi.Id).ToList();
-            customApi.InArguments.AddRange(requestParameters);
-            customApi.OutArguments.AddRange(responseProperties);
-            return customApi;
+
+            var parsedCustomApi = _mapper.Map<CustomApi>(customApi);
+
+            registeredRequestParameters
+                .Where(r => r.CustomApiId.Id == customApi.Id)
+                .Select(_mapper.Map<CustomApiRequestParameter>)
+                .ToList()
+                .ForEach(parsedCustomApi.AddChild);
+
+            registeredResponseProperties
+                .Where(r => r.CustomApiId.Id == customApi.Id)
+                .Select(_mapper.Map<CustomApiResponseProperty>)
+                .ToList()
+                .ForEach(parsedCustomApi.AddChild);
+
+            return parsedCustomApi;
+        }
+
+        private static ICustomApiComponent CreateCustomApiResponsePropertyFromRemote(Deploy.CustomApiResponseProperty argument)
+        {
+            return new CustomApiRequestParameter()
+            {
+                Description = argument.Description,
+                Name = argument.Name,
+                DisplayName = argument.DisplayName,
+                Type = argument.Type,
+                UniqueName = argument.UniqueName
+            };
+        }
+
+        private ICustomApiComponent CreateCustomApiRequestParameterFromRemote(Deploy.CustomApiRequestParameter argument)
+        {
+            return new CustomApiRequestParameter()
+            {
+                Description = argument.Description,
+                Name = argument.Name,
+                DisplayName = argument.DisplayName,
+                IsOptional = argument.IsOptional,
+                Type = argument.Type,
+                UniqueName = argument.UniqueName
+            };
         }
 
         private Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false)
@@ -224,18 +267,18 @@ namespace XrmFramework.DeployUtils.Utils
                 UniqueName = $"{_solutionContext.Publisher.CustomizationPrefix}_{name}",
                 WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled,
                 FullName = type.FullName,
-                PluginTypeId = new EntityReference(PluginTypeDefinition.EntityName, Guid.NewGuid())
+                ParentId = Guid.NewGuid()
             };
 
             foreach (var argument in record.Arguments)
             {
                 if (argument.IsInArgument)
                 {
-                    customApi.InArguments.Add(FromXrmFrameworkArgument<CustomApiRequestParameter>(customApi.Name, argument));
+                    customApi.Arguments.Add(FromXrmFrameworkArgument<CustomApiRequestParameter>(customApi.Name, argument));
                 }
                 else
                 {
-                    customApi.OutArguments.Add(FromXrmFrameworkArgument<CustomApiResponseProperty>(customApi.Name, argument));
+                    customApi.Arguments.Add(FromXrmFrameworkArgument<CustomApiResponseProperty>(customApi.Name, argument));
                 }
             }
             customApi.Id = Guid.NewGuid();
@@ -248,13 +291,12 @@ namespace XrmFramework.DeployUtils.Utils
             var res = new T
             {
                 Id = Guid.NewGuid(),
+                ParentId = Guid.NewGuid(),
                 Description = string.IsNullOrWhiteSpace(argument.Description) ? $"{customApiName}.{argument.ArgumentName}" : argument.Description,
                 UniqueName = $"{customApiName}.{argument.ArgumentName}",
                 DisplayName = string.IsNullOrWhiteSpace(argument.DisplayName) ? $"{customApiName}.{argument.ArgumentName}" : argument.DisplayName,
-                LogicalEntityName = argument.LogicalEntityName,
                 Type = new OptionSetValue((int)argument.ArgumentType),
                 Name = argument.ArgumentName,
-                CustomApiId = new EntityReference(CustomApiDefinition.EntityName, default(Guid))
             };
 
             if (argument is CustomApiRequestParameter)

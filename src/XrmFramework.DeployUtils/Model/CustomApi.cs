@@ -1,39 +1,20 @@
-﻿using System;
+﻿using Microsoft.Xrm.Sdk;
+using System;
 using System.Collections.Generic;
-using XrmFramework;
 using XrmFramework.Definitions;
-using XrmFramework.DeployUtils.Model;
 
-namespace Deploy
+namespace XrmFramework.DeployUtils.Model
 {
-    partial class CustomApi : ICrmComponent
+    public partial class CustomApi : ICrmComponent
     {
-        public List<CustomApiRequestParameter> InArguments { get; } = new List<CustomApiRequestParameter>();
+        public List<ICustomApiComponent> Arguments { get; } = new List<ICustomApiComponent>();
+        public IEnumerable<ICrmComponent> Children => Arguments;
 
-        public List<CustomApiResponseProperty> OutArguments { get; } = new List<CustomApiResponseProperty>();
-        public IEnumerable<ICrmComponent> Children
-        {
-            get
-            {
-                var children = new List<ICrmComponent>();
-                children.AddRange(InArguments);
-                children.AddRange(OutArguments);
-                return children;
-            }
-        }
         public void AddChild(ICrmComponent child)
         {
-            switch (child)
-            {
-                case CustomApiRequestParameter parameter:
-                    InArguments.Add(parameter);
-                    break;
-                case CustomApiResponseProperty property:
-                    OutArguments.Add(property);
-                    break;
-                default:
-                    throw new ArgumentException("CustomApi doesn't take this type of children");
-            }
+            if (child is not ICustomApiComponent c)
+                throw new ArgumentException("CustomApi doesn't take this type of children");
+            Arguments.Add(c);
         }
 
         public int Rank { get; } = 2;
@@ -41,38 +22,39 @@ namespace Deploy
         public bool DoFetchTypeCode { get; } = true;
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
-        public Guid ParentId { get => PluginTypeId.Id; set => PluginTypeId.Id = value; }
+        public Guid ParentId { get; set; }
 
         public Guid AssemblyId { get; set; }
 
-        public override Guid Id
+        private Guid _id;
+
+        public Guid Id
         {
-            get => base.Id;
+            get => _id;
             set
             {
-                foreach (var req in InArguments)
+                foreach (var req in Arguments)
                 {
-                    req.CustomApiId.Id = value;
+                    req.ParentId = value;
                 }
-                foreach (var res in OutArguments)
-                {
-                    res.CustomApiId.Id = value;
-                }
-                base.Id = value;
+
+                _id = value;
             }
         }
-        public string FullName
-        {
-            get;
-            set;
-        }
 
-        public string Prefix
-        {
-            set => UniqueName = $"{value}{Name}";
-        }
-
+        public string FullName { get; set; }
+        public string UniqueName { get; set; }
         public string EntityTypeName => CustomApiDefinition.EntityName;
+        public string DisplayName { get; set; }
+        public string Name { get; set; }
 
+        public OptionSetValue AllowedCustomProcessingStepType { get; set; }
+        public string BoundEntityLogicalName { get; set; }
+        public OptionSetValue BindingType { get; set; }
+        public string Description { get; set; }
+        public string ExecutePrivilegeName { get; set; }
+        public bool IsFunction { get; set; }
+        public bool IsPrivate { get; set; }
+        public bool WorkflowSdkStepEnabled { get; set; }
     }
 }

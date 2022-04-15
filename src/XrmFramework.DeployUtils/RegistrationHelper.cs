@@ -1,9 +1,11 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
@@ -32,7 +34,6 @@ namespace XrmFramework.DeployUtils
             _assemblyFactory = assemblyFactory;
             _assemblyDiffFactory = assemblyDiffFactory;
         }
-
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
             var serviceProvider = ServiceCollectionHelper.ConfigureForDeploy(projectName);
@@ -42,7 +43,7 @@ namespace XrmFramework.DeployUtils
             Console.WriteLine($@"You are about to deploy on organization:\n
 {solutionSettings.Value.ConnectionString.Replace(";", "\n")}
 If ok press any key.");
-            Console.ReadKey();
+            //Console.ReadKey();
             Console.WriteLine("Connecting to CRM...");
 
             var registrationHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
@@ -64,7 +65,7 @@ If ok press any key.");
 
             _registrationStrategy = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(localAssembly, registeredAssembly);
 
-            ExecuteRegistrationStrategy();
+            //ExecuteRegistrationStrategy();
         }
 
         private void ExecuteRegistrationStrategy()
@@ -100,7 +101,7 @@ If ok press any key.");
             {
                 Console.WriteLine("Creating assembly");
 
-                assembly.Id = _registrationService.Create(assembly);
+                _assemblyExporter.CreateComponent(assembly);
             }
             else if (assembly.RegistrationState == RegistrationState.ToUpdate)
             {
@@ -112,12 +113,7 @@ If ok press any key.");
                 Console.WriteLine();
                 Console.WriteLine("Updating plugin assembly");
 
-                _registrationService.Update(assembly);
-            }
-            var addSolutionComponentRequest = _assemblyExporter.CreateAddSolutionComponentRequest(assembly.ToEntityReference());
-            if (addSolutionComponentRequest != null)
-            {
-                _registrationService.Execute(addSolutionComponentRequest);
+                _assemblyExporter.UpdateComponent(assembly);
             }
         }
 
@@ -130,5 +126,63 @@ If ok press any key.");
 
             _assemblyExporter.DeleteAllComponents(componentsToDelete);
         }
+        public static void AutoMapperTest<TPlugin>(string projectName)
+        {
+            var serviceProvider = ServiceCollectionHelper.ConfigureForDeploy("FrameworkTestsAymeric2.Plugins");
+
+            var factory = serviceProvider.GetRequiredService<IAssemblyFactory>();
+            var mapper = serviceProvider.GetRequiredService<IMapper>();
+
+            var localAssembly = factory.CreateFromLocalAssemblyContext(typeof(TPlugin));
+
+            var localAssemblyPool = localAssembly.ComponentsOrderedPool;
+            var localAssemblyCopy = mapper.Map<IAssemblyContext>(localAssembly);
+
+            var OrAssembly = localAssembly.Assembly;
+            var ClAssembly2 = mapper.Map<PluginAssembly>(localAssembly.Assembly);
+            var ClAssembly = localAssemblyCopy.Assembly;
+
+
+            Console.WriteLine($"\nOriginal Assembly Id is {OrAssembly.Id}");
+            Console.WriteLine($"Clone Assembly Id is {ClAssembly.Id}");
+            Console.WriteLine($"Messing with Clone Assembly Id ...");
+            ClAssembly.Id = Guid.NewGuid();
+            Console.WriteLine($"Original Assembly Id is {OrAssembly.Id}");
+            Console.WriteLine($"Clone Assembly Id is {ClAssembly.Id}");
+
+            var plug = (Plugin)localAssemblyPool.First(c => c is Plugin);
+            var original = plug.Steps;
+            var clone = mapper.Map<StepCollection>(original);
+
+
+            MessWith<PluginAssembly>(mapper, localAssemblyPool);
+            MessWith<StepImage>(mapper, localAssemblyPool);
+            MessWith<Step>(mapper, localAssemblyPool);
+            MessWith<Plugin>(mapper, localAssemblyPool);
+            MessWith<CustomApiRequestParameter>(mapper, localAssemblyPool);
+            MessWith<CustomApiResponseProperty>(mapper, localAssemblyPool);
+            MessWith<CustomApi>(mapper, localAssemblyPool);
+        }
+
+        private static void MessWith<T>(IMapper mapper, IReadOnlyCollection<ICrmComponent> pool) where T : ICrmComponent
+        {
+            try
+            {
+                var original = pool.First(c => c is T);
+                var clone = mapper.Map<T>(original);
+
+                Console.WriteLine($"\nOriginal {typeof(T).Name} Id is {original.Id}");
+                Console.WriteLine($"Clone {typeof(T).Name} Id is {clone.Id}");
+                Console.WriteLine($"Messing with Clone {typeof(T).Name} Id ...");
+                clone.Id = Guid.Empty;
+                Console.WriteLine($"Original {typeof(T).Name} Id is {original.Id}");
+                Console.WriteLine($"Clone {typeof(T).Name} Id is {clone.Id}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n{ex.Message}\n");
+            }
+        }
+
     }
 }

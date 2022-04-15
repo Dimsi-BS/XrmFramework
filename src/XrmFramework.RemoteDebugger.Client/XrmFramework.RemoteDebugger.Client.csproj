@@ -27,10 +27,15 @@
 		<Compile Include="..\XrmFramework.DeployUtils\**\*.cs" Link="_Imports\XrmFramework.DeployUtils\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.DeployUtils\bin\**;..\XrmFramework.DeployUtils\obj\**;..\XrmFramework.DeployUtils\**\*partial*.cs" />
 		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\**\*.cs" Link="_Imports\XrmFramework.Plugin\RemoteDebugger\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\**\*partial*.cs;..\XrmFramework.Plugin\RemoteDebugger\RemoteDebugger.Remote\*.cs" />
 		<Compile Include="..\XrmFramework.Plugin\**\StepConfiguration*.cs" Link="Model\StepConfigurations\%(RecursiveDir)%(Filename)%(Extension)" />
+		
+		<Compile Include="..\XrmFramework.Plugin\CustomApi\CustomApiAttribute.cs" Link="_Imports\XrmFramework.Plugin\CustomApi\%(RecursiveDir)%(Filename)%(Extension)" />
+		<Compile Include="..\XrmFramework.Plugin\CustomApi\CustomApiEnums.cs" Link="_Imports\XrmFramework.Plugin\CustomApi\%(RecursiveDir)%(Filename)%(Extension)" />
 
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="10.1.1" />
+		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
 		<PackageReference Include="Microsoft.Azure.Relay" Version="2.0.15596" />
 		<PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.108" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />

@@ -1,22 +1,23 @@
-﻿using Deploy;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
 {
-    public interface IAssemblyImporter
+    interface IAssemblyImporter
     {
         PluginAssembly CreateAssemblyFromLocal(Assembly assembly);
+        PluginAssembly CreateAssemblyFromRemote(Deploy.PluginAssembly assembly);
+
         Plugin CreatePluginFromType(Type type);
         Plugin CreateWorkflowFromType(Type type);
         CustomApi CreateCustomApiFromType(Type type);
 
-        Step CreateStepFromRemote(SdkMessageProcessingStep sdkStep, IEnumerable<SdkMessageProcessingStepImage> sdkImages);
-        Plugin CreatePluginFromRemote(PluginType pluginType, IEnumerable<Step> steps);
-        CustomApi CreateCustomApiFromRemote(CustomApi customApi,
-                                            IEnumerable<CustomApiRequestParameter> requestParameters,
-                                            IEnumerable<CustomApiResponseProperty> responseProperties);
+        Step CreateStepFromRemote(Deploy.SdkMessageProcessingStep sdkStep, IEnumerable<Deploy.SdkMessageProcessingStepImage> sdkImages);
+        Plugin CreatePluginFromRemote(Deploy.PluginType pluginType, IEnumerable<Step> steps);
+        CustomApi CreateCustomApiFromRemote(Deploy.CustomApi customApi,
+                                            IEnumerable<Deploy.CustomApiRequestParameter> requestParameters,
+                                            IEnumerable<Deploy.CustomApiResponseProperty> responseProperties);
     }
 }

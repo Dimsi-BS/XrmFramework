@@ -1,9 +1,6 @@
-﻿using Deploy;
-using System.Collections.Generic;
-using XrmFramework.DeployUtils.Model;
-
-namespace XrmFramework.DeployUtils.Context
+﻿namespace XrmFramework.DeployUtils.Context
 {
+    /*
     public class FlatAssemblyContext : IFlatAssemblyContext
     {
         public string Name { get; }
@@ -33,6 +30,6 @@ namespace XrmFramework.DeployUtils.Context
                 return res;
             }
         }
-
     }
+    */
 }

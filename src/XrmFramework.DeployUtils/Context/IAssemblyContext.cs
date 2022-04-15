@@ -1,5 +1,4 @@
-﻿using Deploy;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Context

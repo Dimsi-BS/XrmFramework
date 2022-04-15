@@ -1,14 +1,9 @@
-﻿using Deploy;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Context
 {
-    public interface IFlatAssemblyContext : IAssemblyContext
+    interface IFlatAssemblyContext : IAssemblyContext
     {
         public ICollection<Step> Steps { get; set; }
         public ICollection<StepImage> StepImages { get; set; }

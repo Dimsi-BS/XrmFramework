@@ -1,14 +1,11 @@
-﻿using Deploy;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using XrmFramework.DeployUtils.Context;
-using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Utils
 {
-    public partial class AssemblyFactory : IAssemblyFactory
+    partial class AssemblyFactory : IAssemblyFactory
     {
         private readonly IAssemblyImporter _importer;
 
@@ -93,55 +90,12 @@ namespace XrmFramework.DeployUtils.Utils
                     .ToList();
 
 
-                registeredAssembly.Assembly = assembly;
+                registeredAssembly.Assembly = _importer.CreateAssemblyFromRemote(assembly);
                 plugins.ForEach(registeredAssembly.Plugins.Add);
                 customApis.ForEach(registeredAssembly.CustomApis.Add);
                 workflows.ForEach(registeredAssembly.Workflows.Add);
             }
             return registeredAssembly;
-        }
-
-
-        public IFlatAssemblyContext CreateFlatAssemblyContextFromAssemblyContext(IAssemblyContext from)
-        {
-            var assembly = from.Assembly;
-            var plugins = from.Plugins;
-            var steps = new List<Step>();
-            foreach (var plugin in plugins)
-            {
-                steps.AddRange(plugin.Steps);
-            }
-
-            var stepImages = new List<StepImage>();
-            foreach (var step in steps)
-            {
-                if (step.PreImage.RegistrationState == RegistrationState.NotComputed) stepImages.Add(step.PreImage);
-                if (step.PostImage.RegistrationState == RegistrationState.NotComputed) stepImages.Add(step.PostImage);
-            }
-
-            var workflows = from.Workflows;
-
-            var customApis = from.CustomApis;
-            var customApiRequestParameters = new List<CustomApiRequestParameter>();
-            var customApiResponseProperties = new List<CustomApiResponseProperty>();
-            foreach (var customApi in customApis)
-            {
-                customApiRequestParameters.AddRange(customApi.InArguments);
-                customApiResponseProperties.AddRange(customApi.OutArguments);
-            }
-
-            var flatAssembly = new FlatAssemblyContext()
-            {
-                Assembly = assembly,
-                Plugins = plugins,
-                Steps = steps,
-                StepImages = stepImages,
-                Workflows = workflows,
-                CustomApis = customApis,
-                CustomApiRequestParameters = customApiRequestParameters,
-                CustomApiResponseProperties = customApiResponseProperties
-            };
-            return flatAssembly;
         }
     }
 }

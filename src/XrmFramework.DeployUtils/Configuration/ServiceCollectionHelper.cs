@@ -1,5 +1,4 @@
-﻿using AutoMapper.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Configuration;
 using System.Linq;
@@ -14,11 +13,6 @@ namespace XrmFramework.DeployUtils.Configuration
         public static IServiceProvider ConfigureForDeploy(string projectName)
         {
             var serviceCollection = InitServiceCollection();
-
-            var mapperExpression = new MapperConfigurationExpression();
-            MapperConfigurationHelper.ConfigureMapperExpression(mapperExpression);
-
-            serviceCollection.AddAutoMapper(MapperConfigurationHelper.ConfigureMapperExpression);
 
             ParseSolutionSettings(projectName, out string pluginSolutionUniqueName, out string connectionString);
 
@@ -44,6 +38,10 @@ namespace XrmFramework.DeployUtils.Configuration
             serviceCollection.AddScoped<AssemblyDiffFactory>();
             serviceCollection.AddSingleton<IAssemblyFactory, AssemblyFactory>();
             serviceCollection.AddSingleton<RegistrationHelper>();
+
+            serviceCollection.AddAutoMapper(typeof(AutoMapperLocalToLocalProfile),
+                                            typeof(AutoMapperRemoteToLocalProfile),
+                                            typeof(AutoMapperLocalToRemoteProfile));
             return serviceCollection;
         }
 

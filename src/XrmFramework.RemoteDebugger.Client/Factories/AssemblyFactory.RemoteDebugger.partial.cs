@@ -10,7 +10,7 @@ using XrmFramework.RemoteDebugger.Client.Configuration;
 
 namespace XrmFramework.DeployUtils.Utils
 {
-    public partial class AssemblyFactory
+    partial class AssemblyFactory
     {
         private readonly Guid _debugSessionId;
         private readonly ICrmComponentComparer _comparer;

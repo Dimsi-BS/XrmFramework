@@ -16,6 +16,10 @@ namespace XrmFramework.DeployUtils.Utils
         void DeleteAllComponents(IEnumerable<ICrmComponent> componentsToDelete);
         void UpdateAllComponents(IEnumerable<ICrmComponent> componentsToUpdate);
 
+        void CreateComponent(ICrmComponent component);
+        void DeleteComponent(ICrmComponent component);
+        void UpdateComponent(ICrmComponent component);
+
         void InitExportMetadata(IEnumerable<Step> steps);
     }
 }
