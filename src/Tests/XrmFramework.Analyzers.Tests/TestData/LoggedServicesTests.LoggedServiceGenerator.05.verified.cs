@@ -17,7 +17,7 @@ namespace XrmFramework
         }
         #endregion
 
-        public Guid IService.Create(Entity entity)
+        Guid IService.Create(Entity entity)
         {
             #region Parameters check
             if (entity == default)
@@ -38,7 +38,34 @@ namespace XrmFramework
             return returnValue;
         }
 
-        public void IService.TestEnum(EnumTest value = EnumTest.Null)
+        void IService.AssociateRecords(EntityReference objectRef, Relationship relationName, params EntityReference[] entityReferences)
+        {
+            #region Parameters check
+            if (objectRef == default)
+            {
+                throw new ArgumentNullException(nameof(objectRef));
+            }
+            if (relationName == default)
+            {
+                throw new ArgumentNullException(nameof(relationName));
+            }
+            if (entityReferences == default)
+            {
+                throw new ArgumentNullException(nameof(entityReferences));
+            }
+            #endregion
+
+            var sw = new Stopwatch();
+            sw.Start();
+
+            Log(nameof(AssociateRecords), "Start: objectRef = {0}, relationName = {1}, entityReferences = {2}", objectRef, relationName, entityReferences);
+
+            Service.AssociateRecords(objectRef, relationName, entityReferences);
+
+            Log(nameof(AssociateRecords), "End : duration = {0}", sw.Elapsed);
+        }
+
+        void IService.TestEnum(EnumTest value = EnumTest.Null)
         {
             #region Parameters check
             #endregion
@@ -53,7 +80,7 @@ namespace XrmFramework
             Log(nameof(TestEnum), "End : duration = {0}", sw.Elapsed);
         }
 
-        public void IService.Update(Entity entity)
+        void IService.Update(Entity entity)
         {
             #region Parameters check
             if (entity == default)

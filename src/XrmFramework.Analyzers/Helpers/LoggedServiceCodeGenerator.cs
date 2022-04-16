@@ -188,8 +188,9 @@ namespace XrmFramework.Analyzers.Helpers
             }
             else
             {
-                var minimalFormat = SymbolDisplayFormat.MinimallyQualifiedFormat
-                            .WithGenericsOptions(SymbolDisplayGenericsOptions.IncludeTypeParameters);
+                var minimalFormat = SymbolDisplayFormat.FullyQualifiedFormat
+                            .WithGenericsOptions(SymbolDisplayGenericsOptions.IncludeTypeParameters)
+                            .WithMemberOptions(SymbolDisplayMemberOptions.None);
 
                 builder
                     .Append(m.ToDisplayString(minimalFormat))

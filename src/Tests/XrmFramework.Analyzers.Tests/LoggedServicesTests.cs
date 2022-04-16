@@ -30,6 +30,8 @@ namespace XrmFramework {
     {
         Guid Create(Entity entity);
 
+        void AssociateRecords(EntityReference objectRef, Relationship relationName, params EntityReference[] entityReferences);
+
         void TestEnum(EnumTest value = EnumTest.Null);
     }
 
@@ -44,6 +46,14 @@ namespace XrmFramework {
         public Guid Create(Entity entity)
         {
             return Guid.Empty;
+        }
+
+        void IService.AssociateRecords(EntityReference objectRef, Relationship relationName, params EntityReference[] entityReferences)
+        {
+        }
+
+        void IService.TestEnum(EnumTest value = EnumTest.Null)
+        {
         }
     }
 
