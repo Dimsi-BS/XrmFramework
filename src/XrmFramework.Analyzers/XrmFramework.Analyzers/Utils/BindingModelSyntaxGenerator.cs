@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Formatting;
 
 namespace XrmFramework.Analyzers.Utils
 {
@@ -22,7 +16,7 @@ namespace XrmFramework.Analyzers.Utils
     public abstract class SubEntitySyntaxGenerator
     {
         protected readonly Dictionary<AttributeDefinition, string> AlreadyAddedDefinitions = new Dictionary<AttributeDefinition, string>();
-        
+
         public abstract bool GetSubSyntax(AttributeDefinition attributeDefinition, out StatementSyntax syntax, out string subRecordName);
 
         public ICollection<StatementSyntax> GetAllSubEntitySyntaxes(ModelDefinition modelDefinition)

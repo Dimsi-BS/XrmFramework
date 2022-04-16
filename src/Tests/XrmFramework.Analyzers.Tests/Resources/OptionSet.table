@@ -1,0 +1,47 @@
+[
+  {
+    "LogName": "synapselinkprofileentitytype",
+    "Name": "SynapseLinkProfileEntityType",
+    "Values": [
+      {
+        "Name": "Requested",
+        "Labels": [
+          {
+            "Label": "Requested",
+            "LangId": 1036
+          }
+        ],
+        "ExtVal": ""
+      }
+    ],
+    "IsGlobal": true
+  },
+  {
+    "LogName": "synapselinkscheduletype",
+    "Name": "SynapseLinkScheduleType",
+    "Values": [
+      {
+        "Name": "Snapshot",
+        "Labels": [
+          {
+            "Label": "Snapshot",
+            "LangId": 1036
+          }
+        ],
+        "ExtVal": ""
+      },
+      {
+        "Value": 1,
+        "Name": "Incrementalupdate",
+        "Labels": [
+          {
+            "Label": "IncrementalUpdate",
+            "LangId": 1036
+          }
+        ],
+        "ExtVal": ""
+      }
+    ],
+    "IsGlobal": true
+  }
+]

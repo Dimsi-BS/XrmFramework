@@ -16,7 +16,7 @@
   </metadata>
 
   <files>
-    <file src="bin\$config$\net6.0\*" target="analyzers\dotnet\cs" />
+    <file src="bin\$config$\netstandard2.0\*" target="analyzers\dotnet\cs" />
 
   </files>
 </package>

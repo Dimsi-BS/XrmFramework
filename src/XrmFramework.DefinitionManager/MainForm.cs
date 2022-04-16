@@ -1,19 +1,15 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using DefinitionManager;
+using Microsoft.EntityFrameworkCore.Internal;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Windows.Forms;
-using DefinitionManager;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Xrm.Sdk.Messages;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using XrmFramework.Core;
 using RelationshipAttributeDefinition = DefinitionManager.Definitions.RelationshipAttributeDefinition;
 
@@ -340,21 +336,21 @@ namespace XrmFramework.DefinitionManager
             {
                 var sb = new IndentedStringBuilder();
 
-                //var entity = _tables.FirstOrDefault(e => e.LogicalName == item.LogicalName);
+                var entity = _tables.FirstOrDefault(e => e.LogicalName == item.LogicalName);
 
-                //var selectedAttributes = item.AttributesCollection.SelectedDefinitions;
+                var selectedAttributes = item.AttributesCollection.SelectedDefinitions;
 
-                //entity.Columns.RemoveAll(a => selectedAttributes.All(s => s.LogicalName != a.LogicalName));
+                entity.Columns.RemoveAll(a => selectedAttributes.All(s => s.LogicalName != a.LogicalName));
 
-                //var enumsToKeep = entity.Columns.Where(a => !string.IsNullOrEmpty(a.EnumName))
-                //    .Select(en => en.EnumName).Distinct().ToList();
+                var enumsToKeep = entity.Columns.Where(a => !string.IsNullOrEmpty(a.EnumName))
+                    .Select(en => en.EnumName).Distinct().ToList();
 
-                //entity.Enums.RemoveAll(en => !enumsToKeep.Contains(en.LogicalName));
+                entity.Enums.RemoveAll(en => !enumsToKeep.Contains(en.LogicalName));
 
-                //var entityTxt = JsonConvert.SerializeObject(entity, Formatting.Indented, new JsonSerializerSettings
-                //{
-                //    DefaultValueHandling = DefaultValueHandling.Ignore
-                //});
+                var entityTxt = JsonConvert.SerializeObject(entity, Formatting.Indented, new JsonSerializerSettings
+                {
+                    DefaultValueHandling = DefaultValueHandling.Ignore
+                });
 
                 sb.AppendLine("");
                 sb.AppendLine("using System;");
@@ -605,7 +601,7 @@ namespace XrmFramework.DefinitionManager
 
                 var fileInfo2 = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{item.Name.Replace("Definition", string.Empty)}.table");
 
-                //File.WriteAllText(fileInfo2.FullName, entityTxt);
+                File.WriteAllText(fileInfo2.FullName, entityTxt);
             }
 
 
@@ -627,7 +623,7 @@ namespace XrmFramework.DefinitionManager
 
             var fileInfoOptionSets = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{globalOptionSets.Name}.table");
 
-            //File.WriteAllText(fileInfoOptionSets.FullName, optionSetsTxt);
+            File.WriteAllText(fileInfoOptionSets.FullName, optionSetsTxt);
 
             var fc = new IndentedStringBuilder();
             fc.AppendLine("using System.ComponentModel;");

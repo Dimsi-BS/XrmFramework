@@ -9,7 +9,7 @@ namespace XrmFramework.Definitions
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
 	[ExcludeFromCodeCoverage]
-    [DefinitionManagerIgnore]
+	[DefinitionManagerIgnore]
 	public static class SdkMessageProcessingStepImageDefinition
 	{
 		public const string EntityName = "sdkmessageprocessingstepimage";
@@ -89,17 +89,17 @@ namespace XrmFramework.Definitions
 			[Relationship("userentityinstancedata", EntityRole.Referenced, "userentityinstancedata_sdkmessageprocessingstepimage", "objectid")]
 			public const string userentityinstancedata_sdkmessageprocessingstepimage = "userentityinstancedata_sdkmessageprocessingstepimage";
 		}
-    }
+	}
 
-    [OptionSetDefinition(SdkMessageProcessingStepImageDefinition.EntityName, SdkMessageProcessingStepImageDefinition.Columns.ImageType)]
-    [DefinitionManagerIgnore]
+	[OptionSetDefinition(SdkMessageProcessingStepImageDefinition.EntityName, SdkMessageProcessingStepImageDefinition.Columns.ImageType)]
+	[DefinitionManagerIgnore]
 	public enum ImageType
-    {
-        [Description("PreImage")]
-        Preimage = 0,
-        [Description("PostImage")]
-        Postimage = 1,
-        [Description("Both")]
-        Both = 2,
-    }
+	{
+		[Description("PreImage")]
+		Preimage = 0,
+		[Description("PostImage")]
+		Postimage = 1,
+		[Description("Both")]
+		Both = 2,
+	}
 }

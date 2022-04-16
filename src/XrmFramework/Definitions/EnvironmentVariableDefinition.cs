@@ -9,7 +9,7 @@ namespace XrmFramework.Definitions
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
 	[ExcludeFromCodeCoverage]
-    [DefinitionManagerIgnore]
+	[DefinitionManagerIgnore]
 	public static class EnvironmentVariableDefinition
 	{
 		public const string EntityName = "environmentvariabledefinition";
@@ -18,14 +18,14 @@ namespace XrmFramework.Definitions
 		[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
 		public static class Columns
 		{
-            /// <summary>
-            /// 
-            /// Type : Memo
-            /// Validity :  Read | Create | Update | AdvancedFind 
-            /// </summary>
-            [AttributeMetadata(AttributeTypeCode.Memo)]
-            [StringLength(2000)]
-            public const string DefaultValue = "defaultvalue";
+			/// <summary>
+			/// 
+			/// Type : Memo
+			/// Validity :  Read | Create | Update | AdvancedFind 
+			/// </summary>
+			[AttributeMetadata(AttributeTypeCode.Memo)]
+			[StringLength(2000)]
+			public const string DefaultValue = "defaultvalue";
 
 			/// <summary>
 			/// 
@@ -159,40 +159,40 @@ namespace XrmFramework.Definitions
 		}
 	}
 
-    [OptionSetDefinition(EnvironmentVariableDefinition.EntityName, EnvironmentVariableDefinition.Columns.StateCode)]
-    [DefinitionManagerIgnore]
+	[OptionSetDefinition(EnvironmentVariableDefinition.EntityName, EnvironmentVariableDefinition.Columns.StateCode)]
+	[DefinitionManagerIgnore]
 	public enum EnvironmentVariableDefinitionState
-    {
-        [Description("Active")]
-        Active = 0,
-        [Description("Inactive")]
-        Inactive = 1,
-    }
+	{
+		[Description("Active")]
+		Active = 0,
+		[Description("Inactive")]
+		Inactive = 1,
+	}
 
-    [OptionSetDefinition(EnvironmentVariableDefinition.EntityName, EnvironmentVariableDefinition.Columns.StatusCode)]
-    [DefinitionManagerIgnore]
+	[OptionSetDefinition(EnvironmentVariableDefinition.EntityName, EnvironmentVariableDefinition.Columns.StatusCode)]
+	[DefinitionManagerIgnore]
 	public enum EnvironmentVariableDefinitionStatus
-    {
-        [Description("Active")]
-        Active = 1,
-        [Description("Inactive")]
-        Inactive = 2,
-    }
+	{
+		[Description("Active")]
+		Active = 1,
+		[Description("Inactive")]
+		Inactive = 2,
+	}
 
-    [OptionSetDefinition(EnvironmentVariableDefinition.EntityName, EnvironmentVariableDefinition.Columns.Type)]
-    [DefinitionManagerIgnore]
+	[OptionSetDefinition(EnvironmentVariableDefinition.EntityName, EnvironmentVariableDefinition.Columns.Type)]
+	[DefinitionManagerIgnore]
 	public enum EnvironmentVariableType
-    {
-        Null = 0,
-        [Description("String")]
-        String = 100000000,
-        [Description("Number")]
-        Number = 100000001,
-        [Description("Boolean")]
-        Boolean = 100000002,
-        [Description("JSON")]
-        Json = 100000003,
-        [Description("Connection reference")]
-        ConnectionReference = 100000004,
-    }
+	{
+		Null = 0,
+		[Description("String")]
+		String = 100000000,
+		[Description("Number")]
+		Number = 100000001,
+		[Description("Boolean")]
+		Boolean = 100000002,
+		[Description("JSON")]
+		Json = 100000003,
+		[Description("Connection reference")]
+		ConnectionReference = 100000004,
+	}
 }

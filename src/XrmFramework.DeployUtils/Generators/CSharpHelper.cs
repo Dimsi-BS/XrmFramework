@@ -1,6 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,9 +13,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
@@ -821,61 +821,61 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
                     return HandleArguments(((NewExpression)expression).Arguments, builder);
                 case ExpressionType.Call:
-                {
-                    var callExpression = (MethodCallExpression)expression;
-                    if (callExpression.Method.IsStatic)
                     {
-                        builder
-                            .Append(Reference(callExpression.Method.DeclaringType, useFullName: true));
-                    }
-                    else
-                    {
-                        if (!HandleExpression(callExpression.Object, builder))
+                        var callExpression = (MethodCallExpression)expression;
+                        if (callExpression.Method.IsStatic)
                         {
-                            return false;
+                            builder
+                                .Append(Reference(callExpression.Method.DeclaringType, useFullName: true));
                         }
+                        else
+                        {
+                            if (!HandleExpression(callExpression.Object, builder))
+                            {
+                                return false;
+                            }
+                        }
+
+                        builder
+                            .Append('.')
+                            .Append(callExpression.Method.Name);
+
+                        return HandleArguments(callExpression.Arguments, builder);
                     }
-
-                    builder
-                        .Append('.')
-                        .Append(callExpression.Method.Name);
-
-                    return HandleArguments(callExpression.Arguments, builder);
-                }
                 case ExpressionType.Constant:
-                {
-                    var value = ((ConstantExpression)expression).Value;
-
-                    builder
-                        .Append(
-                            simple
-                            && value?.GetType()?.IsNumeric() == true
-                                ? value
-                                : UnknownLiteral(value));
-                    return true;
-                }
-                case ExpressionType.MemberAccess:
-                {
-                    var memberExpression = (MemberExpression)expression;
-                    if (memberExpression.Expression == null)
                     {
+                        var value = ((ConstantExpression)expression).Value;
+
                         builder
-                            .Append(Reference(memberExpression.Member.DeclaringType, useFullName: true));
+                            .Append(
+                                simple
+                                && value?.GetType()?.IsNumeric() == true
+                                    ? value
+                                    : UnknownLiteral(value));
+                        return true;
                     }
-                    else
+                case ExpressionType.MemberAccess:
                     {
-                        if (!HandleExpression(memberExpression.Expression, builder))
+                        var memberExpression = (MemberExpression)expression;
+                        if (memberExpression.Expression == null)
                         {
-                            return false;
+                            builder
+                                .Append(Reference(memberExpression.Member.DeclaringType, useFullName: true));
                         }
+                        else
+                        {
+                            if (!HandleExpression(memberExpression.Expression, builder))
+                            {
+                                return false;
+                            }
+                        }
+
+                        builder
+                            .Append('.')
+                            .Append(memberExpression.Member.Name);
+
+                        return true;
                     }
-
-                    builder
-                        .Append('.')
-                        .Append(memberExpression.Member.Name);
-
-                    return true;
-                }
             }
 
             return false;

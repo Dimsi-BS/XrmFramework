@@ -145,7 +145,7 @@ namespace XrmFramework
                 {
                     return;
                 }
-                
+
                 IEnumerable<Step> steps;
 
                 if (_isCustomApi)
@@ -158,15 +158,10 @@ namespace XrmFramework
                 else
                 {
                     steps =
-                        (from a in _newRegisteredEvents
-                            where (
-                                localContext.IsStage(a.Stage) &&
-                                localContext.IsMessage(a.Message) &&
-                                localContext.Mode == a.Mode &&
-                                (string.IsNullOrWhiteSpace(a.EntityName) ||
-                                 a.EntityName == localContext.PrimaryEntityName)
-                            )
-                            select a);
+                        from a in _newRegisteredEvents
+                        where
+                            localContext.ShouldExecuteStep(a)
+                        select a;
                 }
 
                 var stage = Enum.ToObject(typeof(Stages), localContext.Stage);

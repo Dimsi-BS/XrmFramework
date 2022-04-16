@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace XrmFramework.DeployUtils.Generators
 {
@@ -20,15 +20,15 @@ namespace XrmFramework.DeployUtils.Generators
             {
                 var tempList = GetAttributeNamespaces(m.CustomAttributes).ToList();
 
-                    tempList.AddRange(m.GetGenericArguments().SelectMany(t => t.GetNamespaces()));
-                    tempList.AddRange(m.ReturnType.GetNamespaces());
-                    tempList.AddRange(m.GetParameters()
-                        .SelectMany(p => 
-                            p.ParameterType.GetNamespaces()
-                            .Concat(GetAttributeNamespaces(p.CustomAttributes))));
-                    tempList.AddRange(m.GetGenericArguments()
-                        .SelectMany(g => g.GetGenericParameterConstraints()
-                            .SelectMany(c => c.GetNamespaces())));
+                tempList.AddRange(m.GetGenericArguments().SelectMany(t => t.GetNamespaces()));
+                tempList.AddRange(m.ReturnType.GetNamespaces());
+                tempList.AddRange(m.GetParameters()
+                    .SelectMany(p =>
+                        p.ParameterType.GetNamespaces()
+                        .Concat(GetAttributeNamespaces(p.CustomAttributes))));
+                tempList.AddRange(m.GetGenericArguments()
+                    .SelectMany(g => g.GetGenericParameterConstraints()
+                        .SelectMany(c => c.GetNamespaces())));
                 list.AddRange(tempList);
             }
 

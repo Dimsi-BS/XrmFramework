@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.Text;
 
 namespace Model.Sdk.Metadata
@@ -48,7 +46,7 @@ namespace Model.Sdk.Metadata
         public bool IsPrimaryImageAttribute { get; set; }
 
         [DataMember(Name = "e")]
-        public string EnumName {get; set; }
+        public string EnumName { get; set; }
 
         [DataMember(Name = "rs")]
         public IList<RelationshipMetadata> Relationships { get; set; } = new List<RelationshipMetadata>();

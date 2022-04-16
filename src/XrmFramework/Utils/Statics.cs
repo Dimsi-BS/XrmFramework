@@ -28,6 +28,7 @@ namespace XrmFramework
         RealTime = 1
     }
 
+    [EnumGeneration]
     public partial class InputParameters
     {
         protected string ParameterName { get; }
@@ -61,6 +62,7 @@ namespace XrmFramework
         public static InputParameters UpdateContent = new InputParameters("UpdateContent");
     }
 
+    [EnumGeneration]
     public partial class OutputParameters
     {
         protected string ParameterName { get; }
@@ -80,6 +82,7 @@ namespace XrmFramework
         public static OutputParameters ValidationResult = new OutputParameters("ValidationResult");
     }
 
+    [EnumGeneration]
     public partial class Messages
     {
         public static Messages AddItem = new Messages("AddItem");

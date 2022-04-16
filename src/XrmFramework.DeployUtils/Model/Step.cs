@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,20 @@ namespace XrmFramework.DeployUtils.Model
             Stage = stage;
             Mode = mode;
             EntityName = entityName;
+
+            if (!string.IsNullOrWhiteSpace(EntityName) &&
+                (message == Messages.Associate.ToString() || message == Messages.Disassociate.ToString()))
+            {
+                EntityName = string.Empty;
+
+                var stepConfig = new StepConfiguration
+                {
+                    RelationshipName = entityName
+                };
+
+                UnsecureConfig = JsonConvert.SerializeObject(stepConfig);
+            }
+
         }
 
         public string PluginTypeName { get; }
@@ -97,7 +112,17 @@ namespace XrmFramework.DeployUtils.Model
             step.PostImageAttributes.AddRange(s.PostImageAttributes);
             step.PreImageAllAttributes = s.PreImageAllAttributes;
             step.PreImageAttributes.AddRange(s.PreImageAttributes);
-            step.UnsecureConfig = s.UnsecureConfig;
+
+            if (!string.IsNullOrWhiteSpace(s.UnsecureConfig) && !string.IsNullOrWhiteSpace(step.UnsecureConfig))
+            {
+                var stepConfigIncoming = JsonConvert.DeserializeObject<StepConfiguration>(s.UnsecureConfig);
+
+                var stepConfig = JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig);
+
+                stepConfigIncoming.RelationshipName = stepConfig.RelationshipName;
+
+                step.UnsecureConfig = JsonConvert.SerializeObject(stepConfigIncoming);
+            }
 
             step.MethodNames.AddRange(s.MethodNames);
 

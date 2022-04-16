@@ -1,11 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace XrmFramework.Core
 {
-    public class ColumnCollection : ICollection<Column>
+    public sealed class ColumnCollection : ICollection<Column>
     {
-        private readonly SortedList<string, Column> _columns = new();
+        internal readonly SortedList<string, Column> Columns = new();
 
         public void Add(Column item)
         {
@@ -14,7 +15,7 @@ namespace XrmFramework.Core
                 return;
             }
 
-            if (_columns.TryGetValue(item.LogicalName, out var existingColumn))
+            if (Columns.TryGetValue(item.LogicalName, out var existingColumn))
             {
                 if (item.Selected)
                 {
@@ -26,12 +27,12 @@ namespace XrmFramework.Core
                     item.Name = existingColumn.Name;
                     item.Selected = true;
 
-                    _columns[item.LogicalName] = item;
+                    Columns[item.LogicalName] = item;
                 }
             }
             else
             {
-                _columns.Add(item.LogicalName, item);
+                Columns.Add(item.LogicalName, item);
             }
         }
 
@@ -43,11 +44,22 @@ namespace XrmFramework.Core
             }
         }
 
+        public void RemoveAll(Func<Column, bool> predicate)
+        {
+            for (var i = Columns.Values.Count - 1; i >= 0; i--)
+            {
+                if (predicate(Columns.Values[i]))
+                {
+                    Columns.Remove(Columns.Values[i].LogicalName);
+                }
+            }
+        }
+
         #region ICollection implementation
 
-        public void Clear() => _columns.Clear();
+        public void Clear() => Columns.Clear();
 
-        public IEnumerator<Column> GetEnumerator() => _columns.Values.GetEnumerator();
+        public IEnumerator<Column> GetEnumerator() => Columns.Values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -58,10 +70,10 @@ namespace XrmFramework.Core
                 return false;
             }
 
-            return _columns.ContainsKey(item.LogicalName);
+            return Columns.ContainsKey(item.LogicalName);
         }
 
-        public void CopyTo(Column[] array, int arrayIndex) => _columns.Values.CopyTo(array, arrayIndex);
+        public void CopyTo(Column[] array, int arrayIndex) => Columns.Values.CopyTo(array, arrayIndex);
 
         public bool Remove(Column item)
         {
@@ -70,12 +82,12 @@ namespace XrmFramework.Core
                 return false;
             }
 
-            return _columns.Remove(item.LogicalName);
+            return Columns.Remove(item.LogicalName);
         }
 
-        public int Count => _columns.Count;
+        public int Count => Columns.Count;
 
-        public bool IsReadOnly => _columns.Values.IsReadOnly;
+        public bool IsReadOnly => Columns.Values.IsReadOnly;
 
         #endregion
     }

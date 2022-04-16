@@ -9,7 +9,7 @@ namespace XrmFramework.Definitions
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
 	[ExcludeFromCodeCoverage]
-    [DefinitionManagerIgnore]
+	[DefinitionManagerIgnore]
 	public static class SdkMessageProcessingStepDefinition
 	{
 		public const string EntityName = "sdkmessageprocessingstep";
@@ -244,39 +244,39 @@ namespace XrmFramework.Definitions
 			[Relationship("userentityinstancedata", EntityRole.Referenced, "userentityinstancedata_sdkmessageprocessingstep", "objectid")]
 			public const string userentityinstancedata_sdkmessageprocessingstep = "userentityinstancedata_sdkmessageprocessingstep";
 		}
-    }
+	}
 
-    [OptionSetDefinition("componentstate")]
-    [DefinitionManagerIgnore]
+	[OptionSetDefinition("componentstate")]
+	[DefinitionManagerIgnore]
 	public enum ComponentState
-    {
-        [Description("Published")]
-        Published = 0,
-        [Description("Unpublished")]
-        Unpublished = 1,
-        [Description("Deleted")]
-        Deleted = 2,
-        [Description("Deleted Unpublished")]
-        DeletedUnpublished = 3,
-    }
+	{
+		[Description("Published")]
+		Published = 0,
+		[Description("Unpublished")]
+		Unpublished = 1,
+		[Description("Deleted")]
+		Deleted = 2,
+		[Description("Deleted Unpublished")]
+		DeletedUnpublished = 3,
+	}
 
-    [OptionSetDefinition(SdkMessageProcessingStepDefinition.EntityName, SdkMessageProcessingStepDefinition.Columns.Mode)]
-    [DefinitionManagerIgnore]
+	[OptionSetDefinition(SdkMessageProcessingStepDefinition.EntityName, SdkMessageProcessingStepDefinition.Columns.Mode)]
+	[DefinitionManagerIgnore]
 	public enum Mode
-    {
-        [Description("Synchronous")]
-        Synchronous = 0,
-        [Description("Asynchronous")]
-        Asynchronous = 1,
-    }
+	{
+		[Description("Synchronous")]
+		Synchronous = 0,
+		[Description("Asynchronous")]
+		Asynchronous = 1,
+	}
 
-    [OptionSetDefinition(SdkMessageProcessingStepDefinition.EntityName, SdkMessageProcessingStepDefinition.Columns.StateCode)]
-    [DefinitionManagerIgnore]
+	[OptionSetDefinition(SdkMessageProcessingStepDefinition.EntityName, SdkMessageProcessingStepDefinition.Columns.StateCode)]
+	[DefinitionManagerIgnore]
 	public enum SdkmessageprocessingstepState
-    {
-        [Description("Enabled")]
-        Enabled = 0,
-        [Description("Disabled")]
-        Disabled = 1,
-    }
+	{
+		[Description("Enabled")]
+		Enabled = 0,
+		[Description("Disabled")]
+		Disabled = 1,
+	}
 }

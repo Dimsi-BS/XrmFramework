@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Model.Sdk;
+using System.Collections.Immutable;
 using SymbolDisplayFormat = Microsoft.CodeAnalysis.SymbolDisplayFormat;
 
 namespace XrmFramework.Analyzers.Utils
@@ -33,10 +29,12 @@ namespace XrmFramework.Analyzers.Utils
         {
             ContainingModel = containingModel;
 
-            var crmMappingAttribute = attributes.FirstOrDefault(a => a.AttributeClass.Name == "CrmMappingAttribute");
+            var crmMappingAttribute = attributes.FirstOrDefault(a => a.AttributeClass?.Name == "CrmMappingAttribute");
             if (crmMappingAttribute != null)
             {
-                var targetAttributeName = (string)crmMappingAttribute.ConstructorArguments.First().Value;
+                var constructorArgument = crmMappingAttribute.ConstructorArguments.First();
+                var targetAttributeName = constructorArgument.Value as string ?? throw new ArgumentNullException(nameof(attributes));
+
                 AttributeDefinition = ContainingModel.EntityDefinition[targetAttributeName];
 
                 if (crmMappingAttribute.NamedArguments.Any(kvp => kvp.Key == "IsValidForUpdate"))
@@ -50,17 +48,17 @@ namespace XrmFramework.Analyzers.Utils
 
                 if (attributes.Any(a => a.AttributeClass.Name == "CrmLookupAttribute"))
                 {
-                    var lookupAttribute = attributes.FirstOrDefault(a => a.AttributeClass.Name == "CrmLookupAttribute");
+                    var lookupAttribute = attributes.FirstOrDefault(a => a.AttributeClass?.Name == "CrmLookupAttribute");
                     var targetDefinition = EntityDefinition.GetEntityDefinition((INamedTypeSymbol)lookupAttribute.ConstructorArguments.First().Value);
                     ExplicitLinkedAttributeDefinition = targetDefinition[(string)lookupAttribute.ConstructorArguments.Skip(1).First().Value];
                 }
 
-                if (attributes.Any(a => a.AttributeClass.Name == "TypeConverterAttribute" && a.AttributeClass.ContainingNamespace.ToDisplayString() == "System.ComponentModel"))
+                if (attributes.Any(a => a.AttributeClass?.Name == "TypeConverterAttribute" && a.AttributeClass.ContainingNamespace.ToDisplayString() == "System.ComponentModel"))
                 {
                     var typeConverterAttribute = attributes.FirstOrDefault(a => a.AttributeClass.Name == "TypeConverterAttribute" && a.AttributeClass.ContainingNamespace.ToDisplayString() == "System.ComponentModel");
                     if (!(typeConverterAttribute.AttributeClass is IErrorTypeSymbol))
                     {
-                        TypeConverter = (INamedTypeSymbol) typeConverterAttribute.ConstructorArguments.First().Value;
+                        TypeConverter = (INamedTypeSymbol)typeConverterAttribute.ConstructorArguments.First().Value;
                     }
                 }
             }
@@ -152,7 +150,7 @@ namespace XrmFramework.Analyzers.Utils
 
             if (TypeConverter != null)
             {
-                var syntax = ((IfStatementSyntax) SyntaxFactory.ParseStatement($"if ({recordName}.Contains({attributeDefinition.FullName})\r\n"))
+                var syntax = ((IfStatementSyntax)SyntaxFactory.ParseStatement($"if ({recordName}.Contains({attributeDefinition.FullName})\r\n"))
                     .WithStatement(SyntaxFactory.Block(
                         SyntaxFactory.ParseStatement($"var converter{Name} = new {TypeConverter.ToDisplayString()}();\r\n"),
                         SyntaxFactory.ParseStatement($"model.{Name} = ({Symbol.Type.ToDisplayString()}) converter{Name}.ConvertFrom({recordName}[{attributeDefinition.FullName}]);\r\n")

@@ -9,7 +9,7 @@ namespace XrmFramework.Definitions
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
 	[ExcludeFromCodeCoverage]
-    [DefinitionManagerIgnore]
+	[DefinitionManagerIgnore]
 	public static class EnvironmentVariableValueDefinition
 	{
 		public const string EntityName = "environmentvariablevalue";
@@ -132,23 +132,23 @@ namespace XrmFramework.Definitions
 		}
 	}
 
-    [OptionSetDefinition(EnvironmentVariableValueDefinition.EntityName, EnvironmentVariableValueDefinition.Columns.Statecode)]
-    [DefinitionManagerIgnore]
+	[OptionSetDefinition(EnvironmentVariableValueDefinition.EntityName, EnvironmentVariableValueDefinition.Columns.Statecode)]
+	[DefinitionManagerIgnore]
 	public enum EnvironmentVariableValueState
-    {
-        [Description("Active")]
-        Active = 0,
-        [Description("Inactive")]
-        Inactive = 1,
-    }
+	{
+		[Description("Active")]
+		Active = 0,
+		[Description("Inactive")]
+		Inactive = 1,
+	}
 
-    [OptionSetDefinition(EnvironmentVariableValueDefinition.EntityName, EnvironmentVariableValueDefinition.Columns.Statuscode)]
-    [DefinitionManagerIgnore]
+	[OptionSetDefinition(EnvironmentVariableValueDefinition.EntityName, EnvironmentVariableValueDefinition.Columns.Statuscode)]
+	[DefinitionManagerIgnore]
 	public enum EnvironmentVariableValueStatus
-    {
-        [Description("Active")]
-        Active = 1,
-        [Description("Inactive")]
-        Inactive = 2,
-    }
+	{
+		[Description("Active")]
+		Active = 1,
+		[Description("Inactive")]
+		Inactive = 2,
+	}
 }

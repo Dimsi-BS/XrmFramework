@@ -1,20 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
+﻿#nullable enable
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Immutable;
 
 namespace XrmFramework.Analyzers.Utils
 {
     public class ModelDefinition : Definition<INamedTypeSymbol>
     {
-        public ModelDefinition ParentModel { get; }
+        public ModelDefinition? ParentModel { get; }
 
         public EntityDefinition EntityDefinition { get; }
 
-        public bool IsBindingModelBase => Symbol.BaseType.Name == "BindingModelBase" || (ParentModel?.IsBindingModelBase ?? false);
+        public bool IsBindingModelBase => Symbol.BaseType?.Name == "BindingModelBase" || (ParentModel?.IsBindingModelBase ?? false);
 
-        private readonly List<ModelAttributeDefinition> _attributes = new List<ModelAttributeDefinition>();
+        private readonly List<ModelAttributeDefinition> _attributes = new();
 
         public IImmutableList<ModelAttributeDefinition> AllAttributes => ImmutableList.CreateRange(_attributes.Union(ParentModel?.AllAttributes ?? Enumerable.Empty<ModelAttributeDefinition>()));
 
@@ -24,7 +22,7 @@ namespace XrmFramework.Analyzers.Utils
         {
             ParentModel = GetModelDefinition(symbol.BaseType);
 
-            var entityDefinitionSymbol = (INamedTypeSymbol) crmEntityAttribute.ConstructorArguments.Single().Value;
+            var entityDefinitionSymbol = crmEntityAttribute.ConstructorArguments.Single().Value as INamedTypeSymbol;
 
             EntityDefinition = EntityDefinition.GetEntityDefinition(entityDefinitionSymbol);
 
@@ -66,7 +64,7 @@ namespace XrmFramework.Analyzers.Utils
             }
         }
 
-        public static ModelDefinition GetModelDefinition(ITypeSymbol symbol)
+        public static ModelDefinition? GetModelDefinition(ITypeSymbol? symbol)
         {
             if (symbol == null)
             {
@@ -88,7 +86,7 @@ namespace XrmFramework.Analyzers.Utils
                 return null;
             }
 
-            if (!(symbol is INamedTypeSymbol namedTypeSymbol))
+            if (symbol is not INamedTypeSymbol namedTypeSymbol)
             {
                 return null;
             }
@@ -108,7 +106,7 @@ namespace XrmFramework.Analyzers.Utils
             return Cache[namedTypeSymbol];
         }
 
-        private static readonly object SyncRoot = new object();
+        private static readonly object SyncRoot = new();
 
         private static readonly Dictionary<INamedTypeSymbol, ModelDefinition> Cache = new(SymbolEqualityComparer.Default);
 

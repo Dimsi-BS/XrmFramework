@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
 namespace Model.Sdk.Metadata
 {
@@ -18,15 +17,15 @@ namespace Model.Sdk.Metadata
         public bool IsSelected { get; set; }
 
         [DataMember(Name = "e")]
-        public string EntityName {get; set; }
+        public string EntityName { get; set; }
 
         [DataMember(Name = "f")]
-        public string FieldName {get; set; }
+        public string FieldName { get; set; }
 
         public bool IsGlobal => string.IsNullOrEmpty(FieldName);
 
         [DataMember(Name = "o")]
-        public IList<OptionMetadata> Options {get; set; } = new List<OptionMetadata>();
+        public IList<OptionMetadata> Options { get; set; } = new List<OptionMetadata>();
     }
 
     [DataContract]
