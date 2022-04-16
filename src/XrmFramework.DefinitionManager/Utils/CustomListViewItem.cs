@@ -1,14 +1,12 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
-namespace DefinitionManager
+using System.Collections.Generic;
+using System.Threading;
+using System.Windows.Forms;
+using DefinitionManager;
+
+namespace XrmFramework.DefinitionManager
 {
     class CustomListViewItem<T> : ListViewItem where T : AbstractDefinition
     {

@@ -237,7 +237,7 @@ namespace XrmFramework
     }
 
 
-    public class MultipleEqualityComparer<T> : IEqualityComparer<IBindingModel> where T : IBindingModel
+    public class MultipleEqualityComparer<T> : IEqualityComparer<T> where T : IBindingModel
     {
         private IList<PropertyInfo> Properties { get; }
 
@@ -246,7 +246,7 @@ namespace XrmFramework
             Properties = typeof(T).GetProperties().Where(p => propertyNames.Contains(p.Name)).ToList();
         }
 
-        public bool Equals(IBindingModel x, IBindingModel y)
+        public bool Equals(T x, T y)
         {
             var equals = true;
 
@@ -272,7 +272,7 @@ namespace XrmFramework
             return equals;
         }
 
-        public int GetHashCode(IBindingModel obj)
+        public int GetHashCode(T obj)
         {
             var hash = 0;
 

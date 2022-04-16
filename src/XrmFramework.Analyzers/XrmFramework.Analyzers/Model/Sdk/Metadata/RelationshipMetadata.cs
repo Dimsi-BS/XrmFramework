@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using XrmFramework.Analyzers.Utils;
 
@@ -30,7 +26,7 @@ namespace Model.Sdk.Metadata
         [DataMember(Name = "l")]
         public string LookupFieldName { get; set; }
 
-        public EntityDefinition TargetEntityDefinition => TargetNamedTypeSymbol.Equals(default(INamedTypeSymbol)) ? null : EntityDefinition.GetEntityDefinition(TargetNamedTypeSymbol);
+        public EntityDefinition TargetEntityDefinition => SymbolEqualityComparer.Default.Equals(TargetNamedTypeSymbol, default(INamedTypeSymbol)) ? null : EntityDefinition.GetEntityDefinition(TargetNamedTypeSymbol);
 
         public EntityRole Role
         {

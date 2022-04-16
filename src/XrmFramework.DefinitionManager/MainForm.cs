@@ -11,6 +11,7 @@ using System.Text;
 using System.Windows.Forms;
 using DefinitionManager;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Xrm.Sdk.Messages;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using XrmFramework.Core;
@@ -76,7 +77,7 @@ namespace XrmFramework.DefinitionManager
 
         void ConnectionSucceeded(object service)
         {
-            DataAccessManager.Instance.RetrieveEntities(RetrieveEntitiesSucceeded);
+            DataAccessManager.Instance.RetrieveEntities(RetrieveEntitiesSucceeded, _entityCollection.Definitions.Select(d => d.LogicalName).ToArray());
         }
 
         private void DefinitionManager_Load(object sender, EventArgs e)
@@ -96,24 +97,23 @@ namespace XrmFramework.DefinitionManager
         private void InitEnumDefinitions()
         {
             var optionSetDefinitionAttributeType = GetExternalType("XrmFramework.OptionSetDefinitionAttribute");
+            var definitionManagerIgnoreAttributeType = GetExternalType("XrmFramework.Definitions.Internal.DefinitionManagerIgnoreAttribute");
 
-            var definitionTypes = _iServiceType.Assembly.GetTypes().Where(t => t.GetCustomAttributes(optionSetDefinitionAttributeType, false).Any());
-            var definitionManagerIgnoreType = GetExternalType("XrmFramework.DefinitionManagerIgnoreAttribute");
-
+            var definitionTypes = _iServiceType.Assembly.GetTypes()
+                .Where(t => t.GetCustomAttributes(optionSetDefinitionAttributeType, false).Any());
 
             foreach (var type in definitionTypes)
             {
-                dynamic attribute = type.GetCustomAttribute(optionSetDefinitionAttributeType);
-
-                var ignoreAttribute = type.GetCustomAttribute(definitionManagerIgnoreType);
-                if (ignoreAttribute != null)
+                if (type.GetCustomAttributes(definitionManagerIgnoreAttributeType).Any())
                 {
                     continue;
                 }
 
+                dynamic attribute = type.GetCustomAttribute(optionSetDefinitionAttributeType);
+
                 var enumDefinition = new EnumDefinition
                 {
-                    LogicalName = (string.IsNullOrEmpty(attribute.EntityName) ? string.Empty : attribute.EntityName + "_") + attribute.LogicalName,
+                    LogicalName = (string.IsNullOrEmpty(attribute.EntityName) ? string.Empty : attribute.EntityName + "|") + attribute.LogicalName,
                     Name = type.Name,
                     IsGlobal = string.IsNullOrEmpty(attribute.EntityName)
                 };
@@ -184,15 +184,14 @@ namespace XrmFramework.DefinitionManager
         {
             var entityDefinitionAttributeType = GetExternalType("XrmFramework.EntityDefinitionAttribute");
             var definitionTypes = _iServiceType.Assembly.GetTypes().Where(t => t.GetCustomAttributes(entityDefinitionAttributeType, false).Any());
-            var definitionManagerIgnoreType = GetExternalType("XrmFramework.DefinitionManagerIgnoreAttribute");
             var relationshipAttributeType = GetExternalType("XrmFramework.RelationshipAttribute");
+            var definitionManagerIgnoreAttributeType = GetExternalType("XrmFramework.Definitions.Internal.DefinitionManagerIgnoreAttribute");
 
             var definitionList = new List<EntityDefinition>();
 
             foreach (var t in definitionTypes)
             {
-                var ignoreAttribute = t.GetCustomAttribute(definitionManagerIgnoreType);
-                if (ignoreAttribute != null)
+                if (t.GetCustomAttributes(definitionManagerIgnoreAttributeType).Any())
                 {
                     continue;
                 }
@@ -351,7 +350,7 @@ namespace XrmFramework.DefinitionManager
                 //    .Select(en => en.EnumName).Distinct().ToList();
 
                 //entity.Enums.RemoveAll(en => !enumsToKeep.Contains(en.LogicalName));
-                
+
                 //var entityTxt = JsonConvert.SerializeObject(entity, Formatting.Indented, new JsonSerializerSettings
                 //{
                 //    DefaultValueHandling = DefaultValueHandling.Ignore
@@ -386,7 +385,7 @@ namespace XrmFramework.DefinitionManager
                         {
                             sb.AppendLine();
                             sb.AppendLine(
-                                $"public const {t.Type} {t.Name} = {(t.Type == "String" ? "\"" + (string) t.Value + "\"" : t.Value)};");
+                                $"public const {t.Type} {t.Name} = {(t.Type == "String" ? "\"" + (string)t.Value + "\"" : t.Value)};");
                         }
 
                         sb.AppendLine();
@@ -605,7 +604,7 @@ namespace XrmFramework.DefinitionManager
                 File.WriteAllText(fileInfo.FullName, sb.ToString());
 
                 var fileInfo2 = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{item.Name.Replace("Definition", string.Empty)}.table");
-                
+
                 //File.WriteAllText(fileInfo2.FullName, entityTxt);
             }
 
@@ -640,7 +639,7 @@ namespace XrmFramework.DefinitionManager
             using (fc.Indent())
             {
                 foreach (var def in EnumDefinitionCollection.Instance.SelectedDefinitions)
-                {   
+                {
                     fc.AppendLine();
                     if (def.IsGlobal)
                     {
@@ -649,6 +648,11 @@ namespace XrmFramework.DefinitionManager
                     else
                     {
                         var attribute = def.ReferencedBy.First();
+
+                        if (!_entityCollection.SelectedDefinitions.Any(s => s.LogicalName == attribute.ParentEntity.LogicalName))
+                        {
+                            continue;
+                        }
 
                         fc.AppendLine(string.Format("[OptionSetDefinition({0}.EntityName, {0}.Columns.{1})]",
                             attribute.ParentEntity.Name, attribute.Name));

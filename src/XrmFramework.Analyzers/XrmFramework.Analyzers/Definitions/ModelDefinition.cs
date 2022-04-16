@@ -110,7 +110,7 @@ namespace XrmFramework.Analyzers.Utils
 
         private static readonly object SyncRoot = new object();
 
-        private static readonly Dictionary<INamedTypeSymbol, ModelDefinition> Cache = new Dictionary<INamedTypeSymbol, ModelDefinition>();
+        private static readonly Dictionary<INamedTypeSymbol, ModelDefinition> Cache = new(SymbolEqualityComparer.Default);
 
         public bool IsAbstract => Symbol.IsAbstract;
 

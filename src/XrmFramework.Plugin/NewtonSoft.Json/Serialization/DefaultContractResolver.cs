@@ -91,9 +91,6 @@ namespace Newtonsoft.Json.Serialization
             new DiscriminatedUnionConverter(),
 #endif
             new KeyValuePairConverter(),
-#pragma warning disable 618
-            new BsonObjectIdConverter(),
-#pragma warning restore 618
             new RegexConverter()
         };
 

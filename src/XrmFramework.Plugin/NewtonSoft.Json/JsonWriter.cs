@@ -948,7 +948,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="UInt32"/> value.
         /// </summary>
         /// <param name="value">The <see cref="UInt32"/> value to write.</param>
-        [CLSCompliant(false)]
+        
         public virtual void WriteValue(uint value)
         {
             InternalWriteValue(JsonToken.Integer);
@@ -967,7 +967,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="UInt64"/> value.
         /// </summary>
         /// <param name="value">The <see cref="UInt64"/> value to write.</param>
-        [CLSCompliant(false)]
+        
         public virtual void WriteValue(ulong value)
         {
             InternalWriteValue(JsonToken.Integer);
@@ -1013,7 +1013,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="UInt16"/> value.
         /// </summary>
         /// <param name="value">The <see cref="UInt16"/> value to write.</param>
-        [CLSCompliant(false)]
+        
         public virtual void WriteValue(ushort value)
         {
             InternalWriteValue(JsonToken.Integer);
@@ -1041,7 +1041,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="SByte"/> value.
         /// </summary>
         /// <param name="value">The <see cref="SByte"/> value to write.</param>
-        [CLSCompliant(false)]
+        
         public virtual void WriteValue(sbyte value)
         {
             InternalWriteValue(JsonToken.Integer);
@@ -1114,7 +1114,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="Nullable{T}"/> of <see cref="UInt32"/> value.
         /// </summary>
         /// <param name="value">The <see cref="Nullable{T}"/> of <see cref="UInt32"/> value to write.</param>
-        [CLSCompliant(false)]
+        
         public virtual void WriteValue(uint? value)
         {
             if (value == null)
@@ -1147,7 +1147,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="Nullable{T}"/> of <see cref="UInt64"/> value.
         /// </summary>
         /// <param name="value">The <see cref="Nullable{T}"/> of <see cref="UInt64"/> value to write.</param>
-        [CLSCompliant(false)]
+        
         public virtual void WriteValue(ulong? value)
         {
             if (value == null)
@@ -1228,7 +1228,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="Nullable{T}"/> of <see cref="UInt16"/> value.
         /// </summary>
         /// <param name="value">The <see cref="Nullable{T}"/> of <see cref="UInt16"/> value to write.</param>
-        [CLSCompliant(false)]
+        
         public virtual void WriteValue(ushort? value)
         {
             if (value == null)
@@ -1277,7 +1277,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="Nullable{T}"/> of <see cref="SByte"/> value.
         /// </summary>
         /// <param name="value">The <see cref="Nullable{T}"/> of <see cref="SByte"/> value to write.</param>
-        [CLSCompliant(false)]
+        
         public virtual void WriteValue(sbyte? value)
         {
             if (value == null)

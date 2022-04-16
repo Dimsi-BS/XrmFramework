@@ -23,10 +23,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\XrmFramework.Plugin\**\StepConfiguration*.cs" Link="Model\StepConfigurations\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.42" />
     <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.42" />
     <PackageReference Include="Microsoft.CrmSdk.Deployment" Version="9.0.2.34" />
-    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.90" />
+    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.108" />
   </ItemGroup>
 
   <ItemGroup>

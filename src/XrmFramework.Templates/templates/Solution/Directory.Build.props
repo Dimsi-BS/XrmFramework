@@ -1,7 +1,8 @@
 <Project>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(SolutionDir)\$safeprojectname$.snk</AssemblyOriginatorKeyFile>
+    <RootFolder>$(MSBuildThisFileDirectory)</RootFolder>
+    <AssemblyOriginatorKeyFile>$(RootFolder)\$safeprojectname$.snk</AssemblyOriginatorKeyFile>
 
     <LangVersion>latest</LangVersion>
 
@@ -11,7 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
-      <Version>3.4.240</Version>
+      <Version>3.4.255</Version>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2">

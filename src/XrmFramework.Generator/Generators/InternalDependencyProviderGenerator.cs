@@ -1,16 +1,12 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Xml;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
-using XrmFramework.Generator.Properties;
 
 namespace XrmFramework.DeployUtils.Generators
 {
@@ -20,7 +16,14 @@ namespace XrmFramework.DeployUtils.Generators
 
         public static void Generate(string loggedServiceFolder, IEnumerable<Type> types, Type iServiceType, Type defaultServiceType, Type iLoggedServiceType)
         {
-            var namespaceSet = new HashSet<string>{ "BoDi"};
+            if (!Directory.Exists(loggedServiceFolder))
+            {
+                Directory.CreateDirectory(loggedServiceFolder);
+            }
+
+            Console.WriteLine("InternalDependencyProviderGenerator.Generate");
+
+            var namespaceSet = new HashSet<string> { "BoDi" };
 
             var sb = new IndentedStringBuilder();
 
@@ -30,15 +33,13 @@ namespace XrmFramework.DeployUtils.Generators
 
             foreach (var t in types)
             {
-                namespaceSet.Add(t.Namespace);
-                namespaceSet.Add(Code.Namespace(t.Namespace, "LoggedServices"));
-
                 foreach (var type in allTypes)
                 {
                     if (t.IsAssignableFrom(type) && !type.IsAbstract && type.IsClass &&
                         !iLoggedServiceType.IsAssignableFrom(type)
                         && (t == iServiceType && type == defaultServiceType || t != iServiceType))
                     {
+                        namespaceSet.Add(t.Namespace);
                         namespaceSet.Add(type.Namespace);
                         listServices.Add((t, type));
                     }
@@ -75,35 +76,14 @@ namespace XrmFramework.DeployUtils.Generators
                         foreach (var service in listServices)
                         {
                             sb
-                                .Append("container.RegisterTypeAs<")
-                                .Append(Code.Reference(service.implementationType))
+                                .Append("RegisterService<")
+                                .Append(Code.Reference(service.serviceType))
                                 .Append(", ")
                                 .Append(Code.Reference(service.implementationType))
-                                .AppendLine(">();")
-                                
-                                .AppendLine()
-                                
-                                .Append("container.RegisterFactoryAs<")
-                                .Append(Code.Reference(service.serviceType))
-                                .AppendLine(">(objectContainer =>")
-                                .AppendLine("{");
-
-                            using (sb.Indent())
-                            {
-                                sb
-                                    .AppendLine("var context = objectContainer.Resolve<IServiceContext>();")
-
-                                    .Append("var service = objectContainer.Resolve<")
-                                    .Append(Code.Reference(service.implementationType))
-                                    .AppendLine(">();")
-
-                                    .Append("return new ")
-                                    .Append(GetLogServiceName(service.serviceType.Name))
-                                    .AppendLine("(context, service);")
-                                    .AppendLine();
-                            }
-
-                            sb.AppendLine("});");
+                                .Append(", ")
+                                .Append(GetLogServiceName(service.serviceType.Name))
+                                .AppendLine(">(container);")
+                                .AppendLine();
                         }
                     }
 

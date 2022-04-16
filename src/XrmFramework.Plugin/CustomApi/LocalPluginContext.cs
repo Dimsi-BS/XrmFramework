@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
+using Microsoft.Xrm.Sdk;
 
 // ReSharper disable once CheckNamespace
 namespace XrmFramework
 {
     partial class LocalPluginContext : ICustomApiContext
     {
+        public EntityReference ObjectRef => new(PluginExecutionContext.PrimaryEntityName, PluginExecutionContext.PrimaryEntityId);
                
         public T GetArgumentValue<T>(CustomApiInArgument<T> argument)
         {

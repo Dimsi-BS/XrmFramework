@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using BoDi;
 using Microsoft.Xrm.Sdk;
 using XrmFramework.Definitions;
@@ -246,7 +247,7 @@ namespace XrmFramework
 
         public virtual T GetSharedVariable<T>(string variableName)
         {
-            T value = default(T);
+            T value = default;
 
             if (ExecutionContext.SharedVariables.ContainsKey(variableName))
             {
@@ -301,7 +302,7 @@ namespace XrmFramework
                 return ParentLocalContext.GetInitiatingUserId();
             }
 
-            return UserId;
+            return InitiatingUserId;
         }
 
         public void InvokeMethod(object obj, MethodInfo method)
@@ -313,7 +314,12 @@ namespace XrmFramework
                 listParamValues.Add(ObjectContainer.Resolve(param.ParameterType));
             }
 
-            method.Invoke(obj, listParamValues.ToArray());
+            var result = method.Invoke(obj, listParamValues.ToArray());
+
+            if (result is Task taskResult)
+            {
+                Task.WaitAll(taskResult);
+            }
         }
     }
 }

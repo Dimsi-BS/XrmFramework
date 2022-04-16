@@ -1,16 +1,15 @@
 using System.CodeDom.Compiler;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using XrmFramework.Definitions.Internal;
 
 namespace XrmFramework.Definitions
 {
-	[GeneratedCode("XrmFramework", "1.0")]
+	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
-
 	[ExcludeFromCodeCoverage]
     [DefinitionManagerIgnore]
-
-    public static class PluginTypeDefinition
+	public static class PluginTypeDefinition
 	{
 		public const string EntityName = "plugintype";
 		public const string EntityCollectionName = "plugintypes";

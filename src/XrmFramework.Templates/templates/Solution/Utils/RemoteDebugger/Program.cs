@@ -1,4 +1,5 @@
 ﻿using System;
+using XrmFramework.RemoteDebugger.Client;
 using XrmFramework.RemoteDebugger.Common;
 
 namespace XrmFramework.RemoteDebugger

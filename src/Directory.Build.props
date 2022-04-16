@@ -1,4 +1,5 @@
 <Project>
+  <Import Project="../Directory.Build.props" />
 
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
@@ -6,18 +7,11 @@
     <XrmFramework_Copyright>Copyright © XrmFramework Team</XrmFramework_Copyright>
     <XrmFramework_Authors>Christophe Gondouin and the XrmFramework Team</XrmFramework_Authors>
     <XrmFramework_Owners>XrmFramework Team</XrmFramework_Owners>
-  </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
-      <Version>3.4.240</Version>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
 
   <PropertyGroup>
     <Authors>$(XrmFramework_Authors)</Authors>

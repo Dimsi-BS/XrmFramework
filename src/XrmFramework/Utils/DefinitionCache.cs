@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -10,11 +11,9 @@ namespace XrmFramework
 {
     public static class DefinitionCache
     {
-        private static readonly object _syncRoot = new object();
+        private static readonly ConcurrentDictionary<string, EntityDefinition> InternalDefinitionCache = new ConcurrentDictionary<string, EntityDefinition>();
 
-        private static readonly Dictionary<string, EntityDefinition> _definitionCache = new Dictionary<string, EntityDefinition>();
-
-        private static readonly Dictionary<Type, ModelDefinition> _modelDefinitionCache = new Dictionary<Type, ModelDefinition>();
+        private static readonly ConcurrentDictionary<Type, ModelDefinition> InternalModelDefinitionCache = new ConcurrentDictionary<Type, ModelDefinition>();
 
         public static EntityDefinition GetEntityDefinition(string entityName)
         {
@@ -42,47 +41,57 @@ namespace XrmFramework
                 throw new Exception($"Type {type.Name} does not have a proper EntityName const field defined.");
             }
 
-            if (_definitionCache.ContainsKey(entityName))
+            if (InternalDefinitionCache.ContainsKey(entityName))
             {
-                return _definitionCache[entityName];
+                return InternalDefinitionCache[entityName];
             }
 
             var definition = new EntityDefinition(type);
-            _definitionCache[entityName] = definition;
+            InternalDefinitionCache[entityName] = definition;
 
             return definition;
         }
 
         public static bool TryGetEntityDefinition(string entityName, out EntityDefinition definition)
         {
-            definition = null;
-
-            if (_definitionCache.ContainsKey(entityName))
+            definition = InternalDefinitionCache.GetOrAdd(entityName, (name) =>
             {
-                definition = _definitionCache[entityName];
-            }
-            else
-            {
-                var definitionTypes = typeof(DefinitionCache).Assembly.GetTypes().Where(t => t.GetField("EntityName") != null).Where(t => t.GetField("EntityName").FieldType == typeof(string) && (string)t.GetField("EntityName").GetValue(null) == entityName);
+                var definitionTypes = typeof(DefinitionCache)
+                    .Assembly
+                    .GetTypes()
+                    .Where(t => t.GetField("EntityName") != null)
+                    .Where(t =>
+                        t.GetField("EntityName").FieldType == typeof(string)
+                        && (string)t.GetField("EntityName").GetValue(null) == name);
 
-                var definitionType = definitionTypes.OrderBy(t => t.Namespace?.Contains("XrmFramework.Common") ?? false).FirstOrDefault();
+                var definitionType = definitionTypes.OrderBy(t => t.Namespace?.Contains("XrmFramework.Definitions") ?? false).FirstOrDefault();
 
-                if (definitionType == null)
+                if (definitionType == default)
                 {
-                    return false;
+                    return null;
                 }
 
-                definition = new EntityDefinition(definitionType);
-                _definitionCache[entityName] = definition;
-            }
+                return new EntityDefinition(definitionType);
+            });
 
-            return true;
+            return definition != null;
         }
 
         public static EntityDefinition GetEntityDefinitionFromModelType(Type type)
         {
-            var crmEntityAttribute = type.GetCustomAttribute<CrmEntityAttribute>();
+            var crmEntityAttribute = type.GetCustomAttribute<CrmEntityAttribute>(true);
 
+            if (crmEntityAttribute == null)
+            {
+                var interfaceType = type.GetInterfaces()
+                    .FirstOrDefault(t => CustomAttributeExtensions.GetCustomAttribute<CrmEntityAttribute>((MemberInfo) t, true) != null);
+
+                if (interfaceType != null)
+                {
+                    crmEntityAttribute = interfaceType.GetCustomAttribute<CrmEntityAttribute>(true);
+                }
+            }
+            
             if (crmEntityAttribute == null)
             {
                 throw new Exception($"Type {type.Name} does not have a CrmEntityAttribute defined.");
@@ -94,30 +103,20 @@ namespace XrmFramework
 
         public static bool TryGetModelDefinition(Type type, out ModelDefinition modelDefinition)
         {
-            modelDefinition = null;
-
-            if (!_modelDefinitionCache.ContainsKey(type))
-            {
-                lock (_syncRoot)
+            modelDefinition = InternalModelDefinitionCache
+                .GetOrAdd(type, t =>
                 {
-                    if (!_modelDefinitionCache.ContainsKey(type))
+                    try
                     {
-                        try
-                        {
-                            _modelDefinitionCache[type] = new ModelDefinition(type);
-                        }
-                        catch
-                        {
-
-                            return false;
-                        }
+                        return new ModelDefinition(t);
                     }
-                }
-            }
+                    catch
+                    {
+                        return null;
+                    }
+                });
 
-            modelDefinition = _modelDefinitionCache[type];
-            return true;
-
+            return modelDefinition != null;
         }
 
         public static ModelDefinition GetModelDefinition(Type type)

@@ -26,6 +26,8 @@ using XrmFramework.Core;
 using XrmFramework.DeployUtils.Configuration;
 using Table = XrmFramework.Core.Table;
 using LocalizedLabel = XrmFramework.Core.LocalizedLabel;
+using System.Diagnostics;
+using XrmFramework.DefinitionManager;
 
 namespace DefinitionManager
 {
@@ -33,6 +35,7 @@ namespace DefinitionManager
     {
         private Solution _solution;
         private IOrganizationService _service;
+        private List<string> PublisherPrefixes { get; } = new();
 
         private DataAccessManager()
         {
@@ -48,9 +51,9 @@ namespace DefinitionManager
         {
             Run(DoConnect, callback, null);
         }
-        public void RetrieveEntities(Action<object> callback)
+        public void RetrieveEntities(Action<object> callback, params string[] entityNames)
         {
-            Run(DoRetrieveEntities, callback, null);
+            Run(DoRetrieveEntities, callback, entityNames);
         }
 
         internal void RetrieveAttributes(EntityDefinition item, Action<object> callback)
@@ -71,48 +74,46 @@ namespace DefinitionManager
 
             var query = new QueryExpression(Solution.EntityLogicalName);
             query.ColumnSet.AllColumns = true;
-            query.Criteria.AddCondition("uniquename", ConditionOperator.Equal, solutionName);
             var linkPublisher = query.AddLink(Deploy.Publisher.EntityLogicalName, "publisherid", "publisherid");
             linkPublisher.EntityAlias = "publisher";
             linkPublisher.Columns.AddColumn("customizationprefix");
 
-            _solution = _service.RetrieveMultiple(query).Entities.Select(s => s.ToEntity<Solution>()).FirstOrDefault();
+            var solutions = _service.RetrieveMultiple(query).Entities.Select(s => s.ToEntity<Solution>());
+
+            PublisherPrefixes.AddRange(solutions.Select(s => s.GetAttributeValue<AliasedValue>("publisher.customizationprefix").Value as string).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct());
+
+            _solution = solutions.FirstOrDefault(s => string.Compare(s.GetAttributeValue<string>("uniquename"), solutionName, true) == 0);
             return _service;
         }
 
         object DoRetrieveEntities(object arg)
         {
-            SendStepChange("Retrieving entities...");
-
             var entities = new List<EntityDefinition>();
             var newEntities = new List<Table>();
             var enums = new List<OptionSetEnum>();
 
-            var queryComponents = new QueryExpression(SolutionComponent.EntityLogicalName);
-            queryComponents.ColumnSet.AllColumns = true;
-            queryComponents.Criteria.AddCondition("componenttype", ConditionOperator.Equal, (int)componenttype.Entity);
+            SendStepChange("Retrieving entities...");
 
-            var linkSolution = queryComponents.AddLink(Solution.EntityLogicalName, "solutionid", "solutionid");
-            linkSolution.EntityAlias = "solution";
-            linkSolution.Columns.AddColumn("uniquename");
-
-            var linkPublisher = linkSolution.AddLink(Deploy.Publisher.EntityLogicalName, "publisherid", "publisherid");
-            linkPublisher.EntityAlias = "publisher";
-            linkPublisher.Columns.AddColumn("customizationprefix");
-            queryComponents.Criteria.AddCondition("solutionid", ConditionOperator.Equal, _solution.Id);
-
-            var components = _service.RetrieveMultiple(queryComponents).Entities;
-
-            var max = components.Count;
-            var current = 1;
-
-            foreach (var component in components)
+            var req = new RetrieveAllEntitiesRequest
             {
-                var entity = ((RetrieveEntityResponse)_service.Execute(new RetrieveEntityRequest { MetadataId = component.GetAttributeValue<Guid>("objectid"), EntityFilters = EntityFilters.Entity | EntityFilters.Attributes | EntityFilters.Relationships })).EntityMetadata;
+                EntityFilters = EntityFilters.Entity | EntityFilters.Attributes | EntityFilters.Relationships
+            };
 
-                var solutionName = component.GetAttributeValue<AliasedValue>("solution.uniquename").Value as string;
-                Prefix = component.GetAttributeValue<AliasedValue>("publisher.customizationprefix").Value as string;
+            var sw = Stopwatch.StartNew();
+            var response = (RetrieveAllEntitiesResponse) _service.Execute(req);
+                        sw.Stop();
 
+            var entitiesMetadata = response.EntityMetadata;
+
+            SendStepChange($"Metadata retrieved in {sw.Elapsed}");
+
+            var queryPublishers = new QueryExpression(Deploy.Publisher.EntityLogicalName);
+            queryPublishers.ColumnSet.AddColumn("customizationprefix");
+
+            var publisherPrefixes = _service.RetrieveMultiple(queryPublishers).Entities.Select(e => e.GetAttributeValue<string>("customizationprefix")).ToList();
+
+            foreach (var entity in entitiesMetadata)
+            {                
                 var entityDefinition = new EntityDefinition
                 {
                     LogicalName = entity.LogicalName,
@@ -140,7 +141,7 @@ namespace DefinitionManager
                     entityDefinition.AdditionalClassesCollection.Add(keyDefinition);
                     foreach (var key in entity.Keys)
                     {
-                        keyDefinition.Attributes.Add(new AttributeDefinition { LogicalName = key.LogicalName, Name = key.DisplayName.UserLocalizedLabel.Label.FormatText(), Value = key.LogicalName, Type = "String" });
+                        keyDefinition.Attributes.Add(new AttributeDefinition { LogicalName = key.LogicalName.Trim('"'), Name = key.DisplayName.UserLocalizedLabel.Label.FormatText(), Value = key.LogicalName.Trim('"'), Type = "String" });
 
                         var newKey = new Key
                         {
@@ -275,9 +276,6 @@ namespace DefinitionManager
                         });
                     }
                 }
-
-                SendStepChange(string.Format("({1}/{2}) Retrieved '{0}' entity", entity.LogicalName, current.ToString("00"), max.ToString("00")));
-                current++;
 
                 entities.Add(entityDefinition);
                 newEntities.Add(newEntity);
@@ -547,7 +545,7 @@ namespace DefinitionManager
                     {
                         foreach (var key in entity.Keys.Where(k => k.KeyAttributes.Contains(attributeDefinition.LogicalName)))
                         {
-                            attributeDefinition.KeyNames.Add(keyDefinition.Attributes[key.LogicalName].Name);
+                            attributeDefinition.KeyNames.Add(keyDefinition.Attributes[key.LogicalName.Trim('"')].Name);
                         }
                     }
 
@@ -559,7 +557,6 @@ namespace DefinitionManager
                     entityDefinition.AttributesCollection.Add(attributeDefinition);
                     newEntity.Columns.Add(attribute);
                 }
-
             }
             SendStepChange(string.Empty);
             return new Tuple<List<EntityDefinition>, List<Table>, List<OptionSetEnum>>(entities, newEntities, enums);
@@ -688,11 +685,16 @@ namespace DefinitionManager
             return list;
         }
 
+
+
         private string RemovePrefix(string name)
         {
-            if (!string.IsNullOrEmpty(Prefix) && name.StartsWith(Prefix))
+            foreach (var prefix in PublisherPrefixes)
             {
-                name = name.Substring(Prefix.Length + 1);
+                if (!string.IsNullOrEmpty(prefix) && name.StartsWith(prefix))
+                {
+                    name = name.Substring(prefix.Length + 1);
+                }
             }
             name = name.Substring(0, 1).ToUpperInvariant() + name.Substring(1);
             return name;

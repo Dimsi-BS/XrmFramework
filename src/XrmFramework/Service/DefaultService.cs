@@ -32,7 +32,7 @@ namespace XrmFramework
 
         protected IOrganizationService AdminOrganizationService => _context.AdminOrganizationService;
 
-        protected Microsoft.Xrm.Sdk.EntityReference BusinessUnitRef => _context.BusinessUnitRef;
+        protected EntityReference BusinessUnitRef => _context.BusinessUnitRef;
 
         protected Guid UserId => _context.UserId;
 
@@ -42,69 +42,73 @@ namespace XrmFramework
 
         protected Guid CorrelationId => _context.CorrelationId;
 
-        public Guid Create(Entity entity, bool useAdmin = false)
+        public Guid Create(Entity entity, bool useAdmin = false, bool bypassCustomPluginExecution = false)
         {
-#region Parameters check
+            #region Parameters check
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
-#endregion
+            #endregion
 
             var service = GetService(useAdmin);
 
-            return service.Create(entity);
+            var request = new CreateRequest { Target = entity };
+
+          return Execute<CreateRequest, CreateResponse>(service, request, bypassCustomPluginExecution).id;
         }
 
-        public Guid Create(Entity entity, Guid callerId)
+        public Guid Create(Entity entity, Guid callerId, bool bypassCustomPluginExecution = false)
         {
-#region Parameters check
+            #region Parameters check
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
-#endregion
+            #endregion
 
             var service = GetService(callerId);
 
-            return service.Create(entity);
+            var request = new CreateRequest { Target = entity };
+            
+            return Execute<CreateRequest, CreateResponse>(service, request, bypassCustomPluginExecution).id;
         }
 
-        public UpsertResponse Upsert(Entity entity, bool useAdmin = false)
+        public UpsertResponse Upsert(Entity entity, bool useAdmin = false, bool bypassCustomPluginExecution = false)
         {
-#region Parameters check
+            #region Parameters check
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
-#endregion
+            #endregion
 
             var service = GetService(useAdmin);
 
             var request = new UpsertRequest { Target = entity };
 
-            return (UpsertResponse)service.Execute(request);
+            return Execute<UpsertRequest, UpsertResponse>(service, request, bypassCustomPluginExecution);
         }
 
-        public UpsertResponse Upsert(Entity entity, Guid callerId)
+        public UpsertResponse Upsert(Entity entity, Guid callerId, bool bypassCustomPluginExecution = false)
         {
-#region Parameters check
+            #region Parameters check
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
-#endregion
+            #endregion
 
             var service = GetService(callerId);
 
             var request = new UpsertRequest { Target = entity };
 
-            return (UpsertResponse)service.Execute(request);
+            return Execute<UpsertRequest, UpsertResponse>(service, request, bypassCustomPluginExecution);
         }
 
-        public void Update(Entity entity, bool useAdmin = false)
+        public void Update(Entity entity, bool useAdmin = false, bool bypassCustomPluginExecution = false)
         {
-#region Parameters check
+            #region Parameters check
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
@@ -113,16 +117,18 @@ namespace XrmFramework
             {
                 throw new ArgumentNullException("entity.Id");
             }
-#endregion
+            #endregion
 
             var service = GetService(useAdmin);
 
-            service.Update(entity);
+            var request = new UpdateRequest { Target = entity };
+
+            Execute<UpdateRequest, UpdateResponse>(service, request, bypassCustomPluginExecution);
         }
 
-        public void Update(Entity entity, Guid callerId)
+        public void Update(Entity entity, Guid callerId, bool bypassCustomPluginExecution = false)
         {
-#region Parameters check
+            #region Parameters check
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
@@ -131,30 +137,34 @@ namespace XrmFramework
             {
                 throw new ArgumentNullException("entity.Id");
             }
-#endregion
+            #endregion
 
             var service = GetService(callerId);
 
-            service.Update(entity);
+            var request = new UpdateRequest { Target = entity };
+
+            Execute<UpdateRequest, UpdateResponse>(service, request, bypassCustomPluginExecution);
         }
 
-        public void Delete(Microsoft.Xrm.Sdk.EntityReference objectReference, Guid callerId)
+        public void Delete(EntityReference objectReference, Guid callerId, bool bypassCustomPluginExecution = false)
         {
-#region Parameters check
+            #region Parameters check
             if (objectReference == null)
             {
                 throw new ArgumentNullException(nameof(objectReference));
             }
-#endregion
+            #endregion
 
             var service = GetService(callerId);
 
-            service.Execute(new DeleteRequest { Target = objectReference });
+            var request = new DeleteRequest { Target = objectReference };
+
+            Execute<DeleteRequest, DeleteResponse>(service, request, bypassCustomPluginExecution);
         }
 
-        public void Delete(string logicalName, Guid id, Guid callerId)
+        public void Delete(string logicalName, Guid id, Guid callerId, bool bypassCustomPluginExecution = false)
         {
-#region Parameters check
+            #region Parameters check
             if (string.IsNullOrEmpty(logicalName))
             {
                 throw new ArgumentNullException(nameof(logicalName));
@@ -163,14 +173,14 @@ namespace XrmFramework
             {
                 throw new ArgumentNullException(nameof(id));
             }
-#endregion
+            #endregion
 
-            Delete(new Microsoft.Xrm.Sdk.EntityReference(logicalName, id), callerId);
+            Delete(new EntityReference(logicalName, id), callerId, bypassCustomPluginExecution);
         }
 
-        public void Delete(string logicalName, Guid id, bool useAdmin = false)
+        public void Delete(string logicalName, Guid id, bool useAdmin = false, bool bypassCustomPluginExecution = false)
         {
-#region Parameters check
+            #region Parameters check
             if (string.IsNullOrEmpty(logicalName))
             {
                 throw new ArgumentNullException(nameof(logicalName));
@@ -179,63 +189,67 @@ namespace XrmFramework
             {
                 throw new ArgumentNullException(nameof(id));
             }
-#endregion
+            #endregion
 
-            Delete(new Microsoft.Xrm.Sdk.EntityReference(logicalName, id), useAdmin);
+            Delete(new EntityReference(logicalName, id), useAdmin, bypassCustomPluginExecution);
         }
 
-        public void Delete(Microsoft.Xrm.Sdk.EntityReference objectReference, bool useAdmin = false)
+        public void Delete(EntityReference objectReference, bool useAdmin = false, bool bypassCustomPluginExecution = false)
         {
-#region Parameters check
+            #region Parameters check
             if (objectReference == null)
             {
                 throw new ArgumentNullException(nameof(objectReference));
             }
-#endregion
+            #endregion
 
             var service = GetService(useAdmin);
 
-            service.Execute(new DeleteRequest { Target = objectReference });
+            var request = new DeleteRequest { Target = objectReference };
+
+            Execute<DeleteRequest, DeleteResponse>(service, request, bypassCustomPluginExecution);
         }
 
-        public void AssignEntity(Microsoft.Xrm.Sdk.EntityReference objectReference, Microsoft.Xrm.Sdk.EntityReference ownerRef)
+        public void AssignEntity(EntityReference objectReference, EntityReference ownerRef, bool bypassCustomPluginExecution = false)
         {
-#region Parameters check
+            #region Parameters check
             if (objectReference == null)
             {
                 throw new ArgumentNullException(nameof(objectReference));
             }
-#endregion
+            #endregion
 
-            AdminOrganizationService.Execute(new AssignRequest
+            Execute<AssignRequest, AssignResponse>(AdminOrganizationService, new AssignRequest
             {
-                Assignee = ownerRef ?? new Microsoft.Xrm.Sdk.EntityReference("systemuser", InitiatingUserId),
+                Assignee = ownerRef ?? new EntityReference("systemuser", InitiatingUserId),
                 Target = objectReference
-            });
+            }, bypassCustomPluginExecution);
         }
 
-        public void SetState(Microsoft.Xrm.Sdk.EntityReference objectRef, int stateCode, int statusCode, bool useAdmin = false)
+        public void SetState(EntityReference objectRef, int stateCode, int statusCode, bool useAdmin = false, bool bypassCustomPluginExecution = false)
         {
-#region Parameters check
+            #region Parameters check
             if (objectRef == null)
             {
                 throw new ArgumentNullException(nameof(objectRef));
             }
-#endregion
+            #endregion
 
             var service = GetService(useAdmin);
 
-            service.Execute(new SetStateRequest
+            var request = new SetStateRequest
             {
                 EntityMoniker = objectRef,
                 State = new OptionSetValue(stateCode),
                 Status = new OptionSetValue(statusCode)
-            });
+            };
+
+            Execute<SetStateRequest, SetStateResponse>(service, request, bypassCustomPluginExecution);
         }
 
-        public void Share(Microsoft.Xrm.Sdk.EntityReference objectRef, Microsoft.Xrm.Sdk.EntityReference assigneeRef, AccessRights accessRights)
+        public void Share(EntityReference objectRef, EntityReference assigneeRef, AccessRights accessRights, bool bypassCustomPluginExecution = false)
         {
-#region Parameters check
+            #region Parameters check
             if (objectRef == null)
             {
                 throw new ArgumentNullException(nameof(objectRef));
@@ -244,9 +258,9 @@ namespace XrmFramework
             {
                 throw new ArgumentNullException(nameof(assigneeRef));
             }
-#endregion
+            #endregion
 
-            AdminOrganizationService.Execute(new GrantAccessRequest
+            var request = new GrantAccessRequest
             {
                 Target = objectRef,
                 PrincipalAccess = new PrincipalAccess
@@ -254,12 +268,14 @@ namespace XrmFramework
                     AccessMask = accessRights,
                     Principal = assigneeRef
                 }
-            });
+            };
+
+            Execute<GrantAccessRequest, GrantAccessResponse>(AdminOrganizationService, request, bypassCustomPluginExecution);
         }
 
-        public void UnShare(Microsoft.Xrm.Sdk.EntityReference objectRef, Microsoft.Xrm.Sdk.EntityReference revokeeRef, Microsoft.Xrm.Sdk.EntityReference callerRef = null)
+        public void UnShare(EntityReference objectRef, EntityReference revokeeRef, EntityReference callerRef = null, bool bypassCustomPluginExecution = false)
         {
-#region Parameters check
+            #region Parameters check
             if (objectRef == null)
             {
                 throw new ArgumentNullException(nameof(objectRef));
@@ -268,15 +284,17 @@ namespace XrmFramework
             {
                 throw new ArgumentNullException(nameof(revokeeRef));
             }
-#endregion
+            #endregion
 
             var service = GetService(callerRef?.Id ?? Guid.Empty);
 
-            service.Execute(new RevokeAccessRequest
+            var request = new RevokeAccessRequest
             {
                 Target = objectRef,
                 Revokee = revokeeRef
-            });
+            };
+
+            Execute<RevokeAccessRequest, RevokeAccessResponse>(AdminOrganizationService, request, bypassCustomPluginExecution);
         }
 
         protected IOrganizationService GetService(Guid callerId)
@@ -300,7 +318,7 @@ namespace XrmFramework
             return service;
         }
 
-        private Entity RetrieveInternal(Microsoft.Xrm.Sdk.EntityReference objectRef, ColumnSet cs)
+        private Entity RetrieveInternal(EntityReference objectRef, ColumnSet cs)
         {
             var request = new RetrieveRequest
             {
@@ -313,7 +331,7 @@ namespace XrmFramework
 
         public Entity Retrieve(string entityName, Guid id, params string[] columns)
         {
-#region Parameters check
+            #region Parameters check
             if (string.IsNullOrEmpty(entityName))
             {
                 throw new ArgumentNullException(nameof(entityName));
@@ -330,15 +348,15 @@ namespace XrmFramework
             {
                 throw new ArgumentNullException("columns.Length");
             }
-#endregion
+            #endregion
 
-            return RetrieveInternal(new Microsoft.Xrm.Sdk.EntityReference(entityName, id), new ColumnSet(columns));
+            return RetrieveInternal(new EntityReference(entityName, id), new ColumnSet(columns));
         }
 
 
         public Entity Retrieve(string entityName, Guid id, bool allColumns)
         {
-#region Parameters check
+            #region Parameters check
             if (string.IsNullOrEmpty(entityName))
             {
                 throw new ArgumentNullException(nameof(entityName));
@@ -351,14 +369,14 @@ namespace XrmFramework
             {
                 throw new ArgumentNullException(nameof(allColumns));
             }
-#endregion
+            #endregion
 
-            return RetrieveInternal(new Microsoft.Xrm.Sdk.EntityReference(entityName, id), new ColumnSet(allColumns));
+            return RetrieveInternal(new EntityReference(entityName, id), new ColumnSet(allColumns));
         }
 
-        public Entity Retrieve(Microsoft.Xrm.Sdk.EntityReference objectRef, params string[] columns)
+        public Entity Retrieve(EntityReference objectRef, params string[] columns)
         {
-#region Parameters check
+            #region Parameters check
             if (objectRef == null)
             {
                 throw new ArgumentNullException(nameof(objectRef));
@@ -371,15 +389,15 @@ namespace XrmFramework
             {
                 throw new ArgumentNullException("columns.Length");
             }
-#endregion
+            #endregion
 
             return RetrieveInternal(objectRef, new ColumnSet(columns));
         }
 
 
-        public Entity Retrieve(Microsoft.Xrm.Sdk.EntityReference objectRef, bool allColumns)
+        public Entity Retrieve(EntityReference objectRef, bool allColumns)
         {
-#region Parameters check
+            #region Parameters check
             if (objectRef == null)
             {
                 throw new ArgumentNullException(nameof(objectRef));
@@ -388,14 +406,14 @@ namespace XrmFramework
             {
                 throw new ArgumentNullException(nameof(allColumns));
             }
-#endregion
+            #endregion
 
             return RetrieveInternal(objectRef, new ColumnSet(allColumns));
         }
 
         public string GetOptionSetNameFromValue(string optionsetName, int optionsetValue)
         {
-#region Parameters check
+            #region Parameters check
             if (string.IsNullOrEmpty(optionsetName))
             {
                 throw new ArgumentNullException(nameof(optionsetName));
@@ -404,7 +422,7 @@ namespace XrmFramework
             {
                 throw new ArgumentNullException(nameof(optionsetValue));
             }
-#endregion
+            #endregion
 
             var optionsetSelectedText = string.Empty;
 
@@ -431,12 +449,12 @@ namespace XrmFramework
 
         public string GetOptionSetNameFromValue<T>(int optionsetValue)
         {
-#region Parameters check
+            #region Parameters check
             if (optionsetValue < 0)
             {
                 throw new ArgumentNullException(nameof(optionsetValue));
             }
-#endregion
+            #endregion
 
             var optionSetattribute = typeof(T).GetCustomAttributes(typeof(OptionSetDefinitionAttribute), false).FirstOrDefault() as OptionSetDefinitionAttribute;
 
@@ -453,22 +471,27 @@ namespace XrmFramework
             return AdminOrganizationService.GetById<T>(id);
         }
 
-        public T GetById<T>(Microsoft.Xrm.Sdk.EntityReference entityReference) where T : IBindingModel, new()
+        public T GetById<T>(EntityReference entityReference) where T : IBindingModel, new()
         {
             return AdminOrganizationService.GetById<T>(entityReference);
         }
 
-        public T Upsert<T>(T model, bool isAdmin = false) where T : IBindingModel, new()
+        public T Upsert<T>(T model, bool isAdmin = false, bool bypassCustomPluginExecution = false) where T : IBindingModel, new()
         {
-            var service = isAdmin ? AdminOrganizationService : OrganizationService; 
+            var service = isAdmin ? AdminOrganizationService : OrganizationService;
 
-            return service.Upsert(model);
+            return service.Upsert(model, new UpsertSettings { DisablePluginsExecution = bypassCustomPluginExecution });
         }
 
 
-        public void AddUsersToTeam(Microsoft.Xrm.Sdk.EntityReference teamRef, params Microsoft.Xrm.Sdk.EntityReference[] userRefs)
+        public void AddUsersToTeam(EntityReference teamRef, params EntityReference[] userRefs)
         {
-            if(userRefs.Length == 0)
+            AddUsersToTeam(teamRef, false, userRefs);
+        }
+
+        public void AddUsersToTeam(EntityReference teamRef, bool bypassCustomPluginExecution, params EntityReference[] userRefs)
+        {
+            if (userRefs.Length == 0)
             {
                 return;
             }
@@ -479,10 +502,15 @@ namespace XrmFramework
                 TeamId = teamRef.Id
             };
 
-            AdminOrganizationService.Execute(request);
+            Execute<AddMembersTeamRequest, AddMembersTeamResponse>(AdminOrganizationService, request, bypassCustomPluginExecution);
         }
 
-        public void RemoveUsersFromTeam(Microsoft.Xrm.Sdk.EntityReference teamRef, params Microsoft.Xrm.Sdk.EntityReference[] userRefs)
+        public void RemoveUsersFromTeam(EntityReference teamRef, params EntityReference[] userRefs)
+        {
+            RemoveUsersFromTeam(teamRef, false, userRefs);
+        }
+
+        public void RemoveUsersFromTeam(EntityReference teamRef, bool bypassCustomPluginExecution, params EntityReference[] userRefs)
         {
             var request = new RemoveMembersTeamRequest
             {
@@ -490,10 +518,10 @@ namespace XrmFramework
                 TeamId = teamRef.Id
             };
 
-            AdminOrganizationService.Execute(request);
+            Execute<RemoveMembersTeamRequest, RemoveMembersTeamResponse>(AdminOrganizationService, request, bypassCustomPluginExecution);
         }
 
-        public void AddToQueue(Guid queueId, Microsoft.Xrm.Sdk.EntityReference target)
+        public void AddToQueue(Guid queueId, EntityReference target, bool bypassCustomPluginExecution = false)
         {
             var request = new AddToQueueRequest
             {
@@ -501,10 +529,10 @@ namespace XrmFramework
                 DestinationQueueId = queueId
             };
 
-            AdminOrganizationService.Execute(request);
+            Execute<AddToQueueRequest, AddToQueueResponse>(AdminOrganizationService, request, bypassCustomPluginExecution);
         }
 
-        public Microsoft.Xrm.Sdk.EntityReference GetDefaultCurrencyRef()
+        public EntityReference GetDefaultCurrencyRef()
         {
             var query = new QueryExpression("transactioncurrency");
             query.Criteria.AddCondition("isocurrencycode", ConditionOperator.Equal, "EUR");
@@ -512,7 +540,7 @@ namespace XrmFramework
             return AdminOrganizationService.RetrieveAll(query).Select(e => e.ToEntityReference()).FirstOrDefault();
         }
 
-        public void Merge(Microsoft.Xrm.Sdk.EntityReference target, Guid subordonate, Entity content)
+        public void Merge(EntityReference target, Guid subordonate, Entity content, bool bypassCustomPluginExecution = false)
         {
             var request = new MergeRequest
             {
@@ -522,10 +550,11 @@ namespace XrmFramework
                 PerformParentingChecks = true
             };
 
-            AdminOrganizationService.Execute(request);
+            Execute<MergeRequest, MergeResponse>(AdminOrganizationService, request, bypassCustomPluginExecution);
+            
         }
 
-        public bool UserHasOneRoleOf(Guid userId, params string[] roleIdTxts) => 
+        public bool UserHasOneRoleOf(Guid userId, params string[] roleIdTxts) =>
             UserHasOneRoleOf(userId, roleIdTxts?.Select(t => new Guid(t)).ToArray());
 
         public bool UserHasOneRoleOf(Guid userId, params Guid[] roleIds)
@@ -547,7 +576,7 @@ namespace XrmFramework
             return AdminOrganizationService.RetrieveMultiple(query).Entities.Any();
         }
 
-        public ICollection<Guid> GetUserRoleIds(Microsoft.Xrm.Sdk.EntityReference userRef)
+        public ICollection<Guid> GetUserRoleIds(EntityReference userRef)
         {
             var query = new QueryExpression(RoleDefinition.EntityName);
             query.ColumnSet.AddColumns(RoleDefinition.Columns.RoleTemplateId, RoleDefinition.Columns.ParentRootRoleId);
@@ -560,23 +589,23 @@ namespace XrmFramework
             return AdminOrganizationService.RetrieveMultiple(query).Entities
                 .Select(r =>
                     r.Contains(RoleDefinition.Columns.RoleTemplateId) ?
-                        r.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>(RoleDefinition.Columns.RoleTemplateId).Id :
-                        r.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>(RoleDefinition.Columns.ParentRootRoleId).Id
+                        r.GetAttributeValue<EntityReference>(RoleDefinition.Columns.RoleTemplateId).Id :
+                        r.GetAttributeValue<EntityReference>(RoleDefinition.Columns.ParentRootRoleId).Id
                         ).ToList();
         }
 
 
-        public void AddRoleToUserOrTeam(Microsoft.Xrm.Sdk.EntityReference userOrTeamRef, string parentRootRoleIdOrTemplateId)
+        public void AddRoleToUserOrTeam(EntityReference userOrTeamRef, string parentRootRoleIdOrTemplateId, bool bypassCustomPluginExecution = false)
         {
-            Microsoft.Xrm.Sdk.EntityReference businessUnitRef;
+            EntityReference businessUnitRef;
 
             if (userOrTeamRef.LogicalName == SystemUserDefinition.EntityName)
             {
-                businessUnitRef = Retrieve(userOrTeamRef, SystemUserDefinition.Columns.BusinessUnitId).GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>(SystemUserDefinition.Columns.BusinessUnitId);
+                businessUnitRef = Retrieve(userOrTeamRef, SystemUserDefinition.Columns.BusinessUnitId).GetAttributeValue<EntityReference>(SystemUserDefinition.Columns.BusinessUnitId);
             }
             else
             {
-                businessUnitRef = Retrieve(userOrTeamRef, TeamDefinition.Columns.BusinessUnitId).GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>(TeamDefinition.Columns.BusinessUnitId);
+                businessUnitRef = Retrieve(userOrTeamRef, TeamDefinition.Columns.BusinessUnitId).GetAttributeValue<EntityReference>(TeamDefinition.Columns.BusinessUnitId);
             }
 
             var roleRef = GetRoleRefForBusinessUnit(businessUnitRef, parentRootRoleIdOrTemplateId);
@@ -584,17 +613,18 @@ namespace XrmFramework
 
             if (userOrTeamRef.LogicalName == SystemUserDefinition.EntityName)
             {
+                AssociateRecords(userOrTeamRef, new Microsoft.Xrm.Sdk.Relationship(RoleDefinition.ManyToManyRelationships.systemuserroles_association), bypassCustomPluginExecution, roleRef);
+
                 AdminOrganizationService.Associate(SystemUserDefinition.EntityName, userOrTeamRef.Id, new Microsoft.Xrm.Sdk.Relationship(RoleDefinition.ManyToManyRelationships.systemuserroles_association),
                     new EntityReferenceCollection { roleRef });
             }
             else
             {
-                AdminOrganizationService.Associate(TeamDefinition.EntityName, userOrTeamRef.Id, new Microsoft.Xrm.Sdk.Relationship(RoleDefinition.ManyToManyRelationships.teamroles_association),
-                    new EntityReferenceCollection { roleRef });
+                AssociateRecords(userOrTeamRef, new Microsoft.Xrm.Sdk.Relationship(RoleDefinition.ManyToManyRelationships.teamroles_association), bypassCustomPluginExecution, roleRef);
             }
         }
 
-        private Microsoft.Xrm.Sdk.EntityReference GetRoleRefForBusinessUnit(Microsoft.Xrm.Sdk.EntityReference businessUnitRef, string parentRootRoleIdOrTemplateId)
+        private EntityReference GetRoleRefForBusinessUnit(EntityReference businessUnitRef, string parentRootRoleIdOrTemplateId)
         {
             var queryRole = new QueryExpression(RoleDefinition.EntityName);
             var filterParent = queryRole.Criteria.AddFilter(LogicalOperator.Or);
@@ -616,7 +646,7 @@ namespace XrmFramework
             return model.ToEntity(OrganizationService);
         }
 
-        public ICollection<Microsoft.Xrm.Sdk.EntityReference> GetTeamMemberRefs(Microsoft.Xrm.Sdk.EntityReference teamRef)
+        public ICollection<EntityReference> GetTeamMemberRefs(EntityReference teamRef)
         {
             var queryMembers = new QueryExpression(SystemUserDefinition.EntityName);
             queryMembers.ColumnSet.AddColumn(SystemUserDefinition.Columns.Id);
@@ -628,12 +658,25 @@ namespace XrmFramework
             return AdminOrganizationService.RetrieveAll(queryMembers, false).Select(e => e.ToEntityReference()).ToList();
         }
 
-        public void AssociateRecords(Microsoft.Xrm.Sdk.EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, params Microsoft.Xrm.Sdk.EntityReference[] entityReferences)
+        public void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, params EntityReference[] entityReferences)
+        {
+            AssociateRecords(objectRef, relationName, false, entityReferences);
+        }
+
+        public void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, bool bypassCustomPluginExecution, params EntityReference[] entityReferences)
         {
             var collec = new EntityReferenceCollection();
             collec.AddRange(entityReferences);
 
-            AdminOrganizationService.Associate(objectRef.LogicalName, objectRef.Id, relationName, collec);
+            var request = new AssociateRequest
+            {
+                Target = objectRef,
+                Relationship = relationName,
+                RelatedEntities = new EntityReferenceCollection(collec.ToList())
+            };
+
+            Execute<AssociateRequest, AssociateResponse>(AdminOrganizationService, request,
+                bypassCustomPluginExecution);
         }
 
         public TVariable GetEnvironmentVariable<TVariable>(string schemaName)
@@ -645,7 +688,7 @@ namespace XrmFramework
                 return default(TVariable);
             }
 
-            return (TVariable) variableObject;
+            return (TVariable)variableObject;
         }
 
         protected object GetEnvironmentVariable(Type objectType, string schemaName)
@@ -692,6 +735,20 @@ namespace XrmFramework
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private TResponse Execute<TRequest, TResponse>(IOrganizationService service, TRequest request,
+            bool bypassCustomPluginExecution)
+            where TRequest : OrganizationRequest
+            where TResponse : OrganizationResponse
+        {
+
+            if (bypassCustomPluginExecution)
+            {
+                request["BypassCustomPluginExecution"] = true;
+            }
+
+            return (TResponse)service.Execute(request);
         }
     }
 }

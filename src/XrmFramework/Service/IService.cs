@@ -12,50 +12,54 @@ namespace XrmFramework
 {
     public partial interface IService
     {
-        Guid Create(Entity entity, bool useAdmin = false);
+        Guid Create(Entity entity, bool useAdmin = false, bool bypassCustomPluginExecution = false);
 
-        UpsertResponse Upsert(Entity entity, bool useAdmin = false);
+        UpsertResponse Upsert(Entity entity, bool useAdmin = false, bool bypassCustomPluginExecution = false);
 
-        void Update(Entity entity, bool useAdmin = false);
+        void Update(Entity entity, bool useAdmin = false, bool bypassCustomPluginExecution = false);
 
-        void Delete(string logicalName, Guid id, bool useAdmin = false);
+        void Delete(string logicalName, Guid id, bool useAdmin = false, bool bypassCustomPluginExecution = false);
 
-        Guid Create(Entity entity, Guid callerId);
+        Guid Create(Entity entity, Guid callerId, bool bypassCustomPluginExecution = false);
 
-        UpsertResponse Upsert(Entity entity, Guid callerId);
+        UpsertResponse Upsert(Entity entity, Guid callerId, bool bypassCustomPluginExecution = false);
 
-        void Update(Entity entity, Guid callerId);
+        void Update(Entity entity, Guid callerId, bool bypassCustomPluginExecution = false);
 
-        void Delete(string logicalName, Guid id, Guid callerId);
+        void Delete(string logicalName, Guid id, Guid callerId, bool bypassCustomPluginExecution = false);
 
-        void Delete(Microsoft.Xrm.Sdk.EntityReference objectReference, bool useAdmin = false);
+        void Delete(EntityReference objectReference, bool useAdmin = false, bool bypassCustomPluginExecution = false);
 
-        void Delete(Microsoft.Xrm.Sdk.EntityReference objectReference, Guid callerId);
+        void Delete(EntityReference objectReference, Guid callerId, bool bypassCustomPluginExecution = false);
 
-        void AssignEntity(Microsoft.Xrm.Sdk.EntityReference objectReference, [Nullable] Microsoft.Xrm.Sdk.EntityReference ownerRef);
+        void AssignEntity(EntityReference objectReference, [Nullable] EntityReference ownerRef, bool bypassCustomPluginExecution = false);
 
-        void AddUsersToTeam(Microsoft.Xrm.Sdk.EntityReference teamRef, params Microsoft.Xrm.Sdk.EntityReference[] userRefs);
+        void AddUsersToTeam(EntityReference teamRef, params EntityReference[] userRefs);
 
-        void RemoveUsersFromTeam(Microsoft.Xrm.Sdk.EntityReference teamRef, params Microsoft.Xrm.Sdk.EntityReference[] userRefs);
+        void AddUsersToTeam(EntityReference teamRef, bool bypassCustomPluginExecution, params EntityReference[] userRefs);
 
-        void AddToQueue(Guid queueId, Microsoft.Xrm.Sdk.EntityReference target);
+        void RemoveUsersFromTeam(EntityReference teamRef, params EntityReference[] userRefs);
 
-        void Merge(Microsoft.Xrm.Sdk.EntityReference target, Guid subordonate, Entity content);
+        void RemoveUsersFromTeam(EntityReference teamRef, bool bypassCustomPluginExecution, params EntityReference[] userRefs);
+
+        void AddToQueue(Guid queueId, EntityReference target, bool bypassCustomPluginExecution = false);
+
+        void Merge(EntityReference target, Guid subordonate, Entity content, bool bypassCustomPluginExecution = false);
 
         [Obsolete("Use Update instead.")]
-        void SetState(Microsoft.Xrm.Sdk.EntityReference objectRef, int stateCode, int statusCode, bool useAdmin = false);
+        void SetState(EntityReference objectRef, int stateCode, int statusCode, bool useAdmin = false, bool bypassCustomPluginExecution = false);
 
-        void Share(Microsoft.Xrm.Sdk.EntityReference objectRef, Microsoft.Xrm.Sdk.EntityReference assignee, AccessRights accessRights);
+        void Share(EntityReference objectRef, EntityReference assignee, AccessRights accessRights, bool bypassCustomPluginExecution = false);
 
-        void UnShare(Microsoft.Xrm.Sdk.EntityReference objectRef, Microsoft.Xrm.Sdk.EntityReference revokee, [Nullable] Microsoft.Xrm.Sdk.EntityReference callerRef = null);
+        void UnShare(EntityReference objectRef, EntityReference revokee, [Nullable] EntityReference callerRef = null, bool bypassCustomPluginExecution = false);
 
         Entity Retrieve(string entityName, Guid id, params string[] columns);
 
         Entity Retrieve(string entityName, Guid id, bool allColumns);
 
-        Entity Retrieve(Microsoft.Xrm.Sdk.EntityReference objectRef, params string[] columns);
+        Entity Retrieve(EntityReference objectRef, params string[] columns);
 
-        Entity Retrieve(Microsoft.Xrm.Sdk.EntityReference objectRef, bool allColumns);
+        Entity Retrieve(EntityReference objectRef, bool allColumns);
 
         string GetOptionSetNameFromValue(string optionsetName, int optionsetValue);
 
@@ -63,9 +67,9 @@ namespace XrmFramework
 
         T GetById<T>(Guid id) where T : IBindingModel, new();
 
-        T GetById<T>(Microsoft.Xrm.Sdk.EntityReference entityReference) where T : IBindingModel, new();
+        T GetById<T>(EntityReference entityReference) where T : IBindingModel, new();
 
-        T Upsert<T>(T model, bool isAdmin = false) where T : IBindingModel, new();
+        T Upsert<T>(T model, bool isAdmin = false, bool bypassCustomPluginExecution = false) where T : IBindingModel, new();
 
         bool UserHasRole(Guid userId, Guid parentRoleId);
 
@@ -73,16 +77,18 @@ namespace XrmFramework
 
         bool UserHasOneRoleOf(Guid userId, params string[] parentRoleIds);
 
-        ICollection<Guid> GetUserRoleIds(Microsoft.Xrm.Sdk.EntityReference userRef);
+        ICollection<Guid> GetUserRoleIds(EntityReference userRef);
 
         Entity ToEntity<T>(T model) where T : IBindingModel;
 
-        ICollection<Microsoft.Xrm.Sdk.EntityReference> GetTeamMemberRefs(Microsoft.Xrm.Sdk.EntityReference teamRef);
+        ICollection<EntityReference> GetTeamMemberRefs(EntityReference teamRef);
 
-        void AssociateRecords(Microsoft.Xrm.Sdk.EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, params Microsoft.Xrm.Sdk.EntityReference[] entityReferences);
+        void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, params EntityReference[] entityReferences);
+
+        void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, bool bypassCustomPluginExecution, params EntityReference[] entityReferences);
 
         TVariable GetEnvironmentVariable<TVariable>(string schemaName);
 
-        void AddRoleToUserOrTeam(Microsoft.Xrm.Sdk.EntityReference userOrTeamRef, string parentRootRoleIdOrTemplateId);
+        void AddRoleToUserOrTeam(EntityReference userOrTeamRef, string parentRootRoleIdOrTemplateId, bool bypassCustomPluginExecution = false);
     }
 }

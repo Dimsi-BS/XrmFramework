@@ -2,16 +2,14 @@ using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using XrmFramework.Definitions.Internal;
 
 namespace XrmFramework.Definitions
 {
-	[GeneratedCode("XrmFramework", "1.0")]
+	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
-
-	[DefinitionManagerIgnore]
-
 	[ExcludeFromCodeCoverage]
-
+    [DefinitionManagerIgnore]
 	public static class EnvironmentVariableDefinition
 	{
 		public const string EntityName = "environmentvariabledefinition";
@@ -162,7 +160,8 @@ namespace XrmFramework.Definitions
 	}
 
     [OptionSetDefinition(EnvironmentVariableDefinition.EntityName, EnvironmentVariableDefinition.Columns.StateCode)]
-    public enum EnvironmentVariableDefinitionState
+    [DefinitionManagerIgnore]
+	public enum EnvironmentVariableDefinitionState
     {
         [Description("Active")]
         Active = 0,
@@ -171,7 +170,8 @@ namespace XrmFramework.Definitions
     }
 
     [OptionSetDefinition(EnvironmentVariableDefinition.EntityName, EnvironmentVariableDefinition.Columns.StatusCode)]
-    public enum EnvironmentVariableDefinitionStatus
+    [DefinitionManagerIgnore]
+	public enum EnvironmentVariableDefinitionStatus
     {
         [Description("Active")]
         Active = 1,
@@ -180,7 +180,8 @@ namespace XrmFramework.Definitions
     }
 
     [OptionSetDefinition(EnvironmentVariableDefinition.EntityName, EnvironmentVariableDefinition.Columns.Type)]
-    public enum EnvironmentVariableType
+    [DefinitionManagerIgnore]
+	public enum EnvironmentVariableType
     {
         Null = 0,
         [Description("String")]

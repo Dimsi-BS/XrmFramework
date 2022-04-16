@@ -1,8 +1,7 @@
 ﻿<Project>
+
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Castle.Core" Version="4.4.1" />
-    <PackageReference Include="Serilog" Version="2.10.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
+    <Compile Include="obj\LoggedServices\*.cs" />
   </ItemGroup>
+
 </Project>

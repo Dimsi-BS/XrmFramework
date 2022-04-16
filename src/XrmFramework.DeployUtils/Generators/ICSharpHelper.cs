@@ -209,6 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Generates a C# type reference.
         /// </summary>
         /// <param name="type"> The type to reference. </param>
+        /// <param name="useFullName">Use the type fullname</param>
         /// <returns> The reference. </returns>
         string Reference([NotNull] Type type, bool useFullName);
 
