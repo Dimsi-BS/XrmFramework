@@ -29,6 +29,14 @@ namespace XrmFramework {
     public partial interface IService
     {
         Guid Create(Entity entity);
+
+        void TestEnum(EnumTest value = EnumTest.Null);
+    }
+
+    public enum EnumTest
+    {
+        Null = 0,
+        FirstValue = 1
     }
 
     public partial class DefaultService : IService

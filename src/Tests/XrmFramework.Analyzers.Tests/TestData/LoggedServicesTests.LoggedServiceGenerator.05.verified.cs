@@ -17,7 +17,7 @@ namespace XrmFramework
         }
         #endregion
 
-        public global::System.Guid Create(global::Microsoft.Xrm.Sdk.Entity entity)
+        public Guid IService.Create(Entity entity)
         {
             #region Parameters check
             if (entity == default)
@@ -38,7 +38,22 @@ namespace XrmFramework
             return returnValue;
         }
 
-        public void Update(global::Microsoft.Xrm.Sdk.Entity entity)
+        public void IService.TestEnum(EnumTest value = EnumTest.Null)
+        {
+            #region Parameters check
+            #endregion
+
+            var sw = new Stopwatch();
+            sw.Start();
+
+            Log(nameof(TestEnum), "Start: value = {0}", value);
+
+            Service.TestEnum(value);
+
+            Log(nameof(TestEnum), "End : duration = {0}", sw.Elapsed);
+        }
+
+        public void IService.Update(Entity entity)
         {
             #region Parameters check
             if (entity == default)

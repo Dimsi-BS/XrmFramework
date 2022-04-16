@@ -20,7 +20,7 @@ namespace ClientNamespace.Core
         }
         #endregion
 
-        public int GetSubRecordCount(global::Microsoft.Xrm.Sdk.EntityReference recordRef)
+        public int IAccountService.GetSubRecordCount(EntityReference recordRef)
         {
             #region Parameters check
             if (recordRef == default)
@@ -41,7 +41,7 @@ namespace ClientNamespace.Core
             return returnValue;
         }
 
-        public async global::System.Threading.Tasks.Task AsynchronousCall(IEnumerable<double> list)
+        public async Task IAccountService.AsynchronousCall(IEnumerable<double> list)
         {
             #region Parameters check
             if (list == default)
@@ -60,7 +60,7 @@ namespace ClientNamespace.Core
             Log(nameof(AsynchronousCall), "End : duration = {0}", sw.Elapsed);
         }
 
-        public bool TryGetValue(string key, out int value)
+        public bool IAccountService.TryGetValue(string key, out int value)
         {
             #region Parameters check
             if (string.IsNullOrWhiteSpace(key))
@@ -81,7 +81,7 @@ namespace ClientNamespace.Core
             return returnValue;
         }
 
-        public U GetValue<T, U>(T argument) where T : global::System.Enum where U : new()
+        public U IAccountService.GetValue<T, U>(T argument)
         {
             #region Parameters check
             if (Equals(argument, default(T)))
@@ -102,7 +102,7 @@ namespace ClientNamespace.Core
             return returnValue;
         }
 
-        public void StringParameter(string parameter)
+        public void IAccountService.StringParameter(string parameter)
         {
             #region Parameters check
             #endregion
@@ -117,7 +117,7 @@ namespace ClientNamespace.Core
             Log(nameof(StringParameter), "End : duration = {0}", sw.Elapsed);
         }
 
-        public void StringParameterDefaultValue(string parameter = null)
+        public void IAccountService.StringParameterDefaultValue(string parameter = null)
         {
             #region Parameters check
             #endregion

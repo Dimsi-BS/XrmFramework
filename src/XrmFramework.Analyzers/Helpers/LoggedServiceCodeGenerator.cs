@@ -183,27 +183,13 @@ namespace XrmFramework.Analyzers.Helpers
         {
             if (displayTypes)
             {
-                var formatFull = SymbolDisplayFormat.FullyQualifiedFormat
-
-                            .WithMemberOptions(SymbolDisplayMemberOptions.IncludeAccessibility |
-                                                SymbolDisplayMemberOptions.IncludeModifiers |
-                                                SymbolDisplayMemberOptions.IncludeParameters |
-                                                SymbolDisplayMemberOptions.IncludeType |
-                                                SymbolDisplayMemberOptions.IncludeConstantValue)
-                            .WithGenericsOptions(SymbolDisplayGenericsOptions.IncludeVariance |
-                                                SymbolDisplayGenericsOptions.IncludeTypeParameters |
-                                                SymbolDisplayGenericsOptions.IncludeTypeConstraints)
-                            .WithParameterOptions(SymbolDisplayParameterOptions.IncludeDefaultValue |
-                                                SymbolDisplayParameterOptions.IncludeName |
-                                                SymbolDisplayParameterOptions.IncludeType |
-                                                SymbolDisplayParameterOptions.IncludeParamsRefOut |
-                                                SymbolDisplayParameterOptions.IncludeExtensionThis);
+                var formatFull = SymbolDisplayFormat.MinimallyQualifiedFormat;
 
                 builder.Append(m.ToDisplayString(formatFull));
             }
             else
             {
-                var minimalFormat = SymbolDisplayFormat.FullyQualifiedFormat
+                var minimalFormat = SymbolDisplayFormat.MinimallyQualifiedFormat
                             .WithGenericsOptions(SymbolDisplayGenericsOptions.IncludeTypeParameters);
 
                 builder
