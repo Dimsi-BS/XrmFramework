@@ -25,7 +25,7 @@ steps:
   displayName: Build
   inputs:
     command: 'build'
-    projects: 'XrmFramework.sln'
+    projects: '**/XrmFramework.sln'
     arguments: '--configuration $(buildConfiguration) /p:PublicRelease=true'
     workingDirectory: 'src'
 
@@ -33,7 +33,7 @@ steps:
   displayName: Test
   inputs:
     command: 'test'
-    projects: 'XrmFramework.sln'
+    projects: '**/XrmFramework.sln'
     workingDirectory: 'src'
   
 - task: CopyFiles@2
