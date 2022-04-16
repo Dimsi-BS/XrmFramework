@@ -116,8 +116,7 @@ namespace XrmFramework.Analyzers.Helpers
             var isAsyncMethod = IsAssignableFrom(m.ReturnType, typeof(Task).FullName);
 
             builder
-                .AppendLine()
-                .Append("public ");
+                .AppendLine();
 
             if (isAsyncMethod)
             {
