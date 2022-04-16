@@ -8,7 +8,7 @@ namespace XrmFramework.Definitions
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
 	[ExcludeFromCodeCoverage]
-    [DefinitionManagerIgnore]
+	[DefinitionManagerIgnore]
 	public static class PluginTypeDefinition
 	{
 		public const string EntityName = "plugintype";

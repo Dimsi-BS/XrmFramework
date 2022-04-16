@@ -1,6 +1,5 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis;
 using System.Runtime.Serialization;
-using Microsoft.CodeAnalysis;
 using XrmFramework.Analyzers.Utils;
 
 namespace Model.Sdk.Metadata
@@ -30,7 +29,7 @@ namespace Model.Sdk.Metadata
 
         public EntityRole Role
         {
-            get => (EntityRole) Enum.Parse(typeof(EntityRole), RoleString);
+            get => (EntityRole)Enum.Parse(typeof(EntityRole), RoleString);
             set => RoleString = value.ToString();
         }
 

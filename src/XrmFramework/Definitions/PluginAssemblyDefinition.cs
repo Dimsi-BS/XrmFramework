@@ -9,7 +9,7 @@ namespace XrmFramework.Definitions
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
 	[ExcludeFromCodeCoverage]
-    [DefinitionManagerIgnore]
+	[DefinitionManagerIgnore]
 	public static class PluginAssemblyDefinition
 	{
 		public const string EntityName = "pluginassembly";
@@ -128,16 +128,16 @@ namespace XrmFramework.Definitions
 	}
 
 
-    [OptionSetDefinition(PluginAssemblyDefinition.EntityName, PluginAssemblyDefinition.Columns.IsolationMode)]
-    [DefinitionManagerIgnore]
+	[OptionSetDefinition(PluginAssemblyDefinition.EntityName, PluginAssemblyDefinition.Columns.IsolationMode)]
+	[DefinitionManagerIgnore]
 	public enum IsolationMode
-    {
-        Null = 0,
-        [Description("None")]
-        None = 1,
-        [Description("Sandbox")]
-        Sandbox = 2,
-        [Description("External")]
-        External = 3,
-    }
+	{
+		Null = 0,
+		[Description("None")]
+		None = 1,
+		[Description("Sandbox")]
+		Sandbox = 2,
+		[Description("External")]
+		External = 3,
+	}
 }

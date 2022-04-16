@@ -1,0 +1,245 @@
+{
+  "LogName": "ftp_particulier",
+  "Name": "Particulier",
+  "CollName": "ftp_particuliers",
+  "Cols": [
+    {
+      "LogName": "ftp_budgetparmois",
+      "Name": "Budgetparmois",
+      "Type": "Integer",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Budget par mois",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": 100.0,
+      "MaxRange": 2000.0
+    },
+    {
+      "LogName": "ftp_name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "ftp_particulierid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Particulier",
+          "LangId": 1036
+        }
+      ]
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "ftp_particulier_SyncErrors",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "ftp_particulier_SyncErrors",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "ftp_particulier_AsyncOperations",
+      "Etn": "asyncoperation",
+      "Role": "Referenced",
+      "NavPropName": "ftp_particulier_AsyncOperations",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "ftp_particulier_MailboxTrackingFolders",
+      "Etn": "mailboxtrackingfolder",
+      "Role": "Referenced",
+      "NavPropName": "ftp_particulier_MailboxTrackingFolders",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "ftp_particulier_UserEntityInstanceDatas",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "ftp_particulier_UserEntityInstanceDatas",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "ftp_particulier_ProcessSession",
+      "Etn": "processsession",
+      "Role": "Referenced",
+      "NavPropName": "ftp_particulier_ProcessSession",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "ftp_particulier_BulkDeleteFailures",
+      "Etn": "bulkdeletefailure",
+      "Role": "Referenced",
+      "NavPropName": "ftp_particulier_BulkDeleteFailures",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "ftp_particulier_PrincipalObjectAttributeAccesses",
+      "Etn": "principalobjectattributeaccess",
+      "Role": "Referenced",
+      "NavPropName": "ftp_particulier_PrincipalObjectAttributeAccesses",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "ftp_particulier_DuplicateMatchingRecord",
+      "Etn": "duplicaterecord",
+      "Role": "Referenced",
+      "NavPropName": "ftp_particulier_DuplicateMatchingRecord",
+      "LookName": "duplicaterecordid"
+    },
+    {
+      "Name": "ftp_particulier_DuplicateBaseRecord",
+      "Etn": "duplicaterecord",
+      "Role": "Referenced",
+      "NavPropName": "ftp_particulier_DuplicateBaseRecord",
+      "LookName": "baserecordid"
+    },
+    {
+      "Name": "ftp_Contrat_Proprietaire_ftp_Particulier",
+      "Etn": "ftp_contrat",
+      "Role": "Referenced",
+      "NavPropName": "ftp_Contrat_Proprietaire_ftp_Particulier",
+      "LookName": "ftp_proprietaire"
+    },
+    {
+      "Name": "ftp_Contrat_Locataire_ftp_Particulier",
+      "Etn": "ftp_contrat",
+      "Role": "Referenced",
+      "NavPropName": "ftp_Contrat_Locataire_ftp_Particulier",
+      "LookName": "ftp_locataire"
+    },
+    {
+      "Name": "ftp_ContratdeLocation_Locataire_ftp_Parti",
+      "Etn": "ftp_contratdelocation",
+      "Role": "Referenced",
+      "NavPropName": "ftp_ContratdeLocation_Locataire_ftp_Parti",
+      "LookName": "ftp_locataire"
+    },
+    {
+      "Name": "ftp_ContratdeLocation_Proprietaire_ftp_Pa",
+      "Etn": "ftp_contratdelocation",
+      "Role": "Referenced",
+      "NavPropName": "ftp_ContratdeLocation_Proprietaire_ftp_Pa",
+      "LookName": "ftp_proprietaire"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_ftp_particulier_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_ftp_particulier_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_ftp_particulier_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_ftp_particulier_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "user_ftp_particulier",
+      "Etn": "systemuser",
+      "NavPropName": "owninguser",
+      "LookName": "owninguser"
+    },
+    {
+      "Name": "team_ftp_particulier",
+      "Etn": "team",
+      "NavPropName": "owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "owner_ftp_particulier",
+      "Etn": "owner",
+      "NavPropName": "ownerid",
+      "LookName": "ownerid"
+    },
+    {
+      "Name": "business_unit_ftp_particulier",
+      "Etn": "businessunit",
+      "NavPropName": "owningbusinessunit",
+      "LookName": "owningbusinessunit"
+    }
+  ],
+  "Enums": [
+    {
+      "LogName": "ftp_particulier|statecode",
+      "Name": "ParticulierState",
+      "Values": [
+        {
+          "Name": "Actif",
+          "Labels": [
+            {
+              "Label": "Actif",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Inactif",
+          "Labels": [
+            {
+              "Label": "Inactif",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "ftp_particulier|statuscode",
+      "Name": "ParticulierStatus",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Actif",
+          "Labels": [
+            {
+              "Label": "Actif",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Inactif",
+          "Labels": [
+            {
+              "Label": "Inactif",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

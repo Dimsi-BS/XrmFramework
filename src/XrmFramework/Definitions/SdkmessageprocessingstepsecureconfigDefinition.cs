@@ -7,7 +7,7 @@ namespace XrmFramework.Definitions
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
 	[ExcludeFromCodeCoverage]
-    [DefinitionManagerIgnore]
+	[DefinitionManagerIgnore]
 	public static class SdkMessageProcessingStepSecureConfigDefinition
 	{
 		public const string EntityName = "sdkmessageprocessingstepsecureconfig";

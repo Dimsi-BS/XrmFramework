@@ -1,0 +1,2052 @@
+{
+  "LogName": "account",
+  "Name": "Account",
+  "CollName": "accounts",
+  "Cols": [
+    {
+      "LogName": "accountcategorycode",
+      "Name": "AccountCategoryCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Catégorie",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "account|accountcategorycode"
+    },
+    {
+      "LogName": "accountid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Compte",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "accountnumber",
+      "Name": "AccountNumber",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Numéro de compte",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "address1_county",
+      "Name": "Address1_County",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Commune",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_latitude",
+      "Name": "Address1_Latitude",
+      "Type": "Double",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Latitude",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -90.0,
+      "MaxRange": 90.0
+    },
+    {
+      "LogName": "address1_line3",
+      "Name": "Address1_Line3",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Rue 3",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 250
+    },
+    {
+      "LogName": "address1_postalcode",
+      "Name": "Address1_PostalCode",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Code postal",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "address1_stateorprovince",
+      "Name": "Address1_StateOrProvince",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Département/province",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_freighttermscode",
+      "Name": "Address2_FreightTermsCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Conditions de transport",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "account|address2_freighttermscode"
+    },
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom du compte",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 160
+    }
+  ],
+  "NtoN": [
+    {
+      "Name": "accountleads_association",
+      "Etn": "lead",
+      "NavPropName": "accountleads",
+      "LookName": "accountid"
+    },
+    {
+      "Name": "listaccount_association",
+      "Etn": "list",
+      "NavPropName": "listmember",
+      "LookName": "listid"
+    },
+    {
+      "Name": "BulkOperation_Accounts",
+      "Etn": "bulkoperation",
+      "NavPropName": "bulkoperationlog",
+      "LookName": "bulkoperationid"
+    },
+    {
+      "Name": "CampaignActivity_Accounts",
+      "Etn": "campaignactivity",
+      "NavPropName": "bulkoperationlog",
+      "LookName": "campaignactivityid"
+    },
+    {
+      "Name": "msdyn_msdyn_functionallocation_account",
+      "Etn": "msdyn_functionallocation",
+      "NavPropName": "msdyn_msdyn_functionallocation_account",
+      "LookName": "msdyn_functionallocationid"
+    },
+    {
+      "Name": "adx_website_sponsor",
+      "Etn": "adx_website",
+      "NavPropName": "adx_website_sponsor",
+      "LookName": "adx_websiteid"
+    },
+    {
+      "Name": "adx_webrole_account",
+      "Etn": "adx_webrole",
+      "NavPropName": "adx_webrole_account",
+      "LookName": "adx_webroleid"
+    },
+    {
+      "Name": "adx_AccountContentAccessLevel",
+      "Etn": "adx_contentaccesslevel",
+      "NavPropName": "adx_accountcontentaccesslevel",
+      "LookName": "adx_contentaccesslevelid"
+    },
+    {
+      "Name": "adx_accountproduct",
+      "Etn": "product",
+      "NavPropName": "adx_accountproduct",
+      "LookName": "productid"
+    }
+  ],
+  "OneToN": [
+    {
+      "Name": "account_principalobjectattributeaccess",
+      "Etn": "principalobjectattributeaccess",
+      "Role": "Referenced",
+      "NavPropName": "account_principalobjectattributeaccess",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "Account_Faxes",
+      "Etn": "fax",
+      "Role": "Referenced",
+      "NavPropName": "Account_Faxes",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "slakpiinstance_account",
+      "Etn": "slakpiinstance",
+      "Role": "Referenced",
+      "NavPropName": "slakpiinstance_account",
+      "LookName": "regarding"
+    },
+    {
+      "Name": "account_PostFollows",
+      "Etn": "postfollow",
+      "Role": "Referenced",
+      "NavPropName": "account_PostFollows",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_PostRegardings",
+      "Etn": "postregarding",
+      "Role": "Referenced",
+      "NavPropName": "account_PostRegardings",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_PostRoles",
+      "Etn": "postrole",
+      "Role": "Referenced",
+      "NavPropName": "account_PostRoles",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_Tasks",
+      "Etn": "task",
+      "Role": "Referenced",
+      "NavPropName": "Account_Tasks",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_connections1",
+      "Etn": "connection",
+      "Role": "Referenced",
+      "NavPropName": "account_connections1",
+      "LookName": "record1id"
+    },
+    {
+      "Name": "account_customer_relationship_customer",
+      "Etn": "customerrelationship",
+      "Role": "Referenced",
+      "NavPropName": "account_customer_relationship_customer",
+      "LookName": "customerid"
+    },
+    {
+      "Name": "userentityinstancedata_account",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_account",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "SocialActivity_PostAuthorAccount_accounts",
+      "Etn": "socialactivity",
+      "Role": "Referenced",
+      "NavPropName": "SocialActivity_PostAuthorAccount_accounts",
+      "LookName": "postauthoraccount"
+    },
+    {
+      "Name": "Account_DuplicateBaseRecord",
+      "Etn": "duplicaterecord",
+      "Role": "Referenced",
+      "NavPropName": "Account_DuplicateBaseRecord",
+      "LookName": "baserecordid"
+    },
+    {
+      "Name": "SocialActivity_PostAuthor_accounts",
+      "Etn": "socialactivity",
+      "Role": "Referenced",
+      "NavPropName": "SocialActivity_PostAuthor_accounts",
+      "LookName": "postauthor"
+    },
+    {
+      "Name": "Account_SyncErrors",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "Account_SyncErrors",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_MailboxTrackingFolder",
+      "Etn": "mailboxtrackingfolder",
+      "Role": "Referenced",
+      "NavPropName": "Account_MailboxTrackingFolder",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_BulkDeleteFailures",
+      "Etn": "bulkdeletefailure",
+      "Role": "Referenced",
+      "NavPropName": "Account_BulkDeleteFailures",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_ActivityPointers",
+      "Etn": "activitypointer",
+      "Role": "Referenced",
+      "NavPropName": "Account_ActivityPointers",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_Email_SendersAccount",
+      "Etn": "email",
+      "Role": "Referenced",
+      "NavPropName": "Account_Email_SendersAccount",
+      "LookName": "sendersaccount"
+    },
+    {
+      "Name": "Account_Appointments",
+      "Etn": "appointment",
+      "Role": "Referenced",
+      "NavPropName": "Account_Appointments",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Socialprofile_customer_accounts",
+      "Etn": "socialprofile",
+      "Role": "Referenced",
+      "NavPropName": "Socialprofile_customer_accounts",
+      "LookName": "customerid"
+    },
+    {
+      "Name": "Account_Emails",
+      "Etn": "email",
+      "Role": "Referenced",
+      "NavPropName": "Account_Emails",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_activity_parties",
+      "Etn": "activityparty",
+      "Role": "Referenced",
+      "NavPropName": "account_activity_parties",
+      "LookName": "partyid"
+    },
+    {
+      "Name": "Account_Phonecalls",
+      "Etn": "phonecall",
+      "Role": "Referenced",
+      "NavPropName": "Account_Phonecalls",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_customer_relationship_partner",
+      "Etn": "customerrelationship",
+      "Role": "Referenced",
+      "NavPropName": "account_customer_relationship_partner",
+      "LookName": "partnerid"
+    },
+    {
+      "Name": "Account_SocialActivities",
+      "Etn": "socialactivity",
+      "Role": "Referenced",
+      "NavPropName": "Account_SocialActivities",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_DuplicateMatchingRecord",
+      "Etn": "duplicaterecord",
+      "Role": "Referenced",
+      "NavPropName": "Account_DuplicateMatchingRecord",
+      "LookName": "duplicaterecordid"
+    },
+    {
+      "Name": "Account_SharepointDocument",
+      "Etn": "sharepointdocument",
+      "Role": "Referenced",
+      "NavPropName": "Account_SharepointDocument",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_actioncard",
+      "Etn": "actioncard",
+      "Role": "Referenced",
+      "NavPropName": "account_actioncard",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_AsyncOperations",
+      "Etn": "asyncoperation",
+      "Role": "Referenced",
+      "NavPropName": "Account_AsyncOperations",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_CustomerAddress",
+      "Etn": "customeraddress",
+      "Role": "Referenced",
+      "NavPropName": "Account_CustomerAddress",
+      "LookName": "parentid"
+    },
+    {
+      "Name": "Account_Annotation",
+      "Etn": "annotation",
+      "Role": "Referenced",
+      "NavPropName": "Account_Annotation",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "Account_Letters",
+      "Etn": "letter",
+      "Role": "Referenced",
+      "NavPropName": "Account_Letters",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_RecurringAppointmentMasters",
+      "Etn": "recurringappointmentmaster",
+      "Role": "Referenced",
+      "NavPropName": "Account_RecurringAppointmentMasters",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_Email_EmailSender",
+      "Etn": "email",
+      "Role": "Referenced",
+      "NavPropName": "Account_Email_EmailSender",
+      "LookName": "emailsender"
+    },
+    {
+      "Name": "Account_ProcessSessions",
+      "Etn": "processsession",
+      "Role": "Referenced",
+      "NavPropName": "Account_ProcessSessions",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_parent_account",
+      "Etn": "account",
+      "Role": "Referenced",
+      "NavPropName": "account_parent_account",
+      "LookName": "parentaccountid"
+    },
+    {
+      "Name": "contact_customer_accounts",
+      "Etn": "contact",
+      "Role": "Referenced",
+      "NavPropName": "contact_customer_accounts",
+      "LookName": "parentcustomerid"
+    },
+    {
+      "Name": "account_master_account",
+      "Etn": "account",
+      "Role": "Referenced",
+      "NavPropName": "account_master_account",
+      "LookName": "masterid"
+    },
+    {
+      "Name": "Account_SharepointDocumentLocation",
+      "Etn": "sharepointdocumentlocation",
+      "Role": "Referenced",
+      "NavPropName": "Account_SharepointDocumentLocation",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_connections2",
+      "Etn": "connection",
+      "Role": "Referenced",
+      "NavPropName": "account_connections2",
+      "LookName": "record2id"
+    },
+    {
+      "Name": "lead_customer_accounts",
+      "Etn": "lead",
+      "Role": "Referenced",
+      "NavPropName": "lead_customer_accounts",
+      "LookName": "customerid"
+    },
+    {
+      "Name": "lead_parent_account",
+      "Etn": "lead",
+      "Role": "Referenced",
+      "NavPropName": "lead_parent_account",
+      "LookName": "parentaccountid"
+    },
+    {
+      "Name": "account_bookableresource_AccountId",
+      "Etn": "bookableresource",
+      "Role": "Referenced",
+      "NavPropName": "account_bookableresource_AccountId",
+      "LookName": "accountid"
+    },
+    {
+      "Name": "account_BulkOperations",
+      "Etn": "bulkoperation",
+      "Role": "Referenced",
+      "NavPropName": "account_BulkOperations",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_CampaignResponses",
+      "Etn": "campaignresponse",
+      "Role": "Referenced",
+      "NavPropName": "account_CampaignResponses",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "CreatedAccount_BulkOperationLogs2",
+      "Etn": "bulkoperationlog",
+      "Role": "Referenced",
+      "NavPropName": "CreatedAccount_BulkOperationLogs2",
+      "LookName": "createdobjectid"
+    },
+    {
+      "Name": "SourceAccount_BulkOperationLogs",
+      "Etn": "bulkoperationlog",
+      "Role": "Referenced",
+      "NavPropName": "SourceAccount_BulkOperationLogs",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_IncidentResolutions",
+      "Etn": "incidentresolution",
+      "Role": "Referenced",
+      "NavPropName": "account_IncidentResolutions",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "contractlineitem_customer_accounts",
+      "Etn": "contractdetail",
+      "Role": "Referenced",
+      "NavPropName": "contractlineitem_customer_accounts",
+      "LookName": "customerid"
+    },
+    {
+      "Name": "contract_billingcustomer_accounts",
+      "Etn": "contract",
+      "Role": "Referenced",
+      "NavPropName": "contract_billingcustomer_accounts",
+      "LookName": "billingcustomerid"
+    },
+    {
+      "Name": "contract_customer_accounts",
+      "Etn": "contract",
+      "Role": "Referenced",
+      "NavPropName": "contract_customer_accounts",
+      "LookName": "customerid"
+    },
+    {
+      "Name": "incident_customer_accounts",
+      "Etn": "incident",
+      "Role": "Referenced",
+      "NavPropName": "incident_customer_accounts",
+      "LookName": "customerid"
+    },
+    {
+      "Name": "account_entitlement_Account",
+      "Etn": "entitlement",
+      "Role": "Referenced",
+      "NavPropName": "account_entitlement_Account",
+      "LookName": "accountid"
+    },
+    {
+      "Name": "account_entitlement_Customer",
+      "Etn": "entitlement",
+      "Role": "Referenced",
+      "NavPropName": "account_entitlement_Customer",
+      "LookName": "customerid"
+    },
+    {
+      "Name": "Account_ServiceAppointments",
+      "Etn": "serviceappointment",
+      "Role": "Referenced",
+      "NavPropName": "Account_ServiceAppointments",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_OpportunityCloses",
+      "Etn": "opportunityclose",
+      "Role": "Referenced",
+      "NavPropName": "account_OpportunityCloses",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_OrderCloses",
+      "Etn": "orderclose",
+      "Role": "Referenced",
+      "NavPropName": "account_OrderCloses",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_QuoteCloses",
+      "Etn": "quoteclose",
+      "Role": "Referenced",
+      "NavPropName": "account_QuoteCloses",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_customer_opportunity_roles",
+      "Etn": "customeropportunityrole",
+      "Role": "Referenced",
+      "NavPropName": "account_customer_opportunity_roles",
+      "LookName": "customerid"
+    },
+    {
+      "Name": "invoice_customer_accounts",
+      "Etn": "invoice",
+      "Role": "Referenced",
+      "NavPropName": "invoice_customer_accounts",
+      "LookName": "customerid"
+    },
+    {
+      "Name": "opportunity_customer_accounts",
+      "Etn": "opportunity",
+      "Role": "Referenced",
+      "NavPropName": "opportunity_customer_accounts",
+      "LookName": "customerid"
+    },
+    {
+      "Name": "order_customer_accounts",
+      "Etn": "salesorder",
+      "Role": "Referenced",
+      "NavPropName": "order_customer_accounts",
+      "LookName": "customerid"
+    },
+    {
+      "Name": "quote_customer_accounts",
+      "Etn": "quote",
+      "Role": "Referenced",
+      "NavPropName": "quote_customer_accounts",
+      "LookName": "customerid"
+    },
+    {
+      "Name": "opportunity_parent_account",
+      "Etn": "opportunity",
+      "Role": "Referenced",
+      "NavPropName": "opportunity_parent_account",
+      "LookName": "parentaccountid"
+    },
+    {
+      "Name": "msdyn_playbookinstance_account",
+      "Etn": "msdyn_playbookinstance",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_playbookinstance_account",
+      "LookName": "regarding"
+    },
+    {
+      "Name": "account_msfp_surveyinvites",
+      "Etn": "msfp_surveyinvite",
+      "Role": "Referenced",
+      "NavPropName": "account_msfp_surveyinvites",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_msfp_surveyresponses",
+      "Etn": "msfp_surveyresponse",
+      "Role": "Referenced",
+      "NavPropName": "account_msfp_surveyresponses",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "msdyn_account_msdyn_iotdevice_Account",
+      "Etn": "msdyn_iotdevice",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_iotdevice_Account",
+      "LookName": "msdyn_account"
+    },
+    {
+      "Name": "msdyn_account_msdyn_accountkpiitem_accountid",
+      "Etn": "msdyn_accountkpiitem",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_accountkpiitem_accountid",
+      "LookName": "msdyn_accountid"
+    },
+    {
+      "Name": "msdyn_account_msdyn_mostcontacted_regardingObjectId",
+      "Etn": "msdyn_mostcontacted",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_mostcontacted_regardingObjectId",
+      "LookName": "msdyn_account_regardingobjectid"
+    },
+    {
+      "Name": "msdyn_account_msdyn_mostcontactedby_regardingObjectId",
+      "Etn": "msdyn_mostcontactedby",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_mostcontactedby_regardingObjectId",
+      "LookName": "msdyn_account_regardingobjectid"
+    },
+    {
+      "Name": "account_msfp_alerts",
+      "Etn": "msfp_alert",
+      "Role": "Referenced",
+      "NavPropName": "account_msfp_alerts",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_msdyn_bookingalerts",
+      "Etn": "msdyn_bookingalert",
+      "Role": "Referenced",
+      "NavPropName": "account_msdyn_bookingalerts",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "msdyn_account_msdyn_actual_AccountCustomer",
+      "Etn": "msdyn_actual",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_actual_AccountCustomer",
+      "LookName": "msdyn_accountcustomer"
+    },
+    {
+      "Name": "msdyn_account_msdyn_actual_AccountVendor",
+      "Etn": "msdyn_actual",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_actual_AccountVendor",
+      "LookName": "msdyn_accountvendor"
+    },
+    {
+      "Name": "msdyn_account_account_BillingAccount",
+      "Etn": "account",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_account_BillingAccount",
+      "LookName": "msdyn_billingaccount"
+    },
+    {
+      "Name": "msdyn_account_msdyn_actual_ServiceAccount",
+      "Etn": "msdyn_actual",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_actual_ServiceAccount",
+      "LookName": "msdyn_serviceaccount"
+    },
+    {
+      "Name": "msdyn_account_msdyn_agreement_BillingAccount",
+      "Etn": "msdyn_agreement",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_agreement_BillingAccount",
+      "LookName": "msdyn_billingaccount"
+    },
+    {
+      "Name": "msdyn_account_msdyn_agreement_ServiceAccount",
+      "Etn": "msdyn_agreement",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_agreement_ServiceAccount",
+      "LookName": "msdyn_serviceaccount"
+    },
+    {
+      "Name": "msdyn_account_msdyn_customerasset_Account",
+      "Etn": "msdyn_customerasset",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_customerasset_Account",
+      "LookName": "msdyn_account"
+    },
+    {
+      "Name": "msdyn_account_msdyn_entitlementapplication_serviceaccount",
+      "Etn": "msdyn_entitlementapplication",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_entitlementapplication_serviceaccount",
+      "LookName": "msdyn_serviceaccount"
+    },
+    {
+      "Name": "msdyn_account_msdyn_payment_Account",
+      "Etn": "msdyn_payment",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_payment_Account",
+      "LookName": "msdyn_account"
+    },
+    {
+      "Name": "msdyn_account_msdyn_purchaseorder_Vendor",
+      "Etn": "msdyn_purchaseorder",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_purchaseorder_Vendor",
+      "LookName": "msdyn_vendor"
+    },
+    {
+      "Name": "msdyn_account_msdyn_requirementresourcepreference_Account",
+      "Etn": "msdyn_requirementresourcepreference",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_requirementresourcepreference_Account",
+      "LookName": "msdyn_account"
+    },
+    {
+      "Name": "msdyn_account_msdyn_rma_BillingAccount",
+      "Etn": "msdyn_rma",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_rma_BillingAccount",
+      "LookName": "msdyn_billingaccount"
+    },
+    {
+      "Name": "msdyn_account_msdyn_rma_ServiceAccount",
+      "Etn": "msdyn_rma",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_rma_ServiceAccount",
+      "LookName": "msdyn_serviceaccount"
+    },
+    {
+      "Name": "msdyn_account_msdyn_rmaproduct_Changeownership",
+      "Etn": "msdyn_rmaproduct",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_rmaproduct_Changeownership",
+      "LookName": "msdyn_changeownership"
+    },
+    {
+      "Name": "msdyn_account_msdyn_rmaproduct_ReturntoVendor",
+      "Etn": "msdyn_rmaproduct",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_rmaproduct_ReturntoVendor",
+      "LookName": "msdyn_returntovendor"
+    },
+    {
+      "Name": "msdyn_account_msdyn_rtv_Vendor",
+      "Etn": "msdyn_rtv",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_rtv_Vendor",
+      "LookName": "msdyn_vendor"
+    },
+    {
+      "Name": "msdyn_account_msdyn_workorder_BillingAccount",
+      "Etn": "msdyn_workorder",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_workorder_BillingAccount",
+      "LookName": "msdyn_billingaccount"
+    },
+    {
+      "Name": "msdyn_account_msdyn_workorder_ServiceAccount",
+      "Etn": "msdyn_workorder",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_workorder_ServiceAccount",
+      "LookName": "msdyn_serviceaccount"
+    },
+    {
+      "Name": "msdyn_account_msdyn_workorderresourcerestriction_Account",
+      "Etn": "msdyn_workorderresourcerestriction",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_workorderresourcerestriction_Account",
+      "LookName": "msdyn_account"
+    },
+    {
+      "Name": "msdyn_account_opportunityproduct_ServiceAccount",
+      "Etn": "opportunityproduct",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_opportunityproduct_ServiceAccount",
+      "LookName": "msdyn_serviceaccount"
+    },
+    {
+      "Name": "msdyn_account_product_DefaultVendor",
+      "Etn": "product",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_product_DefaultVendor",
+      "LookName": "msdyn_defaultvendor"
+    },
+    {
+      "Name": "msdyn_account_quote_Account",
+      "Etn": "quote",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_quote_Account",
+      "LookName": "msdyn_account"
+    },
+    {
+      "Name": "msdyn_account_quotedetail_ServiceAccount",
+      "Etn": "quotedetail",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_quotedetail_ServiceAccount",
+      "LookName": "msdyn_serviceaccount"
+    },
+    {
+      "Name": "msdyn_account_salesorder_Account",
+      "Etn": "salesorder",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_salesorder_Account",
+      "LookName": "msdyn_account"
+    },
+    {
+      "Name": "msdyn_geofence_account",
+      "Etn": "msdyn_geofence",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_geofence_account",
+      "LookName": "msdyn_account"
+    },
+    {
+      "Name": "msa_account_managingpartner",
+      "Etn": "account",
+      "Role": "Referenced",
+      "NavPropName": "msa_account_managingpartner",
+      "LookName": "msa_managingpartnerid"
+    },
+    {
+      "Name": "msa_contact_managingpartner",
+      "Etn": "contact",
+      "Role": "Referenced",
+      "NavPropName": "msa_contact_managingpartner",
+      "LookName": "msa_managingpartnerid"
+    },
+    {
+      "Name": "msa_account_incident",
+      "Etn": "incident",
+      "Role": "Referenced",
+      "NavPropName": "msa_account_incident",
+      "LookName": "msa_partnerid"
+    },
+    {
+      "Name": "msa_partner_opportunity",
+      "Etn": "opportunity",
+      "Role": "Referenced",
+      "NavPropName": "msa_partner_opportunity",
+      "LookName": "msa_partnerid"
+    },
+    {
+      "Name": "account_adx_alertsubscriptions",
+      "Etn": "adx_alertsubscription",
+      "Role": "Referenced",
+      "NavPropName": "account_adx_alertsubscriptions",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_adx_inviteredemptions",
+      "Etn": "adx_inviteredemption",
+      "Role": "Referenced",
+      "NavPropName": "account_adx_inviteredemptions",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "adx_invitation_assigntoaccount",
+      "Etn": "adx_invitation",
+      "Role": "Referenced",
+      "NavPropName": "adx_invitation_assigntoaccount",
+      "LookName": "adx_assigntoaccount"
+    },
+    {
+      "Name": "account_adx_portalcomments",
+      "Etn": "adx_portalcomment",
+      "Role": "Referenced",
+      "NavPropName": "account_adx_portalcomments",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "adx_account_badge",
+      "Etn": "adx_badge",
+      "Role": "Referenced",
+      "NavPropName": "adx_account_badge",
+      "LookName": "adx_accountid"
+    },
+    {
+      "Name": "msdyn_sequencetarget_account_msdyn_target",
+      "Etn": "msdyn_sequencetarget",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_sequencetarget_account_msdyn_target",
+      "LookName": "msdyn_target"
+    },
+    {
+      "Name": "msdyn_account_msdyn_aicontactsuggestion_sourcerecord",
+      "Etn": "msdyn_aicontactsuggestion",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_account_msdyn_aicontactsuggestion_sourcerecord",
+      "LookName": "msdyn_sourcerecord"
+    },
+    {
+      "Name": "msdyn_salessuggestion_account",
+      "Etn": "msdyn_salessuggestion",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_salessuggestion_account",
+      "LookName": "msdyn_relatedrecord"
+    },
+    {
+      "Name": "account_chats",
+      "Etn": "chat",
+      "Role": "Referenced",
+      "NavPropName": "account_chats",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "lor_tva_compteId_Account",
+      "Etn": "lor_tva",
+      "Role": "Referenced",
+      "NavPropName": "lor_tva_compteId_Account",
+      "LookName": "lor_compteid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "account_primary_contact",
+      "Etn": "contact",
+      "NavPropName": "primarycontactid",
+      "LookName": "primarycontactid"
+    },
+    {
+      "Name": "account_master_account",
+      "Etn": "account",
+      "NavPropName": "masterid",
+      "LookName": "masterid"
+    },
+    {
+      "Name": "system_user_accounts",
+      "Etn": "systemuser",
+      "NavPropName": "preferredsystemuserid",
+      "LookName": "preferredsystemuserid"
+    },
+    {
+      "Name": "lk_externalparty_account_createdby",
+      "Etn": "externalparty",
+      "NavPropName": "CreatedByExternalParty",
+      "LookName": "createdbyexternalparty"
+    },
+    {
+      "Name": "lk_accountbase_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "account_parent_account",
+      "Etn": "account",
+      "NavPropName": "parentaccountid",
+      "LookName": "parentaccountid"
+    },
+    {
+      "Name": "lk_account_entityimage",
+      "Etn": "imagedescriptor",
+      "NavPropName": "entityimageid_imagedescriptor",
+      "LookName": "entityimageid"
+    },
+    {
+      "Name": "business_unit_accounts",
+      "Etn": "businessunit",
+      "NavPropName": "owningbusinessunit",
+      "LookName": "owningbusinessunit"
+    },
+    {
+      "Name": "transactioncurrency_account",
+      "Etn": "transactioncurrency",
+      "NavPropName": "transactioncurrencyid",
+      "LookName": "transactioncurrencyid"
+    },
+    {
+      "Name": "user_accounts",
+      "Etn": "systemuser",
+      "NavPropName": "owninguser",
+      "LookName": "owninguser"
+    },
+    {
+      "Name": "lk_accountbase_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "processstage_account",
+      "Etn": "processstage",
+      "NavPropName": "stageid_processstage",
+      "LookName": "stageid"
+    },
+    {
+      "Name": "lk_accountbase_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_externalparty_account_modifiedby",
+      "Etn": "externalparty",
+      "NavPropName": "ModifiedByExternalParty",
+      "LookName": "modifiedbyexternalparty"
+    },
+    {
+      "Name": "sla_account",
+      "Etn": "sla",
+      "NavPropName": "slainvokedid_account_sla",
+      "LookName": "slainvokedid"
+    },
+    {
+      "Name": "lk_accountbase_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "team_accounts",
+      "Etn": "team",
+      "NavPropName": "owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "owner_accounts",
+      "Etn": "owner",
+      "NavPropName": "ownerid",
+      "LookName": "ownerid"
+    },
+    {
+      "Name": "manualsla_account",
+      "Etn": "sla",
+      "NavPropName": "sla_account_sla",
+      "LookName": "slaid"
+    },
+    {
+      "Name": "account_originating_lead",
+      "Etn": "lead",
+      "NavPropName": "originatingleadid",
+      "LookName": "originatingleadid"
+    },
+    {
+      "Name": "price_level_accounts",
+      "Etn": "pricelevel",
+      "NavPropName": "defaultpricelevelid",
+      "LookName": "defaultpricelevelid"
+    },
+    {
+      "Name": "equipment_accounts",
+      "Etn": "equipment",
+      "NavPropName": "preferredequipmentid",
+      "LookName": "preferredequipmentid"
+    },
+    {
+      "Name": "service_accounts",
+      "Etn": "service",
+      "NavPropName": "preferredserviceid",
+      "LookName": "preferredserviceid"
+    },
+    {
+      "Name": "territory_accounts",
+      "Etn": "territory",
+      "NavPropName": "territoryid",
+      "LookName": "territoryid"
+    },
+    {
+      "Name": "msdyn_msdyn_accountkpiitem_account_accountkpiid",
+      "Etn": "msdyn_accountkpiitem",
+      "NavPropName": "msdyn_accountkpiid",
+      "LookName": "msdyn_accountkpiid"
+    },
+    {
+      "Name": "msdyn_account_account_BillingAccount",
+      "Etn": "account",
+      "NavPropName": "msdyn_billingaccount_account",
+      "LookName": "msdyn_billingaccount"
+    },
+    {
+      "Name": "msdyn_bookableresource_account_PreferredResource",
+      "Etn": "bookableresource",
+      "NavPropName": "msdyn_PreferredResource",
+      "LookName": "msdyn_preferredresource"
+    },
+    {
+      "Name": "msdyn_msdyn_taxcode_account_SalesTaxCode",
+      "Etn": "msdyn_taxcode",
+      "NavPropName": "msdyn_salestaxcode",
+      "LookName": "msdyn_salestaxcode"
+    },
+    {
+      "Name": "msdyn_msdyn_workhourtemplate_account_workhourtemplate",
+      "Etn": "msdyn_workhourtemplate",
+      "NavPropName": "msdyn_workhourtemplate",
+      "LookName": "msdyn_workhourtemplate"
+    },
+    {
+      "Name": "msdyn_territory_account_ServiceTerritory",
+      "Etn": "territory",
+      "NavPropName": "msdyn_serviceterritory",
+      "LookName": "msdyn_serviceterritory"
+    },
+    {
+      "Name": "msa_account_managingpartner",
+      "Etn": "account",
+      "NavPropName": "msa_managingpartnerid",
+      "LookName": "msa_managingpartnerid"
+    },
+    {
+      "Name": "lor_lor_tva_account_TVAId",
+      "Etn": "lor_tva",
+      "NavPropName": "lor_TVAId",
+      "LookName": "lor_tvaid"
+    },
+    {
+      "Name": "msdyn_msdyn_segment_account",
+      "Etn": "msdyn_segment",
+      "NavPropName": "msdyn_segmentid",
+      "LookName": "msdyn_segmentid"
+    }
+  ],
+  "Enums": [
+    {
+      "LogName": "account|accountcategorycode",
+      "Name": "Categorie",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ClientFavori",
+          "Labels": [
+            {
+              "Label": "Client favori",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Standard",
+          "Labels": [
+            {
+              "Label": "Standard",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|accountclassificationcode",
+      "Name": "Classification",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|accountratingcode",
+      "Name": "EvaluationDeCompte",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|address1_addresstypecode",
+      "Name": "Adresse1TypeDAdresse",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Facturation",
+          "Labels": [
+            {
+              "Label": "Facturation",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Expedition",
+          "Labels": [
+            {
+              "Label": "Expédition",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Principale",
+          "Labels": [
+            {
+              "Label": "Principale",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "Autre",
+          "Labels": [
+            {
+              "Label": "Autre",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|address1_freighttermscode",
+      "Name": "Adresse1ConditionsDeTransport",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "FAB",
+          "Labels": [
+            {
+              "Label": "FAB",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "SansSupplement",
+          "Labels": [
+            {
+              "Label": "Sans supplément",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|address1_shippingmethodcode",
+      "Name": "Adresse1ModeDeLivraison",
+      "Values": [
+        {
+          "Value": 5,
+          "Name": "CourrierPostal",
+          "Labels": [
+            {
+              "Label": "Courrier postal",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 7,
+          "Name": "Collecte",
+          "Labels": [
+            {
+              "Label": "Collecte",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 8,
+          "Name": "Autre",
+          "Labels": [
+            {
+              "Label": "Autre",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 17,
+          "Name": "Transporteur",
+          "Labels": [
+            {
+              "Label": "Transporteur",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|address2_addresstypecode",
+      "Name": "Adresse2TypeDAdresse",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|address2_freighttermscode",
+      "Name": "Adresse2ConditionsDeTransport",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|address2_shippingmethodcode",
+      "Name": "Adresse2ModeDeLivraison",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|businesstypecode",
+      "Name": "TypeDEntrepriseActivite",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|customersizecode",
+      "Name": "TailleDuClient",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|customertypecode",
+      "Name": "TypeDeRelation",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Concurrent",
+          "Labels": [
+            {
+              "Label": "Concurrent",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Consultant",
+          "Labels": [
+            {
+              "Label": "Consultant",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Client",
+          "Labels": [
+            {
+              "Label": "Client",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "Investisseur",
+          "Labels": [
+            {
+              "Label": "Investisseur",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 5,
+          "Name": "Partenaire",
+          "Labels": [
+            {
+              "Label": "Partenaire",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 6,
+          "Name": "Influenceur",
+          "Labels": [
+            {
+              "Label": "Influenceur",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 7,
+          "Name": "Presse",
+          "Labels": [
+            {
+              "Label": "Presse",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 8,
+          "Name": "Prospect",
+          "Labels": [
+            {
+              "Label": "Prospect",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 9,
+          "Name": "Revendeur",
+          "Labels": [
+            {
+              "Label": "Revendeur",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 10,
+          "Name": "Fournisseur",
+          "Labels": [
+            {
+              "Label": "Fournisseur",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 11,
+          "Name": "Fournisseur",
+          "Labels": [
+            {
+              "Label": "Fournisseur",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 12,
+          "Name": "Autre",
+          "Labels": [
+            {
+              "Label": "Autre",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|industrycode",
+      "Name": "SecteurDActivite",
+      "Values": [
+        {
+          "Value": 34,
+          "Name": "AgricultureChasseForesterieEtPeche",
+          "Labels": [
+            {
+              "Label": "Agriculture, chasse, foresterie et pêche",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 35,
+          "Name": "EnergieEtEau",
+          "Labels": [
+            {
+              "Label": "Énergie et eau",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 36,
+          "Name": "ExtractionEtTransformationDeMinerauxNonEnergetiquesEtProduitsDerives;IndustrieChimique",
+          "Labels": [
+            {
+              "Label": "Extraction et transformation de minéraux non énergétiques et produits dérivés ; industrie chimique",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 37,
+          "Name": "IndustriesTransformatricesDesMetauxMecaniqueDePrecision",
+          "Labels": [
+            {
+              "Label": "Industries transformatrices des métaux, mécanique de précision",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 38,
+          "Name": "AutresIndustriesManufacturieres",
+          "Labels": [
+            {
+              "Label": "Autres industries manufacturières",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 39,
+          "Name": "BatimentEtGenieCivil",
+          "Labels": [
+            {
+              "Label": "Bâtiment et génie civil",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 40,
+          "Name": "CommerceRestaurationEtHebergementReparations",
+          "Labels": [
+            {
+              "Label": "Commerce, restauration et hébergement, réparations",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 41,
+          "Name": "TransportsEtCommunications",
+          "Labels": [
+            {
+              "Label": "Transports et communications",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 42,
+          "Name": "InstitutionsDeCreditAssurancesServicesFournisAuxEntreprisesLocation",
+          "Labels": [
+            {
+              "Label": "Institutions de crédit, assurances, services fournis aux entreprises, location",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 43,
+          "Name": "AutresServices",
+          "Labels": [
+            {
+              "Label": "Autres services",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|ownershipcode",
+      "Name": "Propriete",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Public",
+          "Labels": [
+            {
+              "Label": "Public",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Prive",
+          "Labels": [
+            {
+              "Label": "Privé",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Filiale",
+          "Labels": [
+            {
+              "Label": "Filiale",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "Autre",
+          "Labels": [
+            {
+              "Label": "Autre",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|paymenttermscode",
+      "Name": "ConditionsDePaiement",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Net30J",
+          "Labels": [
+            {
+              "Label": "Net 30J",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "Net60J",
+          "Labels": [
+            {
+              "Label": "Net 60J",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 10,
+          "Name": "AuComptant",
+          "Labels": [
+            {
+              "Label": "Au comptant",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 15,
+          "Name": "AReceptionDeFacture",
+          "Labels": [
+            {
+              "Label": "À réception de facture",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 16,
+          "Name": "30JFDM",
+          "Labels": [
+            {
+              "Label": "30J FDM",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 17,
+          "Name": "60JFDM",
+          "Labels": [
+            {
+              "Label": "60J FDM",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|preferredappointmentdaycode",
+      "Name": "JourPrivilegie",
+      "Values": [
+        {
+          "Name": "Dimanche",
+          "Labels": [
+            {
+              "Label": "Dimanche",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Lundi",
+          "Labels": [
+            {
+              "Label": "Lundi",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Mardi",
+          "Labels": [
+            {
+              "Label": "Mardi",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Mercredi",
+          "Labels": [
+            {
+              "Label": "Mercredi",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "Jeudi",
+          "Labels": [
+            {
+              "Label": "Jeudi",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 5,
+          "Name": "Vendredi",
+          "Labels": [
+            {
+              "Label": "Vendredi",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 6,
+          "Name": "Samedi",
+          "Labels": [
+            {
+              "Label": "Samedi",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "account|preferredappointmenttimecode",
+      "Name": "HeurePrivilegiee",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Matin",
+          "Labels": [
+            {
+              "Label": "Matin",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "ApresMidi",
+          "Labels": [
+            {
+              "Label": "Après-midi",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Soir",
+          "Labels": [
+            {
+              "Label": "Soir",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|preferredcontactmethodcode",
+      "Name": "ModeDeCommunicationPrivilegie",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "SansPreference",
+          "Labels": [
+            {
+              "Label": "Sans préférence",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "CourrierElectronique",
+          "Labels": [
+            {
+              "Label": "Courrier électronique",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Telephone",
+          "Labels": [
+            {
+              "Label": "Téléphone",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "Telecopie",
+          "Labels": [
+            {
+              "Label": "Télécopie",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 5,
+          "Name": "CourrierPostal",
+          "Labels": [
+            {
+              "Label": "Courrier postal",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|shippingmethodcode",
+      "Name": "ModeDeLivraison",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|statecode",
+      "Name": "AccountState",
+      "Values": [
+        {
+          "Name": "Actif",
+          "Labels": [
+            {
+              "Label": "Actif",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Inactif",
+          "Labels": [
+            {
+              "Label": "Inactif",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "account|statuscode",
+      "Name": "AccountStatus",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Actif",
+          "Labels": [
+            {
+              "Label": "Actif",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Inactif",
+          "Labels": [
+            {
+              "Label": "Inactif",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "account|territorycode",
+      "Name": "CodeDeSecteurDeVente",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Xrm.Sdk;
+using Newtonsoft.Json;
 
 namespace XrmFramework
 {
@@ -76,6 +77,35 @@ namespace XrmFramework
                 }
                 return false;
             }
+        }
+
+        public bool ShouldExecuteStep(Step step)
+        {
+            var isValid = 
+                IsStage(step.Stage) 
+                && Mode == step.Mode 
+                && IsMessage(step.Message);
+
+            if (isValid && step.EntityName != PrimaryEntityName)
+            {
+                isValid = false;
+
+                if ((step.Message == Messages.Associate || step.Message == Messages.Disassociate)
+                    && !string.IsNullOrWhiteSpace(step.UnsecureConfig))
+                {
+                    try
+                    {
+                        var stepConfig = JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig);
+                        isValid = step.EntityName == stepConfig.RelationshipName;
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+                }
+            }
+
+            return isValid;
         }
     }
 

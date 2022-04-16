@@ -10,7 +10,7 @@ namespace XrmFramework.Definitions
 	[GeneratedCode("XrmFramework", "2.0")]
 	[EntityDefinition]
 	[ExcludeFromCodeCoverage]
-    [DefinitionManagerIgnore]
+	[DefinitionManagerIgnore]
 	public static class TeamDefinition
 	{
 		public const string EntityName = "team";
@@ -125,19 +125,19 @@ namespace XrmFramework.Definitions
 			public const string TransactionCurrency_Team = "TransactionCurrency_Team";
 		}
 
-    }
+	}
 
-    [OptionSetDefinition(TeamDefinition.EntityName, TeamDefinition.Columns.TeamType)]
-    [DefinitionManagerIgnore]
+	[OptionSetDefinition(TeamDefinition.EntityName, TeamDefinition.Columns.TeamType)]
+	[DefinitionManagerIgnore]
 	public enum TypeDEquipe
-    {
-        [Description("Owner")]
-        Proprietaire = 0,
-        [Description("Access")]
-        Acces = 1,
-        [Description("AAD Security Group")]
-        GroupeDeSecurite_AAD = 2,
-        [Description("AAD Office Group")]
-        GroupeOffice_AAD = 3,
-    }
+	{
+		[Description("Owner")]
+		Proprietaire = 0,
+		[Description("Access")]
+		Acces = 1,
+		[Description("AAD Security Group")]
+		GroupeDeSecurite_AAD = 2,
+		[Description("AAD Office Group")]
+		GroupeOffice_AAD = 3,
+	}
 }

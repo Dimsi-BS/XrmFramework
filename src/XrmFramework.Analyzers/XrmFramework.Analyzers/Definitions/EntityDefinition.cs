@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿#nullable enable
 using Microsoft.CodeAnalysis;
 
 namespace XrmFramework.Analyzers.Utils
@@ -14,7 +13,7 @@ namespace XrmFramework.Analyzers.Utils
 
         internal EntityDefinition(INamedTypeSymbol symbol) : base(symbol)
         {
-            LogicalName = (string) ((IFieldSymbol) symbol.GetMembers("EntityName").Single()).ConstantValue;
+            LogicalName = (string)((IFieldSymbol)symbol.GetMembers("EntityName").Single()).ConstantValue;
             CollectionLogicalName = (string)((IFieldSymbol)symbol.GetMembers("EntityCollectionName").Single()).ConstantValue;
 
             var columnsClass = symbol.GetTypeMembers("Columns").Single();

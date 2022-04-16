@@ -1,6 +1,13 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Deploy;
+using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Messages;
+using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Tooling.Connector;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -8,13 +15,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Navigation;
-using Deploy;
-using Microsoft.Crm.Sdk.Messages;
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Messages;
-using Microsoft.Xrm.Sdk.Query;
-using Microsoft.Xrm.Tooling.Connector;
 using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
@@ -23,8 +23,8 @@ namespace XrmFramework.DeployUtils
 {
     public static class RegistrationHelper
     {
-        private static List<PluginAssembly> _list = new List<PluginAssembly>();
-        
+        private static readonly List<PluginAssembly> _list = new();
+
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
             var xrmFrameworkConfigSection = ConfigHelper.GetSection();
@@ -68,15 +68,15 @@ namespace XrmFramework.DeployUtils
             var pluginTypes = pluginAssembly.GetTypes().Where(t => pluginType.IsAssignableFrom(t) && !customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
 
             var workflowTypes = pluginAssembly.GetTypes().Where(t => workflowType.IsAssignableFrom(t) && !t.IsAbstract && t.IsPublic).ToList();
-            
+
             var customApiTypes = pluginAssembly.GetTypes().Where(t => customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
-            
+
             foreach (var type in pluginTypes)
             {
                 dynamic pluginTemp;
-                if (type.GetConstructor(new[] {typeof(string), typeof(string)}) != null)
+                if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
                 {
-                    pluginTemp = Activator.CreateInstance(type, new object[] {null, null});
+                    pluginTemp = Activator.CreateInstance(type, new object[] { null, null });
                 }
                 else
                 {
@@ -144,7 +144,7 @@ namespace XrmFramework.DeployUtils
 
                 var updatedAssembly = new Entity("pluginassembly")
                 {
-                    Id = assembly.Id, 
+                    Id = assembly.Id,
                     ["content"] = Convert.ToBase64String(File.ReadAllBytes(assemblyPath))
                 };
 
@@ -159,10 +159,10 @@ namespace XrmFramework.DeployUtils
                 {
                     profiledSteps = GetRegisteredSteps(service, profilerAssembly.Id).ToList();
                 }
-                
+
                 foreach (var registeredType in registeredPluginTypes)
                 {
-                    if (pluginList.All(p => p.FullName != registeredType.Name) && pluginList.Where(p => p.IsWorkflow).All(c => c.FullName != registeredType.TypeName) && customApis.All(c => c.FullName !=  registeredType.TypeName))
+                    if (pluginList.All(p => p.FullName != registeredType.Name) && pluginList.Where(p => p.IsWorkflow).All(c => c.FullName != registeredType.TypeName) && customApis.All(c => c.FullName != registeredType.TypeName))
                     {
                         var registeredStepsForPluginType = registeredSteps.Where(s => s.EventHandler.Id == registeredType.Id).ToList();
                         foreach (var step in registeredStepsForPluginType)
@@ -311,7 +311,7 @@ namespace XrmFramework.DeployUtils
 
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Apis");
-            
+
             var customApiEntityTypeCode = GetEntityTypeCode("customapi", service);
             var customApiParameterEntityTypeCode = GetEntityTypeCode("customapirequestparameter", service);
             var customApiResponseEntityTypeCode = GetEntityTypeCode("customapiresponseproperty", service);
@@ -416,9 +416,9 @@ namespace XrmFramework.DeployUtils
 
         private static int GetEntityTypeCode(string logicalName, CrmServiceClient service)
         {
-            var entityRequest = new RetrieveEntityRequest {LogicalName = logicalName};
+            var entityRequest = new RetrieveEntityRequest { LogicalName = logicalName };
 
-            var entityResponse = (RetrieveEntityResponse) service.Execute(entityRequest);
+            var entityResponse = (RetrieveEntityResponse)service.Execute(entityRequest);
 
             return entityResponse.EntityMetadata.ObjectTypeCode.GetValueOrDefault();
         }
@@ -453,7 +453,7 @@ namespace XrmFramework.DeployUtils
 
             var query = new QueryExpression(CustomApi.EntityLogicalName);
             query.ColumnSet.AllColumns = true;
-            query.Criteria.AddCondition("ismanaged", ConditionOperator.Equal, false); 
+            query.Criteria.AddCondition("ismanaged", ConditionOperator.Equal, false);
             var linkPluginType = query.AddLink(PluginType.EntityLogicalName, "plugintypeid", "plugintypeid");
             linkPluginType.LinkCriteria.AddCondition("pluginassemblyid", ConditionOperator.Equal, assemblyId);
 
@@ -644,7 +644,23 @@ namespace XrmFramework.DeployUtils
         {
             // Issue with CRM SDK / Description field max length = 256 characters 
             var descriptionAttributeMaxLength = 256;
-            var description = $"{step.PluginTypeName} : {step.Stage} {step.Message} of {step.EntityName} ({step.MethodsDisplayName})";
+
+            var entityName = step.EntityName;
+
+            if (string.IsNullOrWhiteSpace(step.EntityName) && !string.IsNullOrWhiteSpace(step.UnsecureConfig))
+            {
+                try
+                {
+                    var stepConfiguration = JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig);
+                    entityName = stepConfiguration.RelationshipName;
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+
+            var description = $"{step.PluginTypeName} : {step.Stage} {step.Message} of {entityName} ({step.MethodsDisplayName})";
             description = description.Length <= descriptionAttributeMaxLength ? description : description.Substring(0, descriptionAttributeMaxLength - 4) + "...)";
 
             if (!string.IsNullOrEmpty(step.ImpersonationUsername))
@@ -744,16 +760,16 @@ namespace XrmFramework.DeployUtils
                     switch (objectRef.LogicalName)
                     {
                         case PluginAssembly.EntityLogicalName:
-                            s.ComponentType = (int) componenttype.PluginAssembly;
+                            s.ComponentType = (int)componenttype.PluginAssembly;
                             break;
                         case PluginType.EntityLogicalName:
-                            s.ComponentType = (int) componenttype.PluginType;
+                            s.ComponentType = (int)componenttype.PluginType;
                             break;
                         case SdkMessageProcessingStep.EntityLogicalName:
-                            s.ComponentType = (int) componenttype.SDKMessageProcessingStep;
+                            s.ComponentType = (int)componenttype.SDKMessageProcessingStep;
                             break;
                         case SdkMessageProcessingStepImage.EntityLogicalName:
-                            s.ComponentType = (int) componenttype.SDKMessageProcessingStepImage;
+                            s.ComponentType = (int)componenttype.SDKMessageProcessingStepImage;
                             break;
                     }
                 }
@@ -880,9 +896,9 @@ namespace XrmFramework.DeployUtils
         private static Solution _solution = null;
         private static Publisher _publisher = null;
 
-        private static List<SolutionComponent> _components = new List<SolutionComponent>();
-        private static List<SdkMessageFilter> _filters = new List<SdkMessageFilter>();
-        private static readonly Dictionary<string, EntityReference> _messages = new Dictionary<string, EntityReference>();
-        private static readonly List<KeyValuePair<string, Guid>> _users = new List<KeyValuePair<string, Guid>>();
+        private static readonly List<SolutionComponent> _components = new();
+        private static readonly List<SdkMessageFilter> _filters = new();
+        private static readonly Dictionary<string, EntityReference> _messages = new();
+        private static readonly List<KeyValuePair<string, Guid>> _users = new();
     }
 }
