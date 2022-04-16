@@ -13,6 +13,6 @@
   "release": {
     "branchName": "v{version}",
     "versionIncrement": "minor",
-    "firstUnstableTag": "alpha"
+    "firstUnstableTag": "beta"
   }
 }

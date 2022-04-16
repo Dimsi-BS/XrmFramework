@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{77073001
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
-		version.json = version.json
+		..\version.json = ..\version.json
 		Build\Versioning.targets = Build\Versioning.targets
 	EndProjectSection
 EndProject
