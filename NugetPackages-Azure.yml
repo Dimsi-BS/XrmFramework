@@ -21,9 +21,20 @@ pool:
 
 steps:
 
-- script: dotnet build XrmFramework.sln --configuration $(buildConfiguration) /p:PublicRelease=true
+- task: DotNetCoreCLI@2
   displayName: Build
-  workingDirectory: src
+  inputs:
+    command: 'build'
+    projects: 'XrmFramework.sln'
+    arguments: '--configuration $(buildConfiguration) /p:PublicRelease=true'
+    workingDirectory: 'src'
+
+- task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: 'test'
+    projects: 'XrmFramework.sln'
+    workingDirectory: 'src'
   
 - task: CopyFiles@2
   inputs:
