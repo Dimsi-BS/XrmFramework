@@ -1,8 +1,0 @@
-﻿<Project>
-  <UsingTask TaskName="XrmFramework.MSBuild.Generation.GenerateFeatureFileCodeBehindTask" AssemblyFile="$(_SpecFlow_TaskAssembly)"  />
-  <UsingTask TaskName="XrmFramework.MSBuild.Generation.ReplaceTokenInFileTask" AssemblyFile="$(_SpecFlow_TaskAssembly)"  />
-
-  <PropertyGroup>
-    <_SpecFlowTasksImported>true</_SpecFlowTasksImported>
-  </PropertyGroup>
-</Project>

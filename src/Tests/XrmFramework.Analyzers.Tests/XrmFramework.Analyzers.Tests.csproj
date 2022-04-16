@@ -32,7 +32,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\XrmFramework.Analyzers\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" />
+    <ProjectReference Include="..\..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" />
   </ItemGroup>
   
   <ItemGroup>

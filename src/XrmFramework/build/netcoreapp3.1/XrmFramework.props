@@ -1,7 +1,7 @@
 ﻿<Project>
-
   <ItemGroup>
-    <Compile Include="obj\LoggedServices\*.cs" />
-  </ItemGroup>
+    <AdditionalFiles Include="**/*.table" />
 
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+  </ItemGroup>
 </Project>

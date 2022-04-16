@@ -3,8 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
 
-    <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.Analyzers.nuspec</NuspecFile>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <Nullable>enable</Nullable>
@@ -12,10 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\XrmFramework.DeployUtils\Check.cs" Link="Helpers\Check.cs" />
-    <Compile Include="..\..\XrmFramework.Generator\CodeAnnotations.cs" Link="Internal\CodeAnnotations.cs" />
-    <Compile Include="..\..\XrmFramework.Generator\Internal\IndentedStringBuilder.cs" Link="Internal\IndentedStringBuilder.cs" />
-    <Compile Include="..\..\XrmFramework\Attributes\PrimaryAttributeAttribute.cs" Link="Model\Attributes\PrimaryAttributeAttribute.cs" />
+    <Compile Include="..\XrmFramework.DeployUtils\Check.cs" Link="Helpers\Check.cs" />
+    <Compile Include="..\XrmFramework\Attributes\PrimaryAttributeAttribute.cs" Link="Model\Attributes\PrimaryAttributeAttribute.cs" />
   </ItemGroup>
 
   <ItemGroup>
