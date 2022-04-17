@@ -20,11 +20,13 @@
         <dependency id="System.Net.Http" version="4.3.4" />
         <dependency id="Microsoft.CSharp" version="4.7.0" />
         <dependency id="System.Configuration.ConfigurationManager" version="5.0.0" />
+        <dependency id="XrmFramework.Analyzers" version="[$version$]" />
       </group>
       <group targetFramework="netcoreapp3.1">
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="0.6.1" exclude="Build,Analyzers" />
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="0.6.1" exclude="Build,Analyzers" />
         <dependency id="System.Reflection.DispatchProxy" version="4.7.1" exclude="Build,Analyzers" />
+        <dependency id="XrmFramework.Analyzers" version="[$version$]" />
       </group>
     </dependencies>
   </metadata>
@@ -35,8 +37,6 @@
     <file src="build\**\*" target="build" />
 
     <file src="lib\**" target="lib" />
-
-    <file src="..\XrmFramework.Analyzers\bin\$config$\netstandard2.0\*" target="analyzers\dotnet\cs" />
     
     <file src="$SolutionDir$\*.txt" target="" />
   </files>
