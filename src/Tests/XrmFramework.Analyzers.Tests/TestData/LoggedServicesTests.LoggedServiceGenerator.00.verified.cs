@@ -81,7 +81,7 @@ namespace ClientNamespace.Core
             return returnValue;
         }
 
-        public U GetValue<T, U>(T argument)
+        public U GetValue<T, U>(T argument) where T : Enum where U : new()
         {
             #region Parameters check
             if (Equals(argument, default(T)))

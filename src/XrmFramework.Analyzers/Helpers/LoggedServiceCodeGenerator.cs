@@ -185,11 +185,19 @@ namespace XrmFramework.Analyzers.Helpers
                 .RemoveMemberOptions(SymbolDisplayMemberOptions.IncludeExplicitInterface)
                 .RemoveMemberOptions(SymbolDisplayMemberOptions.IncludeContainingType);
 
-            if (!displayTypes)
+            if (displayTypes)
             {
                 formatFull = formatFull
-                    .RemoveParameterOptions(SymbolDisplayParameterOptions.IncludeType)
-                    .RemoveMemberOptions(SymbolDisplayMemberOptions.IncludeType);
+                    .AddMemberOptions(SymbolDisplayMemberOptions.IncludeConstantValue)
+                    .AddMemberOptions(SymbolDisplayMemberOptions.IncludeRef)
+                    .AddGenericsOptions(SymbolDisplayGenericsOptions.IncludeTypeConstraints)
+                    .AddGenericsOptions(SymbolDisplayGenericsOptions.IncludeTypeParameters);
+            }
+            else
+            {
+                formatFull = formatFull
+                        .RemoveParameterOptions(SymbolDisplayParameterOptions.IncludeType)
+                        .RemoveMemberOptions(SymbolDisplayMemberOptions.IncludeType);
             }
 
             builder.Append(m.ToDisplayString(formatFull));
