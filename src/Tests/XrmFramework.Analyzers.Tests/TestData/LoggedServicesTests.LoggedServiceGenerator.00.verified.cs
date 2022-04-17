@@ -20,7 +20,7 @@ namespace ClientNamespace.Core
         }
         #endregion
 
-        public int GetSubRecordCount(EntityReference recordRef)
+        public int GetSubRecordCount(global::Microsoft.Xrm.Sdk.EntityReference recordRef)
         {
             #region Parameters check
             if (recordRef == default)
@@ -41,7 +41,7 @@ namespace ClientNamespace.Core
             return returnValue;
         }
 
-        public async Task AsynchronousCall(IEnumerable<double> list)
+        public async global::System.Threading.Tasks.Task AsynchronousCall(IEnumerable<double> list)
         {
             #region Parameters check
             if (list == default)
@@ -74,14 +74,14 @@ namespace ClientNamespace.Core
 
             Log(nameof(TryGetValue), "Start: key = {0}", key);
 
-            var returnValue = Service.TryGetValue(key, value);
+            var returnValue = Service.TryGetValue(key, out value);
 
             Log(nameof(TryGetValue), "End : duration = {0}: , value = {1}, returnValue = {2}", sw.Elapsed, value, returnValue);
 
             return returnValue;
         }
 
-        public U GetValue<T, U>(T argument) where T : Enum where U : new()
+        public U GetValue<T, U>(T argument) where T : global::System.Enum where U : new()
         {
             #region Parameters check
             if (Equals(argument, default(T)))
@@ -127,7 +127,7 @@ namespace ClientNamespace.Core
 
             Log(nameof(StringParameterDefaultValue), "Start: parameter = {0}", parameter);
 
-            Service.StringParameterDefaultValue(parameter = null);
+            Service.StringParameterDefaultValue(parameter);
 
             Log(nameof(StringParameterDefaultValue), "End : duration = {0}", sw.Elapsed);
         }

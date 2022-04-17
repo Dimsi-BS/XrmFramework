@@ -17,7 +17,7 @@ namespace XrmFramework
         }
         #endregion
 
-        public Guid Create(Entity entity)
+        public global::System.Guid Create(global::Microsoft.Xrm.Sdk.Entity entity)
         {
             #region Parameters check
             if (entity == default)
@@ -38,7 +38,7 @@ namespace XrmFramework
             return returnValue;
         }
 
-        public void AssociateRecords(EntityReference objectRef, Relationship relationName, params EntityReference[] entityReferences)
+        public void AssociateRecords(global::Microsoft.Xrm.Sdk.EntityReference objectRef, global::Microsoft.Xrm.Sdk.Relationship relationName, params global::Microsoft.Xrm.Sdk.EntityReference[] entityReferences)
         {
             #region Parameters check
             if (objectRef == default)
@@ -65,7 +65,7 @@ namespace XrmFramework
             Log(nameof(AssociateRecords), "End : duration = {0}", sw.Elapsed);
         }
 
-        public void AssociateRecords(EntityReference objectRef, Relationship relationName, bool bypassCustomPluginExecution, params EntityReference[] entityReferences)
+        public void AssociateRecords(global::Microsoft.Xrm.Sdk.EntityReference objectRef, global::Microsoft.Xrm.Sdk.Relationship relationName, bool bypassCustomPluginExecution, params global::Microsoft.Xrm.Sdk.EntityReference[] entityReferences)
         {
             #region Parameters check
             if (objectRef == default)
@@ -92,7 +92,7 @@ namespace XrmFramework
             Log(nameof(AssociateRecords), "End : duration = {0}", sw.Elapsed);
         }
 
-        public void TestEnum(EnumTest value = Null)
+        public void TestEnum(global::XrmFramework.EnumTest value = Null)
         {
             #region Parameters check
             #endregion
@@ -102,12 +102,12 @@ namespace XrmFramework
 
             Log(nameof(TestEnum), "Start: value = {0}", value);
 
-            Service.TestEnum(value = Null);
+            Service.TestEnum(value);
 
             Log(nameof(TestEnum), "End : duration = {0}", sw.Elapsed);
         }
 
-        public void Update(Entity entity)
+        public void Update(global::Microsoft.Xrm.Sdk.Entity entity)
         {
             #region Parameters check
             if (entity == default)
