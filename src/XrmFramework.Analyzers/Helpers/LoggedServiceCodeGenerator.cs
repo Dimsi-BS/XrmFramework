@@ -181,26 +181,66 @@ namespace XrmFramework.Analyzers.Helpers
 
         private void GenerateMethodSignature(IMethodSymbol m, IndentedStringBuilder builder, bool displayTypes)
         {
-            var formatFull = SymbolDisplayFormat.MinimallyQualifiedFormat
-                .RemoveMemberOptions(SymbolDisplayMemberOptions.IncludeExplicitInterface)
-                .RemoveMemberOptions(SymbolDisplayMemberOptions.IncludeContainingType);
+            var formatFull = SymbolDisplayFormat.FullyQualifiedFormat
 
-            if (displayTypes)
+                .WithMemberOptions(SymbolDisplayMemberOptions.IncludeAccessibility |
+                                   SymbolDisplayMemberOptions.IncludeModifiers |
+                                   SymbolDisplayMemberOptions.IncludeParameters |
+                                   SymbolDisplayMemberOptions.IncludeType |
+                                   SymbolDisplayMemberOptions.IncludeConstantValue)
+                .WithGenericsOptions(SymbolDisplayGenericsOptions.IncludeVariance |
+                                     SymbolDisplayGenericsOptions.IncludeTypeParameters |
+                                     SymbolDisplayGenericsOptions.IncludeTypeConstraints)
+                .WithParameterOptions(SymbolDisplayParameterOptions.IncludeDefaultValue |
+                                      SymbolDisplayParameterOptions.IncludeName |
+                                      SymbolDisplayParameterOptions.IncludeType |
+                                      SymbolDisplayParameterOptions.IncludeParamsRefOut |
+                                      SymbolDisplayParameterOptions.IncludeExtensionThis);
+
+            if (!displayTypes)
             {
                 formatFull = formatFull
-                    .AddMemberOptions(SymbolDisplayMemberOptions.IncludeConstantValue)
-                    .AddMemberOptions(SymbolDisplayMemberOptions.IncludeRef)
-                    .AddGenericsOptions(SymbolDisplayGenericsOptions.IncludeTypeConstraints)
-                    .AddGenericsOptions(SymbolDisplayGenericsOptions.IncludeTypeParameters);
-            }
-            else
-            {
-                formatFull = formatFull
-                        .RemoveParameterOptions(SymbolDisplayParameterOptions.IncludeType)
-                        .RemoveMemberOptions(SymbolDisplayMemberOptions.IncludeType);
+                        .RemoveMemberOptions(SymbolDisplayMemberOptions.IncludeType)
+                        .RemoveMemberOptions(SymbolDisplayMemberOptions.IncludeParameters)
+
+                        .RemoveGenericsOptions(SymbolDisplayGenericsOptions.IncludeTypeConstraints);
             }
 
             builder.Append(m.ToDisplayString(formatFull));
+
+            if (!displayTypes)
+            {
+                builder
+                    .Append("(");
+
+                var isFirst = true;
+
+                foreach (var parameter in m.Parameters)
+                {
+                    if (isFirst) isFirst = false;
+                    else
+                    {
+                        builder
+                            .Append(", ");
+                    }
+
+                    if (parameter.RefKind == RefKind.Out)
+                    {
+                        builder
+                            .Append("out ");
+                    }
+                    else if (parameter.RefKind == RefKind.Ref)
+                    {
+                        builder
+                            .Append("ref ");
+                    }
+
+                    builder
+                        .Append(parameter.Name);
+                }
+
+                builder.Append(")");
+            }
         }
 
         private void GetMethodLog(IMethodSymbol method, bool start, IndentedStringBuilder builder)
