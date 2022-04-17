@@ -116,7 +116,8 @@ namespace XrmFramework.Analyzers.Helpers
             var isAsyncMethod = IsAssignableFrom(m.ReturnType, typeof(Task).FullName);
 
             builder
-                .AppendLine();
+                .AppendLine()
+                .Append("public ");
 
             if (isAsyncMethod)
             {
@@ -180,48 +181,18 @@ namespace XrmFramework.Analyzers.Helpers
 
         private void GenerateMethodSignature(IMethodSymbol m, IndentedStringBuilder builder, bool displayTypes)
         {
-            if (displayTypes)
+            var formatFull = SymbolDisplayFormat.MinimallyQualifiedFormat
+                .RemoveMemberOptions(SymbolDisplayMemberOptions.IncludeExplicitInterface)
+                .RemoveMemberOptions(SymbolDisplayMemberOptions.IncludeContainingType);
+
+            if (!displayTypes)
             {
-                var formatFull = SymbolDisplayFormat.MinimallyQualifiedFormat;
-
-                builder.Append(m.ToDisplayString(formatFull));
+                formatFull = formatFull
+                    .RemoveParameterOptions(SymbolDisplayParameterOptions.IncludeType)
+                    .RemoveMemberOptions(SymbolDisplayMemberOptions.IncludeType);
             }
-            else
-            {
-                var minimalFormat = SymbolDisplayFormat.FullyQualifiedFormat
-                            .WithGenericsOptions(SymbolDisplayGenericsOptions.IncludeTypeParameters)
-                            .WithMemberOptions(SymbolDisplayMemberOptions.None);
 
-                builder
-                    .Append(m.ToDisplayString(minimalFormat))
-                    .Append("(");
-
-                var isFirst = true;
-
-                foreach (var param in m.Parameters)
-                {
-                    if (isFirst)
-                    {
-                        isFirst = false;
-                    }
-                    else
-                    {
-                        builder.Append(", ");
-                    }
-
-                    switch (param.RefKind)
-                    {
-                        case RefKind.Out: builder.Append("out "); break;
-                        case RefKind.Ref: builder.Append("ref "); break;
-                    }
-
-                    builder
-                        .Append(param.Name);
-                }
-
-                builder
-                    .Append(")");
-            }
+            builder.Append(m.ToDisplayString(formatFull));
         }
 
         private void GetMethodLog(IMethodSymbol method, bool start, IndentedStringBuilder builder)

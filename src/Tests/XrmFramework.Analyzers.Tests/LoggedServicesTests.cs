@@ -32,6 +32,8 @@ namespace XrmFramework {
 
         void AssociateRecords(EntityReference objectRef, Relationship relationName, params EntityReference[] entityReferences);
 
+        void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, bool bypassCustomPluginExecution, params EntityReference[] entityReferences);
+
         void TestEnum(EnumTest value = EnumTest.Null);
     }
 
@@ -48,7 +50,11 @@ namespace XrmFramework {
             return Guid.Empty;
         }
 
-        void IService.AssociateRecords(EntityReference objectRef, Relationship relationName, params EntityReference[] entityReferences)
+        public void AssociateRecords(EntityReference objectRef, Relationship relationName, params EntityReference[] entityReferences)
+        {
+        }
+
+        public void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, bool bypassCustomPluginExecution, params EntityReference[] entityReferences)
         {
         }
 

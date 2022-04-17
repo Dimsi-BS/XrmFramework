@@ -20,7 +20,7 @@ namespace ClientNamespace.Core
         }
         #endregion
 
-        public int IAccountService.GetSubRecordCount(EntityReference recordRef)
+        public int GetSubRecordCount(EntityReference recordRef)
         {
             #region Parameters check
             if (recordRef == default)
@@ -41,7 +41,7 @@ namespace ClientNamespace.Core
             return returnValue;
         }
 
-        public async Task IAccountService.AsynchronousCall(IEnumerable<double> list)
+        public async Task AsynchronousCall(IEnumerable<double> list)
         {
             #region Parameters check
             if (list == default)
@@ -60,7 +60,7 @@ namespace ClientNamespace.Core
             Log(nameof(AsynchronousCall), "End : duration = {0}", sw.Elapsed);
         }
 
-        public bool IAccountService.TryGetValue(string key, out int value)
+        public bool TryGetValue(string key, out int value)
         {
             #region Parameters check
             if (string.IsNullOrWhiteSpace(key))
@@ -74,14 +74,14 @@ namespace ClientNamespace.Core
 
             Log(nameof(TryGetValue), "Start: key = {0}", key);
 
-            var returnValue = Service.TryGetValue(key, out value);
+            var returnValue = Service.TryGetValue(key, value);
 
             Log(nameof(TryGetValue), "End : duration = {0}: , value = {1}, returnValue = {2}", sw.Elapsed, value, returnValue);
 
             return returnValue;
         }
 
-        public U IAccountService.GetValue<T, U>(T argument)
+        public U GetValue<T, U>(T argument)
         {
             #region Parameters check
             if (Equals(argument, default(T)))
@@ -102,7 +102,7 @@ namespace ClientNamespace.Core
             return returnValue;
         }
 
-        public void IAccountService.StringParameter(string parameter)
+        public void StringParameter(string parameter)
         {
             #region Parameters check
             #endregion
@@ -117,7 +117,7 @@ namespace ClientNamespace.Core
             Log(nameof(StringParameter), "End : duration = {0}", sw.Elapsed);
         }
 
-        public void IAccountService.StringParameterDefaultValue(string parameter = null)
+        public void StringParameterDefaultValue(string parameter = null)
         {
             #region Parameters check
             #endregion
@@ -127,7 +127,7 @@ namespace ClientNamespace.Core
 
             Log(nameof(StringParameterDefaultValue), "Start: parameter = {0}", parameter);
 
-            Service.StringParameterDefaultValue(parameter);
+            Service.StringParameterDefaultValue(parameter = null);
 
             Log(nameof(StringParameterDefaultValue), "End : duration = {0}", sw.Elapsed);
         }
