@@ -1,5 +1,4 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xrm.Sdk.Metadata;
 
 namespace XrmFramework.Core.Tests
 {

@@ -38,6 +38,27 @@ namespace XrmFramework
             return returnValue;
         }
 
+        public global::System.Guid Create2(global::Microsoft.Xrm.Sdk.Entity entity)
+        {
+            #region Parameters check
+            if (entity == default)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+            #endregion
+
+            var sw = new Stopwatch();
+            sw.Start();
+
+            Log(nameof(Create2), "Start: entity = {0}", entity);
+
+            var returnValue = Service.Create2(entity);
+
+            Log(nameof(Create2), "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
+
+            return returnValue;
+        }
+
         public void AssociateRecords(global::Microsoft.Xrm.Sdk.EntityReference objectRef, global::Microsoft.Xrm.Sdk.Relationship relationName, params global::Microsoft.Xrm.Sdk.EntityReference[] entityReferences)
         {
             #region Parameters check

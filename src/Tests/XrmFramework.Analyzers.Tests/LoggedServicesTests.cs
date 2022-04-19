@@ -30,6 +30,8 @@ namespace XrmFramework {
     {
         Guid Create(Entity entity);
 
+        Guid Create2(Entity entity);
+
         void AssociateRecords(EntityReference objectRef, Relationship relationName, params EntityReference[] entityReferences);
 
         void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, bool bypassCustomPluginExecution, params EntityReference[] entityReferences);
@@ -46,6 +48,10 @@ namespace XrmFramework {
     public partial class DefaultService : IService
     {
         public Guid Create(Entity entity)
+        {
+            return Guid.Empty;
+        }
+        public Guid Create2(Entity entity)
         {
             return Guid.Empty;
         }

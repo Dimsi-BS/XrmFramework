@@ -18,7 +18,27 @@ namespace XrmFramework.Analyzers.Generators
 
 			context.RegisterSourceOutput(namesAndContents, (productionContext, tuple) =>
 			{
-				productionContext.AddSource($"{tuple.name}.table.cs", $"namespace Titi {{ public static class {tuple.name}Definition {{ public const string EntityName = \"{tuple.name}\"; }} }}");
+				//var tableDefinition = JsonConvert.Dese
+
+
+				productionContext.AddSource($"{tuple.name}.table.cs", @$"
+namespace Titi
+{{ 
+	public static class {tuple.name}Definition
+	{{ 
+		public const string EntityName = ""{tuple.name}""; 
+
+		public static class Columns
+		{{ 
+			/// <summary>
+			/// 
+			/// Type : Uniqueidentifier
+			/// Validity :  Read | Create | AdvancedFind 
+			/// </summary> Commentaire à afficher
+			public const string Name = ""name""; 
+		}}  
+	}} 
+}}");
 			});
 		}
 	}
