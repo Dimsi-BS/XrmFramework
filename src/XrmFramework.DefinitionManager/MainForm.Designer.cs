@@ -49,7 +49,6 @@ namespace XrmFramework.DefinitionManager
             this.attributeTypeHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.dzadzaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -68,28 +67,26 @@ namespace XrmFramework.DefinitionManager
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 656);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 529);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 19, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(1612, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1209, 22);
             this.statusStrip1.TabIndex = 0;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 16);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
             // 
             // menuStrip1
             // 
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.generateDefinitionsToolStripMenuItem,
-            this.dzadzaToolStripMenuItem});
+            this.generateDefinitionsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(1612, 26);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(3, 1, 0, 1);
+            this.menuStrip1.Size = new System.Drawing.Size(1209, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -97,15 +94,14 @@ namespace XrmFramework.DefinitionManager
             // 
             this.generateDefinitionsToolStripMenuItem.Enabled = false;
             this.generateDefinitionsToolStripMenuItem.Name = "generateDefinitionsToolStripMenuItem";
-            this.generateDefinitionsToolStripMenuItem.Size = new System.Drawing.Size(159, 24);
+            this.generateDefinitionsToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
             this.generateDefinitionsToolStripMenuItem.Text = "Generate Definitions";
             this.generateDefinitionsToolStripMenuItem.Click += new System.EventHandler(this.generateDefinitionsToolStripMenuItem_Click);
             // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 26);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4);
+            this.splitContainer1.Location = new System.Drawing.Point(0, 24);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -117,9 +113,8 @@ namespace XrmFramework.DefinitionManager
             // 
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
             this.splitContainer1.Panel2MinSize = 600;
-            this.splitContainer1.Size = new System.Drawing.Size(1612, 630);
-            this.splitContainer1.SplitterDistance = 407;
-            this.splitContainer1.SplitterWidth = 5;
+            this.splitContainer1.Size = new System.Drawing.Size(1209, 505);
+            this.splitContainer1.SplitterDistance = 305;
             this.splitContainer1.TabIndex = 3;
             // 
             // entityListView
@@ -129,7 +124,7 @@ namespace XrmFramework.DefinitionManager
             this.entityListView.Location = new System.Drawing.Point(0, 0);
             this.entityListView.Margin = new System.Windows.Forms.Padding(0);
             this.entityListView.Name = "entityListView";
-            this.entityListView.Size = new System.Drawing.Size(407, 630);
+            this.entityListView.Size = new System.Drawing.Size(305, 505);
             this.entityListView.TabIndex = 2;
             // 
             // splitContainer2
@@ -150,9 +145,8 @@ namespace XrmFramework.DefinitionManager
             this.splitContainer2.Panel2.Controls.Add(this.enumListView);
             this.splitContainer2.Panel2Collapsed = true;
             this.splitContainer2.Panel2MinSize = 100;
-            this.splitContainer2.Size = new System.Drawing.Size(1200, 630);
+            this.splitContainer2.Size = new System.Drawing.Size(900, 505);
             this.splitContainer2.SplitterDistance = 100;
-            this.splitContainer2.SplitterWidth = 5;
             this.splitContainer2.TabIndex = 4;
             // 
             // attributeListView
@@ -162,7 +156,7 @@ namespace XrmFramework.DefinitionManager
             this.attributeListView.Location = new System.Drawing.Point(0, 0);
             this.attributeListView.Margin = new System.Windows.Forms.Padding(0);
             this.attributeListView.Name = "attributeListView";
-            this.attributeListView.Size = new System.Drawing.Size(1200, 630);
+            this.attributeListView.Size = new System.Drawing.Size(900, 505);
             this.attributeListView.TabIndex = 2;
             // 
             // enumListView
@@ -171,7 +165,7 @@ namespace XrmFramework.DefinitionManager
             this.enumListView.Location = new System.Drawing.Point(0, 0);
             this.enumListView.Margin = new System.Windows.Forms.Padding(0);
             this.enumListView.Name = "enumListView";
-            this.enumListView.Size = new System.Drawing.Size(150, 46);
+            this.enumListView.Size = new System.Drawing.Size(112, 37);
             this.enumListView.TabIndex = 4;
             // 
             // picklistNameHeader
@@ -194,31 +188,23 @@ namespace XrmFramework.DefinitionManager
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem1});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(205, 28);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(176, 26);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(204, 24);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(175, 22);
             this.toolStripMenuItem1.Text = "Copy LogicalName";
-            // 
-            // dzadzaToolStripMenuItem
-            // 
-            this.dzadzaToolStripMenuItem.Name = "dzadzaToolStripMenuItem";
-            this.dzadzaToolStripMenuItem.Size = new System.Drawing.Size(115, 24);
-            this.dzadzaToolStripMenuItem.Text = "Get table files";
-            this.dzadzaToolStripMenuItem.Click += new System.EventHandler(this.dzadzaToolStripMenuItem_Click);
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1612, 678);
+            this.ClientSize = new System.Drawing.Size(1209, 551);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainForm";
             this.Text = "Definition Manager";
             this.Load += new System.EventHandler(this.DefinitionManager_Load);
@@ -260,7 +246,6 @@ namespace XrmFramework.DefinitionManager
         private System.Windows.Forms.ColumnHeader picklistValueHeader;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem dzadzaToolStripMenuItem;
     }
 }
 

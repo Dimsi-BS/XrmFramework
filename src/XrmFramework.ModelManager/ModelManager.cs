@@ -137,6 +137,7 @@ namespace XrmFramework.ModelManager
                 sb.AppendLine("using System.CodeDom.Compiler;");
                 sb.AppendLine("using System.ComponentModel.DataAnnotations;");
                 sb.AppendLine("using System.Diagnostics.CodeAnalysis;");
+                sb.AppendLine("using System.Collections.Generic;");
                 sb.AppendLine("using XrmFramework;");
                 sb.AppendLine("using Newtonsoft.Json;");
                 sb.AppendLine("using XrmFramework.BindingModel;");
@@ -164,15 +165,9 @@ namespace XrmFramework.ModelManager
 
 
 
-                    if (model.IsBindingModelBase)
-                    {
-                        sb.AppendLine($"public partial class {model.Name}Model : BindingModelBase");
+                    
+                    sb.AppendLine($"public partial class {model.Name}Model : BindingModelBase");
 
-                    }
-                    else
-                    {
-                        sb.AppendLine($"public partial class {model.Name}Model : IBindingModel");
-                    }
 
                     sb.AppendLine();
                     sb.AppendLine("{");
@@ -189,12 +184,21 @@ namespace XrmFramework.ModelManager
                             {
                                 if (correspondingColumn != null)
                                 {   //This property is a column
-                                    sb.AppendLine($"[CrmMapping({correspondingTable.Name}Definition.Columns.{correspondingColumn.Name})]");
+                                    sb.Append($"[CrmMapping({correspondingTable.Name}Definition.Columns.{correspondingColumn.Name}");//)]");
+                                    if(prop.isValidForUpdate)
+                                    {
+                                        sb.Append(")]");
+
+                                    }
+                                    else
+                                    {
+                                        sb.Append(",IsValidForUpdate = false)]");
+                                    }
                                     if (correspondingColumn.Type == AttributeTypeCode.Lookup)
                                     {
                                         //Get the corresponding relationship info in the table
-                                        var correspondingRelation = correspondingTable.ManyToOneRelationships.FirstOrDefault(r => r.Name == prop.Name);
-                                        if (correspondingRelation == null)
+                                        var correspondingRelation = correspondingTable.ManyToOneRelationships.FirstOrDefault(r => r.LookupFieldName == prop.LogicalName);
+                                        if(correspondingRelation == null)
                                         {
                                             throw new Exception("No corresponding relationship found in table for " + prop.Name);
                                         }
@@ -212,13 +216,13 @@ namespace XrmFramework.ModelManager
                                                 }
                                                 else
                                                 {
-                                                    sb.Append($"{correspondingRelation.LookupFieldName})]");
+                                                    sb.Append($"\"{correspondingRelation.LookupFieldName}\")]");
 
                                                 }
                                             }
                                             else
                                             {
-                                                sb.AppendLine($"CrmLookup({correspondingRelation.EntityName},{correspondingRelation.LookupFieldName}");
+                                                sb.AppendLine($"\"{correspondingRelation.EntityName}\",\"{correspondingRelation.LookupFieldName}\")]");
                                             }
                                         }
                                     }
@@ -231,7 +235,7 @@ namespace XrmFramework.ModelManager
                                     {
                                         throw new Exception("Error, no corresponding OneToMany relation found for this property : " + prop.Name);
                                     }
-                                    sb.AppendLine($"[ChildRelationship({correspondingTable.Name}Definition.Columns.{correspondingRelation.NavigationPropertyName})]");
+                                    sb.AppendLine($"[ChildRelationship({correspondingTable.Name}Definition.OneToManyRelationships.{correspondingRelation.NavigationPropertyName})]");
                                 }
 
                                 if (prop.jsonName != null)
@@ -242,7 +246,7 @@ namespace XrmFramework.ModelManager
                                 // Add other possible attributes
 
 
-                                if (!model.IsBindingModelBase || !prop.useOnPropertyChanged)
+                                if (!prop.isValidForUpdate)
                                 {
                                     // Write regular declaration
                                     if (correspondingColumn != null)
@@ -314,15 +318,26 @@ namespace XrmFramework.ModelManager
 
 
 
-
+                        
                         sb.AppendLine("#region Fields");
 
-                        foreach (var prop in model.Properties.Where(p => p.useOnPropertyChanged))
+                        foreach (var prop in model.Properties.Where(p => p.isValidForUpdate))
                         {
                             //Add the corresponding field
-                            sb.AppendLine(String.Format("private {0} _{1};", prop.TypeFullName, prop.Name));
+                            var correspondingColumn = correspondingTable.Columns.FirstOrDefault(c => c.LogicalName == prop.LogicalName);
+                            if (correspondingColumn != null)
+                            {
+                                sb.AppendLine(String.Format("private {0} _{1};", prop.TypeFullName, prop.Name));
+
+                            }
+                            else
+                            {
+                                sb.AppendLine(String.Format("private List<{0}> _{1};", prop.TypeFullName, prop.Name));
+                            }
                         }
                         sb.AppendLine("#endregion");
+                        
+                       
 
 
 
@@ -402,19 +417,27 @@ namespace XrmFramework.ModelManager
 
                 prop.LogicalName = col.Name;
                 prop.Name = col.Name;
-                prop.useOnPropertyChanged = true;
+                var sameMapping = model.Properties.FirstOrDefault(p => p.LogicalName == prop.LogicalName);
+                foreach(var modelProp in model.Properties)
+                {
+                    if(modelProp.LogicalName == prop.LogicalName)
+                    {
+
+                    }
+                }
+                prop.isValidForUpdate = true;
 
                 model.Properties.Add(prop);
             }
             else
             {
-                var rel = table.OneToManyRelationships.FirstOrDefault(r => r.Name == propertyLogicalName);
+                var rel = table.OneToManyRelationships.FirstOrDefault(r => r.LookupFieldName == propertyLogicalName);
 
                 var prop = new ModelProperty();
 
                 prop.LogicalName = rel.Name;
                 prop.Name = rel.Name;
-                prop.useOnPropertyChanged = true;
+                prop.isValidForUpdate = true;
 
                 model.Properties.Add(prop);
             }
@@ -429,7 +452,7 @@ namespace XrmFramework.ModelManager
         public static void ToggleOnPropertyChanged(Model model, string propertyLogicalName)
         {
             var prop = model.Properties.FirstOrDefault(p => p.LogicalName == propertyLogicalName);
-            prop.useOnPropertyChanged = !prop.useOnPropertyChanged;
+            prop.isValidForUpdate = !prop.isValidForUpdate;
         }
 
         public static void SelectPropertyType(Model model, ModelProperty property, AttributeTypeCode type)
@@ -462,11 +485,16 @@ namespace XrmFramework.ModelManager
                 else
                 {
                     // Find a corresponding model and return
-                    var referencedModel = Models.FirstOrDefault(m => m.tableLogicalName == relation.EntityName);
-                    if (referencedModel != null)
+
+                    foreach (var possibleModel in Models)
                     {
-                        possibleTypes.Add($"{CoreProjectName}.{referencedModel.ModelNamespace}.{referencedModel.Name}");
+                        if (possibleModel.tableLogicalName == relation.EntityName)
+                        {
+                            possibleTypes.Add($"{CoreProjectName}.{possibleModel.ModelNamespace}.{possibleModel.Name}");
+
+                        }
                     }
+                    
                     possibleTypes.Add("System.Guid");
                     possibleTypes.Add("Microsoft.Xrm.Sdk.EntityReference");
 
@@ -506,30 +534,22 @@ namespace XrmFramework.ModelManager
                     break;
                 case AttributeTypeCode.Lookup:
                     //Get the corresponding relation, find the corresponding model if it exists
-                    foreach(var col in table.Columns)
-                    {
-                        Console.WriteLine(col.LogicalName);
-                    }
-                    Console.WriteLine($"the name of this property is {column.LogicalName}");
-                    Console.WriteLine($"{table.ManyToOneRelationships.Count}");
-                    foreach(var rel in table.ManyToOneRelationships)
-                    {
-                        Console.WriteLine($"{rel.Name}");
-                        Console.WriteLine($"{rel.EntityName}");
-                        Console.WriteLine($"{rel.LookupFieldName}");
-                        Console.WriteLine($"{rel.NavigationPropertyName}");
-                    }
-                    var re = table.ManyToOneRelationships.FirstOrDefault(r => r.Name == column.LogicalName);
+                    
+                    
+                    var re = table.ManyToOneRelationships.FirstOrDefault(r => r.LookupFieldName == column.LogicalName);
                     if (re == null)
                     {
                         throw new Exception();
                     }
-                    var referencedModel = Models.FirstOrDefault(t => t.tableLogicalName == re.EntityName);
-                    if (referencedModel != null)
+                    foreach(var possibleModel in Models)
                     {
-                        possibleTypes.Add($"{CoreProjectName}.{referencedModel.ModelNamespace}.{referencedModel.Name}");
+                        if(possibleModel.tableLogicalName == re.EntityName)
+                        {
+                            possibleTypes.Add($"{CoreProjectName}.{possibleModel.ModelNamespace}.{possibleModel.Name}");
 
+                        }
                     }
+                    
                     possibleTypes.Add("System.Guid");
                     possibleTypes.Add("Microsoft.Xrm.Sdk.EntityReference");
                     break;
@@ -784,15 +804,15 @@ namespace XrmFramework.ModelManager
             var model = CreateModelFromTable(correspondingTable);
             model.Name = userInput;
 
-            Console.WriteLine("Enter b to use BindingModelBase as the parent class, anything else to use IBindingModel.");
-            if (Console.ReadLine() == "b")
-            {
-                model.IsBindingModelBase = true;
-            }
-            else
-            {
-                model.IsBindingModelBase = false;
-            }
+            //Console.WriteLine("Enter b to use BindingModelBase as the parent class, anything else to use IBindingModel.");
+            //if (Console.ReadLine() == "b")
+            //{
+            //    model.IsBindingModelBase = true;
+            //}
+            //else
+            //{
+            //    model.IsBindingModelBase = false;
+            //}
 
             Models.Add(model);
 
@@ -891,15 +911,15 @@ namespace XrmFramework.ModelManager
                 }
                 else if(userInput == "e")
                 {
-                    Console.WriteLine("Enter b to use BindingModelBase as a parent, anything else to not : ");
-                    if(Console.ReadLine() == "b")
-                    {
-                        model.IsBindingModelBase = true;
-                    }
-                    else
-                    {
-                        model.IsBindingModelBase= false;
-                    }
+                    //Console.WriteLine("Enter b to use BindingModelBase as a parent, anything else to not : ");
+                    //if(Console.ReadLine() == "b")
+                    //{
+                    //    model.IsBindingModelBase = true;
+                    //}
+                    //else
+                    //{
+                    //    model.IsBindingModelBase= false;
+                    //}
                 }
                
 
@@ -988,12 +1008,7 @@ namespace XrmFramework.ModelManager
                 }
                 while (userInput == null || ((intInput < 0) || intInput >= table.Columns.Count));
 
-                // If this column has already been added then exit
-                if(model.Properties.Any(p=>p.LogicalName == table.Columns.ElementAt(intInput).LogicalName))
-                {
-                    Console.WriteLine("This column has already been added as a property");
-                    return;
-                }
+               
 
                 var correspondingColumn = table.Columns.ElementAt(intInput);
                 // Create new property
@@ -1010,16 +1025,26 @@ namespace XrmFramework.ModelManager
                 while (userInput == "" || sameProperty != null);
 
                 newProperty.Name = userInput;
+                
 
-                Console.WriteLine("Enter p to use onPropertyChanged (only can only be used if model.isBindingModelBase is true), enter anything to not");
+                Console.WriteLine("Enter p to set isValidForUpdate to true, enter anything else to not");
                 if (Console.ReadLine() == "p")
                 {
-                    newProperty.useOnPropertyChanged = true;
+                    newProperty.isValidForUpdate = true;
+                    //Check if any other common crm mapping is true
+                    var similarMapping = model.Properties.FirstOrDefault(p => p.LogicalName == newProperty.LogicalName && p.isValidForUpdate);
+                    if(similarMapping != null)
+                    {
+                        //Choose the right one
+
+                    }
                 }
                 else
                 {
-                    newProperty.useOnPropertyChanged = false;
+                    newProperty.isValidForUpdate = false;
                 }
+
+               
 
                 Console.WriteLine("If you want this property to be serialized, enter a name, otherwise press enter");
                 userInput = Console.ReadLine();
@@ -1067,7 +1092,15 @@ namespace XrmFramework.ModelManager
                 {
                     Console.WriteLine("Enter the number corresponding to the relation you want to add.");
                     userInput = Console.ReadLine();
-                    intInput = int.Parse(userInput);
+                    if(userInput != null)
+                    {
+                        intInput = int.Parse(userInput);
+                    }
+                    else
+                    {
+                        intInput= -1;
+                    }
+                    
                 }
                 while (userInput == null || ((intInput < 0) || intInput >= table.OneToManyRelationships.Count));
 
@@ -1075,6 +1108,9 @@ namespace XrmFramework.ModelManager
                 // Create new property
                 newProperty = new ModelProperty();
                 newProperty.LogicalName = correspondingRelation.NavigationPropertyName;
+
+                Console.WriteLine($" Lookup field name is : {correspondingRelation.LookupFieldName}");
+                Console.WriteLine($" Navigation property name is : {correspondingRelation.NavigationPropertyName}");
 
                 ModelProperty sameProperty;
                 do
@@ -1084,15 +1120,15 @@ namespace XrmFramework.ModelManager
                     sameProperty = model.Properties.FirstOrDefault(p => p.Name == userInput);
                 }
                 while (userInput == "" || sameProperty != null);
-                
+                newProperty.Name = userInput;
                 Console.WriteLine("Enter p to use onPropertyChanged (only works if model.isBindingModelBase is true), enter anything to not");
                 if (Console.ReadLine() == "p")
                 {
-                    newProperty.useOnPropertyChanged = true;
+                    newProperty.isValidForUpdate = true;
                 }
                 else
                 {
-                    newProperty.useOnPropertyChanged = false;
+                    newProperty.isValidForUpdate = false;
                 }
 
                 Console.WriteLine("If you want this property to be serialized, enter a name, otherwise press enter");
@@ -1178,11 +1214,11 @@ namespace XrmFramework.ModelManager
                     Console.WriteLine("Enter u to use onPropertyChanged, anything else to not");
                     if(userInput == "u")
                     {
-                        property.useOnPropertyChanged = true;
+                        property.isValidForUpdate = true;
                     }
                     else
                     {
-                        property.useOnPropertyChanged = false;
+                        property.isValidForUpdate = false;
                     }
                 }
                 else if(userInput=="c")

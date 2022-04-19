@@ -14,7 +14,7 @@ namespace XrmFramework.Core
         public string LogicalName;
         public string Name;
         [JsonProperty("UsePropCh")]
-        public bool useOnPropertyChanged;
+        public bool isValidForUpdate = true;
         
         public string jsonName = null;
         [JsonProperty("Type")]

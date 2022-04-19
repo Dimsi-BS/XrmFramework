@@ -25,6 +25,6 @@ namespace XrmFramework.Core
 
 
 
-        public bool IsBindingModelBase;
+        //public bool IsBindingModelBase;
     }
 }
