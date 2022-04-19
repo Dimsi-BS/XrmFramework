@@ -57,9 +57,8 @@ namespace XrmFramework.DeployUtils.Model
             Steps.Add(step);
         }
 
-        public int Rank { get; } = 1;
-        public bool DoAddToSolution { get; } = false;
-        public bool DoFetchTypeCode { get; } = false;
-
+        public int Rank => 1;
+        public bool DoAddToSolution => false;
+        public bool DoFetchTypeCode => false;
     }
 }

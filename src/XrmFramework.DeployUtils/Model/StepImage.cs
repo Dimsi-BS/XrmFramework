@@ -42,8 +42,8 @@ namespace XrmFramework.DeployUtils.Model
         public Step FatherStep { get; set; }
         public IEnumerable<ICrmComponent> Children => new List<ICrmComponent>();
         public void AddChild(ICrmComponent child) => throw new ArgumentException("StepImage doesn't take children");
-        public int Rank { get; } = 3;
-        public bool DoAddToSolution { get; } = false;
-        public bool DoFetchTypeCode { get; } = false;
+        public int Rank => 3;
+        public bool DoAddToSolution => false;
+        public bool DoFetchTypeCode => false;
     }
 }

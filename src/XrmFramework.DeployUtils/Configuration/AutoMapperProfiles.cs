@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.Xrm.Sdk;
+using System;
+using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 
@@ -8,7 +11,7 @@ namespace XrmFramework.DeployUtils.Configuration
     {
         public AutoMapperLocalToLocalProfile()
         {
-            CreateMap<PluginAssembly, PluginAssembly>();
+            CreateMap<AssemblyInfo, AssemblyInfo>();
             CreateMap<Plugin, Plugin>()
                 .ForMember(dest => dest.Children, opt => opt.Ignore());
             CreateMap<Step, Step>();
@@ -18,18 +21,16 @@ namespace XrmFramework.DeployUtils.Configuration
 
             CreateMap<CustomApiRequestParameter, CustomApiRequestParameter>();
             CreateMap<CustomApiResponseProperty, CustomApiResponseProperty>();
-            //CreateMap<AssemblyContext, AssemblyContext>();
 
-            ShouldMapField = fi => true;
+            ShouldMapField = fi => fi.IsPublic || fi.Name is "_internalList" or "InArguments" or "OutArguments";
             CreateMap<StepCollection, StepCollection>();
 
-            //CreateMap<ICustomApiComponent, ICrmComponent>();
-
-            //CreateMap<ICrmComponent, ICrmComponent>();
             CreateMap<IAssemblyContext, IAssemblyContext>()
                 .ConstructUsing(_ => new AssemblyContext())
-                .ForMember(dest => dest.Assembly, opt => opt.MapFrom(src => src.Assembly));
-
+                .ForMember(dest => dest.AssemblyInfo,
+                    opt => opt.MapFrom(src => src.AssemblyInfo))
+                .ForMember(dest => dest.Children, opt => opt.Ignore());
+            ShouldMapProperty = pi => true;
         }
     }
 
@@ -37,11 +38,19 @@ namespace XrmFramework.DeployUtils.Configuration
     {
         public AutoMapperRemoteToLocalProfile()
         {
-            CreateMap<Deploy.PluginAssembly, PluginAssembly>();
+            CreateMap<Deploy.PluginAssembly, AssemblyInfo>();
+
+            CreateMap<AssemblyInfo, IAssemblyContext>()
+                .ConstructUsing(src => new AssemblyContext())
+                .ForMember(dest => dest.AssemblyInfo,
+                    opt => opt.MapFrom(src => src));
+
             CreateMap<Deploy.CustomApi, CustomApi>()
-                .ForMember(p => p.ParentId, opt => opt.MapFrom(d => d.PluginTypeId.Id));
+            .ForMember(p => p.ParentId, opt => opt.MapFrom(d => d.PluginTypeId.Id));
+
             CreateMap<Deploy.CustomApiRequestParameter, CustomApiRequestParameter>()
                 .ForMember(p => p.ParentId, opt => opt.MapFrom(d => d.CustomApiId.Id));
+
 
             CreateMap<Deploy.CustomApiResponseProperty, CustomApiResponseProperty>()
                 .ForMember(p => p.ParentId, opt => opt.MapFrom(d => d.CustomApiId.Id));
@@ -53,6 +62,27 @@ namespace XrmFramework.DeployUtils.Configuration
     {
         public AutoMapperLocalToRemoteProfile()
         {
+            CreateMap<AssemblyInfo, Deploy.PluginAssembly>()
+                .ForMember(dest => dest.Content,
+                    opt => opt.MapFrom(src => Convert.ToBase64String(src.Content)));
+
+            CreateMap<CustomApi, Deploy.CustomApi>()
+                .ForMember(p => p.PluginTypeId,
+                    opt => opt.MapFrom(c => new EntityReference(PluginTypeDefinition.EntityName, c.ParentId)));
+
+            CreateMap<CustomApiRequestParameter, Deploy.CustomApiRequestParameter>()
+                .ForMember(p => p.CustomApiId,
+                    opt => opt.MapFrom(c => new EntityReference(CustomApiDefinition.EntityName, c.ParentId)))
+                .ForMember(dest => dest.LogicalEntityName,
+                    opt => opt.Ignore());
+
+
+            CreateMap<CustomApiResponseProperty, Deploy.CustomApiResponseProperty>()
+                .ForMember(p => p.CustomApiId,
+                    opt => opt.MapFrom(c => new EntityReference(CustomApiDefinition.EntityName, c.ParentId)))
+                .ForMember(dest => dest.LogicalEntityName,
+                    opt => opt.Ignore());
+
         }
     }
 }

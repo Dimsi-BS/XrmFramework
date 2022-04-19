@@ -22,9 +22,8 @@ namespace XrmFramework.DeployUtils.Model
         public void AddChild(ICrmComponent child) => throw new ArgumentException("CustomApiResponseProperty doesn't take children");
 
         public string UniqueName { get; set; }
-        public int Rank { get; } = 3;
-        public bool DoAddToSolution { get; } = true;
-        public bool DoFetchTypeCode { get; } = true;
-
+        public int Rank => 2;
+        public bool DoAddToSolution => true;
+        public bool DoFetchTypeCode => true;
     }
 }

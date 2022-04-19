@@ -1,4 +1,5 @@
-﻿using Microsoft.Xrm.Sdk;
+﻿using AutoMapper;
+using Microsoft.Xrm.Sdk;
 using System;
 using System.Linq;
 using XrmFramework.Definitions;
@@ -10,26 +11,28 @@ namespace XrmFramework.DeployUtils.Utils
     public class CrmComponentConverter : ICrmComponentConverter
     {
         private readonly ISolutionContext _context;
-        public CrmComponentConverter(ISolutionContext context)
+        private readonly IMapper _mapper;
+        public CrmComponentConverter(ISolutionContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public Entity ToRegisterComponent(ICrmComponent component)
         {
             switch (component)
             {
-                case PluginAssembly assembly:
-                    return ToRegisterPluginAssembly(assembly);
+                case AssemblyInfo assembly:
+                    return _mapper.Map<Deploy.PluginAssembly>(assembly);
 
                 case CustomApi customApi:
-                    return ToRegisterCustomApi(customApi);
+                    return _mapper.Map<Deploy.CustomApi>(customApi);
 
                 case CustomApiRequestParameter request:
-                    return ToRegisterCustomApiRequestParameter(request);
+                    return _mapper.Map<Deploy.CustomApiRequestParameter>(request);
 
                 case CustomApiResponseProperty response:
-                    return ToRegisterCustomApiResponseProperty(response);
+                    return _mapper.Map<Deploy.CustomApiResponseProperty>(response);
 
                 case Plugin plugin:
                     return ToRegisterPluginType(plugin);
@@ -43,22 +46,8 @@ namespace XrmFramework.DeployUtils.Utils
             }
         }
 
-        private Deploy.CustomApiResponseProperty ToRegisterCustomApiResponseProperty(CustomApiResponseProperty response)
-        {
-            throw new NotImplementedException();
-        }
 
-        private Deploy.CustomApiRequestParameter ToRegisterCustomApiRequestParameter(CustomApiRequestParameter request)
-        {
-            throw new NotImplementedException();
-        }
-
-        private Deploy.CustomApi ToRegisterCustomApi(CustomApi customApi)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static Deploy.PluginAssembly ToRegisterPluginAssembly(PluginAssembly assembly)
+        private static Deploy.PluginAssembly ToRegisterPluginAssembly(AssemblyInfo assembly)
         {
             var pluginAssembly = new Deploy.PluginAssembly()
             {

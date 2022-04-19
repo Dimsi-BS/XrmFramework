@@ -7,19 +7,38 @@ namespace XrmFramework.DeployUtils.Model
 {
     public partial class CustomApi : ICrmComponent
     {
-        public List<ICustomApiComponent> Arguments { get; } = new List<ICustomApiComponent>();
-        public IEnumerable<ICrmComponent> Children => Arguments;
+        private List<CustomApiRequestParameter> InArguments { get; } = new List<CustomApiRequestParameter>();
+        private List<CustomApiResponseProperty> OutArguments { get; } = new List<CustomApiResponseProperty>();
+
+        public IEnumerable<ICrmComponent> Children
+        {
+            get
+            {
+                var args = new List<ICrmComponent>();
+                args.AddRange(InArguments);
+                args.AddRange(OutArguments);
+                return args;
+            }
+        }
 
         public void AddChild(ICrmComponent child)
         {
-            if (child is not ICustomApiComponent c)
-                throw new ArgumentException("CustomApi doesn't take this type of children");
-            Arguments.Add(c);
+            switch (child)
+            {
+                case CustomApiRequestParameter req:
+                    InArguments.Add(req);
+                    break;
+                case CustomApiResponseProperty rep:
+                    OutArguments.Add(rep);
+                    break;
+                default:
+                    throw new ArgumentException("CustomApi doesn't take this type of children");
+            }
         }
 
-        public int Rank { get; } = 2;
-        public bool DoAddToSolution { get; } = true;
-        public bool DoFetchTypeCode { get; } = true;
+        public int Rank => 1;
+        public bool DoAddToSolution => true;
+        public bool DoFetchTypeCode => true;
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
         public Guid ParentId { get; set; }
@@ -33,11 +52,14 @@ namespace XrmFramework.DeployUtils.Model
             get => _id;
             set
             {
-                foreach (var req in Arguments)
+                foreach (var req in InArguments)
                 {
                     req.ParentId = value;
                 }
-
+                foreach (var rep in OutArguments)
+                {
+                    rep.ParentId = value;
+                }
                 _id = value;
             }
         }

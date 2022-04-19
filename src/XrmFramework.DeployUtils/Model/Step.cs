@@ -115,8 +115,8 @@ namespace XrmFramework.DeployUtils.Model
             get
             {
                 var res = new List<ICrmComponent>();
-                if (PreImage.IsUsed) res.Add(PreImage);
-                if (PostImage.IsUsed) res.Add(PostImage);
+                if (PreImage.IsUsed || PreImage.RegistrationState == RegistrationState.ToDelete) res.Add(PreImage);
+                if (PostImage.IsUsed || PostImage.RegistrationState == RegistrationState.ToDelete) res.Add(PostImage);
                 return res;
             }
         }
@@ -132,9 +132,9 @@ namespace XrmFramework.DeployUtils.Model
                 PostImage = stepChild;
             }
         }
-        public int Rank { get; } = 2;
-        public bool DoAddToSolution { get; } = true;
-        public bool DoFetchTypeCode { get; } = false;
+        public int Rank => 2;
+        public bool DoAddToSolution => true;
+        public bool DoFetchTypeCode => false;
     }
 
 }

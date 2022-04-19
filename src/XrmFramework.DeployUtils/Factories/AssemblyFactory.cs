@@ -43,10 +43,10 @@ namespace XrmFramework.DeployUtils.Utils
                                      .Select(t => _importer.CreateCustomApiFromType(t))
                                      .ToList();
 
-            var assembly = _importer.CreateAssemblyFromLocal(Assembly);
 
-            var localAssembly = new AssemblyContext();
-            localAssembly.Assembly = assembly;
+            var localAssembly = _importer.CreateAssemblyFromLocal(Assembly);
+
+
             plugins.ForEach(localAssembly.Plugins.Add);
             customApis.ForEach(localAssembly.CustomApis.Add);
             workflows.ForEach(localAssembly.Workflows.Add);
@@ -56,45 +56,46 @@ namespace XrmFramework.DeployUtils.Utils
         public IAssemblyContext CreateFromRemoteAssemblyContext(IRegistrationService service, string assemblyName)
         {
             var assembly = service.GetAssemblyByName(assemblyName);
-            AssemblyContext registeredAssembly = new AssemblyContext();
 
-            if (assembly != null)
+            if (assembly == null)
             {
-                Console.WriteLine("Remote Assembly Exists, Fetching Components...");
-
-                var registeredPluginTypes = service.GetRegisteredPluginTypes(assembly.Id);
-
-                var registeredSteps = service.GetRegisteredSteps(assembly.Id);
-                var registeredStepImages = service.GetRegisteredImages(assembly.Id);
-
-
-                var registeredCustomApis = service.GetRegisteredCustomApis(assembly.Id);
-
-                var registeredRequestParameters = service.GetRegisteredCustomApiRequestParameters(assembly.Id);
-                var registeredResponseProperties = service.GetRegisteredCustomApiResponseProperties(assembly.Id);
-
-
-                registeredPluginTypes = registeredPluginTypes.Where(p => !registeredCustomApis.Any(c => c.PluginTypeId.Id == p.Id)).ToList();
-
-                Console.WriteLine("Parsing...");
-
-                var steps = registeredSteps.Select(s => _importer.CreateStepFromRemote(s, registeredStepImages));
-                var pluginsAndWorkflows = registeredPluginTypes.Select(p => _importer.CreatePluginFromRemote(p, steps));
-
-                var plugins = pluginsAndWorkflows.Where(p => !p.IsWorkflow).ToList();
-                var workflows = pluginsAndWorkflows.Where(p => p.IsWorkflow).ToList();
-
-
-                var customApis = registeredCustomApis
-                    .Select(c => _importer.CreateCustomApiFromRemote(c, registeredRequestParameters, registeredResponseProperties))
-                    .ToList();
-
-
-                registeredAssembly.Assembly = _importer.CreateAssemblyFromRemote(assembly);
-                plugins.ForEach(registeredAssembly.Plugins.Add);
-                customApis.ForEach(registeredAssembly.CustomApis.Add);
-                workflows.ForEach(registeredAssembly.Workflows.Add);
+                return new AssemblyContext();
             }
+
+            Console.WriteLine("Remote Assembly Exists, Fetching Components...");
+
+            var registeredPluginTypes = service.GetRegisteredPluginTypes(assembly.Id);
+
+            var registeredSteps = service.GetRegisteredSteps(assembly.Id);
+            var registeredStepImages = service.GetRegisteredImages(assembly.Id);
+
+
+            var registeredCustomApis = service.GetRegisteredCustomApis(assembly.Id);
+
+            var registeredRequestParameters = service.GetRegisteredCustomApiRequestParameters(assembly.Id);
+            var registeredResponseProperties = service.GetRegisteredCustomApiResponseProperties(assembly.Id);
+
+
+            registeredPluginTypes = registeredPluginTypes.Where(p => !registeredCustomApis.Any(c => c.PluginTypeId.Id == p.Id)).ToList();
+
+            Console.WriteLine("Parsing...");
+
+            var steps = registeredSteps.Select(s => _importer.CreateStepFromRemote(s, registeredStepImages));
+            var pluginsAndWorkflows = registeredPluginTypes.Select(p => _importer.CreatePluginFromRemote(p, steps));
+
+            var plugins = pluginsAndWorkflows.Where(p => !p.IsWorkflow).ToList();
+            var workflows = pluginsAndWorkflows.Where(p => p.IsWorkflow).ToList();
+
+
+            var customApis = registeredCustomApis
+                .Select(c => _importer.CreateCustomApiFromRemote(c, registeredRequestParameters, registeredResponseProperties))
+                .ToList();
+
+            var registeredAssembly = _importer.CreateAssemblyFromRemote(assembly);
+            plugins.ForEach(registeredAssembly.Plugins.Add);
+            customApis.ForEach(registeredAssembly.CustomApis.Add);
+            workflows.ForEach(registeredAssembly.Workflows.Add);
+
             return registeredAssembly;
         }
     }

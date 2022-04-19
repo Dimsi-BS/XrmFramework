@@ -16,15 +16,24 @@ namespace XrmFramework.DeployUtils.Utils
             _mapper = mapper;
         }
 
-        public IDiffPatch ComputeDiffPatchFromAssemblies(IAssemblyContext from, IAssemblyContext target)
+        internal IAssemblyContext ComputeDiffPatchFromAssemblies(IAssemblyContext from, IAssemblyContext target)
         {
-            var fromCopy = _mapper.Map<AssemblyContext>(from);
+            var fromCopy = _mapper.Map<IAssemblyContext>(from);
+
             var fromPool = fromCopy.ComponentsOrderedPool;
             var targetPool = target.ComponentsOrderedPool;
-            return ComputeDiffPatchFromPool(fromPool, targetPool);
+
+            var deleteComponents = ComputeDiffPatchFromPool(fromPool, targetPool);
+
+            foreach (var deleteComponent in deleteComponents)
+            {
+                fromCopy.AddChild(deleteComponent);
+            }
+
+            return fromCopy;
         }
 
-        public IDiffPatch ComputeDiffPatchFromPool(IReadOnlyCollection<ICrmComponent> fromPool, IReadOnlyCollection<ICrmComponent> targetPool)
+        private ICollection<ICrmComponent> ComputeDiffPatchFromPool(IReadOnlyCollection<ICrmComponent> fromPool, IReadOnlyCollection<ICrmComponent> targetPool)
         {
             /*
              * Some explanation here :
@@ -34,8 +43,6 @@ namespace XrmFramework.DeployUtils.Utils
              * This is done because CorrespondingComponent is a costly function.
              */
 
-            fromPool.ToList().Sort((x, y) => x.Rank.CompareTo(y.Rank));
-            targetPool.ToList().Sort((x, y) => x.Rank.CompareTo(y.Rank));
 
             /*
              * Reset registration states if already computed
@@ -59,7 +66,6 @@ namespace XrmFramework.DeployUtils.Utils
             }
             #endregion
 
-            var diffComponents = new List<DiffComponent>();
             foreach (var fromComponent in fromPool)
             {
                 if (fromComponent.RegistrationState != RegistrationState.NotComputed)
@@ -69,27 +75,20 @@ namespace XrmFramework.DeployUtils.Utils
                 var targetComponent = _comparer.CorrespondingComponent(fromComponent, targetPool);
                 if (targetComponent == null)
                 {
-                    FlagAllFromComponent(fromComponent, diffComponents, RegistrationState.ToCreate);
+                    FlagAllFromComponent(fromComponent, RegistrationState.ToCreate);
                     continue;
                 }
-
-                var diffComponent = new DiffComponent()
-                {
-                    Component = fromComponent,
-                    OriginalId = fromComponent.Id,
-                    OriginalParentId = fromComponent.ParentId,
-                    DiffResult = _comparer.NeedsUpdate(fromComponent, targetComponent)
-                        ? RegistrationState.ToUpdate
-                        : RegistrationState.Ignore
-                };
-                diffComponents.Add(diffComponent);
 
                 fromComponent.Id = targetComponent.Id;
                 fromComponent.ParentId = targetComponent.ParentId;
 
-                fromComponent.RegistrationState = RegistrationState.Computed;
+                fromComponent.RegistrationState = _comparer.NeedsUpdate(fromComponent, targetComponent)
+                    ? RegistrationState.ToUpdate
+                    : RegistrationState.Ignore;
                 targetComponent.RegistrationState = RegistrationState.Computed;
             }
+
+            var deleteComponents = new List<ICrmComponent>();
 
             foreach (var targetComponent in targetPool)
             {
@@ -98,20 +97,28 @@ namespace XrmFramework.DeployUtils.Utils
                     continue;
                 }
 
-                FlagAllFromComponent(targetComponent, diffComponents, RegistrationState.ToDelete);
+                FlagAllFromComponent(targetComponent, RegistrationState.ToDelete);
+                if (targetComponent.Rank == 1)
+                {
+                    deleteComponents.Add(targetComponent);
+                }
+                else
+                {
+                    var componentFather = fromPool.First(c => c.Id == targetComponent.ParentId);
+                    componentFather.AddChild(targetComponent);
+                }
             }
 
-            return new DiffPatch(diffComponents);
+            return deleteComponents;
         }
 
 
-        private static void FlagAllFromComponent(ICrmComponent target, ICollection<DiffComponent> terminalStack, RegistrationState state)
+        private static void FlagAllFromComponent(ICrmComponent target, RegistrationState state)
         {
-            terminalStack.Add(new DiffComponent(target, state));
-            target.RegistrationState = RegistrationState.Computed;
+            target.RegistrationState = state;
             foreach (var child in target.Children)
             {
-                FlagAllFromComponent(child, terminalStack, state);
+                FlagAllFromComponent(child, state);
             }
         }
     }

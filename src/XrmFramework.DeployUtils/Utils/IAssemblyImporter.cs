@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
 {
     interface IAssemblyImporter
     {
-        PluginAssembly CreateAssemblyFromLocal(Assembly assembly);
-        PluginAssembly CreateAssemblyFromRemote(Deploy.PluginAssembly assembly);
+        IAssemblyContext CreateAssemblyFromLocal(Assembly assembly);
+        IAssemblyContext CreateAssemblyFromRemote(Deploy.PluginAssembly assembly);
 
         Plugin CreatePluginFromType(Type type);
         Plugin CreateWorkflowFromType(Type type);

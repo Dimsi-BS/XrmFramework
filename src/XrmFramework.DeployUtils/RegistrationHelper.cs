@@ -1,11 +1,9 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
@@ -22,7 +20,7 @@ namespace XrmFramework.DeployUtils
         private readonly IAssemblyFactory _assemblyFactory;
         private readonly AssemblyDiffFactory _assemblyDiffFactory;
 
-        private IDiffPatch _registrationStrategy;
+        private IAssemblyContext _registrationStrategy;
 
         public RegistrationHelper(IRegistrationService registrationService,
                                   IAssemblyExporter assemblyExporter,
@@ -65,15 +63,14 @@ If ok press any key.");
 
             _registrationStrategy = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(localAssembly, registeredAssembly);
 
-            //ExecuteRegistrationStrategy();
+            ExecuteRegistrationStrategy();
         }
 
         private void ExecuteRegistrationStrategy()
         {
-            var stepsForMetadata = _registrationStrategy
-                .GetComponentsWhere(c => c.Component is Step)
-                .Select(s => (Step)s)
-                .ToList();
+            var strategyPool = _registrationStrategy.ComponentsOrderedPool;
+
+            var stepsForMetadata = strategyPool.OfType<Step>();
 
             _assemblyExporter.InitExportMetadata(stepsForMetadata);
 
@@ -82,28 +79,28 @@ If ok press any key.");
 
             RegisterAssembly();
 
-            var componentsToCreate = _registrationStrategy
-                .GetComponentsWhere(d => d.DiffResult == RegistrationState.ToCreate);
+            var componentsToCreate = strategyPool
+                .Where(d => d.RegistrationState == RegistrationState.ToCreate);
 
             _assemblyExporter.CreateAllComponents(componentsToCreate);
 
-            var componentsToUpdate = _registrationStrategy
-                .GetComponentsWhere(d => d.DiffResult == RegistrationState.ToUpdate);
+            var componentsToUpdate = strategyPool
+                .Where(d => d.RegistrationState == RegistrationState.ToUpdate);
 
             _assemblyExporter.UpdateAllComponents(componentsToUpdate);
         }
 
         private void RegisterAssembly()
         {
-            var assembly = _registrationStrategy.PluginAssembly;
 
-            if (assembly.RegistrationState == RegistrationState.ToCreate)
+            if (_registrationStrategy.RegistrationState == RegistrationState.ToCreate)
             {
                 Console.WriteLine("Creating assembly");
 
-                _assemblyExporter.CreateComponent(assembly);
+                _assemblyExporter.CreateComponent(_registrationStrategy.AssemblyInfo);
+                _registrationStrategy.RegistrationState = RegistrationState.Computed;
             }
-            else if (assembly.RegistrationState == RegistrationState.ToUpdate)
+            else if (_registrationStrategy.RegistrationState == RegistrationState.ToUpdate)
             {
                 Console.WriteLine();
                 Console.WriteLine(@"Cleaning Assembly");
@@ -113,76 +110,19 @@ If ok press any key.");
                 Console.WriteLine();
                 Console.WriteLine("Updating plugin assembly");
 
-                _assemblyExporter.UpdateComponent(assembly);
+                _assemblyExporter.UpdateComponent(_registrationStrategy.AssemblyInfo);
+                _registrationStrategy.RegistrationState = RegistrationState.Computed;
             }
         }
 
         private void CleanAssembly()
         {
-            var componentsToDelete = _registrationStrategy
-                .GetComponentsWhere(d => d.DiffResult == RegistrationState.ToDelete);
+            var strategyPool = _registrationStrategy.ComponentsOrderedPool;
 
-            //Sort in descending order so that children are deleted before their parent
+            var componentsToDelete = strategyPool
+                .Where(d => d.RegistrationState == RegistrationState.ToDelete);
 
             _assemblyExporter.DeleteAllComponents(componentsToDelete);
         }
-        public static void AutoMapperTest<TPlugin>(string projectName)
-        {
-            var serviceProvider = ServiceCollectionHelper.ConfigureForDeploy("FrameworkTestsAymeric2.Plugins");
-
-            var factory = serviceProvider.GetRequiredService<IAssemblyFactory>();
-            var mapper = serviceProvider.GetRequiredService<IMapper>();
-
-            var localAssembly = factory.CreateFromLocalAssemblyContext(typeof(TPlugin));
-
-            var localAssemblyPool = localAssembly.ComponentsOrderedPool;
-            var localAssemblyCopy = mapper.Map<IAssemblyContext>(localAssembly);
-
-            var OrAssembly = localAssembly.Assembly;
-            var ClAssembly2 = mapper.Map<PluginAssembly>(localAssembly.Assembly);
-            var ClAssembly = localAssemblyCopy.Assembly;
-
-
-            Console.WriteLine($"\nOriginal Assembly Id is {OrAssembly.Id}");
-            Console.WriteLine($"Clone Assembly Id is {ClAssembly.Id}");
-            Console.WriteLine($"Messing with Clone Assembly Id ...");
-            ClAssembly.Id = Guid.NewGuid();
-            Console.WriteLine($"Original Assembly Id is {OrAssembly.Id}");
-            Console.WriteLine($"Clone Assembly Id is {ClAssembly.Id}");
-
-            var plug = (Plugin)localAssemblyPool.First(c => c is Plugin);
-            var original = plug.Steps;
-            var clone = mapper.Map<StepCollection>(original);
-
-
-            MessWith<PluginAssembly>(mapper, localAssemblyPool);
-            MessWith<StepImage>(mapper, localAssemblyPool);
-            MessWith<Step>(mapper, localAssemblyPool);
-            MessWith<Plugin>(mapper, localAssemblyPool);
-            MessWith<CustomApiRequestParameter>(mapper, localAssemblyPool);
-            MessWith<CustomApiResponseProperty>(mapper, localAssemblyPool);
-            MessWith<CustomApi>(mapper, localAssemblyPool);
-        }
-
-        private static void MessWith<T>(IMapper mapper, IReadOnlyCollection<ICrmComponent> pool) where T : ICrmComponent
-        {
-            try
-            {
-                var original = pool.First(c => c is T);
-                var clone = mapper.Map<T>(original);
-
-                Console.WriteLine($"\nOriginal {typeof(T).Name} Id is {original.Id}");
-                Console.WriteLine($"Clone {typeof(T).Name} Id is {clone.Id}");
-                Console.WriteLine($"Messing with Clone {typeof(T).Name} Id ...");
-                clone.Id = Guid.Empty;
-                Console.WriteLine($"Original {typeof(T).Name} Id is {original.Id}");
-                Console.WriteLine($"Clone {typeof(T).Name} Id is {clone.Id}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"\n{ex.Message}\n");
-            }
-        }
-
     }
 }

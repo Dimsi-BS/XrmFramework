@@ -12,10 +12,10 @@ namespace XrmFramework.DeployUtils.Context
         public DiffPatch(IEnumerable<DiffComponent> diffList)
         {
             _diffResults = diffList;
-            var targetPluginAssemblyDiff = _diffResults.FirstOrDefault(d => d.Component is PluginAssembly);
+            var targetPluginAssemblyDiff = _diffResults.FirstOrDefault(d => d.Component is AssemblyInfo);
             if (targetPluginAssemblyDiff != null)
             {
-                PluginAssembly = (PluginAssembly)targetPluginAssemblyDiff.Component;
+                PluginAssembly = (AssemblyInfo)targetPluginAssemblyDiff.Component;
                 PluginAssembly.RegistrationState = targetPluginAssemblyDiff.DiffResult;
                 targetPluginAssemblyDiff.DiffResult = RegistrationState.Computed;
                 foreach (var diffComponent in _diffResults)
@@ -33,7 +33,7 @@ namespace XrmFramework.DeployUtils.Context
             }
         }
 
-        public PluginAssembly PluginAssembly { get; }
+        public AssemblyInfo PluginAssembly { get; }
 
         public IEnumerable<ICrmComponent> GetComponentsWhere(Func<DiffComponent, bool> predicate)
         {

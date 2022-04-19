@@ -20,7 +20,7 @@ namespace XrmFramework.DeployUtils.Utils
             _mapper = mapper;
         }
 
-        public PluginAssembly CreateAssemblyFromLocal(Assembly assembly)
+        public IAssemblyContext CreateAssemblyFromLocal(Assembly assembly)
         {
             var fullNameSplit = assembly.FullName.Split(',');
 
@@ -30,9 +30,8 @@ namespace XrmFramework.DeployUtils.Utils
             var publicKeyToken = fullNameSplit[3].Substring(fullNameSplit[3].IndexOf('=') + 1);
             var description = string.Format("{0} plugin assembly", name);
 
-            var t = new PluginAssembly()
+            var t = new AssemblyInfo()
             {
-                Id = Guid.NewGuid(),
                 Name = name,
                 SourceType = new OptionSetValue((int)Deploy.pluginassembly_sourcetype.Database),
                 IsolationMode = new OptionSetValue((int)Deploy.pluginassembly_isolationmode.Sandbox),
@@ -41,15 +40,19 @@ namespace XrmFramework.DeployUtils.Utils
                 Version = version,
                 Description = description,
                 Content = File.ReadAllBytes(assembly.Location)
-                //Convert.ToBase64String(File.ReadAllBytes(assembly.Location))
+            };
+            var context = new AssemblyContext()
+            {
+                AssemblyInfo = t
             };
 
-            return t;
+            return context;
         }
 
-        public PluginAssembly CreateAssemblyFromRemote(Deploy.PluginAssembly assembly)
+        public IAssemblyContext CreateAssemblyFromRemote(Deploy.PluginAssembly assembly)
         {
-            return _mapper.Map<PluginAssembly>(assembly);
+            var info = _mapper.Map<AssemblyInfo>(assembly);
+            return _mapper.Map<IAssemblyContext>(info);
         }
 
         public Plugin CreatePluginFromType(Type type)
@@ -274,11 +277,11 @@ namespace XrmFramework.DeployUtils.Utils
             {
                 if (argument.IsInArgument)
                 {
-                    customApi.Arguments.Add(FromXrmFrameworkArgument<CustomApiRequestParameter>(customApi.Name, argument));
+                    customApi.AddChild(FromXrmFrameworkArgument<CustomApiRequestParameter>(customApi.Name, argument));
                 }
                 else
                 {
-                    customApi.Arguments.Add(FromXrmFrameworkArgument<CustomApiResponseProperty>(customApi.Name, argument));
+                    customApi.AddChild(FromXrmFrameworkArgument<CustomApiResponseProperty>(customApi.Name, argument));
                 }
             }
             customApi.Id = Guid.NewGuid();
@@ -290,8 +293,6 @@ namespace XrmFramework.DeployUtils.Utils
         {
             var res = new T
             {
-                Id = Guid.NewGuid(),
-                ParentId = Guid.NewGuid(),
                 Description = string.IsNullOrWhiteSpace(argument.Description) ? $"{customApiName}.{argument.ArgumentName}" : argument.Description,
                 UniqueName = $"{customApiName}.{argument.ArgumentName}",
                 DisplayName = string.IsNullOrWhiteSpace(argument.DisplayName) ? $"{customApiName}.{argument.ArgumentName}" : argument.DisplayName,
