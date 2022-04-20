@@ -1,13 +1,10 @@
-﻿using System;
+﻿using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Workflow;
+using System;
 using System.Activities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Workflow;
-using XrmFramework.DeployUtils;
-using XrmFramework.DeployUtils.Model;
-using XrmFramework.RemoteDebugger;
 
 namespace XrmFramework.RemoteDebugger.Common
 {
@@ -28,7 +25,7 @@ namespace XrmFramework.RemoteDebugger.Common
             //RegistrationHelper<XrmFramework.RemoteDebuggerPlugin>
 
 
-            RegistrationHelper.UpdateRemoteDebuggerPlugin<P>(solutionName);
+            //RegistrationHelper.UpdateRemoteDebuggerPlugin<P>(solutionName);
             Manager.ContextReceived += remoteContext =>
                 {
                     // Create local service provider from remote context
@@ -39,12 +36,12 @@ namespace XrmFramework.RemoteDebugger.Common
                     var pluginExecutionTask = Task.Run(() =>
                     {
                         // Get the assembly qualified name of the plugin to be executed
-                        var typeQualifiedName = remoteContext.TypeAssemblyQualifiedName.Split(new [] {", "}, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        var typeQualifiedName = remoteContext.TypeAssemblyQualifiedName.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).ToList();
                         // Remove the version part of the list and the public key token
-                        typeQualifiedName.RemoveAll(i => i.StartsWith("Version") || i.StartsWith("PublicKeyToken") );
+                        typeQualifiedName.RemoveAll(i => i.StartsWith("Version") || i.StartsWith("PublicKeyToken"));
                         //Console.WriteLine(typeQualifiedName);
 
-                        
+
                         var typeName = string.Join(", ", typeQualifiedName);
                         // Get the pluginType from the newly constructed typeName
                         var pluginType = Type.GetType(typeName);

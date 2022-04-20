@@ -8,7 +8,7 @@ namespace XrmFramework.Core
     {
         internal readonly SortedList<string, Column> Columns = new();
 
-        public void Add(Column item)
+        public void Add(Column? item)
         {
             if (item == null)
             {
@@ -36,14 +36,6 @@ namespace XrmFramework.Core
             }
         }
 
-        public void MergeColumns(IEnumerable<Column> items)
-        {
-            foreach (var column in items)
-            {
-                Add(column);
-            }
-        }
-
         public void RemoveAll(Func<Column, bool> predicate)
         {
             for (var i = Columns.Values.Count - 1; i >= 0; i--)
@@ -58,15 +50,15 @@ namespace XrmFramework.Core
         public void RemoveNonSelectedColumns()
         {
             List<string> keysToDelete = new List<string>();
-            foreach(var column in Columns)
+            foreach (var column in Columns)
             {
-                if(!column.Value.Selected)
+                if (!column.Value.Selected)
                 {
                     keysToDelete.Add(column.Key);
-                    
+
                 }
             }
-            foreach(var key in keysToDelete)
+            foreach (var key in keysToDelete)
             {
                 Columns.Remove(key);
             }
@@ -103,7 +95,7 @@ namespace XrmFramework.Core
 
         public int Count => Columns.Count;
 
-        public bool IsReadOnly => Columns.Values.IsReadOnly;
+        public bool IsReadOnly => false;
 
         #endregion
     }

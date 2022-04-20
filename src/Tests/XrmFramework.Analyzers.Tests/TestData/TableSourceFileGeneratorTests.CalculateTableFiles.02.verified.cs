@@ -1,23 +1,12 @@
-﻿//HintName: OptionSetDefinition.table.cs
+﻿//HintName: OptionSets.table.cs
+
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel;
 using XrmFramework;
 
-namespace FrameworkTests
+namespace XrmFramework.Definitions
 {
-
-    [OptionSetDefinition("synapselinkprofileentitytype")]
-    public enum SynapseLinkProfileEntityType
-    {
-        [Description("Requested")]
-        Requested = 0,
-    }
-
-    [OptionSetDefinition("synapselinkscheduletype")]
-    public enum SynapseLinkScheduleType
-    {
-        [Description("Snapshot")]
-        Snapshot = 0,
-        [Description("Incrementalupdate")]
-        Incrementalupdate = 1,
-    }
 }

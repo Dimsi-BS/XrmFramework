@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel;
 using XrmFramework;
 
-namespace FrameworkTests
+namespace XrmFramework.Definitions
 {
     [GeneratedCode("XrmFramework", "2.0")]
     [EntityDefinition]
@@ -22,12 +22,11 @@ namespace FrameworkTests
         {
             /// <summary>
             /// 
-            /// Type : Picklist (account|accountcategorycode)
+            /// Type : Picklist (Categorie)
             /// Validity :  Read | Create | Update | AdvancedFind 
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Picklist)]
             [OptionSet(typeof(Categorie))]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string AccountCategoryCode = "accountcategorycode";
 
             /// <summary>
@@ -37,7 +36,6 @@ namespace FrameworkTests
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Uniqueidentifier)]
             [PrimaryAttribute(PrimaryAttributeType.Id)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Id = "accountid";
 
             /// <summary>
@@ -47,7 +45,6 @@ namespace FrameworkTests
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.String)]
             [StringLength(20)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string AccountNumber = "accountnumber";
 
             /// <summary>
@@ -57,7 +54,6 @@ namespace FrameworkTests
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.String)]
             [StringLength(50)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Address1_County = "address1_county";
 
             /// <summary>
@@ -67,7 +63,6 @@ namespace FrameworkTests
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Double)]
             [Range(-90, 90)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Address1_Latitude = "address1_latitude";
 
             /// <summary>
@@ -77,7 +72,6 @@ namespace FrameworkTests
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.String)]
             [StringLength(250)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Address1_Line3 = "address1_line3";
 
             /// <summary>
@@ -87,7 +81,6 @@ namespace FrameworkTests
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.String)]
             [StringLength(20)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Address1_PostalCode = "address1_postalcode";
 
             /// <summary>
@@ -97,17 +90,15 @@ namespace FrameworkTests
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.String)]
             [StringLength(50)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Address1_StateOrProvince = "address1_stateorprovince";
 
             /// <summary>
             /// 
-            /// Type : Picklist (account|address2_freighttermscode)
+            /// Type : Picklist (Adresse2ConditionsDeTransport)
             /// Validity :  Read | Create | Update 
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Picklist)]
             [OptionSet(typeof(Adresse2ConditionsDeTransport))]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Address2_FreightTermsCode = "address2_freighttermscode";
 
             /// <summary>
@@ -118,7 +109,6 @@ namespace FrameworkTests
             [AttributeMetadata(AttributeTypeCode.String)]
             [PrimaryAttribute(PrimaryAttributeType.Name)]
             [StringLength(160)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Name = "name";
 
         }
@@ -439,43 +429,43 @@ namespace FrameworkTests
             [Relationship("lor_tva", EntityRole.Referenced, "lor_tva_compteId_Account", "lor_compteid")]
             public const string lor_tva_compteId_Account = "lor_tva_compteId_Account";
         }
-
-        [OptionSetDefinition(AccountDefinition.EntityName, AccountDefinition.Columns.AccountCategoryCode)]
-        public enum Categorie
-        {
-            Null = 0,
-            [Description("ClientFavori")]
-            ClientFavori = 1,
-            [Description("Standard")]
-            Standard = 2,
-        }
-
-
-
-
-
-
-
-        [OptionSetDefinition(AccountDefinition.EntityName, AccountDefinition.Columns.Address2_FreightTermsCode)]
-        public enum Adresse2ConditionsDeTransport
-        {
-            Null = 0,
-            [Description("ValeurParDefaut")]
-            ValeurParDefaut = 1,
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
+
+    [OptionSetDefinition(AccountDefinition.EntityName, AccountDefinition.Columns.AccountCategoryCode)]
+    public enum Categorie
+    {
+        Null = 0,
+        [Description("ClientFavori")]
+        ClientFavori = 1,
+        [Description("Standard")]
+        Standard = 2,
+    }
+
+
+
+
+
+
+
+    [OptionSetDefinition(AccountDefinition.EntityName, AccountDefinition.Columns.Address2_FreightTermsCode)]
+    public enum Adresse2ConditionsDeTransport
+    {
+        Null = 0,
+        [Description("ValeurParDefaut")]
+        ValeurParDefaut = 1,
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

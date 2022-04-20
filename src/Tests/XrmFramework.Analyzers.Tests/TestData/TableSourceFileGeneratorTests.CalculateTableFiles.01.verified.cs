@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel;
 using XrmFramework;
 
-namespace FrameworkTests
+namespace XrmFramework.Definitions
 {
     [GeneratedCode("XrmFramework", "2.0")]
     [EntityDefinition]
@@ -27,7 +27,6 @@ namespace FrameworkTests
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Lookup)]
             [CrmLookup("ftp_agentimmobilier","ftp_agent",RelationshipName = ManyToOneRelationships.ftp_ContratdeLocation_Agent_ftp_AgentImmo)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Agent = "ftp_agent";
 
             /// <summary>
@@ -37,7 +36,6 @@ namespace FrameworkTests
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Uniqueidentifier)]
             [PrimaryAttribute(PrimaryAttributeType.Id)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Id = "ftp_contratdelocationid";
 
             /// <summary>
@@ -47,7 +45,6 @@ namespace FrameworkTests
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Lookup)]
             [CrmLookup(ParticulierDefinition.EntityName,ParticulierDefinition.Columns.Id,RelationshipName = ManyToOneRelationships.ftp_ContratdeLocation_Locataire_ftp_Parti)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Locataire = "ftp_locataire";
 
             /// <summary>
@@ -57,7 +54,6 @@ namespace FrameworkTests
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Integer)]
             [Range(0, 2000)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Loyer = "ftp_loyer";
 
             /// <summary>
@@ -68,7 +64,6 @@ namespace FrameworkTests
             [AttributeMetadata(AttributeTypeCode.String)]
             [PrimaryAttribute(PrimaryAttributeType.Name)]
             [StringLength(100)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Name = "ftp_name";
 
         }
@@ -118,7 +113,7 @@ namespace FrameworkTests
             [Relationship("duplicaterecord", EntityRole.Referenced, "ftp_contratdelocation_DuplicateBaseRecord", "baserecordid")]
             public const string ftp_contratdelocation_DuplicateBaseRecord = "ftp_contratdelocation_DuplicateBaseRecord";
         }
-
-
     }
+
+
 }

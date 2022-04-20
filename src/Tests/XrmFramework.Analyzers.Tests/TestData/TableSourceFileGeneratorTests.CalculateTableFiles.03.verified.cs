@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.ComponentModel;
 using XrmFramework;
 
-namespace FrameworkTests
+namespace XrmFramework.Definitions
 {
     [GeneratedCode("XrmFramework", "2.0")]
     [EntityDefinition]
@@ -27,7 +27,6 @@ namespace FrameworkTests
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Integer)]
             [Range(100, 2000)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Budgetparmois = "ftp_budgetparmois";
 
             /// <summary>
@@ -38,7 +37,6 @@ namespace FrameworkTests
             [AttributeMetadata(AttributeTypeCode.String)]
             [PrimaryAttribute(PrimaryAttributeType.Name)]
             [StringLength(100)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Name = "ftp_name";
 
             /// <summary>
@@ -48,7 +46,6 @@ namespace FrameworkTests
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Uniqueidentifier)]
             [PrimaryAttribute(PrimaryAttributeType.Id)]
-            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
             public const string Id = "ftp_particulierid";
 
         }
@@ -100,7 +97,7 @@ namespace FrameworkTests
             [Relationship(ContratdelocationDefinition.EntityName, EntityRole.Referenced, "ftp_ContratdeLocation_Proprietaire_ftp_Pa", "ftp_proprietaire")]
             public const string ftp_ContratdeLocation_Proprietaire_ftp_Pa = "ftp_ContratdeLocation_Proprietaire_ftp_Pa";
         }
-
-
     }
+
+
 }
