@@ -36,6 +36,7 @@ public class AssemblyExporter : IAssemblyExporter
             customApi.ParentId = id;
         }
 
+        component.Id = Guid.Empty;
         var registeringComponent = _converter.ToRegisterComponent(component);
         component.Id = _registrationService.Create(registeringComponent);
         registeringComponent.Id = component.Id;

@@ -72,7 +72,7 @@ namespace XrmFramework.DeployUtils.Utils
             return debugAssemblyParsed;
         }
 
-        public IAssemblyContext CreateDebugAssemblyFromAssembly(IAssemblyContext from, Type TPlugin)
+        public IAssemblyContext WrapDebugDiffForDebugDeploy(IAssemblyContext from, Guid debugPluginId, Type TPlugin)
         {
             var debugAssembly = _mapper.Map<IAssemblyContext>(from);
 
@@ -101,10 +101,18 @@ namespace XrmFramework.DeployUtils.Utils
             }
 
             debugPlugin.ParentId = from.AssemblyInfo.Id;
-            debugPlugin.Id = from.Plugins.First().Id;
+            debugPlugin.Id = debugPluginId;
             debugAssembly.Plugins.Add(debugPlugin);
+            debugAssembly.RegistrationState = RegistrationState.Computed;
 
             return debugAssembly;
+        }
+
+        public IAssemblyContext WrapDiffAssemblyForDebugDiff(IAssemblyContext deployAssemblyDiff)
+        {
+            var assemblyToDebug = _mapper.Map<IAssemblyContext>(deployAssemblyDiff);
+            assemblyToDebug.CleanChildrenWithState(RegistrationState.ToDelete);
+            return assemblyToDebug;
         }
     }
 }

@@ -29,6 +29,8 @@ namespace XrmFramework.DeployUtils.Utils
                 case StepImage image:
                     return _stepComparer.Equals(image.FatherStep, ((StepImage)y).FatherStep)
                          && image.IsPreImage == ((StepImage)y).IsPreImage;
+                case AssemblyInfo:
+                    return true;
                 default:
                     return x.UniqueName == y.UniqueName;
             }

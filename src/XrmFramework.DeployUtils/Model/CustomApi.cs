@@ -8,16 +8,16 @@ namespace XrmFramework.DeployUtils.Model
 {
     public partial class CustomApi : ICrmComponent
     {
-        private List<CustomApiRequestParameter> InArguments { get; } = new List<CustomApiRequestParameter>();
-        private List<CustomApiResponseProperty> OutArguments { get; } = new List<CustomApiResponseProperty>();
+        private readonly List<CustomApiRequestParameter> _inArguments = new();
+        private readonly List<CustomApiResponseProperty> _outArguments = new();
 
         public IEnumerable<ICrmComponent> Children
         {
             get
             {
                 var args = new List<ICrmComponent>();
-                args.AddRange(InArguments);
-                args.AddRange(OutArguments);
+                args.AddRange(_inArguments);
+                args.AddRange(_outArguments);
                 return args;
             }
         }
@@ -27,19 +27,29 @@ namespace XrmFramework.DeployUtils.Model
             switch (child)
             {
                 case CustomApiRequestParameter req:
-                    InArguments.Add(req);
+                    _inArguments.Add(req);
                     break;
                 case CustomApiResponseProperty rep:
-                    OutArguments.Add(rep);
+                    _outArguments.Add(rep);
                     break;
                 default:
                     throw new ArgumentException("CustomApi doesn't take this type of children");
             }
         }
 
-        public void RemoveChild(ICrmComponent child)
+        private void RemoveChild(ICrmComponent child)
         {
-            throw new NotImplementedException();
+            switch (child)
+            {
+                case CustomApiRequestParameter req:
+                    _inArguments.Remove(req);
+                    break;
+                case CustomApiResponseProperty rep:
+                    _outArguments.Remove(rep);
+                    break;
+                default:
+                    throw new ArgumentException("CustomApi doesn't have this type of children");
+            }
         }
 
         public void CleanChildrenWithState(RegistrationState state)
@@ -71,11 +81,11 @@ namespace XrmFramework.DeployUtils.Model
             get => _id;
             set
             {
-                foreach (var req in InArguments)
+                foreach (var req in _inArguments)
                 {
                     req.ParentId = value;
                 }
-                foreach (var rep in OutArguments)
+                foreach (var rep in _outArguments)
                 {
                     rep.ParentId = value;
                 }

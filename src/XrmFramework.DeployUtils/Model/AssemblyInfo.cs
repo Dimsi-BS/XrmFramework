@@ -18,6 +18,8 @@ namespace XrmFramework.DeployUtils.Model
         public IEnumerable<ICrmComponent> Children => new List<ICrmComponent>();
         public void AddChild(ICrmComponent child) => throw new ArgumentException("AssemblyInfo doesn't take children");
 
+        public void CleanChildrenWithState(RegistrationState state) { }
+
         public int Rank => 0;
         public bool DoAddToSolution => true;
         public bool DoFetchTypeCode => false;

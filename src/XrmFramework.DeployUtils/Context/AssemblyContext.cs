@@ -102,15 +102,15 @@ namespace XrmFramework.DeployUtils.Context
                 case Plugin plugin:
                     if (plugin.IsWorkflow)
                     {
-                        _workflows.RemoveAll(w => w.Id == plugin.Id);
+                        _workflows.Remove(plugin);
                     }
-                    else _plugins.RemoveAll(p => p.Id == plugin.Id);
+                    else _plugins.Remove(plugin);
                     break;
                 case CustomApi api:
-                    _customApis.RemoveAll(c => c.Id == api.Id);
+                    _customApis.Remove(api);
                     break;
                 default:
-                    throw new ArgumentException("AssemblyContext doesn't take this type of children");
+                    throw new ArgumentException("AssemblyContext doesn't have this type of children");
             }
         }
 

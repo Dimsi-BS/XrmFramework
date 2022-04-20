@@ -97,14 +97,16 @@ If ok press any key.");
 
                 _assemblyExporter.CreateComponent(strategy.AssemblyInfo);
                 strategy.RegistrationState = RegistrationState.Computed;
+                return;
             }
-            else if (strategy.RegistrationState == RegistrationState.ToUpdate)
+
+            Console.WriteLine();
+            Console.WriteLine(@"Cleaning Assembly");
+
+            CleanAssembly(strategy);
+
+            if (strategy.RegistrationState == RegistrationState.ToUpdate)
             {
-                Console.WriteLine();
-                Console.WriteLine(@"Cleaning Assembly");
-
-                CleanAssembly(strategy);
-
                 Console.WriteLine();
                 Console.WriteLine("Updating plugin assembly");
 

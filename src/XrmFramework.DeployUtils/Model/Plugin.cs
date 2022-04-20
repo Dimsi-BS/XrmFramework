@@ -59,7 +59,8 @@ namespace XrmFramework.DeployUtils.Model
 
         public void RemoveChild(ICrmComponent child)
         {
-            throw new NotImplementedException();
+            if (child is not Step step) throw new ArgumentException("Plugin doesn't have this type of children");
+            Steps.Remove(step);
         }
 
         public void CleanChildrenWithState(RegistrationState state)

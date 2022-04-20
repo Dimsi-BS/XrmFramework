@@ -48,9 +48,14 @@ namespace XrmFramework.DeployUtils
 
             Console.WriteLine("Computing Difference With Local Assembly...");
 
-            var deployDiffAssembly = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(localAssembly, registeredAssembly);
+            var deployAssemblyDiff = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(localAssembly, registeredAssembly);
 
-            //var patchAsAssembly = _assemblyFactory.CreateFromDeployPatch(deployPatch);
+            // We can remove now the diff components that are Ignore and whose children are too (recursively)
+            // They would only get in the way otherwise
+
+            deployAssemblyDiff.CleanChildrenWithState(RegistrationState.Ignore);
+
+            var assemblyToDebug = _assemblyFactory.WrapDiffAssemblyForDebugDiff(deployAssemblyDiff);
 
             Console.WriteLine("Fetching Debug Assembly...");
 
@@ -58,12 +63,12 @@ namespace XrmFramework.DeployUtils
 
             Console.WriteLine("Computing Difference With Debug Assembly...");
 
-            //var remoteDebugPatch = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(patchAsAssembly, debugAssembly);
+            var remoteDebugDiff = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(assemblyToDebug, debugAssembly);
 
-            //_registrationStrategy = WrapRemoteDebugPatch(remoteDebugPatch, debugPluginId, typeof(TPlugin));
+            var debugStrategy = _assemblyFactory.WrapDebugDiffForDebugDeploy(remoteDebugDiff, debugPluginId, typeof(TPlugin));
 
             Console.WriteLine("Updating the Remote Debugger Plugin...");
-            //ExecuteRegistrationStrategy();
+            ExecuteRegistrationStrategy(debugStrategy);
 
             Console.WriteLine("Updating the Debug Session...");
 

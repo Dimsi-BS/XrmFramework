@@ -129,8 +129,8 @@ namespace XrmFramework.DeployUtils.Model
             get
             {
                 var res = new List<ICrmComponent>();
-                if (PreImage.IsUsed || PreImage.RegistrationState == RegistrationState.ToDelete) res.Add(PreImage);
-                if (PostImage.IsUsed || PostImage.RegistrationState == RegistrationState.ToDelete) res.Add(PostImage);
+                if ((PreImage.IsUsed && PreImage.RegistrationState != RegistrationState.Computed) || PreImage.RegistrationState == RegistrationState.ToDelete) res.Add(PreImage);
+                if ((PostImage.IsUsed && PostImage.RegistrationState != RegistrationState.Computed) || PostImage.RegistrationState == RegistrationState.ToDelete) res.Add(PostImage);
                 return res;
             }
         }
@@ -147,11 +147,6 @@ namespace XrmFramework.DeployUtils.Model
             }
         }
 
-        public void RemoveChild(ICrmComponent child)
-        {
-            throw new NotImplementedException();
-        }
-
         public void CleanChildrenWithState(RegistrationState state)
         {
             foreach (var child in Children)
@@ -159,7 +154,7 @@ namespace XrmFramework.DeployUtils.Model
                 child.CleanChildrenWithState(state);
                 if (!child.Children.Any() && child.RegistrationState == state)
                 {
-                    RemoveChild(child);
+                    child.RegistrationState = RegistrationState.Computed;
                 }
             }
         }

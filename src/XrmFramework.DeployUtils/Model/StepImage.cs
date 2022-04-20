@@ -43,22 +43,7 @@ namespace XrmFramework.DeployUtils.Model
         public IEnumerable<ICrmComponent> Children => new List<ICrmComponent>();
         public void AddChild(ICrmComponent child) => throw new ArgumentException("StepImage doesn't take children");
 
-        public void RemoveChild(ICrmComponent child)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void CleanChildrenWithState(RegistrationState state)
-        {
-            foreach (var child in Children)
-            {
-                child.CleanChildrenWithState(state);
-                if (!child.Children.Any() && child.RegistrationState == state)
-                {
-                    RemoveChild(child);
-                }
-            }
-        }
+        public void CleanChildrenWithState(RegistrationState state) { }
 
         public int Rank => 3;
         public bool DoAddToSolution => false;
