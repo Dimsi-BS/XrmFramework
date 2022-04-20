@@ -8,6 +8,7 @@ namespace XrmFramework.RemoteDebugger
     [Serializable]
     public class RemoteDebugExecutionContext : IExecutionContext, IPluginExecutionContext, IWorkflowContext
     {
+        // Execution context to replicate the CrmContext
         public RemoteDebugExecutionContext() { }
 
         public RemoteDebugExecutionContext(IExecutionContext context)

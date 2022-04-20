@@ -18,8 +18,14 @@
 
     <NoWarn>$(NoWarn);1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	  
   </PropertyGroup>
 
+
+	<ItemGroup>
+		<ProjectReference Include="..\XrmFramework.Core\XrmFramework.Core.csproj" />
+		<ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj" />
+	</ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\AliasedValueConverter.cs" Link="Converters\AliasedValueConverter.cs" />
