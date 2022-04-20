@@ -41,17 +41,22 @@ namespace XrmFramework.DeployUtils.Utils
                 Description = description,
                 Content = File.ReadAllBytes(assembly.Location)
             };
-            var context = new AssemblyContext()
-            {
-                AssemblyInfo = t
-            };
 
-            return context;
+            return _mapper.Map<IAssemblyContext>(t);
         }
 
         public IAssemblyContext CreateAssemblyFromRemote(Deploy.PluginAssembly assembly)
         {
-            var info = _mapper.Map<AssemblyInfo>(assembly);
+            AssemblyInfo info;
+            if (assembly != null)
+            {
+                info = _mapper.Map<AssemblyInfo>(assembly);
+            }
+            else
+            {
+                info = new AssemblyInfo();
+            }
+
             return _mapper.Map<IAssemblyContext>(info);
         }
 

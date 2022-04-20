@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
@@ -54,8 +53,6 @@ namespace XrmFramework.DeployUtils.Utils
                 case CustomApi api:
                     return NeedsUpdate(api, (CustomApi)y);
                 case AssemblyInfo:
-                    return true;
-                case AssemblyContext:
                     return true;
                 default:
                     throw new ArgumentException("SolutionComponent not recognised");

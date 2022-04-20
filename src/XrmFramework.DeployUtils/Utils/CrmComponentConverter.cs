@@ -46,23 +46,6 @@ namespace XrmFramework.DeployUtils.Utils
             }
         }
 
-
-        private static Deploy.PluginAssembly ToRegisterPluginAssembly(AssemblyInfo assembly)
-        {
-            var pluginAssembly = new Deploy.PluginAssembly()
-            {
-                Name = assembly.Name,
-                SourceType = assembly.SourceType,
-                IsolationMode = assembly.IsolationMode,
-                Culture = assembly.Culture,
-                PublicKeyToken = assembly.PublicKeyToken,
-                Version = assembly.Version,
-                Description = assembly.Description,
-                Content = Convert.ToBase64String(assembly.Content)
-            };
-            return pluginAssembly;
-        }
-
         public Deploy.PluginType ToRegisterPluginType(Plugin plugin)
         {
             var t = new Deploy.PluginType

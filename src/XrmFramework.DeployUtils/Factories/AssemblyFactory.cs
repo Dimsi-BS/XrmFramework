@@ -57,9 +57,11 @@ namespace XrmFramework.DeployUtils.Utils
         {
             var assembly = service.GetAssemblyByName(assemblyName);
 
+            var registeredAssembly = _importer.CreateAssemblyFromRemote(assembly);
+
             if (assembly == null)
             {
-                return new AssemblyContext();
+                return registeredAssembly;
             }
 
             Console.WriteLine("Remote Assembly Exists, Fetching Components...");
@@ -91,7 +93,6 @@ namespace XrmFramework.DeployUtils.Utils
                 .Select(c => _importer.CreateCustomApiFromRemote(c, registeredRequestParameters, registeredResponseProperties))
                 .ToList();
 
-            var registeredAssembly = _importer.CreateAssemblyFromRemote(assembly);
             plugins.ForEach(registeredAssembly.Plugins.Add);
             customApis.ForEach(registeredAssembly.CustomApis.Add);
             workflows.ForEach(registeredAssembly.Workflows.Add);
