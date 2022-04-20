@@ -68,13 +68,11 @@ namespace XrmFramework.DeployUtils.Configuration
             int i = 0;
             foreach (ConnectionStringSettings connection in connectionStrings.ConnectionStrings)
             {
-                if (connection.Name.StartsWith("Xrm"))
-                {
-                    connectionStringIntDic.Add(i, connection);
-                    connectionStringNameDic.Add(connection.Name, connection);
-                    Console.WriteLine($"\t{i} : {connection.Name}");
-                    i++;
-                }
+                if (!connection.Name.StartsWith("Xrm")) continue;
+                connectionStringIntDic.Add(i, connection);
+                connectionStringNameDic.Add(connection.Name, connection);
+                Console.WriteLine($"\t{i} : {connection.Name}");
+                i++;
             }
 
             Console.WriteLine();
@@ -126,8 +124,15 @@ namespace XrmFramework.DeployUtils.Configuration
                 if (string.IsNullOrEmpty(key)) continue;
                 var value = column.Split('=')[1].Trim();
 
-                if (key.Equals("SharedAccessKeyName")) SasKeyName = value;
-                else if (key.Equals("EntityPath")) entityPath = value;
+                switch (key)
+                {
+                    case "SharedAccessKeyName":
+                        SasKeyName = value;
+                        break;
+                    case "EntityPath":
+                        entityPath = value;
+                        break;
+                }
             }
         }
     }
