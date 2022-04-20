@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.BindingModel;
-using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.DeployUtils.Utils;
@@ -52,7 +50,7 @@ namespace XrmFramework.DeployUtils
 
             var deployPatch = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(localAssembly, registeredAssembly);
 
-            var patchAsAssembly = _assemblyFactory.CreateFromDeployPatch(deployPatch);
+            //var patchAsAssembly = _assemblyFactory.CreateFromDeployPatch(deployPatch);
 
             Console.WriteLine("Fetching Debug Assembly...");
 
@@ -60,9 +58,9 @@ namespace XrmFramework.DeployUtils
 
             Console.WriteLine("Computing Difference With Debug Assembly...");
 
-            var remoteDebugPatch = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(patchAsAssembly, debugAssembly);
+            //var remoteDebugPatch = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(patchAsAssembly, debugAssembly);
 
-            _registrationStrategy = WrapRemoteDebugPatch(remoteDebugPatch, debugPluginId, typeof(TPlugin));
+            //_registrationStrategy = WrapRemoteDebugPatch(remoteDebugPatch, debugPluginId, typeof(TPlugin));
 
             Console.WriteLine("Updating the Remote Debugger Plugin...");
             ExecuteRegistrationStrategy();
@@ -70,41 +68,6 @@ namespace XrmFramework.DeployUtils
             Console.WriteLine("Updating the Debug Session...");
 
             //RegisterStepsToDebugSession(_flatAssemblyContext.Steps);
-        }
-
-        private IDiffPatch WrapRemoteDebugPatch(IDiffPatch remoteDebugPatch, Guid debugPluginId, Type TPlugin)
-        {
-            /*
-                * TODO Now that I know which operations I need to do for each component,
-                * I need to remove the unnecessary Components that went through (PluginAssembly and Plugins), essentially keeping only steps and stepimages
-                * Put the right Plugin Id to each step
-                * Fill the UnsecureConfiguration in each step
-                */
-
-            remoteDebugPatch.SetComputedWhere(c => c.Component.Rank < 2);
-
-            var localPlugins = TPlugin.Assembly.GetTypes();
-
-            var stepsToInit = remoteDebugPatch
-                .GetComponentsWhere(d => d.Component is Step && d.DiffResult == RegistrationState.ToCreate)
-                .Select(s => (Step)s);
-
-            foreach (var step in stepsToInit)
-            {
-                step.ParentId = debugPluginId;
-
-                var assemblyQualifiedName = localPlugins.First(p => p.FullName == step.PluginTypeFullName).AssemblyQualifiedName;
-
-                var config = string.IsNullOrWhiteSpace(step.UnsecureConfig) ? new StepConfiguration() : JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig);
-
-                config.PluginName = step.PluginTypeFullName;
-                config.AssemblyQualifiedName = assemblyQualifiedName;
-                config.DebugSessionId = _debugSessionId;
-
-                step.UnsecureConfig = JsonConvert.SerializeObject(config);
-            }
-
-            return remoteDebugPatch;
         }
 
         private void RegisterStepsToDebugSession(ICollection<Step> steps)

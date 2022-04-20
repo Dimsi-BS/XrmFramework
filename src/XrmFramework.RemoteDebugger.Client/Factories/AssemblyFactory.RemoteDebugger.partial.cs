@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using AutoMapper;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
@@ -13,71 +14,49 @@ namespace XrmFramework.DeployUtils.Utils
     partial class AssemblyFactory
     {
         private readonly Guid _debugSessionId;
-        private readonly ICrmComponentComparer _comparer;
+        private readonly IMapper _mapper;
 
-        public AssemblyFactory(IOptions<DebugSessionSettings> debugSettings, IAssemblyImporter importer, ICrmComponentComparer comparer)
+        public AssemblyFactory(IOptions<DebugSessionSettings> debugSettings,
+                               IAssemblyImporter importer,
+                               IMapper mapper)
         {
             _debugSessionId = debugSettings.Value.DebugSessionId;
             _importer = importer;
-            _comparer = comparer;
+            _mapper = mapper;
         }
 
-        public IAssemblyContext CreateFromDeployPatch(IDiffPatch patch)
-        {
-            var result = new AssemblyContext();
-
-            bool RetrievePredicate(DiffComponent x) => x.DiffResult is RegistrationState.ToCreate or RegistrationState.ToUpdate;
-
-            var stepImagesToKeep = patch
-                .GetComponentsWhere(d => d.Component is StepImage && RetrievePredicate(d));
-
-            var pluginsToKeep = patch
-                .GetComponentsWhere(d => d.Component is Step step
-                                    // Retrieve Steps if they have to be updated or if one of their children has to
-                                    && (RetrievePredicate(d) ||
-                                        step.Children.Any(si => stepImagesToKeep.Contains(si, _comparer))))
-                .Select(s => (Step)s)
-                .GroupBy(s => s.PluginTypeFullName)
-                .Select(stepGroup =>
-                {
-                    var plugin = new Plugin(stepGroup.Key);
-                    foreach (var step in stepGroup)
-                    {
-                        plugin.AddChild(step);
-                    }
-
-                    return plugin;
-                })
-                .ToList();
-
-            result.Assembly = patch.PluginAssembly;
-            pluginsToKeep.ForEach(result.Plugins.Add);
-
-            return result;
-        }
         public IAssemblyContext CreateFromDebugAssembly(IRegistrationService service, string debugAssemblyName, out Guid debugPluginId)
         {
-            var debugAssemblyRaw = CreateFromRemoteAssemblyContext(service, debugAssemblyName);
-            var debugAssemblyParsed = new AssemblyContext();
-            debugPluginId = Guid.Empty;
-            if (debugAssemblyRaw.Assembly == null) return debugAssemblyParsed;
+            var assembly = service.GetAssemblyByName(debugAssemblyName);
 
-            debugAssemblyParsed.Assembly = debugAssemblyRaw.Assembly;
+            var debugAssemblyRaw = _importer.CreateAssemblyFromRemote(assembly);
 
-            var pluginRaw = debugAssemblyRaw.Plugins.FirstOrDefault();
+            if (assembly == null)
+            {
+                debugPluginId = Guid.Empty;
+                return debugAssemblyRaw;
+            }
+
+            Console.WriteLine("Remote Debug Plugin Exists, Fetching Components...");
+
+            FillRemoteAssemblyContext(service, debugAssemblyRaw);
+
+            var debugAssemblyParsed = _importer.CreateAssemblyFromRemote(assembly);
+
+            var pluginRaw = debugAssemblyRaw.Plugins.First();
             debugPluginId = pluginRaw.Id;
 
             var pluginsParsed = pluginRaw.Steps
                 .Select(s => (s, s.StepConfiguration))
-                .Where(su => su.Item2.DebugSessionId == _debugSessionId)
-                .GroupBy(su => su.Item2.PluginName)
+                .Where(su => su.StepConfiguration.DebugSessionId == _debugSessionId)
+                .GroupBy(su => su.StepConfiguration.PluginName)
                 .Select(stepGroup =>
                 {
                     var pluginParsed = new Plugin(stepGroup.Key);
-                    foreach (var step in stepGroup)
+                    foreach (var (s, stepConfiguration) in stepGroup)
                     {
-                        step.s.PluginTypeFullName = step.StepConfiguration.PluginName;
-                        pluginParsed.Steps.Add(step.s);
+                        s.PluginTypeFullName = stepConfiguration.PluginName;
+                        pluginParsed.Steps.Add(s);
                     }
                     pluginParsed.Id = pluginRaw.Id;
 
@@ -87,12 +66,19 @@ namespace XrmFramework.DeployUtils.Utils
 
             pluginsParsed.ForEach(debugAssemblyParsed.Plugins.Add);
 
+            debugAssemblyParsed.Workflows.Clear();
+            debugAssemblyParsed.CustomApis.Clear();
+
             return debugAssemblyParsed;
         }
 
         public IAssemblyContext CreateDebugAssemblyFromAssembly(IAssemblyContext from, Type TPlugin)
         {
-            var debugAssembly = new AssemblyContext();
+            var debugAssembly = _mapper.Map<IAssemblyContext>(from);
+
+            debugAssembly.Plugins.Clear();
+            debugAssembly.Workflows.Clear();
+            debugAssembly.CustomApis.Clear();
 
             var localPlugins = TPlugin.Assembly.GetTypes();
 
@@ -101,7 +87,6 @@ namespace XrmFramework.DeployUtils.Utils
             foreach (var plugin in from.Plugins)
             {
                 var assemblyQualifiedName = localPlugins.FirstOrDefault(p => p.FullName == plugin.FullName)?.AssemblyQualifiedName;
-                var pluginName = plugin.FullName;
 
                 foreach (var step in plugin.Steps)
                 {
@@ -115,7 +100,7 @@ namespace XrmFramework.DeployUtils.Utils
                 }
             }
 
-            debugPlugin.ParentId = from.Assembly.Id;
+            debugPlugin.ParentId = from.AssemblyInfo.Id;
             debugPlugin.Id = from.Plugins.First().Id;
             debugAssembly.Plugins.Add(debugPlugin);
 
