@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
@@ -20,6 +21,23 @@ namespace XrmFramework.DeployUtils.Model
         public Guid ParentId { get; set; }
         public IEnumerable<ICrmComponent> Children => new List<ICrmComponent>();
         public void AddChild(ICrmComponent child) => throw new ArgumentException("CustomApiResponseProperty doesn't take children");
+
+        public void RemoveChild(ICrmComponent child)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CleanChildrenWithState(RegistrationState state)
+        {
+            foreach (var child in Children)
+            {
+                child.CleanChildrenWithState(state);
+                if (!child.Children.Any() && child.RegistrationState == state)
+                {
+                    RemoveChild(child);
+                }
+            }
+        }
 
         public string UniqueName { get; set; }
         public int Rank => 2;

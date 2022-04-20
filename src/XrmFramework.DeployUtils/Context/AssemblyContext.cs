@@ -1,35 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Context
 {
-    class AssemblyContext : IAssemblyContext
+    partial class AssemblyContext : IAssemblyContext
     {
         public AssemblyInfo AssemblyInfo { get; set; } = new();
 
+        private readonly List<Plugin> _plugins = new();
+        private readonly List<CustomApi> _customApis = new();
+        private readonly List<Plugin> _workflows = new();
 
-        public ICollection<Plugin> Plugins { get; } = new List<Plugin>();
-        public ICollection<CustomApi> CustomApis { get; } = new List<CustomApi>();
-        public ICollection<Plugin> Workflows { get; } = new List<Plugin>();
+        public ICollection<Plugin> Plugins => _plugins;
+        public ICollection<CustomApi> CustomApis => _customApis;
+        public ICollection<Plugin> Workflows => _workflows;
 
         public IReadOnlyCollection<ICrmComponent> ComponentsOrderedPool
         {
             get
             {
                 List<ICrmComponent> pool = new() { AssemblyInfo };
-                foreach (var plugin in Plugins)
+                foreach (var plugin in _plugins)
                 {
                     CreateSolutionComponentPoolRecursive(pool, plugin);
                 }
 
-                foreach (var customApi in CustomApis)
+                foreach (var customApi in _customApis)
                 {
                     CreateSolutionComponentPoolRecursive(pool, customApi);
 
                 }
 
-                foreach (var workflow in Workflows)
+                foreach (var workflow in _workflows)
                 {
                     CreateSolutionComponentPoolRecursive(pool, workflow);
                 }
@@ -79,15 +83,46 @@ namespace XrmFramework.DeployUtils.Context
             switch (child)
             {
                 case Plugin plugin:
-                    if (plugin.IsWorkflow) Workflows.Add(plugin);
-                    else Plugins.Add(plugin);
+                    if (plugin.IsWorkflow) _workflows.Add(plugin);
+                    else _plugins.Add(plugin);
                     break;
                 case CustomApi api:
                     api.AssemblyId = Id;
-                    CustomApis.Add(api);
+                    _customApis.Add(api);
                     break;
                 default:
                     throw new ArgumentException("AssemblyContext doesn't take this type of children");
+            }
+        }
+
+        private void RemoveChild(ICrmComponent child)
+        {
+            switch (child)
+            {
+                case Plugin plugin:
+                    if (plugin.IsWorkflow)
+                    {
+                        _workflows.RemoveAll(w => w.Id == plugin.Id);
+                    }
+                    else _plugins.RemoveAll(p => p.Id == plugin.Id);
+                    break;
+                case CustomApi api:
+                    _customApis.RemoveAll(c => c.Id == api.Id);
+                    break;
+                default:
+                    throw new ArgumentException("AssemblyContext doesn't take this type of children");
+            }
+        }
+
+        public void CleanChildrenWithState(RegistrationState state)
+        {
+            foreach (var child in Children)
+            {
+                child.CleanChildrenWithState(state);
+                if (!child.Children.Any() && child.RegistrationState == state)
+                {
+                    RemoveChild(child);
+                }
             }
         }
 

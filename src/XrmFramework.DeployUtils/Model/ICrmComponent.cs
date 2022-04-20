@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace XrmFramework.DeployUtils.Model
 {
-    public interface ICrmComponent
+    public partial interface ICrmComponent
     {
         string UniqueName { get; }
         int Rank { get; }
@@ -15,5 +15,6 @@ namespace XrmFramework.DeployUtils.Model
         string EntityTypeName { get; }
         IEnumerable<ICrmComponent> Children { get; }
         void AddChild(ICrmComponent child);
+        void CleanChildrenWithState(RegistrationState state);
     }
 }

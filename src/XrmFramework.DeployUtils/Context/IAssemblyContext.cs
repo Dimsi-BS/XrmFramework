@@ -3,7 +3,7 @@ using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Context
 {
-    public interface IAssemblyContext : ICrmComponent
+    public partial interface IAssemblyContext : ICrmComponent
     {
         AssemblyInfo AssemblyInfo { get; }
         ICollection<Plugin> Plugins { get; }

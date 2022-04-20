@@ -28,10 +28,10 @@ namespace XrmFramework.DeployUtils.Model
             {
                 FatherStep = this
             };
-        }
+
 
             if (!string.IsNullOrWhiteSpace(EntityName) &&
-                (message == Messages.Associate.ToString() || message == Messages.Disassociate.ToString()))
+                (message == Messages.Associate || message == Messages.Disassociate))
             {
                 EntityName = string.Empty;
 
@@ -42,6 +42,7 @@ namespace XrmFramework.DeployUtils.Model
 
                 UnsecureConfig = JsonConvert.SerializeObject(stepConfig);
             }
+        }
 
 
         public Guid Id
@@ -145,6 +146,24 @@ namespace XrmFramework.DeployUtils.Model
                 PostImage = stepChild;
             }
         }
+
+        public void RemoveChild(ICrmComponent child)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CleanChildrenWithState(RegistrationState state)
+        {
+            foreach (var child in Children)
+            {
+                child.CleanChildrenWithState(state);
+                if (!child.Children.Any() && child.RegistrationState == state)
+                {
+                    RemoveChild(child);
+                }
+            }
+        }
+
         public int Rank => 2;
         public bool DoAddToSolution => true;
         public bool DoFetchTypeCode => false;

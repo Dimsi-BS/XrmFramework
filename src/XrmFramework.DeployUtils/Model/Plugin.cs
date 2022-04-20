@@ -57,6 +57,23 @@ namespace XrmFramework.DeployUtils.Model
             Steps.Add(step);
         }
 
+        public void RemoveChild(ICrmComponent child)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CleanChildrenWithState(RegistrationState state)
+        {
+            foreach (var child in Children)
+            {
+                child.CleanChildrenWithState(state);
+                if (!child.Children.Any() && child.RegistrationState == state)
+                {
+                    RemoveChild(child);
+                }
+            }
+        }
+
         public int Rank => 1;
         public bool DoAddToSolution => false;
         public bool DoFetchTypeCode => false;

@@ -48,7 +48,7 @@ namespace XrmFramework.DeployUtils
 
             Console.WriteLine("Computing Difference With Local Assembly...");
 
-            var deployPatch = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(localAssembly, registeredAssembly);
+            var deployDiffAssembly = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(localAssembly, registeredAssembly);
 
             //var patchAsAssembly = _assemblyFactory.CreateFromDeployPatch(deployPatch);
 
@@ -63,7 +63,7 @@ namespace XrmFramework.DeployUtils
             //_registrationStrategy = WrapRemoteDebugPatch(remoteDebugPatch, debugPluginId, typeof(TPlugin));
 
             Console.WriteLine("Updating the Remote Debugger Plugin...");
-            ExecuteRegistrationStrategy();
+            //ExecuteRegistrationStrategy();
 
             Console.WriteLine("Updating the Debug Session...");
 
