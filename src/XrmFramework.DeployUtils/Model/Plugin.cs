@@ -1,19 +1,23 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
-using Deploy;
+using System.Linq;
+using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
 {
-    public class Plugin
+    public class Plugin : ICrmComponent
     {
-        private Plugin(string fullName)
+        private Guid _id;
+        public string EntityTypeName => PluginTypeDefinition.EntityName;
+        public Plugin(string fullName)
         {
             FullName = fullName;
         }
 
-        private Plugin(string fullName, string displayName) :this(fullName)
+        public Plugin(string fullName, string displayName) : this(fullName)
         {
             DisplayName = displayName;
         }
@@ -24,22 +28,37 @@ namespace XrmFramework.DeployUtils.Model
 
         public string DisplayName { get; }
 
+        public string UniqueName => FullName;
+
+        public Guid Id
+        {
+            get => _id;
+            set
+            {
+                foreach (var step in Steps)
+                {
+                    step.ParentId = value;
+                }
+                _id = value;
+            }
+        }
+
+        public Guid ParentId { get; set; }
+
         public StepCollection Steps { get; } = new StepCollection();
 
+        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
-        public static Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false)
+        public IEnumerable<ICrmComponent> Children => Steps.ToList<ICrmComponent>();
+
+        public void AddChild(ICrmComponent child)
         {
-            var pluginTemp = !isWorkflow ? new Plugin(plugin.GetType().FullName) : new Plugin(plugin.GetType().FullName, plugin.DisplayName);
-
-            if (!isWorkflow)
-            {
-                foreach (var step in plugin.Steps)
-                {
-                    pluginTemp.Steps.Add(Step.FromXrmFrameworkStep(step));
-                }
-            }
-            
-            return pluginTemp;
+            if (child is not Step step) throw new ArgumentException("Plugin doesn't take this type of children");
+            Steps.Add(step);
         }
+
+        public int Rank => 1;
+        public bool DoAddToSolution => false;
+        public bool DoFetchTypeCode => false;
     }
 }

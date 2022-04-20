@@ -5,6 +5,6 @@ namespace XrmFramework
 {
     partial class LocalPluginContext
     {
-                public RemoteDebugExecutionContext RemoteContext => new(PluginExecutionContext);
+        public RemoteDebugExecutionContext RemoteContext => new(PluginExecutionContext);
     }
 }

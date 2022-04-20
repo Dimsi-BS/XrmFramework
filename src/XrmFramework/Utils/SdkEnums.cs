@@ -109,14 +109,14 @@ namespace XrmFramework
         /// An entity name attribute. Value = 20.
         /// </summary>
         EntityName = 20,
-        
+
         /// <summary>
         /// A mulit select Picklist
         /// </summary>
         MultiSelectPicklist = 21
     }
 
-    
+
     //
     // Summary:
     //     Contains values to indicate the role the entity plays in a relationship.
@@ -145,5 +145,15 @@ namespace XrmFramework
         UserLocal = 0,
         DateOnly = 1,
         TimeZoneIndependent = 2
+    }
+
+    public enum RegistrationState
+    {
+        ToCreate,
+        ToUpdate,
+        ToDelete,
+        Ignore,
+        NotComputed,
+        Computed
     }
 }

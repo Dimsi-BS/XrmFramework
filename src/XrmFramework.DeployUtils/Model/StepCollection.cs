@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Model
 {
@@ -8,7 +9,7 @@ namespace XrmFramework.DeployUtils.Model
     {
         private readonly StepComparer _stepComparer = new StepComparer();
 
-        private readonly List<Step> _internalList = new List<Step>();
+        private List<Step> _internalList = new List<Step>();
 
         public void Add(Step step)
         {
@@ -23,7 +24,6 @@ namespace XrmFramework.DeployUtils.Model
                 _internalList.Add(step);
             }
         }
-
 
         #region ICollection Members
         public IEnumerator<Step> GetEnumerator()
@@ -56,37 +56,15 @@ namespace XrmFramework.DeployUtils.Model
             return _internalList.Remove(item);
         }
 
+        //public bool Any(Func<Step, bool> predicate)
+        //{ 
+        //    return _internalList.Any(predicate);
+        //}
+
         public int Count => _internalList.Count;
 
         public bool IsReadOnly => ((ICollection<Step>)_internalList).IsReadOnly;
         #endregion
 
-
-
-        public class StepComparer : IEqualityComparer<Step>
-        {
-            public bool Equals(Step x, Step y)
-            {
-                if (ReferenceEquals(x, y)) return true;
-                if (ReferenceEquals(x, null)) return false;
-                if (ReferenceEquals(y, null)) return false;
-                if (x.GetType() != y.GetType()) return false;
-                return x.PluginTypeName == y.PluginTypeName && x.Message == y.Message && x.Stage == y.Stage && x.Mode == y.Mode && x.EntityName == y.EntityName && x.UnsecureConfig == y.UnsecureConfig;
-            }
-
-            public int GetHashCode(Step obj)
-            {
-                unchecked
-                {
-                    var hashCode = (obj.PluginTypeName != null ? obj.PluginTypeName.GetHashCode() : 0);
-                    hashCode = (hashCode * 397) ^ (obj.Message != null ? obj.Message.GetHashCode() : 0);
-                    hashCode = (hashCode * 397) ^ (int)obj.Stage;
-                    hashCode = (hashCode * 397) ^ (int)obj.Mode;
-                    hashCode = (hashCode * 397) ^ (obj.EntityName != null ? obj.EntityName.GetHashCode() : 0);
-                    hashCode = (hashCode * 397) ^ (obj.UnsecureConfig != null ? obj.UnsecureConfig.GetHashCode() : 0);
-                    return hashCode;
-                }
-            }
-        }
     }
 }

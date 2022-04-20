@@ -100,7 +100,25 @@ namespace XrmFramework.Definitions
 			[StringLength(48)]
 			public const string Version = "version";
 
-		}
+            /// <summary>
+            /// 
+            /// Type : Integer
+            /// Validity :  Read 
+            /// </summary>
+            [AttributeMetadata(AttributeTypeCode.Integer)]
+            [Range(-255, 255)]
+            public const string CustomizationLevel = "customizationlevel";
+
+            /// <summary>
+            /// 
+            /// Type : String
+            /// Validity :  Read | Create | Update 
+            /// </summary>
+            [AttributeMetadata(AttributeTypeCode.String)]
+            [StringLength(1073741823)]
+            public const string Content = "content";
+
+        }
 
 		[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
 		public static class ManyToOneRelationships

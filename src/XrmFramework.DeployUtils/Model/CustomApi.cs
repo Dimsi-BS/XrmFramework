@@ -1,71 +1,82 @@
-﻿using System;
+﻿using Microsoft.Xrm.Sdk;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Microsoft.Xrm.Sdk;
+using XrmFramework.Definitions;
 
-namespace Deploy
+namespace XrmFramework.DeployUtils.Model
 {
-    partial class CustomApi
+    public partial class CustomApi : ICrmComponent
     {
-        public List<CustomApiRequestParameter> InArguments { get; } = new List<CustomApiRequestParameter>();
+        private List<CustomApiRequestParameter> InArguments { get; } = new List<CustomApiRequestParameter>();
+        private List<CustomApiResponseProperty> OutArguments { get; } = new List<CustomApiResponseProperty>();
 
-        public List<CustomApiResponseProperty> OutArguments { get; } = new List<CustomApiResponseProperty>();
-
-
-        public static CustomApi FromXrmFrameworkCustomApi(dynamic record, string prefix)
+        public IEnumerable<ICrmComponent> Children
         {
-            var type = (Type)record.GetType();
-
-            dynamic customApiAttribute = type.GetCustomAttributes().FirstOrDefault(a => a.GetType().FullName == "XrmFramework.CustomApiAttribute");
-
-            if (customApiAttribute == null)
+            get
             {
-                throw new Exception($"The custom api type {type.FullName} must have a CustomApiAttribute defined");
+                var args = new List<ICrmComponent>();
+                args.AddRange(InArguments);
+                args.AddRange(OutArguments);
+                return args;
             }
+        }
 
-            var name = string.IsNullOrWhiteSpace(customApiAttribute.Name) ? type.Name : customApiAttribute.Name;
-
-            var customApi = new CustomApi
+        public void AddChild(ICrmComponent child)
+        {
+            switch (child)
             {
-                DisplayName = string.IsNullOrWhiteSpace(customApiAttribute.DisplayName) ? name: customApiAttribute.DisplayName,
-                Name = name,
-                AllowedCustomProcessingStepType = new OptionSetValue((int)customApiAttribute.AllowedCustomProcessing),
-                BindingType = new OptionSetValue((int)customApiAttribute.BindingType),
-                BoundEntityLogicalName = customApiAttribute.BoundEntityLogicalName,
-                Description = string.IsNullOrWhiteSpace(customApiAttribute.Description) ? name : customApiAttribute.Description,
-                ExecutePrivilegeName = customApiAttribute.ExecutePrivilegeName,
-                IsFunction = customApiAttribute.IsFunction,
-                IsPrivate = customApiAttribute.IsPrivate,
-                UniqueName = $"{prefix}_{name}",
-                WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled,
-                FullName = type.FullName
-            };
-
-            foreach (var argument in record.Arguments)
-            {
-                if (argument.IsInArgument)
-                {
-                    customApi.InArguments.Add(CustomApiRequestParameter.FromXrmFrameworkArgument(customApi.Name, argument));
-                }
-                else
-                {
-                    customApi.OutArguments.Add(CustomApiResponseProperty.FromXrmFrameworkArgument(customApi.Name, argument));
-                }
+                case CustomApiRequestParameter req:
+                    InArguments.Add(req);
+                    break;
+                case CustomApiResponseProperty rep:
+                    OutArguments.Add(rep);
+                    break;
+                default:
+                    throw new ArgumentException("CustomApi doesn't take this type of children");
             }
-
-            return customApi;
         }
 
-        public string FullName
+        public int Rank => 1;
+        public bool DoAddToSolution => true;
+        public bool DoFetchTypeCode => true;
+        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
+
+        public Guid ParentId { get; set; }
+
+        public Guid AssemblyId { get; set; }
+
+        private Guid _id;
+
+        public Guid Id
         {
-            get;
-            set;
+            get => _id;
+            set
+            {
+                foreach (var req in InArguments)
+                {
+                    req.ParentId = value;
+                }
+                foreach (var rep in OutArguments)
+                {
+                    rep.ParentId = value;
+                }
+                _id = value;
+            }
         }
 
-        public string Prefix
-        {
-            set => UniqueName = $"{value}{Name}";
-        }
+        public string FullName { get; set; }
+        public string UniqueName { get; set; }
+        public string EntityTypeName => CustomApiDefinition.EntityName;
+        public string DisplayName { get; set; }
+        public string Name { get; set; }
+
+        public OptionSetValue AllowedCustomProcessingStepType { get; set; }
+        public string BoundEntityLogicalName { get; set; }
+        public OptionSetValue BindingType { get; set; }
+        public string Description { get; set; }
+        public string ExecutePrivilegeName { get; set; }
+        public bool IsFunction { get; set; }
+        public bool IsPrivate { get; set; }
+        public bool WorkflowSdkStepEnabled { get; set; }
     }
 }

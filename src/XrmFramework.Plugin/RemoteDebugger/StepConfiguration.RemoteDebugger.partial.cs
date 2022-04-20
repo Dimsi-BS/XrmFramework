@@ -1,8 +1,21 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 
 namespace XrmFramework
 {
-    partial class StepConfiguration
+    public partial class StepConfiguration
     {
+        [JsonProperty("debugSessions")]
+        public List<Guid> DebugSessionIds { get; set; }
+
+        [JsonProperty("pluginName")]
+        public string PluginName { get; set; }
+
+        [JsonProperty("assemblyQualifiedName")]
+        public string AssemblyQualifiedName { get; set; }
+
+        [JsonProperty("debugSessionId")]
+        public Guid DebugSessionId { get; set; }
     }
 }

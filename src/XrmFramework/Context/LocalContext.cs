@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using BoDi;
+using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using BoDi;
-using Microsoft.Xrm.Sdk;
 using XrmFramework.Definitions;
 
 namespace XrmFramework
@@ -43,7 +43,7 @@ namespace XrmFramework
         public string OrganizationName => ExecutionContext.OrganizationName;
 
         //public Guid CorrelationId => ExecutionContext.CorrelationId;
-        
+
         public LocalContext(IServiceProvider serviceProvider) : this()
         {
             if (serviceProvider == null)

@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
+using System;
 
 namespace XrmFramework
 {
@@ -107,6 +107,40 @@ namespace XrmFramework
 
             return isValid;
         }
+
+        public void LogStart()
+        {
+            Log($"Entity: {PrimaryEntityName}, Message: {MessageName}, Stage: {Enum.ToObject(typeof(Stages), Stage)}, Mode: {Mode}");
+
+            Log($"\r\nUserId\t\t\t{UserId}\r\nInitiatingUserId\t{InitiatingUserId}");
+            Log($"\r\nStart : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}");
+        }
+
+        public void LogExit()
+        {
+            Log($"End : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}\r\n");
+        }
+
+        public void LogContextEntry()
+        {
+            Log("------------------ Input Variables (before) ------------------");
+            DumpInputParameters();
+            Log("\r\n------------------ Shared Variables (before) ------------------");
+            DumpSharedVariables();
+            Log("\r\n---------------------------------------------------------------");
+        }
+        public void LogContextExit()
+        {
+            if (IsStage(Stages.PreValidation) || IsStage(Stages.PreOperation))
+            {
+                Log("\r\n\r\n------------------ Input Variables (after) ------------------");
+                DumpInputParameters();
+                Log("\r\n------------------ Shared Variables (after) ------------------");
+                DumpSharedVariables();
+                Log("\r\n---------------------------------------------------------------");
+            }
+        }
+
     }
 
 }

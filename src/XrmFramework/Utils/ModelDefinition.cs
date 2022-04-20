@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,30 +9,31 @@ using XrmFramework.BindingModel;
 
 namespace XrmFramework
 {
+    [JsonObject(MemberSerialization.OptIn)]
+    [JsonArray]
     public class ModelDefinition
     {
-        public Type BindingType { get; }
+        public Type BindingType { get; set; }
+        [JsonProperty]
+        public string TypeFullName { get; set; }
 
-        public Type[] ImplementedInterfaces { get; }
-
-        private readonly IList<AttributeDefinition> _attributes = new List<AttributeDefinition>();
-
+        public Type[] ImplementedInterfaces { get; set; }
+        [JsonProperty]
+        public readonly IList<AttributeDefinition> _attributes = new List<AttributeDefinition>();
         public IReadOnlyCollection<AttributeDefinition> CrmAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.CrmMappingAttribute != null).ToList());
-
         public IReadOnlyCollection<AttributeDefinition> ExtendBindingAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.IsExtendBindingModel).ToList());
-
         public IReadOnlyCollection<AttributeDefinition> RelationshipAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.RelationshipAttribute != null).ToList());
-
         public IReadOnlyCollection<AttributeDefinition> XmlMappingAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.XmlMappingAttribute != null).ToList());
-
         public IReadOnlyCollection<AttributeDefinition> UpsertableAttributes => new ReadOnlyCollection<AttributeDefinition>(_attributes.Where(a => a.IsUpsertable()).ToList());
 
-        public EntityDefinition MainDefinition { get; }
+        [JsonProperty]
+        public EntityDefinition MainDefinition { get; set; }
 
-        public XmlMappingAttribute XmlMappingAttribute { get; private set; }
+        public XmlMappingAttribute XmlMappingAttribute { get; set; }
 
         public ModelDefinition(Type bindingType)
         {
+            /*
             BindingType = bindingType;
             ImplementedInterfaces = bindingType.GetInterfaces();
 
@@ -58,13 +60,27 @@ namespace XrmFramework
 
                 _attributes.Add(attribute);
             }
+            */
         }
 
-        public bool IsBindingModel { get; }
+        [JsonConstructor]
+        public ModelDefinition()
+        {
 
-        private PropertyInfo IdProperty { get; }
+        }
 
-        private ConstructorInfo Constructor { get; }
+
+
+        /*public void AddAttribute(AttributeDefinition attribute)
+        {
+            _attributes.Add(attribute);
+        }*/
+
+        public bool IsBindingModel { get; set; }
+
+        public PropertyInfo IdProperty { get; set; }
+
+        public ConstructorInfo Constructor { get; set; }
 
         public object GetInstance()
         {
@@ -86,36 +102,36 @@ namespace XrmFramework
             return BindingType.Name;
         }
     }
-
+    [JsonObject(MemberSerialization.OptIn)]
     public class AttributeDefinition
     {
-        public ModelDefinition Model { get; private set; }
-        protected PropertyInfo Property { get; private set; }
+        public ModelDefinition Model { get; internal set; }
+
+        public PropertyInfo Property { get; internal set; }
 
         public Type PropertyType => ModelImplementationAttribute?.ImplementationType ?? Property.PropertyType;
 
-        public Type ObjectType { get; private set; }
+        public Type ObjectType { get; internal set; }
 
-        public int? UpsertOrder { get; private set; }
-
+        public int? UpsertOrder { get; internal set; }
+        [JsonProperty]
         public string Name => Property.Name;
+        [JsonProperty]
+        public bool IsNullable { get; internal set; }
 
-        public bool IsNullable { get; private set; }
+        public bool IsExtendBindingModel { get; internal set; }
 
-        public bool IsExtendBindingModel { get; private set; }
+        public CrmModelImplementationAttribute ModelImplementationAttribute { get; internal set; }
 
-        public CrmModelImplementationAttribute ModelImplementationAttribute { get; private set; }
+        public CrmMappingAttribute CrmMappingAttribute { get; internal set; }
 
-        public CrmMappingAttribute CrmMappingAttribute { get; private set; }
-
-        public CrmLookupAttribute CrmLookupAttribute { get; private set; }
-
-        private AttributeDefinition()
+        public CrmLookupAttribute CrmLookupAttribute { get; internal set; }
+        internal AttributeDefinition()
         {
 
         }
 
-        private void InitAttribute(ModelDefinition model, PropertyInfo property)
+        /*private void InitAttribute(ModelDefinition model, PropertyInfo property)
         {
             Model = model;
             Property = property;
@@ -166,21 +182,21 @@ namespace XrmFramework
             {
                 _addMethod = addMethods.Single();
             }
-        }
+        }*/
 
-        public static AttributeDefinition GetDefinition(ModelDefinition model, PropertyInfo property)
+        /*public static AttributeDefinition GetDefinition(ModelDefinition model, PropertyInfo property)
         {
             var attribute = new AttributeDefinition();
 
             attribute.InitAttribute(model, property);
             return attribute;
-        }
+        }*/
 
-        private T GetAttribute<T>(PropertyInfo property) where T : Attribute
+        /*private T GetAttribute<T>(PropertyInfo property) where T : Attribute
         {
             return property.GetCustomAttribute<T>(true)
                    ?? Model.ImplementedInterfaces.FirstOrDefault(t => t.GetProperty(property.Name)?.GetCustomAttribute<T>() != null)?.GetProperty(property.Name)?.GetCustomAttribute<T>();
-        }
+        }*/
 
 
         public void SetValue(object instance, object value)
@@ -205,10 +221,10 @@ namespace XrmFramework
             }
         }
 
-        public override string ToString()
+        /*public override string ToString()
         {
             return $"{PropertyType.Name} {Property.Name}";
-        }
+        }*/
 
         public object GetValue(object instance)
         {
@@ -247,27 +263,28 @@ namespace XrmFramework
 
         public bool IsUpsertable()
         {
+            //IsCollectionProperty(out collectionType)
             Type collectionType;
             return !IsExtendBindingModel && ((CrmMappingAttribute != null && typeof(IBindingModel).IsAssignableFrom(PropertyType)) || (RelationshipAttribute != null && IsCollectionProperty(out collectionType) && typeof(IBindingModel).IsAssignableFrom(collectionType)));
         }
 
-        private ModelPropertyConverter _typeConverter;
+        internal ModelPropertyConverter _typeConverter;
 
         public Relationship Relationship => RelationshipAttribute?.GetRelationship();
 
-        public CrmRelationshipAttribute RelationshipAttribute { get; private set; }
+        public CrmRelationshipAttribute RelationshipAttribute { get; internal set; }
 
         public bool IsBindingModel => typeof(IBindingModel).IsAssignableFrom(PropertyType);
 
         public ModelDefinition TargettedModelDefinition => DefinitionCache.GetModelDefinition(PropertyType);
 
-        private MethodInfo _addMethod;
+        internal MethodInfo _addMethod;
 
         public void AddElement(object instance, object model)
         {
             _addMethod.Invoke(Property.GetValue(instance), new[] { model });
         }
 
-        public XmlMappingAttribute XmlMappingAttribute { get; private set; }
+        public XmlMappingAttribute XmlMappingAttribute { get; set; }
     }
 }

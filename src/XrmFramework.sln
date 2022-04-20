@@ -33,6 +33,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.Core", "XrmFra
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B88F9CEB-5647-49D0-BD31-27E658C52654}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.RemoteDebuggerPlugin", "XrmFramework.RemoteDebuggerPlugin\XrmFramework.RemoteDebuggerPlugin.csproj", "{AE0EA3E1-F398-4A89-BEE4-58386D000433}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.ModelGenerator", "XrmFramework.ModelGenerator\XrmFramework.ModelGenerator.csproj", "{006F4A6D-F6DF-41B1-90E9-4EC138649A72}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C6444169-E29C-4B5B-B5EE-94E5CA4FF836} = {C6444169-E29C-4B5B-B5EE-94E5CA4FF836}
+		{835202F0-C8A3-4E79-A9A5-D69A3080F1AB} = {835202F0-C8A3-4E79-A9A5-D69A3080F1AB}
+	EndProjectSection
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.Tests", "Tests\XrmFramework.Tests\XrmFramework.Tests.csproj", "{F640F8B2-D3B3-4407-85B6-20C490C4CD03}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.Core.Tests", "Tests\XrmFramework.Core.Tests\XrmFramework.Core.Tests.csproj", "{F0F25FBD-4399-4827-9473-6BF7569B5592}"
@@ -81,6 +89,14 @@ Global
 		{77A9EA08-FFA3-4EC5-8CE6-7A9C91DD8691}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77A9EA08-FFA3-4EC5-8CE6-7A9C91DD8691}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77A9EA08-FFA3-4EC5-8CE6-7A9C91DD8691}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE0EA3E1-F398-4A89-BEE4-58386D000433}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE0EA3E1-F398-4A89-BEE4-58386D000433}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE0EA3E1-F398-4A89-BEE4-58386D000433}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE0EA3E1-F398-4A89-BEE4-58386D000433}.Release|Any CPU.Build.0 = Release|Any CPU
+		{006F4A6D-F6DF-41B1-90E9-4EC138649A72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{006F4A6D-F6DF-41B1-90E9-4EC138649A72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{006F4A6D-F6DF-41B1-90E9-4EC138649A72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{006F4A6D-F6DF-41B1-90E9-4EC138649A72}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F640F8B2-D3B3-4407-85B6-20C490C4CD03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F640F8B2-D3B3-4407-85B6-20C490C4CD03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F640F8B2-D3B3-4407-85B6-20C490C4CD03}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -15,9 +15,9 @@ namespace XrmFramework.Definitions
 		public const string EntityName = "sdkmessageprocessingstep";
 		public const string EntityCollectionName = "sdkmessageprocessingsteps";
 
-		[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
-		public static class Columns
-		{
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
+        public static class Columns
+        {
 			/// <summary>
 			/// 
 			/// Type : Boolean
@@ -203,11 +203,27 @@ namespace XrmFramework.Definitions
 			[OptionSet(typeof(SdkmessageprocessingstepState))]
 			public const string StateCode = "statecode";
 
-		}
+            /// <summary>
+            /// 
+            /// Type : Uniqueidentifier
+            /// Validity :  Read 
+            /// </summary>
+            [AttributeMetadata(AttributeTypeCode.Uniqueidentifier)]
+            public const string SolutionId = "solutionid";
 
-		[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
-		public static class ManyToOneRelationships
-		{
+            /// <summary>
+            /// 
+            /// Type : Picklist (Phase)
+            /// Validity :  Read | Create | Update 
+            /// </summary>
+            [AttributeMetadata(AttributeTypeCode.Picklist)]
+            [OptionSet(typeof(Phase))]
+            public const string Stage = "stage";
+        }
+
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
+        public static class ManyToOneRelationships
+        {
 			[Relationship(SystemUserDefinition.EntityName, EntityRole.Referencing, "createdby", "createdby")]
 			public const string createdby_sdkmessageprocessingstep = "createdby_sdkmessageprocessingstep";
 			[Relationship(SystemUserDefinition.EntityName, EntityRole.Referencing, "impersonatinguserid", SdkMessageProcessingStepDefinition.Columns.ImpersonatingUserId)]
@@ -232,13 +248,13 @@ namespace XrmFramework.Definitions
 			public const string sdkmessageprocessingstepsecureconfigid_sdkmessageprocessingstep = "sdkmessageprocessingstepsecureconfigid_sdkmessageprocessingstep";
 			[Relationship("serviceendpoint", EntityRole.Referencing, "eventhandler_serviceendpoint", SdkMessageProcessingStepDefinition.Columns.EventHandler)]
 			public const string serviceendpoint_sdkmessageprocessingstep = "serviceendpoint_sdkmessageprocessingstep";
-		}
+        }
 
-		[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
-		public static class OneToManyRelationships
-		{
-			[Relationship("asyncoperation", EntityRole.Referenced, "SdkMessageProcessingStep_AsyncOperations", "owningextensionid")]
-			public const string SdkMessageProcessingStep_AsyncOperations = "SdkMessageProcessingStep_AsyncOperations";
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
+        public static class OneToManyRelationships
+        {
+            [Relationship("asyncoperation", EntityRole.Referenced, "SdkMessageProcessingStep_AsyncOperations", "owningextensionid")]
+            public const string SdkMessageProcessingStep_AsyncOperations = "SdkMessageProcessingStep_AsyncOperations";
 			[Relationship(SdkMessageProcessingStepImageDefinition.EntityName, EntityRole.Referenced, "sdkmessageprocessingstepid_sdkmessageprocessingstepimage", "sdkmessageprocessingstepid")]
 			public const string sdkmessageprocessingstepid_sdkmessageprocessingstepimage = "sdkmessageprocessingstepid_sdkmessageprocessingstepimage";
 			[Relationship("userentityinstancedata", EntityRole.Referenced, "userentityinstancedata_sdkmessageprocessingstep", "objectid")]

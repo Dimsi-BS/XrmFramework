@@ -29,6 +29,9 @@ namespace XrmFramework.RemoteDebugger
         [CrmMapping(DebugSessionDefinition.Columns.SasConnectionKey)]
         public string SasConnectionKey { get; set; }
 
+        [CrmMapping(DebugSessionDefinition.Columns.StateCode)]
+        public DebugSessionState StateCode { get; set; } 
+
         public Guid Id { get; set; }
 
 
@@ -40,6 +43,7 @@ namespace XrmFramework.RemoteDebugger
             sb.AppendLine($"\tDebugeeId = {DebugeeId}");
             sb.AppendLine($"\tSessionStart = {SessionStart}");
             sb.AppendLine($"\tSessionEnd = {SessionEnd}");
+            sb.AppendLine($"\tState = {Enum.ToObject(typeof(DebugSessionState), StateCode)}");
             sb.AppendLine();
             sb.AppendLine($"\tRelayUrl = {RelayUrl}");
             sb.AppendLine($"\tHybridConnectionName = {HybridConnectionName}");

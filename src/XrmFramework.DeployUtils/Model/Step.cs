@@ -5,18 +5,30 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
 {
-    public class Step
+    public class Step : ICrmComponent
     {
-        public Step(string pluginTypeName, string message, Stages stage, Modes mode, string entityName)
+        private Guid _id;
+
+        public Step(string pluginTypeName, Messages message, Stages stage, Modes mode, string entityName)
         {
             PluginTypeName = pluginTypeName;
             Message = message;
             Stage = stage;
             Mode = mode;
             EntityName = entityName;
+            PreImage = new StepImage(Message, true, stage)
+            {
+                FatherStep = this
+            };
+            PostImage = new StepImage(Message, false, stage)
+            {
+                FatherStep = this
+            };
+        }
 
             if (!string.IsNullOrWhiteSpace(EntityName) &&
                 (message == Messages.Associate.ToString() || message == Messages.Disassociate.ToString()))
@@ -31,14 +43,25 @@ namespace XrmFramework.DeployUtils.Model
                 UnsecureConfig = JsonConvert.SerializeObject(stepConfig);
             }
 
+
+        public Guid Id
+        {
+            get => _id;
+            set
+            {
+                PreImage.ParentId = value;
+                PostImage.ParentId = value;
+                _id = value;
+            }
         }
-
         public string PluginTypeName { get; }
-
-        public string Message { get; }
+        public Messages Message { get; }
         public Stages Stage { get; }
         public Modes Mode { get; }
         public string EntityName { get; }
+
+        public Guid ParentId { get; set; }
+        public string PluginTypeFullName { get; set; }
 
         public Guid MessageId { get; set; }
 
@@ -46,17 +69,9 @@ namespace XrmFramework.DeployUtils.Model
 
         public List<string> FilteringAttributes { get; } = new List<string>();
 
-        public bool PreImageUsed => Message != "Create" && Message != "Book" && (PreImageAllAttributes || PreImageAttributes.Any());
-        public bool PreImageAllAttributes { get; set; }
-        public List<string> PreImageAttributes { get; } = new List<string>();
+        public StepImage PreImage { get; set; }
 
-        public string JoinedPreImageAttributes => string.Join(",", PreImageAttributes);
-
-        public bool PostImageUsed => Stage == Stages.PostOperation && (PostImageAllAttributes || PostImageAttributes.Any());
-        public bool PostImageAllAttributes { get; set; }
-        public List<string> PostImageAttributes { get; } = new List<string>();
-
-        public string JoinedPostImageAttributes => string.Join(",", PostImageAttributes);
+        public StepImage PostImage { get; set; }
 
         public string UnsecureConfig { get; set; }
 
@@ -67,7 +82,10 @@ namespace XrmFramework.DeployUtils.Model
         public List<string> MethodNames { get; } = new List<string>();
         public string MethodsDisplayName => string.Join(",", MethodNames);
 
+        public StepConfiguration StepConfiguration => JsonConvert.DeserializeObject<StepConfiguration>(UnsecureConfig);
 
+
+        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
         public void Merge(Step step)
         {
@@ -78,56 +96,58 @@ namespace XrmFramework.DeployUtils.Model
 
             FilteringAttributes.AddRange(step.FilteringAttributes);
 
-            if (step.PreImageAllAttributes)
+            if (step.PreImage.AllAttributes)
             {
-                PreImageAllAttributes = true;
-                PreImageAttributes.Clear();
+                PreImage.AllAttributes = true;
+                PreImage.Attributes.Clear();
             }
             else
             {
-                PreImageAttributes.AddRange(step.PreImageAttributes);
+                PreImage.Attributes.AddRange(step.PreImage.Attributes);
             }
 
-            if (step.PostImageAllAttributes)
+            if (step.PostImage.AllAttributes)
             {
-                PostImageAllAttributes = true;
-                PostImageAttributes.Clear();
+                PostImage.AllAttributes = true;
+                PostImage.Attributes.Clear();
             }
             else
             {
-                PostImageAttributes.AddRange(step.PostImageAttributes);
+                PostImage.Attributes.AddRange(step.PostImage.Attributes);
             }
 
             MethodNames.AddRange(step.MethodNames);
         }
 
-        public static Step FromXrmFrameworkStep(dynamic s)
+        public string Description => $"{PluginTypeName} : {Stage} {Message} of {EntityName} ({MethodsDisplayName})";
+
+        public string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
+        public string UniqueName => $"{PluginTypeFullName}.{Stage}.{Message}.{EntityName}.{MethodsDisplayName}";
+        public IEnumerable<ICrmComponent> Children
         {
-            var step = new Step(s.Plugin.GetType().Name, s.Message.ToString(), (Stages)(int)s.Stage, (Modes)(int)s.Mode, s.EntityName);
-
-            step.FilteringAttributes.AddRange(s.FilteringAttributes);
-            step.ImpersonationUsername = s.ImpersonationUsername;
-            step.Order = s.Order;
-            step.PostImageAllAttributes = s.PostImageAllAttributes;
-            step.PostImageAttributes.AddRange(s.PostImageAttributes);
-            step.PreImageAllAttributes = s.PreImageAllAttributes;
-            step.PreImageAttributes.AddRange(s.PreImageAttributes);
-
-            if (!string.IsNullOrWhiteSpace(s.UnsecureConfig) && !string.IsNullOrWhiteSpace(step.UnsecureConfig))
+            get
             {
-                var stepConfigIncoming = JsonConvert.DeserializeObject<StepConfiguration>(s.UnsecureConfig);
-
-                var stepConfig = JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig);
-
-                stepConfigIncoming.RelationshipName = stepConfig.RelationshipName;
-
-                step.UnsecureConfig = JsonConvert.SerializeObject(stepConfigIncoming);
+                var res = new List<ICrmComponent>();
+                if (PreImage.IsUsed || PreImage.RegistrationState == RegistrationState.ToDelete) res.Add(PreImage);
+                if (PostImage.IsUsed || PostImage.RegistrationState == RegistrationState.ToDelete) res.Add(PostImage);
+                return res;
             }
-
-            step.MethodNames.AddRange(s.MethodNames);
-
-            return step;
         }
+        public void AddChild(ICrmComponent child)
+        {
+            if (child is not StepImage stepChild) throw new ArgumentException("Step doesn't take this type of children");
+            if (stepChild.IsPreImage)
+            {
+                PreImage = stepChild;
+            }
+            else
+            {
+                PostImage = stepChild;
+            }
+        }
+        public int Rank => 2;
+        public bool DoAddToSolution => true;
+        public bool DoFetchTypeCode => false;
     }
 
 }

@@ -26,44 +26,72 @@ namespace XrmFramework.Definitions
 			[CrmLookup(BusinessUnitDefinition.EntityName, BusinessUnitDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.business_unit_roles)]
 			public const string BusinessUnitId = "businessunitid";
 
-			/// <summary>
-			/// 
-			/// Type : String
-			/// Validity :  Read | Create | Update | AdvancedFind 
-			/// </summary>
-			[AttributeMetadata(AttributeTypeCode.String)]
-			[PrimaryAttribute(PrimaryAttributeType.Name)]
-			[StringLength(100)]
-			public const string Name = "name";
+            /// <summary>
+            /// 
+            /// Type : String
+            /// Validity :  Read | Create | Update | AdvancedFind 
+            /// </summary>
+            [AttributeMetadata(AttributeTypeCode.String)]
+            [PrimaryAttribute(PrimaryAttributeType.Name)]
+            [StringLength(100)]
+            public const string Name = "name";
 
-			/// <summary>
-			/// 
-			/// Type : Lookup
-			/// Validity :  Read | AdvancedFind 
-			/// </summary>
-			[AttributeMetadata(AttributeTypeCode.Lookup)]
-			[CrmLookup(RoleDefinition.EntityName, RoleDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.role_parent_root_role)]
-			public const string ParentRootRoleId = "parentrootroleid";
+            /// <summary>
+            /// 
+            /// Type : Lookup
+            /// Validity :  Read | AdvancedFind 
+            /// </summary>
+            [AttributeMetadata(AttributeTypeCode.Lookup)]
+            [CrmLookup(RoleDefinition.EntityName, RoleDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.role_parent_root_role)]
+            public const string ParentRootRoleId = "parentrootroleid";
 
-			/// <summary>
-			/// 
-			/// Type : Uniqueidentifier
-			/// Validity :  Read | Create | AdvancedFind 
-			/// </summary>
-			[AttributeMetadata(AttributeTypeCode.Uniqueidentifier)]
-			[PrimaryAttribute(PrimaryAttributeType.Id)]
-			public const string Id = "roleid";
+            /// <summary>
+            /// 
+            /// Type : Uniqueidentifier
+            /// Validity :  Read | Create | AdvancedFind 
+            /// </summary>
+            [AttributeMetadata(AttributeTypeCode.Uniqueidentifier)]
+            [PrimaryAttribute(PrimaryAttributeType.Id)]
+            public const string Id = "roleid";
 
-			/// <summary>
-			/// 
-			/// Type : Lookup
-			/// Validity :  Read 
-			/// </summary>
-			[AttributeMetadata(AttributeTypeCode.Lookup)]
-			[CrmLookup("roletemplate", "roletemplateid", RelationshipName = "role_template_roles")]
-			public const string RoleTemplateId = "roletemplateid";
+            /// <summary>
+            /// 
+            /// Type : Lookup
+            /// Validity :  Read 
+            /// </summary>
+            [AttributeMetadata(AttributeTypeCode.Lookup)]
+            [CrmLookup("roletemplate", "roletemplateid", RelationshipName = "role_template_roles")]
+            public const string RoleTemplateId = "roletemplateid";
 
-		}
+            /// <summary>
+            /// 
+            /// Type : Picklist (EtatDuComposant)
+            /// Validity :  Read 
+            /// </summary>
+            [AttributeMetadata(AttributeTypeCode.Picklist)]
+            [OptionSet(typeof(EtatDuComposant))]
+            [AlternateKey(AlternateKeyNames.RoletemplateidBusinessunitLookupKey)]
+            [AlternateKey(AlternateKeyNames.ParentrootroleidBusinessunitLookupKey)]
+            public const string ComponentState = "componentstate";
+
+            /// <summary>
+            /// 
+            /// Type : DateTime
+            /// Validity :  Read 
+            /// </summary>
+            [AttributeMetadata(AttributeTypeCode.DateTime)]
+            [AlternateKey(AlternateKeyNames.RoletemplateidBusinessunitLookupKey)]
+            [AlternateKey(AlternateKeyNames.ParentrootroleidBusinessunitLookupKey)]
+            [DateTimeBehavior(DateTimeBehavior.UserLocal)]
+            public const string OverwriteTime = "overwritetime";
+        }
+
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
+        public static class AlternateKeyNames
+        {
+            public const string ParentrootroleidBusinessunitLookupKey = "parentrootroleid_businessunitid";
+            public const string RoletemplateidBusinessunitLookupKey = "roletemplateid_businessunitid";
+        }
 
 		[SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
 		public static class ManyToManyRelationships
