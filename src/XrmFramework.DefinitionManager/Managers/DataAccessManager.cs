@@ -150,10 +150,6 @@ namespace DefinitionManager
                         newKey.FieldNames.AddRange(key.KeyAttributes);
 
 
-                        if (newEntity.Keys == null)
-                        {
-                            newEntity.Keys = new List<Key>();
-                        }
 
                         newEntity.Keys.Add(newKey);
                     }

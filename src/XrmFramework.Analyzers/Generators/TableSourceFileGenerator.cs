@@ -56,7 +56,6 @@ namespace XrmFramework.Analyzers.Generators
 
 				var scopedEnums = table.Enums.Union(tables.SelectMany(t => t.Enums.Where(e => e.IsGlobal))).ToList();
 
-				sb.AppendLine("");
 				sb.AppendLine("using System;");
 				sb.AppendLine("using System.CodeDom.Compiler;");
 				sb.AppendLine("using System.ComponentModel.DataAnnotations;");

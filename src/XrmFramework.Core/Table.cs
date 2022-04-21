@@ -18,7 +18,7 @@ namespace XrmFramework.Core
         public string CollectionName { get; set; }
 
         [JsonProperty("Cols")]
-        public ICollection<Column> Columns { get; } = new ColumnCollection();
+        public ColumnCollection Columns { get; } = new ColumnCollection();
 
         [JsonProperty("NtoN")]
         public List<Relation> ManyToManyRelationships { get; } = new();
