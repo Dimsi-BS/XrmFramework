@@ -14,7 +14,7 @@ namespace XrmFramework.DeployUtils.Model
             IsPreImage = isPreImage;
         }
 
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         public Guid ParentId { get; set; }
         public Messages Message { get; }

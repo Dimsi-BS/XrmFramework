@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using XrmFramework.BindingModel;
-using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.DeployUtils.Utils;
 using XrmFramework.RemoteDebugger;
@@ -72,15 +70,13 @@ namespace XrmFramework.DeployUtils
 
             Console.WriteLine("Updating the Debug Session...");
 
-            //RegisterStepsToDebugSession(_flatAssemblyContext.Steps);
+            RegisterStepsToDebugSession(deployAssemblyDiff);
         }
 
-        private void RegisterStepsToDebugSession(ICollection<Step> steps)
+        private void RegisterStepsToDebugSession(IAssemblyContext deployDiff)
         {
             var debugSession = _registrationService.GetById<DebugSession>(_debugSessionId);
-            var stepsHashes = steps
-                .Where(s => s.RegistrationState is RegistrationState.ToCreate or RegistrationState.ToUpdate)
-                .Select(s => s.Description.GetHashCode());
+
         }
     }
 }

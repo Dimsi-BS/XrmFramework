@@ -24,12 +24,15 @@ namespace XrmFramework.DeployUtils.Model
 
         public void AddChild(ICrmComponent child)
         {
+
             switch (child)
             {
                 case CustomApiRequestParameter req:
+                    req.ParentId = _id;
                     _inArguments.Add(req);
                     break;
                 case CustomApiResponseProperty rep:
+                    rep.ParentId = _id;
                     _outArguments.Add(rep);
                     break;
                 default:
@@ -70,11 +73,11 @@ namespace XrmFramework.DeployUtils.Model
         public bool DoFetchTypeCode => true;
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
-        public Guid ParentId { get; set; }
+        public Guid ParentId { get; set; } = Guid.NewGuid();
 
         public Guid AssemblyId { get; set; }
 
-        private Guid _id;
+        private Guid _id = Guid.NewGuid();
 
         public Guid Id
         {

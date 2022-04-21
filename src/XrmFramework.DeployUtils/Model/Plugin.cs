@@ -10,6 +10,8 @@ namespace XrmFramework.DeployUtils.Model
 {
     public class Plugin : ICrmComponent
     {
+        public string FullName { get; }
+
         private Guid _id;
         public string EntityTypeName => PluginTypeDefinition.EntityName;
         public Plugin(string fullName)
@@ -24,7 +26,6 @@ namespace XrmFramework.DeployUtils.Model
 
         public bool IsWorkflow => !string.IsNullOrWhiteSpace(DisplayName);
 
-        public string FullName { get; }
 
         public string DisplayName { get; }
 
@@ -49,11 +50,12 @@ namespace XrmFramework.DeployUtils.Model
 
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
-        public IEnumerable<ICrmComponent> Children => Steps.ToList<ICrmComponent>();
+        public IEnumerable<ICrmComponent> Children => Steps;
 
         public void AddChild(ICrmComponent child)
         {
             if (child is not Step step) throw new ArgumentException("Plugin doesn't take this type of children");
+            step.ParentId = _id;
             Steps.Add(step);
         }
 

@@ -11,7 +11,7 @@ namespace XrmFramework.DeployUtils.Model
 {
     public class Step : ICrmComponent
     {
-        private Guid _id;
+        private Guid _id = Guid.NewGuid();
 
         public Step(string pluginTypeName, Messages message, Stages stage, Modes mode, string entityName)
         {

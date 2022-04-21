@@ -6,9 +6,9 @@ using XrmFramework.Definitions;
 namespace XrmFramework.RemoteDebugger
 {
     [CrmEntity(DebugSessionDefinition.EntityName)]
-    public class DebugSession : IBindingModel
+    public partial class DebugSession : IBindingModel
     {
-        [CrmMapping(DebugSessionDefinition.Columns.DebugeeId)] 
+        [CrmMapping(DebugSessionDefinition.Columns.DebugeeId)]
         public Guid DebugeeId { get; set; }
 
         [CrmMapping(DebugSessionDefinition.Columns.CreatedOn)]
@@ -30,7 +30,7 @@ namespace XrmFramework.RemoteDebugger
         public string SasConnectionKey { get; set; }
 
         [CrmMapping(DebugSessionDefinition.Columns.StateCode)]
-        public DebugSessionState StateCode { get; set; } 
+        public DebugSessionState StateCode { get; set; }
 
         public Guid Id { get; set; }
 

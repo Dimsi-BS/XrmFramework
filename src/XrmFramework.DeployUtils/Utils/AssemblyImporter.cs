@@ -219,7 +219,6 @@ namespace XrmFramework.DeployUtils.Utils
                     pluginTemp.Steps.Add(FromXrmFrameworkStep(step));
                 }
             }
-            pluginTemp.Id = Guid.NewGuid();
 
             return pluginTemp;
         }
@@ -242,9 +241,6 @@ namespace XrmFramework.DeployUtils.Utils
             step.UnsecureConfig = s.UnsecureConfig;
 
             step.MethodNames.AddRange(s.MethodNames);
-            step.Id = Guid.NewGuid();
-            step.PreImage.Id = Guid.NewGuid();
-            step.PostImage.Id = Guid.NewGuid();
             return step;
         }
 
@@ -275,7 +271,6 @@ namespace XrmFramework.DeployUtils.Utils
                 UniqueName = $"{_solutionContext.Publisher.CustomizationPrefix}_{name}",
                 WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled,
                 FullName = type.FullName,
-                ParentId = Guid.NewGuid()
             };
 
             foreach (var argument in record.Arguments)
@@ -289,7 +284,6 @@ namespace XrmFramework.DeployUtils.Utils
                     customApi.AddChild(FromXrmFrameworkArgument<CustomApiResponseProperty>(customApi.Name, argument));
                 }
             }
-            customApi.Id = Guid.NewGuid();
 
             return customApi;
         }
