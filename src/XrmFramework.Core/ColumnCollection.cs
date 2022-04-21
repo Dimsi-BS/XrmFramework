@@ -8,7 +8,7 @@ namespace XrmFramework.Core
     {
         internal readonly SortedList<string, Column> Columns = new();
 
-        public void Add(Column item)
+        public void Add(Column? item)
         {
             if (item == null)
             {
@@ -17,12 +17,12 @@ namespace XrmFramework.Core
 
             if (Columns.TryGetValue(item.LogicalName, out var existingColumn))
             {
-                if (item.Selected)
+                if (item.Selected || item.IsLocked)
                 {
                     existingColumn.Name = item.Name;
                     existingColumn.Selected = true;
                 }
-                else if (existingColumn.Selected)
+                else if (existingColumn.Selected || existingColumn.IsLocked)
                 {
                     item.Name = existingColumn.Name;
                     item.Selected = true;
@@ -33,14 +33,6 @@ namespace XrmFramework.Core
             else
             {
                 Columns.Add(item.LogicalName, item);
-            }
-        }
-
-        public void MergeColumns(IEnumerable<Column> items)
-        {
-            foreach (var column in items)
-            {
-                Add(column);
             }
         }
 
@@ -55,6 +47,22 @@ namespace XrmFramework.Core
             }
         }
 
+        public void RemoveNonSelectedColumns()
+        {
+            List<string> keysToDelete = new List<string>();
+            foreach (var column in Columns)
+            {
+                if (!column.Value.Selected)
+                {
+                    keysToDelete.Add(column.Key);
+
+                }
+            }
+            foreach (var key in keysToDelete)
+            {
+                Columns.Remove(key);
+            }
+        }
         #region ICollection implementation
 
         public void Clear() => Columns.Clear();
@@ -73,6 +81,14 @@ namespace XrmFramework.Core
             return Columns.ContainsKey(item.LogicalName);
         }
 
+        public void MergeColumns(IEnumerable<Column> items)
+        {
+            foreach (var column in items)
+            {
+                Add(column);
+            }
+        }
+
         public void CopyTo(Column[] array, int arrayIndex) => Columns.Values.CopyTo(array, arrayIndex);
 
         public bool Remove(Column item)
@@ -87,7 +103,7 @@ namespace XrmFramework.Core
 
         public int Count => Columns.Count;
 
-        public bool IsReadOnly => Columns.Values.IsReadOnly;
+        public bool IsReadOnly => false;
 
         #endregion
     }

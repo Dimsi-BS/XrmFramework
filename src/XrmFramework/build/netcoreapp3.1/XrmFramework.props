@@ -1,9 +1,23 @@
 ﻿<Project>
-  <ItemGroup>
-    <AdditionalFiles Include="**/*.table" />
+    <ItemGroup>
+        <AdditionalFiles Include="$(MSBuildThisFileDirectory)/../../content/tables/**/*.table" Link="__Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" />
 
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.24" />
+        <Compile Remove="**\*.table" />
+        <None Remove="**\*.table" />
+        <AdditionalFiles Include="**/*.table" />
+        <Compile Remove="Generated\**" />
 
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-  </ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.24" />
+
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    </ItemGroup>
+
+    <PropertyGroup Condition="'$(XrmFrameworkShowGeneratedFiles)' == 'true'">
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(XrmFrameworkShowGeneratedFiles)' == 'true'">
+        <None Include="Generated\**" />
+    </ItemGroup>
 </Project>

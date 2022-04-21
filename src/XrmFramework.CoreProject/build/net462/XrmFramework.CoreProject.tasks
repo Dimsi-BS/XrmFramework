@@ -1,0 +1,6 @@
+﻿<Project>
+
+	<UsingTask TaskName="XrmFramework.MSBuild.GenerateCodeBehindTableFiles"  AssemblyFile="C:\Repos\XrmFramework\src\XrmFramework.MSBuild.TableClasses\bin\debug\$(XrmFramework_Tools_TFM)\XrmFramework.MSBuild.TableClasses.dll"  />
+
+
+</Project>

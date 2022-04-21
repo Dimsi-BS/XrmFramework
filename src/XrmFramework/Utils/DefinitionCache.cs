@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using XrmFramework.Utils;
 
 namespace XrmFramework
 {
@@ -108,7 +109,7 @@ namespace XrmFramework
                 {
                     try
                     {
-                        return new ModelDefinition(t);
+                        return ModelFactory.CreateFromType(t); // new ModelDefinition(t);
                     }
                     catch
                     {

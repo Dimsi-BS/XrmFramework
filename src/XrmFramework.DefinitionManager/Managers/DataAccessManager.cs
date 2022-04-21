@@ -143,15 +143,12 @@ namespace DefinitionManager
 
                         var newKey = new Key
                         {
-                            Name = key.LogicalName
+                            LogicalName = key.LogicalName,
+                            Name = key.DisplayName.UserLocalizedLabel.Label.FormatText()
+
                         };
                         newKey.FieldNames.AddRange(key.KeyAttributes);
 
-
-                        if (newEntity.Keys == null)
-                        {
-                            newEntity.Keys = new List<Key>();
-                        }
 
                         newEntity.Keys.Add(newKey);
                     }
@@ -685,7 +682,7 @@ namespace DefinitionManager
 
 
 
-        private string RemovePrefix(string name)
+        public string RemovePrefix(string name)
         {
             foreach (var prefix in PublisherPrefixes)
             {

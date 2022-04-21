@@ -1,0 +1,3996 @@
+{
+  "LogName": "team",
+  "Name": "Team",
+  "CollName": "teams",
+  "Cols": [
+    {
+      "LogName": "businessunitid",
+      "Name": "BusinessUnitId",
+      "Type": "Lookup",
+      "Capa": 13,
+      "Locked": true, 
+      "Labels": [
+      ]
+    },
+    {
+      "LogName": "teamtype",
+      "Name": "TeamType",
+      "Type": "Picklist",
+      "EnumName": "team|teamtype",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": [
+      ]
+    },
+    {
+      "LogName": "azureactivedirectoryobjectid",
+      "Name": "AzureActiveDirectoryObjectId",
+      "Type": "Uniqueidentifier",
+      "Locked": true,
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "ID d’objet Azure AD pour un groupe",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "membershiptype",
+      "Name": "MembershipType",
+      "Type": "Picklist",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Team Membership Type",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "team|membershiptype"
+    },
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Nom de l’équipe",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 160
+    },
+    {
+      "LogName": "teamid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Équipe",
+          "LangId": 1036
+        }
+      ]
+    }
+  ],
+  "NtoN": [
+    {
+      "Name": "teamroles_association",
+      "Etn": "role",
+      "NavPropName": "teamroles",
+      "LookName": "roleid"
+    },
+    {
+      "Name": "teammembership_association",
+      "Etn": "systemuser",
+      "NavPropName": "teammembership",
+      "LookName": "systemuserid"
+    },
+    {
+      "Name": "teamsyncattributemappingprofiles_association",
+      "Etn": "syncattributemappingprofile",
+      "NavPropName": "teamsyncattributemappingprofiles",
+      "LookName": "syncattributemappingprofileid"
+    },
+    {
+      "Name": "teamprofiles_association",
+      "Etn": "fieldsecurityprofile",
+      "NavPropName": "teamprofiles",
+      "LookName": "fieldsecurityprofileid"
+    }
+  ],
+  "OneToN": [
+    {
+      "Name": "team_principalobjectattributeaccess_principalid",
+      "Etn": "principalobjectattributeaccess",
+      "Role": "Referenced",
+      "NavPropName": "team_principalobjectattributeaccess_principalid",
+      "LookName": "principalid"
+    },
+    {
+      "Name": "team_exchangesyncidmapping",
+      "Etn": "exchangesyncidmapping",
+      "Role": "Referenced",
+      "NavPropName": "team_exchangesyncidmapping",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_interactionforemail",
+      "Etn": "interactionforemail",
+      "Role": "Referenced",
+      "NavPropName": "team_new_interactionforemail",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_knowledgearticle",
+      "Etn": "knowledgearticle",
+      "Role": "Referenced",
+      "NavPropName": "team_knowledgearticle",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_sharepointsite",
+      "Etn": "sharepointsite",
+      "Role": "Referenced",
+      "NavPropName": "team_sharepointsite",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_sharepointdocumentlocation",
+      "Etn": "sharepointdocumentlocation",
+      "Role": "Referenced",
+      "NavPropName": "team_sharepointdocumentlocation",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_goal",
+      "Etn": "goal",
+      "Role": "Referenced",
+      "NavPropName": "team_goal",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_goalrollupquery",
+      "Etn": "goalrollupquery",
+      "Role": "Referenced",
+      "NavPropName": "team_goalrollupquery",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_mailbox",
+      "Etn": "mailbox",
+      "Role": "Referenced",
+      "NavPropName": "team_mailbox",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_channelaccessprofile",
+      "Etn": "channelaccessprofile",
+      "Role": "Referenced",
+      "NavPropName": "team_channelaccessprofile",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_externalparty",
+      "Etn": "externalparty",
+      "Role": "Referenced",
+      "NavPropName": "team_externalparty",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_profilerule",
+      "Etn": "channelaccessprofilerule",
+      "Role": "Referenced",
+      "NavPropName": "team_profilerule",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_connections2",
+      "Etn": "connection",
+      "Role": "Referenced",
+      "NavPropName": "team_connections2",
+      "LookName": "record2id"
+    },
+    {
+      "Name": "team_slaBase",
+      "Etn": "sla",
+      "Role": "Referenced",
+      "NavPropName": "team_slaBase",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_PostRegardings",
+      "Etn": "postregarding",
+      "Role": "Referenced",
+      "NavPropName": "team_PostRegardings",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "team_goal_goalowner",
+      "Etn": "goal",
+      "Role": "Referenced",
+      "NavPropName": "team_goal_goalowner",
+      "LookName": "goalownerid"
+    },
+    {
+      "Name": "team_principalobjectattributeaccess",
+      "Etn": "principalobjectattributeaccess",
+      "Role": "Referenced",
+      "NavPropName": "team_principalobjectattributeaccess",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "team_routingrule",
+      "Etn": "routingrule",
+      "Role": "Referenced",
+      "NavPropName": "team_routingrule",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "OwningTeam_postfollows",
+      "Etn": "postfollow",
+      "Role": "Referenced",
+      "NavPropName": "OwningTeam_postfollows",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_ImportMaps",
+      "Etn": "importmap",
+      "Role": "Referenced",
+      "NavPropName": "team_ImportMaps",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_recurringappointmentmaster",
+      "Etn": "recurringappointmentmaster",
+      "Role": "Referenced",
+      "NavPropName": "team_recurringappointmentmaster",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_userentityinstancedata",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "team_userentityinstancedata",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_queueitembase_workerid",
+      "Etn": "queueitem",
+      "Role": "Referenced",
+      "NavPropName": "team_queueitembase_workerid",
+      "LookName": "workerid"
+    },
+    {
+      "Name": "team_phonecall",
+      "Etn": "phonecall",
+      "Role": "Referenced",
+      "NavPropName": "team_phonecall",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_emailserverprofile",
+      "Etn": "emailserverprofile",
+      "Role": "Referenced",
+      "NavPropName": "team_emailserverprofile",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_connections1",
+      "Etn": "connection",
+      "Role": "Referenced",
+      "NavPropName": "team_connections1",
+      "LookName": "record1id"
+    },
+    {
+      "Name": "team_PostRoles",
+      "Etn": "postrole",
+      "Role": "Referenced",
+      "NavPropName": "team_PostRoles",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "team_actioncardusersettings",
+      "Etn": "actioncardusersettings",
+      "Role": "Referenced",
+      "NavPropName": "team_actioncardusersettings",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_userqueryvisualizations",
+      "Etn": "userqueryvisualization",
+      "Role": "Referenced",
+      "NavPropName": "team_userqueryvisualizations",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_userform",
+      "Etn": "userform",
+      "Role": "Referenced",
+      "NavPropName": "team_userform",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_socialactivity",
+      "Etn": "socialactivity",
+      "Role": "Referenced",
+      "NavPropName": "team_socialactivity",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "Team_ProcessSessions",
+      "Etn": "processsession",
+      "Role": "Referenced",
+      "NavPropName": "Team_ProcessSessions",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Team_DuplicateMatchingRecord",
+      "Etn": "duplicaterecord",
+      "Role": "Referenced",
+      "NavPropName": "Team_DuplicateMatchingRecord",
+      "LookName": "duplicaterecordid"
+    },
+    {
+      "Name": "team_userentityuisettings",
+      "Etn": "userentityuisettings",
+      "Role": "Referenced",
+      "NavPropName": "team_userentityuisettings",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_contacts",
+      "Etn": "contact",
+      "Role": "Referenced",
+      "NavPropName": "team_contacts",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "Team_AsyncOperations",
+      "Etn": "asyncoperation",
+      "Role": "Referenced",
+      "NavPropName": "Team_AsyncOperations",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "team_ImportLogs",
+      "Etn": "importlog",
+      "Role": "Referenced",
+      "NavPropName": "team_ImportLogs",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_workflowlog",
+      "Etn": "workflowlog",
+      "Role": "Referenced",
+      "NavPropName": "team_workflowlog",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_Imports",
+      "Etn": "import",
+      "Role": "Referenced",
+      "NavPropName": "team_Imports",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_processsession",
+      "Etn": "processsession",
+      "Role": "Referenced",
+      "NavPropName": "team_processsession",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_SyncError",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "team_SyncError",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_letter",
+      "Etn": "letter",
+      "Role": "Referenced",
+      "NavPropName": "team_letter",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_annotations",
+      "Etn": "annotation",
+      "Role": "Referenced",
+      "NavPropName": "team_annotations",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_appointment",
+      "Etn": "appointment",
+      "Role": "Referenced",
+      "NavPropName": "team_appointment",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_asyncoperation",
+      "Etn": "asyncoperation",
+      "Role": "Referenced",
+      "NavPropName": "team_asyncoperation",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "userentityinstancedata_team",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_team",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "Team_BulkDeleteFailures",
+      "Etn": "bulkdeletefailure",
+      "Role": "Referenced",
+      "NavPropName": "Team_BulkDeleteFailures",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "team_customer_relationship",
+      "Etn": "customerrelationship",
+      "Role": "Referenced",
+      "NavPropName": "team_customer_relationship",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "Team_SyncErrors",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "Team_SyncErrors",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "team_convertrule",
+      "Etn": "convertrule",
+      "Role": "Referenced",
+      "NavPropName": "team_convertrule",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_mailboxtrackingfolder",
+      "Etn": "mailboxtrackingfolder",
+      "Role": "Referenced",
+      "NavPropName": "team_mailboxtrackingfolder",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_task",
+      "Etn": "task",
+      "Role": "Referenced",
+      "NavPropName": "team_task",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_activity",
+      "Etn": "activitypointer",
+      "Role": "Referenced",
+      "NavPropName": "team_activity",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "Team_DuplicateBaseRecord",
+      "Etn": "duplicaterecord",
+      "Role": "Referenced",
+      "NavPropName": "Team_DuplicateBaseRecord",
+      "LookName": "baserecordid"
+    },
+    {
+      "Name": "team_accounts",
+      "Etn": "account",
+      "Role": "Referenced",
+      "NavPropName": "team_accounts",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_userquery",
+      "Etn": "userquery",
+      "Role": "Referenced",
+      "NavPropName": "team_userquery",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_ImportData",
+      "Etn": "importdata",
+      "Role": "Referenced",
+      "NavPropName": "team_ImportData",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_email",
+      "Etn": "email",
+      "Role": "Referenced",
+      "NavPropName": "team_email",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "ImportFile_Team",
+      "Etn": "importfile",
+      "Role": "Referenced",
+      "NavPropName": "ImportFile_Team",
+      "LookName": "recordsownerid"
+    },
+    {
+      "Name": "team_ImportFiles",
+      "Etn": "importfile",
+      "Role": "Referenced",
+      "NavPropName": "team_ImportFiles",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_email_templates",
+      "Etn": "template",
+      "Role": "Referenced",
+      "NavPropName": "team_email_templates",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_fax",
+      "Etn": "fax",
+      "Role": "Referenced",
+      "NavPropName": "team_fax",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_routingruleitem",
+      "Etn": "routingruleitem",
+      "Role": "Referenced",
+      "NavPropName": "team_routingruleitem",
+      "LookName": "assignobjectid"
+    },
+    {
+      "Name": "team_DuplicateRules",
+      "Etn": "duplicaterule",
+      "Role": "Referenced",
+      "NavPropName": "team_DuplicateRules",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_workflow",
+      "Etn": "workflow",
+      "Role": "Referenced",
+      "NavPropName": "team_workflow",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_mailboxtrackingcategory",
+      "Etn": "mailboxtrackingcategory",
+      "Role": "Referenced",
+      "NavPropName": "team_mailboxtrackingcategory",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_stagesolutionupload",
+      "Etn": "stagesolutionupload",
+      "Role": "Referenced",
+      "NavPropName": "team_stagesolutionupload",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_connector",
+      "Etn": "connector",
+      "Role": "Referenced",
+      "NavPropName": "team_connector",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_environmentvariabledefinition",
+      "Etn": "environmentvariabledefinition",
+      "Role": "Referenced",
+      "NavPropName": "team_environmentvariabledefinition",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_environmentvariablevalue",
+      "Etn": "environmentvariablevalue",
+      "Role": "Referenced",
+      "NavPropName": "team_environmentvariablevalue",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_processstageparameter",
+      "Etn": "processstageparameter",
+      "Role": "Referenced",
+      "NavPropName": "team_processstageparameter",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_connectionreference",
+      "Etn": "connectionreference",
+      "Role": "Referenced",
+      "NavPropName": "team_connectionreference",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_analysiscomponent",
+      "Etn": "msdyn_analysiscomponent",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_analysiscomponent",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_analysisjob",
+      "Etn": "msdyn_analysisjob",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_analysisjob",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_analysisresult",
+      "Etn": "msdyn_analysisresult",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_analysisresult",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_analysisresultdetail",
+      "Etn": "msdyn_analysisresultdetail",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_analysisresultdetail",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_solutionhealthrule",
+      "Etn": "msdyn_solutionhealthrule",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_solutionhealthrule",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_solutionhealthruleargument",
+      "Etn": "msdyn_solutionhealthruleargument",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_solutionhealthruleargument",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_knowledgearticleimage",
+      "Etn": "msdyn_knowledgearticleimage",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_knowledgearticleimage",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_knowledgearticletemplate",
+      "Etn": "msdyn_knowledgearticletemplate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_knowledgearticletemplate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_dataflow",
+      "Etn": "msdyn_dataflow",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_dataflow",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aiconfiguration",
+      "Etn": "msdyn_aiconfiguration",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aiconfiguration",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aimodel",
+      "Etn": "msdyn_aimodel",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aimodel",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aitemplate",
+      "Etn": "msdyn_aitemplate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aitemplate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aibdataset",
+      "Etn": "msdyn_aibdataset",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aibdataset",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aibdatasetfile",
+      "Etn": "msdyn_aibdatasetfile",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aibdatasetfile",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aibdatasetrecord",
+      "Etn": "msdyn_aibdatasetrecord",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aibdatasetrecord",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aibdatasetscontainer",
+      "Etn": "msdyn_aibdatasetscontainer",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aibdatasetscontainer",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aibfile",
+      "Etn": "msdyn_aibfile",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aibfile",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aibfileattacheddata",
+      "Etn": "msdyn_aibfileattacheddata",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aibfileattacheddata",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aifptrainingdocument",
+      "Etn": "msdyn_aifptrainingdocument",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aifptrainingdocument",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aiodimage",
+      "Etn": "msdyn_aiodimage",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aiodimage",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aiodlabel",
+      "Etn": "msdyn_aiodlabel",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aiodlabel",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aiodtrainingboundingbox",
+      "Etn": "msdyn_aiodtrainingboundingbox",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aiodtrainingboundingbox",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aiodtrainingimage",
+      "Etn": "msdyn_aiodtrainingimage",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aiodtrainingimage",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "lead_owning_team",
+      "Etn": "lead",
+      "Role": "Referenced",
+      "NavPropName": "lead_owning_team",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_DynamicPropertyInstance",
+      "Etn": "dynamicpropertyinstance",
+      "Role": "Referenced",
+      "NavPropName": "team_DynamicPropertyInstance",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_bookableresource",
+      "Etn": "bookableresource",
+      "Role": "Referenced",
+      "NavPropName": "team_bookableresource",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_bookableresourcebooking",
+      "Etn": "bookableresourcebooking",
+      "Role": "Referenced",
+      "NavPropName": "team_bookableresourcebooking",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_bookableresourcebookingexchangesyncidmapping",
+      "Etn": "bookableresourcebookingexchangesyncidmapping",
+      "Role": "Referenced",
+      "NavPropName": "team_bookableresourcebookingexchangesyncidmapping",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_bookableresourcebookingheader",
+      "Etn": "bookableresourcebookingheader",
+      "Role": "Referenced",
+      "NavPropName": "team_bookableresourcebookingheader",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_bookableresourcecategory",
+      "Etn": "bookableresourcecategory",
+      "Role": "Referenced",
+      "NavPropName": "team_bookableresourcecategory",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_bookableresourcecategoryassn",
+      "Etn": "bookableresourcecategoryassn",
+      "Role": "Referenced",
+      "NavPropName": "team_bookableresourcecategoryassn",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_bookableresourcecharacteristic",
+      "Etn": "bookableresourcecharacteristic",
+      "Role": "Referenced",
+      "NavPropName": "team_bookableresourcecharacteristic",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_bookableresourcegroup",
+      "Etn": "bookableresourcegroup",
+      "Role": "Referenced",
+      "NavPropName": "team_bookableresourcegroup",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_bookingstatus",
+      "Etn": "bookingstatus",
+      "Role": "Referenced",
+      "NavPropName": "team_bookingstatus",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_characteristic",
+      "Etn": "characteristic",
+      "Role": "Referenced",
+      "NavPropName": "team_characteristic",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_ratingmodel",
+      "Etn": "ratingmodel",
+      "Role": "Referenced",
+      "NavPropName": "team_ratingmodel",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_ratingvalue",
+      "Etn": "ratingvalue",
+      "Role": "Referenced",
+      "NavPropName": "team_ratingvalue",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_bulkoperationlog",
+      "Etn": "bulkoperationlog",
+      "Role": "Referenced",
+      "NavPropName": "team_bulkoperationlog",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_BulkOperation",
+      "Etn": "bulkoperation",
+      "Role": "Referenced",
+      "NavPropName": "team_BulkOperation",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_list",
+      "Etn": "list",
+      "Role": "Referenced",
+      "NavPropName": "team_list",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_campaignactivity",
+      "Etn": "campaignactivity",
+      "Role": "Referenced",
+      "NavPropName": "team_campaignactivity",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_campaignresponse",
+      "Etn": "campaignresponse",
+      "Role": "Referenced",
+      "NavPropName": "team_campaignresponse",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_Campaigns",
+      "Etn": "campaign",
+      "Role": "Referenced",
+      "NavPropName": "team_Campaigns",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_contractdetail",
+      "Etn": "contractdetail",
+      "Role": "Referenced",
+      "NavPropName": "team_contractdetail",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_entitlementchannel",
+      "Etn": "entitlementchannel",
+      "Role": "Referenced",
+      "NavPropName": "team_entitlementchannel",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_knowledgearticleincident",
+      "Etn": "knowledgearticleincident",
+      "Role": "Referenced",
+      "NavPropName": "team_knowledgearticleincident",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_service_appointments",
+      "Etn": "serviceappointment",
+      "Role": "Referenced",
+      "NavPropName": "team_service_appointments",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_incidentresolution",
+      "Etn": "incidentresolution",
+      "Role": "Referenced",
+      "NavPropName": "team_incidentresolution",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_incidents",
+      "Etn": "incident",
+      "Role": "Referenced",
+      "NavPropName": "team_incidents",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_service_contracts",
+      "Etn": "contract",
+      "Role": "Referenced",
+      "NavPropName": "team_service_contracts",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_entitlement",
+      "Etn": "entitlement",
+      "Role": "Referenced",
+      "NavPropName": "team_entitlement",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_resource_specs",
+      "Etn": "resourcespec",
+      "Role": "Referenced",
+      "NavPropName": "team_resource_specs",
+      "LookName": "groupobjectid"
+    },
+    {
+      "Name": "team_resource_groups",
+      "Etn": "resourcegroup",
+      "Role": "Referenced",
+      "NavPropName": "team_resource_groups",
+      "LookName": "resourcegroupid"
+    },
+    {
+      "Name": "team_entitlemententityallocationtypemapping",
+      "Etn": "entitlemententityallocationtypemapping",
+      "Role": "Referenced",
+      "NavPropName": "team_entitlemententityallocationtypemapping",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_customerasset",
+      "Etn": "msdyn_customerasset",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_customerasset",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_customerassetcategory",
+      "Etn": "msdyn_customerassetcategory",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_customerassetcategory",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_iotalert",
+      "Etn": "msdyn_iotalert",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_iotalert",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_iotdevice",
+      "Etn": "msdyn_iotdevice",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_iotdevice",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_iotdevicecategory",
+      "Etn": "msdyn_iotdevicecategory",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_iotdevicecategory",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_iotdevicecommand",
+      "Etn": "msdyn_iotdevicecommand",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_iotdevicecommand",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_iotdevicecommanddefinition",
+      "Etn": "msdyn_iotdevicecommanddefinition",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_iotdevicecommanddefinition",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_iotdevicedatahistory",
+      "Etn": "msdyn_iotdevicedatahistory",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_iotdevicedatahistory",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_iotdeviceproperty",
+      "Etn": "msdyn_iotdeviceproperty",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_iotdeviceproperty",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_iotdeviceregistrationhistory",
+      "Etn": "msdyn_iotdeviceregistrationhistory",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_iotdeviceregistrationhistory",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_iotpropertydefinition",
+      "Etn": "msdyn_iotpropertydefinition",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_iotpropertydefinition",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_iotprovider",
+      "Etn": "msdyn_iotprovider",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_iotprovider",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_iotproviderinstance",
+      "Etn": "msdyn_iotproviderinstance",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_iotproviderinstance",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_iotsettings",
+      "Etn": "msdyn_iotsettings",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_iotsettings",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_iotdevicevisualizationconfiguration",
+      "Etn": "msdyn_iotdevicevisualizationconfiguration",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_iotdevicevisualizationconfiguration",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_iotfieldmapping",
+      "Etn": "msdyn_iotfieldmapping",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_iotfieldmapping",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_callablecontext",
+      "Etn": "msdyn_callablecontext",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_callablecontext",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_playbookactivity",
+      "Etn": "msdyn_playbookactivity",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_playbookactivity",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_playbookactivityattribute",
+      "Etn": "msdyn_playbookactivityattribute",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_playbookactivityattribute",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_playbookcategory",
+      "Etn": "msdyn_playbookcategory",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_playbookcategory",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_playbookinstance",
+      "Etn": "msdyn_playbookinstance",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_playbookinstance",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_playbooktemplate",
+      "Etn": "msdyn_playbooktemplate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_playbooktemplate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_invoicedetail",
+      "Etn": "invoicedetail",
+      "Role": "Referenced",
+      "NavPropName": "team_invoicedetail",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_opportunityproduct",
+      "Etn": "opportunityproduct",
+      "Role": "Referenced",
+      "NavPropName": "team_opportunityproduct",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_quotedetail",
+      "Etn": "quotedetail",
+      "Role": "Referenced",
+      "NavPropName": "team_quotedetail",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_salesorderdetail",
+      "Etn": "salesorderdetail",
+      "Role": "Referenced",
+      "NavPropName": "team_salesorderdetail",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_customer_opportunity_roles",
+      "Etn": "customeropportunityrole",
+      "Role": "Referenced",
+      "NavPropName": "team_customer_opportunity_roles",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_invoices",
+      "Etn": "invoice",
+      "Role": "Referenced",
+      "NavPropName": "team_invoices",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_opportunities",
+      "Etn": "opportunity",
+      "Role": "Referenced",
+      "NavPropName": "team_opportunities",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_opportunityclose",
+      "Etn": "opportunityclose",
+      "Role": "Referenced",
+      "NavPropName": "team_opportunityclose",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_orderclose",
+      "Etn": "orderclose",
+      "Role": "Referenced",
+      "NavPropName": "team_orderclose",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_orders",
+      "Etn": "salesorder",
+      "Role": "Referenced",
+      "NavPropName": "team_orders",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_quoteclose",
+      "Etn": "quoteclose",
+      "Role": "Referenced",
+      "NavPropName": "team_quoteclose",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_quotes",
+      "Etn": "quote",
+      "Role": "Referenced",
+      "NavPropName": "team_quotes",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adminsettingsentity",
+      "Etn": "adminsettingsentity",
+      "Role": "Referenced",
+      "NavPropName": "team_adminsettingsentity",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_forecastconfiguration",
+      "Etn": "msdyn_forecastconfiguration",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_forecastconfiguration",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_forecastdefinition",
+      "Etn": "msdyn_forecastdefinition",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_forecastdefinition",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_forecastinstance",
+      "Etn": "msdyn_forecastinstance",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_forecastinstance",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_forecastrecurrence",
+      "Etn": "msdyn_forecastrecurrence",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_forecastrecurrence",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_relationshipinsightsunifiedconfig",
+      "Etn": "msdyn_relationshipinsightsunifiedconfig",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_relationshipinsightsunifiedconfig",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_siconfig",
+      "Etn": "msdyn_siconfig",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_siconfig",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_actioncardregarding",
+      "Etn": "msdyn_actioncardregarding",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_actioncardregarding",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_actioncardrolesetting",
+      "Etn": "msdyn_actioncardrolesetting",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_actioncardrolesetting",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_entityrankingrule",
+      "Etn": "msdyn_entityrankingrule",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_entityrankingrule",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_flowcardtype",
+      "Etn": "msdyn_flowcardtype",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_flowcardtype",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_salesinsightssettings",
+      "Etn": "msdyn_salesinsightssettings",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_salesinsightssettings",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_autocapturerule",
+      "Etn": "msdyn_autocapturerule",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_autocapturerule",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_autocapturesettings",
+      "Etn": "msdyn_autocapturesettings",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_autocapturesettings",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_untrackedappointment",
+      "Etn": "msdyn_untrackedappointment",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_untrackedappointment",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_notesanalysisconfig",
+      "Etn": "msdyn_notesanalysisconfig",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_notesanalysisconfig",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_icebreakersconfig",
+      "Etn": "msdyn_icebreakersconfig",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_icebreakersconfig",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_postalbum",
+      "Etn": "msdyn_postalbum",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_postalbum",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_wallsavedqueryusersettings",
+      "Etn": "msdyn_wallsavedqueryusersettings",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_wallsavedqueryusersettings",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msfp_emailtemplate",
+      "Etn": "msfp_emailtemplate",
+      "Role": "Referenced",
+      "NavPropName": "team_msfp_emailtemplate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msfp_question",
+      "Etn": "msfp_question",
+      "Role": "Referenced",
+      "NavPropName": "team_msfp_question",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msfp_questionresponse",
+      "Etn": "msfp_questionresponse",
+      "Role": "Referenced",
+      "NavPropName": "team_msfp_questionresponse",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msfp_survey",
+      "Etn": "msfp_survey",
+      "Role": "Referenced",
+      "NavPropName": "team_msfp_survey",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "msfp_surveyinvite_team_owningteam",
+      "Etn": "msfp_surveyinvite",
+      "Role": "Referenced",
+      "NavPropName": "msfp_surveyinvite_team_owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "msfp_surveyresponse_team_owningteam",
+      "Etn": "msfp_surveyresponse",
+      "Role": "Referenced",
+      "NavPropName": "msfp_surveyresponse_team_owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msfp_unsubscribedrecipient",
+      "Etn": "msfp_unsubscribedrecipient",
+      "Role": "Referenced",
+      "NavPropName": "team_msfp_unsubscribedrecipient",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_msteamssetting",
+      "Etn": "msdyn_msteamssetting",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_msteamssetting",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_analyticsadminsettings",
+      "Etn": "msdyn_analyticsadminsettings",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_analyticsadminsettings",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_dataanalyticsreport",
+      "Etn": "msdyn_dataanalyticsreport",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_dataanalyticsreport",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_analyticsforcs",
+      "Etn": "msdyn_analyticsforcs",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_analyticsforcs",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_serviceconfiguration",
+      "Etn": "msdyn_serviceconfiguration",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_serviceconfiguration",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_slakpi",
+      "Etn": "msdyn_slakpi",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_slakpi",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msfp_localizedemailtemplate",
+      "Etn": "msfp_localizedemailtemplate",
+      "Role": "Referenced",
+      "NavPropName": "team_msfp_localizedemailtemplate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msfp_project",
+      "Etn": "msfp_project",
+      "Role": "Referenced",
+      "NavPropName": "team_msfp_project",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msfp_satisfactionmetric",
+      "Etn": "msfp_satisfactionmetric",
+      "Role": "Referenced",
+      "NavPropName": "team_msfp_satisfactionmetric",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_listoperation",
+      "Etn": "listoperation",
+      "Role": "Referenced",
+      "NavPropName": "team_listoperation",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_canvasappextendedmetadata",
+      "Etn": "canvasappextendedmetadata",
+      "Role": "Referenced",
+      "NavPropName": "team_canvasappextendedmetadata",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_pdfsetting",
+      "Etn": "pdfsetting",
+      "Role": "Referenced",
+      "NavPropName": "team_pdfsetting",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_exportsolutionupload",
+      "Etn": "exportsolutionupload",
+      "Role": "Referenced",
+      "NavPropName": "team_exportsolutionupload",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_opportunitymodelconfig",
+      "Etn": "msdyn_opportunitymodelconfig",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_opportunitymodelconfig",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_leadmodelconfig",
+      "Etn": "msdyn_leadmodelconfig",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_leadmodelconfig",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_modelpreviewstatus",
+      "Etn": "msdyn_modelpreviewstatus",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_modelpreviewstatus",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_wkwconfig",
+      "Etn": "msdyn_wkwconfig",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_wkwconfig",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_actioncardactionstat",
+      "Etn": "msdyn_actioncardactionstat",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_actioncardactionstat",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_actioncardstataggregation",
+      "Etn": "msdyn_actioncardstataggregation",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_actioncardstataggregation",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_sequence",
+      "Etn": "msdyn_sequence",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_sequence",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_sequencetarget",
+      "Etn": "msdyn_sequencetarget",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_sequencetarget",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_sequencetargetstep",
+      "Etn": "msdyn_sequencetargetstep",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_sequencetargetstep",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_richtextfile",
+      "Etn": "msdyn_richtextfile",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_richtextfile",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_workqueuestate",
+      "Etn": "msdyn_workqueuestate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_workqueuestate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_knowledgeinteractioninsight",
+      "Etn": "msdyn_knowledgeinteractioninsight",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_knowledgeinteractioninsight",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_knowledgesearchinsight",
+      "Etn": "msdyn_knowledgesearchinsight",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_knowledgesearchinsight",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdynce_botcontent",
+      "Etn": "msdynce_botcontent",
+      "Role": "Referenced",
+      "NavPropName": "team_msdynce_botcontent",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_conversationtranscript",
+      "Etn": "conversationtranscript",
+      "Role": "Referenced",
+      "NavPropName": "team_conversationtranscript",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_bot",
+      "Etn": "bot",
+      "Role": "Referenced",
+      "NavPropName": "team_bot",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_botcomponent",
+      "Etn": "botcomponent",
+      "Role": "Referenced",
+      "NavPropName": "team_botcomponent",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "msfp_alert_team_owningteam",
+      "Etn": "msfp_alert",
+      "Role": "Referenced",
+      "NavPropName": "msfp_alert_team_owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msfp_alertrule",
+      "Etn": "msfp_alertrule",
+      "Role": "Referenced",
+      "NavPropName": "team_msfp_alertrule",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_workqueueusersetting",
+      "Etn": "msdyn_workqueueusersetting",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_workqueueusersetting",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_datalakefolder",
+      "Etn": "datalakefolder",
+      "Role": "Referenced",
+      "NavPropName": "team_datalakefolder",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_datalakefolderpermission",
+      "Etn": "datalakefolderpermission",
+      "Role": "Referenced",
+      "NavPropName": "team_datalakefolderpermission",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_customapi",
+      "Etn": "customapi",
+      "Role": "Referenced",
+      "NavPropName": "team_customapi",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_customapirequestparameter",
+      "Etn": "customapirequestparameter",
+      "Role": "Referenced",
+      "NavPropName": "team_customapirequestparameter",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_customapiresponseproperty",
+      "Etn": "customapiresponseproperty",
+      "Role": "Referenced",
+      "NavPropName": "team_customapiresponseproperty",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_federatedarticle",
+      "Etn": "msdyn_federatedarticle",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_federatedarticle",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_kmfederatedsearchconfig",
+      "Etn": "msdyn_kmfederatedsearchconfig",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_kmfederatedsearchconfig",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_activitymonitor",
+      "Etn": "activitymonitor",
+      "Role": "Referenced",
+      "NavPropName": "team_activitymonitor",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_migrationtracker",
+      "Etn": "msdyn_migrationtracker",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_migrationtracker",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_assetcategorytemplateassociation",
+      "Etn": "msdyn_assetcategorytemplateassociation",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_assetcategorytemplateassociation",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_assettemplateassociation",
+      "Etn": "msdyn_assettemplateassociation",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_assettemplateassociation",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_customerassetattachment",
+      "Etn": "msdyn_customerassetattachment",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_customerassetattachment",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_functionallocation",
+      "Etn": "msdyn_functionallocation",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_functionallocation",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_property",
+      "Etn": "msdyn_property",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_property",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_propertyassetassociation",
+      "Etn": "msdyn_propertyassetassociation",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_propertyassetassociation",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_propertylog",
+      "Etn": "msdyn_propertylog",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_propertylog",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_propertytemplateassociation",
+      "Etn": "msdyn_propertytemplateassociation",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_propertytemplateassociation",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_templateforproperties",
+      "Etn": "msdyn_templateforproperties",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_templateforproperties",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_appconfiguration",
+      "Etn": "msdyn_appconfiguration",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_appconfiguration",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_applicationextension",
+      "Etn": "msdyn_applicationextension",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_applicationextension",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_applicationtabtemplate",
+      "Etn": "msdyn_applicationtabtemplate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_applicationtabtemplate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_notificationfield",
+      "Etn": "msdyn_notificationfield",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_notificationfield",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_notificationtemplate",
+      "Etn": "msdyn_notificationtemplate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_notificationtemplate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_sessiontemplate",
+      "Etn": "msdyn_sessiontemplate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_sessiontemplate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_templateparameter",
+      "Etn": "msdyn_templateparameter",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_templateparameter",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_channelprovider",
+      "Etn": "msdyn_channelprovider",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_channelprovider",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_productivityagentscript",
+      "Etn": "msdyn_productivityagentscript",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_productivityagentscript",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_productivityagentscriptstep",
+      "Etn": "msdyn_productivityagentscriptstep",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_productivityagentscriptstep",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_productivityactioninputparameter",
+      "Etn": "msdyn_productivityactioninputparameter",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_productivityactioninputparameter",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_productivityactionoutputparameter",
+      "Etn": "msdyn_productivityactionoutputparameter",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_productivityactionoutputparameter",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_productivitymacroactiontemplate",
+      "Etn": "msdyn_productivitymacroactiontemplate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_productivitymacroactiontemplate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_productivitymacrosolutionconfiguration",
+      "Etn": "msdyn_productivitymacrosolutionconfiguration",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_productivitymacrosolutionconfiguration",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_productivitymacroconnector",
+      "Etn": "msdyn_productivitymacroconnector",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_productivitymacroconnector",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_macrosession",
+      "Etn": "msdyn_macrosession",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_macrosession",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_productivityparameterdefinition",
+      "Etn": "msdyn_productivityparameterdefinition",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_productivityparameterdefinition",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msfp_fileresponse",
+      "Etn": "msfp_fileresponse",
+      "Role": "Referenced",
+      "NavPropName": "team_msfp_fileresponse",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msfp_surveyreminder",
+      "Etn": "msfp_surveyreminder",
+      "Role": "Referenced",
+      "NavPropName": "team_msfp_surveyreminder",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_revokeinheritedaccessrecordstracker",
+      "Etn": "revokeinheritedaccessrecordstracker",
+      "Role": "Referenced",
+      "NavPropName": "team_revokeinheritedaccessrecordstracker",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_new_etudient",
+      "Etn": "new_etudient",
+      "Role": "Referenced",
+      "NavPropName": "team_new_etudient",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_teammobileofflineprofilemembership_TeamId",
+      "Etn": "teammobileofflineprofilemembership",
+      "Role": "Referenced",
+      "NavPropName": "team_teammobileofflineprofilemembership_TeamId",
+      "LookName": "teamid"
+    },
+    {
+      "Name": "team_keyvaultreference",
+      "Etn": "keyvaultreference",
+      "Role": "Referenced",
+      "NavPropName": "team_keyvaultreference",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_managedidentity",
+      "Etn": "managedidentity",
+      "Role": "Referenced",
+      "NavPropName": "team_managedidentity",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_assignmentrule",
+      "Etn": "msdyn_assignmentrule",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_assignmentrule",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_attribute",
+      "Etn": "msdyn_attribute",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_attribute",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_attributevalue",
+      "Etn": "msdyn_attributevalue",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_attributevalue",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_assignmentmap",
+      "Etn": "msdyn_assignmentmap",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_assignmentmap",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_extendedusersetting",
+      "Etn": "msdyn_extendedusersetting",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_extendedusersetting",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_segment",
+      "Etn": "msdyn_segment",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_segment",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_flowsession",
+      "Etn": "flowsession",
+      "Role": "Referenced",
+      "NavPropName": "team_flowsession",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_workflowbinary",
+      "Etn": "workflowbinary",
+      "Role": "Referenced",
+      "NavPropName": "team_workflowbinary",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_actual",
+      "Etn": "msdyn_actual",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_actual",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_bookableresourceassociation",
+      "Etn": "msdyn_bookableresourceassociation",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_bookableresourceassociation",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "msdyn_bookingalert_team_owningteam",
+      "Etn": "msdyn_bookingalert",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_bookingalert_team_owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_bookingalertstatus",
+      "Etn": "msdyn_bookingalertstatus",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_bookingalertstatus",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_bookingchange",
+      "Etn": "msdyn_bookingchange",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_bookingchange",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_bookingrule",
+      "Etn": "msdyn_bookingrule",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_bookingrule",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_bookingsetupmetadata",
+      "Etn": "msdyn_bookingsetupmetadata",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_bookingsetupmetadata",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_businessclosure",
+      "Etn": "msdyn_businessclosure",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_businessclosure",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_clientextension",
+      "Etn": "msdyn_clientextension",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_clientextension",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_configuration",
+      "Etn": "msdyn_configuration",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_configuration",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_priority",
+      "Etn": "msdyn_priority",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_priority",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_requirementcharacteristic",
+      "Etn": "msdyn_requirementcharacteristic",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_requirementcharacteristic",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_requirementgroup",
+      "Etn": "msdyn_requirementgroup",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_requirementgroup",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_requirementorganizationunit",
+      "Etn": "msdyn_requirementorganizationunit",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_requirementorganizationunit",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_requirementrelationship",
+      "Etn": "msdyn_requirementrelationship",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_requirementrelationship",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_requirementresourcecategory",
+      "Etn": "msdyn_requirementresourcecategory",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_requirementresourcecategory",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_requirementresourcepreference",
+      "Etn": "msdyn_requirementresourcepreference",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_requirementresourcepreference",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_requirementstatus",
+      "Etn": "msdyn_requirementstatus",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_requirementstatus",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_resourcerequirement",
+      "Etn": "msdyn_resourcerequirement",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_resourcerequirement",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_resourcerequirementdetail",
+      "Etn": "msdyn_resourcerequirementdetail",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_resourcerequirementdetail",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_resourceterritory",
+      "Etn": "msdyn_resourceterritory",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_resourceterritory",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_scheduleboardsetting",
+      "Etn": "msdyn_scheduleboardsetting",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_scheduleboardsetting",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_systemuserschedulersetting",
+      "Etn": "msdyn_systemuserschedulersetting",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_systemuserschedulersetting",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_timegroup",
+      "Etn": "msdyn_timegroup",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_timegroup",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_timegroupdetail",
+      "Etn": "msdyn_timegroupdetail",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_timegroupdetail",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_transactionorigin",
+      "Etn": "msdyn_transactionorigin",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_transactionorigin",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_workhourtemplate",
+      "Etn": "msdyn_workhourtemplate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_workhourtemplate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_requirementdependency",
+      "Etn": "msdyn_requirementdependency",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_requirementdependency",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_schedulingfeatureflag",
+      "Etn": "msdyn_schedulingfeatureflag",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_schedulingfeatureflag",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_inspection",
+      "Etn": "msdyn_inspection",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_inspection",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_inspectionattachment",
+      "Etn": "msdyn_inspectionattachment",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_inspectionattachment",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_inspectiondefinition",
+      "Etn": "msdyn_inspectiondefinition",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_inspectiondefinition",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_inspectionresponse",
+      "Etn": "msdyn_inspectionresponse",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_inspectionresponse",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_agreement",
+      "Etn": "msdyn_agreement",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_agreement",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_agreementbookingdate",
+      "Etn": "msdyn_agreementbookingdate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_agreementbookingdate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_agreementbookingincident",
+      "Etn": "msdyn_agreementbookingincident",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_agreementbookingincident",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_agreementbookingproduct",
+      "Etn": "msdyn_agreementbookingproduct",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_agreementbookingproduct",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_agreementbookingservice",
+      "Etn": "msdyn_agreementbookingservice",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_agreementbookingservice",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_agreementbookingservicetask",
+      "Etn": "msdyn_agreementbookingservicetask",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_agreementbookingservicetask",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_agreementbookingsetup",
+      "Etn": "msdyn_agreementbookingsetup",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_agreementbookingsetup",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_agreementinvoicedate",
+      "Etn": "msdyn_agreementinvoicedate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_agreementinvoicedate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_agreementinvoiceproduct",
+      "Etn": "msdyn_agreementinvoiceproduct",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_agreementinvoiceproduct",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_agreementinvoicesetup",
+      "Etn": "msdyn_agreementinvoicesetup",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_agreementinvoicesetup",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_agreementsubstatus",
+      "Etn": "msdyn_agreementsubstatus",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_agreementsubstatus",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_bookingjournal",
+      "Etn": "msdyn_bookingjournal",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_bookingjournal",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_bookingtimestamp",
+      "Etn": "msdyn_bookingtimestamp",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_bookingtimestamp",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_entitlementapplication",
+      "Etn": "msdyn_entitlementapplication",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_entitlementapplication",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_fieldservicesetting",
+      "Etn": "msdyn_fieldservicesetting",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_fieldservicesetting",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_fieldserviceslaconfiguration",
+      "Etn": "msdyn_fieldserviceslaconfiguration",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_fieldserviceslaconfiguration",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_incidenttype",
+      "Etn": "msdyn_incidenttype",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_incidenttype",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_incidenttypecharacteristic",
+      "Etn": "msdyn_incidenttypecharacteristic",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_incidenttypecharacteristic",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_incidenttypeproduct",
+      "Etn": "msdyn_incidenttypeproduct",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_incidenttypeproduct",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_incidenttypeservice",
+      "Etn": "msdyn_incidenttypeservice",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_incidenttypeservice",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_incidenttypeservicetask",
+      "Etn": "msdyn_incidenttypeservicetask",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_incidenttypeservicetask",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_incidenttypessetup",
+      "Etn": "msdyn_incidenttypessetup",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_incidenttypessetup",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_incidenttype_requirementgroup",
+      "Etn": "msdyn_incidenttype_requirementgroup",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_incidenttype_requirementgroup",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_inventoryadjustment",
+      "Etn": "msdyn_inventoryadjustment",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_inventoryadjustment",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_inventoryadjustmentproduct",
+      "Etn": "msdyn_inventoryadjustmentproduct",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_inventoryadjustmentproduct",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_inventoryjournal",
+      "Etn": "msdyn_inventoryjournal",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_inventoryjournal",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_inventorytransfer",
+      "Etn": "msdyn_inventorytransfer",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_inventorytransfer",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_orderinvoicingdate",
+      "Etn": "msdyn_orderinvoicingdate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_orderinvoicingdate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_orderinvoicingproduct",
+      "Etn": "msdyn_orderinvoicingproduct",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_orderinvoicingproduct",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_orderinvoicingsetup",
+      "Etn": "msdyn_orderinvoicingsetup",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_orderinvoicingsetup",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_orderinvoicingsetupdate",
+      "Etn": "msdyn_orderinvoicingsetupdate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_orderinvoicingsetupdate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_payment",
+      "Etn": "msdyn_payment",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_payment",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_paymentdetail",
+      "Etn": "msdyn_paymentdetail",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_paymentdetail",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_paymentmethod",
+      "Etn": "msdyn_paymentmethod",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_paymentmethod",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_paymentterm",
+      "Etn": "msdyn_paymentterm",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_paymentterm",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_postalcode",
+      "Etn": "msdyn_postalcode",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_postalcode",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_purchaseorder",
+      "Etn": "msdyn_purchaseorder",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_purchaseorder",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_purchaseorderbill",
+      "Etn": "msdyn_purchaseorderbill",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_purchaseorderbill",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_purchaseorderproduct",
+      "Etn": "msdyn_purchaseorderproduct",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_purchaseorderproduct",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_purchaseorderreceipt",
+      "Etn": "msdyn_purchaseorderreceipt",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_purchaseorderreceipt",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_purchaseorderreceiptproduct",
+      "Etn": "msdyn_purchaseorderreceiptproduct",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_purchaseorderreceiptproduct",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_purchaseordersubstatus",
+      "Etn": "msdyn_purchaseordersubstatus",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_purchaseordersubstatus",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_quotebookingincident",
+      "Etn": "msdyn_quotebookingincident",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_quotebookingincident",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_quotebookingproduct",
+      "Etn": "msdyn_quotebookingproduct",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_quotebookingproduct",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_quotebookingservice",
+      "Etn": "msdyn_quotebookingservice",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_quotebookingservice",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_quotebookingservicetask",
+      "Etn": "msdyn_quotebookingservicetask",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_quotebookingservicetask",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_quotebookingsetup",
+      "Etn": "msdyn_quotebookingsetup",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_quotebookingsetup",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_quoteinvoicingproduct",
+      "Etn": "msdyn_quoteinvoicingproduct",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_quoteinvoicingproduct",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_quoteinvoicingsetup",
+      "Etn": "msdyn_quoteinvoicingsetup",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_quoteinvoicingsetup",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_resourcepaytype",
+      "Etn": "msdyn_resourcepaytype",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_resourcepaytype",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_rma",
+      "Etn": "msdyn_rma",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_rma",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_rmaproduct",
+      "Etn": "msdyn_rmaproduct",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_rmaproduct",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_rmareceipt",
+      "Etn": "msdyn_rmareceipt",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_rmareceipt",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_rmareceiptproduct",
+      "Etn": "msdyn_rmareceiptproduct",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_rmareceiptproduct",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_rmasubstatus",
+      "Etn": "msdyn_rmasubstatus",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_rmasubstatus",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_rtv",
+      "Etn": "msdyn_rtv",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_rtv",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_rtvproduct",
+      "Etn": "msdyn_rtvproduct",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_rtvproduct",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_rtvsubstatus",
+      "Etn": "msdyn_rtvsubstatus",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_rtvsubstatus",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_servicetasktype",
+      "Etn": "msdyn_servicetasktype",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_servicetasktype",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_shipvia",
+      "Etn": "msdyn_shipvia",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_shipvia",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_taxcode",
+      "Etn": "msdyn_taxcode",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_taxcode",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_taxcodedetail",
+      "Etn": "msdyn_taxcodedetail",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_taxcodedetail",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_timeoffrequest",
+      "Etn": "msdyn_timeoffrequest",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_timeoffrequest",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_warehouse",
+      "Etn": "msdyn_warehouse",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_warehouse",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_workorder",
+      "Etn": "msdyn_workorder",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_workorder",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_workordercharacteristic",
+      "Etn": "msdyn_workordercharacteristic",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_workordercharacteristic",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_workorderincident",
+      "Etn": "msdyn_workorderincident",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_workorderincident",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_workorderproduct",
+      "Etn": "msdyn_workorderproduct",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_workorderproduct",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_workorderresourcerestriction",
+      "Etn": "msdyn_workorderresourcerestriction",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_workorderresourcerestriction",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_workorderservice",
+      "Etn": "msdyn_workorderservice",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_workorderservice",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_workorderservicetask",
+      "Etn": "msdyn_workorderservicetask",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_workorderservicetask",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_workordersubstatus",
+      "Etn": "msdyn_workordersubstatus",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_workordersubstatus",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_workordertype",
+      "Etn": "msdyn_workordertype",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_workordertype",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_timeentry",
+      "Etn": "msdyn_timeentry",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_timeentry",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_timeentrysetting",
+      "Etn": "msdyn_timeentrysetting",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_timeentrysetting",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_incidenttyperecommendationresult",
+      "Etn": "msdyn_incidenttyperecommendationresult",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_incidenttyperecommendationresult",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_incidenttyperecommendationrunhistory",
+      "Etn": "msdyn_incidenttyperecommendationrunhistory",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_incidenttyperecommendationrunhistory",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_problematicasset",
+      "Etn": "msdyn_problematicasset",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_problematicasset",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_problematicassetfeedback",
+      "Etn": "msdyn_problematicassetfeedback",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_problematicassetfeedback",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_entityconfiguration",
+      "Etn": "msdyn_entityconfiguration",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_entityconfiguration",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_geofence",
+      "Etn": "msdyn_geofence",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_geofence",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_geofenceevent",
+      "Etn": "msdyn_geofenceevent",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_geofenceevent",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_geofencingsettings",
+      "Etn": "msdyn_geofencingsettings",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_geofencingsettings",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_activityfileattachment",
+      "Etn": "activityfileattachment",
+      "Role": "Referenced",
+      "NavPropName": "team_activityfileattachment",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_flowmachine",
+      "Etn": "flowmachine",
+      "Role": "Referenced",
+      "NavPropName": "team_flowmachine",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_flowmachinegroup",
+      "Etn": "flowmachinegroup",
+      "Role": "Referenced",
+      "NavPropName": "team_flowmachinegroup",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_kalanguagesetting",
+      "Etn": "msdyn_kalanguagesetting",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_kalanguagesetting",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_knowledgepersonalfilter",
+      "Etn": "msdyn_knowledgepersonalfilter",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_knowledgepersonalfilter",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_knowledgesearchfilter",
+      "Etn": "msdyn_knowledgesearchfilter",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_knowledgesearchfilter",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_inspectioninstance",
+      "Etn": "msdyn_inspectioninstance",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_inspectioninstance",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_incidenttyperesolution",
+      "Etn": "msdyn_incidenttyperesolution",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_incidenttyperesolution",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_resolution",
+      "Etn": "msdyn_resolution",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_resolution",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_workorderresolution",
+      "Etn": "msdyn_workorderresolution",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_workorderresolution",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_bookableresourcebookingquicknote",
+      "Etn": "msdyn_bookableresourcebookingquicknote",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_bookableresourcebookingquicknote",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_gdprdata",
+      "Etn": "msdyn_gdprdata",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_gdprdata",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_contentsnippet",
+      "Etn": "adx_contentsnippet",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_contentsnippet",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_pagetemplate",
+      "Etn": "adx_pagetemplate",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_pagetemplate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_sitemarker",
+      "Etn": "adx_sitemarker",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_sitemarker",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_sitesetting",
+      "Etn": "adx_sitesetting",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_sitesetting",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_webfile",
+      "Etn": "adx_webfile",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_webfile",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_weblink",
+      "Etn": "adx_weblink",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_weblink",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_weblinkset",
+      "Etn": "adx_weblinkset",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_weblinkset",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_webnotificationurl",
+      "Etn": "adx_webnotificationurl",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_webnotificationurl",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_webpage",
+      "Etn": "adx_webpage",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_webpage",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_webrole",
+      "Etn": "adx_webrole",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_webrole",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_website",
+      "Etn": "adx_website",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_website",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_ad",
+      "Etn": "adx_ad",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_ad",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_adplacement",
+      "Etn": "adx_adplacement",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_adplacement",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "adx_alertsubscription_team_owningteam",
+      "Etn": "adx_alertsubscription",
+      "Role": "Referenced",
+      "NavPropName": "adx_alertsubscription_team_owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_invitation",
+      "Etn": "adx_invitation",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_invitation",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "adx_inviteredemption_team_owningteam",
+      "Etn": "adx_inviteredemption",
+      "Role": "Referenced",
+      "NavPropName": "adx_inviteredemption_team_owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_pagealert",
+      "Etn": "adx_pagealert",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_pagealert",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_pagenotification",
+      "Etn": "adx_pagenotification",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_pagenotification",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_pagetag",
+      "Etn": "adx_pagetag",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_pagetag",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_poll",
+      "Etn": "adx_poll",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_poll",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_polloption",
+      "Etn": "adx_polloption",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_polloption",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_pollplacement",
+      "Etn": "adx_pollplacement",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_pollplacement",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_pollsubmission",
+      "Etn": "adx_pollsubmission",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_pollsubmission",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_portallanguage",
+      "Etn": "adx_portallanguage",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_portallanguage",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_publishingstate",
+      "Etn": "adx_publishingstate",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_publishingstate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_publishingstatetransitionrule",
+      "Etn": "adx_publishingstatetransitionrule",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_publishingstatetransitionrule",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_redirect",
+      "Etn": "adx_redirect",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_redirect",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_setting",
+      "Etn": "adx_setting",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_setting",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_shortcut",
+      "Etn": "adx_shortcut",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_shortcut",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_tag",
+      "Etn": "adx_tag",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_tag",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_urlhistory",
+      "Etn": "adx_urlhistory",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_urlhistory",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_webfilelog",
+      "Etn": "adx_webfilelog",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_webfilelog",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_webpageaccesscontrolrule",
+      "Etn": "adx_webpageaccesscontrolrule",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_webpageaccesscontrolrule",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_webpagehistory",
+      "Etn": "adx_webpagehistory",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_webpagehistory",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_webpagelog",
+      "Etn": "adx_webpagelog",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_webpagelog",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_websiteaccess",
+      "Etn": "adx_websiteaccess",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_websiteaccess",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_websitelanguage",
+      "Etn": "adx_websitelanguage",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_websitelanguage",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_webform",
+      "Etn": "adx_webform",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_webform",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_blog",
+      "Etn": "adx_blog",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_blog",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_blogpost",
+      "Etn": "adx_blogpost",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_blogpost",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_communityforum",
+      "Etn": "adx_communityforum",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_communityforum",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_communityforumaccesspermission",
+      "Etn": "adx_communityforumaccesspermission",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_communityforumaccesspermission",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_communityforumalert",
+      "Etn": "adx_communityforumalert",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_communityforumalert",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_communityforumannouncement",
+      "Etn": "adx_communityforumannouncement",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_communityforumannouncement",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_communityforumpost",
+      "Etn": "adx_communityforumpost",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_communityforumpost",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_communityforumthread",
+      "Etn": "adx_communityforumthread",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_communityforumthread",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_forumthreadtype",
+      "Etn": "adx_forumthreadtype",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_forumthreadtype",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_idea",
+      "Etn": "adx_idea",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_idea",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_ideaforum",
+      "Etn": "adx_ideaforum",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_ideaforum",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "adx_portalcomment_team_owningteam",
+      "Etn": "adx_portalcomment",
+      "Role": "Referenced",
+      "NavPropName": "adx_portalcomment_team_owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_casedeflection",
+      "Etn": "adx_casedeflection",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_casedeflection",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_contentaccesslevel",
+      "Etn": "adx_contentaccesslevel",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_contentaccesslevel",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_cmpallowedreason",
+      "Etn": "adx_cmpallowedreason",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_cmpallowedreason",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_contentmoderationpolicy",
+      "Etn": "adx_contentmoderationpolicy",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_contentmoderationpolicy",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_featurecontrolsetting",
+      "Etn": "featurecontrolsetting",
+      "Role": "Referenced",
+      "NavPropName": "team_featurecontrolsetting",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_solutioncomponentbatchconfiguration",
+      "Etn": "solutioncomponentbatchconfiguration",
+      "Role": "Referenced",
+      "NavPropName": "team_solutioncomponentbatchconfiguration",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_immeuble",
+      "Etn": "lor_immeuble",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_immeuble",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_bien",
+      "Etn": "lor_bien",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_bien",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_dimsi_debugsession",
+      "Etn": "dimsi_debugsession",
+      "Role": "Referenced",
+      "NavPropName": "team_dimsi_debugsession",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_log",
+      "Etn": "lor_log",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_log",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_demande",
+      "Etn": "lor_demande",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_demande",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_pminferredtask",
+      "Etn": "msdyn_pminferredtask",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_pminferredtask",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_pmrecording",
+      "Etn": "msdyn_pmrecording",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_pmrecording",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_recording",
+      "Etn": "msdyn_recording",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_recording",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_appnotification",
+      "Etn": "appnotification",
+      "Role": "Referenced",
+      "NavPropName": "team_appnotification",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_dealmanageraccess",
+      "Etn": "msdyn_dealmanageraccess",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_dealmanageraccess",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_dealmanagersettings",
+      "Etn": "msdyn_dealmanagersettings",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_dealmanagersettings",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_conversationdata",
+      "Etn": "msdyn_conversationdata",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_conversationdata",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_kpieventdata",
+      "Etn": "msdyn_kpieventdata",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_kpieventdata",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_kpieventdefinition",
+      "Etn": "msdyn_kpieventdefinition",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_kpieventdefinition",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_sessiondata",
+      "Etn": "msdyn_sessiondata",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_sessiondata",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_sessionparticipantdata",
+      "Etn": "msdyn_sessionparticipantdata",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_sessionparticipantdata",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_kbattachment",
+      "Etn": "msdyn_kbattachment",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_kbattachment",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_comment",
+      "Etn": "comment",
+      "Role": "Referenced",
+      "NavPropName": "team_comment",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_entitylinkchatconfiguration",
+      "Etn": "msdyn_entitylinkchatconfiguration",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_entitylinkchatconfiguration",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_dataflowrefreshhistory",
+      "Etn": "msdyn_dataflowrefreshhistory",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_dataflowrefreshhistory",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_entityrefreshhistory",
+      "Etn": "msdyn_entityrefreshhistory",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_entityrefreshhistory",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_quartier",
+      "Etn": "lor_quartier",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_quartier",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_stock",
+      "Etn": "lor_stock",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_stock",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_cr9a1_test",
+      "Etn": "cr9a1_test",
+      "Role": "Referenced",
+      "NavPropName": "team_cr9a1_test",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aicontactsuggestion",
+      "Etn": "msdyn_aicontactsuggestion",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aicontactsuggestion",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_contactsuggestionrule",
+      "Etn": "msdyn_contactsuggestionrule",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_contactsuggestionrule",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_contactsuggestionruleset",
+      "Etn": "msdyn_contactsuggestionruleset",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_contactsuggestionruleset",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_sequencestat",
+      "Etn": "msdyn_sequencestat",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_sequencestat",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_salesroutingrun",
+      "Etn": "msdyn_salesroutingrun",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_salesroutingrun",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_datasyncstate",
+      "Etn": "datasyncstate",
+      "Role": "Referenced",
+      "NavPropName": "team_datasyncstate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_camion",
+      "Etn": "lor_camion",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_camion",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_plaqueimmatriculation",
+      "Etn": "lor_plaqueimmatriculation",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_plaqueimmatriculation",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_salestag",
+      "Etn": "msdyn_salestag",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_salestag",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "msdyn_team_msdyn_salesroutingrun_ownerassigned",
+      "Etn": "msdyn_salesroutingrun",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_team_msdyn_salesroutingrun_ownerassigned",
+      "LookName": "msdyn_ownerassigned"
+    },
+    {
+      "Name": "team_lor_maintenance",
+      "Etn": "lor_maintenance",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_maintenance",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_route",
+      "Etn": "lor_route",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_route",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_adx_botconsumer",
+      "Etn": "adx_botconsumer",
+      "Role": "Referenced",
+      "NavPropName": "team_adx_botconsumer",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_parainage",
+      "Etn": "lor_parainage",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_parainage",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_knowledgemanagementsetting",
+      "Etn": "msdyn_knowledgemanagementsetting",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_knowledgemanagementsetting",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_new_m_school",
+      "Etn": "new_m_school",
+      "Role": "Referenced",
+      "NavPropName": "team_new_m_school",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_new_m_student",
+      "Etn": "new_m_student",
+      "Role": "Referenced",
+      "NavPropName": "team_new_m_student",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_new_m_lesson",
+      "Etn": "new_m_lesson",
+      "Role": "Referenced",
+      "NavPropName": "team_new_m_lesson",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_new_m_grade",
+      "Etn": "new_m_grade",
+      "Role": "Referenced",
+      "NavPropName": "team_new_m_grade",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_new_m_apply",
+      "Etn": "new_m_apply",
+      "Role": "Referenced",
+      "NavPropName": "team_new_m_apply",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_pi_school",
+      "Etn": "pi_school",
+      "Role": "Referenced",
+      "NavPropName": "team_pi_school",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_pi_student",
+      "Etn": "pi_student",
+      "Role": "Referenced",
+      "NavPropName": "team_pi_student",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_pi_course",
+      "Etn": "pi_course",
+      "Role": "Referenced",
+      "NavPropName": "team_pi_course",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_pi_courseinscription",
+      "Etn": "pi_courseinscription",
+      "Role": "Referenced",
+      "NavPropName": "team_pi_courseinscription",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_pi_studentgroup",
+      "Etn": "pi_studentgroup",
+      "Role": "Referenced",
+      "NavPropName": "team_pi_studentgroup",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_salessuggestion",
+      "Etn": "msdyn_salessuggestion",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_salessuggestion",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_duplicateleadmapping",
+      "Etn": "msdyn_duplicateleadmapping",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_duplicateleadmapping",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_synapsedatabase",
+      "Etn": "synapsedatabase",
+      "Role": "Referenced",
+      "NavPropName": "team_synapsedatabase",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_ftp_particulier",
+      "Etn": "ftp_particulier",
+      "Role": "Referenced",
+      "NavPropName": "team_ftp_particulier",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_ftp_agentimmobilier",
+      "Etn": "ftp_agentimmobilier",
+      "Role": "Referenced",
+      "NavPropName": "team_ftp_agentimmobilier",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_ftp_appartement",
+      "Etn": "ftp_appartement",
+      "Role": "Referenced",
+      "NavPropName": "team_ftp_appartement",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_ftp_contrat",
+      "Etn": "ftp_contrat",
+      "Role": "Referenced",
+      "NavPropName": "team_ftp_contrat",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_ftp_contratdelocation",
+      "Etn": "ftp_contratdelocation",
+      "Role": "Referenced",
+      "NavPropName": "team_ftp_contratdelocation",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_red_dummytable",
+      "Etn": "red_dummytable",
+      "Role": "Referenced",
+      "NavPropName": "team_red_dummytable",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "chat_team_owningteam",
+      "Etn": "chat",
+      "Role": "Referenced",
+      "NavPropName": "chat_team_owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_sequencetemplate",
+      "Etn": "msdyn_sequencetemplate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_sequencetemplate",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_bateau",
+      "Etn": "lor_bateau",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_bateau",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_dock",
+      "Etn": "lor_dock",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_dock",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_aibfeedbackloop",
+      "Etn": "msdyn_aibfeedbackloop",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_aibfeedbackloop",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_tva",
+      "Etn": "lor_tva",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_tva",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_red_dummytable2",
+      "Etn": "red_dummytable2",
+      "Role": "Referenced",
+      "NavPropName": "team_red_dummytable2",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_fa1_groupe",
+      "Etn": "fa1_groupe",
+      "Role": "Referenced",
+      "NavPropName": "team_fa1_groupe",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_red_dummysomething",
+      "Etn": "red_dummysomething",
+      "Role": "Referenced",
+      "NavPropName": "team_red_dummysomething",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_fa2_fidelite",
+      "Etn": "fa2_fidelite",
+      "Role": "Referenced",
+      "NavPropName": "team_fa2_fidelite",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_fa2_catalogue",
+      "Etn": "fa2_catalogue",
+      "Role": "Referenced",
+      "NavPropName": "team_fa2_catalogue",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_fa2_bonus",
+      "Etn": "fa2_bonus",
+      "Role": "Referenced",
+      "NavPropName": "team_fa2_bonus",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_fa2_catalogueproduit",
+      "Etn": "fa2_catalogueproduit",
+      "Role": "Referenced",
+      "NavPropName": "team_fa2_catalogueproduit",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_cgo_programme",
+      "Etn": "cgo_programme",
+      "Role": "Referenced",
+      "NavPropName": "team_cgo_programme",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_cgo_lot",
+      "Etn": "cgo_lot",
+      "Role": "Referenced",
+      "NavPropName": "team_cgo_lot",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_cgo_typedelot",
+      "Etn": "cgo_typedelot",
+      "Role": "Referenced",
+      "NavPropName": "team_cgo_typedelot",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_timespent",
+      "Etn": "msdyn_timespent",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_timespent",
+      "LookName": "owningteam"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "knowledgearticle_Teams",
+      "Etn": "knowledgearticle",
+      "NavPropName": "regardingobjectid_knowledgearticle",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "teamtemplate_Teams",
+      "Etn": "teamtemplate",
+      "NavPropName": "associatedteamtemplateid",
+      "LookName": "teamtemplateid"
+    },
+    {
+      "Name": "lk_teambase_administratorid",
+      "Etn": "systemuser",
+      "NavPropName": "administratorid",
+      "LookName": "administratorid"
+    },
+    {
+      "Name": "processstage_teams",
+      "Etn": "processstage",
+      "NavPropName": "stageid_processstage",
+      "LookName": "stageid"
+    },
+    {
+      "Name": "lk_teambase_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_teambase_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "queue_team",
+      "Etn": "queue",
+      "NavPropName": "queueid",
+      "LookName": "queueid"
+    },
+    {
+      "Name": "TransactionCurrency_Team",
+      "Etn": "transactioncurrency",
+      "NavPropName": "transactioncurrencyid",
+      "LookName": "transactioncurrencyid"
+    },
+    {
+      "Name": "business_unit_teams",
+      "Etn": "businessunit",
+      "NavPropName": "businessunitid",
+      "LookName": "businessunitid"
+    },
+    {
+      "Name": "organization_teams",
+      "Etn": "organization",
+      "NavPropName": "organizationid_organization",
+      "LookName": "organizationid"
+    },
+    {
+      "Name": "lk_team_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "lk_team_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "opportunity_Teams",
+      "Etn": "opportunity",
+      "NavPropName": "regardingobjectid_opportunity",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "fa2_fidelite_Teams",
+      "Etn": "fa2_fidelite",
+      "NavPropName": "regardingobjectid_fa2_fidelite",
+      "LookName": "regardingobjectid"
+    }
+  ],
+  "Keys": [
+    {
+      "Name": "aadobjectid_membershiptype",
+      "FieldNames": [
+        "membershiptype",
+        "azureactivedirectoryobjectid"
+      ]
+    }
+  ],
+  "Enums": [
+    {
+      "LogName": "team|teamtype",
+      "Name": "TypeDEquipe",
+      "Locked": true,
+      "Values": [
+        {
+          "Value": 0,
+          "Name": "Proprietaire",
+          "Labels": [
+            {
+              "Label": "Owner",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Acces",
+          "Labels": [
+            {
+              "Label": "Access",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "GroupeDeSecurite_AAD",
+          "Labels": [
+            {
+              "Label": "AAD Security Group",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "GroupeOffice_AAD",
+          "Labels": [
+            {
+              "Label": "AAD Office Group",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "team|membershiptype",
+      "Name": "MembershipType",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "MembersAndGuests",
+          "Labels": [
+            {
+              "Label": "Members and guests",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Members",
+          "Labels": [
+            {
+              "Label": "Members",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Owners",
+          "Labels": [
+            {
+              "Label": "Owners",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Guests",
+          "Labels": [
+            {
+              "Label": "Guests",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
