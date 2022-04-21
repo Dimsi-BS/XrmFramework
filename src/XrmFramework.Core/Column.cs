@@ -21,6 +21,9 @@ namespace XrmFramework.Core
         [JsonProperty("Capa")]
         public AttributeCapabilities Capabilities { get; set; }
 
+        [JsonProperty("Locked")]
+        public bool IsLocked { get; set; }
+
         public ICollection<LocalizedLabel> Labels { get; } = new List<LocalizedLabel>();
 
         [JsonProperty("StrLen")]

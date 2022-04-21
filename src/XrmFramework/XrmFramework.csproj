@@ -47,4 +47,17 @@
     <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
+  
+  <PropertyGroup>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Generated\**" />
+    <None Include="Generated\**" />
+    <None Remove="**\*.table" />
+    <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
+  </ItemGroup>
+
 </Project>

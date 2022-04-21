@@ -17,12 +17,12 @@ namespace XrmFramework.Core
 
             if (Columns.TryGetValue(item.LogicalName, out var existingColumn))
             {
-                if (item.Selected)
+                if (item.Selected || item.IsLocked)
                 {
                     existingColumn.Name = item.Name;
                     existingColumn.Selected = true;
                 }
-                else if (existingColumn.Selected)
+                else if (existingColumn.Selected || existingColumn.IsLocked)
                 {
                     item.Name = existingColumn.Name;
                     item.Selected = true;
@@ -79,6 +79,14 @@ namespace XrmFramework.Core
             }
 
             return Columns.ContainsKey(item.LogicalName);
+        }
+
+        public void MergeColumns(IEnumerable<Column> items)
+        {
+            foreach (var column in items)
+            {
+                Add(column);
+            }
         }
 
         public void CopyTo(Column[] array, int arrayIndex) => Columns.Values.CopyTo(array, arrayIndex);

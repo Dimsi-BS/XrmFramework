@@ -145,15 +145,10 @@ namespace DefinitionManager
                         {
                             LogicalName = key.LogicalName,
                             Name = key.DisplayName.UserLocalizedLabel.Label.FormatText()
-                        
+
                         };
                         newKey.FieldNames.AddRange(key.KeyAttributes);
 
-
-                        if (newEntity.Keys == null)
-                        {
-                            newEntity.Keys = new List<Key>();
-                        }
 
                         newEntity.Keys.Add(newKey);
                     }
