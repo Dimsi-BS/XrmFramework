@@ -31,6 +31,7 @@ namespace XrmFramework.RemoteDebugger
 
         [CrmMapping(DebugSessionDefinition.Columns.StateCode)]
         public DebugSessionState StateCode { get; set; }
+        public string AssemblyDebugInfo { get; set; }
 
         public Guid Id { get; set; }
 

@@ -25,6 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.42" />
     <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.42" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />

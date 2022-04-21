@@ -39,9 +39,7 @@ namespace XrmFramework.DeployUtils.Configuration
             serviceCollection.AddSingleton<IAssemblyFactory, AssemblyFactory>();
             serviceCollection.AddSingleton<RegistrationHelper>();
 
-            serviceCollection.AddAutoMapper(typeof(AutoMapperLocalToLocalProfile),
-                                            typeof(AutoMapperRemoteToLocalProfile),
-                                            typeof(AutoMapperLocalToRemoteProfile));
+            serviceCollection.AddAutoMapper(typeof(AutoMapperLocalToLocalProfile));
             return serviceCollection;
         }
 

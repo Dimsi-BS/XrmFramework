@@ -1,29 +1,36 @@
-﻿using Microsoft.Extensions.Options;
+﻿using AutoMapper;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using XrmFramework.BindingModel;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.DeployUtils.Utils;
 using XrmFramework.RemoteDebugger;
 using XrmFramework.RemoteDebugger.Client.Configuration;
+using XrmFramework.RemoteDebugger.Model.CrmComponentInfos;
 
 namespace XrmFramework.DeployUtils
 {
     public partial class RegistrationHelper
     {
         private readonly Guid _debugSessionId;
+        private readonly IMapper _mapper;
 
 
         public RegistrationHelper(IRegistrationService service,
                                   IAssemblyExporter exporter,
                                   IAssemblyFactory assemblyFactory,
                                   AssemblyDiffFactory diffFactory,
+                                  IMapper mapper,
                                   IOptions<DebugSessionSettings> settings)
         {
             _assemblyExporter = exporter;
             _assemblyFactory = assemblyFactory;
             _registrationService = service;
             _assemblyDiffFactory = diffFactory;
+            _mapper = mapper;
             _debugSessionId = settings.Value.DebugSessionId;
 
         }
@@ -40,6 +47,7 @@ namespace XrmFramework.DeployUtils
             Console.WriteLine("Fetching Remote Assembly...");
 
             var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, projectName);
+
 
             registeredAssembly.Workflows.Clear();
             registeredAssembly.CustomApis.Clear();
@@ -76,7 +84,21 @@ namespace XrmFramework.DeployUtils
         private void RegisterStepsToDebugSession(IAssemblyContext deployDiff)
         {
             var debugSession = _registrationService.GetById<DebugSession>(_debugSessionId);
+            var patchInfo = _mapper.Map<AssemblyContextInfo>(deployDiff);
 
+            var patches = !string.IsNullOrEmpty(debugSession.AssemblyDebugInfo)
+                ? JsonConvert.DeserializeObject<List<AssemblyContextInfo>>(debugSession.AssemblyDebugInfo)
+                : new List<AssemblyContextInfo>();
+
+            var index = patches.IndexOf(patchInfo);
+            if (index == -1)
+                patches.Add(patchInfo);
+            else
+            {
+                patches[index] = patchInfo;
+            }
+
+            debugSession.AssemblyDebugInfo = JsonConvert.SerializeObject(patches);
         }
     }
 }

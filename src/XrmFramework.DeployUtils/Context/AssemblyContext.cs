@@ -116,7 +116,9 @@ namespace XrmFramework.DeployUtils.Context
 
         public void CleanChildrenWithState(RegistrationState state)
         {
-            foreach (var child in Children)
+            var childrenSafe = Children.ToList();
+            foreach (var child in childrenSafe)
+
             {
                 child.CleanChildrenWithState(state);
                 if (!child.Children.Any() && child.RegistrationState == state)
