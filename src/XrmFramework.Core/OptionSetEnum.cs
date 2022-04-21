@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace XrmFramework.Core
 {
@@ -10,6 +10,9 @@ namespace XrmFramework.Core
         public string LogicalName { get; set; }
 
         public string Name { get; set; }
+
+        [JsonProperty("Locked")]
+        public bool IsLocked { get; set; }
 
         public ICollection<OptionSetEnumValue> Values { get; } = new List<OptionSetEnumValue>();
 

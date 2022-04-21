@@ -145,7 +145,7 @@ namespace DefinitionManager
                         {
                             LogicalName = key.LogicalName,
                             Name = key.DisplayName.UserLocalizedLabel.Label.FormatText()
-                        
+
                         };
                         newKey.FieldNames.AddRange(key.KeyAttributes);
 
