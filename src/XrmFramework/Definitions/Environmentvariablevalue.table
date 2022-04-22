@@ -1,0 +1,283 @@
+{
+  "LogName": "environmentvariablevalue",
+  "Name": "EnvironmentVariableValue",
+  "CollName": "environmentvariablevalues",
+  "Cols": [
+    {
+      "LogName": "environmentvariabledefinitionid",
+      "Name": "EnvironmentVariableDefinitionId",
+      "Type": "Lookup",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Environment Variable Definition",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "environmentvariablevalueid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Environment Variable Value",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ownerid",
+      "Name": "OwnerId",
+      "Type": "Owner",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Owner",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "schemaname",
+      "Name": "SchemaName",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Schema Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "statecode",
+      "Name": "Statecode",
+      "Type": "State",
+      "Capa": 11,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Status",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "environmentvariablevalue|statecode"
+    },
+    {
+      "LogName": "statuscode",
+      "Name": "Statuscode",
+      "Type": "Status",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Status Reason",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "environmentvariablevalue|statuscode"
+    },
+    {
+      "LogName": "value",
+      "Name": "Value",
+      "Type": "Memo",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Value",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 2000
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "environmentvariablevalue_SyncErrors",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariablevalue_SyncErrors",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "environmentvariablevalue_DuplicateMatchingRecord",
+      "Etn": "duplicaterecord",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariablevalue_DuplicateMatchingRecord",
+      "LookName": "duplicaterecordid"
+    },
+    {
+      "Name": "environmentvariablevalue_DuplicateBaseRecord",
+      "Etn": "duplicaterecord",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariablevalue_DuplicateBaseRecord",
+      "LookName": "baserecordid"
+    },
+    {
+      "Name": "environmentvariablevalue_AsyncOperations",
+      "Etn": "asyncoperation",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariablevalue_AsyncOperations",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "environmentvariablevalue_MailboxTrackingFolders",
+      "Etn": "mailboxtrackingfolder",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariablevalue_MailboxTrackingFolders",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "environmentvariablevalue_UserEntityInstanceDatas",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariablevalue_UserEntityInstanceDatas",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "environmentvariablevalue_ProcessSession",
+      "Etn": "processsession",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariablevalue_ProcessSession",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "environmentvariablevalue_BulkDeleteFailures",
+      "Etn": "bulkdeletefailure",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariablevalue_BulkDeleteFailures",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "environmentvariablevalue_PrincipalObjectAttributeAccesses",
+      "Etn": "principalobjectattributeaccess",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariablevalue_PrincipalObjectAttributeAccesses",
+      "LookName": "objectid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_environmentvariablevalue_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_environmentvariablevalue_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_environmentvariablevalue_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_environmentvariablevalue_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "user_environmentvariablevalue",
+      "Etn": "systemuser",
+      "NavPropName": "owninguser",
+      "LookName": "owninguser"
+    },
+    {
+      "Name": "team_environmentvariablevalue",
+      "Etn": "team",
+      "NavPropName": "owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "owner_environmentvariablevalue",
+      "Etn": "owner",
+      "NavPropName": "ownerid",
+      "LookName": "ownerid"
+    },
+    {
+      "Name": "business_unit_environmentvariablevalue",
+      "Etn": "businessunit",
+      "NavPropName": "owningbusinessunit",
+      "LookName": "owningbusinessunit"
+    },
+    {
+      "Name": "environmentvariabledefinition_environmentvariablevalue",
+      "Etn": "environmentvariabledefinition",
+      "NavPropName": "EnvironmentVariableDefinitionId",
+      "LookName": "environmentvariabledefinitionid"
+    }
+  ],
+  "Locked": true,
+  "Keys": [],
+  "Enums": [
+    {
+      "LogName": "environmentvariablevalue|statecode",
+      "Name": "EnvironmentvariablevalueState",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "Active",
+          "Labels": [
+            {
+              "Label": "Active",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Inactive",
+          "Labels": [
+            {
+              "Label": "Inactive",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "environmentvariablevalue|statuscode",
+      "Name": "EnvironmentvariablevalueStatus",
+      "Locked": true,
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Active",
+          "Labels": [
+            {
+              "Label": "Active",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Inactive",
+          "Labels": [
+            {
+              "Label": "Inactive",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

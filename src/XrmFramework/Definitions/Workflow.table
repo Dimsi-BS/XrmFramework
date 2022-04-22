@@ -1,0 +1,799 @@
+{
+  "LogName": "workflow",
+  "Name": "Workflow",
+  "CollName": "workflows",
+  "Cols": [
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Nom du processus",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "plugintypeid",
+      "Name": "PluginTypeId",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Locked": true,
+      "Labels": []
+    },
+    {
+      "LogName": "rank",
+      "Name": "Rank",
+      "Type": "Integer",
+      "Capa": 7,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Rang",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -2147483648.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "runas",
+      "Name": "RunAs",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Exécuter en tant qu'utilisateur",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "workflow_runas"
+    },
+    {
+      "LogName": "workflowid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Processus",
+          "LangId": 1036
+        }
+      ]
+    }
+  ],
+  "NtoN": [
+    {
+      "Name": "botcomponent_workflow",
+      "Etn": "botcomponent",
+      "NavPropName": "botcomponent_workflow",
+      "LookName": "botcomponentid"
+    }
+  ],
+  "OneToN": [
+    {
+      "Name": "Workflow_Annotation",
+      "Etn": "annotation",
+      "Role": "Referenced",
+      "NavPropName": "Workflow_Annotation",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "workflowid_profilerule",
+      "Etn": "channelaccessprofilerule",
+      "Role": "Referenced",
+      "NavPropName": "workflowid_profilerule",
+      "LookName": "workflowid"
+    },
+    {
+      "Name": "process_processstage",
+      "Etn": "processstage",
+      "Role": "Referenced",
+      "NavPropName": "process_processstage",
+      "LookName": "processid"
+    },
+    {
+      "Name": "Workflow_routingrule",
+      "Etn": "routingrule",
+      "Role": "Referenced",
+      "NavPropName": "Workflow_routingrule",
+      "LookName": "workflowid"
+    },
+    {
+      "Name": "lk_asyncoperation_workflowactivationid",
+      "Etn": "asyncoperation",
+      "Role": "Referenced",
+      "NavPropName": "lk_asyncoperation_workflowactivationid",
+      "LookName": "workflowactivationid"
+    },
+    {
+      "Name": "process_processtrigger",
+      "Etn": "processtrigger",
+      "Role": "Referenced",
+      "NavPropName": "process_processtrigger",
+      "LookName": "processid"
+    },
+    {
+      "Name": "lk_expiredprocess_processid",
+      "Etn": "expiredprocess",
+      "Role": "Referenced",
+      "NavPropName": "workflow_expiredprocess",
+      "LookName": "processid"
+    },
+    {
+      "Name": "workflow_parent_workflow",
+      "Etn": "workflow",
+      "Role": "Referenced",
+      "NavPropName": "workflow_parent_workflow",
+      "LookName": "parentworkflowid"
+    },
+    {
+      "Name": "userentityinstancedata_workflow",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_workflow",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "slaitembase_workflowid",
+      "Etn": "slaitem",
+      "Role": "Referenced",
+      "NavPropName": "slaitembase_workflowid",
+      "LookName": "workflowid"
+    },
+    {
+      "Name": "slabase_workflowid",
+      "Etn": "sla",
+      "Role": "Referenced",
+      "NavPropName": "slabase_workflowid",
+      "LookName": "workflowid"
+    },
+    {
+      "Name": "lk_processsession_processid",
+      "Etn": "processsession",
+      "Role": "Referenced",
+      "NavPropName": "lk_processsession_processid",
+      "LookName": "processid"
+    },
+    {
+      "Name": "workflow_dependencies",
+      "Etn": "workflowdependency",
+      "Role": "Referenced",
+      "NavPropName": "workflow_dependencies",
+      "LookName": "workflowid"
+    },
+    {
+      "Name": "lk_translationprocess_processid",
+      "Etn": "translationprocess",
+      "Role": "Referenced",
+      "NavPropName": "workflow_translationprocess",
+      "LookName": "processid"
+    },
+    {
+      "Name": "lk_newprocess_processid",
+      "Etn": "newprocess",
+      "Role": "Referenced",
+      "NavPropName": "workflow_newprocess",
+      "LookName": "processid"
+    },
+    {
+      "Name": "Workflow_SyncErrors",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "Workflow_SyncErrors",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "workflow_active_workflow",
+      "Etn": "workflow",
+      "Role": "Referenced",
+      "NavPropName": "workflow_active_workflow",
+      "LookName": "activeworkflowid"
+    },
+    {
+      "Name": "workflowid_convertrule",
+      "Etn": "convertrule",
+      "Role": "Referenced",
+      "NavPropName": "workflowid_convertrule",
+      "LookName": "workflowid"
+    },
+    {
+      "Name": "convertruleitembase_workflowid",
+      "Etn": "convertruleitem",
+      "Role": "Referenced",
+      "NavPropName": "convertruleitembase_workflowid",
+      "LookName": "workflowid"
+    },
+    {
+      "Name": "lk_phonetocaseprocess_processid",
+      "Etn": "phonetocaseprocess",
+      "Role": "Referenced",
+      "NavPropName": "workflow_phonetocaseprocess",
+      "LookName": "processid"
+    },
+    {
+      "Name": "lk_msdyn_iottocaseprocess_processid",
+      "Etn": "msdyn_iottocaseprocess",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_iottocaseprocess_processid",
+      "LookName": "processid"
+    },
+    {
+      "Name": "lk_leadtoopportunitysalesprocess_processid",
+      "Etn": "leadtoopportunitysalesprocess",
+      "Role": "Referenced",
+      "NavPropName": "workflow_leadtoopportunitysalesprocess",
+      "LookName": "processid"
+    },
+    {
+      "Name": "lk_opportunitysalesprocess_processid",
+      "Etn": "opportunitysalesprocess",
+      "Role": "Referenced",
+      "NavPropName": "workflow_opportunitysalesprocess",
+      "LookName": "processid"
+    },
+    {
+      "Name": "msdyn_workflow_msdyn_solutionhealthrule_Workflow",
+      "Etn": "msdyn_solutionhealthrule",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_workflow_msdyn_solutionhealthrule_Workflow",
+      "LookName": "msdyn_workflow"
+    },
+    {
+      "Name": "msdyn_workflow_msdyn_solutionhealthrule_resolutionaction",
+      "Etn": "msdyn_solutionhealthrule",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_workflow_msdyn_solutionhealthrule_resolutionaction",
+      "LookName": "msdyn_resolutionaction"
+    },
+    {
+      "Name": "catalogassignment_workflow",
+      "Etn": "catalogassignment",
+      "Role": "Referenced",
+      "NavPropName": "CatalogAssignments",
+      "LookName": "object"
+    },
+    {
+      "Name": "msdyn_workflow_msdyn_prod_agentscriptstep_macroactionid",
+      "Etn": "msdyn_productivityagentscriptstep",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_workflow_msdyn_prod_agentscriptstep_macroactionid",
+      "LookName": "msdyn_macroactionid"
+    },
+    {
+      "Name": "msdyn_workflow_msdyn_macrosession_macroname",
+      "Etn": "msdyn_macrosession",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_workflow_msdyn_macrosession_macroname",
+      "LookName": "msdyn_macroname"
+    },
+    {
+      "Name": "regardingobjectid_process",
+      "Etn": "flowsession",
+      "Role": "Referenced",
+      "NavPropName": "regardingobjectid_process",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "workflow_workflowbinary_Process",
+      "Etn": "workflowbinary",
+      "Role": "Referenced",
+      "NavPropName": "workflow_workflowbinary_Process",
+      "LookName": "process"
+    },
+    {
+      "Name": "lk_msdyn_bpf_2c5fe86acc8b414b8322ae571000c799_processid",
+      "Etn": "msdyn_bpf_2c5fe86acc8b414b8322ae571000c799",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_bpf_2c5fe86acc8b414b8322ae571000c799_processid",
+      "LookName": "processid"
+    },
+    {
+      "Name": "lk_msdyn_bpf_989e9b1857e24af18787d5143b67523b_processid",
+      "Etn": "msdyn_bpf_989e9b1857e24af18787d5143b67523b",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_bpf_989e9b1857e24af18787d5143b67523b_processid",
+      "LookName": "processid"
+    },
+    {
+      "Name": "lk_msdyn_bpf_baa0a411a239410cb8bded8b5fdd88e3_processid",
+      "Etn": "msdyn_bpf_baa0a411a239410cb8bded8b5fdd88e3",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_bpf_baa0a411a239410cb8bded8b5fdd88e3_processid",
+      "LookName": "processid"
+    },
+    {
+      "Name": "lk_msdyn_bpf_d3d97bac8c294105840e99e37a9d1c39_processid",
+      "Etn": "msdyn_bpf_d3d97bac8c294105840e99e37a9d1c39",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_bpf_d3d97bac8c294105840e99e37a9d1c39_processid",
+      "LookName": "processid"
+    },
+    {
+      "Name": "lk_msdyn_bpf_477c16f59170487b8b4dc895c5dcd09b_processid",
+      "Etn": "msdyn_bpf_477c16f59170487b8b4dc895c5dcd09b",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_bpf_477c16f59170487b8b4dc895c5dcd09b_processid",
+      "LookName": "processid"
+    },
+    {
+      "Name": "adx_invitation_redemptionworkflow",
+      "Etn": "adx_invitation",
+      "Role": "Referenced",
+      "NavPropName": "adx_invitation_redemptionworkflow",
+      "LookName": "adx_redemptionworkflow"
+    },
+    {
+      "Name": "lk_adx_bpf_c2857b638fa7473d8e2f112c232cebd8_processid",
+      "Etn": "adx_bpf_c2857b638fa7473d8e2f112c232cebd8",
+      "Role": "Referenced",
+      "NavPropName": "lk_adx_bpf_c2857b638fa7473d8e2f112c232cebd8_processid",
+      "LookName": "processid"
+    },
+    {
+      "Name": "msdyn_workflow_msdyn_pmrecording",
+      "Etn": "msdyn_pmrecording",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_workflow_msdyn_pmrecording",
+      "LookName": "msdyn_sourceworkflow"
+    },
+    {
+      "Name": "msdyn_retrainworkflow_msdyn_toaimodel",
+      "Etn": "msdyn_aimodel",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_retrainworkflow_msdyn_toaimodel",
+      "LookName": "msdyn_retrainworkflowid"
+    },
+    {
+      "Name": "msdyn_scheduleinferenceworkflow_msdyn_toaimodel",
+      "Etn": "msdyn_aimodel",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_scheduleinferenceworkflow_msdyn_toaimodel",
+      "LookName": "msdyn_scheduleinferenceworkflowid"
+    },
+    {
+      "Name": "Comment_Artifact_Workflow",
+      "Etn": "comment",
+      "Role": "Referenced",
+      "NavPropName": "Comment_Artifact_Workflow",
+      "LookName": "parent"
+    },
+    {
+      "Name": "msdyn_workflow_slaitem_customtimecalculationworkflowid",
+      "Etn": "slaitem",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_workflow_slaitem_customtimecalculationworkflowid",
+      "LookName": "msdyn_customtimecalculationworkflowid"
+    },
+    {
+      "Name": "msdyn_workflow_msdyn_timespent_businessprocessflow",
+      "Etn": "msdyn_timespent",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_workflow_msdyn_timespent_businessprocessflow",
+      "LookName": "msdyn_businessprocessflow"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "workflow_active_workflow",
+      "Etn": "workflow",
+      "NavPropName": "activeworkflowid",
+      "LookName": "activeworkflowid"
+    },
+    {
+      "Name": "workflow_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "workflow_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "business_unit_workflow",
+      "Etn": "businessunit",
+      "NavPropName": "owningbusinessunit",
+      "LookName": "owningbusinessunit"
+    },
+    {
+      "Name": "owner_workflows",
+      "Etn": "owner",
+      "NavPropName": "ownerid",
+      "LookName": "ownerid"
+    },
+    {
+      "Name": "system_user_workflow",
+      "Etn": "systemuser",
+      "NavPropName": "owninguser",
+      "LookName": "owninguser"
+    },
+    {
+      "Name": "workflow_entityimage",
+      "Etn": "imagedescriptor",
+      "NavPropName": "entityimageinstance_workflow",
+      "LookName": "entityimageid"
+    },
+    {
+      "Name": "team_workflow",
+      "Etn": "team",
+      "NavPropName": "owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "workflow_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "workflow_parent_workflow",
+      "Etn": "workflow",
+      "NavPropName": "parentworkflowid",
+      "LookName": "parentworkflowid"
+    },
+    {
+      "Name": "workflow_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    }
+  ],
+  "Locked": true,
+  "Keys": [],
+  "Enums": [
+    {
+      "LogName": "workflow|businessprocesstype",
+      "Name": "TypeDeProcessusDEntreprise",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "FluxDEntreprise",
+          "Labels": [
+            {
+              "Label": "Flux d'entreprise",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "FluxDeTaches",
+          "Labels": [
+            {
+              "Label": "Flux de tâches",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "workflow|category",
+      "Name": "Categorie",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "Workflow",
+          "Labels": [
+            {
+              "Label": "Workflow",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "BoiteDeDialogue",
+          "Labels": [
+            {
+              "Label": "Boîte de dialogue",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "RegleMetier",
+          "Labels": [
+            {
+              "Label": "Règle métier",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Action",
+          "Labels": [
+            {
+              "Label": "Action",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "FluxDesProcessusDEntreprise",
+          "Labels": [
+            {
+              "Label": "Flux des processus d'entreprise",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 5,
+          "Name": "ModernFlow",
+          "Labels": [
+            {
+              "Label": "Modern Flow",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 9000,
+          "Name": "FluxDeLAPIDeClientWeb",
+          "Labels": [
+            {
+              "Label": "Flux de l’API de client Web",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 6,
+          "Name": "FluxDeBureau",
+          "Labels": [
+            {
+              "Label": "Flux de bureau",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "workflow|mode",
+      "Name": "Mode",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "Origine",
+          "Labels": [
+            {
+              "Label": "Origine",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "EnTempsReel",
+          "Labels": [
+            {
+              "Label": "En temps réel",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "workflow|scope",
+      "Name": "Etendue",
+      "Locked": true,
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Utilisateur",
+          "Labels": [
+            {
+              "Label": "Utilisateur",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Division",
+          "Labels": [
+            {
+              "Label": "Division",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Divis.MereSousDivisions",
+          "Labels": [
+            {
+              "Label": "Divis. mère : sous-divisions",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "Organisation",
+          "Labels": [
+            {
+              "Label": "Organisation",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "workflow|statecode",
+      "Name": "WorkflowState",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "Brouillon",
+          "Labels": [
+            {
+              "Label": "Brouillon",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Active",
+          "Labels": [
+            {
+              "Label": "Activé",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Suspendu",
+          "Labels": [
+            {
+              "Label": "Suspendu",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "workflow|statuscode",
+      "Name": "WorkflowStatus",
+      "Locked": true,
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Brouillon",
+          "Labels": [
+            {
+              "Label": "Brouillon",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Active",
+          "Labels": [
+            {
+              "Label": "Activé",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Companydlpviolation",
+          "Labels": [
+            {
+              "Label": "CompanyDLPViolation",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "workflow|type",
+      "Name": "Type",
+      "Locked": true,
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Definition",
+          "Labels": [
+            {
+              "Label": "Définition",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Activation",
+          "Labels": [
+            {
+              "Label": "Activation",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Modele",
+          "Labels": [
+            {
+              "Label": "Modèle",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "workflow|uiflowtype",
+      "Name": "TypeDeFluxDeBureau",
+      "Locked": true,
+      "Values": [
+        {
+          "Value": 101,
+          "Name": "Recording",
+          "Labels": [
+            {
+              "Label": "Recording",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Name": "EnregistreurWindowsV1",
+          "Labels": [
+            {
+              "Label": "Enregistreur Windows (V1)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "SeleniumIDE",
+          "Labels": [
+            {
+              "Label": "Selenium IDE",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "PowerAutomateDesktop",
+          "Labels": [
+            {
+              "Label": "Power Automate Desktop",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -802,7 +802,20 @@ namespace XrmFramework.DefinitionManager
 
                 
                 table.Columns.RemoveNonSelectedColumns();
-                
+
+
+                // To be deleted
+                table.isLocked = true;
+                foreach (var column in table.Columns)
+                {
+                    column.IsLocked = true;
+                }
+                foreach(var en in table.Enums)
+                {
+                    en.IsLocked = true;
+                }
+
+
 
                 var serializedTable = JsonConvert.SerializeObject(table, Formatting.Indented, new JsonSerializerSettings
                 {
@@ -1589,13 +1602,13 @@ namespace XrmFramework.DefinitionManager
 
             foreach(var entity in definitionsToBeConverted)
             {
-                MessageBox.Show($"{entity.Name}");
                 table = new Table()
                 {
                     LogicalName = entity.LogicalName,
                     CollectionName = entity.LogicalCollectionName,
                     Name = entity.Name.Replace("Definition",""),
                     Selected = true,
+                    
                     
                 };
 
@@ -1617,9 +1630,14 @@ namespace XrmFramework.DefinitionManager
                     {
                         LogicalName = attr.LogicalName,
                         Name = attr.Name,
+
+
                         Selected = true,
+                        //Delete this line after generation of base tables
+                        IsLocked = true,
                         
                     };
+
 
                     table.Columns.Add(column);
                     /*

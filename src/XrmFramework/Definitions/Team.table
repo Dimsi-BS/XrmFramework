@@ -4,33 +4,27 @@
   "CollName": "teams",
   "Cols": [
     {
-      "LogName": "businessunitid",
-      "Name": "BusinessUnitId",
-      "Type": "Lookup",
-      "Capa": 13,
-      "Locked": true, 
-      "Labels": [
-      ]
-    },
-    {
-      "LogName": "teamtype",
-      "Name": "TeamType",
-      "Type": "Picklist",
-      "EnumName": "team|teamtype",
-      "Capa": 13,
-      "Locked": true,
-      "Labels": [
-      ]
-    },
-    {
       "LogName": "azureactivedirectoryobjectid",
       "Name": "AzureActiveDirectoryObjectId",
       "Type": "Uniqueidentifier",
-      "Locked": true,
       "Capa": 13,
+      "Locked": true,
       "Labels": [
         {
           "Label": "ID d’objet Azure AD pour un groupe",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "businessunitid",
+      "Name": "BusinessUnitId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Division",
           "LangId": 1036
         }
       ]
@@ -77,6 +71,20 @@
           "LangId": 1036
         }
       ]
+    },
+    {
+      "LogName": "teamtype",
+      "Name": "TeamType",
+      "Type": "Picklist",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Type d'équipe",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "team|teamtype"
     }
   ],
   "NtoN": [
@@ -3801,6 +3809,111 @@
       "Role": "Referenced",
       "NavPropName": "team_msdyn_timespent",
       "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_avion",
+      "Etn": "lor_avion",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_avion",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_lor_pilote",
+      "Etn": "lor_pilote",
+      "Role": "Referenced",
+      "NavPropName": "team_lor_pilote",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_dataanalyticscustomizedreport",
+      "Etn": "msdyn_dataanalyticscustomizedreport",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_dataanalyticscustomizedreport",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_csadminconfig",
+      "Etn": "msdyn_csadminconfig",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_csadminconfig",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_decisioncontract",
+      "Etn": "msdyn_decisioncontract",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_decisioncontract",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_decisionruleset",
+      "Etn": "msdyn_decisionruleset",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_decisionruleset",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_rulesetdependencymapping",
+      "Etn": "msdyn_rulesetdependencymapping",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_rulesetdependencymapping",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_unifiedroutingdiagnostic",
+      "Etn": "msdyn_unifiedroutingdiagnostic",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_unifiedroutingdiagnostic",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_unifiedroutingrun",
+      "Etn": "msdyn_unifiedroutingrun",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_unifiedroutingrun",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_swarm",
+      "Etn": "msdyn_swarm",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_swarm",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_swarmparticipant",
+      "Etn": "msdyn_swarmparticipant",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_swarmparticipant",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_swarmparticipantrule",
+      "Etn": "msdyn_swarmparticipantrule",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_swarmparticipantrule",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_swarmrole",
+      "Etn": "msdyn_swarmrole",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_swarmrole",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_swarmskill",
+      "Etn": "msdyn_swarmskill",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_swarmskill",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "team_msdyn_swarmtemplate",
+      "Etn": "msdyn_swarmtemplate",
+      "Role": "Referenced",
+      "NavPropName": "team_msdyn_swarmtemplate",
+      "LookName": "owningteam"
     }
   ],
   "NToOne": [
@@ -3889,9 +4002,11 @@
       "LookName": "regardingobjectid"
     }
   ],
+  "Locked": true,
   "Keys": [
     {
-      "Name": "aadobjectid_membershiptype",
+      "LogicalName": "aadobjectid_membershiptype",
+      "Name": "AADObjectidWithMembershiptype",
       "FieldNames": [
         "membershiptype",
         "azureactivedirectoryobjectid"
@@ -3899,53 +4014,6 @@
     }
   ],
   "Enums": [
-    {
-      "LogName": "team|teamtype",
-      "Name": "TypeDEquipe",
-      "Locked": true,
-      "Values": [
-        {
-          "Value": 0,
-          "Name": "Proprietaire",
-          "Labels": [
-            {
-              "Label": "Owner",
-              "LangId": 1036
-            }
-          ]
-        },
-        {
-          "Value": 1,
-          "Name": "Acces",
-          "Labels": [
-            {
-              "Label": "Access",
-              "LangId": 1036
-            }
-          ]
-        },
-        {
-          "Value": 2,
-          "Name": "GroupeDeSecurite_AAD",
-          "Labels": [
-            {
-              "Label": "AAD Security Group",
-              "LangId": 1036
-            }
-          ]
-        },
-        {
-          "Value": 3,
-          "Name": "GroupeOffice_AAD",
-          "Labels": [
-            {
-              "Label": "AAD Office Group",
-              "LangId": 1036
-            }
-          ]
-        }
-      ]
-    },
     {
       "LogName": "team|membershiptype",
       "Name": "MembershipType",
@@ -3986,6 +4054,52 @@
           "Labels": [
             {
               "Label": "Guests",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "team|teamtype",
+      "Name": "TypeDEquipe",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "Proprietaire",
+          "Labels": [
+            {
+              "Label": "Propriétaire",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Acces",
+          "Labels": [
+            {
+              "Label": "Accès",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "GroupeDeSecuriteAAD",
+          "Labels": [
+            {
+              "Label": "Groupe de sécurité AAD",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "GroupeOfficeAAD",
+          "Labels": [
+            {
+              "Label": "Groupe Office AAD",
               "LangId": 1036
             }
           ]

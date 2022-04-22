@@ -1,0 +1,44 @@
+{
+  "LogName": "systemuserroles",
+  "Name": "SystemUserRoles",
+  "Cols": [
+    {
+      "LogName": "roleid",
+      "Name": "RoleId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Locked": true,
+      "Labels": []
+    },
+    {
+      "LogName": "systemuserid",
+      "Name": "SystemUserId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Locked": true,
+      "Labels": []
+    },
+    {
+      "LogName": "systemuserroleid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 5,
+      "Locked": true,
+      "Labels": []
+    }
+  ],
+  "NtoN": [
+    {
+      "Name": "systemuserroles_association",
+      "Etn": "systemuser",
+      "NavPropName": "systemuserroles",
+      "LookName": "systemuserid"
+    }
+  ],
+  "OneToN": [],
+  "NToOne": [],
+  "Locked": true,
+  "Keys": [],
+  "Enums": []
+}

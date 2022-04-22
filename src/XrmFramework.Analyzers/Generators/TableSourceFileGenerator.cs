@@ -201,7 +201,7 @@ namespace XrmFramework.Analyzers.Generators
 								}
 								sb.AppendLine("}");
 							}
-
+							/*
 							if (table.ManyToOneRelationships.Any())
 							{
 								sb.AppendLine("public static class ManyToOneRelationships");
@@ -218,7 +218,7 @@ namespace XrmFramework.Analyzers.Generators
 										}
 										else
 										{
-											sb.Append($"\"{relationship.EntityName}\"");
+											sb.Append($"\"{relationship.EntityName}\""); 
 										}
 
 										sb.Append($", EntityRole.{relationship.Role}, \"{relationship.NavigationPropertyName}\", ");
@@ -382,6 +382,12 @@ namespace XrmFramework.Analyzers.Generators
 								}
 								sb.AppendLine("}");
 							}
+							*/
+							AddRelations(sb, tables, table, table.ManyToOneRelationships,"ManyToOneRelationships");
+							AddRelations(sb, tables, table, table.ManyToManyRelationships, "ManyToManyRelationships");
+							AddRelations(sb, tables, table, table.OneToManyRelationships, "OneToManyRelationships");
+
+
 						}
 
 						sb.AppendLine("}");
@@ -494,5 +500,113 @@ namespace XrmFramework.Analyzers.Generators
 
 			sb.AppendLine("/// </summary>");
 		}
+
+		private void AddRelations(IndentedStringBuilder sb,TableCollection tables,Table table, List<Relation> relations,string relationType)
+        {
+			if(relations.Any())
+            {
+				sb.AppendLine($"public static class {relationType}");
+				sb.AppendLine("{");
+				using (sb.Indent())
+				{
+					foreach (var relationship in relations)
+					{
+						sb.Append("[Relationship(");
+						var targetTable = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
+						if (targetTable != null)
+						{
+							sb.Append($"{targetTable.Name}Definition.EntityName");
+						}
+						else
+						{
+							sb.Append($"\"{relationship.EntityName}\"");
+						}
+
+						sb.Append($", EntityRole.{relationship.Role}, \"{relationship.NavigationPropertyName}\", ");
+
+
+						if(relationType == "ManyToOneRelationships")
+                        {
+							if (relationship.Role == EntityRole.Referencing)
+							{
+								//var tb = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
+
+
+								//var re = tb?.OneToManyRelationships.FirstOrDefault(r => r.Name == relationship.Name);
+								var rc = table.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
+
+								if (rc != null)
+								{
+									sb.Append($"{table.Name}Definition.Columns.{rc.Name}");
+								}
+								else
+								{
+									sb.Append($"\"{relationship.LookupFieldName}\"");
+								}
+							}
+							else
+							{
+								var rc = table.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
+
+								//var r = tb?.OneToManyRelationships.FirstOrDefault(r => r.Name == relationship.Name);
+
+
+								if (rc != null)
+								{
+									sb.Append($"{table.Name}Definition.Columns.{rc.Name}");
+								}
+								else
+								{
+									sb.Append($"\"{relationship.LookupFieldName}\"");
+								}
+							}
+
+							sb.AppendLine(")]");
+							sb.AppendLine($"public const string {relationship.Name} = \"{relationship.Name}\";");
+						}
+						else
+                        {
+							if (relationship.Role == EntityRole.Referencing)
+							{
+								var tb = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
+								var rc = tb?.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
+
+								if (rc != null && tb != null)
+								{
+									sb.Append($"{tb.Name}Definition.Columns.{rc.Name}");
+								}
+								else
+								{
+									sb.Append($"\"{relationship.LookupFieldName}\"");
+								}
+							}
+							else
+							{
+								var tb = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
+
+								var rc = tb?.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
+
+								if (rc != null && tb != null)
+								{
+									sb.Append($"{tb.Name}Definition.Columns.{rc.Name}");
+								}
+								else
+								{
+									sb.Append($"\"{relationship.LookupFieldName}\"");
+								}
+							}
+
+							sb.AppendLine(")]");
+							sb.AppendLine($"public const string {relationship.Name} = \"{relationship.Name}\";");
+						}
+
+						
+
+						
+					}
+				}
+				sb.AppendLine("}");
+			}
+        }
 	}
 }

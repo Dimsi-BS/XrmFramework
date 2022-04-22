@@ -1,5 +1,4 @@
 ﻿//HintName: Account.table.cs
-
 using System;
 using System.CodeDom.Compiler;
 using System.ComponentModel.DataAnnotations;

@@ -1,0 +1,668 @@
+{
+  "LogName": "sdkmessageprocessingstep",
+  "Name": "SdkMessageProcessingStep",
+  "CollName": "sdkmessageprocessingsteps",
+  "Cols": [
+    {
+      "LogName": "asyncautodelete",
+      "Name": "AsyncAutoDelete",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Suppression automatique asynchrone",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "canusereadonlyconnection",
+      "Name": "CanUseReadOnlyConnection",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Intention",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "componentstate",
+      "Name": "ComponentState",
+      "Type": "Picklist",
+      "Capa": 1,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "État du composant",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "componentstate"
+    },
+    {
+      "LogName": "configuration",
+      "Name": "Configuration",
+      "Type": "String",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Configuration",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1073741823
+    },
+    {
+      "LogName": "description",
+      "Name": "Description",
+      "Type": "String",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Description",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "eventexpander",
+      "Name": "EventExpander",
+      "Type": "String",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Développeur d'événement",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1073741823
+    },
+    {
+      "LogName": "eventhandler",
+      "Name": "EventHandler",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Gestionnaire d’événements",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "filteringattributes",
+      "Name": "FilteringAttributes",
+      "Type": "String",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Filtrage d’attributs",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100000
+    },
+    {
+      "LogName": "impersonatinguserid",
+      "Name": "ImpersonatingUserId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Usurpation de l’identité d’un utilisateur",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "iscustomizable",
+      "Name": "IsCustomizable",
+      "Type": "ManagedProperty",
+      "Capa": 7,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Personnalisable",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ishidden",
+      "Name": "IsHidden",
+      "Type": "ManagedProperty",
+      "Capa": 7,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Masqué",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ismanaged",
+      "Name": "IsManaged",
+      "Capa": 1,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "État",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "mode",
+      "Name": "Mode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Mode d’exécution",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "sdkmessageprocessingstep|mode"
+    },
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Nom ",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "plugintypeid",
+      "Name": "PluginTypeId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Type de plug-in",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "sdkmessagefilterid",
+      "Name": "SdkMessageFilterId",
+      "Type": "Lookup",
+      "Capa": 7,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Filtre du message sdk",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "sdkmessageid",
+      "Name": "SdkMessageId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Message Sdk",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "sdkmessageprocessingstepid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 5,
+      "Locked": true,
+      "Labels": []
+    },
+    {
+      "LogName": "sdkmessageprocessingstepidunique",
+      "Name": "SdkMessageProcessingStepIdUnique",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Locked": true,
+      "Labels": []
+    },
+    {
+      "LogName": "sdkmessageprocessingstepsecureconfigid",
+      "Name": "SdkMessageProcessingStepSecureConfigId",
+      "Type": "Lookup",
+      "Capa": 7,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Configuration sécurisée de l'étape de traitement du message Sdk",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "statecode",
+      "Name": "StateCode",
+      "Type": "State",
+      "Capa": 11,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Statut",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "sdkmessageprocessingstep|statecode"
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "SdkMessageProcessingStep_AsyncOperations",
+      "Etn": "asyncoperation",
+      "Role": "Referenced",
+      "NavPropName": "SdkMessageProcessingStep_AsyncOperations",
+      "LookName": "owningextensionid"
+    },
+    {
+      "Name": "sdkmessageprocessingstepid_sdkmessageprocessingstepimage",
+      "Etn": "sdkmessageprocessingstepimage",
+      "Role": "Referenced",
+      "NavPropName": "sdkmessageprocessingstepid_sdkmessageprocessingstepimage",
+      "LookName": "sdkmessageprocessingstepid"
+    },
+    {
+      "Name": "userentityinstancedata_sdkmessageprocessingstep",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_sdkmessageprocessingstep",
+      "LookName": "objectid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "plugintype_sdkmessageprocessingstep",
+      "Etn": "plugintype",
+      "NavPropName": "eventhandler_plugintype",
+      "LookName": "eventhandler"
+    },
+    {
+      "Name": "sdkmessagefilterid_sdkmessageprocessingstep",
+      "Etn": "sdkmessagefilter",
+      "NavPropName": "sdkmessagefilterid",
+      "LookName": "sdkmessagefilterid"
+    },
+    {
+      "Name": "serviceendpoint_sdkmessageprocessingstep",
+      "Etn": "serviceendpoint",
+      "NavPropName": "eventhandler_serviceendpoint",
+      "LookName": "eventhandler"
+    },
+    {
+      "Name": "lk_sdkmessageprocessingstep_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "organization_sdkmessageprocessingstep",
+      "Etn": "organization",
+      "NavPropName": "organizationid",
+      "LookName": "organizationid"
+    },
+    {
+      "Name": "impersonatinguserid_sdkmessageprocessingstep",
+      "Etn": "systemuser",
+      "NavPropName": "impersonatinguserid",
+      "LookName": "impersonatinguserid"
+    },
+    {
+      "Name": "lk_sdkmessageprocessingstep_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "modifiedby_sdkmessageprocessingstep",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "sdkmessageid_sdkmessageprocessingstep",
+      "Etn": "sdkmessage",
+      "NavPropName": "sdkmessageid",
+      "LookName": "sdkmessageid"
+    },
+    {
+      "Name": "sdkmessageprocessingstepsecureconfigid_sdkmessageprocessingstep",
+      "Etn": "sdkmessageprocessingstepsecureconfig",
+      "NavPropName": "sdkmessageprocessingstepsecureconfigid",
+      "LookName": "sdkmessageprocessingstepsecureconfigid"
+    },
+    {
+      "Name": "createdby_sdkmessageprocessingstep",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "plugintypeid_sdkmessageprocessingstep",
+      "Etn": "plugintype",
+      "NavPropName": "plugintypeid",
+      "LookName": "plugintypeid"
+    }
+  ],
+  "Locked": true,
+  "Keys": [],
+  "Enums": [
+    {
+      "LogName": "sdkmessageprocessingstep|invocationsource",
+      "Name": "SourceDInvocation",
+      "Locked": true,
+      "Values": [
+        {
+          "Value": -1,
+          "Name": "Interne",
+          "Labels": [
+            {
+              "Label": "Interne",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Name": "Parent",
+          "Labels": [
+            {
+              "Label": "Parent",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Enfant",
+          "Labels": [
+            {
+              "Label": "Enfant",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "sdkmessageprocessingstep|mode",
+      "Name": "Mode",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "Synchrone",
+          "Labels": [
+            {
+              "Label": "Synchrone",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Asynchrone",
+          "Labels": [
+            {
+              "Label": "Asynchrone",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "sdkmessageprocessingstep|stage",
+      "Name": "Phase",
+      "Locked": true,
+      "Values": [
+        {
+          "Value": 5,
+          "Name": "OperationAnterieureInitialeAUsageInterneUniquement",
+          "Labels": [
+            {
+              "Label": "Opération antérieure initiale (à usage interne uniquement)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 10,
+          "Name": "ValidationPrealable",
+          "Labels": [
+            {
+              "Label": "Validation préalable",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 15,
+          "Name": "OperationAnterieureInterneAvantLesPlugInsExternesAUsageInterneUniquement",
+          "Labels": [
+            {
+              "Label": "Opération antérieure interne avant les plug-ins externes (à usage interne uniquement)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 20,
+          "Name": "OperationPrealable",
+          "Labels": [
+            {
+              "Label": "Opération préalable",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 25,
+          "Name": "OperationAnterieureInterneApresLesPlugInsExternesAUsageInterneUniquement",
+          "Labels": [
+            {
+              "Label": "Opération antérieure interne après les plug-ins externes (à usage interne uniquement)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 30,
+          "Name": "OperationPrincipaleAUsageInterneUniquement",
+          "Labels": [
+            {
+              "Label": "Opération principale (à usage interne uniquement)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 35,
+          "Name": "OperationPosterieureInterneAvantLesPlugInsExternesAUsageInterneUniquement",
+          "Labels": [
+            {
+              "Label": "Opération postérieure interne avant les plug-ins externes (à usage interne uniquement)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 40,
+          "Name": "OperationPosterieure",
+          "Labels": [
+            {
+              "Label": "Opération postérieure",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 45,
+          "Name": "OperationPosterieureInterneApresLesPlugInsExternesAUsageInterneUniquement",
+          "Labels": [
+            {
+              "Label": "Opération postérieure interne après les plug-ins externes (à usage interne uniquement)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 50,
+          "Name": "OperationPosterieureDeconseille",
+          "Labels": [
+            {
+              "Label": "Opération postérieure (déconseillé)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 55,
+          "Name": "OperationPosterieureFinaleAUsageInterneUniquement",
+          "Labels": [
+            {
+              "Label": "Opération postérieure finale (à usage interne uniquement)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 80,
+          "Name": "PhaseDePreValidationDeclencheeAvantLaValidationDeLaTransactionUtilisationInterneUniquement",
+          "Labels": [
+            {
+              "Label": "Phase de pré-validation déclenchée avant la validation de la transaction (utilisation interne uniquement)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 90,
+          "Name": "PhaseDePostValidationDeclencheeApresLaValidationDeLaTransactionUtilisationInterneUniquement",
+          "Labels": [
+            {
+              "Label": "Phase de post-validation déclenchée après la validation de la transaction (utilisation interne uniquement)",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "sdkmessageprocessingstep|statecode",
+      "Name": "SdkmessageprocessingstepState",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "Activee",
+          "Labels": [
+            {
+              "Label": "Activée",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Desactive",
+          "Labels": [
+            {
+              "Label": "Désactivé",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "sdkmessageprocessingstep|statuscode",
+      "Name": "SdkmessageprocessingstepStatus",
+      "Locked": true,
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Activee",
+          "Labels": [
+            {
+              "Label": "Activée",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Desactive",
+          "Labels": [
+            {
+              "Label": "Désactivé",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "sdkmessageprocessingstep|supporteddeployment",
+      "Name": "DeploiementPrisEnCharge",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "ServeurUniquement",
+          "Labels": [
+            {
+              "Label": "Serveur uniquement",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "ClientMicrosoftDynamics365PourOutlookUniquement",
+          "Labels": [
+            {
+              "Label": "Client Microsoft Dynamics 365 pour Outlook uniquement",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Toutes",
+          "Labels": [
+            {
+              "Label": "Toutes",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

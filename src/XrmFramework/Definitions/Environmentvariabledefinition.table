@@ -1,0 +1,493 @@
+{
+  "LogName": "environmentvariabledefinition",
+  "Name": "EnvironmentVariable",
+  "CollName": "environmentvariabledefinitions",
+  "Cols": [
+    {
+      "LogName": "componentstate",
+      "Name": "ComponentState",
+      "Type": "Picklist",
+      "Capa": 1,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Component State",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "componentstate"
+    },
+    {
+      "LogName": "defaultvalue",
+      "Name": "DefaultValue",
+      "Type": "Memo",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Default Value",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 2000
+    },
+    {
+      "LogName": "description",
+      "Name": "Description",
+      "Type": "Memo",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Description",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 2000
+    },
+    {
+      "LogName": "displayname",
+      "Name": "DisplayName",
+      "Type": "String",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Display Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "environmentvariabledefinitionid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Environment Variable Definition",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "overwritetime",
+      "Name": "OverwriteTime",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Record Overwrite Time",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "ownerid",
+      "Name": "OwnerId",
+      "Type": "Owner",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Owner",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "schemaname",
+      "Name": "SchemaName",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Schema Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "statecode",
+      "Name": "Statecode",
+      "Type": "State",
+      "Capa": 11,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Status",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "environmentvariabledefinition|statecode"
+    },
+    {
+      "LogName": "statuscode",
+      "Name": "Statuscode",
+      "Type": "Status",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Status Reason",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "environmentvariabledefinition|statuscode"
+    },
+    {
+      "LogName": "type",
+      "Name": "Type",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Type",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "environmentvariabledefinition|type"
+    },
+    {
+      "LogName": "valueschema",
+      "Name": "ValueSchema",
+      "Type": "Memo",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Value Schema",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 2000
+    }
+  ],
+  "NtoN": [
+    {
+      "Name": "bot_environmentvariabledefinition",
+      "Etn": "bot",
+      "NavPropName": "bot_environmentvariabledefinition",
+      "LookName": "botid"
+    },
+    {
+      "Name": "botcomponent_environmentvariabledefinition",
+      "Etn": "botcomponent",
+      "NavPropName": "botcomponent_environmentvariabledefinition",
+      "LookName": "botcomponentid"
+    }
+  ],
+  "OneToN": [
+    {
+      "Name": "environmentvariabledefinition_SyncErrors",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariabledefinition_SyncErrors",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "environmentvariabledefinition_DuplicateMatchingRecord",
+      "Etn": "duplicaterecord",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariabledefinition_DuplicateMatchingRecord",
+      "LookName": "duplicaterecordid"
+    },
+    {
+      "Name": "environmentvariabledefinition_DuplicateBaseRecord",
+      "Etn": "duplicaterecord",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariabledefinition_DuplicateBaseRecord",
+      "LookName": "baserecordid"
+    },
+    {
+      "Name": "environmentvariabledefinition_AsyncOperations",
+      "Etn": "asyncoperation",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariabledefinition_AsyncOperations",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "environmentvariabledefinition_MailboxTrackingFolders",
+      "Etn": "mailboxtrackingfolder",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariabledefinition_MailboxTrackingFolders",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "environmentvariabledefinition_UserEntityInstanceDatas",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariabledefinition_UserEntityInstanceDatas",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "environmentvariabledefinition_ProcessSession",
+      "Etn": "processsession",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariabledefinition_ProcessSession",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "environmentvariabledefinition_BulkDeleteFailures",
+      "Etn": "bulkdeletefailure",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariabledefinition_BulkDeleteFailures",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "environmentvariabledefinition_PrincipalObjectAttributeAccesses",
+      "Etn": "principalobjectattributeaccess",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariabledefinition_PrincipalObjectAttributeAccesses",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "envdefinition_envdefinition",
+      "Etn": "environmentvariabledefinition",
+      "Role": "Referenced",
+      "NavPropName": "envdefinition_envdefinition",
+      "LookName": "parentdefinitionid"
+    },
+    {
+      "Name": "environmentvariabledefinition_environmentvariablevalue",
+      "Etn": "environmentvariablevalue",
+      "Role": "Referenced",
+      "NavPropName": "environmentvariabledefinition_environmentvariablevalue",
+      "LookName": "environmentvariabledefinitionid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_environmentvariabledefinition_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_environmentvariabledefinition_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_environmentvariabledefinition_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_environmentvariabledefinition_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "user_environmentvariabledefinition",
+      "Etn": "systemuser",
+      "NavPropName": "owninguser",
+      "LookName": "owninguser"
+    },
+    {
+      "Name": "team_environmentvariabledefinition",
+      "Etn": "team",
+      "NavPropName": "owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "owner_environmentvariabledefinition",
+      "Etn": "owner",
+      "NavPropName": "ownerid",
+      "LookName": "ownerid"
+    },
+    {
+      "Name": "business_unit_environmentvariabledefinition",
+      "Etn": "businessunit",
+      "NavPropName": "owningbusinessunit",
+      "LookName": "owningbusinessunit"
+    },
+    {
+      "Name": "envdefinition_envdefinition",
+      "Etn": "environmentvariabledefinition",
+      "NavPropName": "ParentDefinitionId",
+      "LookName": "parentdefinitionid"
+    }
+  ],
+  "Locked": true,
+  "Keys": [
+    {
+      "LogicalName": "definitionkey",
+      "Name": "EnvironmentVariableDefinitionKey",
+      "FieldNames": [
+        "componentstate",
+        "overwritetime",
+        "schemaname"
+      ]
+    }
+  ],
+  "Enums": [
+    {
+      "LogName": "environmentvariabledefinition|secretstore",
+      "Name": "SecretStore",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "AzureKeyVault",
+          "Labels": [
+            {
+              "Label": "Azure Key Vault",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        },
+        {
+          "Value": 1,
+          "Name": "MicrosoftDataverse",
+          "Labels": [
+            {
+              "Label": "Microsoft Dataverse",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        }
+      ]
+    },
+    {
+      "LogName": "environmentvariabledefinition|statecode",
+      "Name": "EnvironmentvariabledefinitionState",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "Active",
+          "Labels": [
+            {
+              "Label": "Active",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Inactive",
+          "Labels": [
+            {
+              "Label": "Inactive",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "environmentvariabledefinition|statuscode",
+      "Name": "EnvironmentvariabledefinitionStatus",
+      "Locked": true,
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Active",
+          "Labels": [
+            {
+              "Label": "Active",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Inactive",
+          "Labels": [
+            {
+              "Label": "Inactive",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "environmentvariabledefinition|type",
+      "Name": "EnvironmentVariableType",
+      "Locked": true,
+      "Values": [
+        {
+          "Value": 100000000,
+          "Name": "String",
+          "Labels": [
+            {
+              "Label": "String",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        },
+        {
+          "Value": 100000001,
+          "Name": "Number",
+          "Labels": [
+            {
+              "Label": "Number",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        },
+        {
+          "Value": 100000002,
+          "Name": "Boolean",
+          "Labels": [
+            {
+              "Label": "Boolean",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        },
+        {
+          "Value": 100000003,
+          "Name": "JSON",
+          "Labels": [
+            {
+              "Label": "JSON",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        },
+        {
+          "Value": 100000004,
+          "Name": "ConnectionReference",
+          "Labels": [
+            {
+              "Label": "Connection reference",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        },
+        {
+          "Value": 100000005,
+          "Name": "Secret",
+          "Labels": [
+            {
+              "Label": "Secret",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        }
+      ],
+      "HasNullValue": true
+    }
+  ]
+}
