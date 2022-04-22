@@ -805,15 +805,15 @@ namespace XrmFramework.DefinitionManager
 
 
                 // To be deleted
-                table.isLocked = true;
-                foreach (var column in table.Columns)
-                {
-                    column.IsLocked = true;
-                }
-                foreach(var en in table.Enums)
-                {
-                    en.IsLocked = true;
-                }
+                //table.isLocked = true;
+                //foreach (var column in table.Columns)
+                //{
+                //    column.IsLocked = true;
+                //}
+                //foreach(var en in table.Enums)
+                //{
+                //    en.IsLocked = true;
+                //}
 
 
 
@@ -1634,7 +1634,7 @@ namespace XrmFramework.DefinitionManager
 
                         Selected = true,
                         //Delete this line after generation of base tables
-                        IsLocked = true,
+                        //IsLocked = true,
                         
                     };
 
