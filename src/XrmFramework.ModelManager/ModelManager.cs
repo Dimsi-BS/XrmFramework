@@ -1036,6 +1036,22 @@ namespace XrmFramework.ModelManager
                     if(similarMapping != null)
                     {
                         //Choose the right one
+                        do
+                        {
+                            Console.WriteLine($"Another property named {similarMapping.Name} connected to the same crm property already has isValidForUpdate set to true, do you want to switch it to false in order to set it to true for your property {newProperty.Name} ? (y/n)");
+                            userInput = Console.ReadLine();
+                        }
+                        while(userInput != "y" && userInput != "n");
+                        if(userInput == "y")
+                        {
+                            similarMapping.isValidForUpdate = false;
+                            newProperty.isValidForUpdate = true;
+                        }
+                        else
+                        {
+                            newProperty.isValidForUpdate = false;
+                        }
+
 
                     }
                 }

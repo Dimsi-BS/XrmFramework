@@ -1,0 +1,68 @@
+{
+  "LogName": "sdkmessageprocessingstepsecureconfig",
+  "Name": "SdkMessageProcessingStepSecureConfig",
+  "CollName": "sdkmessageprocessingstepsecureconfigs",
+  "Cols": [
+    {
+      "LogName": "sdkmessageprocessingstepsecureconfigid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 5,
+      "Locked": true,
+      "Labels": []
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "userentityinstancedata_sdkmessageprocessingstepsecureconfig",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_sdkmessageprocessingstepsecureconfig",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "sdkmessageprocessingstepsecureconfigid_sdkmessageprocessingstep",
+      "Etn": "sdkmessageprocessingstep",
+      "Role": "Referenced",
+      "NavPropName": "sdkmessageprocessingstepsecureconfigid_sdkmessageprocessingstep",
+      "LookName": "sdkmessageprocessingstepsecureconfigid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_sdkmessageprocessingstepsecureconfig_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "modifiedby_sdkmessageprocessingstepsecureconfig",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_sdkmessageprocessingstepsecureconfig_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "organization_sdkmessageprocessingstepsecureconfig",
+      "Etn": "organization",
+      "NavPropName": "organizationid",
+      "LookName": "organizationid"
+    },
+    {
+      "Name": "createdby_sdkmessageprocessingstepsecureconfig",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    }
+  ],
+  "Locked": true,
+  "Keys": [],
+  "Enums": []
+}

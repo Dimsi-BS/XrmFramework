@@ -1,0 +1,213 @@
+{
+  "LogName": "pluginassembly",
+  "Name": "PluginAssembly",
+  "CollName": "pluginassemblies",
+  "Cols": [
+    
+    
+    
+    
+    
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Nom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "pluginassemblyid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 5,
+      "Locked": true,
+      "Labels": []
+    },
+    
+    
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "pluginassembly_plugintype",
+      "Etn": "plugintype",
+      "Role": "Referenced",
+      "NavPropName": "pluginassembly_plugintype",
+      "LookName": "pluginassemblyid"
+    },
+    {
+      "Name": "userentityinstancedata_pluginassembly",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_pluginassembly",
+      "LookName": "objectid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "modifiedby_pluginassembly",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "createdby_pluginassembly",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "organization_pluginassembly",
+      "Etn": "organization",
+      "NavPropName": "organizationid",
+      "LookName": "organizationid"
+    },
+    {
+      "Name": "lk_pluginassembly_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "lk_pluginassembly_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "managedidentity_PluginAssembly",
+      "Etn": "managedidentity",
+      "NavPropName": "managedidentityid",
+      "LookName": "managedidentityid"
+    },
+    {
+      "Name": "pluginpackage_pluginassembly",
+      "Etn": "pluginpackage",
+      "NavPropName": "PackageId",
+      "LookName": "packageid"
+    }
+  ],
+  "Locked": true,
+  "Keys": [],
+  "Enums": [
+    {
+      "LogName": "pluginassembly|authtype",
+      "Name": "TypeDAuthentification",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "Basicauth",
+          "Labels": [
+            {
+              "Label": "BasicAuth",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "pluginassembly|isolationmode",
+      "Name": "ModeDIsolation",
+      "Locked": true,
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "AucunE",
+          "Labels": [
+            {
+              "Label": "Aucun(e)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "BacASableSandbox",
+          "Labels": [
+            {
+              "Label": "Bac à sable (sandbox)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Externe",
+          "Labels": [
+            {
+              "Label": "Externe",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "pluginassembly|sourcetype",
+      "Name": "TypeDeSource",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "BaseDeDonnees",
+          "Labels": [
+            {
+              "Label": "Base de données",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Disque",
+          "Labels": [
+            {
+              "Label": "Disque",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Normal",
+          "Labels": [
+            {
+              "Label": "Normal",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Azurewebapp",
+          "Labels": [
+            {
+              "Label": "AzureWebApp",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "Filestore",
+          "Labels": [
+            {
+              "Label": "FileStore",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

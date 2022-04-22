@@ -730,7 +730,7 @@ namespace XrmFramework
                     }
 
                     return bool.Parse(variable.Value);
-                case EnvironmentVariableType.Json:
+                case EnvironmentVariableType.JSON:
                     return JsonConvert.DeserializeObject(variable.Value, objectType);
                 default:
                     throw new ArgumentOutOfRangeException();

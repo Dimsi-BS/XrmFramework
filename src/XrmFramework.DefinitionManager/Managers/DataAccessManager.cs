@@ -150,6 +150,7 @@ namespace DefinitionManager
                         newKey.FieldNames.AddRange(key.KeyAttributes);
 
 
+
                         newEntity.Keys.Add(newKey);
                     }
                 }

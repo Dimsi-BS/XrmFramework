@@ -29,6 +29,9 @@ namespace XrmFramework.Core
         [JsonProperty("NToOne")]
         public List<Relation> ManyToOneRelationships { get; } = new();
 
+        [JsonProperty("Locked")]
+        public bool isLocked { get; set; } = false;
+
         public ICollection<Key> Keys { get; } = new List<Key>();
 
         public List<OptionSetEnum> Enums { get; } = new();

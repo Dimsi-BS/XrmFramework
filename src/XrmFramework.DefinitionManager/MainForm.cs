@@ -54,27 +54,20 @@ namespace XrmFramework.DefinitionManager
             this.attributeListView.SelectionChanged += attributeListView_SelectionChanged;
 
 
-           
 
-            _selectedTables = LoadLocalTables();
-            //_localTables = LoadLocalTables();
+
+            //_selectedTables = LoadLocalTables();
+            _selectedTables = new TableCollection();
+            _localTables = LoadLocalTables();
             _localTables.AddRange(GetTablesFromFormerDefinitionCode());
+            //_selectedTables.AddRange(GetTablesFromFormerDefinitionCode());
 
             foreach(var table in _localTables)
             {
                 var localEntity = TableToBaseEntityDefinition(table);
                 _entityCollection.Add(localEntity);
             }
-            MessageBox.Show($"There are currently {_selectedTables.Count} tables selected in this project.");
-            if(_selectedTables.Count == 0)
-            {
-                MessageBox.Show("No *.table file found for this project, an attempt at recreating the tables from *Definition.cs files will be made.");
-
-
-            }
-
-
-            
+            //MessageBox.Show($"There are currently {_selectedTables.Count} tables selected in this project.");
         }
 
         void attributeListView_SelectionChanged(object sender, CustomListViewControl<AttributeDefinition>.SelectionChangedEventArgs e)
@@ -805,7 +798,20 @@ namespace XrmFramework.DefinitionManager
 
                 
                 table.Columns.RemoveNonSelectedColumns();
-                
+
+
+                // To be deleted
+                //table.isLocked = true;
+                //foreach (var column in table.Columns)
+                //{
+                //    column.IsLocked = true;
+                //}
+                //foreach(var en in table.Enums)
+                //{
+                //    en.IsLocked = true;
+                //}
+
+
 
                 var serializedTable = JsonConvert.SerializeObject(table, Formatting.Indented, new JsonSerializerSettings
                 {
@@ -822,10 +828,10 @@ namespace XrmFramework.DefinitionManager
 
                 var fileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{table.Name}.table");
                 
-                var definitionFolder = new DirectoryInfo($"../../../../../{CoreProjectName}/Definitions");
-                if (definitionFolder.Exists == false)
+                var definitionFolderForEnums = new DirectoryInfo($"../../../../../{CoreProjectName}/Definitions");
+                if (definitionFolderForEnums.Exists == false)
                 {
-                    definitionFolder.Create();
+                    definitionFolderForEnums.Create();
                 }
                 
                 
@@ -837,9 +843,51 @@ namespace XrmFramework.DefinitionManager
              .Select(en => en.LogicalName).ToList();
             List<OptionSetEnum> globalSelectedEnums = new List<OptionSetEnum>();
             globalSelectedEnums.AddRange(_enums.Where(en => globalSelectedEnumDefinitions.Contains(en.LogicalName) && en.IsGlobal));
-           
-            if (globalSelectedEnums.Any())
+
+            var optionSetTable = new Table
             {
+                LogicalName = "globalEnums",
+                Name = "OptionSets"
+            };
+            globalOptionSets.Enums.AddRange(_enums.Where(en => globalEnums.Contains(en.LogicalName) && en.IsGlobal));
+
+
+            //if (globalSelectedEnums.Any())
+            //{
+            //
+            //    string serializedEnums;
+            //    serializedEnums = JsonConvert.SerializeObject(globalSelectedEnums, Formatting.Indented, new JsonSerializerSettings
+            //    {
+            //        DefaultValueHandling = DefaultValueHandling.Ignore
+            //    });
+            //
+            //    var enumFileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/OptionSet.table");
+            //
+            //    var definitionFolder = new DirectoryInfo($"../../../../../{CoreProjectName}/Definitions");
+            //    if (definitionFolder.Exists == false)
+            //    {
+            //        definitionFolder.Create();
+            //    }
+            //
+            //
+            //    File.WriteAllText(enumFileInfo.FullName, serializedEnums);
+            //}
+
+            var serializedGlobalEnums = JsonConvert.SerializeObject(globalOptionSets, Formatting.Indented, new JsonSerializerSettings
+            {
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            });
+
+            var enumFileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/OptionSet.table");
+
+            var definitionFolder = new DirectoryInfo($"../../../../../{CoreProjectName}/Definitions");
+            if (definitionFolder.Exists == false)
+            {
+                definitionFolder.Create();
+            }
+
+
+            File.WriteAllText(enumFileInfo.FullName, serializedGlobalEnums);
 
                 string serializedEnums;
                 serializedEnums = JsonConvert.SerializeObject(globalSelectedEnums, Formatting.Indented, new JsonSerializerSettings
@@ -1558,6 +1606,8 @@ namespace XrmFramework.DefinitionManager
 
         public List<Table> GetTablesFromFormerDefinitionCode()
         {
+            MessageBox.Show("Going to try to get coded entity defs");
+
             List<Table> localTables = new List<Table>();
             //MessageBox.Show("Getting ");
             // Get entity definitions
@@ -1575,6 +1625,7 @@ namespace XrmFramework.DefinitionManager
                     Name = entity.Name.Replace("Definition",""),
                     Selected = true,
                     
+                    
                 };
 
 
@@ -1584,84 +1635,7 @@ namespace XrmFramework.DefinitionManager
                     {
 
                     }
-                    else
-                    {
-                        if (def.LogicalName == "OneToManyRelationships")
-                        {
-                            // Assign OneToManyRelationship
-                            foreach (var attr in def.Attributes.Definitions)
-                            {
-                                if (attr is RelationshipAttributeDefinition rattr)
-                                {
-                                    relation = new Relation()
-                                    {
-                                        Name = rattr.Name,
-                                        EntityName = rattr.TargetEntityName,
-                                        Role = (EntityRole)Enum.Parse(typeof(EntityRole), rattr.Role),
-                                        NavigationPropertyName = rattr.NavigationPropertyName,
-                                        LookupFieldName = rattr.LookupFieldName,
-                                    };
-
-                                    table.OneToManyRelationships.Add(relation);
-                                }
-                            }
-
-                        }
-                        else if (def.LogicalName == "ManyToManyRelationships")
-                        {
-                            // Assign ManyToManyRelationShip
-                            foreach (var attr in def.Attributes.Definitions)
-                            {
-                                if (attr is RelationshipAttributeDefinition rattr)
-                                {
-                                    relation = new Relation()
-                                    {
-                                        Name = rattr.Name,
-                                        EntityName = rattr.TargetEntityName,
-                                        Role = (EntityRole)Enum.Parse(typeof(EntityRole), rattr.Role),
-                                        NavigationPropertyName = rattr.NavigationPropertyName,
-                                        LookupFieldName = rattr.LookupFieldName,
-                                    };
-
-                                    table.ManyToManyRelationships.Add(relation);
-                                }
-                            }
-
-                        }
-                        else if (def.LogicalName == "ManyToOneRelationships")
-                        {
-                            // Assign ManyToOneRelationship
-                            foreach (var attr in def.Attributes.Definitions)
-                            {
-                                if (attr is RelationshipAttributeDefinition rattr)
-                                {
-                                    relation = new Relation()
-                                    {
-                                        Name = rattr.Name,
-                                        EntityName = rattr.TargetEntityName,
-                                        Role = (EntityRole)Enum.Parse(typeof(EntityRole), rattr.Role),
-                                        NavigationPropertyName = rattr.NavigationPropertyName,
-                                        LookupFieldName = rattr.LookupFieldName,
-                                    };
-
-                                    table.ManyToOneRelationships.Add(relation);
-                                }
-                            }
-
-                        }
-                        else if( def.LogicalName == "AlternateKeyNames")
-                        {
-                            foreach (var attr in def.Attributes.Definitions)
-                            {
-                                var key = new Key()
-                                {
-                                    Name = attr.Name,
-                                    LogicalName = attr.LogicalName,
-                                };
-                            }
-                        }
-
-                    }
+                    
                 }
 
 
@@ -1672,9 +1646,14 @@ namespace XrmFramework.DefinitionManager
                     {
                         LogicalName = attr.LogicalName,
                         Name = attr.Name,
+
+
                         Selected = true,
+                        //Delete this line after generation of base tables
+                        //IsLocked = true,
                         
                     };
+
 
                     table.Columns.Add(column);
                     /*

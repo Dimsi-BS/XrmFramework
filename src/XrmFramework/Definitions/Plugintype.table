@@ -1,0 +1,197 @@
+{
+  "LogName": "plugintype",
+  "Name": "PluginType",
+  "CollName": "plugintypes",
+  "Cols": [
+    {
+      "LogName": "assemblyname",
+      "Name": "AssemblyName",
+      "Type": "String",
+      "Capa": 9,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Nom de l’assembly",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "culture",
+      "Name": "Culture",
+      "Type": "String",
+      "Capa": 1,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Culture",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 32
+    },
+
+
+
+
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Nom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+
+    {
+      "LogName": "plugintypeid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Type de plug-in",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "publickeytoken",
+      "Name": "PublicKeyToken",
+      "Type": "String",
+      "Capa": 9,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Jeton de clé publique",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 32
+    },
+    {
+      "LogName": "typename",
+      "Name": "TypeName",
+      "Type": "String",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Nom du type",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "version",
+      "Name": "Version",
+      "Type": "String",
+      "Capa": 9,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Version",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 48
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "plugintype_sdkmessageprocessingstep",
+      "Etn": "sdkmessageprocessingstep",
+      "Role": "Referenced",
+      "NavPropName": "plugintype_sdkmessageprocessingstep",
+      "LookName": "eventhandler"
+    },
+    {
+      "Name": "plugintype_plugintypestatistic",
+      "Etn": "plugintypestatistic",
+      "Role": "Referenced",
+      "NavPropName": "plugintype_plugintypestatistic",
+      "LookName": "plugintypeid"
+    },
+    {
+      "Name": "userentityinstancedata_plugintype",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_plugintype",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "plugintypeid_sdkmessageprocessingstep",
+      "Etn": "sdkmessageprocessingstep",
+      "Role": "Referenced",
+      "NavPropName": "plugintypeid_sdkmessageprocessingstep",
+      "LookName": "plugintypeid"
+    },
+    {
+      "Name": "plugin_type_service",
+      "Etn": "service",
+      "Role": "Referenced",
+      "NavPropName": "plugin_type_service",
+      "LookName": "strategyid"
+    },
+    {
+      "Name": "plugintype_customapi",
+      "Etn": "customapi",
+      "Role": "Referenced",
+      "NavPropName": "CustomAPIId",
+      "LookName": "plugintypeid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "pluginassembly_plugintype",
+      "Etn": "pluginassembly",
+      "NavPropName": "pluginassemblyid",
+      "LookName": "pluginassemblyid"
+    },
+    {
+      "Name": "lk_plugintype_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "organization_plugintype",
+      "Etn": "organization",
+      "NavPropName": "organizationid",
+      "LookName": "organizationid"
+    },
+    {
+      "Name": "modifiedby_plugintype",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "createdby_plugintype",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_plugintype_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    }
+  ],
+  "Locked": true,
+  "Keys": [],
+  "Enums": []
+}

@@ -1,0 +1,120 @@
+{
+  "LogName": "sdkmessageprocessingstepimage",
+  "Name": "Sdkmessageprocessingstepimage",
+  "CollName": "sdkmessageprocessingstepimages",
+  "Cols": [
+    
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Nom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "sdkmessageprocessingstepimageid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": []
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "userentityinstancedata_sdkmessageprocessingstepimage",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_sdkmessageprocessingstepimage",
+      "LookName": "objectid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_sdkmessageprocessingstepimage_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_sdkmessageprocessingstepimage_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "sdkmessageprocessingstepid_sdkmessageprocessingstepimage",
+      "Etn": "sdkmessageprocessingstep",
+      "NavPropName": "sdkmessageprocessingstepid",
+      "LookName": "sdkmessageprocessingstepid"
+    },
+    {
+      "Name": "createdby_sdkmessageprocessingstepimage",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "organization_sdkmessageprocessingstepimage",
+      "Etn": "organization",
+      "NavPropName": "organizationid",
+      "LookName": "organizationid"
+    },
+    {
+      "Name": "modifiedby_sdkmessageprocessingstepimage",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    }
+  ],
+  "Locked": true,
+  "Keys": [],
+  "Enums": [
+    {
+      "LogName": "sdkmessageprocessingstepimage|imagetype",
+      "Name": "TypeDImage",
+      "Locked": true,
+      "Values": [
+        {
+          "Name": "Preimage",
+          "Labels": [
+            {
+              "Label": "PreImage",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Postimage",
+          "Labels": [
+            {
+              "Label": "PostImage",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Toutes",
+          "Labels": [
+            {
+              "Label": "Toutes",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
