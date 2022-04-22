@@ -13,6 +13,10 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
+  <ItemGroup>
+    <SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
+  </ItemGroup>
+
   <PropertyGroup>
     <Authors>$(XrmFramework_Authors)</Authors>
     <Company>DIMSI</Company>

@@ -1,0 +1,7 @@
+﻿; XrmFramework.VisualStudioExtension.def : Declares the module parameters.
+
+LIBRARY      "XrmFramework.VisualStudioExtension.DLL"
+
+EXPORTS
+	DllCanUnloadNow            PRIVATE
+	DllGetClassObject          PRIVATE

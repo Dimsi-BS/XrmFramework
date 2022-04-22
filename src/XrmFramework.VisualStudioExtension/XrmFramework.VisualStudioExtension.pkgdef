@@ -1,0 +1,62 @@
+﻿[$RootKey$\Packages\{da8f8afb-5a65-43c0-8497-85cd779b8750}]
+@="XrmFramework.VisualStudioExtension Package"
+"InprocServer32"="$PackageFolder$\XrmFramework.VisualStudioExtension.dll"
+"CompanyName"="Dimsi"
+"ProductName"="XrmFramework"
+"ProductVersion"="1.0"
+
+[$RootKey$\Packages\{da8f8afb-5a65-43c0-8497-85cd779b8750}\SatelliteDll]
+"DllName"="XrmFramework.VisualStudioExtensionUI.dll"
+"Path"="$PackageFolder$"
+
+[$RootKey$\Menus]
+"{da8f8afb-5a65-43c0-8497-85cd779b8750}"=", 1000, 1"
+
+[$RootKey$\InstalledProducts\XrmFramework.VisualStudioExtension]
+@="#100"
+"Package"="{da8f8afb-5a65-43c0-8497-85cd779b8750}"
+"ProductDetails"="#102"
+"LogoID"="#400"
+"PID"="1.0"
+"UseInterface"=dword:00000000
+
+
+[$RootKey$\ToolWindows\{2b9cac5c-7f7d-417d-81d1-850085333bc9}]
+@="{da8f8afb-5a65-43c0-8497-85cd779b8750}"
+"Name"="Definition Manager"
+"Float"="100,100,300,400"
+"Orientation"="Right"
+"Style"="Float"
+"Window"="{4A9B7E51-AA16-11D0-A8C5-00A0C921A4D2}"
+//The GUID above is the TaskList GUID. You can replace it with any tool 
+//  window GUID to have the new window dock to that tool window.
+
+
+
+[$RootKey$\Editors\{1057d6df-f118-43f4-9228-51db7f9d5104}]
+@="Table Editor"
+"Package"="{da8f8afb-5a65-43c0-8497-85cd779b8750}"
+"DisplayName"="Table Editor"
+"ExcludeDefTextEditor"=dword:00000001
+"AcceptBinaryFiles"=dword:00000000
+
+//The GUID in the below registry entry is the GUID for the text 
+//  logical view, and can be changed to the view that is appropriate
+//  for your editor.
+[$RootKey$\Editors\{1057d6df-f118-43f4-9228-51db7f9d5104}\LogicalViews]
+"{7651A703-06E5-11D1-8EBD-00A0C90F26EA}"=""
+
+[$RootKey$\Editors\{1057d6df-f118-43f4-9228-51db7f9d5104}\Extensions]
+"table"=dword:00000032
+
+[$RootKey$\KeyBindingTables\{daf0243f-90f0-4888-b3ab-0763f0593cbe}]
+@="#1"
+"AllowNavKeyBinding"=dword:00000000
+"Package"="{da8f8afb-5a65-43c0-8497-85cd779b8750}"
+
+//The first GUID below is the GUID for the Miscellaneous Files project type, and can be changed
+//  to the GUID of any other project you wish.
+[$RootKey$\Projects\{A2FE74E1-B743-11d0-AE1A-00A0C90FFFC3}\AddItemTemplates\TemplateDirs\{da8f8afb-5a65-43c0-8497-85cd779b8750}\/1]
+@="#100"
+"TemplatesDir"="$PackageFolder$\Templates"
+"SortPriority"=dword:00004E20
