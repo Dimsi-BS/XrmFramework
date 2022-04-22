@@ -511,6 +511,13 @@ namespace XrmFramework.Analyzers.Generators
 				{
 					foreach (var relationship in relations)
 					{
+						if(relationType != "ManyToOneRelationships")
+                        {
+							if(!tables.Any(t=>t.LogicalName == relationship.EntityName))
+                            {
+								continue;
+                            }
+                        }
 						sb.Append("[Relationship(");
 						var targetTable = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
 						if (targetTable != null)

@@ -69,28 +69,6 @@ namespace XrmFramework.Definitions
         }
         public static class OneToManyRelationships
         {
-            [Relationship("syncerror", EntityRole.Referenced, "ftp_particulier_SyncErrors", "regardingobjectid")]
-            public const string ftp_particulier_SyncErrors = "ftp_particulier_SyncErrors";
-            [Relationship("asyncoperation", EntityRole.Referenced, "ftp_particulier_AsyncOperations", "regardingobjectid")]
-            public const string ftp_particulier_AsyncOperations = "ftp_particulier_AsyncOperations";
-            [Relationship("mailboxtrackingfolder", EntityRole.Referenced, "ftp_particulier_MailboxTrackingFolders", "regardingobjectid")]
-            public const string ftp_particulier_MailboxTrackingFolders = "ftp_particulier_MailboxTrackingFolders";
-            [Relationship("userentityinstancedata", EntityRole.Referenced, "ftp_particulier_UserEntityInstanceDatas", "objectid")]
-            public const string ftp_particulier_UserEntityInstanceDatas = "ftp_particulier_UserEntityInstanceDatas";
-            [Relationship("processsession", EntityRole.Referenced, "ftp_particulier_ProcessSession", "regardingobjectid")]
-            public const string ftp_particulier_ProcessSession = "ftp_particulier_ProcessSession";
-            [Relationship("bulkdeletefailure", EntityRole.Referenced, "ftp_particulier_BulkDeleteFailures", "regardingobjectid")]
-            public const string ftp_particulier_BulkDeleteFailures = "ftp_particulier_BulkDeleteFailures";
-            [Relationship("principalobjectattributeaccess", EntityRole.Referenced, "ftp_particulier_PrincipalObjectAttributeAccesses", "objectid")]
-            public const string ftp_particulier_PrincipalObjectAttributeAccesses = "ftp_particulier_PrincipalObjectAttributeAccesses";
-            [Relationship("duplicaterecord", EntityRole.Referenced, "ftp_particulier_DuplicateMatchingRecord", "duplicaterecordid")]
-            public const string ftp_particulier_DuplicateMatchingRecord = "ftp_particulier_DuplicateMatchingRecord";
-            [Relationship("duplicaterecord", EntityRole.Referenced, "ftp_particulier_DuplicateBaseRecord", "baserecordid")]
-            public const string ftp_particulier_DuplicateBaseRecord = "ftp_particulier_DuplicateBaseRecord";
-            [Relationship("ftp_contrat", EntityRole.Referenced, "ftp_Contrat_Proprietaire_ftp_Particulier", "ftp_proprietaire")]
-            public const string ftp_Contrat_Proprietaire_ftp_Particulier = "ftp_Contrat_Proprietaire_ftp_Particulier";
-            [Relationship("ftp_contrat", EntityRole.Referenced, "ftp_Contrat_Locataire_ftp_Particulier", "ftp_locataire")]
-            public const string ftp_Contrat_Locataire_ftp_Particulier = "ftp_Contrat_Locataire_ftp_Particulier";
             [Relationship(ContratdelocationDefinition.EntityName, EntityRole.Referenced, "ftp_ContratdeLocation_Locataire_ftp_Parti", ContratdelocationDefinition.Columns.Locataire)]
             public const string ftp_ContratdeLocation_Locataire_ftp_Parti = "ftp_ContratdeLocation_Locataire_ftp_Parti";
             [Relationship(ContratdelocationDefinition.EntityName, EntityRole.Referenced, "ftp_ContratdeLocation_Proprietaire_ftp_Pa", "ftp_proprietaire")]

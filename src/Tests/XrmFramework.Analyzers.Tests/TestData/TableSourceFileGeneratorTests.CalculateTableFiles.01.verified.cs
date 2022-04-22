@@ -93,24 +93,6 @@ namespace XrmFramework.Definitions
         }
         public static class OneToManyRelationships
         {
-            [Relationship("syncerror", EntityRole.Referenced, "ftp_contratdelocation_SyncErrors", "regardingobjectid")]
-            public const string ftp_contratdelocation_SyncErrors = "ftp_contratdelocation_SyncErrors";
-            [Relationship("asyncoperation", EntityRole.Referenced, "ftp_contratdelocation_AsyncOperations", "regardingobjectid")]
-            public const string ftp_contratdelocation_AsyncOperations = "ftp_contratdelocation_AsyncOperations";
-            [Relationship("mailboxtrackingfolder", EntityRole.Referenced, "ftp_contratdelocation_MailboxTrackingFolders", "regardingobjectid")]
-            public const string ftp_contratdelocation_MailboxTrackingFolders = "ftp_contratdelocation_MailboxTrackingFolders";
-            [Relationship("userentityinstancedata", EntityRole.Referenced, "ftp_contratdelocation_UserEntityInstanceDatas", "objectid")]
-            public const string ftp_contratdelocation_UserEntityInstanceDatas = "ftp_contratdelocation_UserEntityInstanceDatas";
-            [Relationship("processsession", EntityRole.Referenced, "ftp_contratdelocation_ProcessSession", "regardingobjectid")]
-            public const string ftp_contratdelocation_ProcessSession = "ftp_contratdelocation_ProcessSession";
-            [Relationship("bulkdeletefailure", EntityRole.Referenced, "ftp_contratdelocation_BulkDeleteFailures", "regardingobjectid")]
-            public const string ftp_contratdelocation_BulkDeleteFailures = "ftp_contratdelocation_BulkDeleteFailures";
-            [Relationship("principalobjectattributeaccess", EntityRole.Referenced, "ftp_contratdelocation_PrincipalObjectAttributeAccesses", "objectid")]
-            public const string ftp_contratdelocation_PrincipalObjectAttributeAccesses = "ftp_contratdelocation_PrincipalObjectAttributeAccesses";
-            [Relationship("duplicaterecord", EntityRole.Referenced, "ftp_contratdelocation_DuplicateMatchingRecord", "duplicaterecordid")]
-            public const string ftp_contratdelocation_DuplicateMatchingRecord = "ftp_contratdelocation_DuplicateMatchingRecord";
-            [Relationship("duplicaterecord", EntityRole.Referenced, "ftp_contratdelocation_DuplicateBaseRecord", "baserecordid")]
-            public const string ftp_contratdelocation_DuplicateBaseRecord = "ftp_contratdelocation_DuplicateBaseRecord";
         }
     }
 

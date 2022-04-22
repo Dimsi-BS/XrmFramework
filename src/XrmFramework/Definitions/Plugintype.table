@@ -31,60 +31,10 @@
       ],
       "StrLen": 32
     },
-    {
-      "LogName": "customworkflowactivityinfo",
-      "Name": "CustomWorkflowActivityInfo",
-      "Type": "Memo",
-      "Capa": 1,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Informations sur l'activité de workflow personnalisée",
-          "LangId": 1036
-        }
-      ],
-      "StrLen": 1048576
-    },
-    {
-      "LogName": "description",
-      "Name": "Description",
-      "Type": "String",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Description",
-          "LangId": 1036
-        }
-      ],
-      "StrLen": 256
-    },
-    {
-      "LogName": "friendlyname",
-      "Name": "FriendlyName",
-      "Type": "String",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Nom complet",
-          "LangId": 1036
-        }
-      ],
-      "StrLen": 256
-    },
-    {
-      "LogName": "isworkflowactivity",
-      "Name": "IsWorkflowActivity",
-      "Capa": 9,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Est une activité de workflow",
-          "LangId": 1036
-        }
-      ]
-    },
+
+
+
+
     {
       "LogName": "name",
       "Name": "Name",
@@ -100,19 +50,7 @@
       ],
       "StrLen": 256
     },
-    {
-      "LogName": "pluginassemblyid",
-      "Name": "PluginAssemblyId",
-      "Type": "Lookup",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Assembly du plug-in",
-          "LangId": 1036
-        }
-      ]
-    },
+
     {
       "LogName": "plugintypeid",
       "Name": "Id",
@@ -128,14 +66,6 @@
       ]
     },
     {
-      "LogName": "plugintypeidunique",
-      "Name": "PluginTypeIdUnique",
-      "Type": "Uniqueidentifier",
-      "Capa": 1,
-      "Locked": true,
-      "Labels": []
-    },
-    {
       "LogName": "publickeytoken",
       "Name": "PublicKeyToken",
       "Type": "String",
@@ -148,19 +78,6 @@
         }
       ],
       "StrLen": 32
-    },
-    {
-      "LogName": "solutionid",
-      "Name": "SolutionId",
-      "Type": "Uniqueidentifier",
-      "Capa": 1,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Solution",
-          "LangId": 1036
-        }
-      ]
     },
     {
       "LogName": "typename",

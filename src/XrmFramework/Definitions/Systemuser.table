@@ -4,19 +4,6 @@
   "CollName": "systemusers",
   "Cols": [
     {
-      "LogName": "azureactivedirectoryobjectid",
-      "Name": "AzureActiveDirectoryObjectId",
-      "Type": "Uniqueidentifier",
-      "Capa": 9,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "ID d'objet Azure AD",
-          "LangId": 1036
-        }
-      ]
-    },
-    {
       "LogName": "businessunitid",
       "Name": "BusinessUnitId",
       "Type": "Lookup",
@@ -25,47 +12,6 @@
       "Labels": [
         {
           "Label": "Division",
-          "LangId": 1036
-        }
-      ]
-    },
-    {
-      "LogName": "fullname",
-      "Name": "FullName",
-      "Type": "String",
-      "PrimaryType": "Name",
-      "Capa": 9,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Nom complet",
-          "LangId": 1036
-        }
-      ],
-      "StrLen": 200
-    },
-    {
-      "LogName": "internalemailaddress",
-      "Name": "InternalEMailAddress",
-      "Type": "String",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Adresse de messagerie principale",
-          "LangId": 1036
-        }
-      ],
-      "StrLen": 100
-    },
-    {
-      "LogName": "isdisabled",
-      "Name": "IsDisabled",
-      "Capa": 11,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Statut",
           "LangId": 1036
         }
       ]

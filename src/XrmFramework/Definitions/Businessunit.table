@@ -17,20 +17,7 @@
         }
       ]
     },
-    {
-      "LogName": "divisionname",
-      "Name": "DivisionName",
-      "Type": "String",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Division",
-          "LangId": 1036
-        }
-      ],
-      "StrLen": 100
-    },
+    
     {
       "LogName": "name",
       "Name": "Name",

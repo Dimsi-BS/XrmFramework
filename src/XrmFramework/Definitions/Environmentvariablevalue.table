@@ -16,76 +16,7 @@
         }
       ]
     },
-    {
-      "LogName": "environmentvariablevalueid",
-      "Name": "Id",
-      "Type": "Uniqueidentifier",
-      "PrimaryType": "Id",
-      "Capa": 13,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Environment Variable Value",
-          "LangId": 1036
-        }
-      ]
-    },
-    {
-      "LogName": "ownerid",
-      "Name": "OwnerId",
-      "Type": "Owner",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Owner",
-          "LangId": 1036
-        }
-      ]
-    },
-    {
-      "LogName": "schemaname",
-      "Name": "SchemaName",
-      "Type": "String",
-      "PrimaryType": "Name",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Schema Name",
-          "LangId": 1036
-        }
-      ],
-      "StrLen": 100
-    },
-    {
-      "LogName": "statecode",
-      "Name": "Statecode",
-      "Type": "State",
-      "Capa": 11,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Status",
-          "LangId": 1036
-        }
-      ],
-      "EnumName": "environmentvariablevalue|statecode"
-    },
-    {
-      "LogName": "statuscode",
-      "Name": "Statuscode",
-      "Type": "Status",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Status Reason",
-          "LangId": 1036
-        }
-      ],
-      "EnumName": "environmentvariablevalue|statuscode"
-    },
+
     {
       "LogName": "value",
       "Name": "Value",
@@ -100,6 +31,10 @@
       ],
       "StrLen": 2000
     }
+    
+    
+    
+    
   ],
   "NtoN": [],
   "OneToN": [

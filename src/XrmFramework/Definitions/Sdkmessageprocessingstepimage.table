@@ -3,48 +3,7 @@
   "Name": "Sdkmessageprocessingstepimage",
   "CollName": "sdkmessageprocessingstepimages",
   "Cols": [
-    {
-      "LogName": "attributes",
-      "Name": "Attributes",
-      "Type": "String",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Attributs",
-          "LangId": 1036
-        }
-      ],
-      "StrLen": 100000
-    },
-    {
-      "LogName": "entityalias",
-      "Name": "EntityAlias",
-      "Type": "String",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Alias d’entité",
-          "LangId": 1036
-        }
-      ],
-      "StrLen": 256
-    },
-    {
-      "LogName": "imagetype",
-      "Name": "ImageType",
-      "Type": "Picklist",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Type d'image",
-          "LangId": 1036
-        }
-      ],
-      "EnumName": "sdkmessageprocessingstepimage|imagetype"
-    },
+    
     {
       "LogName": "name",
       "Name": "Name",

@@ -3,68 +3,11 @@
   "Name": "PluginAssembly",
   "CollName": "pluginassemblies",
   "Cols": [
-    {
-      "LogName": "culture",
-      "Name": "Culture",
-      "Type": "String",
-      "Capa": 7,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Culture",
-          "LangId": 1036
-        }
-      ],
-      "StrLen": 32
-    },
-    {
-      "LogName": "description",
-      "Name": "Description",
-      "Type": "String",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Description",
-          "LangId": 1036
-        }
-      ],
-      "StrLen": 256
-    },
-    {
-      "LogName": "isolationmode",
-      "Name": "IsolationMode",
-      "Type": "Picklist",
-      "Capa": 7,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Mode d’isolation",
-          "LangId": 1036
-        }
-      ],
-      "EnumName": "pluginassembly|isolationmode"
-    },
-    {
-      "LogName": "major",
-      "Name": "Major",
-      "Type": "Integer",
-      "Capa": 1,
-      "Locked": true,
-      "Labels": [],
-      "MinRange": 0.0,
-      "MaxRange": 65534.0
-    },
-    {
-      "LogName": "minor",
-      "Name": "Minor",
-      "Type": "Integer",
-      "Capa": 1,
-      "Locked": true,
-      "Labels": [],
-      "MinRange": 0.0,
-      "MaxRange": 65534.0
-    },
+    
+    
+    
+    
+    
     {
       "LogName": "name",
       "Name": "Name",
@@ -89,34 +32,8 @@
       "Locked": true,
       "Labels": []
     },
-    {
-      "LogName": "publickeytoken",
-      "Name": "PublicKeyToken",
-      "Type": "String",
-      "Capa": 7,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Jeton de clé publique",
-          "LangId": 1036
-        }
-      ],
-      "StrLen": 32
-    },
-    {
-      "LogName": "version",
-      "Name": "Version",
-      "Type": "String",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Version",
-          "LangId": 1036
-        }
-      ],
-      "StrLen": 48
-    }
+    
+    
   ],
   "NtoN": [],
   "OneToN": [

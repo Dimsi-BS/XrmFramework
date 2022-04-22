@@ -17,20 +17,6 @@
       ]
     },
     {
-      "LogName": "componentstate",
-      "Name": "ComponentState",
-      "Type": "Picklist",
-      "Capa": 1,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "État du composant",
-          "LangId": 1036
-        }
-      ],
-      "EnumName": "componentstate"
-    },
-    {
       "LogName": "name",
       "Name": "Name",
       "Type": "String",
@@ -44,20 +30,6 @@
         }
       ],
       "StrLen": 100
-    },
-    {
-      "LogName": "overwritetime",
-      "Name": "OverwriteTime",
-      "Type": "DateTime",
-      "Capa": 1,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Heure de remplacement de l’enregistrement",
-          "LangId": 1036
-        }
-      ],
-      "DatBehav": 0
     },
     {
       "LogName": "parentrootroleid",

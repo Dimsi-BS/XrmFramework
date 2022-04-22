@@ -4,6 +4,14 @@
   "CollName": "workflows",
   "Cols": [
     {
+      "LogName": "plugintypeid",
+      "Name": "PluginTypeId",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Locked": true,
+      "Labels": []
+    },
+    {
       "LogName": "name",
       "Name": "Name",
       "Type": "String",
@@ -18,43 +26,7 @@
       ],
       "StrLen": 100
     },
-    {
-      "LogName": "plugintypeid",
-      "Name": "PluginTypeId",
-      "Type": "Lookup",
-      "Capa": 1,
-      "Locked": true,
-      "Labels": []
-    },
-    {
-      "LogName": "rank",
-      "Name": "Rank",
-      "Type": "Integer",
-      "Capa": 7,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Rang",
-          "LangId": 1036
-        }
-      ],
-      "MinRange": -2147483648.0,
-      "MaxRange": 2147483647.0
-    },
-    {
-      "LogName": "runas",
-      "Name": "RunAs",
-      "Type": "Picklist",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Exécuter en tant qu'utilisateur",
-          "LangId": 1036
-        }
-      ],
-      "EnumName": "workflow_runas"
-    },
+
     {
       "LogName": "workflowid",
       "Name": "Id",

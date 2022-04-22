@@ -4,19 +4,6 @@
   "CollName": "teams",
   "Cols": [
     {
-      "LogName": "azureactivedirectoryobjectid",
-      "Name": "AzureActiveDirectoryObjectId",
-      "Type": "Uniqueidentifier",
-      "Capa": 13,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "ID d’objet Azure AD pour un groupe",
-          "LangId": 1036
-        }
-      ]
-    },
-    {
       "LogName": "businessunitid",
       "Name": "BusinessUnitId",
       "Type": "Lookup",
@@ -28,20 +15,6 @@
           "LangId": 1036
         }
       ]
-    },
-    {
-      "LogName": "membershiptype",
-      "Name": "MembershipType",
-      "Type": "Picklist",
-      "Capa": 13,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Team Membership Type",
-          "LangId": 1036
-        }
-      ],
-      "EnumName": "team|membershiptype"
     },
     {
       "LogName": "name",
@@ -72,20 +45,7 @@
         }
       ]
     },
-    {
-      "LogName": "teamtype",
-      "Name": "TeamType",
-      "Type": "Picklist",
-      "Capa": 13,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Type d'équipe",
-          "LangId": 1036
-        }
-      ],
-      "EnumName": "team|teamtype"
-    }
+    
   ],
   "NtoN": [
     {

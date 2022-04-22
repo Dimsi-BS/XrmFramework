@@ -3,20 +3,7 @@
   "Name": "EnvironmentVariable",
   "CollName": "environmentvariabledefinitions",
   "Cols": [
-    {
-      "LogName": "componentstate",
-      "Name": "ComponentState",
-      "Type": "Picklist",
-      "Capa": 1,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Component State",
-          "LangId": 1036
-        }
-      ],
-      "EnumName": "componentstate"
-    },
+
     {
       "LogName": "defaultvalue",
       "Name": "DefaultValue",
@@ -31,20 +18,7 @@
       ],
       "StrLen": 2000
     },
-    {
-      "LogName": "description",
-      "Name": "Description",
-      "Type": "Memo",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Description",
-          "LangId": 1036
-        }
-      ],
-      "StrLen": 2000
-    },
+
     {
       "LogName": "displayname",
       "Name": "DisplayName",
@@ -73,33 +47,7 @@
         }
       ]
     },
-    {
-      "LogName": "overwritetime",
-      "Name": "OverwriteTime",
-      "Type": "DateTime",
-      "Capa": 1,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Record Overwrite Time",
-          "LangId": 1036
-        }
-      ],
-      "DatBehav": 0
-    },
-    {
-      "LogName": "ownerid",
-      "Name": "OwnerId",
-      "Type": "Owner",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Owner",
-          "LangId": 1036
-        }
-      ]
-    },
+
     {
       "LogName": "schemaname",
       "Name": "SchemaName",
@@ -115,34 +63,9 @@
       ],
       "StrLen": 100
     },
-    {
-      "LogName": "statecode",
-      "Name": "Statecode",
-      "Type": "State",
-      "Capa": 11,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Status",
-          "LangId": 1036
-        }
-      ],
-      "EnumName": "environmentvariabledefinition|statecode"
-    },
-    {
-      "LogName": "statuscode",
-      "Name": "Statuscode",
-      "Type": "Status",
-      "Capa": 15,
-      "Locked": true,
-      "Labels": [
-        {
-          "Label": "Status Reason",
-          "LangId": 1036
-        }
-      ],
-      "EnumName": "environmentvariabledefinition|statuscode"
-    },
+
+    
+    
     {
       "LogName": "type",
       "Name": "Type",
