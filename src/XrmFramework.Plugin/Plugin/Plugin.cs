@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
-using Microsoft.Xrm.Sdk;
 
 namespace XrmFramework
 {
@@ -21,7 +21,7 @@ namespace XrmFramework
     {
         //Steps at which this plugin will invoke a method
         private readonly IList<Step> _newRegisteredEvents = new Collection<Step>();
-        
+
         protected const string PreImageName = "PreImage";
 
         protected const string PostImageName = "PostImage";
@@ -59,7 +59,7 @@ namespace XrmFramework
             StepsInitialized = true;
         }
 
-        
+
         protected abstract void AddSteps();
 
         public ReadOnlyCollection<Step> Steps => new ReadOnlyCollection<Step>(_newRegisteredEvents);
@@ -82,7 +82,7 @@ namespace XrmFramework
             foreach (var param in step.Method.GetParameters())
             {
                 //Parameters for the step method must be an interface like IPluginContext and IService
-                if (!param.ParameterType.IsInterface || (    !typeof(IPluginContext).IsAssignableFrom(param.ParameterType)
+                if (!param.ParameterType.IsInterface || (!typeof(IPluginContext).IsAssignableFrom(param.ParameterType)
                                                           && !typeof(IService).IsAssignableFrom(param.ParameterType)))
                 {
                     throw new InvalidPluginExecutionException($"{ChildClassName}.{actionName} parameter : {param.Name}. Only IPluginContext and IService interfaces are allowed as parameters");
@@ -139,14 +139,15 @@ namespace XrmFramework
 
             sw.Restart();
 
-
             try
             {
-                // If currently relite debugging, no need to go on
+                // If currently remote debugging, no need to go on
                 if (SendToRemoteDebugger(localContext))
                 {
                     return;
                 }
+
+                localContext.LogContextEntry();
 
                 IEnumerable<Step> steps;
                 // If customAPI, ??????
@@ -154,7 +155,7 @@ namespace XrmFramework
                 {
                     steps = new List<Step>
                     {
-                        new Step(this, localContext.MessageName, Stages.PostOperation, Modes.Synchronous, _customApiEntityName, _customApiMethodName)
+                        new (this, localContext.MessageName, Stages.PostOperation, Modes.Synchronous, _customApiEntityName, _customApiMethodName)
                     };
                 }
                 // If simple plugin, steps have to be valid in this context (same stage, message, mode and target entity)
@@ -167,55 +168,23 @@ namespace XrmFramework
                         select a;
                 }
                 // Create stage enum value with local context
-                var stage = Enum.ToObject(typeof(Stages), localContext.Stage);
                 sw.Restart();
-
-                localContext.LogContextEntry();
 
                 // Execute the action corresponding to each step
                 foreach (var step in steps)
                 {
                     sw.Restart();
+
                     //Proceed to filtering
-                    if (step.Message == Messages.Update && step.FilteringAttributes.Any())
+                    // If the filtering condition are not met, proceed to the next step without executing the action corresponding to this one
+
+                    if (!ShouldExecuteForFilteringAttributes(localContext, step))
                     {
-
-                        var target = localContext.GetInputParameter<Entity>(InputParameters.Target);
-                        //Create a variable of which the value signals one or more of the filtered attributes is present
-                        var useStep = false;
-                        //Test the target to determine the value of useStep
-                        foreach (var attributeName in target.Attributes.Select(a => a.Key))
-                        {
-                            useStep |= step.FilteringAttributes.Contains(attributeName);
-                        }
-                        // If the filtering condition are not met, proceed to the next step without executing the action corresponding to this one
-                        if (!useStep)
-                        {
-                            localContext.Log(
-                                "\r\n{0}.{5} is not fired because filteringAttributes filter is not met.",
-                                ChildClassName,
-                                localContext.PrimaryEntityName,
-                                localContext.MessageName,
-                                stage,
-                                localContext.Mode, step.Method.Name);
-                            continue;
-                        }
-
+                        localContext.LogNotFiredForFilteringAttributes(ChildClassName, step.Method.Name);
                     }
+
                     // Get the info regarding the method corresponding to the step
                     var entityAction = step.Method;
-
-                    if (step.IsDebugFunction && !localContext.IsDebugContext)
-                    {
-                        localContext.Log(
-                            "\r\n{0}.{5} is not fired because it has Debug Attribute.",
-                            ChildClassName,
-                            localContext.PrimaryEntityName,
-                            localContext.MessageName,
-                            stage,
-                            localContext.Mode, step.Method.Name);
-                        continue;
-                    }
 
                     localContext.Log($"\r\n\r\n{ChildClassName}.{step.Method.Name} is firing");
 
@@ -262,6 +231,25 @@ namespace XrmFramework
                 localContext.Log($"Exiting {ChildClassName}.Execute()");
                 localContext.LogExit();
             }
+        }
+
+        private static bool ShouldExecuteForFilteringAttributes(LocalPluginContext localContext, Step step)
+        {
+            if (!(step.Message == Messages.Update && step.FilteringAttributes.Any()))
+            {
+                return true;
+            }
+
+            var target = localContext.GetInputParameter<Entity>(InputParameters.Target);
+            //Create a variable of which the value signals one or more of the filtered attributes is present
+            var useStep = false;
+            //Test the target to determine the value of useStep
+            foreach (var attributeName in target.Attributes.Select(a => a.Key))
+            {
+                useStep |= step.FilteringAttributes.Contains(attributeName);
+            }
+
+            return useStep;
         }
     }
 }

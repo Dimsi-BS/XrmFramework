@@ -81,9 +81,9 @@ namespace XrmFramework
 
         public bool ShouldExecuteStep(Step step)
         {
-            var isValid = 
-                IsStage(step.Stage) 
-                && Mode == step.Mode 
+            var isValid =
+                IsStage(step.Stage)
+                && Mode == step.Mode
                 && IsMessage(step.Message);
 
             if (isValid && step.EntityName != PrimaryEntityName)
@@ -141,6 +141,18 @@ namespace XrmFramework
             }
         }
 
+        public void LogNotFiredForFilteringAttributes(string childClassName, string methodName)
+        {
+            var stage = Enum.ToObject(typeof(Stages), Stage);
+
+            Log(
+                "\r\n{0}.{5} is not fired because filteringAttributes filter is not met.",
+                childClassName,
+                PrimaryEntityName,
+                MessageName,
+                stage,
+                Mode, methodName);
+        }
     }
 
 }

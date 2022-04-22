@@ -17,12 +17,6 @@ namespace XrmFramework
 
                 localContext.Log("The context is genuine");
 
-                //if (!string.IsNullOrEmpty(UnSecuredConfig) && UnSecuredConfig.Contains("debugSessions"))
-                //{
-                //    var debuggerUnsecuredConfig = JsonConvert.DeserializeObject<DebuggerUnsecureConfig>(UnSecuredConfig);
-
-                //    localContext.Log($"Debug session ids : {string.Join(",", debuggerUnsecuredConfig.DebugSessionIds)}");
-
                 var initiatingUserId = localContext.GetInitiatingUserId();
 
                 localContext.Log($"Initiating user Id : {initiatingUserId}");

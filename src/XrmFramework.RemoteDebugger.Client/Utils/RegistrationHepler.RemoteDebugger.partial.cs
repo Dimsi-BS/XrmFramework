@@ -99,6 +99,9 @@ namespace XrmFramework.DeployUtils
             }
 
             debugSession.AssemblyDebugInfo = JsonConvert.SerializeObject(patches);
+
+            var updatedDS = debugSession.ToEntity(_registrationService);
+            _registrationService.Update(updatedDS);
         }
     }
 }
