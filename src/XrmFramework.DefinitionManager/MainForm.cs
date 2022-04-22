@@ -68,10 +68,6 @@ namespace XrmFramework.DefinitionManager
                 _entityCollection.Add(localEntity);
             }
             //MessageBox.Show($"There are currently {_selectedTables.Count} tables selected in this project.");
-            
-
-
-            
         }
 
         void attributeListView_SelectionChanged(object sender, CustomListViewControl<AttributeDefinition>.SelectionChangedEventArgs e)
@@ -893,6 +889,26 @@ namespace XrmFramework.DefinitionManager
 
             File.WriteAllText(enumFileInfo.FullName, serializedGlobalEnums);
 
+                string serializedEnums;
+                serializedEnums = JsonConvert.SerializeObject(globalSelectedEnums, Formatting.Indented, new JsonSerializerSettings
+                {
+                    DefaultValueHandling = DefaultValueHandling.Ignore
+                });
+
+                var enumFileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/OptionSet.table");
+
+                var definitionFolder = new DirectoryInfo($"../../../../../{CoreProjectName}/Definitions");
+                if (definitionFolder.Exists == false)
+                {
+                    definitionFolder.Create();
+                }
+
+
+                File.WriteAllText(enumFileInfo.FullName, serializedEnums);
+            }
+
+           
+            
             MessageBox.Show(@"Definition files generation succeeded");
         }
 

@@ -4,7 +4,7 @@ on:
   push:
     branches: [ v2.* ]
   pull_request:
-    branches: [ master, v2.* ]
+    branches: [ v2.* ]
 
 jobs:
   build:
@@ -16,19 +16,19 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore src/XrmFramework.sln
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore src/XrmFramework.sln
     - name: Test
-      run: dotnet test --no-build --verbosity normal
-    - name: Setup NuGet.exe for use with actions
+      run: dotnet test --no-build --verbosity normal src/XrmFramework.sln
+#    - name: Setup NuGet.exe for use with actions
       # You may pin to the exact commit or the version.
       # uses: NuGet/setup-nuget@04b0c2b8d1b97922f67eca497d7cf0bf17b8ffe1
-      uses: NuGet/setup-nuget@v1.0.5
-      with:
+#      uses: NuGet/setup-nuget@v1.0.5
+#      with:
         # NuGet API Key to configure.
-        nuget-api-key: secrets.NUGET_API_KEY
-    - name: Upload NuGet packages
-      run: nuget push **/*.nupkg
+#        nuget-api-key: secrets.NUGET_API_KEY
+#    - name: Upload NuGet packages
+#      run: nuget push **/*.nupkg
