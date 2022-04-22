@@ -170,6 +170,9 @@ namespace XrmFramework
                 // Create stage enum value with local context
                 sw.Restart();
 
+
+
+
                 // Execute the action corresponding to each step
                 foreach (var step in steps)
                 {
