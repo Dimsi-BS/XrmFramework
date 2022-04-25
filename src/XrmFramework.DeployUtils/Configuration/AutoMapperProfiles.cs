@@ -16,13 +16,16 @@ namespace XrmFramework.DeployUtils.Configuration
                 .ForMember(dest => dest.Children, opt => opt.Ignore());
             CreateMap<Step, Step>();
             CreateMap<StepImage, StepImage>();
+
+
             CreateMap<CustomApi, CustomApi>()
                 .ForMember(dest => dest.Children, opt => opt.Ignore());
 
             CreateMap<CustomApiRequestParameter, CustomApiRequestParameter>();
             CreateMap<CustomApiResponseProperty, CustomApiResponseProperty>();
 
-            ShouldMapField = fi => fi.IsPublic || fi.Name is "_internalList" or "InArguments" or "OutArguments";
+            ShouldMapField = fi => fi.IsPublic || fi.Name is "_internalList" or "_inArguments" or "_outArguments";
+
             CreateMap<StepCollection, StepCollection>();
 
             CreateMap<IAssemblyContext, IAssemblyContext>()
@@ -30,7 +33,6 @@ namespace XrmFramework.DeployUtils.Configuration
                 .ForMember(dest => dest.AssemblyInfo,
                     opt => opt.MapFrom(src => src.AssemblyInfo))
                 .ForMember(dest => dest.Children, opt => opt.Ignore());
-            ShouldMapProperty = pi => true;
         }
     }
 

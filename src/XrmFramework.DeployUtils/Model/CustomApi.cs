@@ -8,8 +8,9 @@ namespace XrmFramework.DeployUtils.Model
 {
     public partial class CustomApi : ICrmComponent
     {
-        private readonly List<CustomApiRequestParameter> _inArguments = new();
-        private readonly List<CustomApiResponseProperty> _outArguments = new();
+        // Don'tput these fields in readonly, AutoMapper wouldn't be able to map them
+        private List<CustomApiRequestParameter> _inArguments = new();
+        private List<CustomApiResponseProperty> _outArguments = new();
 
         public IEnumerable<ICrmComponent> Children
         {
