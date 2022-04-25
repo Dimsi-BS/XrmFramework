@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Xrm.Sdk;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -113,7 +114,10 @@ namespace XrmFramework.DeployUtils.Utils
             step.FilteringAttributes.Add(sdkStep.FilteringAttributes);
             step.ImpersonationUsername = sdkStep.ImpersonatingUserId?.Name ?? "";
             step.Order = (int)sdkStep.Rank;
-            step.UnsecureConfig = sdkStep.Configuration;
+            if (!string.IsNullOrWhiteSpace(sdkStep.Configuration))
+            {
+                step.StepConfiguration = JsonConvert.DeserializeObject<StepConfiguration>(sdkStep.Configuration);
+            }
 
 
             CreateStepImageFromRemote(step, true, sdkImages);
@@ -238,7 +242,10 @@ namespace XrmFramework.DeployUtils.Utils
             step.PostImage.AllAttributes = s.PostImageAllAttributes;
             step.PostImage.Attributes.AddRange(s.PostImageAttributes);
 
-            step.UnsecureConfig = s.UnsecureConfig;
+            if (!string.IsNullOrWhiteSpace(s.UnsecureConfig))
+            {
+                step.StepConfiguration = JsonConvert.DeserializeObject<StepConfiguration>(s.UnsecureConfig);
+            }
 
             step.MethodNames.AddRange(s.MethodNames);
             return step;

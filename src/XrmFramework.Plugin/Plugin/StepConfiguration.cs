@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace XrmFramework
 {
@@ -7,5 +8,7 @@ namespace XrmFramework
     {
         [JsonProperty("relName")]
         public string RelationshipName { get; set; }
+
+        [JsonProperty("methods")] public List<string> MethodNames { get; set; } = new();
     }
 }

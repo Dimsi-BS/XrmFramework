@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using System;
 using System.Linq;
 using XrmFramework.DeployUtils.Context;
@@ -90,12 +89,10 @@ namespace XrmFramework.DeployUtils.Utils
 
                 foreach (var step in plugin.Steps)
                 {
-                    var config = string.IsNullOrWhiteSpace(step.UnsecureConfig) ? new StepConfiguration() : JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig);
-                    config.PluginName = step.PluginTypeFullName;
-                    config.AssemblyQualifiedName = assemblyQualifiedName;
-                    config.DebugSessionId = _debugSessionId;
+                    step.StepConfiguration.PluginName = step.PluginTypeFullName;
+                    step.StepConfiguration.AssemblyQualifiedName = assemblyQualifiedName;
+                    step.StepConfiguration.DebugSessionId = _debugSessionId;
 
-                    step.UnsecureConfig = JsonConvert.SerializeObject(config);
                     debugPlugin.AddChild(step);
                 }
             }

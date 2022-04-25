@@ -6,8 +6,7 @@ namespace XrmFramework
 {
     public partial class StepConfiguration
     {
-        [JsonProperty("debugSessions")]
-        public List<Guid> DebugSessionIds { get; set; }
+        [JsonProperty("debugSessions")] public List<Guid> DebugSessionIds { get; set; } = new();
 
         [JsonProperty("pluginName")]
         public string PluginName { get; set; }

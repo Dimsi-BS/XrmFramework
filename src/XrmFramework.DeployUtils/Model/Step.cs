@@ -35,12 +35,7 @@ namespace XrmFramework.DeployUtils.Model
             {
                 EntityName = string.Empty;
 
-                var stepConfig = new StepConfiguration
-                {
-                    RelationshipName = entityName
-                };
-
-                UnsecureConfig = JsonConvert.SerializeObject(stepConfig);
+                StepConfiguration.RelationshipName = entityName;
             }
         }
 
@@ -74,17 +69,16 @@ namespace XrmFramework.DeployUtils.Model
 
         public StepImage PostImage { get; set; }
 
-        public string UnsecureConfig { get; set; }
+        public string UnsecureConfig => JsonConvert.SerializeObject(StepConfiguration);
 
         public int Order { get; set; }
 
         public string ImpersonationUsername { get; set; }
 
-        public List<string> MethodNames { get; } = new List<string>();
+        public List<string> MethodNames => StepConfiguration.MethodNames;
         public string MethodsDisplayName => string.Join(",", MethodNames);
 
-        public StepConfiguration StepConfiguration => JsonConvert.DeserializeObject<StepConfiguration>(UnsecureConfig);
-
+        public StepConfiguration StepConfiguration { get; set; } = new();
 
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
