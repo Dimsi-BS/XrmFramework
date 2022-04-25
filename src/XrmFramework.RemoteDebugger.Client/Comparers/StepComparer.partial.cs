@@ -10,5 +10,12 @@ namespace XrmFramework.DeployUtils.Utils
             || x.FilteringAttributes.Any() != x.FilteringAttributes.Any()
             || string.Join(",", x.FilteringAttributes) != string.Join(",", y.FilteringAttributes)
             || x.ImpersonationUsername != y.ImpersonationUsername;
+
+        private static bool MethodsNamesEqual(Step x, Step y)
+        {
+            x.MethodNames.Sort();
+            y.MethodNames.Sort();
+            return x.MethodNames.SequenceEqual(y.MethodNames);
+        }
     }
 }

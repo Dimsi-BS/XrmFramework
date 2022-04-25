@@ -103,31 +103,19 @@ namespace XrmFramework.RemoteDebugger
 
         private bool GetDebugSession(LocalPluginContext localContext, out DebugSession debugSession)
         {
-            var initiatingUserId = localContext.GetInitiatingUserId();
+            var initiatingUserId = localContext.GetInitiatingUserId().ToString();
 
             var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
             queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Id, ConditionOperator.Equal, StepConfig.DebugSessionId);
             queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal, initiatingUserId);
 
             debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
 
             #region checkers, if wrong returns false
             if (debugSession == null)
             {
-                localContext.Log("debugSession is null");
-                return false;
-            }
-
-            if (debugSession.StateCode == DebugSessionState.Inactive)
-            {
-                localContext.Log("Debug Session is inactive");
-                return false;
-            }
-
-            if (debugSession.DebugeeId != initiatingUserId)
-            {
-                localContext.Log($"Debugee Id: \t{debugSession.DebugeeId}");
-                localContext.Log("This user was not meant to debug this step on this debug session");
+                localContext.Log("Corresponding DebugSession Not Found");
                 return false;
             }
 

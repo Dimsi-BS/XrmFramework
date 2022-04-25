@@ -8,8 +8,8 @@ namespace XrmFramework.RemoteDebugger
     [CrmEntity(DebugSessionDefinition.EntityName)]
     public partial class DebugSession : IBindingModel
     {
-        [CrmMapping(DebugSessionDefinition.Columns.DebugeeId)]
-        public Guid DebugeeId { get; set; }
+        [CrmMapping(DebugSessionDefinition.Columns.Debugee)]
+        public string Debugee { get; set; }
 
         [CrmMapping(DebugSessionDefinition.Columns.CreatedOn)]
         public DateTime SessionStart { get; set; }
@@ -31,6 +31,8 @@ namespace XrmFramework.RemoteDebugger
 
         [CrmMapping(DebugSessionDefinition.Columns.StateCode)]
         public DebugSessionState StateCode { get; set; }
+
+        [CrmMapping(DebugSessionDefinition.Columns.DebugInfo)]
         public string AssembliesDebugInfo { get; set; }
 
         public Guid Id { get; set; }
@@ -41,7 +43,7 @@ namespace XrmFramework.RemoteDebugger
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.AppendLine($"\tDebugeeId = {DebugeeId}");
+            sb.AppendLine($"\tDebugeeId = {Debugee}");
             sb.AppendLine($"\tSessionStart = {SessionStart}");
             sb.AppendLine($"\tSessionEnd = {SessionEnd}");
             sb.AppendLine($"\tState = {Enum.ToObject(typeof(DebugSessionState), StateCode)}");

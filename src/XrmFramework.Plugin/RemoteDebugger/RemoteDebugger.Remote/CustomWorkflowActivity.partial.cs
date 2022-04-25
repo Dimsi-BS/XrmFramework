@@ -4,8 +4,8 @@ using System.Activities;
 using System.Linq;
 using System.Net.Http;
 using XrmFramework.BindingModel;
-using XrmFramework.RemoteDebugger;
 using XrmFramework.Definitions;
+using XrmFramework.RemoteDebugger;
 
 // ReSharper disable once CheckNamespace
 namespace XrmFramework.Workflow
@@ -21,7 +21,7 @@ namespace XrmFramework.Workflow
                 var initiatingUserId = localContext.GetInitiatingUserId();
 
                 var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
-                queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.DebugeeId, ConditionOperator.Equal, initiatingUserId);
+                queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal, initiatingUserId.ToString());
                 queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
 
                 var debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();

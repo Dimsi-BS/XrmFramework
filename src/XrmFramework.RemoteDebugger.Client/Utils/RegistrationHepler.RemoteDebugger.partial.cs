@@ -86,11 +86,11 @@ namespace XrmFramework.DeployUtils
             var debugSession = _registrationService.GetById<DebugSession>(_debugSessionId);
             var patchInfo = _mapper.Map<AssemblyContextInfo>(deployDiff);
 
-            var patches = !string.IsNullOrEmpty(debugSession.AssemblyDebugInfo)
-                ? JsonConvert.DeserializeObject<List<AssemblyContextInfo>>(debugSession.AssemblyDebugInfo)
+            var patches = !string.IsNullOrEmpty(debugSession.AssembliesDebugInfo)
+                ? JsonConvert.DeserializeObject<List<AssemblyContextInfo>>(debugSession.AssembliesDebugInfo)
                 : new List<AssemblyContextInfo>();
 
-            var index = patches.IndexOf(patchInfo);
+            var index = patches.FindIndex(p => p.AssemblyName == patchInfo.AssemblyName);
             if (index == -1)
                 patches.Add(patchInfo);
             else
@@ -98,10 +98,10 @@ namespace XrmFramework.DeployUtils
                 patches[index] = patchInfo;
             }
 
-            debugSession.AssemblyDebugInfo = JsonConvert.SerializeObject(patches);
+            debugSession.AssembliesDebugInfo = JsonConvert.SerializeObject(patches);
 
-            var updatedDS = debugSession.ToEntity(_registrationService);
-            _registrationService.Update(updatedDS);
+            var updatedDebugSession = debugSession.ToEntity(_registrationService);
+            _registrationService.Update(updatedDebugSession);
         }
     }
 }

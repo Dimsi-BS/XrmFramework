@@ -1,8 +1,10 @@
-﻿using Microsoft.Xrm.Sdk.Query;
+﻿using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using XrmFramework.BindingModel;
 using XrmFramework.Definitions;
 using XrmFramework.RemoteDebugger;
@@ -17,22 +19,16 @@ namespace XrmFramework
         {
             if (localContext.IsDebugContext)
             {
-                localContext.Log("Went false");
                 return false;
             }
 
-            localContext.Log("The context is genuine");
+            var initiatingUserId = localContext.GetInitiatingUserId().ToString();
 
-            var initiatingUserId = localContext.GetInitiatingUserId();
+            localContext.Log("The context is genuine");
 
             localContext.Log($"Initiating user Id : {initiatingUserId}");
 
-            var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.DebugeeId, ConditionOperator.Equal, initiatingUserId);
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
-
-            var debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
-
+            var debugSession = GetDebugSession(localContext.AdminOrganizationService, initiatingUserId);
 
             if (debugSession == null)
             {
@@ -40,29 +36,86 @@ namespace XrmFramework
                 return false;
             }
 
-            localContext.Log($"Debug session : {debugSession}");
-
-            if (initiatingUserId != debugSession.DebugeeId)
+            if (initiatingUserId != debugSession.Debugee)
             {
                 localContext.Log("Is currently debugging but not for this user, execute the step normally");
                 return false;
             }
 
+            if (StepIsInDebugSession(localContext, debugSession) && ListenerIsOnline(debugSession))
+            {
+                localContext.Log($"Debug session : {debugSession}");
+                localContext.Log("Is currently debugging this step, standing down");
+                return true;
+            }
             // We have to check whether the remoteDebugger has this step, if not we need to send context to remote debugger ourselves
 
             //Context will be sent by remote debugger plugin
 
-            return true;
+            return false;
         }
 
-        private bool StepIsInDebugSession(DebugSession debugSession, Step step)
+        private static bool ListenerIsOnline(DebugSession debugSession)
+        {
+            var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
+
+            var isOnline = false;
+
+            try
+            {
+                using var hybridConnection = new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri);
+
+                var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Ping, null, Guid.NewGuid());
+
+                var response = hybridConnection.SendMessage(message).GetAwaiter().GetResult();
+
+                isOnline = response.MessageType == RemoteDebuggerMessageType.Ping;
+            }
+            catch (HttpRequestException)
+            {
+                //isOnline is false and will stay that way
+            }
+            return isOnline;
+        }
+
+        private static DebugSession GetDebugSession(IOrganizationService service, string initiatingUserId)
+        {
+
+            var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal,
+                initiatingUserId);
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal,
+                DebugSessionState.Active.ToInt());
+
+            var debugSession = service.RetrieveAll<DebugSession>(queryDebugSessions)
+                .FirstOrDefault();
+            return debugSession;
+        }
+
+        private bool StepIsInDebugSession(LocalPluginContext localContext, DebugSession debugSession)
         {
             var DebugAssemblyInfo =
                 JsonConvert.DeserializeObject<List<AssemblyContextInfo>>(debugSession.AssembliesDebugInfo);
-            var stepAssemblyName = step.GetType().Assembly.FullName;
 
-            var stepPluginName = step.
-            throw new NotImplementedException();
+            var assemblyName = this.GetType().Assembly.GetName().Name;
+            var pluginName = this.GetType().FullName;
+
+            var assemblyInfo = DebugAssemblyInfo.FirstOrDefault(a => a.AssemblyName == assemblyName);
+            if (assemblyInfo == null) return false;
+
+            var pluginInfo = assemblyInfo.Plugins.FirstOrDefault(p => p.Name == pluginName);
+            if (pluginInfo == null) return false;
+
+            var message = localContext.MessageName.ToString();
+            var stage = Enum.ToObject(typeof(Stages), localContext.Stage).ToString();
+            var mode = localContext.Mode.ToString();
+            var entityName = localContext.PrimaryEntityName;
+
+            return pluginInfo.Steps.Exists(s =>
+                s.Message == message
+                && s.Stage == stage
+                && s.Mode == mode
+                && s.EntityName == entityName);
         }
     }
 }
