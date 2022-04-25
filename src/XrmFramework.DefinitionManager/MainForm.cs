@@ -417,7 +417,7 @@ namespace XrmFramework.DefinitionManager
                     }
                     table.Selected = true;
                     foreach (var a in item.AttributesCollection.SelectedDefinitions)
-                    {
+                    
                         table.Columns.FirstOrDefault(c => c.LogicalName == a.LogicalName).Selected = a.IsSelected;
                     }
 
@@ -808,7 +808,7 @@ namespace XrmFramework.DefinitionManager
             {
                 //MessageBox.Show(table.Name);
 
-                
+            
                 //table.Columns.RemoveNonSelectedColumns();
 
 
@@ -899,8 +899,8 @@ namespace XrmFramework.DefinitionManager
             }
 
 
-            File.WriteAllText(enumFileInfo.FullName, serializedGlobalEnums);
-
+            File.WriteAllText(enumFileInfo.FullName, serializedGlobalEnums);           
+            
             MessageBox.Show(@"Definition files generation succeeded");
         }
 
@@ -1766,7 +1766,6 @@ namespace XrmFramework.DefinitionManager
                     LogicalName = col.LogicalName,
                     Name = col.Name,
                     IsSelected=col.Selected,
-
                 };
 
                 entityDefinition.Add(attributeDefinition);
@@ -1790,13 +1789,11 @@ namespace XrmFramework.DefinitionManager
 
             foreach (var attr in entity.AttributesCollection.Definitions)
             {
-
                 column = new Column()
                 {
                     LogicalName = attr.LogicalName,
                     Name = attr.Name,
                     Selected = attr.IsSelected,
-
                 };
 
                 // Assign Primary type
@@ -1944,7 +1941,6 @@ namespace XrmFramework.DefinitionManager
             DataAccessManager.Instance.Connect(ConnectionSucceeded);
             
         }
-
 
         //public void MergeLocalTablesWithCrmData(TableCollection localTables)
         //
