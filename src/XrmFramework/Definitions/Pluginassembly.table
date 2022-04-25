@@ -3,11 +3,11 @@
   "Name": "PluginAssembly",
   "CollName": "pluginassemblies",
   "Cols": [
-    
-    
-    
-    
-    
+
+
+
+
+
     {
       "LogName": "name",
       "Name": "Name",
@@ -21,7 +21,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 256
+      "StrLen": 256,
+      "Select": true
     },
     {
       "LogName": "pluginassemblyid",
@@ -30,7 +31,8 @@
       "PrimaryType": "Id",
       "Capa": 5,
       "Locked": true,
-      "Labels": []
+      "Labels": [],
+      "Select": true
     },
     
     

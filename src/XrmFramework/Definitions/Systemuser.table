@@ -14,7 +14,8 @@
           "Label": "Division",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
     {
       "LogName": "systemuserid",
@@ -28,7 +29,8 @@
           "Label": "Utilisateur",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     }
   ],
   "NtoN": [

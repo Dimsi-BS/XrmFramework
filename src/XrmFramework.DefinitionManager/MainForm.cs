@@ -59,19 +59,23 @@ namespace XrmFramework.DefinitionManager
             //_selectedTables = LoadLocalTables();
             _selectedTables = new TableCollection();
             _localTables = LoadLocalTables();
-            _localTables.AddRange(GetTablesFromFormerDefinitionCode());
+            
+           // _localTables.AddRange(GetTablesFromFormerDefinitionCode());
             //_selectedTables.AddRange(GetTablesFromFormerDefinitionCode());
 
             foreach(var table in _localTables)
             {
                 var localEntity = TableToBaseEntityDefinition(table);
                 _entityCollection.Add(localEntity);
+                _tables.Add(table);
             }
             //MessageBox.Show($"There are currently {_selectedTables.Count} tables selected in this project.");
-            
 
 
-            
+            this.generateDefinitionsToolStripMenuItem.Enabled = true;
+            this.entityListView.Enabled = true;
+            this.attributeListView.Enabled = true;
+
         }
 
         void attributeListView_SelectionChanged(object sender, CustomListViewControl<AttributeDefinition>.SelectionChangedEventArgs e)
@@ -102,8 +106,10 @@ namespace XrmFramework.DefinitionManager
             //MergeLocalTablesWithCrmData(_localTables);
             _enums.AddRange(entities.Item3);
             this.generateDefinitionsToolStripMenuItem.Enabled = true;
+            
             this.entityListView.Enabled = true;
             this.attributeListView.Enabled = true;
+
         }
 
         void ConnectionSucceeded(object service)
@@ -123,14 +129,14 @@ namespace XrmFramework.DefinitionManager
             //
             //localCodedDefinitions = GetCodedEntityDefinitions();
 
-            var localTables = LoadLocalTables();
-            foreach(var table in localTables)
-            {
-                localCodedDefinitions.Add(TableToBaseEntityDefinition(table));
-            }
+           //var localTables = LoadLocalTables();
+           //foreach(var table in localTables)
+           //{
+           //    localCodedDefinitions.Add(TableToBaseEntityDefinition(table));
+           //}
             //_entityCollection.AddRange(localCodedDefinitions);
 
-            DataAccessManager.Instance.Connect(ConnectionSucceeded);
+            //DataAccessManager.Instance.Connect(ConnectionSucceeded);
         }
 
         private void InitEnumDefinitions()
@@ -221,13 +227,15 @@ namespace XrmFramework.DefinitionManager
 
         private IEnumerable<EntityDefinition> GetCodedEntityDefinitions()
         {
+            var definitionList = new List<EntityDefinition>();
+            return definitionList;
             //Console.WriteLine(_tables.Count);
             var entityDefinitionAttributeType = GetExternalType("XrmFramework.EntityDefinitionAttribute");
             var definitionTypes = _iServiceType.Assembly.GetTypes().Where(t => t.GetCustomAttributes(entityDefinitionAttributeType, false).Any());
             var relationshipAttributeType = GetExternalType("XrmFramework.RelationshipAttribute");
             var definitionManagerIgnoreAttributeType = GetExternalType("XrmFramework.Definitions.Internal.DefinitionManagerIgnoreAttribute");
 
-            var definitionList = new List<EntityDefinition>();
+            
 
             foreach (var t in definitionTypes)
             {
@@ -391,7 +399,7 @@ namespace XrmFramework.DefinitionManager
                     table.Selected = true;
                     foreach (var a in item.AttributesCollection.SelectedDefinitions)
                     {
-                        table.Columns.FirstOrDefault(c => c.LogicalName == a.LogicalName).Selected = true;
+                        table.Columns.FirstOrDefault(c => c.LogicalName == a.LogicalName).Selected = a.IsSelected;
                     }
 
                     _selectedTables.Add(table);
@@ -410,7 +418,7 @@ namespace XrmFramework.DefinitionManager
                     table.Selected = true;
                     foreach (var a in item.AttributesCollection.SelectedDefinitions)
                     {
-                        table.Columns.FirstOrDefault(c => c.LogicalName == a.LogicalName).Selected = true;
+                        table.Columns.FirstOrDefault(c => c.LogicalName == a.LogicalName).Selected = a.IsSelected;
                     }
 
                     _selectedTables.Add(table);
@@ -801,7 +809,7 @@ namespace XrmFramework.DefinitionManager
                 //MessageBox.Show(table.Name);
 
                 
-                table.Columns.RemoveNonSelectedColumns();
+                //table.Columns.RemoveNonSelectedColumns();
 
 
                 // To be deleted
@@ -1757,7 +1765,7 @@ namespace XrmFramework.DefinitionManager
                     DisplayName = col.Name,
                     LogicalName = col.LogicalName,
                     Name = col.Name,
-                    IsSelected=true,
+                    IsSelected=col.Selected,
 
                 };
 
@@ -1782,11 +1790,12 @@ namespace XrmFramework.DefinitionManager
 
             foreach (var attr in entity.AttributesCollection.Definitions)
             {
-                
+
                 column = new Column()
                 {
                     LogicalName = attr.LogicalName,
                     Name = attr.Name,
+                    Selected = attr.IsSelected,
 
                 };
 
@@ -1924,6 +1933,16 @@ namespace XrmFramework.DefinitionManager
 
 
             return tables;
+        }
+
+        private void getEntitiesFromCRMToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.generateDefinitionsToolStripMenuItem.Enabled = false;
+            this.entityListView.Enabled = false;
+            this.attributeListView.Enabled = false;
+            this.getEntitiesFromCRMToolStripMenuItem.Enabled = false;
+            DataAccessManager.Instance.Connect(ConnectionSucceeded);
+            
         }
 
 

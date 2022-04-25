@@ -10,14 +10,16 @@
       "PrimaryType": "Id",
       "Capa": 13,
       "Locked": true,
+
       "Labels": [
         {
           "Label": "Division",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
-    
+
     {
       "LogName": "name",
       "Name": "Name",
@@ -31,7 +33,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 160
+      "StrLen": 160,
+      "Select": true
     }
   ],
   "NtoN": [],

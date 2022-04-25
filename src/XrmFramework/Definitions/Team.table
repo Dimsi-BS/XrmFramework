@@ -14,7 +14,8 @@
           "Label": "Division",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
     {
       "LogName": "name",
@@ -29,7 +30,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 160
+      "StrLen": 160,
+      "Select": true
     },
     {
       "LogName": "teamid",
@@ -43,7 +45,8 @@
           "Label": "Équipe",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
     
   ],

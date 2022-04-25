@@ -18,7 +18,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 256
+      "StrLen": 256,
+      "Select": true
     },
     {
       "LogName": "plugintypeid",
@@ -31,7 +32,8 @@
           "Label": "Type de plug-in",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
     {
       "LogName": "sdkmessageprocessingstepid",
@@ -40,7 +42,8 @@
       "PrimaryType": "Id",
       "Capa": 5,
       "Locked": true,
-      "Labels": []
+      "Labels": [],
+      "Select": true
     },
 
     

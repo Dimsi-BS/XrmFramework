@@ -49,6 +49,7 @@ namespace XrmFramework.DefinitionManager
             this.attributeTypeHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.getEntitiesFromCRMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -82,7 +83,8 @@ namespace XrmFramework.DefinitionManager
             // 
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.generateDefinitionsToolStripMenuItem});
+            this.generateDefinitionsToolStripMenuItem,
+            this.getEntitiesFromCRMToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(3, 1, 0, 1);
@@ -165,7 +167,7 @@ namespace XrmFramework.DefinitionManager
             this.enumListView.Location = new System.Drawing.Point(0, 0);
             this.enumListView.Margin = new System.Windows.Forms.Padding(0);
             this.enumListView.Name = "enumListView";
-            this.enumListView.Size = new System.Drawing.Size(112, 37);
+            this.enumListView.Size = new System.Drawing.Size(150, 46);
             this.enumListView.TabIndex = 4;
             // 
             // picklistNameHeader
@@ -195,6 +197,13 @@ namespace XrmFramework.DefinitionManager
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(175, 22);
             this.toolStripMenuItem1.Text = "Copy LogicalName";
+            // 
+            // getEntitiesFromCRMToolStripMenuItem
+            // 
+            this.getEntitiesFromCRMToolStripMenuItem.Name = "getEntitiesFromCRMToolStripMenuItem";
+            this.getEntitiesFromCRMToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.getEntitiesFromCRMToolStripMenuItem.Text = "Get Entities From CRM";
+            this.getEntitiesFromCRMToolStripMenuItem.Click += new System.EventHandler(this.getEntitiesFromCRMToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -246,6 +255,7 @@ namespace XrmFramework.DefinitionManager
         private System.Windows.Forms.ColumnHeader picklistValueHeader;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem getEntitiesFromCRMToolStripMenuItem;
     }
 }
 
