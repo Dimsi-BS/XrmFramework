@@ -10,7 +10,8 @@
       "PrimaryType": "Id",
       "Capa": 5,
       "Locked": true,
-      "Labels": []
+      "Labels": [],
+      "Select": true
     }
   ],
   "NtoN": [],

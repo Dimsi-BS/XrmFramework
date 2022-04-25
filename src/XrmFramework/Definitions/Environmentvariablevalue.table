@@ -14,7 +14,8 @@
           "Label": "Environment Variable Definition",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
 
     {
@@ -29,12 +30,13 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 2000
+      "StrLen": 2000,
+      "Select": true
     }
-    
-    
-    
-    
+
+
+
+
   ],
   "NtoN": [],
   "OneToN": [

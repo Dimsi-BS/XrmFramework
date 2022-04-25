@@ -3,7 +3,7 @@
   "Name": "Sdkmessageprocessingstepimage",
   "CollName": "sdkmessageprocessingstepimages",
   "Cols": [
-    
+
     {
       "LogName": "name",
       "Name": "Name",
@@ -17,7 +17,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 256
+      "StrLen": 256,
+      "Select": true
     },
     {
       "LogName": "sdkmessageprocessingstepimageid",
@@ -26,7 +27,8 @@
       "PrimaryType": "Id",
       "Capa": 13,
       "Locked": true,
-      "Labels": []
+      "Labels": [],
+      "Select": true
     }
   ],
   "NtoN": [],

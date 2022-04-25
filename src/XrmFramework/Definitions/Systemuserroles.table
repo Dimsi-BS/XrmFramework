@@ -8,7 +8,8 @@
       "Type": "Uniqueidentifier",
       "Capa": 1,
       "Locked": true,
-      "Labels": []
+      "Labels": [],
+      "Select": true
     },
     {
       "LogName": "systemuserid",
@@ -16,7 +17,8 @@
       "Type": "Uniqueidentifier",
       "Capa": 1,
       "Locked": true,
-      "Labels": []
+      "Labels": [],
+      "Select": true
     },
     {
       "LogName": "systemuserroleid",
@@ -25,7 +27,8 @@
       "PrimaryType": "Id",
       "Capa": 5,
       "Locked": true,
-      "Labels": []
+      "Labels": [],
+      "Select": true
     }
   ],
   "NtoN": [

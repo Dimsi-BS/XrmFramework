@@ -9,7 +9,8 @@
       "Type": "Lookup",
       "Capa": 1,
       "Locked": true,
-      "Labels": []
+      "Labels": [],
+      "Select": true
     },
     {
       "LogName": "name",
@@ -24,7 +25,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 100
+      "StrLen": 100,
+      "Select": true
     },
 
     {
@@ -39,7 +41,8 @@
           "Label": "Processus",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     }
   ],
   "NtoN": [

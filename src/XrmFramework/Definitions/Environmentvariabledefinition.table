@@ -16,7 +16,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 2000
+      "StrLen": 2000,
+      "Select": true
     },
 
     {
@@ -31,7 +32,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 100
+      "StrLen": 100,
+      "Select": true
     },
     {
       "LogName": "environmentvariabledefinitionid",
@@ -45,7 +47,8 @@
           "Label": "Environment Variable Definition",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
 
     {
@@ -61,11 +64,12 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 100
+      "StrLen": 100,
+      "Select": true
     },
 
-    
-    
+
+
     {
       "LogName": "type",
       "Name": "Type",
@@ -78,7 +82,8 @@
           "LangId": 1036
         }
       ],
-      "EnumName": "environmentvariabledefinition|type"
+      "EnumName": "environmentvariabledefinition|type",
+      "Select": true
     },
     {
       "LogName": "valueschema",
@@ -92,7 +97,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 2000
+      "StrLen": 2000,
+      "Select": true
     }
   ],
   "NtoN": [

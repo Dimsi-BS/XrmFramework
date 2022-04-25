@@ -15,7 +15,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 100
+      "StrLen": 100,
+      "Select": true
     },
     {
       "LogName": "culture",
@@ -29,7 +30,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 32
+      "StrLen": 32,
+      "Select": true
     },
 
 
@@ -48,7 +50,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 256
+      "StrLen": 256,
+      "Select": true
     },
 
     {
@@ -63,7 +66,8 @@
           "Label": "Type de plug-in",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
     {
       "LogName": "publickeytoken",
@@ -77,7 +81,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 32
+      "StrLen": 32,
+      "Select": true
     },
     {
       "LogName": "typename",
@@ -91,7 +96,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 256
+      "StrLen": 256,
+      "Select": true
     },
     {
       "LogName": "version",
@@ -105,7 +111,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 48
+      "StrLen": 48,
+      "Select": true
     }
   ],
   "NtoN": [],
