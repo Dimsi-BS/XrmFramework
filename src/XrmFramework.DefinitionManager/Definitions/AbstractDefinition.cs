@@ -171,7 +171,14 @@ namespace DefinitionManager
                 throw new Exception("Only similar types can be merged.");
             }
 
-            IsSelected = definition.IsSelected;
+            if (definition.IsSelected)
+            {
+                IsSelected = true;
+            }
+            else if (IsSelected)
+            {
+                definition.IsSelected = true;
+            }
 
             foreach (var column in this.GetType().GetProperties().Where(p => p.GetCustomAttributes(typeof(MergeableAttribute), false).Any()))
             {

@@ -189,7 +189,6 @@ namespace XrmFramework.Analyzers.Generators
 
 							sb.AppendLine("}");
 
-							//if(table.Enums.Any(e=>table.Columns.Any())
 
 							if (table.Keys != null && table.Keys.Any())
 							{
@@ -359,10 +358,6 @@ namespace XrmFramework.Analyzers.Generators
                         {
 							if (relationship.Role == EntityRole.Referencing)
 							{
-								//var tb = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
-
-
-								//var re = tb?.OneToManyRelationships.FirstOrDefault(r => r.Name == relationship.Name);
 								var rc = table.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
 
 								if (rc != null && rc.Selected)
@@ -378,7 +373,6 @@ namespace XrmFramework.Analyzers.Generators
 							{
 								var rc = table.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
 
-								//var r = tb?.OneToManyRelationships.FirstOrDefault(r => r.Name == relationship.Name);
 
 
 								if (rc != null)
