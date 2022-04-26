@@ -60,7 +60,6 @@ namespace XrmFramework.RemoteDebugger.Common
                         // If no plugin found, return
                         if (pluginType == null)
                         {
-                            Manager.SendMessage(new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id));
                             return;
                         }
 
@@ -96,7 +95,6 @@ namespace XrmFramework.RemoteDebugger.Common
                             // If a plugin or a custom API, juste create the instance and execute it using the local service provider
                             var plugin = (IPlugin)Activator.CreateInstance(pluginType, (string)null, (string)null);
                             plugin.Execute(serviceProvider);
-                            Manager.SendMessage(new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id));
                         }
                     });
 
