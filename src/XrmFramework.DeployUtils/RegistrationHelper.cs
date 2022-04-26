@@ -30,6 +30,13 @@ namespace XrmFramework.DeployUtils
             _assemblyFactory = assemblyFactory;
             _assemblyDiffFactory = assemblyDiffFactory;
         }
+
+        /// <summary>
+        /// Entrypoint for the Register & Deploy process
+        /// </summary>
+        /// <typeparam name="TPlugin">The assembly to deploy</typeparam>
+        /// <param name="projectName">The solution name where the assembly should be registered</param>
+        /// 
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
             var serviceProvider = ServiceCollectionHelper.ConfigureForDeploy(projectName);
@@ -59,7 +66,7 @@ If ok press any key.");
 
             Console.Write("Computing Difference...");
 
-            var registrationStrategy = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(localAssembly, registeredAssembly);
+            var registrationStrategy = _assemblyDiffFactory.ComputeDiffPatch(localAssembly, registeredAssembly);
 
             ExecuteRegistrationStrategy(registrationStrategy);
         }

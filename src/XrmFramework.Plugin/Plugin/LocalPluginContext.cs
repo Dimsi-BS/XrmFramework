@@ -145,8 +145,7 @@ namespace XrmFramework
         {
             var stage = Enum.ToObject(typeof(Stages), Stage);
 
-            Log(
-                "\r\n{0}.{5} is not fired because filteringAttributes filter is not met.",
+            Log("\r\n{0}.{5} is not fired because filteringAttributes filter is not met.",
                 childClassName,
                 PrimaryEntityName,
                 MessageName,

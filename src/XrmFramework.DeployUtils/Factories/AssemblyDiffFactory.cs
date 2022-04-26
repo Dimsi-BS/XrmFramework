@@ -16,7 +16,7 @@ namespace XrmFramework.DeployUtils.Utils
             _mapper = mapper;
         }
 
-        internal IAssemblyContext ComputeDiffPatchFromAssemblies(IAssemblyContext from, IAssemblyContext target)
+        internal IAssemblyContext ComputeDiffPatch(IAssemblyContext from, IAssemblyContext target)
         {
             var fromCopy = _mapper.Map<IAssemblyContext>(from);
 

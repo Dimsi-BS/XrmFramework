@@ -54,7 +54,7 @@ namespace XrmFramework.DeployUtils
 
             Console.WriteLine("Computing Difference With Local Assembly...");
 
-            var deployAssemblyDiff = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(localAssembly, registeredAssembly);
+            var deployAssemblyDiff = _assemblyDiffFactory.ComputeDiffPatch(localAssembly, registeredAssembly);
 
             // We can remove now the diff components that are Ignore and whose children are too (recursively)
             // They would only get in the way otherwise
@@ -69,7 +69,7 @@ namespace XrmFramework.DeployUtils
 
             Console.WriteLine("Computing Difference With Debug Assembly...");
 
-            var remoteDebugDiff = _assemblyDiffFactory.ComputeDiffPatchFromAssemblies(assemblyToDebug, debugAssembly);
+            var remoteDebugDiff = _assemblyDiffFactory.ComputeDiffPatch(assemblyToDebug, debugAssembly);
 
             var debugStrategy = _assemblyFactory.WrapDebugDiffForDebugDeploy(remoteDebugDiff, debugPluginId, typeof(TPlugin));
 

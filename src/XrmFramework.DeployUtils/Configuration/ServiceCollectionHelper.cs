@@ -2,6 +2,7 @@
 using System;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.DeployUtils.Utils;
@@ -10,6 +11,15 @@ namespace XrmFramework.DeployUtils.Configuration
 {
     internal partial class ServiceCollectionHelper
     {
+        /// <summary>
+        /// Configure the required objects used during Deploy, such as :
+        /// <list type="bullet">
+        ///     <item><cref>IService</cref>, the service used for communicating with the CRM</item>
+        ///     <item><cref>IServiceProvider</cref></item>
+        /// </list>
+        /// </summary>
+        /// <param name="projectName"></param>
+        /// <returns></returns>
         public static IServiceProvider ConfigureForDeploy(string projectName)
         {
             var serviceCollection = InitServiceCollection();
@@ -39,7 +49,7 @@ namespace XrmFramework.DeployUtils.Configuration
             serviceCollection.AddSingleton<IAssemblyFactory, AssemblyFactory>();
             serviceCollection.AddSingleton<RegistrationHelper>();
 
-            serviceCollection.AddAutoMapper(typeof(AutoMapperLocalToLocalProfile));
+            serviceCollection.AddAutoMapper(Assembly.GetExecutingAssembly());
             return serviceCollection;
         }
 

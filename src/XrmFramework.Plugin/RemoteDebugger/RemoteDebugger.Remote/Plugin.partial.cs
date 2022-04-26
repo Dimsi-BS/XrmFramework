@@ -26,8 +26,6 @@ namespace XrmFramework
 
             localContext.Log("The context is genuine");
 
-            localContext.Log($"Initiating user Id : {initiatingUserId}");
-
             var debugSession = GetDebugSession(localContext.AdminOrganizationService, initiatingUserId);
 
             if (debugSession == null)
@@ -101,9 +99,8 @@ namespace XrmFramework
             var pluginName = this.GetType().FullName;
 
             var assemblyInfo = DebugAssemblyInfo.FirstOrDefault(a => a.AssemblyName == assemblyName);
-            if (assemblyInfo == null) return false;
 
-            var pluginInfo = assemblyInfo.Plugins.FirstOrDefault(p => p.Name == pluginName);
+            var pluginInfo = assemblyInfo?.Plugins.FirstOrDefault(p => p.Name == pluginName);
             if (pluginInfo == null) return false;
 
             var message = localContext.MessageName.ToString();
