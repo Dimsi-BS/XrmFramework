@@ -9,6 +9,8 @@ namespace XrmFramework
         [JsonProperty("relName")]
         public string RelationshipName { get; set; }
 
-        [JsonProperty("methods")] public List<string> MethodNames { get; set; } = new();
+        [JsonProperty("registeredMethods")] public List<string> RegisteredMethods { get; set; } = new();
+
+        [JsonProperty("bannedMethods")] public List<string> BannedMethods { get; set; } = new();
     }
 }

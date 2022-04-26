@@ -167,11 +167,13 @@ namespace XrmFramework
                             localContext.ShouldExecuteStep(a)
                         select a;
                 }
+
+                var methodsToAvoid = string.IsNullOrEmpty(UnSecuredConfig)
+                    ? new List<string>()
+                    : JsonConvert.DeserializeObject<StepConfiguration>(UnSecuredConfig).BannedMethods;
+
                 // Create stage enum value with local context
                 sw.Restart();
-
-
-
 
                 // Execute the action corresponding to each step
                 foreach (var step in steps)
@@ -184,10 +186,17 @@ namespace XrmFramework
                     if (!ShouldExecuteForFilteringAttributes(localContext, step))
                     {
                         localContext.LogNotFiredForFilteringAttributes(ChildClassName, step.Method.Name);
+                        continue;
                     }
 
                     // Get the info regarding the method corresponding to the step
                     var entityAction = step.Method;
+
+                    if (methodsToAvoid.Contains(entityAction.Name))
+                    {
+                        localContext.Log($"\r\n{ChildClassName}.{step.Method.Name} is not fired because it has been manually disabled in the Unsecured Configuration.");
+                        continue;
+                    }
 
                     localContext.Log($"\r\n\r\n{ChildClassName}.{step.Method.Name} is firing");
 

@@ -75,7 +75,7 @@ namespace XrmFramework.DeployUtils.Model
 
         public string ImpersonationUsername { get; set; }
 
-        public List<string> MethodNames => StepConfiguration.MethodNames;
+        public List<string> MethodNames => StepConfiguration.RegisteredMethods;
         public string MethodsDisplayName => string.Join(",", MethodNames);
 
         public StepConfiguration StepConfiguration { get; set; } = new();
