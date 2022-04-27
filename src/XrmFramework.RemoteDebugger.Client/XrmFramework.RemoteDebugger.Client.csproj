@@ -26,9 +26,9 @@
 
 
   <ItemGroup>
-    <Compile Include="..\XrmFramework.Plugin\Newtonsoft.Json\**\*.cs" Link="Newtonsoft.Json\%(RecursiveDir)%(Filename)%(Extension)" Exclude="$(XrmFrameworkSource)\XrmFramework.RemoteDebugger.Client\bin\**;$(XrmFrameworkSource)\XrmFramework.RemoteDebugger.Client\obj\**" />
+    <Compile Include="..\XrmFramework.Plugin\Newtonsoft.Json\**\*.cs" Link="Newtonsoft.Json\%(RecursiveDir)%(Filename)%(Extension)" />
 
-    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\**" Link="Converters\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\**\*.cs" Link="Converters\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\DebuggerUnsecureConfig.cs" Link="DebuggerUnsecureConfig.cs" />
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\HybridConnection.cs" Link="HybridConnection.cs" />
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\IDebuggerCommunicationManager.cs" Link="IDebuggerCommunicationManager.cs" />
