@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using XrmFramework.BindingModel;
 using XrmFramework.Definitions;
 using XrmFramework.RemoteDebugger;
@@ -40,7 +39,7 @@ namespace XrmFramework
                 return false;
             }
 
-            if (StepIsInDebugSession(localContext, debugSession) && ListenerIsOnline(debugSession))
+            if (StepIsInDebugSession(localContext, debugSession) && HybridConnection.TryPingDebugSession(debugSession))
             {
                 localContext.Log($"Debug session : {debugSession}");
                 localContext.Log("Is currently debugging this step, standing down");
@@ -51,29 +50,6 @@ namespace XrmFramework
             //Context will be sent by remote debugger plugin
 
             return false;
-        }
-
-        private static bool ListenerIsOnline(DebugSession debugSession)
-        {
-            var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
-
-            var isOnline = false;
-
-            try
-            {
-                using var hybridConnection = new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri);
-
-                var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Ping, null, Guid.NewGuid());
-
-                var response = hybridConnection.SendMessage(message).GetAwaiter().GetResult();
-
-                isOnline = response.MessageType == RemoteDebuggerMessageType.Ping;
-            }
-            catch (HttpRequestException)
-            {
-                //isOnline is false and will stay that way
-            }
-            return isOnline;
         }
 
         private static DebugSession GetDebugSession(IOrganizationService service, string initiatingUserId)

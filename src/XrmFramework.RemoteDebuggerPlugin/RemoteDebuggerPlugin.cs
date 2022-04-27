@@ -124,6 +124,12 @@ namespace XrmFramework.RemoteDebugger
                 localContext.Log("Debug Session expired, please contact your admin");
                 return false;
             }
+
+            if (!HybridConnection.TryPingDebugSession(debugSession))
+            {
+                localContext.Log("Debug Session exists but is not listening");
+                return false;
+            }
             #endregion
             return true;
         }
