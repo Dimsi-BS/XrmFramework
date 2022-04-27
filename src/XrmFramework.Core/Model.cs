@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace XrmFramework.Core
 {
@@ -11,20 +7,17 @@ namespace XrmFramework.Core
     public class Model
     {
         [JsonProperty("tName")]
-        public string tableLogicalName;
+        public string TableLogicalName { get; set; }
 
         [JsonProperty("Name")]
-        public string Name;
+        public string Name { get; set; }
 
-        public string ModelNamespace;
+        public string ModelNamespace { get; set; }
 
         //Contains the logical name of the columns we want to include in the binding model
         [JsonProperty("Cols")]
-        public List<ModelProperty> Properties;
+        public ICollection<ModelProperty> Properties { get; } = new List<ModelProperty>();
 
-
-
-
-        //public bool IsBindingModelBase;
+        public MemberSerialization? JsonMemberSerializationStrategy { get; set; }
     }
 }
