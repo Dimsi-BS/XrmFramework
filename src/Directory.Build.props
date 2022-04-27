@@ -58,7 +58,7 @@
 
 
   <PropertyGroup Condition=" '$(XrmFramework_EnableStrongNameSigning)' == 'true'">
-    <XrmFramework_KeyFile>$(SolutionDir)\XrmFramework.snk</XrmFramework_KeyFile>
+    <XrmFramework_KeyFile>$(SolutionDir)XrmFramework.snk</XrmFramework_KeyFile>
     <XrmFramework_SignAssembly>true</XrmFramework_SignAssembly>
     <DefineConstants>$(DefineConstants);XrmFramework_ENABLE_STRONG_NAME_SIGNING</DefineConstants>
   </PropertyGroup>
