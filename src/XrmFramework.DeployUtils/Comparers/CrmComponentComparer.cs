@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
@@ -28,6 +29,7 @@ namespace XrmFramework.DeployUtils.Utils
                 StepImage image => _stepComparer.Equals(image.FatherStep, ((StepImage)y).FatherStep) &&
                                    image.IsPreImage == ((StepImage)y).IsPreImage,
                 AssemblyInfo => true,
+                IAssemblyContext => true,
                 _ => x.UniqueName == y.UniqueName
             };
         }
@@ -48,6 +50,7 @@ namespace XrmFramework.DeployUtils.Utils
                 Plugin => false,
                 CustomApi api => NeedsUpdate(api, (CustomApi)y),
                 AssemblyInfo => true,
+                IAssemblyContext => true,
                 _ => throw new ArgumentException("SolutionComponent not recognised")
             };
         }
@@ -64,12 +67,12 @@ namespace XrmFramework.DeployUtils.Utils
         private static bool NeedsUpdate(CustomApiRequestParameter x, CustomApiRequestParameter y)
         {
             return !x.IsOptional == y.IsOptional
-                || x.Type.Equals(y.Type);
+                || !x.Type.Equals(y.Type);
         }
 
         private static bool NeedsUpdate(CustomApiResponseProperty x, CustomApiResponseProperty y)
         {
-            return x.Type.Equals(y.Type);
+            return !x.Type.Equals(y.Type);
         }
 
         public int GetHashCode(ICrmComponent obj)

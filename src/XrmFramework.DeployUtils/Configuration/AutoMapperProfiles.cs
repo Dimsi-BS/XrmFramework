@@ -51,11 +51,21 @@ namespace XrmFramework.DeployUtils.Configuration
             .ForMember(p => p.ParentId, opt => opt.MapFrom(d => d.PluginTypeId.Id));
 
             CreateMap<Deploy.CustomApiRequestParameter, CustomApiRequestParameter>()
-                .ForMember(p => p.ParentId, opt => opt.MapFrom(d => d.CustomApiId.Id));
+                .ForMember(dest => dest.UniqueName,
+                    opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Name,
+                    opt => opt.MapFrom(src => src.UniqueName))
+                .ForMember(p => p.ParentId,
+                    opt => opt.MapFrom(d => d.CustomApiId.Id));
 
 
             CreateMap<Deploy.CustomApiResponseProperty, CustomApiResponseProperty>()
-                .ForMember(p => p.ParentId, opt => opt.MapFrom(d => d.CustomApiId.Id));
+                .ForMember(dest => dest.UniqueName,
+                    opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Name,
+                    opt => opt.MapFrom(src => src.UniqueName))
+                .ForMember(p => p.ParentId,
+            opt => opt.MapFrom(d => d.CustomApiId.Id));
 
         }
     }
@@ -73,6 +83,10 @@ namespace XrmFramework.DeployUtils.Configuration
                     opt => opt.MapFrom(c => new EntityReference(PluginTypeDefinition.EntityName, c.ParentId)));
 
             CreateMap<CustomApiRequestParameter, Deploy.CustomApiRequestParameter>()
+                .ForMember(dest => dest.UniqueName,
+                    opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Name,
+                    opt => opt.MapFrom(src => src.UniqueName))
                 .ForMember(p => p.CustomApiId,
                     opt => opt.MapFrom(c => new EntityReference(CustomApiDefinition.EntityName, c.ParentId)))
                 .ForMember(dest => dest.LogicalEntityName,
@@ -80,6 +94,10 @@ namespace XrmFramework.DeployUtils.Configuration
 
 
             CreateMap<CustomApiResponseProperty, Deploy.CustomApiResponseProperty>()
+                .ForMember(dest => dest.UniqueName,
+                    opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Name,
+                    opt => opt.MapFrom(src => src.UniqueName))
                 .ForMember(p => p.CustomApiId,
                     opt => opt.MapFrom(c => new EntityReference(CustomApiDefinition.EntityName, c.ParentId)))
                 .ForMember(dest => dest.LogicalEntityName,

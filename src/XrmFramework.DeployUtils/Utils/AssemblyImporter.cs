@@ -306,7 +306,7 @@ namespace XrmFramework.DeployUtils.Utils
                 Name = argument.ArgumentName,
             };
 
-            if (argument is CustomApiRequestParameter)
+            if (res is CustomApiRequestParameter)
             {
                 res.IsOptional = argument.IsOptional;
             }

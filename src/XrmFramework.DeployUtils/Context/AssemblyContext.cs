@@ -21,7 +21,7 @@ namespace XrmFramework.DeployUtils.Context
         {
             get
             {
-                List<ICrmComponent> pool = new() { AssemblyInfo };
+                List<ICrmComponent> pool = new() { this };
                 foreach (var plugin in _plugins)
                 {
                     CreateSolutionComponentPoolRecursive(pool, plugin);
@@ -57,9 +57,18 @@ namespace XrmFramework.DeployUtils.Context
             get => AssemblyInfo.Id;
             set
             {
-                foreach (var child in Children)
+                foreach (var child in Plugins)
                 {
                     child.ParentId = value;
+                }
+
+                foreach (var child in Workflows)
+                {
+                    child.ParentId = value;
+                }
+                foreach (var child in CustomApis)
+                {
+                    child.AssemblyId = value;
                 }
 
                 AssemblyInfo.Id = value;
