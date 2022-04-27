@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
@@ -26,7 +26,7 @@
 
 
   <ItemGroup>
-    <Compile Include="..\XrmFramework.Plugin\Newtonsoft.Json\**\*.cs" Link="Newtonsoft.Json\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\XrmFramework.Plugin\NewtonSoft.Json\**\*.cs" Link="Newtonsoft.Json\%(RecursiveDir)%(Filename)%(Extension)" />
 
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\**\*.cs" Link="Converters\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\DebuggerUnsecureConfig.cs" Link="DebuggerUnsecureConfig.cs" />
