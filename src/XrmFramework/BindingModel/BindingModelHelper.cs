@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Messages;
+using Microsoft.Xrm.Sdk.Query;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,10 +10,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Messages;
-using Microsoft.Xrm.Sdk.Query;
-using XrmFramework.Model;
 using EntityReference = Microsoft.Xrm.Sdk.EntityReference;
 
 namespace XrmFramework.BindingModel
@@ -1474,7 +1473,7 @@ namespace XrmFramework.BindingModel
                     request.ColumnSet.AddColumn(mappingAttribute.AttributeName);
                 }
 
-                if (!entityDefinition.IsLookupAttribute(mappingAttribute.AttributeName) || property.ObjectType == typeof(Guid) || property.ObjectType == typeof(EntityReference))
+                if (!entityDefinition.IsLookupAttribute(mappingAttribute.AttributeName) || property.CrmLookupAttribute == null && (property.ObjectType == typeof(Guid) || property.ObjectType == typeof(EntityReference)))
                 {
                     continue;
                 }
