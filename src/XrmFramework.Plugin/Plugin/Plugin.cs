@@ -98,20 +98,6 @@ namespace XrmFramework
         /// <value>The name of the child class.</value>
         protected string ChildClassName => GetType().Name;
 
-        protected void SetCustomApiInfos(string methodName)
-        {
-            _isCustomApi = true;
-            _customApiMethodName = methodName;
-
-            var customApiAttribute = GetType().GetCustomAttribute<CustomApiAttribute>();
-
-            _customApiEntityName = string.IsNullOrWhiteSpace(customApiAttribute.BoundEntityLogicalName) ? string.Empty : customApiAttribute.BoundEntityLogicalName;
-        }
-
-        private bool _isCustomApi;
-        private string _customApiMethodName;
-        private string _customApiEntityName;
-
         /// <summary>
         ///     Executes the plug-in.
         /// </summary>
@@ -125,7 +111,6 @@ namespace XrmFramework
         /// </remarks>
         public void Execute(IServiceProvider serviceProvider)
         {
-            var sw = new Stopwatch();
             if (serviceProvider == null)
             {
                 throw new ArgumentNullException(nameof(serviceProvider));
@@ -137,8 +122,6 @@ namespace XrmFramework
             localContext.Log($"\r\nClass {ChildClassName}");
             localContext.LogStart();
 
-            sw.Restart();
-
             try
             {
                 // If currently remote debugging, no need to go on
@@ -149,100 +132,76 @@ namespace XrmFramework
 
                 localContext.LogContextEntry();
 
-                IEnumerable<Step> steps;
-                // If customAPI, ??????
-                if (_isCustomApi)
-                {
-                    steps = new List<Step>
-                    {
-                        new (this, localContext.MessageName, Stages.PostOperation, Modes.Synchronous, _customApiEntityName, _customApiMethodName)
-                    };
-                }
-                // If simple plugin, steps have to be valid in this context (same stage, message, mode and target entity)
-                else
-                {
-                    steps =
-                        from a in _newRegisteredEvents
-                        where
-                            localContext.ShouldExecuteStep(a)
-                        select a;
-                }
+                //This is a virtual method, it is overriden in the CustomApi derived class
+                var steps = InitStepsToExecute(localContext);
 
-                var methodsToAvoid = string.IsNullOrEmpty(UnSecuredConfig)
-                    ? new List<string>()
-                    : JsonConvert.DeserializeObject<StepConfiguration>(UnSecuredConfig).BannedMethods;
-
-                // Create stage enum value with local context
-                sw.Restart();
-
-                // Execute the action corresponding to each step
-                foreach (var step in steps)
-                {
-                    sw.Restart();
-
-                    //Proceed to filtering
-                    // If the filtering condition are not met, proceed to the next step without executing the action corresponding to this one
-
-                    if (!ShouldExecuteForFilteringAttributes(localContext, step))
-                    {
-                        localContext.LogNotFiredForFilteringAttributes(ChildClassName, step.Method.Name);
-                        continue;
-                    }
-
-                    // Get the info regarding the method corresponding to the step
-                    var entityAction = step.Method;
-
-                    if (methodsToAvoid.Contains(entityAction.Name))
-                    {
-                        localContext.Log($"\r\n{ChildClassName}.{step.Method.Name} is not fired because it has been manually disabled in the Unsecured Configuration.");
-                        continue;
-                    }
-
-                    localContext.Log($"\r\n\r\n{ChildClassName}.{step.Method.Name} is firing");
-
-                    sw.Restart();
-
-                    localContext.Log($"{ChildClassName}.{step.Method.Name} Start");
-                    //Call the method corresponding to the step
-                    localContext.InvokeMethod(this, entityAction);
-
-                    localContext.Log($"{ChildClassName}.{step.Method.Name} End, duration : {sw.Elapsed}");
-                }
+                InvokeSteps(localContext, steps);
 
                 localContext.LogContextExit();
             }
-            catch (FaultException<OrganizationServiceFault> e)
+            catch (Exception e)
             {
-                localContext.Log($"Exception: {e}");
+                PluginExceptionHandler(localContext, e);
+            }
 
-                // Handle the exception.
-                throw;
-            }
-            catch (TargetInvocationException e)
-            {
-                localContext.Log($"Exception : {e.InnerException}");
-
-                if (e.InnerException != null)
-                {
-                    if (e.InnerException is InvalidPluginExecutionException invalidPluginExecutionException)
-                    {
-                        throw invalidPluginExecutionException;
-                    }
-                    else
-                    {
-                        throw new InvalidPluginExecutionException(e.InnerException.Message);
-                    }
-                }
-            }
-            catch (JsonException e)
-            {
-                throw new InvalidPluginExecutionException(e.ToString());
-            }
             finally
             {
                 localContext.Log($"Exiting {ChildClassName}.Execute()");
                 localContext.LogExit();
             }
+        }
+
+
+        private void InvokeSteps(LocalPluginContext localContext, IEnumerable<Step> steps)
+        {
+            var methodsToAvoid = string.IsNullOrEmpty(UnSecuredConfig)
+                ? new List<string>()
+                : JsonConvert.DeserializeObject<StepConfiguration>(UnSecuredConfig).BannedMethods;
+
+            // Create stage enum value with local context
+
+            var sw = new Stopwatch();
+
+            // Execute the action corresponding to each step
+            foreach (var step in steps)
+            {
+                //Proceed to filtering
+                // If the filtering condition are not met, proceed to the next step without executing the action corresponding to this one
+
+                if (!ShouldExecuteForFilteringAttributes(localContext, step))
+                {
+                    localContext.LogNotFiredForFilteringAttributes(ChildClassName, step.Method.Name);
+                    continue;
+                }
+
+                // Get the info regarding the method corresponding to the step
+                var entityAction = step.Method;
+
+                if (methodsToAvoid.Contains(entityAction.Name))
+                {
+                    localContext.Log(
+                        $"\r\n{ChildClassName}.{step.Method.Name} is not fired because it has been manually disabled in the Unsecured Configuration.");
+                    continue;
+                }
+
+                localContext.Log($"\r\n\r\n{ChildClassName}.{step.Method.Name} is firing");
+
+                sw.Restart();
+
+                localContext.Log($"{ChildClassName}.{step.Method.Name} Start");
+                //Call the method corresponding to the step
+                localContext.InvokeMethod(this, entityAction);
+
+                localContext.Log($"{ChildClassName}.{step.Method.Name} End, duration : {sw.Elapsed}");
+            }
+        }
+
+        internal virtual IEnumerable<Step> InitStepsToExecute(LocalPluginContext localContext)
+        {
+            return from a in _newRegisteredEvents
+                   where
+                       localContext.ShouldExecuteStep(a)
+                   select a;
         }
 
         private static bool ShouldExecuteForFilteringAttributes(LocalPluginContext localContext, Step step)
@@ -263,5 +222,36 @@ namespace XrmFramework
 
             return useStep;
         }
+
+        private void PluginExceptionHandler(LocalPluginContext localContext, Exception exception)
+        {
+
+            switch (exception)
+            {
+                case FaultException<OrganizationServiceFault> e:
+                    localContext.Log($"Exception: {e}");
+                    throw e;
+                case TargetInvocationException e:
+
+                    localContext.Log($"Exception : {e.InnerException}");
+                    if (e.InnerException != null)
+                    {
+                        if (e.InnerException is InvalidPluginExecutionException invalidPluginExecutionException)
+                        {
+                            throw invalidPluginExecutionException;
+                        }
+
+                        throw new InvalidPluginExecutionException(e.InnerException.Message);
+                    }
+                    throw e;
+
+                case JsonException e:
+                    {
+                        throw new InvalidPluginExecutionException(e.ToString());
+                    }
+                default: throw exception;
+            }
+        }
+
     }
 }
