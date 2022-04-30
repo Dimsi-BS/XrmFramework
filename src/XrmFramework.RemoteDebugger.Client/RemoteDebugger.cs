@@ -3,7 +3,6 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
 using System;
 using System.Activities;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using XrmFramework.DeployUtils;
@@ -43,7 +42,6 @@ namespace XrmFramework.RemoteDebugger.Common
                     var serviceProvider = new LocalServiceProvider(remoteContext);
 
                     serviceProvider.RequestSent += request => Manager.SendMessageWithResponse(request).GetAwaiter().GetResult();
-                    List<string> pluginsToBeExecuted = new List<string>();
                     var pluginExecutionTask = Task.Run(() =>
                     {
                         // Get the assembly qualified name of the plugin to be executed
@@ -63,7 +61,7 @@ namespace XrmFramework.RemoteDebugger.Common
                             return;
                         }
 
-                        // The actions to be performed will be different depending on wether the context is a workflow or not
+                        // The actions to be performed will be different depending on whether the context is a workflow or not
                         if (remoteContext.IsWorkflowContext)
                         {
                             // Create an instance of the workflow

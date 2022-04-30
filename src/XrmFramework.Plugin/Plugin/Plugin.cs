@@ -121,34 +121,28 @@ namespace XrmFramework
 
             localContext.Log($"\r\nClass {ChildClassName}");
             localContext.LogStart();
+            localContext.Log("The context is genuine");
 
+            // If currently remote debugging, no need to go on
+            if (SendToRemoteDebugger(localContext)) return;
+
+            localContext.LogContextEntry();
+
+            //This is a virtual method, it is overriden in the CustomApi derived class
+            var steps = InitStepsToExecute(localContext);
             try
             {
-                // If currently remote debugging, no need to go on
-                if (SendToRemoteDebugger(localContext))
-                {
-                    return;
-                }
-
-                localContext.LogContextEntry();
-
-                //This is a virtual method, it is overriden in the CustomApi derived class
-                var steps = InitStepsToExecute(localContext);
-
                 InvokeSteps(localContext, steps);
-
-                localContext.LogContextExit();
             }
             catch (Exception e)
             {
                 PluginExceptionHandler(localContext, e);
             }
 
-            finally
-            {
-                localContext.Log($"Exiting {ChildClassName}.Execute()");
-                localContext.LogExit();
-            }
+
+            localContext.LogContextExit();
+            localContext.Log($"Exiting {ChildClassName}.Execute()");
+            localContext.LogExit();
         }
 
 

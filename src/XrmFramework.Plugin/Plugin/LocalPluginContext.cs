@@ -123,7 +123,7 @@ namespace XrmFramework
 
         public void LogContextEntry()
         {
-            Log("------------------ Input Variables (before) ------------------");
+            Log("\r\n------------------ Input Variables (before) ------------------");
             DumpInputParameters();
             Log("\r\n------------------ Shared Variables (before) ------------------");
             DumpSharedVariables();

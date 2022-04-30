@@ -16,16 +16,20 @@ namespace XrmFramework
     {
         private bool SendToRemoteDebugger(LocalPluginContext localContext)
         {
-            if (localContext.IsDebugContext)
-            {
-                return false;
-            }
+            if (localContext.IsDebugContext) return false;
 
             var initiatingUserId = localContext.GetInitiatingUserId().ToString();
 
-            localContext.Log("The context is genuine");
-
-            var debugSession = GetDebugSession(localContext.AdminOrganizationService, initiatingUserId);
+            DebugSession debugSession = null;
+            try
+            {
+                debugSession = GetDebugSession(localContext.AdminOrganizationService, initiatingUserId);
+            }
+            catch (Exception e)
+            {
+                localContext.Log("An error occurred fetching the Debug Session");
+                return false;
+            }
 
             if (debugSession == null)
             {
@@ -33,23 +37,31 @@ namespace XrmFramework
                 return false;
             }
 
+            localContext.Log($"A DebugSession exists for this User : \n\tHybridConnectionName : {debugSession.HybridConnectionName}");
+
             if (initiatingUserId != debugSession.Debugee)
             {
                 localContext.Log("Is currently debugging but not for this user, execute the step normally");
                 return false;
             }
 
-            if (StepIsInDebugSession(localContext, debugSession) && HybridConnection.TryPingDebugSession(debugSession))
+            if (!StepIsInDebugSession(localContext, debugSession))
             {
-                localContext.Log($"Debug session : {debugSession}");
-                localContext.Log("Is currently debugging this step, standing down");
-                return true;
+                return false;
+            }
+
+            localContext.Log($"This step is in the DebugSession configuration");
+
+            if (!HybridConnection.TryPingDebugSession(debugSession))
+            {
+                return false;
             }
             // We have to check whether the remoteDebugger has this step, if not we need to send context to remote debugger ourselves
 
             //Context will be sent by remote debugger plugin
+            localContext.Log("The Debugee is online, standing down");
 
-            return false;
+            return true;
         }
 
         private static DebugSession GetDebugSession(IOrganizationService service, string initiatingUserId)
