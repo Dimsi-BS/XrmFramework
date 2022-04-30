@@ -14,7 +14,9 @@ namespace XrmFramework.RemoteDebugger
         {
             UnsecuredConfig = unsecuredConfig;
             SecuredConfig = securedConfig;
-            StepConfig = JsonConvert.DeserializeObject<StepConfiguration>(unsecuredConfig);
+            StepConfig = string.IsNullOrEmpty(unsecuredConfig)
+            ? new()
+            : JsonConvert.DeserializeObject<StepConfiguration>(unsecuredConfig);
         }
 
         public string UnsecuredConfig { get; }
@@ -42,15 +44,15 @@ namespace XrmFramework.RemoteDebugger
             localContext.Log($"\r\nIntended Plugin {StepConfig.PluginName}");
             localContext.LogStart();
 
-            if (!GetDebugSession(localContext, out var debugSession)) return;
+            if (!GetDebugSession(localContext, out var debugSession))
+            {
+                LogExit(localContext);
+                return;
+            }
 
-            localContext.Log($"Debug Session :\n{debugSession}");
+            localContext.Log($"Debug Session :\n\tDebugeeId : {debugSession.Debugee}\n\tHybridConnectionName  : {debugSession.HybridConnectionName}");
 
-            var remoteContext = localContext.RemoteContext;
-            remoteContext.Id = Guid.NewGuid();
-            remoteContext.TypeAssemblyQualifiedName = StepConfig.AssemblyQualifiedName;
-            remoteContext.UnsecureConfig = UnsecuredConfig;
-            remoteContext.SecureConfig = SecuredConfig;
+            var remoteContext = InitRemoteContext(localContext, debugSession);
 
             var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
 
@@ -93,15 +95,30 @@ namespace XrmFramework.RemoteDebugger
             }
             catch (Exception e)
             {
+                localContext.DumpLog();
                 localContext.Log(e.Message);
             }
+            LogExit(localContext);
+        }
 
+        internal virtual RemoteDebugExecutionContext InitRemoteContext(LocalPluginContext localContext, DebugSession debugSession)
+        {
+            var remoteContext = localContext.RemoteContext;
+            remoteContext.Id = Guid.NewGuid();
+            remoteContext.TypeAssemblyQualifiedName = StepConfig.AssemblyQualifiedName;
+            remoteContext.UnsecureConfig = UnsecuredConfig;
+            remoteContext.SecureConfig = SecuredConfig;
+            return remoteContext;
+        }
+
+        private void LogExit(LocalPluginContext localContext)
+        {
             localContext.LogContextExit();
             localContext.Log($"Exiting {StepConfig.PluginName} Remote Debugging");
             localContext.LogExit();
         }
 
-        private bool GetDebugSession(LocalPluginContext localContext, out DebugSession debugSession)
+        internal virtual bool GetDebugSession(LocalPluginContext localContext, out DebugSession debugSession)
         {
             var initiatingUserId = localContext.GetInitiatingUserId().ToString();
 
@@ -125,11 +142,11 @@ namespace XrmFramework.RemoteDebugger
                 return false;
             }
 
-            if (!HybridConnection.TryPingDebugSession(debugSession))
-            {
-                localContext.Log("Debug Session exists but is not listening");
-                return false;
-            }
+            //if (!HybridConnection.TryPingDebugSession(debugSession))
+            //{
+            //    localContext.Log("Debug Session exists but is not listening");
+            //    return false;
+            //}
             #endregion
             return true;
         }
