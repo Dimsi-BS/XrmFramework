@@ -108,7 +108,9 @@ namespace XrmFramework.DeployUtils.Utils
 #pragma warning restore CS0612 // Type or member is obsolete
             step.Id = sdkStep.Id;
 
-            step.PluginTypeFullName = sdkStep.EventHandler.Name;
+            var pluginFullName = sdkStep.EventHandler.Name;
+            step.PluginTypeFullName = pluginFullName;
+            step.PluginTypeName = pluginFullName.Substring(pluginFullName.LastIndexOf('.') + 1);
             step.ParentId = sdkStep.EventHandler.Id;
 
             step.FilteringAttributes.Add(sdkStep.FilteringAttributes);

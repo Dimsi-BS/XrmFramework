@@ -10,7 +10,7 @@ using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Utils;
 
-public class AssemblyExporter : IAssemblyExporter
+public partial class AssemblyExporter : IAssemblyExporter
 {
     private readonly IRegistrationService _registrationService;
     private readonly ISolutionContext _solutionContext;
@@ -23,34 +23,6 @@ public class AssemblyExporter : IAssemblyExporter
         _converter = converter;
     }
 
-    public void CreateComponent(ICrmComponent component)
-    {
-        int? entityTypeCode = component.DoFetchTypeCode
-            ? _registrationService.GetIntEntityTypeCode(component.EntityTypeName)
-            : null;
-
-        if (component is CustomApi customApi)
-        {
-            var customApiPluginType = ToRegisterPluginType(customApi.AssemblyId, customApi.FullName);
-            var id = _registrationService.Create(customApiPluginType);
-            customApi.ParentId = id;
-        }
-
-        component.Id = Guid.Empty;
-        var registeringComponent = _converter.ToRegisterComponent(component);
-        component.Id = _registrationService.Create(registeringComponent);
-        registeringComponent.Id = component.Id;
-
-        if (component.DoAddToSolution)
-        {
-            var addSolutionComponentRequest = CreateAddSolutionComponentRequest(registeringComponent.ToEntityReference(), entityTypeCode);
-
-            if (addSolutionComponentRequest != null)
-            {
-                _registrationService.Execute(addSolutionComponentRequest);
-            }
-        }
-    }
     public void CreateAllComponents(IEnumerable<ICrmComponent> componentsToCreate)
     {
         if (!componentsToCreate.Any())
