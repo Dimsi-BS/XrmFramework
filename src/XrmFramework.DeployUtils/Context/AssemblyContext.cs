@@ -130,7 +130,7 @@ namespace XrmFramework.DeployUtils.Context
 
             {
                 child.CleanChildrenWithState(state);
-                if (!child.Children.Any() && child.RegistrationState == state)
+                if (!child.Children.Any())
                 {
                     RemoveChild(child);
                 }

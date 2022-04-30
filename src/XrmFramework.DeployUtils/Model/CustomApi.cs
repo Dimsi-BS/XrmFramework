@@ -58,11 +58,12 @@ namespace XrmFramework.DeployUtils.Model
 
         public void CleanChildrenWithState(RegistrationState state)
         {
+            if (RegistrationState != state) return;
             var childrenSafe = Children.ToList();
             foreach (var child in childrenSafe)
             {
                 child.CleanChildrenWithState(state);
-                if (!child.Children.Any() && child.RegistrationState == state)
+                if (!child.Children.Any())
                 {
                     RemoveChild(child);
                 }

@@ -50,7 +50,7 @@ namespace XrmFramework.DeployUtils.Model
                 _id = value;
             }
         }
-        public string PluginTypeName { get; }
+        public string PluginTypeName { get; set; }
         public Messages Message { get; }
         public Stages Stage { get; }
         public Modes Mode { get; }
@@ -143,12 +143,13 @@ namespace XrmFramework.DeployUtils.Model
 
         public void CleanChildrenWithState(RegistrationState state)
         {
+            if (RegistrationState != state) return;
             var childrenSafe = Children.ToList();
             foreach (var child in childrenSafe)
 
             {
                 child.CleanChildrenWithState(state);
-                if (!child.Children.Any() && child.RegistrationState == state)
+                if (!child.Children.Any())
                 {
                     child.RegistrationState = RegistrationState.Computed;
                 }

@@ -51,7 +51,7 @@ namespace XrmFramework.DeployUtils.Utils
                 CustomApi api => NeedsUpdate(api, (CustomApi)y),
                 AssemblyInfo => true,
                 IAssemblyContext => true,
-                _ => throw new ArgumentException("SolutionComponent not recognised")
+                _ => throw new ArgumentException("SolutionComponent not recognized")
             };
         }
 
@@ -59,9 +59,10 @@ namespace XrmFramework.DeployUtils.Utils
         private static bool NeedsUpdate(CustomApi x, CustomApi y)
         {
             return !x.BindingType.Equals(y.BindingType)
-                || x.IsFunction ^ y.IsFunction
-                || x.WorkflowSdkStepEnabled ^ y.WorkflowSdkStepEnabled
-                || !x.AllowedCustomProcessingStepType.Equals(y.AllowedCustomProcessingStepType);
+                   || !x.BoundEntityLogicalName.Equals(y.BoundEntityLogicalName)
+                   || x.IsFunction ^ y.IsFunction
+                   || x.WorkflowSdkStepEnabled ^ y.WorkflowSdkStepEnabled
+                   || !x.AllowedCustomProcessingStepType.Equals(y.AllowedCustomProcessingStepType);
         }
 
         private static bool NeedsUpdate(CustomApiRequestParameter x, CustomApiRequestParameter y)
