@@ -17,6 +17,7 @@ namespace XrmFramework.DeployUtils
     {
         private readonly Guid _debugSessionId;
         private readonly IMapper _mapper;
+        private readonly DebugAssemblySettings _debugSettings;
 
 
         public RegistrationHelper(IRegistrationService service,
@@ -32,6 +33,10 @@ namespace XrmFramework.DeployUtils
             _assemblyDiffFactory = diffFactory;
             _mapper = mapper;
             _debugSessionId = settings.Value.DebugSessionId;
+            _debugSettings = new DebugAssemblySettings()
+            {
+                DebugCustomPrefix = _debugSessionId.ToString().Substring(0, DebugAssemblySettings.DebugCustomPrefixNumber)
+            };
 
         }
 
@@ -42,15 +47,12 @@ namespace XrmFramework.DeployUtils
             var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(typeof(TPlugin));
 
             localAssembly.Workflows.Clear();
-            localAssembly.CustomApis.Clear();
 
             Console.WriteLine("Fetching Remote Assembly...");
 
             var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, projectName);
 
-
             registeredAssembly.Workflows.Clear();
-            registeredAssembly.CustomApis.Clear();
 
             Console.WriteLine("Computing Difference With Local Assembly...");
 
@@ -65,13 +67,13 @@ namespace XrmFramework.DeployUtils
 
             Console.WriteLine("Fetching Debug Assembly...");
 
-            var debugAssembly = _assemblyFactory.CreateFromDebugAssembly(_registrationService, "XrmFramework.RemoteDebuggerPlugin", out Guid debugPluginId);
+            var debugAssembly = _assemblyFactory.CreateFromDebugAssembly(_registrationService, _debugSettings);
 
             Console.WriteLine("Computing Difference With Debug Assembly...");
 
             var remoteDebugDiff = _assemblyDiffFactory.ComputeDiffPatch(assemblyToDebug, debugAssembly);
 
-            var debugStrategy = _assemblyFactory.WrapDebugDiffForDebugDeploy(remoteDebugDiff, debugPluginId, typeof(TPlugin));
+            var debugStrategy = _assemblyFactory.WrapDebugDiffForDebugDeploy(remoteDebugDiff, _debugSettings, typeof(TPlugin));
 
             Console.WriteLine("Updating the Remote Debugger Plugin...");
             ExecuteRegistrationStrategy(debugStrategy);

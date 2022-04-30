@@ -27,10 +27,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Microsoft.Azure.Relay" Version="2.0.15596" />
 	</ItemGroup>
 	
@@ -41,6 +37,7 @@
 	<ItemGroup>
 		<Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
 		<Compile Include="..\XrmFramework.Plugin\**\*.cs" Link="_Imports\XrmFramework.Plugin\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\bin\**;..\XrmFramework.Plugin\obj\**" />
+		<Compile Include="..\XrmFramework.RemoteDebugger.Client\Configuration\DebugAssemblySettings.cs" Link="_Imports\XrmFramework.RemoteDebugger.Client\Configuration\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\bin\**;..\XrmFramework.Plugin\obj\**" />
 	</ItemGroup>
 
 

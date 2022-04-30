@@ -8,6 +8,12 @@ namespace XrmFramework.RemoteDebugger.Model.CrmComponentInfos
     {
         [JsonProperty("assemblyName")]
         public string AssemblyName { get; set; }
+        [JsonProperty("version")]
+        public string Version { get; set; }
+        [JsonProperty("publicKeyToken")]
+        public string PublicKeyToken { get; set; }
+        [JsonProperty("culture")]
+        public string Culture { get; set; }
         [JsonProperty("plugins")]
         public List<PluginInfo> Plugins { get; set; }
         [JsonProperty("workflows")]
@@ -73,8 +79,8 @@ namespace XrmFramework.RemoteDebugger.Model.CrmComponentInfos
     [JsonObject(MemberSerialization.OptIn)]
     public class CustomApiInfo
     {
-        [JsonProperty("name")]
-        public string Name { get; set; }
+        [JsonProperty("uniqueName")]
+        public string UniqueName { get; set; }
         [JsonProperty("requestParameters")]
         public List<CustomApiRequestParameterInfo> RequestParameters { get; set; }
         [JsonProperty("responseProperties")]
@@ -88,6 +94,8 @@ namespace XrmFramework.RemoteDebugger.Model.CrmComponentInfos
         public string Name { get; set; }
         [JsonProperty("type")]
         public string Type { get; set; }
+        [JsonProperty("isOptional")]
+        public bool IsOptional { get; set; }
     }
 
     [JsonObject(MemberSerialization.OptIn)]

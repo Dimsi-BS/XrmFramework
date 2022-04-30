@@ -17,7 +17,13 @@ namespace XrmFramework.DeployUtils.Configuration
         {
             CreateMap<IAssemblyContext, AssemblyContextInfo>()
                 .ForMember(dest => dest.AssemblyName,
-                    opt => opt.MapFrom(src => src.UniqueName));
+                    opt => opt.MapFrom(src => src.UniqueName))
+                .ForMember(dest => dest.Culture,
+                    opt => opt.MapFrom(src => src.AssemblyInfo.Culture))
+                .ForMember(dest => dest.Version,
+                    opt => opt.MapFrom(src => src.AssemblyInfo.Version))
+                .ForMember(dest => dest.PublicKeyToken,
+                    opt => opt.MapFrom(src => src.AssemblyInfo.PublicKeyToken));
 
             CreateMap<Plugin, PluginInfo>()
                 .ForMember(dest => dest.Name,
@@ -40,16 +46,11 @@ namespace XrmFramework.DeployUtils.Configuration
                 .ForMember(dest => dest.Mode,
                     opt => opt.MapFrom(src => src.Mode.ToString()));
 
-
-            ;
-
-
-
             CreateMap<StepImage, StepImageInfo>();
 
             CreateMap<CustomApi, CustomApiInfo>()
-                .ForMember(dest => dest.Name,
-                    opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.UniqueName,
+                    opt => opt.MapFrom(src => src.UniqueName))
                 .ForMember(dest => dest.RequestParameters,
                     opt => opt.MapFrom(src =>
                         src.Children

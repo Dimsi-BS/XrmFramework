@@ -24,26 +24,30 @@ namespace XrmFramework.DeployUtils.Utils
             _mapper = mapper;
         }
 
-        public IAssemblyContext CreateFromDebugAssembly(IRegistrationService service, string debugAssemblyName, out Guid debugPluginId)
+        public IAssemblyContext CreateFromDebugAssembly(IRegistrationService service, DebugAssemblySettings debugSettings)
         {
-            var assembly = service.GetAssemblyByName(debugAssemblyName);
-
-            var debugAssemblyRaw = _importer.CreateAssemblyFromRemote(assembly);
+            var assembly = service.GetAssemblyByName(DebugAssemblySettings.DebugAssemblyName);
 
             if (assembly == null)
             {
-                debugPluginId = Guid.Empty;
-                return debugAssemblyRaw;
+                throw new ArgumentException("The DebugAssembly is not deployed on this Solution");
             }
+
+            var debugAssemblyRaw = _importer.CreateAssemblyFromRemote(assembly);
 
             Console.WriteLine("Remote Debug Plugin Exists, Fetching Components...");
 
             FillRemoteAssemblyContext(service, debugAssemblyRaw);
 
-            var debugAssemblyParsed = _importer.CreateAssemblyFromRemote(assembly);
+            var debugAssemblyParsed = _mapper.Map<IAssemblyContext>(debugAssemblyRaw.AssemblyInfo);
 
-            var pluginRaw = debugAssemblyRaw.Plugins.First();
-            debugPluginId = pluginRaw.Id;
+            var pluginRaw = debugAssemblyRaw.Plugins.Single(p => p.FullName == DebugAssemblySettings.DebugPluginName);
+
+            debugSettings.AssemblyId = assembly.Id;
+            debugSettings.PluginId = pluginRaw.Id;
+            debugSettings.CustomApiId = debugAssemblyRaw.CustomApis.Any()
+                ? debugAssemblyRaw.CustomApis.First().ParentId
+                : debugAssemblyRaw.Plugins.Single(p => p.FullName == DebugAssemblySettings.DebugCustomApiName).Id;
 
             var pluginsParsed = pluginRaw.Steps
                 .Select(s => (s, s.StepConfiguration))
@@ -63,25 +67,29 @@ namespace XrmFramework.DeployUtils.Utils
                 })
                 .ToList();
 
+
             pluginsParsed.ForEach(debugAssemblyParsed.Plugins.Add);
 
-            debugAssemblyParsed.Workflows.Clear();
-            debugAssemblyParsed.CustomApis.Clear();
+            foreach (var customApi in debugAssemblyRaw.CustomApis)
+            {
+                customApi.UniqueName = DebugAssemblySettings.RemoveCustomPrefix(customApi.UniqueName);
+                debugAssemblyParsed.CustomApis.Add(customApi);
+            }
 
             return debugAssemblyParsed;
         }
 
-        public IAssemblyContext WrapDebugDiffForDebugDeploy(IAssemblyContext from, Guid debugPluginId, Type TPlugin)
-        {
-            var debugAssembly = _mapper.Map<IAssemblyContext>(from);
 
-            debugAssembly.Plugins.Clear();
-            debugAssembly.Workflows.Clear();
-            debugAssembly.CustomApis.Clear();
+        public IAssemblyContext WrapDebugDiffForDebugDeploy(IAssemblyContext from, DebugAssemblySettings debugSettings, Type TPlugin)
+        {
+            var debugAssembly = _mapper.Map<IAssemblyContext>(from.AssemblyInfo);
 
             var localPlugins = TPlugin.Assembly.GetTypes();
 
-            var debugPlugin = new Plugin("Father");
+            var debugPlugin = new Plugin("Father")
+            {
+                RegistrationState = RegistrationState.Computed
+            };
 
             foreach (var plugin in from.Plugins)
             {
@@ -97,10 +105,18 @@ namespace XrmFramework.DeployUtils.Utils
                 }
             }
 
-            debugPlugin.ParentId = from.AssemblyInfo.Id;
-            debugPlugin.Id = debugPluginId;
+            debugPlugin.ParentId = debugSettings.AssemblyId;
+            debugPlugin.Id = debugSettings.PluginId;
             debugAssembly.Plugins.Add(debugPlugin);
             debugAssembly.RegistrationState = RegistrationState.Computed;
+
+            foreach (var customApi in from.CustomApis)
+            {
+                customApi.ParentId = debugSettings.CustomApiId;
+                //Insert seemingly random value to make the customApi unique
+                customApi.UniqueName = debugSettings.AddCustomPrefix(customApi.UniqueName);
+                debugAssembly.CustomApis.Add(customApi);
+            }
 
             return debugAssembly;
         }
