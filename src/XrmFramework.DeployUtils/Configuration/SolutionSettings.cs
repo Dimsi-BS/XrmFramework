@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace XrmFramework.DeployUtils.Configuration
+﻿namespace XrmFramework.DeployUtils.Configuration
 {
+    /// <summary>
+    /// Stores the ConnectionString used for the Crm Client and the Target Solution Name
+    /// </summary>
     public class SolutionSettings
     {
         public string PluginSolutionUniqueName { get; set; }

@@ -12,6 +12,9 @@ using XrmFramework.DeployUtils.Configuration;
 
 namespace XrmFramework.DeployUtils.Service
 {
+    /// <summary>
+    /// Base implementation of <see cref="IRegistrationService"/>
+    /// </summary>
     public class RegistrationService : IRegistrationService
     {
         private readonly CrmServiceClient _client;
@@ -149,13 +152,13 @@ namespace XrmFramework.DeployUtils.Service
             return list;
         }
 
-        public ICollection<PluginType> GetRegisteredPluginTypes(Guid pluginAssemblyId)
+        public ICollection<PluginType> GetRegisteredPluginTypes(Guid assemblyId)
         {
             var list = new List<PluginType>();
 
             var query = new QueryExpression(PluginTypeDefinition.EntityName);
             query.ColumnSet.AllColumns = true;
-            query.Criteria.AddCondition(PluginTypeDefinition.Columns.PluginAssemblyId, ConditionOperator.Equal, pluginAssemblyId);
+            query.Criteria.AddCondition(PluginTypeDefinition.Columns.PluginAssemblyId, ConditionOperator.Equal, assemblyId);
 
             var result = RetrieveAll(query);
             foreach (var type in result)
@@ -221,40 +224,6 @@ namespace XrmFramework.DeployUtils.Service
             } while (ec.MoreRecords);
 
             return result;
-        }
-
-        public ICollection<Guid> CreateMany<T>(ICollection<T> entities) where T : Entity
-        {
-            ICollection<Guid> result = new List<Guid>();
-            foreach (var entity in entities)
-            {
-                result.Add(_client.Create(entity));
-            }
-            return result;
-        }
-
-        public void DeleteMany(string entityName, IEnumerable<Guid> guids)
-        {
-            foreach (var guid in guids)
-            {
-                _client.Delete(entityName, guid);
-            }
-        }
-
-        public void DeleteMany<T>(IEnumerable<T> entities) where T : Entity
-        {
-            foreach (var entity in entities)
-            {
-                _client.Delete(entity.LogicalName, entity.Id);
-            }
-        }
-
-        public void UpdateMany<T>(IEnumerable<T> entities) where T : Entity
-        {
-            foreach (var entity in entities)
-            {
-                _client.Update(entity);
-            }
         }
 
         public int GetIntEntityTypeCode(string logicalName)

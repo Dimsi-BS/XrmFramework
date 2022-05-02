@@ -16,24 +16,35 @@ namespace XrmFramework.DeployUtils.Utils
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Computes the difference between two <see cref="IAssemblyContext"/> 
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="target"></param>
+        /// <returns><see cref="IAssemblyContext"/>, a copy of the <paramref name="from"/> AssemblyContext
+        /// with computed <see cref="RegistrationState"/> properties according to the other <paramref name="target"/> AssemblyContext</returns>
         internal IAssemblyContext ComputeDiffPatch(IAssemblyContext from, IAssemblyContext target)
         {
+            //Clone the from AssemblyContext
             var fromCopy = _mapper.Map<IAssemblyContext>(from);
 
             var fromPool = fromCopy.ComponentsOrderedPool;
             var targetPool = target.ComponentsOrderedPool;
 
-            var deleteComponents = ComputeDiffPatchFromPool(fromPool, targetPool);
-
-            foreach (var deleteComponent in deleteComponents)
-            {
-                fromCopy.AddChild(deleteComponent);
-            }
+            ComputeDiffPatchFromPool(fromPool, targetPool);
 
             return fromCopy;
         }
 
-        private ICollection<ICrmComponent> ComputeDiffPatchFromPool(IReadOnlyCollection<ICrmComponent> fromPool, IReadOnlyCollection<ICrmComponent> targetPool)
+        /// <summary>
+        /// Computes the difference between two Collections of <see cref="ICrmComponent"/>,
+        /// fills the <paramref name="fromPool"/>'s component's <see cref="RegistrationState"/>,
+        /// and adds the components that are only present in the <paramref name="targetPool"/> as <see cref="RegistrationState.ToDelete"/>
+        /// </summary>
+        /// <param name="fromPool"></param>
+        /// <param name="targetPool"></param>
+        /// <returns></returns>
+        private void ComputeDiffPatchFromPool(IReadOnlyCollection<ICrmComponent> fromPool, IReadOnlyCollection<ICrmComponent> targetPool)
         {
             /*
              * Some explanation here :
@@ -68,17 +79,23 @@ namespace XrmFramework.DeployUtils.Utils
 
             foreach (var fromComponent in fromPool)
             {
+                // If already computed, don't do it again
                 if (fromComponent.RegistrationState != RegistrationState.NotComputed)
                 {
                     continue;
                 }
+
+                // See if this component is present in the other pool
                 var targetComponent = _comparer.CorrespondingComponent(fromComponent, targetPool);
+
+                // If not, mark it and all its children as ToCreate
                 if (targetComponent == null)
                 {
                     FlagAllFromComponent(fromComponent, RegistrationState.ToCreate);
                     continue;
                 }
 
+                // If there, transfer the ids and see if the component is up to date
                 fromComponent.Id = targetComponent.Id;
                 fromComponent.ParentId = targetComponent.ParentId;
 
@@ -88,8 +105,8 @@ namespace XrmFramework.DeployUtils.Utils
                 targetComponent.RegistrationState = RegistrationState.Computed;
             }
 
-            var deleteComponents = new List<ICrmComponent>();
-
+            // Go through every component of target that have not yet been computed
+            // This mean there were no corresponding component in from, so they all have to be deleted
             foreach (var targetComponent in targetPool)
             {
                 if (targetComponent.RegistrationState != RegistrationState.NotComputed)
@@ -98,21 +115,17 @@ namespace XrmFramework.DeployUtils.Utils
                 }
 
                 FlagAllFromComponent(targetComponent, RegistrationState.ToDelete);
-                if (targetComponent.Rank == 1)
-                {
-                    deleteComponents.Add(targetComponent);
-                }
-                else
-                {
-                    var componentFather = fromPool.First(c => c.Id == targetComponent.ParentId);
-                    componentFather.AddChild(targetComponent);
-                }
+                var componentFather = fromPool.First(c => c.Id == targetComponent.ParentId);
+                componentFather.AddChild(targetComponent);
             }
-
-            return deleteComponents;
         }
 
-
+        /// <summary>
+        /// Flags a <paramref name="target"/> <see cref="ICrmComponent"/> and all its children recursively
+        /// with the given <see cref="RegistrationState"/> <paramref name="state"/>
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="state"></param>
         private static void FlagAllFromComponent(ICrmComponent target, RegistrationState state)
         {
             target.RegistrationState = state;

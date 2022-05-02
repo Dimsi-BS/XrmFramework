@@ -11,6 +11,9 @@ using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
 {
+    /// <summary>
+    /// Base implementation of <see cref="IAssemblyImporter"/>
+    /// </summary>
     class AssemblyImporter : IAssemblyImporter
     {
         private readonly ISolutionContext _solutionContext;
@@ -48,16 +51,7 @@ namespace XrmFramework.DeployUtils.Utils
 
         public IAssemblyContext CreateAssemblyFromRemote(Deploy.PluginAssembly assembly)
         {
-            AssemblyInfo info;
-            if (assembly != null)
-            {
-                info = _mapper.Map<AssemblyInfo>(assembly);
-            }
-            else
-            {
-                info = new AssemblyInfo();
-            }
-
+            var info = assembly != null ? _mapper.Map<AssemblyInfo>(assembly) : new AssemblyInfo();
             return _mapper.Map<IAssemblyContext>(info);
         }
 
@@ -190,31 +184,6 @@ namespace XrmFramework.DeployUtils.Utils
             return parsedCustomApi;
         }
 
-        private static ICustomApiComponent CreateCustomApiResponsePropertyFromRemote(Deploy.CustomApiResponseProperty argument)
-        {
-            return new CustomApiRequestParameter()
-            {
-                Description = argument.Description,
-                Name = argument.Name,
-                DisplayName = argument.DisplayName,
-                Type = argument.Type,
-                UniqueName = argument.UniqueName
-            };
-        }
-
-        private ICustomApiComponent CreateCustomApiRequestParameterFromRemote(Deploy.CustomApiRequestParameter argument)
-        {
-            return new CustomApiRequestParameter()
-            {
-                Description = argument.Description,
-                Name = argument.Name,
-                DisplayName = argument.DisplayName,
-                IsOptional = argument.IsOptional,
-                Type = argument.Type,
-                UniqueName = argument.UniqueName
-            };
-        }
-
         private Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false)
         {
             var pluginTemp = !isWorkflow ? new Plugin(plugin.GetType().FullName) : new Plugin(plugin.GetType().FullName, plugin.DisplayName);
@@ -299,7 +268,7 @@ namespace XrmFramework.DeployUtils.Utils
 
         private T FromXrmFrameworkArgument<T>(string customApiName, dynamic argument) where T : ICustomApiComponent, new()
         {
-            var res = new T
+            var res = new T()
             {
                 Description = string.IsNullOrWhiteSpace(argument.Description) ? $"{customApiName}.{argument.ArgumentName}" : argument.Description,
                 UniqueName = $"{customApiName}.{argument.ArgumentName}",
@@ -314,7 +283,6 @@ namespace XrmFramework.DeployUtils.Utils
             }
             return res;
         }
-
 
     }
 }

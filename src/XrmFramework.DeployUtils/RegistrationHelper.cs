@@ -32,11 +32,10 @@ namespace XrmFramework.DeployUtils
         }
 
         /// <summary>
-        /// Entrypoint for the Register & Deploy process
+        /// Entrypoint for registering the <typeparamref name="TPlugin"/> in the solution <paramref name="projectName"/>
         /// </summary>
-        /// <typeparam name="TPlugin">The assembly to deploy</typeparam>
-        /// <param name="projectName">The solution name where the assembly should be registered</param>
-        /// 
+        /// <typeparam name="TPlugin"></typeparam>
+        /// <param name="projectName"></param>
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
             var serviceProvider = ServiceCollectionHelper.ConfigureForDeploy(projectName);
@@ -54,6 +53,11 @@ If ok press any key.");
             registrationHelper.Register<TPlugin>(projectName);
         }
 
+        /// <summary>
+        /// Main algorithm for deploying a <typeparam name="TPlugin"></typeparam> assembly into the <paramref name="projectName"/>
+        /// </summary>
+        /// <typeparam name="TPlugin"></typeparam>
+        /// <param name="projectName"></param>
         protected void Register<TPlugin>(string projectName)
         {
             Console.WriteLine("Fetching Local Assembly...");

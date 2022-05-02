@@ -10,6 +10,9 @@ using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Utils;
 
+/// <summary>
+/// Base implementation of <see cref="IAssemblyExporter"/>
+/// </summary>
 public partial class AssemblyExporter : IAssemblyExporter
 {
     private readonly IRegistrationService _registrationService;
@@ -71,41 +74,37 @@ public partial class AssemblyExporter : IAssemblyExporter
             _registrationService.Update(registeringComponent);
     }
 
-    public AddSolutionComponentRequest CreateAddSolutionComponentRequest(EntityReference objectRef,
+    /// <summary>
+    /// Creates a request to add a component in the form of an <see cref="EntityReference"/>
+    /// to the current Solution
+    /// </summary>
+    /// <param name="objectRef"></param>
+    /// <param name="objectTypeCode"></param>
+    /// <returns></returns>
+    private AddSolutionComponentRequest CreateAddSolutionComponentRequest(EntityReference objectRef,
         int? objectTypeCode = null)
     {
         AddSolutionComponentRequest res = null;
-        if (!_solutionContext.Components.Any(c => c.ObjectId.Equals(objectRef.Id)))
+        if (_solutionContext.Components.Any(c => c.ObjectId.Equals(objectRef.Id))) return res;
+        res = new AddSolutionComponentRequest
         {
-            res = new AddSolutionComponentRequest
+            AddRequiredComponents = false,
+            ComponentId = objectRef.Id,
+            SolutionUniqueName = _solutionContext.SolutionName
+        };
+
+        if (objectTypeCode.HasValue)
+            res.ComponentType = objectTypeCode.Value;
+        else
+            res.ComponentType = objectRef.LogicalName switch
             {
-                AddRequiredComponents = false,
-                ComponentId = objectRef.Id,
-                SolutionUniqueName = _solutionContext.SolutionName
+                PluginAssemblyDefinition.EntityName => (int)Deploy.componenttype.PluginAssembly,
+                PluginTypeDefinition.EntityName => (int)Deploy.componenttype.PluginType,
+                SdkMessageProcessingStepDefinition.EntityName => (int)Deploy.componenttype.SDKMessageProcessingStep,
+                SdkMessageProcessingStepImageDefinition.EntityName => (int)Deploy.componenttype
+                    .SDKMessageProcessingStepImage,
+                _ => res.ComponentType
             };
-
-            if (objectTypeCode.HasValue)
-                res.ComponentType = objectTypeCode.Value;
-            else
-                switch (objectRef.LogicalName)
-                {
-                    case PluginAssemblyDefinition.EntityName:
-                        res.ComponentType = (int)Deploy.componenttype.PluginAssembly;
-                        break;
-
-                    case PluginTypeDefinition.EntityName:
-                        res.ComponentType = (int)Deploy.componenttype.PluginType;
-                        break;
-
-                    case SdkMessageProcessingStepDefinition.EntityName:
-                        res.ComponentType = (int)Deploy.componenttype.SDKMessageProcessingStep;
-                        break;
-
-                    case SdkMessageProcessingStepImageDefinition.EntityName:
-                        res.ComponentType = (int)Deploy.componenttype.SDKMessageProcessingStepImage;
-                        break;
-                }
-        }
 
         return res;
     }
@@ -131,13 +130,4 @@ public partial class AssemblyExporter : IAssemblyExporter
 
         return t;
     }
-
-    //public PluginAssembly ToPluginAssembly(Assembly assembly, Guid registeredId)
-    //{
-    //    return new PluginAssembly
-    //    {
-    //        Id = registeredId,
-    //        Content = Convert.ToBase64String(File.ReadAllBytes(assembly.Location))
-    //    };
-    //}
 }

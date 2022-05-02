@@ -8,6 +8,9 @@ using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
 {
+    /// <summary>
+    /// Base implementation of <see cref="ICrmComponentConverter"/>
+    /// </summary>
     public class CrmComponentConverter : ICrmComponentConverter
     {
         private readonly ISolutionContext _context;
