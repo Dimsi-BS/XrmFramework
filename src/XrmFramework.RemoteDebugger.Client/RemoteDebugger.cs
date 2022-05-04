@@ -21,11 +21,6 @@ namespace XrmFramework.RemoteDebugger.Common
 
         public void Start<P>(string solutionName)
         {
-            // Get registered steps
-
-            //var plugins = RegistrationHelper.UpdateCrmData<P>("FrameworkTests.Plugins");
-            //RegistrationHelper<XrmFramework.RemoteDebuggerPlugin>
-
             Console.WriteLine($"You are about to modify the debug session");
 
             var serviceProvider = ServiceCollectionHelper.ConfigureForRemoteDebug(solutionName);

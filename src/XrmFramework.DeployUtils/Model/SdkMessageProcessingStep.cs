@@ -5,6 +5,7 @@ namespace Deploy
 {
     partial class SdkMessageProcessingStep
     {
+        /// <summary>EntityName linked to the SdkStep</summary>
         public string EntityName => this.GetAttributeValue<AliasedValue>($"filter.{SdkMessageFilterDefinition.Columns.PrimaryObjectTypeCode}")?.Value as string;
     }
 }

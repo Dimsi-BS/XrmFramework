@@ -10,10 +10,8 @@ namespace XrmFramework.DeployUtils.Model
 {
     public class Plugin : ICrmComponent
     {
-        public string FullName { get; }
-
         private Guid _id;
-        public string EntityTypeName => PluginTypeDefinition.EntityName;
+
         public Plugin(string fullName)
         {
             FullName = fullName;
@@ -24,13 +22,7 @@ namespace XrmFramework.DeployUtils.Model
             DisplayName = displayName;
         }
 
-        public bool IsWorkflow => !string.IsNullOrWhiteSpace(DisplayName);
-
-
-        public string DisplayName { get; }
-
-        public string UniqueName => FullName;
-
+        public string FullName { get; }
         public Guid Id
         {
             get => _id;
@@ -43,10 +35,20 @@ namespace XrmFramework.DeployUtils.Model
                 _id = value;
             }
         }
-
         public Guid ParentId { get; set; }
 
+        /// <summary>Indicates whether this <see cref="Plugin"/> is a WorkFlow</summary>
+        public bool IsWorkflow => !string.IsNullOrWhiteSpace(DisplayName);
+
+        /// <summary>Collection of the <see cref="Step"/></summary>
         public StepCollection Steps { get; } = new StepCollection();
+
+
+        public string DisplayName { get; }
+
+        public string UniqueName => FullName;
+        public string EntityTypeName => PluginTypeDefinition.EntityName;
+
 
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
@@ -59,7 +61,7 @@ namespace XrmFramework.DeployUtils.Model
             Steps.Add(step);
         }
 
-        public void RemoveChild(ICrmComponent child)
+        private void RemoveChild(ICrmComponent child)
         {
             if (child is not Step step) throw new ArgumentException("Plugin doesn't have this type of children");
             Steps.Remove(step);

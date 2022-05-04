@@ -19,7 +19,6 @@ namespace XrmFramework.DeployUtils
         private readonly IMapper _mapper;
         private readonly DebugAssemblySettings _debugSettings;
 
-
         public RegistrationHelper(IRegistrationService service,
                                   IAssemblyExporter exporter,
                                   IAssemblyFactory assemblyFactory,
@@ -76,7 +75,7 @@ namespace XrmFramework.DeployUtils
             var debugStrategy = _assemblyFactory.WrapDebugDiffForDebugDeploy(remoteDebugDiff, _debugSettings, typeof(TPlugin));
 
             Console.WriteLine("Updating the Remote Debugger Plugin...");
-            ExecuteRegistrationStrategy(debugStrategy);
+            ExecuteStrategy(debugStrategy);
 
             Console.WriteLine("Updating the Debug Session...");
 

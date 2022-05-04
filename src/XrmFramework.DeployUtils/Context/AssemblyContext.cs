@@ -9,13 +9,17 @@ namespace XrmFramework.DeployUtils.Context
     {
         public AssemblyInfo AssemblyInfo { get; set; } = new();
 
+        #region Private IAssemblyContext fields implementation
         private readonly List<Plugin> _plugins = new();
         private readonly List<CustomApi> _customApis = new();
         private readonly List<Plugin> _workflows = new();
+        #endregion
 
+        #region Public IAssemblyContext Properties get implementation
         public ICollection<Plugin> Plugins => _plugins;
         public ICollection<CustomApi> CustomApis => _customApis;
         public ICollection<Plugin> Workflows => _workflows;
+        #endregion
 
         public IReadOnlyCollection<ICrmComponent> ComponentsOrderedPool
         {
@@ -43,6 +47,11 @@ namespace XrmFramework.DeployUtils.Context
             }
         }
 
+        /// <summary>
+        /// Recursively add to the <paramref name="terminalStack"/> the <paramref name="component"/> and its <c>Children</c>
+        /// </summary>
+        /// <param name="terminalStack">The pool that will eventually contain every <c>Component</c> of the <c>Assembly</c></param>
+        /// <param name="component">The current <c>Component</c></param>
         private static void CreateSolutionComponentPoolRecursive(ICollection<ICrmComponent> terminalStack,
             ICrmComponent component)
         {

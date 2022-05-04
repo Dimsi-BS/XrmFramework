@@ -21,7 +21,7 @@ namespace XrmFramework.DeployUtils.Utils
         /// </summary>
         /// <param name="from"></param>
         /// <param name="target"></param>
-        /// <returns><see cref="IAssemblyContext"/>, a copy of the <paramref name="from"/> AssemblyContext
+        /// <returns>A copy of the <paramref name="from"/> AssemblyContext
         /// with computed <see cref="RegistrationState"/> properties according to the other <paramref name="target"/> AssemblyContext</returns>
         internal IAssemblyContext ComputeDiffPatch(IAssemblyContext from, IAssemblyContext target)
         {

@@ -29,16 +29,11 @@ namespace XrmFramework.DeployUtils.Model
                 FatherStep = this
             };
 
-
-            if (!string.IsNullOrWhiteSpace(EntityName) &&
-                (message == Messages.Associate || message == Messages.Disassociate))
-            {
-                EntityName = string.Empty;
-
-                StepConfiguration.RelationshipName = entityName;
-            }
+            if (string.IsNullOrWhiteSpace(EntityName) ||
+                (message != Messages.Associate && message != Messages.Disassociate)) return;
+            EntityName = string.Empty;
+            StepConfiguration.RelationshipName = entityName;
         }
-
 
         public Guid Id
         {
@@ -50,38 +45,63 @@ namespace XrmFramework.DeployUtils.Model
                 _id = value;
             }
         }
+        public Guid ParentId { get; set; }
+
+        /// <summary>Full Name of the <see cref="Plugin"/></summary>
+        /// <example>Assembly.NameSpace.Plugin</example>
+        public string PluginTypeFullName { get; set; }
+
+        /// <summary>Simplified Name of the <see cref="Plugin"/></summary>
+        /// <example>Plugin</example>
         public string PluginTypeName { get; set; }
+
+        /// <summary>Message on which to fire</summary>
         public Messages Message { get; }
+
+        /// <summary>Stage on which to fire</summary>
         public Stages Stage { get; }
+
+        /// <summary>Mode of the <see cref="Step"/></summary>
         public Modes Mode { get; }
+
+        /// <summary>Entity the step is bound to</summary>
         public string EntityName { get; }
 
-        public Guid ParentId { get; set; }
-        public string PluginTypeFullName { get; set; }
+        /// <summary><inheritdoc cref="XrmFramework.StepConfiguration"/></summary>
+        public StepConfiguration StepConfiguration { get; set; } = new();
 
         public Guid MessageId { get; set; }
 
+        /// <summary>Indicates if there are Filtering Attributes</summary>
         public bool DoNotFilterAttributes { get; set; }
 
+        /// <summary>List of Attributes to Filter on trigger</summary>
         public List<string> FilteringAttributes { get; } = new List<string>();
 
+        /// <summary>PreImage of the Step, may not be used</summary>
         public StepImage PreImage { get; set; }
 
+        /// <summary>PostImage of the Step, may not be used</summary>
         public StepImage PostImage { get; set; }
 
-        public string UnsecureConfig => JsonConvert.SerializeObject(StepConfiguration);
-
+        /// <summary>Preferred Order of execution</summary>
         public int Order { get; set; }
 
+        /// <summary>Can execute while impersonating a specific user</summary>
         public string ImpersonationUsername { get; set; }
 
+        /// <summary><inheritdoc cref="XrmFramework.StepConfiguration.RegisteredMethods"/></summary>
         public List<string> MethodNames => StepConfiguration.RegisteredMethods;
+
+        /// <summary>Joined string of the <see cref="MethodNames"/></summary>
         public string MethodsDisplayName => string.Join(",", MethodNames);
 
-        public StepConfiguration StepConfiguration { get; set; } = new();
+        /// <summary>Serialized string of <see cref="StepConfiguration"/></summary>
+        public string UnsecureConfig => JsonConvert.SerializeObject(StepConfiguration);
 
-        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
+        /// <summary>Merge two Steps that trigger on the same event</summary>
+        /// <param name="step"></param>
         public void Merge(Step step)
         {
             if (!step.FilteringAttributes.Any())
@@ -114,8 +134,14 @@ namespace XrmFramework.DeployUtils.Model
             MethodNames.AddRange(step.MethodNames);
         }
 
+        /// <summary>
+        /// Description of the <see cref="Step"/><br/>
+        /// Is built like this : <br/>
+        /// <see cref="PluginTypeName"/> : <see cref="Stage"/> <see cref="Message"/> of <see cref="EntityName"/> (<see cref="MethodsDisplayName"/>)
+        /// </summary>
         public string Description => $"{PluginTypeName} : {Stage} {Message} of {EntityName} ({MethodsDisplayName})";
 
+        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
         public string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
         public string UniqueName => $"{PluginTypeFullName}.{Stage}.{Message}.{EntityName}.{MethodsDisplayName}";
         public IEnumerable<ICrmComponent> Children
@@ -123,8 +149,8 @@ namespace XrmFramework.DeployUtils.Model
             get
             {
                 var res = new List<ICrmComponent>();
-                if ((PreImage.IsUsed && PreImage.RegistrationState != RegistrationState.Computed) || PreImage.RegistrationState == RegistrationState.ToDelete) res.Add(PreImage);
-                if ((PostImage.IsUsed && PostImage.RegistrationState != RegistrationState.Computed) || PostImage.RegistrationState == RegistrationState.ToDelete) res.Add(PostImage);
+                if (PreImage.ShouldAppearAsChild) res.Add(PreImage);
+                if (PostImage.ShouldAppearAsChild) res.Add(PostImage);
                 return res;
             }
         }
@@ -133,10 +159,12 @@ namespace XrmFramework.DeployUtils.Model
             if (child is not StepImage stepChild) throw new ArgumentException("Step doesn't take this type of children");
             if (stepChild.IsPreImage)
             {
+                PreImage.Id = _id;
                 PreImage = stepChild;
             }
             else
             {
+                PostImage.Id = _id;
                 PostImage = stepChild;
             }
         }
@@ -147,13 +175,10 @@ namespace XrmFramework.DeployUtils.Model
                 .Where(c => c.RegistrationState == state)
                 .ToList();
             foreach (var child in childrenWithStateSafe)
-
             {
-                child.CleanChildrenWithState(state);
-                if (!child.Children.Any())
-                {
-                    child.RegistrationState = RegistrationState.Computed;
-                }
+
+                child.RegistrationState = RegistrationState.Computed;
+
             }
         }
 

@@ -5,7 +5,10 @@
     /// </summary>
     public class SolutionSettings
     {
+        /// <summary>Target Solution Name</summary>
         public string PluginSolutionUniqueName { get; set; }
+
+        /// <summary>Connection String to use to instantiate a Crm Client</summary>
         public string ConnectionString { get; set; }
     }
 }

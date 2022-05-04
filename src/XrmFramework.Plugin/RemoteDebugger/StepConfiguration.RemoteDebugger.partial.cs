@@ -1,19 +1,19 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 
 namespace XrmFramework
 {
     public partial class StepConfiguration
     {
-        [JsonProperty("debugSessions")] public List<Guid> DebugSessionIds { get; set; } = new();
-
+        /// <summary>Name of the plugin</summary>
         [JsonProperty("pluginName")]
         public string PluginName { get; set; }
 
+        /// <summary>Name of the Assembly</summary>
         [JsonProperty("assemblyQualifiedName")]
         public string AssemblyQualifiedName { get; set; }
 
+        /// <summary>Id of the Debug Session linked to the step if pushed in the RemoteDebuggerPlugin</summary>
         [JsonProperty("debugSessionId")]
         public Guid DebugSessionId { get; set; }
     }

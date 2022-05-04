@@ -6,11 +6,37 @@ using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
 {
-    public partial class CustomApi : ICrmComponent
+    public class CustomApi : ICrmComponent
     {
         // Don't put these fields in readonly, AutoMapper wouldn't be able to map them
+        // but if you know a way enjoy :D
         private List<CustomApiRequestParameter> _inArguments = new();
         private List<CustomApiResponseProperty> _outArguments = new();
+
+        /// <summary>Id of the PluginType it is attached to</summary>
+        public Guid ParentId { get; set; } = Guid.NewGuid();
+
+        /// <summary>Id of the Assembly the PluginType is attached to</summary>
+        public Guid AssemblyId { get; set; }
+
+        private Guid _id = Guid.NewGuid();
+
+        public Guid Id
+        {
+            get => _id;
+            set
+            {
+                foreach (var req in _inArguments)
+                {
+                    req.ParentId = value;
+                }
+                foreach (var rep in _outArguments)
+                {
+                    rep.ParentId = value;
+                }
+                _id = value;
+            }
+        }
 
         public IEnumerable<ICrmComponent> Children
         {
@@ -77,28 +103,6 @@ namespace XrmFramework.DeployUtils.Model
         public bool DoFetchTypeCode => true;
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
-        public Guid ParentId { get; set; } = Guid.NewGuid();
-
-        public Guid AssemblyId { get; set; }
-
-        private Guid _id = Guid.NewGuid();
-
-        public Guid Id
-        {
-            get => _id;
-            set
-            {
-                foreach (var req in _inArguments)
-                {
-                    req.ParentId = value;
-                }
-                foreach (var rep in _outArguments)
-                {
-                    rep.ParentId = value;
-                }
-                _id = value;
-            }
-        }
 
         public string FullName { get; set; }
         public string UniqueName { get; set; }

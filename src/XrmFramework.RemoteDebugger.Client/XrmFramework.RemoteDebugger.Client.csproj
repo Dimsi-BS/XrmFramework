@@ -29,7 +29,6 @@
 
 		<Compile Include="..\XrmFramework.Plugin\CustomApi\CustomApiAttribute.cs" Link="_Imports\XrmFramework.Plugin\CustomApi\%(RecursiveDir)%(Filename)%(Extension)" />
 		<Compile Include="..\XrmFramework.Plugin\CustomApi\CustomApiEnums.cs" Link="_Imports\XrmFramework.Plugin\CustomApi\%(RecursiveDir)%(Filename)%(Extension)" />
-
 	</ItemGroup>
 
 	<ItemGroup>

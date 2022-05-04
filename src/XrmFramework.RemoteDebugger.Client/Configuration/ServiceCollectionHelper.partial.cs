@@ -10,8 +10,25 @@ using XrmFramework.RemoteDebugger.Client.Configuration;
 
 namespace XrmFramework.DeployUtils.Configuration
 {
+    /// <summary>
+    /// Configures the necessary services and parameters of the project
+    /// </summary>
     internal partial class ServiceCollectionHelper
     {
+        /// <summary>
+        /// Configures the required objects used during RemoteDebug, such as :
+        /// <list type="bullet">
+        ///     <item><see cref="IRegistrationService"/>, the service used for communicating with the CRM</item>
+        ///     <item><see cref="AutoMapper.IMapper"/>, used for conversion between <see cref="Deploy"/> and <see cref="Model"/> objects
+        ///         as well as cloning</item>
+        ///     <item><see cref="SolutionSettings"/>, an object that contains information on the target <c>Solution</c></item>
+        ///     <item><see cref="DebugSessionSettings"/>, an object that contains information on the target <c>Debug Session</c></item>
+        ///     <item>The configuration of all other implemented interfaces used by <c>Dependency Injection</c></item>
+        /// </list>
+        /// </summary>
+        /// <param name="projectName"></param>
+        /// <returns><see cref="IServiceProvider"/> the service provider used to instantiate every object needed</returns>
+
         public static IServiceProvider ConfigureForRemoteDebug(string projectName)
         {
             if (ConfigurationManager.ConnectionStrings["DebugConnectionString"] == null)
@@ -21,14 +38,14 @@ namespace XrmFramework.DeployUtils.Configuration
 
             var serviceCollection = InitServiceCollection();
 
-            ChooseSolutionSettings(projectName, out string pluginSolutionUniqueName, out string connectionString);
+            var solutionSettings = ChooseSolutionSettings(projectName);
 
-            var debugSessionId = GetDebugSessionId(connectionString);
+            var debugSessionId = GetDebugSessionId(solutionSettings.ConnectionString);
 
             serviceCollection.Configure<SolutionSettings>((settings) =>
             {
-                settings.ConnectionString = connectionString;
-                settings.PluginSolutionUniqueName = pluginSolutionUniqueName;
+                settings.ConnectionString = solutionSettings.ConnectionString;
+                settings.PluginSolutionUniqueName = solutionSettings.PluginSolutionUniqueName;
             });
 
 
@@ -40,7 +57,12 @@ namespace XrmFramework.DeployUtils.Configuration
             return serviceCollection.BuildServiceProvider();
         }
 
-        public static void ChooseSolutionSettings(string projectName, out string pluginSolutionUniqueName, out string connectionString)
+        /// <summary>
+        /// Allows for the user to choose the <c>Target Environment</c> on console
+        /// </summary>
+        /// <param name="projectName">Name of the target solution</param>
+        /// <returns>The Connection String and Target Plugin Name wrapped in a <see cref="SolutionSettings"/></returns>
+        private static SolutionSettings ChooseSolutionSettings(string projectName)
         {
             var xrmFrameworkConfigSection = ConfigHelper.GetSection();
 
@@ -56,7 +78,6 @@ namespace XrmFramework.DeployUtils.Configuration
                 System.Environment.Exit(1);
             }
 
-            pluginSolutionUniqueName = projectConfig.TargetSolution;
 
             var connectionStringNameDic = new Dictionary<string, ConnectionStringSettings>();
             var connectionStringIntDic = new Dictionary<int, ConnectionStringSettings>();
@@ -84,16 +105,24 @@ namespace XrmFramework.DeployUtils.Configuration
                 System.Environment.Exit(0);
             }
 
-            if (int.TryParse(response, out int value))
+            var pluginSolutionUniqueName = projectConfig.TargetSolution;
+            var connectionString = int.TryParse(response, out int value)
+                ? connectionStringIntDic[value].ConnectionString
+                : connectionStringNameDic[response].ConnectionString;
+
+            return new SolutionSettings()
             {
-                connectionString = connectionStringIntDic[value].ConnectionString;
-            }
-            else
-            {
-                connectionString = connectionStringNameDic[response].ConnectionString;
-            }
+                PluginSolutionUniqueName = pluginSolutionUniqueName,
+                ConnectionString = connectionString,
+            };
         }
 
+        /// <summary>
+        /// Retrieves the user's debug Session with a given <paramref name="connectionString"/>
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <returns>The Id of the <c>Debug Session</c></returns>
+        /// <exception cref="ArgumentException"></exception>
         private static Guid GetDebugSessionId(string connectionString)
         {
             var client = new RegistrationService(connectionString);

@@ -5,29 +5,31 @@ using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
 {
-    partial class CustomApiResponseProperty : ICustomApiComponent
+    class CustomApiResponseProperty : ICustomApiComponent
     {
+        public Guid Id { get; set; }
+        public Guid ParentId { get; set; }
         public string EntityTypeName => CustomApiResponsePropertyDefinition.EntityName;
+        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
         public string Description { get; set; }
         public string DisplayName { get; set; }
-        public string LogicalEntityName => CustomApiResponsePropertyDefinition.EntityName;
         public bool IsOptional { get; set; }
         public OptionSetValue Type { get; set; }
         public string Name { get; set; }
-        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
-        public Guid Id { get; set; }
-        public Guid ParentId { get; set; }
+
+        public string UniqueName { get; set; }
+        public int Rank => 2;
+        public bool DoAddToSolution => true;
+        public bool DoFetchTypeCode => true;
+
+        #region ICrmComponent dummy Implementation
         public IEnumerable<ICrmComponent> Children => new List<ICrmComponent>();
         public void AddChild(ICrmComponent child) => throw new ArgumentException("CustomApiResponseProperty doesn't take children");
 
         public void CleanChildrenWithState(RegistrationState state)
         {
         }
-
-        public string UniqueName { get; set; }
-        public int Rank => 2;
-        public bool DoAddToSolution => true;
-        public bool DoFetchTypeCode => true;
+        #endregion
     }
 }

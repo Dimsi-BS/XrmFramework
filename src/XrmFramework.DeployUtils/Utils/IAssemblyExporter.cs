@@ -45,7 +45,7 @@ namespace XrmFramework.DeployUtils.Utils
         void UpdateComponent(ICrmComponent component);
 
         /// <summary>
-        /// Fetches metadata required to export a given set of <see cref="Step"/> before actually registering them
+        /// Fetches metadata required to export a given set of <see cref="Step"/>
         /// </summary>
         /// <param name="steps"></param>
         void InitExportMetadata(IEnumerable<Step> steps);

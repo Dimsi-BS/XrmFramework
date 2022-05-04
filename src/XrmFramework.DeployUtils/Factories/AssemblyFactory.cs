@@ -64,16 +64,22 @@ namespace XrmFramework.DeployUtils.Utils
                 return registeredAssembly;
             }
 
-            Console.WriteLine("Remote Assembly Exists, Fetching Components...");
 
             FillRemoteAssemblyContext(service, registeredAssembly);
 
             return registeredAssembly;
         }
 
+        /// <summary>
+        /// Fills an <see cref="IAssemblyContext"/> with an <see cref="Model.AssemblyInfo"/> from the Crm
+        /// </summary>
+        /// <param name="service"></param>
+        /// <param name="registeredAssembly"></param>
         private void FillRemoteAssemblyContext(IRegistrationService service,
             IAssemblyContext registeredAssembly)
         {
+            Console.WriteLine("Remote Assembly Exists, Fetching Components...");
+
             var registeredPluginTypes = service.GetRegisteredPluginTypes(registeredAssembly.AssemblyInfo.Id);
 
             var registeredSteps = service.GetRegisteredSteps(registeredAssembly.AssemblyInfo.Id);
@@ -81,11 +87,11 @@ namespace XrmFramework.DeployUtils.Utils
 
 
             var registeredCustomApis = service.GetRegisteredCustomApis(registeredAssembly.AssemblyInfo.Id);
-
             var registeredRequestParameters = service.GetRegisteredCustomApiRequestParameters(registeredAssembly.AssemblyInfo.Id);
             var registeredResponseProperties = service.GetRegisteredCustomApiResponseProperties(registeredAssembly.AssemblyInfo.Id);
 
-
+            // Why ReSharper ? .All() means you have to go through the whole list
+            // Btw this filters PluginTypes that are not CustomApis
             registeredPluginTypes = registeredPluginTypes.Where(p => !registeredCustomApis.Any(c => c.PluginTypeId.Id == p.Id))
                 .ToList();
 

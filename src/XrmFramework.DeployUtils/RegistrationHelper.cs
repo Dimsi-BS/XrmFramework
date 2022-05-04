@@ -72,10 +72,14 @@ If ok press any key.");
 
             var registrationStrategy = _assemblyDiffFactory.ComputeDiffPatch(localAssembly, registeredAssembly);
 
-            ExecuteRegistrationStrategy(registrationStrategy);
+            ExecuteStrategy(registrationStrategy);
         }
 
-        private void ExecuteRegistrationStrategy(IAssemblyContext strategy)
+        /// <summary>
+        /// Deploy the <paramref name="strategy"/>'s components according to their <see cref="RegistrationState"/>
+        /// </summary>
+        /// <param name="strategy"></param>
+        private void ExecuteStrategy(IAssemblyContext strategy)
         {
             var strategyPool = strategy.ComponentsOrderedPool;
 
@@ -99,6 +103,7 @@ If ok press any key.");
             _assemblyExporter.UpdateAllComponents(componentsToUpdate);
         }
 
+        /// <summary>Create or Update the Assembly, deleting all obsolete components in the process</summary>
         private void RegisterAssembly(IAssemblyContext strategy)
         {
 
@@ -116,16 +121,16 @@ If ok press any key.");
 
             CleanAssembly(strategy);
 
-            if (strategy.RegistrationState == RegistrationState.ToUpdate)
-            {
-                Console.WriteLine();
-                Console.WriteLine("Updating plugin assembly");
+            if (strategy.RegistrationState != RegistrationState.ToUpdate) return;
 
-                _assemblyExporter.UpdateComponent(strategy.AssemblyInfo);
-                strategy.RegistrationState = RegistrationState.Computed;
-            }
+            Console.WriteLine();
+            Console.WriteLine("Updating plugin assembly");
+
+            _assemblyExporter.UpdateComponent(strategy.AssemblyInfo);
+            strategy.RegistrationState = RegistrationState.Computed;
         }
 
+        /// <summary>Deletes all components with <see cref="RegistrationState.ToDelete"/></summary>
         private void CleanAssembly(IAssemblyContext strategy)
         {
             var strategyPool = strategy.ComponentsOrderedPool;

@@ -7,10 +7,15 @@ using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Configuration
 {
+    /// <summary>
+    /// Profile to indicate to AutoMapper how to map objects from the <see cref="XrmFramework.DeployUtils.Model"/> namespace to itself
+    /// </summary>
+    /// <remarks>You should really have a look at this file if you plan on making adjustments to any of the components</remarks>
     public class AutoMapperLocalToLocalProfile : Profile
     {
         public AutoMapperLocalToLocalProfile()
         {
+            // Ignore the children as they are only getters defined by other properties and AutoMapper would try and fail to map them
             CreateMap<AssemblyInfo, AssemblyInfo>();
             CreateMap<Plugin, Plugin>()
                 .ForMember(dest => dest.Children, opt => opt.Ignore());
@@ -24,6 +29,8 @@ namespace XrmFramework.DeployUtils.Configuration
             CreateMap<CustomApiRequestParameter, CustomApiRequestParameter>();
             CreateMap<CustomApiResponseProperty, CustomApiResponseProperty>();
 
+            // Specify very VERY explicitly that AutoMapper should map the private lists in StepCollection and CustomApi
+            // I know how ugly this looks but it was the best way I found to at least keep them private
             ShouldMapField = fi => fi.IsPublic || fi.Name is "_internalList" or "_inArguments" or "_outArguments";
 
             CreateMap<StepCollection, StepCollection>();
@@ -36,6 +43,10 @@ namespace XrmFramework.DeployUtils.Configuration
         }
     }
 
+    /// <summary>
+    /// Profile to indicate to AutoMapper how to map objects from the <see cref="Deploy"/> namespace
+    /// to the <see cref="XrmFramework.DeployUtils.Model"/> namespace
+    /// </summary>
     public class AutoMapperRemoteToLocalProfile : Profile
     {
         public AutoMapperRemoteToLocalProfile()
@@ -70,6 +81,10 @@ namespace XrmFramework.DeployUtils.Configuration
         }
     }
 
+    /// <summary>
+    /// Profile to indicate to AutoMapper how to map objects from the <see cref="XrmFramework.DeployUtils.Model"/> namespace
+    /// to the <see cref="Deploy"/> namespace
+    /// </summary>
     public class AutoMapperLocalToRemoteProfile : Profile
     {
         public AutoMapperLocalToRemoteProfile()

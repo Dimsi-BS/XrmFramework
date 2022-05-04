@@ -7,8 +7,10 @@ namespace XrmFramework.DeployUtils.Model
 {
     public class StepCollection : ICollection<Step>
     {
-        private readonly StepComparer _stepComparer = new StepComparer();
+        private readonly StepComparer _stepComparer = new();
 
+        // Do not make this field readonly as AutoMapper wouldn't be able to map it anymor
+        // Same comment for the CustomApi arguments ^^
         private List<Step> _internalList = new List<Step>();
 
         public void Add(Step step)
@@ -55,11 +57,6 @@ namespace XrmFramework.DeployUtils.Model
         {
             return _internalList.Remove(item);
         }
-
-        //public bool Any(Func<Step, bool> predicate)
-        //{ 
-        //    return _internalList.Any(predicate);
-        //}
 
         public int Count => _internalList.Count;
 

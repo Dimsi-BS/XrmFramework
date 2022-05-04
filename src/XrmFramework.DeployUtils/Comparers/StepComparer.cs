@@ -3,6 +3,9 @@ using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
 {
+    /// <summary>
+    /// Compares and Determines whether the specified Steps are equal or need updating
+    /// </summary>
     public partial class StepComparer : IEqualityComparer<Step>
     {
         public bool Equals(Step x, Step y) =>

@@ -9,16 +9,22 @@ using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Configuration
 {
+    /// <summary>
+    /// Configures the necessary services and parameters of the project
+    /// </summary>
     internal partial class ServiceCollectionHelper
     {
         /// <summary>
-        /// Configure the required objects used during Deploy, such as :
+        /// Configures the required objects used during Deploy, such as :
         /// <list type="bullet">
         ///     <item><see cref="IRegistrationService"/>, the service used for communicating with the CRM</item>
+        ///     <item><see cref="AutoMapper.IMapper"/>, used for conversion between <see cref="Deploy"/> and <see cref="Model"/> objects
+        ///         as well as cloning</item>
+        ///     <item><see cref="SolutionSettings"/>, an object that contains information on the target <c>Solution</c></item>
         ///     <item>The configuration of all other implemented interfaces</item>
         /// </list>
         /// </summary>
-        /// <param name="projectName"></param>
+        /// <param name="projectName">Name of the target solution</param>
         /// <returns><see cref="IServiceProvider"/> the service provider used to instantiate every object needed</returns>
         public static IServiceProvider ConfigureForDeploy(string projectName)
         {

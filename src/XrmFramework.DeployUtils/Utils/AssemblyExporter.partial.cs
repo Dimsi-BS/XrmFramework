@@ -8,10 +8,8 @@ namespace XrmFramework.DeployUtils.Utils
         /// <summary>
         /// Creates a <see cref="ICrmComponent"/> on the Crm
         /// </summary>
-        /// <remarks>
+        /// 
         /// This method is in a partial file because it is implemented differently in the RemoteDebugger.Client project
-        /// </remarks>
-        /// <param name="component"></param>
         public void CreateComponent(ICrmComponent component)
         {
             int? entityTypeCode = component.DoFetchTypeCode

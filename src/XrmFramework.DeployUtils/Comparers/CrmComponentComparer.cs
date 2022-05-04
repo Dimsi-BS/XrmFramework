@@ -6,6 +6,9 @@ using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
 {
+    /// <summary>
+    /// Base implementation of <see cref="ICrmComponentComparer"/>
+    /// </summary>
     public class CrmComponentComparer : ICrmComponentComparer
     {
         private readonly StepComparer _stepComparer;
@@ -55,7 +58,10 @@ namespace XrmFramework.DeployUtils.Utils
             };
         }
 
-
+        /// <summary>
+        /// NeedsUpdate implementation for two <see cref="CustomApi"/>
+        /// </summary>
+        /// <returns>true if they need updating, false if they are exactly the same</returns>
         private static bool NeedsUpdate(CustomApi x, CustomApi y)
         {
             return !x.BindingType.Equals(y.BindingType)
@@ -65,12 +71,20 @@ namespace XrmFramework.DeployUtils.Utils
                    || !x.AllowedCustomProcessingStepType.Equals(y.AllowedCustomProcessingStepType);
         }
 
+        /// <summary>
+        /// NeedsUpdate implementation for two <see cref="CustomApiRequestParameter"/>
+        /// </summary>
+        /// <returns>true if they need updating, false if they are exactly the same</returns>
         private static bool NeedsUpdate(CustomApiRequestParameter x, CustomApiRequestParameter y)
         {
             return !x.IsOptional == y.IsOptional
                 || !x.Type.Equals(y.Type);
         }
 
+        /// <summary>
+        /// NeedsUpdate implementation for two <see cref="CustomApiResponseProperty"/>
+        /// </summary>
+        /// <returns>true if they need updating, false if they are exactly the same</returns>
         private static bool NeedsUpdate(CustomApiResponseProperty x, CustomApiResponseProperty y)
         {
             return !x.Type.Equals(y.Type);
