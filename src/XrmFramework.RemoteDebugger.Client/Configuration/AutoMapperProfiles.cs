@@ -1,16 +1,16 @@
 ﻿using AutoMapper;
-using Deploy;
 using System;
 using System.Linq;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.RemoteDebugger.Model.CrmComponentInfos;
-using CustomApi = XrmFramework.DeployUtils.Model.CustomApi;
-using CustomApiRequestParameter = XrmFramework.DeployUtils.Model.CustomApiRequestParameter;
-using CustomApiResponseProperty = XrmFramework.DeployUtils.Model.CustomApiResponseProperty;
 
 namespace XrmFramework.DeployUtils.Configuration
 {
+    /// <summary>
+    /// Profile to indicate to AutoMapper how to map objects from the <see cref="Model"/> namespace
+    /// to the <see cref="RemoteDebugger.Model.CrmComponentInfos"/> namespace
+    /// </summary>
     public class AutoMapperAssemblyToInfo : Profile
     {
         public AutoMapperAssemblyToInfo()
@@ -65,10 +65,10 @@ namespace XrmFramework.DeployUtils.Configuration
 
             CreateMap<CustomApiRequestParameter, CustomApiRequestParameterInfo>()
                 .ForMember(dest => dest.Type,
-                    opt => opt.MapFrom(src => Enum.ToObject(typeof(CustomApiFieldType), src.Type.Value).ToString()));
+                    opt => opt.MapFrom(src => Enum.ToObject(typeof(Deploy.CustomApiFieldType), src.Type.Value).ToString()));
             CreateMap<CustomApiResponseProperty, CustomApiResponsePropertyInfo>()
                 .ForMember(dest => dest.Type,
-                    opt => opt.MapFrom(src => Enum.ToObject(typeof(CustomApiFieldType), src.Type.Value).ToString()));
+                    opt => opt.MapFrom(src => Enum.ToObject(typeof(Deploy.CustomApiFieldType), src.Type.Value).ToString()));
 
         }
     }

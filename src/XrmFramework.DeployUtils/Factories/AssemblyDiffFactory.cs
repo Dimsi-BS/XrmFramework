@@ -98,6 +98,10 @@ namespace XrmFramework.DeployUtils.Utils
                 // If there, transfer the ids and see if the component is up to date
                 fromComponent.Id = targetComponent.Id;
                 fromComponent.ParentId = targetComponent.ParentId;
+                if (fromComponent is CustomApi fromApi)
+                {
+                    fromApi.AssemblyId = ((CustomApi)targetComponent).AssemblyId;
+                }
 
                 fromComponent.RegistrationState = _comparer.NeedsUpdate(fromComponent, targetComponent)
                     ? RegistrationState.ToUpdate
@@ -115,7 +119,9 @@ namespace XrmFramework.DeployUtils.Utils
                 }
 
                 FlagAllFromComponent(targetComponent, RegistrationState.ToDelete);
-                var componentFather = fromPool.First(c => c.Id == targetComponent.ParentId);
+                var componentFather = targetComponent is CustomApi api
+                ? fromPool.First(c => c.Id == api.AssemblyId)
+                : fromPool.First(c => c.Id == targetComponent.ParentId);
                 componentFather.AddChild(targetComponent);
             }
         }

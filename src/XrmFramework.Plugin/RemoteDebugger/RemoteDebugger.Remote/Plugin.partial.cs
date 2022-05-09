@@ -49,7 +49,7 @@ namespace XrmFramework
             {
                 return false;
             }
-
+            //TODO Check what happens for Workflows
             localContext.Log($"This step is in the DebugSession configuration");
 
             if (!HybridConnection.TryPingDebugSession(debugSession))

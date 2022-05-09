@@ -26,7 +26,7 @@ namespace XrmFramework.DeployUtils.Configuration
         ///     <item>The configuration of all other implemented interfaces used by <c>Dependency Injection</c></item>
         /// </list>
         /// </summary>
-        /// <param name="projectName"></param>
+        /// <param name="projectName">The Name of the Local Project</param>
         /// <returns><see cref="IServiceProvider"/> the service provider used to instantiate every object needed</returns>
 
         public static IServiceProvider ConfigureForRemoteDebug(string projectName)
@@ -60,7 +60,7 @@ namespace XrmFramework.DeployUtils.Configuration
         /// <summary>
         /// Allows for the user to choose the <c>Target Environment</c> on console
         /// </summary>
-        /// <param name="projectName">Name of the target solution</param>
+        /// <param name="projectName">Name of the Local Project</param>
         /// <returns>The Connection String and Target Plugin Name wrapped in a <see cref="SolutionSettings"/></returns>
         private static SolutionSettings ChooseSolutionSettings(string projectName)
         {
@@ -122,7 +122,7 @@ namespace XrmFramework.DeployUtils.Configuration
         /// </summary>
         /// <param name="connectionString"></param>
         /// <returns>The Id of the <c>Debug Session</c></returns>
-        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentException"> if the Debug Session doesn't exist on the CRM</exception>
         private static Guid GetDebugSessionId(string connectionString)
         {
             var client = new RegistrationService(connectionString);

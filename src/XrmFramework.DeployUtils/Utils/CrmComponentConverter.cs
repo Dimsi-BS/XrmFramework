@@ -49,7 +49,7 @@ namespace XrmFramework.DeployUtils.Utils
             }
         }
 
-        public Deploy.PluginType ToRegisterPluginType(Plugin plugin)
+        private Deploy.PluginType ToRegisterPluginType(Plugin plugin)
         {
             var t = new Deploy.PluginType
             {
@@ -80,7 +80,7 @@ namespace XrmFramework.DeployUtils.Utils
             return t;
         }
 
-        public Deploy.SdkMessageProcessingStep ToRegisterStep(Step step)
+        private Deploy.SdkMessageProcessingStep ToRegisterStep(Step step)
         {
             // Issue with CRM SDK / Description field max length = 256 characters
             var descriptionAttributeMaxLength = 256;
@@ -137,7 +137,7 @@ namespace XrmFramework.DeployUtils.Utils
             return t;
         }
 
-        public Deploy.SdkMessageProcessingStepImage ToRegisterImage(StepImage image)
+        private Deploy.SdkMessageProcessingStepImage ToRegisterImage(StepImage image)
         {
             var isAllColumns = image.AllAttributes;
             var columns = image.JoinedAttributes;

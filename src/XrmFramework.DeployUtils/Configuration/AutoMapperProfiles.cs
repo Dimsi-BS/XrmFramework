@@ -20,6 +20,7 @@ namespace XrmFramework.DeployUtils.Configuration
             CreateMap<Plugin, Plugin>()
                 .ForMember(dest => dest.Children, opt => opt.Ignore());
             CreateMap<Step, Step>();
+            CreateMap<StepConfiguration, StepConfiguration>();
             CreateMap<StepImage, StepImage>();
 
 

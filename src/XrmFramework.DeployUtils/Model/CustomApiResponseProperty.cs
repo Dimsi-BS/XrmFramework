@@ -5,6 +5,12 @@ using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
 {
+
+    /// <summary>
+    /// Component of a <see cref="CustomApi"/>, defines an output
+    /// </summary>
+    /// <seealso cref="XrmFramework.DeployUtils.Model.ICustomApiComponent" />
+    /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
     class CustomApiResponseProperty : ICustomApiComponent
     {
         public Guid Id { get; set; }

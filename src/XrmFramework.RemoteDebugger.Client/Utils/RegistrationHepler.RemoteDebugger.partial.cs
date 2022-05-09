@@ -32,13 +32,24 @@ namespace XrmFramework.DeployUtils
             _assemblyDiffFactory = diffFactory;
             _mapper = mapper;
             _debugSessionId = settings.Value.DebugSessionId;
-            _debugSettings = new DebugAssemblySettings()
-            {
-                DebugCustomPrefix = _debugSessionId.ToString().Substring(0, DebugAssemblySettings.DebugCustomPrefixNumber)
-            };
+            _debugSettings = new DebugAssemblySettings(_debugSessionId);
 
         }
 
+        /// <summary>
+        /// Compares the following three <c>Assemblies</c> :
+        /// <list type="bullet">
+        ///     <item>Local</item>
+        ///     <item>Remote</item>
+        ///     <item>RemoteDebugger</item>
+        /// </list>
+        /// And determines which operations are needed in order to have the Remote + Remote Debugger have the same behaviour as the Local
+        /// </summary>
+        /// <remarks>
+        /// This will silence the obsolete steps deployed on Remote and add the new/updated ones to the Debugger so it will still trigger and redirect to the Relay
+        /// </remarks>
+        /// <typeparam name="TPlugin">Root type of all components to deploy, should be <c>XrmFramework.Plugin</c></typeparam>
+        /// <param name="projectName">Name of the local project as named in <c>xrmFramework.config</c></param>
         public void UpdateDebugger<TPlugin>(string projectName)
         {
             Console.Write("Fetching Local Assembly...");
@@ -57,11 +68,6 @@ namespace XrmFramework.DeployUtils
 
             var deployAssemblyDiff = _assemblyDiffFactory.ComputeDiffPatch(localAssembly, registeredAssembly);
 
-            // We can remove now the diff components that are Ignore and whose children are too (recursively)
-            // They would only get in the way otherwise
-
-            deployAssemblyDiff.CleanChildrenWithState(RegistrationState.Ignore);
-
             var assemblyToDebug = _assemblyFactory.WrapDiffAssemblyForDebugDiff(deployAssemblyDiff);
 
             Console.WriteLine("Fetching Debug Assembly...");
@@ -72,7 +78,7 @@ namespace XrmFramework.DeployUtils
 
             var remoteDebugDiff = _assemblyDiffFactory.ComputeDiffPatch(assemblyToDebug, debugAssembly);
 
-            var debugStrategy = _assemblyFactory.WrapDebugDiffForDebugDeploy(remoteDebugDiff, _debugSettings, typeof(TPlugin));
+            var debugStrategy = _assemblyFactory.WrapDebugDiffForDebugStrategy(remoteDebugDiff, _debugSettings, typeof(TPlugin));
 
             Console.WriteLine("Updating the Remote Debugger Plugin...");
             ExecuteStrategy(debugStrategy);
@@ -82,8 +88,18 @@ namespace XrmFramework.DeployUtils
             RegisterStepsToDebugSession(deployAssemblyDiff);
         }
 
+        /// <summary>
+        /// Pushes a patch of the current debug context on the Target Debug Session
+        /// The <see cref="AssemblyContextInfo"/> pushed contains metadata on the steps currently being debugged
+        /// (with tags <see cref="RegistrationState.ToDelete"/> or <see cref="RegistrationState.ToUpdate"/>)
+        /// and will be ignored by the deployed Plugin if the Debugee is online and debugging
+        /// </summary>
+        /// <param name="deployDiff">The <see cref="IAssemblyContext"/> to convert in a patch and push,
+        /// should be the diff between the <c>Local</c> and <c>Remote Assemblies</c></param>
         private void RegisterStepsToDebugSession(IAssemblyContext deployDiff)
         {
+            deployDiff.CleanChildrenWithState(RegistrationState.Ignore);
+
             var debugSession = _registrationService.GetById<DebugSession>(_debugSessionId);
             var patchInfo = _mapper.Map<AssemblyContextInfo>(deployDiff);
 

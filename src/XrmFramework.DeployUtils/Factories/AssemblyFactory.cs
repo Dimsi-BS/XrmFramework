@@ -5,6 +5,9 @@ using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Utils
 {
+    /// <summary>
+    /// Base implementation of <see cref="IAssemblyFactory"/>
+    /// </summary>
     partial class AssemblyFactory : IAssemblyFactory
     {
         private readonly IAssemblyImporter _importer;
@@ -47,9 +50,9 @@ namespace XrmFramework.DeployUtils.Utils
             var localAssembly = _importer.CreateAssemblyFromLocal(Assembly);
 
 
-            plugins.ForEach(localAssembly.Plugins.Add);
-            customApis.ForEach(localAssembly.CustomApis.Add);
-            workflows.ForEach(localAssembly.Workflows.Add);
+            plugins.ForEach(localAssembly.AddChild);
+            customApis.ForEach(localAssembly.AddChild);
+            workflows.ForEach(localAssembly.AddChild);
             return localAssembly;
         }
 
@@ -71,10 +74,10 @@ namespace XrmFramework.DeployUtils.Utils
         }
 
         /// <summary>
-        /// Fills an <see cref="IAssemblyContext"/> with an <see cref="Model.AssemblyInfo"/> from the Crm
+        /// Fills an <see cref="IAssemblyContext"/> which only contains an <see cref="Model.AssemblyInfo"/> from the Crm
         /// </summary>
-        /// <param name="service"></param>
-        /// <param name="registeredAssembly"></param>
+        /// <param name="service">The Client used for communicating with the Crm</param>
+        /// <param name="registeredAssembly">The Assembly to fill</param>
         private void FillRemoteAssemblyContext(IRegistrationService service,
             IAssemblyContext registeredAssembly)
         {
@@ -110,9 +113,9 @@ namespace XrmFramework.DeployUtils.Utils
                 .Select(c => _importer.CreateCustomApiFromRemote(c, registeredRequestParameters, registeredResponseProperties))
                 .ToList();
 
-            plugins.ForEach(registeredAssembly.Plugins.Add);
-            customApis.ForEach(registeredAssembly.CustomApis.Add);
-            workflows.ForEach(registeredAssembly.Workflows.Add);
+            plugins.ForEach(registeredAssembly.AddChild);
+            customApis.ForEach(registeredAssembly.AddChild);
+            workflows.ForEach(registeredAssembly.AddChild);
         }
     }
 }

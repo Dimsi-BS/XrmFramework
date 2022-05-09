@@ -6,6 +6,10 @@ using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
 {
+    /// <summary>
+    /// Metadata of CustomApi
+    /// </summary>
+    /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
     public class CustomApi : ICrmComponent
     {
         // Don't put these fields in readonly, AutoMapper wouldn't be able to map them

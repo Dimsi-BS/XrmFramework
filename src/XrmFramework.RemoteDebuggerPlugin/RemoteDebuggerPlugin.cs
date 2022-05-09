@@ -8,6 +8,10 @@ using XrmFramework.Definitions;
 
 namespace XrmFramework.RemoteDebugger
 {
+    /// <summary>
+    /// Defines the execution for debugging a Plugin
+    /// </summary>
+    /// <seealso cref="Microsoft.Xrm.Sdk.IPlugin" />
     public class RemoteDebuggerPlugin : IPlugin
     {
         public RemoteDebuggerPlugin(string unsecuredConfig, string securedConfig)

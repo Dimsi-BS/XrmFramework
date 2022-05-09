@@ -9,6 +9,10 @@ using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
 {
+    /// <summary>
+    /// Component of a <see cref="Plugin"/> that defines on which particular input said plugin should be executed
+    /// </summary>
+    /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
     public class Step : ICrmComponent
     {
         private Guid _id = Guid.NewGuid();

@@ -5,6 +5,10 @@ using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
 {
+    /// <summary>
+    /// Metadata of a StepImage, allows the user to ask for more data concerning the context when triggered
+    /// </summary>
+    /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
     public class StepImage : ICrmComponent
     {
         public StepImage(Messages message, bool isPreImage, Stages stage)

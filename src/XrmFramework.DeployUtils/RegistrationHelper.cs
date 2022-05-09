@@ -34,17 +34,15 @@ namespace XrmFramework.DeployUtils
         /// <summary>
         /// Entrypoint for registering the <typeparamref name="TPlugin"/> in the solution <paramref name="projectName"/>
         /// </summary>
-        /// <typeparam name="TPlugin"></typeparam>
-        /// <param name="projectName"></param>
+        /// <typeparam name="TPlugin">Root type of all components to deploy, should be <c>XrmFramework.Plugin</c></typeparam>
+        /// <param name="projectName">Name of the local project as named in <c>xrmFramework.config</c></param>
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
             var serviceProvider = ServiceCollectionHelper.ConfigureForDeploy(projectName);
 
             var solutionSettings = serviceProvider.GetRequiredService<IOptions<SolutionSettings>>();
 
-            Console.WriteLine($@"You are about to deploy on organization:\n
-{solutionSettings.Value.ConnectionString.Replace(";", "\n")}
-If ok press any key.");
+            Console.WriteLine($"You are about to deploy on organization:\nUrl : {solutionSettings.Value.Url}\nClientId : {solutionSettings.Value.ClientId}\nIf ok press any key.");
             //Console.ReadKey();
             Console.WriteLine("Connecting to CRM...");
 
@@ -54,10 +52,10 @@ If ok press any key.");
         }
 
         /// <summary>
-        /// Main algorithm for deploying a <typeparam name="TPlugin"></typeparam> assembly into the <paramref name="projectName"/>
+        /// Main algorithm for deploying a <typeparamref name="TPlugin"></typeparamref> assembly into the <paramref name="projectName"/>
         /// </summary>
-        /// <typeparam name="TPlugin"></typeparam>
-        /// <param name="projectName"></param>
+        /// <typeparam name="TPlugin">Root type of all components to deploy, should be <c>XrmFramework.Plugin</c></typeparam>
+        /// <param name="projectName">Name of the local project as named in <c>xrmFramework.config</c></param>
         protected void Register<TPlugin>(string projectName)
         {
             Console.WriteLine("Fetching Local Assembly...");
@@ -103,7 +101,7 @@ If ok press any key.");
             _assemblyExporter.UpdateAllComponents(componentsToUpdate);
         }
 
-        /// <summary>Create or Update the Assembly, deleting all obsolete components in the process</summary>
+        /// <summary>Create or Update the Assembly, deleting all obsolete components in the process by calling <see cref="CleanAssembly"/></summary>
         private void RegisterAssembly(IAssemblyContext strategy)
         {
 

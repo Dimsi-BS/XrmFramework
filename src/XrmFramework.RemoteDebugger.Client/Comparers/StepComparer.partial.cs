@@ -19,6 +19,11 @@ namespace XrmFramework.DeployUtils.Utils
             || x.ImpersonationUsername != y.ImpersonationUsername
             || !MethodsNamesEqual(x, y);
 
+
+        /// <summary>
+        /// Compares the two sets of method names
+        /// </summary>
+        /// <returns>true if the sets are identical, false otherwise</returns>
         private static bool MethodsNamesEqual(Step x, Step y)
         {
             x.MethodNames.Sort();

@@ -12,8 +12,8 @@ namespace XrmFramework.DeployUtils.Utils
         /// <summary>
         /// Imports the <paramref name="TPlugin"/> Local Assembly and parses it as a <see cref="IAssemblyContext"/>
         /// </summary>
-        /// <param name="TPlugin">the local assembly to load</param>
-        /// <returns><see cref="IAssemblyContext"/></returns>
+        /// <param name="TPlugin">The local assembly to load</param>
+        /// <returns><see cref="IAssemblyContext"/> The parsed AssemblyContext</returns>
         IAssemblyContext CreateFromLocalAssemblyContext(Type TPlugin);
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace XrmFramework.DeployUtils.Utils
         /// </summary>
         /// <param name="service">, a <see cref="IRegistrationService"/> used to retrieve the raw remote assembly data</param>
         /// <param name="assemblyName">, the name of the assembly on the Crm</param>
-        /// <returns><see cref="IAssemblyContext"/></returns>
+        /// <returns><see cref="IAssemblyContext"/> The parsed AssemblyContext</returns>
         IAssemblyContext CreateFromRemoteAssemblyContext(IRegistrationService service, string assemblyName);
     }
 }

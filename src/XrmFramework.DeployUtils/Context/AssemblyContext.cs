@@ -101,6 +101,7 @@ namespace XrmFramework.DeployUtils.Context
             switch (child)
             {
                 case Plugin plugin:
+                    plugin.ParentId = Id;
                     if (plugin.IsWorkflow) _workflows.Add(plugin);
                     else _plugins.Add(plugin);
                     break;

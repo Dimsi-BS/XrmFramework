@@ -41,15 +41,6 @@ public partial class AssemblyExporter : IAssemblyExporter
         }
     }
 
-    public void DeleteComponent(ICrmComponent component)
-    {
-        _registrationService.Delete(component.EntityTypeName, component.Id);
-
-        if (component is CustomApi customApi)
-        {
-            _registrationService.Delete(PluginTypeDefinition.EntityName, customApi.ParentId);
-        }
-    }
     public void DeleteAllComponents(IEnumerable<ICrmComponent> componentsToDelete)
     {
         var sortedList = componentsToDelete.ToList();

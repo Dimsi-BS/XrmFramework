@@ -11,7 +11,7 @@ namespace XrmFramework.DeployUtils.Utils
         /// <remarks>
         /// This method is in a partial file because it is implemented differently in the DeployUtils project
         /// </remarks>
-        /// <param name="component"></param>
+        /// <param name="component"> The component to export</param>
         public void CreateComponent(ICrmComponent component)
         {
             int? entityTypeCode = component.DoFetchTypeCode
@@ -32,5 +32,17 @@ namespace XrmFramework.DeployUtils.Utils
                 _registrationService.Execute(addSolutionComponentRequest);
             }
         }
+
+        /// <summary>
+        /// Deletes a <see cref="ICrmComponent"/> on the Crm
+        /// </summary>
+        /// 
+        /// This method is in a partial file because it is implemented differently in the RemoteDebugger.Client project
+
+        public void DeleteComponent(ICrmComponent component)
+        {
+            _registrationService.Delete(component.EntityTypeName, component.Id);
+        }
+
     }
 }

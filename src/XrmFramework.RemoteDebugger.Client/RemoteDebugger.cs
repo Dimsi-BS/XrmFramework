@@ -19,17 +19,22 @@ namespace XrmFramework.RemoteDebugger.Common
             Manager = new T();
         }
 
-        public void Start<P>(string solutionName)
+        /// <summary>
+        /// Entrypoint for debugging the <typeparamref name="TPlugin"/> Assembly in the solution <paramref name="projectName"/>
+        /// </summary>
+        /// <typeparam name="TPlugin">Root type of all components to deploy, should be <c>XrmFramework.Plugin</c></typeparam>
+        /// <param name="projectName">Name of the local project as named in <c>xrmFramework.config</c></param>
+        public void Start<TPlugin>(string projectName)
         {
             Console.WriteLine($"You are about to modify the debug session");
 
-            var serviceProvider = ServiceCollectionHelper.ConfigureForRemoteDebug(solutionName);
+            var serviceProvider = ServiceCollectionHelper.ConfigureForRemoteDebug(projectName);
 
 
             var remoteDebuggerHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
 
 
-            remoteDebuggerHelper.UpdateDebugger<P>(solutionName);
+            remoteDebuggerHelper.UpdateDebugger<TPlugin>(projectName);
 
             Manager.ContextReceived += remoteContext =>
                 {

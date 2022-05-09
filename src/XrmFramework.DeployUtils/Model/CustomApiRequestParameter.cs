@@ -5,6 +5,11 @@ using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
 {
+    /// <summary>
+    /// Component of a <see cref="CustomApi"/>, defines an input
+    /// </summary>
+    /// <seealso cref="XrmFramework.DeployUtils.Model.ICustomApiComponent" />
+    /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
     class CustomApiRequestParameter : ICustomApiComponent
     {
         public Guid Id { get; set; } = Guid.NewGuid();

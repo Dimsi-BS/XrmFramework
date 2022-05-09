@@ -1,4 +1,5 @@
 ﻿using System;
+using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
@@ -35,6 +36,23 @@ namespace XrmFramework.DeployUtils.Utils
                 _registrationService.Execute(addSolutionComponentRequest);
             }
         }
+
+        /// <summary>
+        /// Deletes a <see cref="ICrmComponent"/> on the Crm
+        /// </summary>
+        /// 
+        /// This method is in a partial file because it is implemented differently in the RemoteDebugger.Client project
+
+        public void DeleteComponent(ICrmComponent component)
+        {
+            _registrationService.Delete(component.EntityTypeName, component.Id);
+
+            if (component is CustomApi customApi)
+            {
+                _registrationService.Delete(PluginTypeDefinition.EntityName, customApi.ParentId);
+            }
+        }
+
 
         private void CreateCustomApiPluginType(CustomApi customApi)
         {

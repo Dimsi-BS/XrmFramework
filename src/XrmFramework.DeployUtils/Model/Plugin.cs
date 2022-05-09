@@ -8,6 +8,10 @@ using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
 {
+    /// <summary>
+    /// Metadata of a Plugin
+    /// </summary>
+    /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
     public class Plugin : ICrmComponent
     {
         private Guid _id;
