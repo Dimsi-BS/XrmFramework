@@ -223,6 +223,7 @@ namespace DefinitionManager
                     }
                 }
 
+                
                 var lookupFields = new Dictionary<string, List<OneToManyRelationshipMetadata>>();
                 if (entity.ManyToOneRelationships.Any())
                 {
@@ -273,6 +274,7 @@ namespace DefinitionManager
                     }
                 }
 
+                // bar 2
                 entities.Add(entityDefinition);
                 newEntities.Add(newEntity);
 

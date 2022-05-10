@@ -27,8 +27,9 @@ namespace XrmFramework.Core
                     item.Name = existingColumn.Name;
                     item.Selected = existingColumn.Selected;
 
-                    Columns[item.LogicalName] = item;
                 }
+                Columns[item.LogicalName] = item;
+
             }
             else
             {

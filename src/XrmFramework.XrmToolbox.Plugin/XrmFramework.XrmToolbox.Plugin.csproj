@@ -32,6 +32,10 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj">
+      <Project>{C6444169-E29C-4B5B-B5EE-94E5CA4FF836}</Project>
+      <Name>XrmFramework.DeployUtils</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
@@ -40,6 +44,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\Generated\**;..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
+    <Compile Include="..\XrmFramework.Core\**\*.cs" Link="_Imports\XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />
     <AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
   </ItemGroup>
   <ItemGroup>
@@ -47,6 +52,15 @@
     <None Include="Generated\**" />
     <None Remove="**\*.table" />
     <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
+    <None Include="Properties\DataSources\XrmFramework.Core.Column.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.ColumnCollection.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.Key.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.Model.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.OptionSetEnum.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.OptionSetEnumValue.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.Relation.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.Table.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.TableCollection.datasource" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -83,6 +97,19 @@
     <Reference Include="System.Workflow.Runtime" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddTableForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddTableForm.Designer.cs">
+      <DependentUpon>AddTableForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TextHelper.cs" />
+    <Compile Include="TryOtherNameForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TryOtherNameForm.Designer.cs">
+      <DependentUpon>TryOtherNameForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="XrmFrameworkPlugin.cs" />
     <Compile Include="XrmFrameworkPluginControl.cs">
       <SubType>UserControl</SubType>
@@ -199,6 +226,17 @@
     <PackageReference Include="XrmToolBoxPackage">
       <Version>1.2022.4.55</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="AddTableForm.resx">
+      <DependentUpon>AddTableForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TryOtherNameForm.resx">
+      <DependentUpon>TryOtherNameForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="XrmFrameworkPluginControl.resx">
+      <DependentUpon>XrmFrameworkPluginControl.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
