@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFramework>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>

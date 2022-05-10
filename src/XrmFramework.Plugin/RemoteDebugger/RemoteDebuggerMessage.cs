@@ -1,147 +1,116 @@
-﻿
+﻿using Microsoft.Xrm.Sdk;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Query;
 using XrmFramework.RemoteDebugger.Converters;
-using Newtonsoft.Json;
 
-namespace XrmFramework.RemoteDebugger
+namespace XrmFramework.RemoteDebugger;
+
+[JsonObject(MemberSerialization.OptIn)]
+public class RemoteDebuggerMessage
 {
-    [JsonObject(MemberSerialization.OptIn)]
-    public class RemoteDebuggerMessage
-    {
-        [JsonProperty("messageType")]
-        public RemoteDebuggerMessageType MessageType { get; set; }
+	private static readonly JsonSerializerSettings SerializerSettings = new()
+	{
+		ContractResolver = new RemoteDebuggerContractResolver()
+	};
 
-        [JsonProperty("pluginExecutionId")]
-        public Guid PluginExecutionId { get; set; }
+	private static readonly ICollection<JsonConverter> Converters = new List<JsonConverter>
+	{
+		new ParameterCollectionConverter(),
+		new KeyAttributeCollectionConverter(),
+		new FormattedValueCollectionConverter(),
+		new EntityImageCollectionConverter(),
+		new AttributeCollectionConverter(),
+		new RelatedEntityCollectionConverter(),
+		new RelationshipQueryCollectionConverter(),
+		new OrganizationRequestCollectionConverter(),
+		new OrganizationResponseCollectionConverter(),
+		new ArgumentsCollectionConverter(),
+		new EntityConverter(),
+		new ObjectSerializationConverter(),
+		new ConditionExpressionConverter(),
+		new AliasedValueConverter()
+	};
 
-        [JsonProperty("content")]
-        public string Content { get; set; }
+	public RemoteDebuggerMessage()
+	{
+	}
 
-        [JsonProperty("userId")]
-        public Guid? UserId { get; set; }
+	public RemoteDebuggerMessage(RemoteDebuggerMessageType type, object content, Guid pluginExecutionId)
+	{
+		MessageType = type;
+		PluginExecutionId = pluginExecutionId;
 
-        public RemoteDebuggerMessage() { }
+		Content = JsonConvert.SerializeObject(content, SerializerSettings);
+	}
 
-        public RemoteDebuggerMessage(RemoteDebuggerMessageType type, object content, Guid pluginExecutionId)
-        {
-            MessageType = type;
-            PluginExecutionId = pluginExecutionId;
+	[JsonProperty("messageType")]
+	public RemoteDebuggerMessageType MessageType { get; set; }
 
-            Content = JsonConvert.SerializeObject(content, Converters.ToArray());
-        }
+	[JsonProperty("pluginExecutionId")]
+	public Guid PluginExecutionId { get; set; }
 
-        public T GetContext<T>() where T : RemoteDebugExecutionContext
-        {
-            if (MessageType != RemoteDebuggerMessageType.Context)
-            {
-                throw new Exception("The message is not a context message");
-            }
+	[JsonProperty("content")]
+	public string Content { get; set; }
 
-            var stringContent = Content;
+	[JsonProperty("userId")]
+	public Guid? UserId { get; set; }
 
-            try
-            {
-                stringContent = JsonConvert.DeserializeObject<string>(Content);
-            }
-            catch (JsonReaderException)
-            {
-                // the object is already ready to deserialize
-            }
+	public T GetContext<T>() where T : RemoteDebugExecutionContext
+		=> Deserialize<T>(RemoteDebuggerMessageType.Context);
 
-            return JsonConvert.DeserializeObject<T>(stringContent, Converters.ToArray());
-        }
+	public OrganizationRequest GetOrganizationRequest()
+		=> Deserialize<OrganizationRequest>(RemoteDebuggerMessageType.Request);
 
-        public OrganizationRequest GetOrganizationRequest()
-        {
-            if (MessageType != RemoteDebuggerMessageType.Request)
-            {
-                throw new Exception("The message is not a request message");
-            }
+	public OrganizationResponse GetOrganizationResponse()
+		=> Deserialize<OrganizationResponse>(RemoteDebuggerMessageType.Response);
 
+	public Exception GetException()
+		=> Deserialize<Exception>(RemoteDebuggerMessageType.Exception);
 
-            var stringContent = Content;
+	public override string ToString() => $"{MessageType} / {PluginExecutionId} / {Content}";
 
-            try
-            {
-                stringContent = JsonConvert.DeserializeObject<string>(Content);
-            }
-            catch (JsonReaderException)
-            {
-                // the object is already ready to deserialize
-            }
+	private T Deserialize<T>(RemoteDebuggerMessageType messageType)
+	{
+		if (MessageType != messageType)
+			throw new Exception($"The message is not an {messageType} message");
 
-            return JsonConvert.DeserializeObject<OrganizationRequest>(stringContent, Converters.ToArray());
-        }
+		var stringContent = Content;
 
-        public OrganizationResponse GetOrganizationResponse()
-        {
-            if (MessageType != RemoteDebuggerMessageType.Response)
-            {
-                throw new Exception("The message is not a response message");
-            }
+		try
+		{
+			stringContent = JsonConvert.DeserializeObject<string>(Content);
+		}
+		catch (JsonReaderException)
+		{
+			// the object is already ready to deserialize
+		}
 
-            var stringContent = Content;
+		return JsonConvert.DeserializeObject<T>(stringContent, SerializerSettings);
+	}
 
-            try
-            {
-                stringContent = JsonConvert.DeserializeObject<string>(Content);
-            }
-            catch (JsonReaderException)
-            {
-                // the object is already ready to deserialize
-            }
+	private class RemoteDebuggerContractResolver : DefaultContractResolver
+	{
+		/// <inheritdoc />
+		protected override JsonConverter ResolveContractConverter(Type objectType)
+		{
+			var converter = Converters.FirstOrDefault(c =>
+				typeof(JsonConverter<>).MakeGenericType(objectType).IsInstanceOfType(c));
 
-            return JsonConvert.DeserializeObject<OrganizationResponse>(stringContent, Converters.ToArray());
-        }
+			if (converter != null) return converter;
 
-        private static readonly ICollection<JsonConverter> Converters = new List<JsonConverter>
-        {
-            new ParameterCollectionConverter(),
-            new KeyAttributeCollectionConverter(),
-            new FormattedValueCollectionConverter(),
-            new EntityImageCollectionConverter(),
-            new AttributeCollectionConverter(),
-            new RelatedEntityCollectionConverter(),
-            new RelationshipQueryCollectionConverter(),
-            new OrganizationRequestCollectionConverter(),
-            new OrganizationResponseCollectionConverter(),
-            new ArgumentsCollectionConverter(),
-            new CustomKeyValuePairConverter<string, object>(),
-            new CustomKeyValuePairConverter<string, Entity>(),
-            new CustomKeyValuePairConverter<string, string>(),
-            new CustomKeyValuePairConverter<Relationship, QueryBase>(),
-            new EntityConverter(),
-            new ObjectSerializationConverter(),
-            new ConditionExpressionConverter(),
-            new AliasedValueConverter()
-        };
+			if (objectType.IsGenericType && objectType.GenericTypeArguments.Length == 2 &&
+				typeof(KeyValuePair<,>).MakeGenericType(objectType.GenericTypeArguments).IsAssignableFrom(objectType))
+			{
+				var converterType =
+					typeof(CustomKeyValuePairConverter<,>).MakeGenericType(objectType.GenericTypeArguments);
 
-        public Exception GetException()
-        {
-            if (MessageType != RemoteDebuggerMessageType.Exception)
-            {
-                throw new Exception("The message is not an exception message");
-            }
+				return (JsonConverter)Activator.CreateInstance(converterType);
+			}
 
-
-            var stringContent = Content;
-
-            try
-            {
-                stringContent = JsonConvert.DeserializeObject<string>(Content);
-            }
-            catch (JsonReaderException)
-            {
-                // the object is already ready to deserialize
-            }
-
-            return JsonConvert.DeserializeObject<Exception>(stringContent, Converters.ToArray());
-        }
-
-        public override string ToString() => $"{MessageType} / {PluginExecutionId} / {Content}";
-    }
+			return base.ResolveContractConverter(objectType);
+		}
+	}
 }

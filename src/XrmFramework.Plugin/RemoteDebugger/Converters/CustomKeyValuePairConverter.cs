@@ -1,92 +1,93 @@
 ﻿
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Utilities;
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 
 namespace XrmFramework.RemoteDebugger.Converters
 {
     public class CustomKeyValuePairConverter<TKey, TValue> : JsonConverter<KeyValuePair<TKey, TValue>>
     {
+        private const string KeyName = "Key";
+        private const string ValueName = "Value";
+        private const string TypeName = "Type";
+
+
         public override void WriteJson(JsonWriter writer, KeyValuePair<TKey, TValue> value, JsonSerializer serializer)
         {
+            DefaultContractResolver resolver = serializer.ContractResolver as DefaultContractResolver;
+
             writer.WriteStartObject();
-            writer.WritePropertyName("Key");
-            serializer.Serialize(writer, value.Key);
-            writer.WritePropertyName("Type");
-            writer.WriteValue(value.Value?.GetType().AssemblyQualifiedName);
-            writer.WritePropertyName("Value");
-            serializer.Serialize(writer, value.Value);
+            writer.WritePropertyName((resolver != null) ? resolver.GetResolvedPropertyName(TypeName) : TypeName);
+            serializer.Serialize(writer, value.Value?.GetType().AssemblyQualifiedName, typeof(string));
+            writer.WritePropertyName((resolver != null) ? resolver.GetResolvedPropertyName(KeyName) : KeyName);
+            serializer.Serialize(writer, value.Key, typeof(TKey));
+            writer.WritePropertyName((resolver != null) ? resolver.GetResolvedPropertyName(ValueName) : ValueName);
+            serializer.Serialize(writer, value.Value, typeof(TValue));
             writer.WriteEndObject();
         }
 
         public override KeyValuePair<TKey, TValue> ReadJson(JsonReader reader, Type objectType, KeyValuePair<TKey, TValue> existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            TKey key = default;
-            Type type = null;
-
-            for (var i = 0; i < 3; i++)
+            if (reader.TokenType == JsonToken.Null)
             {
-                reader.Read();
-                var propertyName = (string)reader.Value;
-                reader.Read();
-
-                if (propertyName == "Key")
+                if (!ReflectionUtils.IsNullableType(objectType))
                 {
-                    if (reader.TokenType == JsonToken.String)
-                    {
-                        key = (TKey)reader.Value;
-                    }
-                    else
-                    {
-                        key = (TKey)serializer.Deserialize(reader, typeof(TKey));
-                    }
+                    throw JsonSerializationException.Create(reader, "Cannot convert null value to KeyValuePair.");
                 }
-                else if (propertyName == "Type")
-                {
-                    var typeName = (string)reader.Value;
 
+                return default;
+            }
+
+            TKey key = default;
+            TValue value = default;
+            string typeName = null;
+
+            reader.ReadAndAssert();
+
+            Type t = ReflectionUtils.IsNullableType(objectType)
+                ? Nullable.GetUnderlyingType(objectType)
+                : objectType;
+
+            JsonContract keyContract = serializer.ContractResolver.ResolveContract(typeof(TKey));
+            JsonContract typeContract = serializer.ContractResolver.ResolveContract(typeof(string));
+
+            while (reader.TokenType == JsonToken.PropertyName)
+            {
+                string propertyName = reader.Value.ToString();
+                if (string.Equals(propertyName, TypeName, StringComparison.OrdinalIgnoreCase))
+                {
+                    reader.ReadForTypeAndAssert(typeContract, false);
+
+                    typeName = (string)serializer.Deserialize(reader, typeContract.UnderlyingType);
+                }
+                else if (string.Equals(propertyName, KeyName, StringComparison.OrdinalIgnoreCase))
+                {
+                    reader.ReadForTypeAndAssert(keyContract, false);
+
+                    key = (TKey)serializer.Deserialize(reader, keyContract.UnderlyingType);
+                }
+                else if (string.Equals(propertyName, ValueName, StringComparison.OrdinalIgnoreCase))
+                {
                     if (!string.IsNullOrEmpty(typeName))
                     {
-                        type = Type.GetType(typeName);
+                        var valueType = Type.GetType(typeName);
+
+                        JsonContract valueContract = serializer.ContractResolver.ResolveContract(valueType);
+
+                        reader.ReadForTypeAndAssert(valueContract, false);
+
+                        value = (TValue)serializer.Deserialize(reader, valueContract.UnderlyingType);
                     }
-                }
-                else if (propertyName == "Value")
-                {
-                    break;
                 }
                 else
                 {
-
+                    reader.Skip();
                 }
 
+                reader.ReadAndAssert();
             }
-
-            TValue value = default;
-
-            if (type != null)
-            {
-                if (reader.TokenType == JsonToken.StartObject || reader.TokenType == JsonToken.StartArray)
-                {
-                    value = (TValue)serializer.Deserialize(reader, type);
-                }
-                else
-                {
-                    if (type == typeof(Guid))
-                    {
-                        value = (TValue)(object)new Guid(reader.Value.ToString());
-                    }
-                    else if (reader.Value != null && reader.ValueType != typeof(TValue) && typeof(TValue) == typeof(string))
-                    {
-                        value = (TValue)(object)reader.Value.ToString();
-                    }
-                    else
-                    {
-                        value = (TValue)serializer.Deserialize(reader, type);
-                    }
-                }
-            }
-
-            reader.Read();
 
             return new KeyValuePair<TKey, TValue>(key, value);
         }

@@ -15,13 +15,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Navigation;
-using Deploy;
-using Microsoft.Crm.Sdk.Messages;
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Messages;
-using Microsoft.Xrm.Sdk.Query;
-using Microsoft.Xrm.Tooling.Connector;
 using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
@@ -31,7 +24,7 @@ namespace XrmFramework.DeployUtils
     public static class RegistrationHelper
     {
         private static List<PluginAssembly> _list = new List<PluginAssembly>();
-        
+
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
             //GetProjectConfig
@@ -91,7 +84,7 @@ namespace XrmFramework.DeployUtils
 
             var customApiTypes = pluginAssembly.GetTypes().Where(t => customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
 
-            
+
 
             //------------------------------------------------------------------------------------
             // Get each plugin data, the plugin class in deployUtils is not the same as in Plugin, it is metadata
@@ -103,11 +96,11 @@ namespace XrmFramework.DeployUtils
             // 
             //GetCrmData();
             // Get the plugin assembly from the CRM                                                                                
-            var assembly = GetAssemblyByName(service, pluginAssembly.GetName().Name);                                              
+            var assembly = GetAssemblyByName(service, pluginAssembly.GetName().Name);
             //Get plugin profiler assembly from the CRM                                                                            
-            var profilerAssembly = GetProfilerAssembly(service);                                                                   
-            var registeredPluginTypes = new List<PluginType>();                                                                    
-            var registeredCustomApis = new List<CustomApi>();                                                                      
+            var profilerAssembly = GetProfilerAssembly(service);
+            var registeredPluginTypes = new List<PluginType>();
+            var registeredCustomApis = new List<CustomApi>();
             var registeredCustomApiRequestParameters = new List<CustomApiRequestParameter>();
             var registeredCustomApiResponseProperties = new List<CustomApiResponseProperty>();
             var profiledSteps = new List<SdkMessageProcessingStep>();
@@ -116,9 +109,9 @@ namespace XrmFramework.DeployUtils
 
             var assemblyPath = pluginAssembly.Location;
 
-            GetCrmData(ref assembly, ref pluginAssembly, ref profilerAssembly,ref registeredPluginTypes,
-                       ref registeredCustomApis,ref registeredCustomApiRequestParameters,ref registeredCustomApiResponseProperties,
-                       ref profiledSteps, ref registeredSteps,ref  assemblyPath, ref service,ref pluginList,ref customApis);
+            GetCrmData(ref assembly, ref pluginAssembly, ref profilerAssembly, ref registeredPluginTypes,
+                       ref registeredCustomApis, ref registeredCustomApiRequestParameters, ref registeredCustomApiResponseProperties,
+                       ref profiledSteps, ref registeredSteps, ref assemblyPath, ref service, ref pluginList, ref customApis);
 
             // Adding assembly to solution
             AddSolutionComponentToSolution(service, pluginSolutionUniqueName, assembly.ToEntityReference());
@@ -141,7 +134,7 @@ namespace XrmFramework.DeployUtils
             // Add relevant custom api
             Console.WriteLine();
             Console.WriteLine(@"Registering Custom Apis");
-            
+
             var customApiEntityTypeCode = GetEntityTypeCode("customapi", service);
             var customApiParameterEntityTypeCode = GetEntityTypeCode("customapirequestparameter", service);
             var customApiResponseEntityTypeCode = GetEntityTypeCode("customapiresponseproperty", service);
@@ -222,7 +215,7 @@ namespace XrmFramework.DeployUtils
             // Get all plugin types that were developped by the users
             var pluginTypes = pluginAssembly.GetTypes().Where(t => pluginType.IsAssignableFrom(t) && !customApiType.IsAssignableFrom(t) && t.IsPublic && !t.IsAbstract).ToList();
 
-            foreach(var t in pluginTypes)
+            foreach (var t in pluginTypes)
             {
                 Console.WriteLine(t.Name);
             }
@@ -280,7 +273,7 @@ namespace XrmFramework.DeployUtils
                     Console.WriteLine("Plugin name");
                     Console.WriteLine(registeredType.Name);
                     var registeredStepsForPluginType = registeredSteps.Where(s => s.EventHandler.Id == registeredType.Id).ToList();
-                    if(isDebuggingPlugin)
+                    if (isDebuggingPlugin)
                     {
                         // Delete each step before assigning the ones used for this session
                         foreach (var step in registeredStepsForPluginType)
@@ -292,7 +285,7 @@ namespace XrmFramework.DeployUtils
                     }
                     if (pluginList.All(p => p.FullName != registeredType.Name) && pluginList.Where(p => p.IsWorkflow).All(c => c.FullName != registeredType.TypeName) && customApis.All(c => c.FullName != registeredType.TypeName))
                     {
-                       
+
                         {
                             //
                         }
@@ -330,7 +323,7 @@ namespace XrmFramework.DeployUtils
                 Console.WriteLine(plugin.FullName);
 
                 Console.WriteLine($@"  - {plugin.FullName}");
-                if(isDebuggingPlugin)
+                if (isDebuggingPlugin)
                 {
                     var registeredPluginType = registeredPluginTypes.FirstOrDefault(p => p.Name == plugin.FullName);
                     debugPluginType = registeredPluginType;
@@ -345,11 +338,11 @@ namespace XrmFramework.DeployUtils
                     foreach (var convertedStep in plugin.Steps)
                     {
                         stepsToBeRegistered.Add(convertedStep);
-                        
+
 
                         if (convertedStep.Message != Messages.Associate.ToString() && convertedStep.Message != Messages.Lose.ToString() && convertedStep.Message != Messages.Win.ToString())
                         {
-                            
+
                         }
                     }
                 }
@@ -370,12 +363,12 @@ namespace XrmFramework.DeployUtils
 
 
             // Now register each step but for the RD_Plugin
-            
+
             foreach (var s in stepsToBeRegistered)
             {
                 Console.WriteLine("A step has to be debbuged");
                 Console.WriteLine(s.PluginTypeName);
-                if(debugPluginType==null)
+                if (debugPluginType == null)
                 {
                     Console.WriteLine("Error no debugPluginType");
                 }
@@ -394,7 +387,7 @@ namespace XrmFramework.DeployUtils
             return pluginList;
 
 
-            
+
         }
 
         public static void UpdateRemoteDebuggerPlugin<TPlugin>(string projectName)
@@ -419,16 +412,16 @@ namespace XrmFramework.DeployUtils
             Console.WriteLine($"You are about to modify the debug session");
             Console.WriteLine($"Do you want to register new steps to debug ? (y/n)");
             var r = Console.ReadLine();
-            while(r != "y" && r != "n")
+            while (r != "y" && r != "n")
             {
                 Console.WriteLine($"Do you want to register new steps to debug ? (y/n)");
                 r = Console.ReadLine();
             }
-            if(r == "n")
+            if (r == "n")
             {
                 return;
             }
-            
+
             Console.WriteLine("Connecting to CRM...");
             CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
 
@@ -441,7 +434,7 @@ namespace XrmFramework.DeployUtils
 
             //InitMetadata(service, pluginSolutionUniqueName);
             InitStepMetadata(service, pluginSolutionUniqueName);
-            
+
 
             //Now get the local assembly for the plugin(s) to be debugged
             var pluginAssembly = typeof(TPlugin).Assembly;
@@ -465,13 +458,13 @@ namespace XrmFramework.DeployUtils
             var registeredImages = GetRegisteredImages(service, debugAssembly.Id);
 
             var registeredStepsForPluginType = registeredSteps.Where(s => s.EventHandler.Id == debuggerPlugin.Id).ToList();
-            foreach(var step in registeredStepsForPluginType)
+            foreach (var step in registeredStepsForPluginType)
             {
 
                 service.Delete(SdkMessageProcessingStep.EntityLogicalName, step.Id);
                 //registeredStepsForPluginType.Remove(step);
             }
-            foreach(var image in registeredImages)
+            foreach (var image in registeredImages)
             {
                 service.Delete(SdkMessageProcessingStepImage.EntityLogicalName, image.Id);
                 //registeredImages.Remove(image);
@@ -479,9 +472,9 @@ namespace XrmFramework.DeployUtils
 
             foreach (var plugin in pluginTypes)
             {
-                foreach(var pluginData in pluginList)
+                foreach (var pluginData in pluginList)
                 {
-                    if(pluginData.FullName == plugin.FullName)
+                    if (pluginData.FullName == plugin.FullName)
                     {
                         foreach (var convertedStep in pluginData.Steps)
                         {
@@ -495,7 +488,7 @@ namespace XrmFramework.DeployUtils
 
                                 //Console.WriteLine(s.ImpersonationUsername);
                                 //stepToRegister.
-                                
+
                                 stepToRegister.Id = service.Create(stepToRegister);
                                 AddSolutionComponentToSolution(service, pluginSolutionUniqueName, stepToRegister.ToEntityReference());
 
@@ -515,7 +508,7 @@ namespace XrmFramework.DeployUtils
 
                                 if (convertedStep.PreImageUsed)
                                 {
-                                    var preImage  = GetImageToRegister(service, stepToRegister.Id, convertedStep, true);
+                                    var preImage = GetImageToRegister(service, stepToRegister.Id, convertedStep, true);
                                     preImage.Id = service.Create(preImage);
                                     AddSolutionComponentToSolution(service, pluginSolutionUniqueName, preImage.ToEntityReference());
 
@@ -527,7 +520,7 @@ namespace XrmFramework.DeployUtils
                         }
                     }
                 }
-                
+
             }
 
 
@@ -1005,7 +998,7 @@ namespace XrmFramework.DeployUtils
             // Clear filters from the collection (est ce que c'est _filters qui contient tous les filtres utilisés ?, ce qui voudrait dire qu'on pourrait s'en servir pour le debugging ?)
             _filters.Clear();
             _filters.AddRange(filters.Select(f => f.ToEntity<SdkMessageFilter>()));
-            
+
             //Get all the messages in the project (update, Create, Delete etc ??)
             sw.Restart();
             query = new QueryExpression(SdkMessage.EntityLogicalName);
@@ -1119,7 +1112,7 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        private static void GetWorkflowData(List<Type> workflowTypes,List<Plugin> pluginList)
+        private static void GetWorkflowData(List<Type> workflowTypes, List<Plugin> pluginList)
         {
             foreach (var type in workflowTypes)
             {
@@ -1131,7 +1124,7 @@ namespace XrmFramework.DeployUtils
             }
 
         }
-        private static void GetCustomApiData(List<Type>  customApiTypes, List<CustomApi> customApis)
+        private static void GetCustomApiData(List<Type> customApiTypes, List<CustomApi> customApis)
         {
             foreach (var type in customApiTypes)
             {
@@ -1143,8 +1136,8 @@ namespace XrmFramework.DeployUtils
                 else
                 {
                     Console.WriteLine("We are using this version of the constructor");
-                    customApiTemp = Activator.CreateInstance(type, new object[] {});
-                    
+                    customApiTemp = Activator.CreateInstance(type, new object[] { });
+
                 }
 
                 var customApi = CustomApi.FromXrmFrameworkCustomApi(customApiTemp, _publisher.CustomizationPrefix);
@@ -1153,11 +1146,11 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        public static void GetCrmData(ref PluginAssembly assembly,ref Assembly pluginAssembly, ref PluginAssembly profilerAssembly,ref List<PluginType> registeredPluginTypes,
-           ref  List<CustomApi> registeredCustomApis, ref List<CustomApiRequestParameter> registeredCustomApiRequestParameters, ref List<CustomApiResponseProperty> registeredCustomApiResponseProperties, 
-            ref List<SdkMessageProcessingStep>  profiledSteps , ref ICollection<SdkMessageProcessingStep> registeredSteps, ref string assemblyPath,ref  CrmServiceClient service, ref List<Plugin> pluginList,ref List<CustomApi> customApis)
+        public static void GetCrmData(ref PluginAssembly assembly, ref Assembly pluginAssembly, ref PluginAssembly profilerAssembly, ref List<PluginType> registeredPluginTypes,
+           ref List<CustomApi> registeredCustomApis, ref List<CustomApiRequestParameter> registeredCustomApiRequestParameters, ref List<CustomApiResponseProperty> registeredCustomApiResponseProperties,
+            ref List<SdkMessageProcessingStep> profiledSteps, ref ICollection<SdkMessageProcessingStep> registeredSteps, ref string assemblyPath, ref CrmServiceClient service, ref List<Plugin> pluginList, ref List<CustomApi> customApis)
         {
-            
+
 
             if (assembly == null)
             {
@@ -1342,7 +1335,7 @@ namespace XrmFramework.DeployUtils
 
         private static void RegisterCustomApi(ref List<CustomApi> customApis, ref List<PluginType> registeredPluginTypes, ref List<CustomApi> registeredCustomApis,
             ref CrmServiceClient service, PluginAssembly assembly, ref List<CustomApiRequestParameter> registeredCustomApiRequestParameters, string pluginSolutionUniqueName,
-            int customApiParameterEntityTypeCode, ref List<CustomApiResponseProperty> registeredCustomApiResponseProperties, int customApiResponseEntityTypeCode,int customApiEntityTypeCode)
+            int customApiParameterEntityTypeCode, ref List<CustomApiResponseProperty> registeredCustomApiResponseProperties, int customApiResponseEntityTypeCode, int customApiEntityTypeCode)
         {
             foreach (var customApi in customApis)
             {
@@ -1429,5 +1422,5 @@ namespace XrmFramework.DeployUtils
         private static readonly List<KeyValuePair<string, Guid>> _users = new();
     }
 
-    
+
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using BoDi;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 using XrmFramework.Core;
@@ -6,19 +7,21 @@ using XrmFramework.Core;
 namespace XrmFramework.Analyzers.Generators
 {
 	[Generator]
-	public class TableSourceFileGenerator : IIncrementalGenerator
+	public class ModelSourceFileGenerator : IIncrementalGenerator
 	{
 		/// <inheritdoc />
 		public void Initialize(IncrementalGeneratorInitializationContext context)
 		{
-			var tableFiles =
+			var sourceFiles =
 				context.AdditionalTextsProvider
-					.Where(a => a.Path.EndsWith(".table"));
+					.Where(a => false && a.Path.EndsWith(".model"));
 
 			// read their contents and save their name
 			var namesAndContents =
-				tableFiles.Select((text, cancellationToken) => (name: Path.GetFileNameWithoutExtension(text.Path), content: text.GetText(cancellationToken)!.ToString()))
+				sourceFiles.Select((text, cancellationToken) => (name: Path.GetFileNameWithoutExtension(text.Path), content: text.GetText(cancellationToken)!.ToString()))
 					.Collect();
+
+			var mainContainer = new ObjectContainer();
 
 			var compilationAndTables = context.CompilationProvider.Combine(namesAndContents);
 
@@ -98,7 +101,8 @@ namespace XrmFramework.Analyzers.Generators
 									AddColumnSummary(sb, col, enumDefinition);
 
 									sb.AppendLine($"[AttributeMetadata(AttributeTypeCode.{col.Type})]");
-									if (col.Type == AttributeTypeCode.Lookup)
+
+									if (Equals(col.Type, AttributeTypeCode.Lookup))
 									{
 										var relations = table.ManyToOneRelationships.Where(r => r.LookupFieldName == col.LogicalName);
 										foreach (var relation in relations)

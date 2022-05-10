@@ -28,7 +28,7 @@ namespace XrmFramework.RemoteDebugger.Client
             {
                 throw new Exception("The connectionString \"DebugConnectionString\" is not defined.");
             }
-            
+
             // create a connection string with the listener profile
             Listener = new HybridConnectionListener(ConfigurationManager.ConnectionStrings["DebugConnectionString"].ConnectionString);
 
@@ -51,16 +51,17 @@ namespace XrmFramework.RemoteDebugger.Client
             var message = JsonConvert.DeserializeObject<RemoteDebuggerMessage>(requestContent);
             // Cache it
             CurrentResponseCache.AddOrUpdate(message.PluginExecutionId, context.Response, (guid, response) => context.Response);
-            
-            
+
+
             if (message.MessageType == RemoteDebuggerMessageType.Context)
             {
                 // Get context info
                 var remoteContext = message.GetContext<RemoteDebugExecutionContext>();
 
                 OnContextReceived(remoteContext);
+
                 // Cache a response to be sent with the new context
-                MessageSendCache.TryAdd(remoteContext.Id, new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id));
+                SendMessage(new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id));
             }
 
             if (message.MessageType == RemoteDebuggerMessageType.Response)

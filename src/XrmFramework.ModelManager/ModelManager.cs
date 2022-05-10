@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Xrm.Sdk.Metadata;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,9 +11,14 @@ namespace XrmFramework.ModelManager
     public static class ModelManager
     {
         public static TableCollection Tables = new TableCollection();
-        public static List<OptionSetEnum> GlobalEnums = new List<OptionSetEnum>();
         public static List<Model> Models = new List<Model>();
         public static string CoreProjectName;
+        public static string RootPath = "C:\\Repos\\Temp\\FrameworkTests\\";
+
+        static void Main()
+        {
+            TestModelCreation("FrameworkTests.Core");
+        }
 
         public static void TestModelCreation(string coreProjectName)
         {
@@ -32,27 +35,23 @@ namespace XrmFramework.ModelManager
             TableCollection tables = new TableCollection();
             List<OptionSetEnum> globalEnums = new List<OptionSetEnum>();
             List<Model> models = new List<Model>();
-            List<string> tableFileNames = new List<string>();
-            List<string> modelFileNames = new List<string>();
-            FileInfo fileInfo;
-            String text;
-            Table currentTable;
-            string userInput;
-
+            var tableFileNames = GetFilesFromFolder($"{RootPath}{CoreProjectName}", "table");
+            var modelFileNames = GetFilesFromFolder($"{RootPath}{CoreProjectName}", "model"); ;
 
             // Get models
-            GetFilesFromFolder($"../../../../../../{CoreProjectName}", "model", modelFileNames);
             foreach (string fileName in modelFileNames)
             {
-                if (!fileName.Contains("OptionSet.table"))
-                {
-                    fileInfo = new FileInfo(fileName);
-                    text = File.ReadAllText(fileInfo.FullName);
+                var fileInfo = new FileInfo(fileName);
+                var text = File.ReadAllText(fileInfo.FullName);
 
-                    models.Add(JsonConvert.DeserializeObject<Model>(text));
+                var model = JsonConvert.DeserializeObject<Model>(text);
+
+                if (string.IsNullOrWhiteSpace(model.ModelNamespace))
+                {
+                    model.ModelNamespace = CoreProjectName;
                 }
 
-
+                models.Add(model);
             }
             // If no models are found for the project, exit the function
             if (models.Count == 0)
@@ -69,52 +68,20 @@ namespace XrmFramework.ModelManager
                 }
             }
             // Get tables
-            GetFilesFromFolder($"../../../../../../{CoreProjectName}", "table", tableFileNames);
             foreach (string fileName in tableFileNames)
             {
-                if (!fileName.Contains("OptionSet.table"))
-                {
-                    fileInfo = new FileInfo(fileName);
-                    text = File.ReadAllText(fileInfo.FullName);
-                    JObject jTable = JObject.Parse(text);
+                var fileInfo = new FileInfo(fileName);
+                var text = File.ReadAllText(fileInfo.FullName);
 
-
-                    currentTable = jTable.ToObject<Table>();
-
-
-                    if (jTable["Cols"].Any())
-                    {
-                        Column currentColumn;
-                        foreach (var jColumn in jTable["Cols"])
-                        {
-                            currentColumn = jColumn.ToObject<Column>();
-                            currentTable.Columns.Add(currentColumn);
-                        }
-                    }
-                    tables.Add(currentTable);
-                }
-                else
-                {
-                    fileInfo = new FileInfo(fileName);
-                    text = File.ReadAllText(fileInfo.FullName);
-                    globalEnums = JsonConvert.DeserializeObject<List<OptionSetEnum>>(text, new JsonSerializerSettings
-                    {
-                        DefaultValueHandling = DefaultValueHandling.Ignore
-                    });
-                }
+                tables.Add(JsonConvert.DeserializeObject<Table>(text));
 
             }
+
             // If a model does not have a corresponding class exit
             foreach (var model in models)
             {
-                var hasCorrespondingTable = false;
-                foreach (var table in tables)
-                {
-                    if (table.LogicalName == model.tableLogicalName) ;
-                    {
-                        hasCorrespondingTable |= true;
-                    }
-                }
+                var hasCorrespondingTable = tables.Any(t => t.LogicalName == model.TableLogicalName);
+
                 if (!hasCorrespondingTable)
                 {
                     Console.WriteLine($"No corresponding table was found for {model.Name}, press any key to exit.");
@@ -127,12 +94,11 @@ namespace XrmFramework.ModelManager
             {
                 // Create start of class
                 var sb = new IndentedStringBuilder();
-                var correspondingTable = tables.FirstOrDefault(t => t.LogicalName == model.tableLogicalName);
-                if(correspondingTable == null)
+                var correspondingTable = tables.FirstOrDefault(t => t.LogicalName == model.TableLogicalName);
+                if (correspondingTable == null)
                 {
-                    throw new Exception("The table corresponding to this model was not found, its logical name is : " + model.tableLogicalName);
+                    throw new Exception("The table corresponding to this model was not found, its logical name is : " + model.TableLogicalName);
                 }
-                sb.AppendLine("");
                 sb.AppendLine("using System;");
                 sb.AppendLine("using System.CodeDom.Compiler;");
                 sb.AppendLine("using System.ComponentModel.DataAnnotations;");
@@ -140,19 +106,13 @@ namespace XrmFramework.ModelManager
                 sb.AppendLine("using System.Collections.Generic;");
                 sb.AppendLine("using XrmFramework;");
                 sb.AppendLine("using Newtonsoft.Json;");
+                sb.AppendLine("using XrmFramework.Definitions;");
                 sb.AppendLine("using XrmFramework.BindingModel;");
                 sb.AppendLine($"using {CoreProjectName};");
                 sb.AppendLine();
-                if(model.ModelNamespace != null && model.ModelNamespace != "")
-                {
-                    sb.AppendLine($"namespace {CoreProjectName}.{model.ModelNamespace}");
 
-                }
-                else
-                {
-                    sb.AppendLine($"namespace {CoreProjectName}");
+                sb.AppendLine($"namespace {model.ModelNamespace}");
 
-                }
                 sb.AppendLine("{");
 
                 using (sb.Indent())
@@ -165,11 +125,8 @@ namespace XrmFramework.ModelManager
 
 
 
-                    
+
                     sb.AppendLine($"public partial class {model.Name}Model : BindingModelBase");
-
-
-                    sb.AppendLine();
                     sb.AppendLine("{");
                     // Properties
                     using (sb.Indent())
@@ -181,108 +138,125 @@ namespace XrmFramework.ModelManager
                         foreach (var prop in model.Properties)
                         {
                             var correspondingColumn = correspondingTable.Columns.FirstOrDefault(c => c.LogicalName == prop.LogicalName);
+
+                            if (correspondingColumn != null)
                             {
-                                if (correspondingColumn != null)
-                                {   //This property is a column
-                                    sb.Append($"[CrmMapping({correspondingTable.Name}Definition.Columns.{correspondingColumn.Name}");//)]");
-                                    if(prop.isValidForUpdate)
-                                    {
-                                        sb.Append(")]");
+                                //This property is a column
+                                sb
+                                    .Append($"[CrmMapping({correspondingTable.Name}Definition.Columns.{correspondingColumn.Name}")
+                                    .AppendLine(prop.IsValidForUpdate ? ")]" : ", IsValidForUpdate = false)]");
 
-                                    }
-                                    else
+                                if (correspondingColumn.Type == AttributeTypeCode.Lookup)
+                                {
+                                    //Get the corresponding relationship info in the table
+
+                                    if (!string.IsNullOrWhiteSpace(prop.LookupTargetTableLogicalName) &&
+                                                 !string.IsNullOrWhiteSpace(prop.LookupTargetColumnLogicalName))
                                     {
-                                        sb.Append(",IsValidForUpdate = false)]");
-                                    }
-                                    if (correspondingColumn.Type == AttributeTypeCode.Lookup)
-                                    {
-                                        //Get the corresponding relationship info in the table
-                                        var correspondingRelation = correspondingTable.ManyToOneRelationships.FirstOrDefault(r => r.LookupFieldName == prop.LogicalName);
-                                        if(correspondingRelation == null)
+                                        sb.Append($"[CrmLookup(");
+                                        var referencedTable = tables.FirstOrDefault(t =>
+                                            t.LogicalName == prop.LookupTargetTableLogicalName);
+
+                                        if (referencedTable != null)
                                         {
-                                            throw new Exception("No corresponding relationship found in table for " + prop.Name);
-                                        }
-                                        else
-                                        {
-                                            sb.Append($"[CrmLookup(");
-                                            var referencedTable = tables.FirstOrDefault(t => t.LogicalName == correspondingRelation.EntityName);
-                                            if (referencedTable != null)
+                                            sb.Append($"{referencedTable.Name}Definition.EntityName, ");
+                                            var referencedColumn = referencedTable.Columns.FirstOrDefault(c =>
+                                                c.LogicalName == prop.LookupTargetColumnLogicalName);
+                                            if (referencedColumn != null)
                                             {
-                                                sb.Append($"{referencedTable.Name}Definition.EntityName,");
-                                                var referencedColumn = referencedTable.Columns.FirstOrDefault(c => c.LogicalName == correspondingRelation.LookupFieldName);
-                                                if (referencedColumn != null)
-                                                {
-                                                    sb.Append($"{referencedTable.Name}Definition.Columns.{referencedColumn.Name})]");
-                                                }
-                                                else
-                                                {
-                                                    sb.Append($"\"{correspondingRelation.LookupFieldName}\")]");
-
-                                                }
+                                                sb.AppendLine(
+                                                    $"{referencedTable.Name}Definition.Columns.{referencedColumn.Name})]");
                                             }
                                             else
                                             {
-                                                sb.AppendLine($"\"{correspondingRelation.EntityName}\",\"{correspondingRelation.LookupFieldName}\")]");
+                                                sb.AppendLine($"\"{prop.LookupTargetColumnLogicalName}\")]");
                                             }
                                         }
+                                        else
+                                        {
+                                            sb.AppendLine(
+                                                $"\"{prop.LookupTargetTableLogicalName}\", \"{prop.LookupTargetColumnLogicalName}\")]");
+                                        }
                                     }
+
+                                    if (!string.IsNullOrWhiteSpace(prop.LookupTargetModel))
+                                    {
+                                        var targetModel = models.FirstOrDefault(m => m.Name == prop.LookupTargetModel);
+
+                                        if (targetModel == null)
+                                        {
+                                            throw new Exception($"Model {prop.LookupTargetModel} model not found");
+                                        }
+
+                                        prop.TypeFullName = $"{targetModel.ModelNamespace}.{targetModel.Name}Model";
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                //This property is a OneToMany relation
+                                var correspondingRelation =
+                                    correspondingTable.OneToManyRelationships.FirstOrDefault(r =>
+                                        r.Name == prop.LogicalName);
+                                if (correspondingRelation == null)
+                                {
+                                    throw new Exception(
+                                        "Error, no corresponding OneToMany relation found for this property : " +
+                                        prop.Name);
+                                }
+
+                                sb.AppendLine(
+                                    $"[ChildRelationship({correspondingTable.Name}Definition.OneToManyRelationships.{correspondingRelation.NavigationPropertyName})]");
+                            }
+
+                            if (prop.JsonPropertyName != null)
+                            {
+                                sb.AppendLine($"[JsonProperty(\"{prop.JsonPropertyName}\")]");
+                            }
+
+                            // Add other possible attributes
+
+
+                            if (!prop.IsValidForUpdate)
+                            {
+                                // Write regular declaration
+                                if (correspondingColumn != null)
+                                {
+                                    sb.AppendLine($"public {prop.TypeFullName} {prop.Name} {{get; set;}}");
                                 }
                                 else
                                 {
-                                    //This property is a OneToMany relation
-                                    var correspondingRelation = correspondingTable.OneToManyRelationships.FirstOrDefault(r => r.Name == prop.LogicalName);
-                                    if (correspondingRelation == null)
-                                    {
-                                        throw new Exception("Error, no corresponding OneToMany relation found for this property : " + prop.Name);
-                                    }
-                                    sb.AppendLine($"[ChildRelationship({correspondingTable.Name}Definition.OneToManyRelationships.{correspondingRelation.NavigationPropertyName})]");
+                                    sb.AppendLine(
+                                        $"public List<{prop.TypeFullName}> {prop.Name} {{get;set;}} = new List<{prop.TypeFullName}>();");
                                 }
+                            }
+                            else
+                            {
 
-                                if (prop.jsonName != null)
+                                // Write property declaration with call to OnPropertyChanged()
+                                if (correspondingColumn != null)
                                 {
-                                    sb.AppendLine($"[JsonProperty(\"{prop.jsonName}\")]");
-                                }
-
-                                // Add other possible attributes
-
-
-                                if (!prop.isValidForUpdate)
-                                {
-                                    // Write regular declaration
-                                    if (correspondingColumn != null)
-                                    {
-                                        sb.AppendLine(String.Format("public {0} {1} {{get; set;}}", prop.TypeFullName, prop.Name));
-                                    }
-                                    else
-                                    {
-                                        sb.AppendLine($"public List<{prop.TypeFullName}> {prop.Name} {{get;set;}} = new List<{prop.TypeFullName}>();");
-                                    }
-                                }
-                                else
-                                {
-
-                                    // Write property declaration with call to OnPropertyChanged()
-                                    if (correspondingColumn != null)
-                                    {
-                                        string tmp = @$"
+                                    string tmp = @$"
         public {prop.TypeFullName} {prop.Name}
         {{
-            get {{return _{prop.Name};}}
+            get => _{prop.Name};
             set 
             {{
-                if(value == _{prop.Name})
+                if (Equals(value, _{prop.Name}))
+                {{
                     return;
+                }}
                 _{prop.Name} = value;
                 OnPropertyChanged();
             }}
         }}
                                                       ";
-                                        //Console.WriteLine(tmp);
-                                        sb.AppendLine(tmp);
-                                    }
-                                    else
-                                    {
-                                        string tmp2 = @$"
+                                    //Console.WriteLine(tmp);
+                                    sb.AppendLine(tmp);
+                                }
+                                else
+                                {
+                                    string tmp2 = @$"
         public List<{prop.TypeFullName}> {prop.Name}
         {{
             get {{return _{prop.Name};}}
@@ -295,49 +269,48 @@ namespace XrmFramework.ModelManager
             }}
         }}= new List<{prop.TypeFullName}>();
                                                       ";
-                                        sb.AppendLine(tmp2);
-                                       // "{" +
-                                       // "   get { return _{1};}\n" +
-                                       // "   set\n" +
-                                       // "       {\n" +
-                                       // "           if(value == _{1})\n" +
-                                       // "           {\n" +
-                                       // "               return;\n" +
-                                       // "           }\n" +
-                                       // "           _{1} = value;\n" +
-                                       // "           OnPropertyChanged();\n" +
-                                       // "       }\n" +
-                                       // "} = new List<{0}>();\n", prop.TypeFullName, prop.Name));
-                                    }
-
+                                    sb.AppendLine(tmp2);
+                                    // "{" +
+                                    // "   get { return _{1};}\n" +
+                                    // "   set\n" +
+                                    // "       {\n" +
+                                    // "           if(value == _{1})\n" +
+                                    // "           {\n" +
+                                    // "               return;\n" +
+                                    // "           }\n" +
+                                    // "           _{1} = value;\n" +
+                                    // "           OnPropertyChanged();\n" +
+                                    // "       }\n" +
+                                    // "} = new List<{0}>();\n", prop.TypeFullName, prop.Name));
                                 }
 
-                                sb.AppendLine();
                             }
+
+                            sb.AppendLine();
                         }
 
 
 
-                        
+
                         sb.AppendLine("#region Fields");
 
-                        foreach (var prop in model.Properties.Where(p => p.isValidForUpdate))
+                        foreach (var prop in model.Properties.Where(p => p.IsValidForUpdate))
                         {
                             //Add the corresponding field
                             var correspondingColumn = correspondingTable.Columns.FirstOrDefault(c => c.LogicalName == prop.LogicalName);
                             if (correspondingColumn != null)
                             {
-                                sb.AppendLine(String.Format("private {0} _{1};", prop.TypeFullName, prop.Name));
+                                sb.AppendLine($"private {prop.TypeFullName} _{prop.Name};");
 
                             }
                             else
                             {
-                                sb.AppendLine(String.Format("private List<{0}> _{1};", prop.TypeFullName, prop.Name));
+                                sb.AppendLine($"private List<{prop.TypeFullName}> _{prop.Name};");
                             }
                         }
                         sb.AppendLine("#endregion");
-                        
-                       
+
+
 
 
 
@@ -349,7 +322,7 @@ namespace XrmFramework.ModelManager
 
                 sb.AppendLine("}");
 
-                var classFileInfo = new FileInfo($"../../../../../../{CoreProjectName}/Models/{model.Name}.cs");
+                var classFileInfo = new FileInfo($"{RootPath}{CoreProjectName}/Models/{model.Name}.cs");
 
 
 
@@ -358,29 +331,16 @@ namespace XrmFramework.ModelManager
             }
 
         }
-        private static void GetFilesFromFolder(String folderPath, string extension, List<string> fileNames)
-        {
-            foreach (string fileName in Directory.GetFiles(folderPath, $"*.{extension}"))
-            {
-                fileNames.Add(fileName);
-            }
-
-            foreach (string folderName in Directory.GetDirectories(folderPath))
-            {
-                GetFilesFromFolder(folderName, extension, fileNames);
-            }
-
-
-            return;
-        }
+        private static ICollection<string> GetFilesFromFolder(String folderPath, string extension)
+            => Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories)
+                .Where(f => Path.GetExtension(f) == $".{extension}").ToList();
 
         private static Model CreateModelFromTable(Table table)
         {
             Model model = new Model();
-            model.tableLogicalName = table.LogicalName;
+            model.TableLogicalName = table.LogicalName;
             // Temporaire
             model.Name = table.Name; // A modifier
-            model.Properties = new List<ModelProperty>();
             //foreach (var col in table.Columns)
             //{
             //    var prop = new ModelProperty();
@@ -418,14 +378,14 @@ namespace XrmFramework.ModelManager
                 prop.LogicalName = col.Name;
                 prop.Name = col.Name;
                 var sameMapping = model.Properties.FirstOrDefault(p => p.LogicalName == prop.LogicalName);
-                foreach(var modelProp in model.Properties)
+                foreach (var modelProp in model.Properties)
                 {
-                    if(modelProp.LogicalName == prop.LogicalName)
+                    if (modelProp.LogicalName == prop.LogicalName)
                     {
 
                     }
                 }
-                prop.isValidForUpdate = true;
+                prop.IsValidForUpdate = true;
 
                 model.Properties.Add(prop);
             }
@@ -437,22 +397,22 @@ namespace XrmFramework.ModelManager
 
                 prop.LogicalName = rel.Name;
                 prop.Name = rel.Name;
-                prop.isValidForUpdate = true;
+                prop.IsValidForUpdate = true;
 
                 model.Properties.Add(prop);
             }
         }
 
-        public static void SetPropertyJsonName(Model model, string propertyLogicalName, string jsonName)
+        public static void SetPropertyJsonName(Model model, string propertyLogicalName, string JsonPropertyName)
         {
             var prop = model.Properties.FirstOrDefault(p => p.LogicalName == propertyLogicalName);
-            prop.Name = jsonName;
+            prop.Name = JsonPropertyName;
         }
 
         public static void ToggleOnPropertyChanged(Model model, string propertyLogicalName)
         {
             var prop = model.Properties.FirstOrDefault(p => p.LogicalName == propertyLogicalName);
-            prop.isValidForUpdate = !prop.isValidForUpdate;
+            prop.IsValidForUpdate = !prop.IsValidForUpdate;
         }
 
         public static void SelectPropertyType(Model model, ModelProperty property, AttributeTypeCode type)
@@ -461,70 +421,57 @@ namespace XrmFramework.ModelManager
 
         }
 
-        public static List<String> GetPossiblePropertyTypes(Model model, ModelProperty property)
+        public static IList<string> GetPossiblePropertyTypes(Model model, ModelProperty property)
         {
-            OptionSetEnum FirstEnum;
-            OptionSetEnum SecondEnum;
-            var possibleTypes = new List<String>();
+            var possibleTypes = new List<string>();
 
 
-            var table = Tables.FirstOrDefault(t => t.LogicalName == model.tableLogicalName);
+            var table = Tables.FirstOrDefault(t => t.LogicalName == model.TableLogicalName);
             if (table == null)
             {
                 return possibleTypes;
             }
             var column = table.Columns.FirstOrDefault(c => c.LogicalName == property.LogicalName);
-            Relation relation;
+
             if (column == null)
             {
-                relation = table.OneToManyRelationships.FirstOrDefault(r => r.Name == property.LogicalName);
-                if (relation == null)
+                var relations = table.OneToManyRelationships.Where(r => r.Name == property.LogicalName);
+
+                foreach (var possibleModel in relations.Join(Models, r => r.EntityName, m => m.TableLogicalName, (r, m) => m))
                 {
-                    return possibleTypes;
+                    possibleTypes.Add(possibleModel.TypeFullName);
                 }
-                else
-                {
-                    // Find a corresponding model and return
 
-                    foreach (var possibleModel in Models)
-                    {
-                        if (possibleModel.tableLogicalName == relation.EntityName)
-                        {
-                            possibleTypes.Add($"{CoreProjectName}.{possibleModel.ModelNamespace}.{possibleModel.Name}");
+                possibleTypes.Add("System.Guid");
+                possibleTypes.Add("Microsoft.Xrm.Sdk.EntityReference");
 
-                        }
-                    }
-                    
-                    possibleTypes.Add("System.Guid");
-                    possibleTypes.Add("Microsoft.Xrm.Sdk.EntityReference");
+                return possibleTypes;
 
-                    return possibleTypes;
-
-                }
             }
 
             switch (column.Type)
             {
 
                 case AttributeTypeCode.Boolean:
-                    possibleTypes.Add("System.Boolean");
-                    possibleTypes.Add("System.Int32");
-                    possibleTypes.Add("System.String");
+                    possibleTypes.Add("bool");
+                    possibleTypes.Add("int");
+                    possibleTypes.Add("string");
 
                     break;
                 case AttributeTypeCode.Customer:
-                    throw new Exception("The type Customer is not currently handled by the model manager");
-                    //possibleTypes.Add($"{CoreProjectName}.{model.}.{}");
-                    possibleTypes.Add("System.Guid");
                     possibleTypes.Add("Microsoft.Xrm.Sdk.EntityReference");
 
+                    foreach (var possibleModel in Models.Where(m => m.TableLogicalName is "account" or "contact"))
+                    {
+                        possibleTypes.Add(possibleModel.TypeFullName);
+                    }
                     break;
                 case AttributeTypeCode.Integer:
-                    possibleTypes.Add("System.Int32");
+                    possibleTypes.Add("int");
                     break;
                 case AttributeTypeCode.DateTime:
                     possibleTypes.Add("System.DateTime");
-                    possibleTypes.Add("System.String");
+                    possibleTypes.Add("string");
                     break;
                 case AttributeTypeCode.Decimal:
                     possibleTypes.Add("System.Decimal");
@@ -533,36 +480,28 @@ namespace XrmFramework.ModelManager
                     possibleTypes.Add("System.Double");
                     break;
                 case AttributeTypeCode.Lookup:
-                    //Get the corresponding relation, find the corresponding model if it exists
-                    
-                    
-                    var re = table.ManyToOneRelationships.FirstOrDefault(r => r.LookupFieldName == column.LogicalName);
-                    if (re == null)
-                    {
-                        throw new Exception();
-                    }
-                    foreach(var possibleModel in Models)
-                    {
-                        if(possibleModel.tableLogicalName == re.EntityName)
-                        {
-                            possibleTypes.Add($"{CoreProjectName}.{possibleModel.ModelNamespace}.{possibleModel.Name}");
+                    var relations = table.ManyToOneRelationships.Where(r => r.LookupFieldName == column.LogicalName);
 
-                        }
+                    foreach (var possibleModel in relations.Join(Models, r => r.EntityName, m => m.TableLogicalName, (r, m) => m))
+                    {
+                        possibleTypes.Add(possibleModel.TypeFullName);
                     }
-                    
+
                     possibleTypes.Add("System.Guid");
                     possibleTypes.Add("Microsoft.Xrm.Sdk.EntityReference");
                     break;
                 case AttributeTypeCode.Memo:
-                    possibleTypes.Add("System.String");
+                    possibleTypes.Add("string");
                     break;
                 case AttributeTypeCode.Money:
                     possibleTypes.Add("System.Decimal");
                     break;
                 case AttributeTypeCode.Owner:
-                    possibleTypes.Add("System.Guid");
                     possibleTypes.Add("Microsoft.Xrm.Sdk.EntityReference");
-                    //possibleTypes.Add("ModelType à déterminer");
+                    foreach (var possibleModel in Models.Where(m => m.TableLogicalName is "systemuser" or "team"))
+                    {
+                        possibleTypes.Add(possibleModel.TypeFullName);
+                    }
                     break;
                 case AttributeTypeCode.PartyList: // Est ce que c'est les one to many relationships ? parce que si oui ça pose problème avec la manière dont j'ai écrit mon code de génération
                     //possibleTypes.Add("System.Collections.Generic.List<Model à déterminer>");
@@ -570,92 +509,34 @@ namespace XrmFramework.ModelManager
                     //possibleTypes.Add("System.Collections.Generic.List<Microsoft.Xrm.Sdk.EntityReference>");
                     throw new Exception("The type PartyList is not currently handled in the Model Manager");
 
-                    break;
                 case AttributeTypeCode.Picklist:
-                    //possibleTypes.Add("Truc.Enum à déterminer");
-                    // Get the corresponding enum
-                    FirstEnum = table.Enums.FirstOrDefault(e => e.LogicalName == column.EnumName);
-                    if (FirstEnum == null)
-                    {
-                        SecondEnum = GlobalEnums.FirstOrDefault(e => e.LogicalName == column.EnumName);
-                        if (SecondEnum != null)
-                        {
-                            possibleTypes.Add($"{CoreProjectName}.{SecondEnum.Name}");
-                        }
-                        else
-                        {
-                            throw new Exception("No corresponding enumeration found for property : " + column.Name);
-                        }
-                    }
-                    else
-                    {
-                        possibleTypes.Add($"{CoreProjectName}.{FirstEnum.Name}");
-                    }
-
-                    possibleTypes.Add("System.Int32");
-                    break;
                 case AttributeTypeCode.State:
-
-                    FirstEnum = table.Enums.FirstOrDefault(e => e.LogicalName == column.EnumName);
-                    if (FirstEnum == null)
-                    {
-                        SecondEnum = GlobalEnums.FirstOrDefault(e => e.LogicalName == column.EnumName);
-                        if (SecondEnum != null)
-                        {
-                            possibleTypes.Add($"{CoreProjectName}.{SecondEnum.Name}");
-                        }
-                        else
-                        {
-                            throw new Exception("No corresponding enumeration found for property : " + column.Name);
-                        }
-                    }
-                    else
-                    {
-                        possibleTypes.Add($"{CoreProjectName}.{FirstEnum.Name}");
-                    }
-
-                    possibleTypes.Add("System.Int32");
-                    break;
                 case AttributeTypeCode.Status:
-                    FirstEnum = table.Enums.FirstOrDefault(e => e.LogicalName == column.EnumName);
-                    if (FirstEnum == null)
+                    var enumType = Tables.SelectMany(t => t.Enums).FirstOrDefault(e => e.LogicalName == column.EnumName);
+                    if (enumType != null)
                     {
-                        SecondEnum = GlobalEnums.FirstOrDefault(e => e.LogicalName == column.EnumName);
-                        if (SecondEnum != null)
-                        {
-                            possibleTypes.Add($"{CoreProjectName}.{SecondEnum.Name}");
-                        }
-                        else
-                        {
-                            throw new Exception("No corresponding enumeration found for property : " + column.Name);
-                        }
+                        possibleTypes.Add($"XrmFramework.Definitions.{enumType.Name}");
                     }
-                    else
-                    {
-                        possibleTypes.Add($"{CoreProjectName}.{FirstEnum.Name}");
-                    }
-                    possibleTypes.Add("System.Int32");
+
+                    possibleTypes.Add("int");
                     break;
                 case AttributeTypeCode.String:
-                    possibleTypes.Add("System.String");
+                    possibleTypes.Add("string");
                     break;
                 case AttributeTypeCode.Uniqueidentifier:
                     possibleTypes.Add("System.Guid");
                     break;
                 case AttributeTypeCode.CalendarRules:
                     throw new Exception("The type CalendarRules is not currently handled in the Model Manager");
-                    break;
                 case AttributeTypeCode.Virtual:
                     throw new Exception("The type Virtual is not currently handled in the Model Manager");
-                    break;
                 case AttributeTypeCode.BigInt:
-                    possibleTypes.Add("System.Int64");
+                    possibleTypes.Add("long");
                     break;
                 case AttributeTypeCode.ManagedProperty:
                     throw new Exception("The type ManagedProperty is not currently handled in the Model Manager");
-                    break;
                 case AttributeTypeCode.EntityName:
-                    possibleTypes.Add("System.String");
+                    possibleTypes.Add("string");
                     break;
             }
 
@@ -664,56 +545,27 @@ namespace XrmFramework.ModelManager
 
         public static void LoadTablesAndEnums()
         {
-            List<string> tableFileNames = new List<string>();
-            Table currentTable;
-            FileInfo fileInfo;
-            String text;
+            var tableFileNames = GetFilesFromFolder($"{RootPath}{CoreProjectName}", "table");
 
-            GetFilesFromFolder($"../../../../../../{CoreProjectName}", "table", tableFileNames);
+
             foreach (string fileName in tableFileNames)
             {
-                if (!fileName.Contains("OptionSet.table"))
-                {
-                    fileInfo = new FileInfo(fileName);
-                    text = File.ReadAllText(fileInfo.FullName);
-                    JObject jTable = JObject.Parse(text);
+                var fileInfo = new FileInfo(fileName);
+                var text = File.ReadAllText(fileInfo.FullName);
 
+                var currentTable = JsonConvert.DeserializeObject<Table>(text);
 
-                    currentTable = jTable.ToObject<Table>();
-
-
-                    if (jTable["Cols"].Any())
-                    {
-                        Column currentColumn;
-                        foreach (var jColumn in jTable["Cols"])
-                        {
-                            currentColumn = jColumn.ToObject<Column>();
-                            currentTable.Columns.Add(currentColumn);
-                        }
-                    }
-                    Tables.Add(currentTable);
-                }
-                else
-                {
-                    fileInfo = new FileInfo(fileName);
-                    text = File.ReadAllText(fileInfo.FullName);
-                    GlobalEnums = JsonConvert.DeserializeObject<List<OptionSetEnum>>(text, new JsonSerializerSettings
-                    {
-                        DefaultValueHandling = DefaultValueHandling.Ignore
-                    });
-                }
+                Tables.Add(currentTable);
 
             }
         }
 
         public static void LoadModels()
         {
-            List<string> modelFileNames = new List<string>();
-
             FileInfo fileInfo;
             String text;
 
-            GetFilesFromFolder($"../../../../../../{CoreProjectName}", "model", modelFileNames);
+            var modelFileNames = GetFilesFromFolder($"{RootPath}{CoreProjectName}", "model");
             foreach (string fileName in modelFileNames)
             {
                 if (!fileName.Contains("OptionSet.table"))
@@ -730,7 +582,7 @@ namespace XrmFramework.ModelManager
         public static void CLI_EntryPoint()
         {
             string userInput;
-            
+
             do
             {
                 Console.WriteLine("Here are the available actions");
@@ -751,15 +603,15 @@ namespace XrmFramework.ModelManager
                 {
                     CLI_EditModel();
                 }
-                else if(userInput == "c")
+                else if (userInput == "c")
                 {
                     CLI_GenerateClasses();
                 }
 
             }
             while (userInput != "d");
-            
-            
+
+
 
 
 
@@ -824,9 +676,9 @@ namespace XrmFramework.ModelManager
             });
 
 
-            var modelFileInfo = new FileInfo($"../../../../../../{CoreProjectName}/Models/{model.Name}.model");
+            var modelFileInfo = new FileInfo($"{RootPath}{CoreProjectName}/Models/{model.Name}.model");
 
-            var modelFolder = new DirectoryInfo($"../../../../../../{CoreProjectName}/Models");
+            var modelFolder = new DirectoryInfo($"{RootPath}{CoreProjectName}/Models");
             if (modelFolder.Exists == false)
             {
                 modelFolder.Create();
@@ -845,13 +697,13 @@ namespace XrmFramework.ModelManager
         {
             string userInput;
             int intInput;
-            if(Models.Count == 0)
+            if (Models.Count == 0)
             {
                 Console.WriteLine("Tried to edit a model but none were found for this project");
                 return;
             }
 
-            for(int i = 0; i < Models.Count; i++)
+            for (int i = 0; i < Models.Count; i++)
             {
                 Console.WriteLine($"_{i}_ : {Models[i].Name}");
             }
@@ -874,19 +726,19 @@ namespace XrmFramework.ModelManager
                 Console.WriteLine("d : Modify bindingModel class name.");
                 Console.WriteLine("e : Toggle isBindingModelBase.");
                 Console.WriteLine("f : to exit.");
-                userInput= Console.ReadLine();
+                userInput = Console.ReadLine();
 
-                if(userInput == "a")
+                if (userInput == "a")
                 {
                     // Edit property
                     CLI_EditProperty(model);
                 }
-                else if(userInput == "b")
+                else if (userInput == "b")
                 {
                     // Add property
                     CLI_AddProperty(model);
                 }
-                else if(userInput=="c")
+                else if (userInput == "c")
                 {
                     do
                     {
@@ -897,9 +749,9 @@ namespace XrmFramework.ModelManager
 
                     model.ModelNamespace = userInput;
                 }
-                else if(userInput=="d")
+                else if (userInput == "d")
                 {
-                    
+
                     do
                     {
                         Console.WriteLine("Enter the new name for the model (cannot be the same name as another model):");
@@ -909,7 +761,7 @@ namespace XrmFramework.ModelManager
 
                     model.Name = userInput;
                 }
-                else if(userInput == "e")
+                else if (userInput == "e")
                 {
                     //Console.WriteLine("Enter b to use BindingModelBase as a parent, anything else to not : ");
                     //if(Console.ReadLine() == "b")
@@ -921,7 +773,7 @@ namespace XrmFramework.ModelManager
                     //    model.IsBindingModelBase= false;
                     //}
                 }
-               
+
 
             } while (userInput != "f");
 
@@ -932,9 +784,9 @@ namespace XrmFramework.ModelManager
                 DefaultValueHandling = DefaultValueHandling.Ignore
             });
 
-            var modelFileInfo = new FileInfo($"../../../../../../{CoreProjectName}/Models/{model.Name}.model");
+            var modelFileInfo = new FileInfo($"{RootPath}{CoreProjectName}/Models/{model.Name}.model");
 
-            var modelFolder = new DirectoryInfo($"../../../../../../{CoreProjectName}/Models");
+            var modelFolder = new DirectoryInfo($"{RootPath}{CoreProjectName}/Models");
             if (modelFolder.Exists == false)
             {
                 modelFolder.Create();
@@ -947,32 +799,32 @@ namespace XrmFramework.ModelManager
 
         public static void CLI_GenerateClasses()
         {
-            string userInput;
-            if(Models.Count == 0)
-            {
-                Console.WriteLine("Tried to generate BindingModel classes but no model was found.");
-                return;
-            }
-            do
-            {
-                Console.WriteLine("Enter the letter corresponding to what you what you want to do :");
-                Console.WriteLine("a : Generate all classes");
-                Console.WriteLine("b : do nothing for now");
-                userInput = Console.ReadLine();
+            //string userInput;
+            //if (Models.Count == 0)
+            //{
+            //    Console.WriteLine("Tried to generate BindingModel classes but no model was found.");
+            //    return;
+            //}
+            //do
+            //{
+            //    Console.WriteLine("Enter the letter corresponding to what you what you want to do :");
+            //    Console.WriteLine("a : Generate all classes");
+            //    Console.WriteLine("b : do nothing for now");
+            //    userInput = Console.ReadLine();
 
 
 
-            }
-            while(userInput != "a" && userInput != "b");
+            //}
+            //while (userInput != "a" && userInput != "b");
 
-            if(userInput == "a")
-            {
-                TestBindingModelGeneration(CoreProjectName);
-            }
-            else if(userInput!= "b")
-            {
+            //if (userInput == "a")
+            //{
+            TestBindingModelGeneration(CoreProjectName);
+            //}
+            //else if (userInput != "b")
+            //{
 
-            }
+            //}
         }
 
         public static void CLI_AddProperty(Model model)
@@ -980,19 +832,19 @@ namespace XrmFramework.ModelManager
             // Choose relation or column property
             string userInput;
             int intInput;
-            var table = Tables.FirstOrDefault(t => t.LogicalName == model.tableLogicalName);
+            var table = Tables.FirstOrDefault(t => t.LogicalName == model.TableLogicalName);
             ModelProperty newProperty = new ModelProperty();
-            if(table == null)
+            if (table == null)
             {
                 Console.WriteLine("Tried to retrieve the table corresponding to this model but it was not found.");
-                    return;
+                return;
             }
             Console.WriteLine("Do you want to create a property from :");
             Console.WriteLine("a : a column");
             Console.WriteLine("b : a OneToMany relation");
             userInput = Console.ReadLine();
 
-            if(userInput == "a")
+            if (userInput == "a")
             {
                 // Create from column
                 for (int i = 0; i < table.Columns.Count; i++)
@@ -1008,7 +860,7 @@ namespace XrmFramework.ModelManager
                 }
                 while (userInput == null || ((intInput < 0) || intInput >= table.Columns.Count));
 
-               
+
 
                 var correspondingColumn = table.Columns.ElementAt(intInput);
                 // Create new property
@@ -1025,31 +877,31 @@ namespace XrmFramework.ModelManager
                 while (userInput == "" || sameProperty != null);
 
                 newProperty.Name = userInput;
-                
 
-                Console.WriteLine("Enter p to set isValidForUpdate to true, enter anything else to not");
+
+                Console.WriteLine("Enter p to set IsValidForUpdate to true, enter anything else to not");
                 if (Console.ReadLine() == "p")
                 {
-                    newProperty.isValidForUpdate = true;
+                    newProperty.IsValidForUpdate = true;
                     //Check if any other common crm mapping is true
-                    var similarMapping = model.Properties.FirstOrDefault(p => p.LogicalName == newProperty.LogicalName && p.isValidForUpdate);
-                    if(similarMapping != null)
+                    var similarMapping = model.Properties.FirstOrDefault(p => p.LogicalName == newProperty.LogicalName && p.IsValidForUpdate);
+                    if (similarMapping != null)
                     {
                         //Choose the right one
                         do
                         {
-                            Console.WriteLine($"Another property named {similarMapping.Name} connected to the same crm property already has isValidForUpdate set to true, do you want to switch it to false in order to set it to true for your property {newProperty.Name} ? (y/n)");
+                            Console.WriteLine($"Another property named {similarMapping.Name} connected to the same crm property already has IsValidForUpdate set to true, do you want to switch it to false in order to set it to true for your property {newProperty.Name} ? (y/n)");
                             userInput = Console.ReadLine();
                         }
-                        while(userInput != "y" && userInput != "n");
-                        if(userInput == "y")
+                        while (userInput != "y" && userInput != "n");
+                        if (userInput == "y")
                         {
-                            similarMapping.isValidForUpdate = false;
-                            newProperty.isValidForUpdate = true;
+                            similarMapping.IsValidForUpdate = false;
+                            newProperty.IsValidForUpdate = true;
                         }
                         else
                         {
-                            newProperty.isValidForUpdate = false;
+                            newProperty.IsValidForUpdate = false;
                         }
 
 
@@ -1057,17 +909,17 @@ namespace XrmFramework.ModelManager
                 }
                 else
                 {
-                    newProperty.isValidForUpdate = false;
+                    newProperty.IsValidForUpdate = false;
                 }
 
-               
+
 
                 Console.WriteLine("If you want this property to be serialized, enter a name, otherwise press enter");
                 userInput = Console.ReadLine();
-                var samejsonProperty = model.Properties.FirstOrDefault(p=>p.jsonName == userInput);
+                var samejsonProperty = model.Properties.FirstOrDefault(p => p.JsonPropertyName == userInput);
                 if (userInput != "" && samejsonProperty != null)
                 {
-                    newProperty.jsonName = userInput;
+                    newProperty.JsonPropertyName = userInput;
                 }
                 var possibleTypes = GetPossiblePropertyTypes(model, newProperty);
 
@@ -1080,7 +932,7 @@ namespace XrmFramework.ModelManager
                 {
                     Console.WriteLine("Type the number corresponding to the type you want to choose :");
                     userInput = Console.ReadLine();
-                    if(userInput != "")
+                    if (userInput != "")
                     {
                         intInput = int.Parse(userInput);
 
@@ -1091,10 +943,10 @@ namespace XrmFramework.ModelManager
                     }
                 }
                 while (userInput == "" || ((intInput < 0) || intInput >= possibleTypes.Count));
-                
+
                 newProperty.TypeFullName = possibleTypes.ElementAt(intInput);
             }
-            else if(userInput == "b")
+            else if (userInput == "b")
             {
                 // Create from relation
 
@@ -1108,15 +960,15 @@ namespace XrmFramework.ModelManager
                 {
                     Console.WriteLine("Enter the number corresponding to the relation you want to add.");
                     userInput = Console.ReadLine();
-                    if(userInput != null)
+                    if (userInput != null)
                     {
                         intInput = int.Parse(userInput);
                     }
                     else
                     {
-                        intInput= -1;
+                        intInput = -1;
                     }
-                    
+
                 }
                 while (userInput == null || ((intInput < 0) || intInput >= table.OneToManyRelationships.Count));
 
@@ -1140,18 +992,18 @@ namespace XrmFramework.ModelManager
                 Console.WriteLine("Enter p to use onPropertyChanged (only works if model.isBindingModelBase is true), enter anything to not");
                 if (Console.ReadLine() == "p")
                 {
-                    newProperty.isValidForUpdate = true;
+                    newProperty.IsValidForUpdate = true;
                 }
                 else
                 {
-                    newProperty.isValidForUpdate = false;
+                    newProperty.IsValidForUpdate = false;
                 }
 
                 Console.WriteLine("If you want this property to be serialized, enter a name, otherwise press enter");
                 userInput = Console.ReadLine();
                 if (userInput != "")
                 {
-                    newProperty.jsonName = userInput;
+                    newProperty.JsonPropertyName = userInput;
                 }
                 var possibleTypes = GetPossiblePropertyTypes(model, newProperty);
 
@@ -1167,7 +1019,7 @@ namespace XrmFramework.ModelManager
                     intInput = int.Parse(userInput);
                 }
                 while (userInput == null || ((intInput < 0) || intInput >= possibleTypes.Count));
-                
+
 
                 newProperty.TypeFullName = possibleTypes.ElementAt(intInput);
             }
@@ -1180,13 +1032,13 @@ namespace XrmFramework.ModelManager
         {
             string userInput;
             int intInput;
-            if(model.Properties.Count == 0)
+            if (model.Properties.Count == 0)
             {
                 Console.WriteLine("No properties were found for this model");
                 return;
             }
 
-            for(int i = 0; i < model.Properties.Count; i++)
+            for (int i = 0; i < model.Properties.Count; i++)
             {
                 Console.WriteLine($"_{i}_ : {model.Properties.ElementAt(i).Name}");
             }
@@ -1197,7 +1049,7 @@ namespace XrmFramework.ModelManager
                 userInput = Console.ReadLine();
                 intInput = int.Parse(userInput);
             }
-            while(userInput == null || ((intInput < 0) || intInput >= model.Properties.Count));
+            while (userInput == null || ((intInput < 0) || intInput >= model.Properties.Count));
 
             var property = model.Properties.ElementAt(intInput);
 
@@ -1206,12 +1058,12 @@ namespace XrmFramework.ModelManager
             {
                 Console.WriteLine("a : modify Name");
                 Console.WriteLine("b : toggle use onPropertyChanged");
-                Console.WriteLine("c : modify jsonName");
+                Console.WriteLine("c : modify JsonPropertyName");
                 Console.WriteLine("d : modify type name");
                 Console.WriteLine("e : exit");
                 userInput = Console.ReadLine();
 
-                if(userInput == "a")
+                if (userInput == "a")
                 {
                     // Modify property name
                     ModelProperty sameProperty;
@@ -1219,25 +1071,25 @@ namespace XrmFramework.ModelManager
                     {
                         Console.WriteLine("Enter the new name for your property");
                         userInput = Console.ReadLine();
-                        sameProperty = model.Properties.FirstOrDefault(p=>p.Name == userInput);
-                    }while(sameProperty != null || userInput == "");
+                        sameProperty = model.Properties.FirstOrDefault(p => p.Name == userInput);
+                    } while (sameProperty != null || userInput == "");
 
                     property.Name = userInput;
                 }
-                else if(userInput == "b")
+                else if (userInput == "b")
                 {
                     // Toggle useOnPropertyChanged
                     Console.WriteLine("Enter u to use onPropertyChanged, anything else to not");
-                    if(userInput == "u")
+                    if (userInput == "u")
                     {
-                        property.isValidForUpdate = true;
+                        property.IsValidForUpdate = true;
                     }
                     else
                     {
-                        property.isValidForUpdate = false;
+                        property.IsValidForUpdate = false;
                     }
                 }
-                else if(userInput=="c")
+                else if (userInput == "c")
                 {
                     // Modify JsonName
                     ModelProperty sameProperty;
@@ -1245,25 +1097,25 @@ namespace XrmFramework.ModelManager
                     {
                         Console.WriteLine("Enter the new name for your property");
                         userInput = Console.ReadLine();
-                        sameProperty = model.Properties.FirstOrDefault(p => p.jsonName == userInput);
+                        sameProperty = model.Properties.FirstOrDefault(p => p.JsonPropertyName == userInput);
                     } while (sameProperty != null);
-                    if(userInput != "")
+                    if (userInput != "")
                     {
-                        property.jsonName = userInput;
+                        property.JsonPropertyName = userInput;
 
                     }
                     else
                     {
-                        property.jsonName = null;
+                        property.JsonPropertyName = null;
                     }
 
 
                 }
-                else if(userInput == "d")
+                else if (userInput == "d")
                 {
                     // Modify type name
                     var possibleTypeNames = GetPossiblePropertyTypes(model, property);
-                    for(int i = 0;i<possibleTypeNames.Count;i++)
+                    for (int i = 0; i < possibleTypeNames.Count; i++)
                     {
                         Console.WriteLine($"_{i}_ : {possibleTypeNames[i]}");
                     }
@@ -1273,11 +1125,11 @@ namespace XrmFramework.ModelManager
                         Console.WriteLine("Enter the number corresponding to the type you want to use in your model :");
                         userInput = Console.ReadLine();
                         intInput = int.Parse(userInput);
-                    }while(intInput<0 || intInput>= possibleTypeNames.Count);
+                    } while (intInput < 0 || intInput >= possibleTypeNames.Count);
 
                     property.TypeFullName = possibleTypeNames[intInput];
                 }
-                
+
 
 
             }

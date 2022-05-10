@@ -12,6 +12,7 @@ namespace XrmFramework.Core
         [JsonProperty("Name")]
         public string Name { get; set; }
 
+        [JsonProperty("ns")]
         public string ModelNamespace { get; set; }
 
         //Contains the logical name of the columns we want to include in the binding model
@@ -19,5 +20,8 @@ namespace XrmFramework.Core
         public ICollection<ModelProperty> Properties { get; } = new List<ModelProperty>();
 
         public MemberSerialization? JsonMemberSerializationStrategy { get; set; }
+
+        [JsonIgnore]
+        public string TypeFullName => $"{ModelNamespace}.{Name}";
     }
 }
