@@ -124,16 +124,17 @@ namespace XrmFramework.RemoteDebugger
 
         internal virtual bool GetDebugSession(LocalPluginContext localContext, out DebugSession debugSession)
         {
-            var initiatingUserId = localContext.GetInitiatingUserId().ToString();
+            var queryDebugSessions = CreateBaseDebugSessionQuery(localContext);
 
-            var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
             queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Id, ConditionOperator.Equal, StepConfig.DebugSessionId);
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal, initiatingUserId);
 
             debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
 
-            #region checkers, if wrong returns false
+            return ValidateDebugSession(localContext, debugSession);
+        }
+
+        internal static bool ValidateDebugSession(LocalPluginContext localContext, DebugSession debugSession)
+        {
             if (debugSession == null)
             {
                 localContext.Log("Corresponding DebugSession Not Found");
@@ -146,13 +147,19 @@ namespace XrmFramework.RemoteDebugger
                 return false;
             }
 
-            //if (!HybridConnection.TryPingDebugSession(debugSession))
-            //{
-            //    localContext.Log("Debug Session exists but is not listening");
-            //    return false;
-            //}
-            #endregion
             return true;
+        }
+
+        internal static QueryExpression CreateBaseDebugSessionQuery(LocalPluginContext localContext)
+        {
+            var initiatingUserId = localContext.GetInitiatingUserId().ToString();
+
+            var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal,
+                DebugSessionState.Active.ToInt());
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal,
+                initiatingUserId);
+            return queryDebugSessions;
         }
     }
 }

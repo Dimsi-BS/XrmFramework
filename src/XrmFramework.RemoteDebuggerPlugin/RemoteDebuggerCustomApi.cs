@@ -1,10 +1,7 @@
-﻿using Microsoft.Xrm.Sdk.Query;
-using Newtonsoft.Json;
-using System;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
 using XrmFramework.RemoteDebugger.Client.Configuration;
 using XrmFramework.RemoteDebugger.Model.CrmComponentInfos;
 
@@ -46,35 +43,11 @@ namespace XrmFramework.RemoteDebugger
 
         internal override bool GetDebugSession(LocalPluginContext localContext, out DebugSession debugSession)
         {
-            var initiatingUserId = localContext.GetInitiatingUserId().ToString();
-
-            var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal, initiatingUserId);
+            var queryDebugSessions = CreateBaseDebugSessionQuery(localContext);
 
             debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
 
-            #region checkers, if wrong returns false
-            if (debugSession == null)
-            {
-                localContext.Log("Corresponding DebugSession Not Found");
-                return false;
-            }
-
-            if (debugSession.SessionEnd <= DateTime.Today)
-            {
-                localContext.Log("Debug Session expired, please contact your admin");
-                return false;
-            }
-
-            //if (!HybridConnection.TryPingDebugSession(debugSession))
-            //{
-            //    localContext.Log("Debug Session exists but is not listening");
-            //    return false;
-            //}
-            #endregion
-            return true;
+            return ValidateDebugSession(localContext, debugSession);
         }
-
     }
 }
