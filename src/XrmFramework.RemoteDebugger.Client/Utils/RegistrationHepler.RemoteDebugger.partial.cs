@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using XrmFramework.BindingModel;
 using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.DeployUtils.Utils;
 using XrmFramework.RemoteDebugger;

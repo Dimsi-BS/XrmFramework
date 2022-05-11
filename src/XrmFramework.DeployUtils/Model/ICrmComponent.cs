@@ -50,10 +50,19 @@ namespace XrmFramework.DeployUtils.Model
         void AddChild(ICrmComponent child);
 
         /// <summary>
-        /// Removes recursively all children with a given <see cref="XrmFramework.RegistrationState"/><br/>
-        /// A child and all its branch is kept if it or one member of its branch have a different <see cref="XrmFramework.RegistrationState"/>
+        /// Removes recursively all children with a given <see cref="RegistrationState"/><br/>
+        /// A child and all its branch is kept if it or one member of its branch have a different <see cref="RegistrationState"/>
         /// </summary>
         /// <param name="state"></param>
         void CleanChildrenWithState(RegistrationState state);
+    }
+    public enum RegistrationState
+    {
+        ToCreate,
+        ToUpdate,
+        ToDelete,
+        Ignore,
+        NotComputed,
+        Computed
     }
 }

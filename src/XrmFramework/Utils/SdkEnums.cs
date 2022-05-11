@@ -146,14 +146,4 @@ namespace XrmFramework
         DateOnly = 1,
         TimeZoneIndependent = 2
     }
-
-    public enum RegistrationState
-    {
-        ToCreate,
-        ToUpdate,
-        ToDelete,
-        Ignore,
-        NotComputed,
-        Computed
-    }
 }
