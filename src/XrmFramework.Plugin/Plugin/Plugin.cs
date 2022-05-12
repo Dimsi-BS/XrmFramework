@@ -21,7 +21,7 @@ namespace XrmFramework
     {
         //Steps at which this plugin will invoke a method
         private readonly IList<Step> _newRegisteredEvents = new Collection<Step>();
-        
+
         protected const string PreImageName = "PreImage";
 
         protected const string PostImageName = "PostImage";
@@ -134,11 +134,15 @@ namespace XrmFramework
             {
                 InvokeSteps(localContext, steps);
             }
+            catch (FaultException<OrganizationServiceFault> e)
+            {
+                localContext.Log($"Exception: {e}");
+                throw;
+            }
             catch (Exception e)
             {
                 PluginExceptionHandler(localContext, e);
             }
-
 
             localContext.LogContextExit();
             localContext.Log($"Exiting {ChildClassName}.Execute()");
@@ -222,9 +226,6 @@ namespace XrmFramework
 
             switch (exception)
             {
-                case FaultException<OrganizationServiceFault> e:
-                    localContext.Log($"Exception: {e}");
-                    throw e;
                 case TargetInvocationException e:
 
                     localContext.Log($"Exception : {e.InnerException}");

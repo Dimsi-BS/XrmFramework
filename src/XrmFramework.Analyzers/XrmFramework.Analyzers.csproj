@@ -27,7 +27,7 @@
    
     <Compile Include="..\XrmFramework.Plugin\NewtonSoft.Json\**\*.cs" Link="NewtonSoft.Json\%(RecursiveDir)%(Filename)%(Extension)" />
 
-    <Compile Include="..\XrmFramework.Core\**\*.cs" Link="XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />
+    <Compile Include="..\XrmFramework.Core\**\*.cs" Link="_Imports/XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />
 
     <Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="XrmFramework.Core\SdkEnums.cs" />
     <Compile Include="..\XrmFramework\Utils\BoDi.cs" Link="XrmFramework.Core\BoDi.cs" />
