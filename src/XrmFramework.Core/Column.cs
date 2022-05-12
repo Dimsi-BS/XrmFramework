@@ -21,6 +21,9 @@ namespace XrmFramework.Core
         [JsonProperty("Capa")]
         public AttributeCapabilities Capabilities { get; set; }
 
+        [JsonProperty("Locked")]
+        public bool IsLocked { get; set; }
+
         public ICollection<LocalizedLabel> Labels { get; } = new List<LocalizedLabel>();
 
         [JsonProperty("StrLen")]
@@ -31,7 +34,7 @@ namespace XrmFramework.Core
         public double? MaxRange { get; set; }
 
         [JsonProperty("DatBehav")]
-        public DateTimeBehavior DateTimeBehavior { get; set; }
+        public DateTimeBehavior? DateTimeBehavior { get; set; }
 
         public bool IsMultiSelect { get; set; }
 

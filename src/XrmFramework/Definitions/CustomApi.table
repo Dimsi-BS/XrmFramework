@@ -1,0 +1,754 @@
+{
+  "LogName": "customapi",
+  "Name": "CustomApi",
+  "CollName": "customapis",
+  "Cols": [
+    {
+      "LogName": "allowedcustomprocessingsteptype",
+      "Name": "AllowedCustomProcessingStepType",
+      "Type": "Picklist",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Allowed Custom Processing Step Type",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "customapi|allowedcustomprocessingsteptype"
+    },
+    {
+      "LogName": "bindingtype",
+      "Name": "BindingType",
+      "Type": "Picklist",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Binding Type",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "customapi|bindingtype",
+      "Select": true
+    },
+    {
+      "LogName": "boundentitylogicalname",
+      "Name": "BoundEntityLogicalName",
+      "Type": "String",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Bound Entity Logical Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100,
+      "Select": true
+    },
+    {
+      "LogName": "componentidunique",
+      "Name": "ComponentIdUnique",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Row id unique",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "componentstate",
+      "Name": "ComponentState",
+      "Type": "Picklist",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Component State",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "componentstate",
+      "Select": true
+    },
+    {
+      "LogName": "createdby",
+      "Name": "CreatedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Created By",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Created On",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "createdonbehalfby",
+      "Name": "CreatedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Created By (Delegate)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "customapiid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Custom API",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "description",
+      "Name": "Description",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Description",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 300
+    },
+    {
+      "LogName": "displayname",
+      "Name": "DisplayName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Display Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100,
+      "Select": true
+    },
+    {
+      "LogName": "executeprivilegename",
+      "Name": "ExecutePrivilegeName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Execute Privilege Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "importsequencenumber",
+      "Name": "ImportSequenceNumber",
+      "Type": "Integer",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Import Sequence Number",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -2147483648.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "iscustomizable",
+      "Name": "IsCustomizable",
+      "Type": "ManagedProperty",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Is Customizable",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "isfunction",
+      "Name": "IsFunction",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Is Function",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ismanaged",
+      "Name": "IsManaged",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Is Managed",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "isprivate",
+      "Name": "IsPrivate",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Is Private",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedby",
+      "Name": "ModifiedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modified By",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedon",
+      "Name": "ModifiedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modified On",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "modifiedonbehalfby",
+      "Name": "ModifiedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modified By (Delegate)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100,
+      "Select": true
+    },
+    {
+      "LogName": "overriddencreatedon",
+      "Name": "OverriddenCreatedOn",
+      "Type": "DateTime",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Record Created On",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "overwritetime",
+      "Name": "OverwriteTime",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Record Overwrite Time",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0,
+      "Select": true
+    },
+    {
+      "LogName": "ownerid",
+      "Name": "OwnerId",
+      "Type": "Owner",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Owner",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "owningbusinessunit",
+      "Name": "OwningBusinessUnit",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Owning Business Unit",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "owningteam",
+      "Name": "OwningTeam",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Owning Team",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "owninguser",
+      "Name": "OwningUser",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Owning User",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "plugintypeid",
+      "Name": "PluginTypeId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Plugin Type",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "sdkmessageid",
+      "Name": "SdkMessageId",
+      "Type": "Lookup",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Sdk Message",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "solutionid",
+      "Name": "SolutionId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Solution",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "statecode",
+      "Name": "Statecode",
+      "Type": "State",
+      "Capa": 11,
+      "Labels": [
+        {
+          "Label": "Status",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "customapi|statecode"
+    },
+    {
+      "LogName": "statuscode",
+      "Name": "Statuscode",
+      "Type": "Status",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Status Reason",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "customapi|statuscode"
+    },
+    {
+      "LogName": "timezoneruleversionnumber",
+      "Name": "TimeZoneRuleVersionNumber",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Time Zone Rule Version Number",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -1.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "uniquename",
+      "Name": "UniqueName",
+      "Type": "String",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Unique Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 128,
+      "Select": true
+    },
+    {
+      "LogName": "utcconversiontimezonecode",
+      "Name": "UTCConversionTimeZoneCode",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "UTC Conversion Time Zone Code",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -1.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "versionnumber",
+      "Name": "VersionNumber",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Version Number",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "workflowsdkstepenabled",
+      "Name": "WorkflowSdkStepEnabled",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Enabled for Workflow",
+          "LangId": 1036
+        }
+      ]
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "customapi_SyncErrors",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "customapi_SyncErrors",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "customapi_AsyncOperations",
+      "Etn": "asyncoperation",
+      "Role": "Referenced",
+      "NavPropName": "customapi_AsyncOperations",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "customapi_MailboxTrackingFolders",
+      "Etn": "mailboxtrackingfolder",
+      "Role": "Referenced",
+      "NavPropName": "customapi_MailboxTrackingFolders",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "customapi_UserEntityInstanceDatas",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "customapi_UserEntityInstanceDatas",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "customapi_ProcessSession",
+      "Etn": "processsession",
+      "Role": "Referenced",
+      "NavPropName": "customapi_ProcessSession",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "customapi_BulkDeleteFailures",
+      "Etn": "bulkdeletefailure",
+      "Role": "Referenced",
+      "NavPropName": "customapi_BulkDeleteFailures",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "customapi_PrincipalObjectAttributeAccesses",
+      "Etn": "principalobjectattributeaccess",
+      "Role": "Referenced",
+      "NavPropName": "customapi_PrincipalObjectAttributeAccesses",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "customapi_customapirequestparameter",
+      "Etn": "customapirequestparameter",
+      "Role": "Referenced",
+      "NavPropName": "CustomAPIRequestParameters",
+      "LookName": "customapiid"
+    },
+    {
+      "Name": "customapi_customapiresponseproperty",
+      "Etn": "customapiresponseproperty",
+      "Role": "Referenced",
+      "NavPropName": "CustomAPIResponseProperties",
+      "LookName": "customapiid"
+    },
+    {
+      "Name": "catalogassignment_customapi",
+      "Etn": "catalogassignment",
+      "Role": "Referenced",
+      "NavPropName": "CatalogAssignments",
+      "LookName": "object"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_customapi_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_customapi_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_customapi_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_customapi_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "user_customapi",
+      "Etn": "systemuser",
+      "NavPropName": "owninguser",
+      "LookName": "owninguser"
+    },
+    {
+      "Name": "team_customapi",
+      "Etn": "team",
+      "NavPropName": "owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "owner_customapi",
+      "Etn": "owner",
+      "NavPropName": "ownerid",
+      "LookName": "ownerid"
+    },
+    {
+      "Name": "business_unit_customapi",
+      "Etn": "businessunit",
+      "NavPropName": "owningbusinessunit",
+      "LookName": "owningbusinessunit"
+    },
+    {
+      "Name": "sdkmessage_customapi",
+      "Etn": "sdkmessage",
+      "NavPropName": "SdkMessageId",
+      "LookName": "sdkmessageid"
+    },
+    {
+      "Name": "plugintype_customapi",
+      "Etn": "plugintype",
+      "NavPropName": "PluginTypeId",
+      "LookName": "plugintypeid"
+    }
+  ],
+  "Keys": [
+    {
+      "LogicalName": "custom api export key",
+      "Name": "CustomAPIExportKey",
+      "FieldNames": [
+        "componentstate",
+        "overwritetime",
+        "uniquename"
+      ]
+    }
+  ],
+  "Enums": [
+    {
+      "LogName": "customapi|allowedcustomprocessingsteptype",
+      "Name": "AllowedCustomProcessingStepType",
+      "Values": [
+        {
+          "Name": "None",
+          "Labels": [
+            {
+              "Label": "None",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        },
+        {
+          "Value": 1,
+          "Name": "AsyncOnly",
+          "Labels": [
+            {
+              "Label": "Async Only",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        },
+        {
+          "Value": 2,
+          "Name": "SyncAndAsync",
+          "Labels": [
+            {
+              "Label": "Sync and Async",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        }
+      ]
+    },
+    {
+      "LogName": "customapi|bindingtype",
+      "Name": "BindingType",
+      "Values": [
+        {
+          "Name": "Global",
+          "Labels": [
+            {
+              "Label": "Global",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        },
+        {
+          "Value": 1,
+          "Name": "Entity",
+          "Labels": [
+            {
+              "Label": "Entity",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        },
+        {
+          "Value": 2,
+          "Name": "EntityCollection",
+          "Labels": [
+            {
+              "Label": "Entity Collection",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        }
+      ]
+    },
+    {
+      "LogName": "customapi|statecode",
+      "Name": "CustomapiState",
+      "Values": [
+        {
+          "Name": "Active",
+          "Labels": [
+            {
+              "Label": "Active",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Inactive",
+          "Labels": [
+            {
+              "Label": "Inactive",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "customapi|statuscode",
+      "Name": "CustomapiStatus",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Active",
+          "Labels": [
+            {
+              "Label": "Active",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Inactive",
+          "Labels": [
+            {
+              "Label": "Inactive",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

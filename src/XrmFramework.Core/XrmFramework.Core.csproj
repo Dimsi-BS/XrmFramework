@@ -7,9 +7,13 @@
     <PublicSign>$(XrmFramework_PublicSign)</PublicSign>
   </PropertyGroup>
 
+  <ItemGroup>
+	  <Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="SdkEnums.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
+
 
 </Project>

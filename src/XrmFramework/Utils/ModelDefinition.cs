@@ -30,7 +30,7 @@ namespace XrmFramework
         public EntityDefinition MainDefinition { get; set; }
 
         public XmlMappingAttribute XmlMappingAttribute { get; set; }
-
+        
         public ModelDefinition(Type bindingType)
         {
             /*
@@ -62,14 +62,14 @@ namespace XrmFramework
             }
             */
         }
-
+        
         [JsonConstructor]
         public ModelDefinition()
         {
-
+            
         }
 
-
+       
 
         /*public void AddAttribute(AttributeDefinition attribute)
         {
@@ -82,12 +82,12 @@ namespace XrmFramework
 
         public ConstructorInfo Constructor { get; set; }
 
-        public object GetInstance()
+        /*public object GetInstance()
         {
             return Constructor.Invoke(new object[] { });
-        }
+        }*/
 
-        public void SetId(object instance, Guid id)
+        /*public void SetId(object instance, Guid id)
         {
             if (instance == null)
             {
@@ -95,18 +95,18 @@ namespace XrmFramework
             }
 
             IdProperty.SetValue(instance, id);
-        }
+        }*/
 
-        public override string ToString()
+        /*public override string ToString()
         {
             return BindingType.Name;
-        }
+        }*/
     }
     [JsonObject(MemberSerialization.OptIn)]
     public class AttributeDefinition
     {
         public ModelDefinition Model { get; internal set; }
-
+        
         public PropertyInfo Property { get; internal set; }
 
         public Type PropertyType => ModelImplementationAttribute?.ImplementationType ?? Property.PropertyType;
@@ -199,7 +199,7 @@ namespace XrmFramework
         }*/
 
 
-        public void SetValue(object instance, object value)
+        /*public void SetValue(object instance, object value)
         {
             if (Property.SetMethod != null)
             {
@@ -219,17 +219,17 @@ namespace XrmFramework
                     }
                 }
             }
-        }
+        }*/
 
         /*public override string ToString()
         {
             return $"{PropertyType.Name} {Property.Name}";
         }*/
 
-        public object GetValue(object instance)
+        /*public object GetValue(object instance)
         {
             return Property.GetValue(instance);
-        }
+        }*/
 
         public bool IsCollectionProperty(out Type collectionBindingType)
         {
@@ -252,18 +252,18 @@ namespace XrmFramework
 
         public bool HasConverter => _typeConverter != null;
 
-        public object ConvertFrom(object initialValue)
+        /*public object ConvertFrom(object initialValue)
         {
             if (!HasConverter)
             {
                 return initialValue;
             }
             return _typeConverter.ConvertFrom(initialValue);
-        }
+        }*/
 
         public bool IsUpsertable()
         {
-            //IsCollectionProperty(out collectionType)
+                                                                                                                                                                        //IsCollectionProperty(out collectionType)
             Type collectionType;
             return !IsExtendBindingModel && ((CrmMappingAttribute != null && typeof(IBindingModel).IsAssignableFrom(PropertyType)) || (RelationshipAttribute != null && IsCollectionProperty(out collectionType) && typeof(IBindingModel).IsAssignableFrom(collectionType)));
         }
@@ -280,10 +280,10 @@ namespace XrmFramework
 
         internal MethodInfo _addMethod;
 
-        public void AddElement(object instance, object model)
+        /*public void AddElement(object instance, object model)
         {
             _addMethod.Invoke(Property.GetValue(instance), new[] { model });
-        }
+        }*/
 
         public XmlMappingAttribute XmlMappingAttribute { get; set; }
     }

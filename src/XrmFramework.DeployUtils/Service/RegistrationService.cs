@@ -186,7 +186,7 @@ namespace XrmFramework.DeployUtils.Service
                 SdkMessageProcessingStepDefinition.Columns.SdkMessageFilterId, SdkMessageFilterDefinition.Columns.Id);
 
             filterLink.EntityAlias = "filter";
-            filterLink.Columns.AddColumn(SdkMessageFilterDefinition.Columns.PrimaryObjectTypeCode);
+            filterLink.Columns.AddColumn(SdkMessageFilterDefinition.PrimaryObjectTypeCode);
 
 
             var result = RetrieveAll(query);

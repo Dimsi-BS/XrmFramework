@@ -47,8 +47,9 @@ namespace XrmFramework.RemoteDebugger.Client
 
             // Get the message object through deserialization
             var message = JsonConvert.DeserializeObject<RemoteDebuggerMessage>(requestContent);
+            // Cache it
+            CurrentResponseCache.AddOrUpdate(message.PluginExecutionId, context.Response, (guid, response) => context.Response);
 
-            CurrentResponseCache.AddOrUpdate(message.PluginExecutionId, context.Response, (_, _) => context.Response);
 
             switch (message.MessageType)
             {

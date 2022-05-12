@@ -1,0 +1,173 @@
+{
+  "LogName": "globalEnums",
+  "Name": "OptionSet",
+  "Cols": [],
+  "NtoN": [],
+  "OneToN": [],
+  "NToOne": [],
+  "Keys": [],
+  "Enums": [
+    {
+      "LogName": "componentstate",
+      "Name": "EtatDuComposant",
+      "Values": [
+        {
+          "Name": "Publie",
+          "Labels": [
+            {
+              "Label": "Publié",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "NonPublie",
+          "Labels": [
+            {
+              "Label": "Non publié",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Supprime",
+          "Labels": [
+            {
+              "Label": "Supprimé",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "NonPublieSupprime",
+          "Labels": [
+            {
+              "Label": "Non publié supprimé",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "IsGlobal": true
+    },
+    {
+      "LogName": "synapselinkprofileentitytype",
+      "Name": "SynapseLinkProfileEntityType",
+      "Values": [
+        {
+          "Name": "Requested",
+          "Labels": [
+            {
+              "Label": "Requested",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        }
+      ],
+      "IsGlobal": true
+    },
+    {
+      "LogName": "synapselinkscheduletype",
+      "Name": "SynapseLinkScheduleType",
+      "Values": [
+        {
+          "Name": "Snapshot",
+          "Labels": [
+            {
+              "Label": "Snapshot",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        },
+        {
+          "Value": 1,
+          "Name": "Incrementalupdate",
+          "Labels": [
+            {
+              "Label": "IncrementalUpdate",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        }
+      ],
+      "IsGlobal": true
+    },
+    {
+      "LogName": "workflow_runas",
+      "Name": "UtilisateurExecutant",
+      "Values": [
+        {
+          "Name": "Proprietaire",
+          "Labels": [
+            {
+              "Label": "Propriétaire",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "UtilisateurAppelant",
+          "Labels": [
+            {
+              "Label": "Utilisateur appelant",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "IsGlobal": true
+    },
+    {
+      "LogName": "synapselinkprofileentitytype",
+      "Name": "SynapseLinkProfileEntityType",
+      "Values": [
+        {
+          "Name": "Requested",
+          "Labels": [
+            {
+              "Label": "Requested",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        }
+      ],
+      "IsGlobal": true
+    },
+    {
+      "LogName": "synapselinkscheduletype",
+      "Name": "SynapseLinkScheduleType",
+      "Values": [
+        {
+          "Name": "Snapshot",
+          "Labels": [
+            {
+              "Label": "Snapshot",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        },
+        {
+          "Value": 1,
+          "Name": "Incrementalupdate",
+          "Labels": [
+            {
+              "Label": "IncrementalUpdate",
+              "LangId": 1036
+            }
+          ],
+          "ExtVal": ""
+        }
+      ],
+      "IsGlobal": true
+    }
+  ]
+}

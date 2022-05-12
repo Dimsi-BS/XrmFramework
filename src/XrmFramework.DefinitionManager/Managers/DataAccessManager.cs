@@ -21,7 +21,7 @@ using DateTimeAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.DateTimeAttributeMe
 using DateTimeBehavior = Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior;
 using DecimalAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.DecimalAttributeMetadata;
 using DoubleAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.DoubleAttributeMetadata;
-using EntityRole = XrmFramework.Core.EntityRole;
+using EntityRole = XrmFramework.EntityRole;
 using IntegerAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.IntegerAttributeMetadata;
 using LocalizedLabel = XrmFramework.Core.LocalizedLabel;
 using MultiSelectPicklistAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.MultiSelectPicklistAttributeMetadata;
@@ -74,7 +74,7 @@ namespace DefinitionManager
 
             var query = new QueryExpression(SolutionDefinition.EntityName);
             query.ColumnSet.AllColumns = true;
-            var linkPublisher = query.AddLink(Deploy.Publisher.EntityLogicalName, PublisherDefinition.Columns.Id, PublisherDefinition.Columns.Id);
+            var linkPublisher = query.AddLink(PublisherDefinition.EntityName, PublisherDefinition.Columns.Id, PublisherDefinition.Columns.Id);
             linkPublisher.EntityAlias = PublisherDefinition.EntityName;
             linkPublisher.Columns.AddColumn(PublisherDefinition.Columns.CustomizationPrefix);
 
@@ -152,10 +152,6 @@ namespace DefinitionManager
                         newKey.FieldNames.AddRange(key.KeyAttributes);
 
 
-                        if (newEntity.Keys == null)
-                        {
-                            newEntity.Keys = new List<Key>();
-                        }
 
                         newEntity.Keys.Add(newKey);
                     }
@@ -463,7 +459,7 @@ namespace DefinitionManager
                     {
                         LogicalName = attributeMetadata.LogicalName,
                         Name = name,
-                        Type = (XrmFramework.Core.AttributeTypeCode)(int)(attributeMetadata.AttributeType.Value == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata
+                        Type = (XrmFramework.AttributeTypeCode)(int)(attributeMetadata.AttributeType.Value == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata
                             ? AttributeTypeCode.Picklist : attributeMetadata.AttributeType.Value),
                         IsMultiSelect = attributeMetadata.AttributeType.Value == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata,
                         PrimaryType = attributeMetadata.LogicalName == entity.PrimaryIdAttribute ?
@@ -689,7 +685,7 @@ namespace DefinitionManager
 
 
 
-        private string RemovePrefix(string name)
+        public string RemovePrefix(string name)
         {
             foreach (var prefix in PublisherPrefixes)
             {
@@ -705,19 +701,19 @@ namespace DefinitionManager
 
     public static class DateTimeBehaviorExtensions
     {
-        public static XrmFramework.Core.DateTimeBehavior ToDateTimeBehavior(this DateTimeBehavior behav)
+        public static XrmFramework.DateTimeBehavior ToDateTimeBehavior(this DateTimeBehavior behav)
         {
             if (behav == DateTimeBehavior.DateOnly)
             {
-                return XrmFramework.Core.DateTimeBehavior.DateOnly;
+                return XrmFramework.DateTimeBehavior.DateOnly;
             }
 
             if (behav == DateTimeBehavior.TimeZoneIndependent)
             {
-                return XrmFramework.Core.DateTimeBehavior.TimeZoneIndependent;
+                return XrmFramework.DateTimeBehavior.TimeZoneIndependent;
             }
 
-            return XrmFramework.Core.DateTimeBehavior.UserLocal;
+            return XrmFramework.DateTimeBehavior.UserLocal;
         }
     }
 }

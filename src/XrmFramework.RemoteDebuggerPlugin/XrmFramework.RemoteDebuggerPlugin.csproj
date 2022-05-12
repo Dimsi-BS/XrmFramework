@@ -35,11 +35,33 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
-		<Compile Include="..\XrmFramework.Plugin\**\*.cs" Link="_Imports\XrmFramework.Plugin\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\bin\**;..\XrmFramework.Plugin\obj\**" />
+		<Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**;..\XrmFramework\Generated\**" />
+		<Compile Include="..\XrmFramework.Plugin\**\*.cs" Link="_Imports\XrmFramework.Plugin\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\bin\**;..\XrmFramework.Plugin\obj\**;..\XrmFramework.Plugin\Generated\**" />
 		<Compile Include="..\XrmFramework.RemoteDebugger.Client\Configuration\DebugAssemblySettings.cs" Link="_Imports\XrmFramework.RemoteDebugger.Client\Configuration\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\bin\**;..\XrmFramework.Plugin\obj\**" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+		<DefineConstants>$(DefineConstants);DISABLE_SERVICES</DefineConstants>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="Generated\**"/>
+		<None Include="Generated\**"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Remove="**\*.table" />
+		<AdditionalFiles Include="..\XrmFramework\**\*.table" Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**" />
+		<AdditionalFiles Include="..\XrmFramework.DeployUtils\**\*.table" Exclude="..\XrmFramework.DeployUtils\bin/**;..\XrmFramework.DeployUtils\obj/**" />
+		<AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
+	</ItemGroup>
 
 
 </Project>

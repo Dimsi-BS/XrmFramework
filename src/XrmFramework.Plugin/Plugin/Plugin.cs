@@ -21,7 +21,7 @@ namespace XrmFramework
     {
         //Steps at which this plugin will invoke a method
         private readonly IList<Step> _newRegisteredEvents = new Collection<Step>();
-
+        
         protected const string PreImageName = "PreImage";
 
         protected const string PostImageName = "PostImage";

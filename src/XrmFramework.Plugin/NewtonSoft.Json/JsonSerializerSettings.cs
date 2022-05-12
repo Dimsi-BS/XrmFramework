@@ -31,7 +31,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
-using ErrorEventArgs = Newtonsoft.Json.Serialization.ErrorEventArgs;
 
 namespace Newtonsoft.Json
 {
@@ -296,7 +295,7 @@ namespace Newtonsoft.Json
         /// Gets or sets the error handler called during serialization and deserialization.
         /// </summary>
         /// <value>The error handler called during serialization and deserialization.</value>
-        public EventHandler<ErrorEventArgs> Error { get; set; }
+        public EventHandler<Serialization.ErrorEventArgs> Error { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="StreamingContext"/> used by the serializer when invoking serialization callback methods.

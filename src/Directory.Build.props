@@ -1,71 +1,71 @@
 <Project>
-  <Import Project="../Directory.Build.props" />
+	<Import Project="../Directory.Build.props" />
 
-  <PropertyGroup>
-    <LangVersion>latest</LangVersion>
-    
-    <XrmFramework_Copyright>Copyright © XrmFramework Team</XrmFramework_Copyright>
-    <XrmFramework_Authors>Christophe Gondouin and the XrmFramework Team</XrmFramework_Authors>
-    <XrmFramework_Owners>XrmFramework Team</XrmFramework_Owners>
+	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
 
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <Deterministic>true</Deterministic>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-  </PropertyGroup>
+		<XrmFramework_Copyright>Copyright © XrmFramework Team</XrmFramework_Copyright>
+		<XrmFramework_Authors>Christophe Gondouin and the XrmFramework Team</XrmFramework_Authors>
+		<XrmFramework_Owners>XrmFramework Team</XrmFramework_Owners>
 
-  <PropertyGroup>
-    <Authors>$(XrmFramework_Authors)</Authors>
-    <Company>DIMSI</Company>
-    <Product />
-    <PackageProjectUrl>https://aka.ms/XrmFramework</PackageProjectUrl>
-    <!--<PackageIcon>images/XrmFramework-icon.png</PackageIcon>-->
-    <RepositoryUrl>https://github.com/cgoconseils/XrmFramework</RepositoryUrl>
-    <PackageTags>XrmFramework dynamics crm cds d365 powerapps powerplatform</PackageTags>
-    <Description>XrmFramework aim at simplifying developments for Microsoft Dynamics 365 / Microsoft Dataverse</Description>
-    <Copyright>$(XrmFramework_Copyright)</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-  </PropertyGroup>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<Deterministic>true</Deterministic>
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <XrmFramework_FullFramework_TFM>net462</XrmFramework_FullFramework_TFM>
+	<PropertyGroup>
+		<Authors>$(XrmFramework_Authors)</Authors>
+		<Company>DIMSI</Company>
+		<Product />
+		<PackageProjectUrl>https://aka.ms/XrmFramework</PackageProjectUrl>
+		<!--<PackageIcon>images/XrmFramework-icon.png</PackageIcon>-->
+		<RepositoryUrl>https://github.com/cgoconseils/XrmFramework</RepositoryUrl>
+		<PackageTags>XrmFramework dynamics crm cds d365 powerapps powerplatform</PackageTags>
+		<Description>XrmFramework aim at simplifying developments for Microsoft Dynamics 365 / Microsoft Dataverse</Description>
+		<Copyright>$(XrmFramework_Copyright)</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
 
-    <XrmFramework_Net5_TFM>net5.0</XrmFramework_Net5_TFM>
+	<PropertyGroup>
+		<XrmFramework_FullFramework_TFM>net462</XrmFramework_FullFramework_TFM>
 
-    <XrmFramework_FullFramework_Runtime_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Runtime_TFM>
-    <XrmFramework_Core_Runtime_TFM>netcoreapp3.1</XrmFramework_Core_Runtime_TFM>
+		<XrmFramework_Net5_TFM>net5.0</XrmFramework_Net5_TFM>
 
-    <XrmFramework_FullFramework_Generator_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Generator_TFM>
-    <XrmFramework_Core_Generator_TFM>netcoreapp2.1</XrmFramework_Core_Generator_TFM>
+		<XrmFramework_FullFramework_Runtime_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Runtime_TFM>
+		<XrmFramework_Core_Runtime_TFM>netcoreapp3.1</XrmFramework_Core_Runtime_TFM>
 
-    <XrmFramework_FullFramework_Test_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Test_TFM>
-    <XrmFramework_Core_Test_TFM>netcoreapp2.1;netcoreapp3.1;net5.0</XrmFramework_Core_Test_TFM>
+		<XrmFramework_FullFramework_Generator_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Generator_TFM>
+		<XrmFramework_Core_Generator_TFM>netcoreapp2.1</XrmFramework_Core_Generator_TFM>
 
-    <XrmFramework_FullFramework_Specs_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Specs_TFM>
-    <XrmFramework_Net5_Specs_TFM>$(XrmFramework_Net5_TFM)</XrmFramework_Net5_Specs_TFM>
+		<XrmFramework_FullFramework_Test_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Test_TFM>
+		<XrmFramework_Core_Test_TFM>netcoreapp2.1;netcoreapp3.1;net5.0</XrmFramework_Core_Test_TFM>
 
-    <XrmFramework_FullFramework_Tools_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Tools_TFM>
-    <XrmFramework_Core_Tools_TFM>netcoreapp3.1</XrmFramework_Core_Tools_TFM>    
-    <XrmFramework_Net5_Tools_TFM>$(XrmFramework_Net5_TFM)</XrmFramework_Net5_Tools_TFM>
+		<XrmFramework_FullFramework_Specs_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Specs_TFM>
+		<XrmFramework_Net5_Specs_TFM>$(XrmFramework_Net5_TFM)</XrmFramework_Net5_Specs_TFM>
 
-    <XrmFramework_Runtime_TFM>$(XrmFramework_FullFramework_Runtime_TFM);$(XrmFramework_Core_Runtime_TFM)</XrmFramework_Runtime_TFM>
-    <XrmFramework_Generator_TFM>$(XrmFramework_FullFramework_Generator_TFM);$(XrmFramework_Core_Generator_TFM);$(XrmFramework_Net5_TFM)</XrmFramework_Generator_TFM>
-    <XrmFramework_Test_TFM>$(XrmFramework_FullFramework_Test_TFM);$(XrmFramework_Core_Test_TFM)</XrmFramework_Test_TFM>
-    <XrmFramework_Specs_TFM>$(XrmFramework_Net5_Specs_TFM)</XrmFramework_Specs_TFM>
-    <XrmFramework_Tools_TFM>$(XrmFramework_FullFramework_Tools_TFM);$(XrmFramework_Core_Tools_TFM)</XrmFramework_Tools_TFM>
+		<XrmFramework_FullFramework_Tools_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Tools_TFM>
+		<XrmFramework_Core_Tools_TFM>netcoreapp3.1</XrmFramework_Core_Tools_TFM>
+		<XrmFramework_Net5_Tools_TFM>$(XrmFramework_Net5_TFM)</XrmFramework_Net5_Tools_TFM>
 
-    <XrmFramework_EnableStrongNameSigning>true</XrmFramework_EnableStrongNameSigning>
-  </PropertyGroup>
+		<XrmFramework_Runtime_TFM>$(XrmFramework_FullFramework_Runtime_TFM);$(XrmFramework_Core_Runtime_TFM)</XrmFramework_Runtime_TFM>
+		<XrmFramework_Generator_TFM>$(XrmFramework_FullFramework_Generator_TFM);$(XrmFramework_Core_Generator_TFM);$(XrmFramework_Net5_TFM)</XrmFramework_Generator_TFM>
+		<XrmFramework_Test_TFM>$(XrmFramework_FullFramework_Test_TFM);$(XrmFramework_Core_Test_TFM)</XrmFramework_Test_TFM>
+		<XrmFramework_Specs_TFM>$(XrmFramework_Net5_Specs_TFM)</XrmFramework_Specs_TFM>
+		<XrmFramework_Tools_TFM>$(XrmFramework_FullFramework_Tools_TFM);$(XrmFramework_Core_Tools_TFM)</XrmFramework_Tools_TFM>
+
+		<XrmFramework_EnableStrongNameSigning>true</XrmFramework_EnableStrongNameSigning>
+	</PropertyGroup>
 
 
-  <PropertyGroup Condition=" '$(XrmFramework_EnableStrongNameSigning)' == 'true'">
-    <XrmFramework_KeyFile>$(SolutionDir)\XrmFramework.snk</XrmFramework_KeyFile>
-    <XrmFramework_SignAssembly>true</XrmFramework_SignAssembly>
-    <DefineConstants>$(DefineConstants);XrmFramework_ENABLE_STRONG_NAME_SIGNING</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition=" '$(XrmFramework_EnableStrongNameSigning)' == 'true'">
+		<XrmFramework_KeyFile>$(SolutionDir)XrmFramework.snk</XrmFramework_KeyFile>
+		<XrmFramework_SignAssembly>true</XrmFramework_SignAssembly>
+		<DefineConstants>$(DefineConstants);XrmFramework_ENABLE_STRONG_NAME_SIGNING</DefineConstants>
+	</PropertyGroup>
 
-  <PropertyGroup Condition=" '$(XrmFramework_EnableStrongNameSigning)' == 'false'">
-    <XrmFramework_KeyFile></XrmFramework_KeyFile>
-    <XrmFramework_SignAssembly>false</XrmFramework_SignAssembly>
-  </PropertyGroup>
+	<PropertyGroup Condition=" '$(XrmFramework_EnableStrongNameSigning)' == 'false'">
+		<XrmFramework_KeyFile></XrmFramework_KeyFile>
+		<XrmFramework_SignAssembly>false</XrmFramework_SignAssembly>
+	</PropertyGroup>
 
 </Project>

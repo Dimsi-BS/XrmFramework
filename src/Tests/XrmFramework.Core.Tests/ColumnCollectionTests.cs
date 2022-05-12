@@ -108,7 +108,7 @@ namespace XrmFramework.Core.Tests
         [TestMethod]
         public void IsReadOnly()
         {
-            Assert.IsTrue(_columnCollection.IsReadOnly);
+            Assert.IsFalse(_columnCollection.IsReadOnly);
         }
 
         [TestMethod]

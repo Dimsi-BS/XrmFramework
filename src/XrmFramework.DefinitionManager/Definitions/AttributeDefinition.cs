@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
+using Microsoft.Xrm.Sdk.Metadata;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xrm.Sdk.Metadata;
+using DateTimeBehavior = Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior;
 
 namespace DefinitionManager
 {
@@ -154,7 +155,7 @@ namespace DefinitionManager
 
         [Mergeable]
         public bool IsValidForAdvancedFind { protected internal get; set; }
-        
+
         protected override void MergeInternal(AbstractDefinition definition)
         {
             var def = (AttributeDefinition)definition;
@@ -167,13 +168,13 @@ namespace DefinitionManager
 
         [Mergeable]
         public object Value { get; set; }
-        
+
         [Mergeable]
         public int? StringMaxLength { get; set; }
-        
+
         [Mergeable]
         public double? MinRange { get; set; }
-        
+
         [Mergeable]
         public double? MaxRange { get; set; }
 

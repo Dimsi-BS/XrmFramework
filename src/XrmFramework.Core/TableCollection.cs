@@ -16,9 +16,41 @@ namespace XrmFramework.Core
             }
 
             var existingTable = _tables.FirstOrDefault(e => e.LogicalName == table.LogicalName);
+            if(existingTable != null)
+            {
+                if (table.isLocked || table.Selected)
+                {
+                    existingTable.Name = table.Name;
+                    existingTable.Selected = true;
+                }
+                else if (existingTable.isLocked || existingTable.Selected)
+                {
+                    table.Name = existingTable.Name;
+                    table.Selected = true;
 
-            table.MergeTo(existingTable);
+                }
 
+                foreach(var en in table.Enums)
+                {
+                    var correspondingEnum = existingTable.Enums.FirstOrDefault(e => e.LogicalName == en.LogicalName);
+                    if(correspondingEnum != null)
+                    {
+                        if(correspondingEnum.IsLocked)
+                        {
+                            en.Name = correspondingEnum.Name;
+
+                        }
+                        else if(en.IsLocked)
+                        {
+                            correspondingEnum.Name = en.Name;
+                        }
+                    }
+                }
+
+
+                table.MergeTo(existingTable);
+            }
+            
             _tables.Add(table);
         }
 

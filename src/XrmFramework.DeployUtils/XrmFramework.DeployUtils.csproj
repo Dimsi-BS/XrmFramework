@@ -39,15 +39,39 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Compile Include="..\XrmFramework.Core\**\*.cs" Link="XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />
+
 		<Compile Include="..\XrmFramework\Definitions\*.cs" Link="_Imports\XrmFramework\Definitions\%(RecursiveDir)%(Filename)%(Extension)" />
+		<Compile Include="..\XrmFramework\Utils\Statics.cs" Link="_Imports\XrmFramework\Utils\Statics.cs" />
+		<Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="_Imports\XrmFramework\Utils\SdkEnums.cs" />
 		<Compile Include="..\XrmFramework\Attributes\*.cs" Link="_Imports\XrmFramework\Attributes\%(RecursiveDir)%(Filename)%(Extension)" />
 		<Compile Include="..\XrmFramework\Utils\Relationship.cs" Link="_Imports\XrmFramework\Utils\Relationship.cs" />
-		<Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="_Imports\XrmFramework\Utils\SdkEnums.cs" />
-		<Compile Include="..\XrmFramework\Utils\Statics.cs" Link="_Imports\XrmFramework\Utils\Statics.cs" />
 
 		<Compile Include="..\XrmFramework.Plugin\**\StepConfiguration*.cs" Link="Model\StepConfigurations\%(RecursiveDir)%(Filename)%(Extension)" />
 
 		<Reference Include="System.ComponentModel.DataAnnotations" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+		<DefineConstants>$(DefineConstants);DISABLE_SERVICES</DefineConstants>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="**\Generated\**"/>
+		<None Include="**\Generated\**"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Remove="**\*.table" />
+		<AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**" />
+		<AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
 	</ItemGroup>
 
 </Project>

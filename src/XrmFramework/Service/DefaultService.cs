@@ -1,18 +1,18 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using XrmFramework.BindingModel;
 using XrmFramework.Definitions;
 using XrmFramework.Model;
-using Newtonsoft.Json;
 
 namespace XrmFramework
 {
@@ -55,7 +55,7 @@ namespace XrmFramework
 
             var request = new CreateRequest { Target = entity };
 
-          return Execute<CreateRequest, CreateResponse>(service, request, bypassCustomPluginExecution).id;
+            return Execute<CreateRequest, CreateResponse>(service, request, bypassCustomPluginExecution).id;
         }
 
         public Guid Create(Entity entity, Guid callerId, bool bypassCustomPluginExecution = false)
@@ -70,7 +70,7 @@ namespace XrmFramework
             var service = GetService(callerId);
 
             var request = new CreateRequest { Target = entity };
-            
+
             return Execute<CreateRequest, CreateResponse>(service, request, bypassCustomPluginExecution).id;
         }
 
@@ -534,8 +534,8 @@ namespace XrmFramework
 
         public EntityReference GetDefaultCurrencyRef()
         {
-            var query = new QueryExpression(TransactionCurrencyDefinition.EntityName);
-            query.Criteria.AddCondition(TransactionCurrencyDefinition.Columns.ISOCurrencyCode, ConditionOperator.Equal, "EUR");
+            var query = new QueryExpression("transactioncurrency");
+            query.Criteria.AddCondition("isocurrencycode", ConditionOperator.Equal, "EUR");
 
             return AdminOrganizationService.RetrieveAll(query).Select(e => e.ToEntityReference()).FirstOrDefault();
         }
@@ -551,7 +551,7 @@ namespace XrmFramework
             };
 
             Execute<MergeRequest, MergeResponse>(AdminOrganizationService, request, bypassCustomPluginExecution);
-            
+
         }
 
         public bool UserHasOneRoleOf(Guid userId, params string[] roleIdTxts) =>
@@ -730,7 +730,7 @@ namespace XrmFramework
                     }
 
                     return bool.Parse(variable.Value);
-                case EnvironmentVariableType.Json:
+                case EnvironmentVariableType.JSON:
                     return JsonConvert.DeserializeObject(variable.Value, objectType);
                 default:
                     throw new ArgumentOutOfRangeException();

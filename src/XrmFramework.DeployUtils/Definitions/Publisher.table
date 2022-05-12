@@ -1,0 +1,959 @@
+{
+  "LogName": "publisher",
+  "Name": "Publisher",
+  "CollName": "publishers",
+  "Cols": [
+    {
+      "LogName": "address1_addressid",
+      "Name": "Address1_AddressId",
+      "Type": "Uniqueidentifier",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : ID",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "address1_addresstypecode",
+      "Name": "Address1_AddressTypeCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Type d'adresse",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "publisher|address1_addresstypecode"
+    },
+    {
+      "LogName": "address1_city",
+      "Name": "Address1_City",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Ville",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 80
+    },
+    {
+      "LogName": "address1_country",
+      "Name": "Address1_Country",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Pays/région",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 80
+    },
+    {
+      "LogName": "address1_county",
+      "Name": "Address1_County",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Commune",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_fax",
+      "Name": "Address1_Fax",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Télécopie",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_latitude",
+      "Name": "Address1_Latitude",
+      "Type": "Double",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Latitude",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -90.0,
+      "MaxRange": 90.0
+    },
+    {
+      "LogName": "address1_line1",
+      "Name": "Address1_Line1",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Rue 1",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_line2",
+      "Name": "Address1_Line2",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Rue 2",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_line3",
+      "Name": "Address1_Line3",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Rue 3",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_longitude",
+      "Name": "Address1_Longitude",
+      "Type": "Double",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Longitude",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -180.0,
+      "MaxRange": 180.0
+    },
+    {
+      "LogName": "address1_name",
+      "Name": "Address1_Name",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Nom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "address1_postalcode",
+      "Name": "Address1_PostalCode",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Code postal",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "address1_postofficebox",
+      "Name": "Address1_PostOfficeBox",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Boîte postale",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "address1_shippingmethodcode",
+      "Name": "Address1_ShippingMethodCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Mode de livraison",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "publisher|address1_shippingmethodcode"
+    },
+    {
+      "LogName": "address1_stateorprovince",
+      "Name": "Address1_StateOrProvince",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Département/province",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_telephone1",
+      "Name": "Address1_Telephone1",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Téléphone",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_telephone2",
+      "Name": "Address1_Telephone2",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Téléphone 2",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_telephone3",
+      "Name": "Address1_Telephone3",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Téléphone 3",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_upszone",
+      "Name": "Address1_UPSZone",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Zone UPS",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 4
+    },
+    {
+      "LogName": "address1_utcoffset",
+      "Name": "Address1_UTCOffset",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Décalage UTC",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -1500.0,
+      "MaxRange": 1500.0
+    },
+    {
+      "LogName": "address2_addressid",
+      "Name": "Address2_AddressId",
+      "Type": "Uniqueidentifier",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : ID",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "address2_addresstypecode",
+      "Name": "Address2_AddressTypeCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Type d'adresse",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "publisher|address2_addresstypecode"
+    },
+    {
+      "LogName": "address2_city",
+      "Name": "Address2_City",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Ville",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 80
+    },
+    {
+      "LogName": "address2_country",
+      "Name": "Address2_Country",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Pays/région",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 80
+    },
+    {
+      "LogName": "address2_county",
+      "Name": "Address2_County",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Commune",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_fax",
+      "Name": "Address2_Fax",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Télécopie",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_latitude",
+      "Name": "Address2_Latitude",
+      "Type": "Double",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Latitude",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -90.0,
+      "MaxRange": 90.0
+    },
+    {
+      "LogName": "address2_line1",
+      "Name": "Address2_Line1",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Rue 1",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_line2",
+      "Name": "Address2_Line2",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Rue 2",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_line3",
+      "Name": "Address2_Line3",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Rue 3",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_longitude",
+      "Name": "Address2_Longitude",
+      "Type": "Double",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Longitude",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -180.0,
+      "MaxRange": 180.0
+    },
+    {
+      "LogName": "address2_name",
+      "Name": "Address2_Name",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Nom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "address2_postalcode",
+      "Name": "Address2_PostalCode",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Code postal",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "address2_postofficebox",
+      "Name": "Address2_PostOfficeBox",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Boîte postale",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "address2_shippingmethodcode",
+      "Name": "Address2_ShippingMethodCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Mode de livraison",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "publisher|address2_shippingmethodcode"
+    },
+    {
+      "LogName": "address2_stateorprovince",
+      "Name": "Address2_StateOrProvince",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Département/province",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_telephone1",
+      "Name": "Address2_Telephone1",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Téléphone 1",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_telephone2",
+      "Name": "Address2_Telephone2",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Téléphone 2",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_telephone3",
+      "Name": "Address2_Telephone3",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Téléphone 3",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_upszone",
+      "Name": "Address2_UPSZone",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Zone UPS",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 4
+    },
+    {
+      "LogName": "address2_utcoffset",
+      "Name": "Address2_UTCOffset",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Décalage UTC",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -1500.0,
+      "MaxRange": 1500.0
+    },
+    {
+      "LogName": "createdby",
+      "Name": "CreatedBy",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Créé par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Créé le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "createdonbehalfby",
+      "Name": "CreatedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "customizationoptionvalueprefix",
+      "Name": "CustomizationOptionValuePrefix",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Préfixe de valeur d’option",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": 10000.0,
+      "MaxRange": 99999.0
+    },
+    {
+      "LogName": "customizationprefix",
+      "Name": "CustomizationPrefix",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Préfixe",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 8,
+      "Select": true
+    },
+    {
+      "LogName": "description",
+      "Name": "Description",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Description",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 2000
+    },
+    {
+      "LogName": "emailaddress",
+      "Name": "EMailAddress",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Courrier électronique",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "entityimageid",
+      "Name": "EntityImageId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Code d'image de l'entité",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "friendlyname",
+      "Name": "FriendlyName",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom complet",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256,
+      "Select": true
+    },
+    {
+      "LogName": "isreadonly",
+      "Name": "IsReadonly",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Est un éditeur en lecture seule",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedby",
+      "Name": "ModifiedBy",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Modifié par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedon",
+      "Name": "ModifiedOn",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Modifié le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "modifiedonbehalfby",
+      "Name": "ModifiedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "organizationid",
+      "Name": "OrganizationId",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Organisation",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "pinpointpublisherdefaultlocale",
+      "Name": "PinpointPublisherDefaultLocale",
+      "Type": "String",
+      "Capa": 1,
+      "Labels": [],
+      "StrLen": 16
+    },
+    {
+      "LogName": "pinpointpublisherid",
+      "Name": "PinpointPublisherId",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "publisherid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Identificateur de l’éditeur",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "supportingwebsiteurl",
+      "Name": "SupportingWebsiteUrl",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Site Web",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 200
+    },
+    {
+      "LogName": "uniquename",
+      "Name": "UniqueName",
+      "Type": "String",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Nom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256,
+      "Select": true
+    },
+    {
+      "LogName": "versionnumber",
+      "Name": "VersionNumber",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": []
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "Publisher_PublisherAddress",
+      "Etn": "publisheraddress",
+      "Role": "Referenced",
+      "NavPropName": "Publisher_PublisherAddress",
+      "LookName": "parentid"
+    },
+    {
+      "Name": "Publisher_DuplicateBaseRecord",
+      "Etn": "duplicaterecord",
+      "Role": "Referenced",
+      "NavPropName": "Publisher_DuplicateBaseRecord",
+      "LookName": "baserecordid"
+    },
+    {
+      "Name": "Publisher_DuplicateMatchingRecord",
+      "Etn": "duplicaterecord",
+      "Role": "Referenced",
+      "NavPropName": "Publisher_DuplicateMatchingRecord",
+      "LookName": "duplicaterecordid"
+    },
+    {
+      "Name": "publisher_solution",
+      "Etn": "solution",
+      "Role": "Referenced",
+      "NavPropName": "publisher_solution",
+      "LookName": "publisherid"
+    },
+    {
+      "Name": "Publisher_SyncErrors",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "Publisher_SyncErrors",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "publisher_appmodule",
+      "Etn": "appmodule",
+      "Role": "Referenced",
+      "NavPropName": "publisher_appmodule",
+      "LookName": "publisherid"
+    },
+    {
+      "Name": "userentityinstancedata_publisher",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_publisher",
+      "LookName": "objectid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_publisher_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_publisher_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_publisher_entityimage",
+      "Etn": "imagedescriptor",
+      "NavPropName": "entityimageid_imagedescriptor",
+      "LookName": "entityimageid"
+    },
+    {
+      "Name": "organization_publisher",
+      "Etn": "organization",
+      "NavPropName": "organizationid",
+      "LookName": "organizationid"
+    },
+    {
+      "Name": "lk_publisherbase_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "lk_publisherbase_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    }
+  ],
+  "Keys": [],
+  "Enums": [
+    {
+      "LogName": "publisher|address1_addresstypecode",
+      "Name": "PublisherAdresse1TypeDAdresse",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "publisher|address1_shippingmethodcode",
+      "Name": "PublisherAdresse1ModeDeLivraison",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "publisher|address2_addresstypecode",
+      "Name": "PublisherAdresse2TypeDAdresse",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "publisher|address2_shippingmethodcode",
+      "Name": "PublisherAdresse2ModeDeLivraison",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    }
+  ]
+}

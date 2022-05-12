@@ -152,11 +152,11 @@ namespace XrmFramework.DeployUtils.Context
 
             query.ColumnSet.AddColumns(SdkMessageFilterDefinition.Columns.Id,
                 SdkMessageFilterDefinition.Columns.SdkMessageId,
-                SdkMessageFilterDefinition.Columns.PrimaryObjectTypeCode);
+                SdkMessageFilterDefinition.PrimaryObjectTypeCode);
             query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsCustomProcessingStepAllowed, ConditionOperator.Equal, true);
             query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsVisible, ConditionOperator.Equal, true);
 
-            query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.PrimaryObjectTypeCode, ConditionOperator.In, iterestingEntityNames.ToArray<object>());
+            query.Criteria.AddCondition(SdkMessageFilterDefinition.PrimaryObjectTypeCode, ConditionOperator.In, iterestingEntityNames.ToArray<object>());
 
             var messageLink = query.AddLink(SdkMessageDefinition.EntityName,
                 SdkMessageFilterDefinition.Columns.SdkMessageId, SdkMessageDefinition.Columns.Id);
@@ -224,7 +224,7 @@ namespace XrmFramework.DeployUtils.Context
             var query = new QueryExpression(SdkMessageFilterDefinition.EntityName);
             query.ColumnSet.AddColumns(SdkMessageFilterDefinition.Columns.Id,
                                        SdkMessageFilterDefinition.Columns.SdkMessageId,
-                                       SdkMessageFilterDefinition.Columns.PrimaryObjectTypeCode);
+                                       SdkMessageFilterDefinition.PrimaryObjectTypeCode);
             query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsCustomProcessingStepAllowed, ConditionOperator.Equal, true);
             query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsVisible, ConditionOperator.Equal, true);
 

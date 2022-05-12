@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace XrmFramework.Core
 {
@@ -18,8 +18,8 @@ namespace XrmFramework.Core
         public string CollectionName { get; set; }
 
         [JsonProperty("Cols")]
-        public ColumnCollection Columns { get; } = new();
-        
+        public ColumnCollection Columns { get; } = new ColumnCollection();
+
         [JsonProperty("NtoN")]
         public List<Relation> ManyToManyRelationships { get; } = new();
 
@@ -29,17 +29,25 @@ namespace XrmFramework.Core
         [JsonProperty("NToOne")]
         public List<Relation> ManyToOneRelationships { get; } = new();
 
-        public ICollection<Key> Keys { get; set; }
+        [JsonProperty("Locked")]
+        public bool isLocked { get; set; } = false;
+
+        public ICollection<Key> Keys { get; } = new List<Key>();
 
         public List<OptionSetEnum> Enums { get; } = new();
 
         [JsonIgnore]
         public bool Selected { get; set; }
 
-        public void MergeTo(Table existingEntity) 
-            => existingEntity?.Columns.MergeColumns(Columns);
+        public void MergeTo(Table? existingEntity)
+        {
+            if (existingEntity != null)
+            {
+                Columns.ToList().ForEach(existingEntity.Columns.Add);
+            }
+        }
 
-        public int CompareTo(Table other)
+        public int CompareTo(Table? other)
         {
             if (ReferenceEquals(this, other)) return 0;
             if (ReferenceEquals(null, other)) return 1;

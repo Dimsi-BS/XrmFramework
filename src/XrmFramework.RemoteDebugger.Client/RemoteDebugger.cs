@@ -3,6 +3,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
 using System;
 using System.Activities;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using XrmFramework.DeployUtils;
@@ -36,6 +37,11 @@ namespace XrmFramework.RemoteDebugger.Common
 
             remoteDebuggerHelper.UpdateDebugger<TPlugin>(projectName);
 
+            //var plugins = RegistrationHelper.UpdateCrmData<P>("FrameworkTests.Plugins");
+            //RegistrationHelper<XrmFramework.RemoteDebuggerPlugin>
+
+
+            //RegistrationHelper.UpdateRemoteDebuggerPlugin<P>(solutionName);
             Manager.ContextReceived += remoteContext =>
                 {
                     // Create local service provider from remote context

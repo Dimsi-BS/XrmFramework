@@ -1,0 +1,249 @@
+{
+  "LogName": "role",
+  "Name": "Role",
+  "CollName": "roles",
+  "Cols": [
+    {
+      "LogName": "businessunitid",
+      "Name": "BusinessUnitId",
+      "Type": "Lookup",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Division",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Nom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100,
+      "Select": true
+    },
+    {
+      "LogName": "parentrootroleid",
+      "Name": "ParentRootRoleId",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Rôle racine parent",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "roleid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Rôle",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "roletemplateid",
+      "Name": "RoleTemplateId",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Modèle de rôle",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    }
+  ],
+  "NtoN": [
+    {
+      "Name": "systemuserroles_association",
+      "Etn": "systemuser",
+      "NavPropName": "systemuserroles",
+      "LookName": "systemuserid"
+    },
+    {
+      "Name": "roleprivileges_association",
+      "Etn": "privilege",
+      "NavPropName": "roleprivileges",
+      "LookName": "privilegeid"
+    },
+    {
+      "Name": "appmoduleroles_association",
+      "Etn": "appmodule",
+      "NavPropName": "appmoduleroles",
+      "LookName": "appmoduleid"
+    },
+    {
+      "Name": "teamroles_association",
+      "Etn": "team",
+      "NavPropName": "teamroles",
+      "LookName": "teamid"
+    },
+    {
+      "Name": "applicationuserrole",
+      "Etn": "applicationuser",
+      "NavPropName": "applicationuserrole",
+      "LookName": "applicationuserid"
+    }
+  ],
+  "OneToN": [
+    {
+      "Name": "role_parent_role",
+      "Etn": "role",
+      "Role": "Referenced",
+      "NavPropName": "role_parent_role",
+      "LookName": "parentroleid"
+    },
+    {
+      "Name": "Role_AsyncOperations",
+      "Etn": "asyncoperation",
+      "Role": "Referenced",
+      "NavPropName": "Role_AsyncOperations",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "role_parent_root_role",
+      "Etn": "role",
+      "Role": "Referenced",
+      "NavPropName": "role_parent_root_role",
+      "LookName": "parentrootroleid"
+    },
+    {
+      "Name": "Role_BulkDeleteFailures",
+      "Etn": "bulkdeletefailure",
+      "Role": "Referenced",
+      "NavPropName": "Role_BulkDeleteFailures",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Role_SyncErrors",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "Role_SyncErrors",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "userentityinstancedata_role",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_role",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "lk_msdyn_roleid",
+      "Etn": "msdyn_actioncardrolesetting",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_role_msdyn_actioncardrolesetting",
+      "LookName": "msdyn_roleid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_rolebase_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "role_parent_role",
+      "Etn": "role",
+      "NavPropName": "parentroleid",
+      "LookName": "parentroleid"
+    },
+    {
+      "Name": "organization_roles",
+      "Etn": "organization",
+      "NavPropName": "organizationid_organization",
+      "LookName": "organizationid"
+    },
+    {
+      "Name": "business_unit_roles",
+      "Etn": "businessunit",
+      "NavPropName": "businessunitid",
+      "LookName": "businessunitid"
+    },
+    {
+      "Name": "lk_role_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_role_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "role_parent_root_role",
+      "Etn": "role",
+      "NavPropName": "parentrootroleid",
+      "LookName": "parentrootroleid"
+    },
+    {
+      "Name": "role_template_roles",
+      "Etn": "roletemplate",
+      "NavPropName": "roletemplateid",
+      "LookName": "roletemplateid"
+    },
+    {
+      "Name": "lk_rolebase_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "solution_role",
+      "Etn": "solution",
+      "NavPropName": "solution_role",
+      "LookName": "solutionid"
+    }
+  ],
+  "Locked": true,
+  "Keys": [
+    {
+      "LogicalName": "roletemplateid_businessunitid",
+      "Name": "RoletemplateidBusinessunitLookupKey",
+      "FieldNames": [
+        "componentstate",
+        "roletemplateid",
+        "overwritetime",
+        "businessunitid"
+      ]
+    },
+    {
+      "LogicalName": "parentrootroleid_businessunitid",
+      "Name": "ParentrootroleidBusinessunitLookupKey",
+      "FieldNames": [
+        "parentrootroleid",
+        "overwritetime",
+        "businessunitid",
+        "componentstate"
+      ]
+    }
+  ],
+  "Enums": []
+}
