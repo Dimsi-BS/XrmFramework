@@ -592,7 +592,7 @@
         },
         {
           "Value": 3,
-          "Name": "Divis.MereSousDivisions",
+          "Name": "DivisMereSousDivisions",
           "Labels": [
             {
               "Label": "Divis. mère : sous-divisions",

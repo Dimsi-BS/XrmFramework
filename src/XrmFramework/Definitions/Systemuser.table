@@ -28342,7 +28342,7 @@
     },
     {
       "LogName": "systemuser|emailrouteraccessapproval",
-      "Name": "IndiqueSiLAdresseDeMessagerieEstApprouveePourChaqueBoiteAuxLettresPourLeTraitementDuCourrierElectroniqueViaLaSynchronisationCoteServeurOuEMailRouter.",
+      "Name": "IndiqueSiLAdresseDeMessagerieEstApprouveePourChaqueBoiteAuxLettresPourLeTraitementDuCourrierElectroniqueViaLaSynchronisationCoteServeurOuEMailRouter",
       "Locked": true,
       "Values": [
         {

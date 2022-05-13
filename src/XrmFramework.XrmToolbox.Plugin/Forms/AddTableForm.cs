@@ -88,5 +88,10 @@ namespace XrmFramework.XrmToolbox
         {
 
         }
+
+        private void Search_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

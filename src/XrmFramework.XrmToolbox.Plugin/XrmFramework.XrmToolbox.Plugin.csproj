@@ -75,6 +75,7 @@
     <Reference Include="Microsoft.VisualStudio.CoreUtility">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Management.Automation" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Activities" />
@@ -97,17 +98,24 @@
     <Reference Include="System.Workflow.Runtime" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddTableForm.cs">
+    <Compile Include="DataHandlers\TableHandler.cs" />
+    <Compile Include="Forms\AddTableForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AddTableForm.Designer.cs">
+    <Compile Include="Forms\AddTableForm.Designer.cs">
       <DependentUpon>AddTableForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="TextHelper.cs" />
-    <Compile Include="TryOtherNameForm.cs">
+    <Compile Include="Forms\ProjectCreationForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TryOtherNameForm.Designer.cs">
+    <Compile Include="Forms\ProjectCreationForm.Designer.cs">
+      <DependentUpon>ProjectCreationForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TextHelper.cs" />
+    <Compile Include="Forms\TryOtherNameForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\TryOtherNameForm.Designer.cs">
       <DependentUpon>TryOtherNameForm.cs</DependentUpon>
     </Compile>
     <Compile Include="XrmFrameworkPlugin.cs" />
@@ -228,16 +236,20 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="AddTableForm.resx">
+    <EmbeddedResource Include="Forms\AddTableForm.resx">
       <DependentUpon>AddTableForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="TryOtherNameForm.resx">
+    <EmbeddedResource Include="Forms\ProjectCreationForm.resx">
+      <DependentUpon>ProjectCreationForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\TryOtherNameForm.resx">
       <DependentUpon>TryOtherNameForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="XrmFrameworkPluginControl.resx">
       <DependentUpon>XrmFrameworkPluginControl.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

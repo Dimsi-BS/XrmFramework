@@ -12,30 +12,35 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using XrmFramework.Core;
+using XrmFramework.XrmToolbox.DataHandlers;
 using XrmToolBox.Extensibility;
 
 namespace XrmFramework.XrmToolbox
 {
     public partial class XrmFrameworkPluginControl : PluginControlBase
     {
-        private string currentTable = null;
-        private string pathToRegisterTables = "";
-        private Settings mySettings;
-        private DataTable TableContent = new DataTable();
-        private TableCollection ProjectTables = new TableCollection();
-        private Dictionary<string, TableData> TableAndPath = new Dictionary<string, TableData>();
-        private Table globalEnumsTable = null;
+        //private string CurrentTable = null;
+        //private string TableHandler.PathToRegisterTables = "";
+        public Settings Settings;
+        //private DataTable TableContent = new DataTable();
+        //private TableCollection ProjectTables = new TableCollection();
+        //private Dictionary<string, TableData> TableHandler.TableAndPath = new Dictionary<string, TableData>();
+        //private Table globalEnumsTable = null;
         private List<string> PublisherPrefixes { get; } = new();
-        private TableCollection BasicTables = new TableCollection();
-        private Project CurrentProject;
-        private List<string> PreexistingTablePaths = new List<String>();
+        //private TableCollection BasicTables = new TableCollection();
+        public Project CurrentProject;
+        //private List<string> PreexistingTablePaths = new List<String>();
+        //private string CurrentEnum = null;
 
 
 
         public XrmFrameworkPluginControl()
         {
             InitializeComponent();
-            
+            this.TableNameText.Click += TableNameText_Click;
+            this.EnumNameText.Click += EnumNameText_Click;
+
+
         }
 
         private void MyPluginControl_Load(object sender, EventArgs e)
@@ -43,12 +48,12 @@ namespace XrmFramework.XrmToolbox
             ShowInfoNotification("This is a notification that can lead to XrmToolBox repository", new Uri("https://github.com/MscrmTools/XrmToolBox"));
 
             // Loads or creates the settings for the plugin
-            if(mySettings == null)
+            if(Settings == null)
 
             {
-                if (!SettingsManager.Instance.TryLoad(GetType(), out mySettings))
+                if (!SettingsManager.Instance.TryLoad(GetType(), out Settings))
                 {
-                    mySettings = new Settings();
+                    Settings = new Settings();
 
                     LogWarning("Settings not found => a new settings file has been created!");
                 }
@@ -57,19 +62,35 @@ namespace XrmFramework.XrmToolbox
                     LogInfo("Settings found and loaded");
                 }
             }
-            mySettings.LastUsedOrganizationWebappUrl = ConnectionDetail.WebApplicationUrl;
+            Settings.LastUsedOrganizationWebappUrl = ConnectionDetail.WebApplicationUrl;
             LogInfo("Connection has changed to: {0}", ConnectionDetail.WebApplicationUrl);
             // Add organizationName
-            mySettings.CurrentOrganizationName = ConnectionDetail.OrganizationFriendlyName;
-            SettingsManager.Instance.Save(GetType(), mySettings);
+            Settings.CurrentOrganizationName = ConnectionDetail.OrganizationFriendlyName;
+            SettingsManager.Instance.Save(GetType(), Settings);
             //var currentPair = mySettings.RootFolders.FirstOrDefault(p => p.OrganizationName == mySettings.CurrentOrganizationName);
-            CurrentProject = mySettings.RootFolders.FirstOrDefault(p => p.OrganizationName == mySettings.CurrentOrganizationName);
-            pathToRegisterTables = CurrentProject.FolderPath + "\\Definitions\\";
+            CurrentProject = null;
+            if(Settings.RootFolders.Count != 0)
+            {
+                CurrentProject = Settings.RootFolders.ElementAt(Settings.RootFolders.Count - 1);
+                
+            }
+            //CurrentProject = mySettings.RootFolders.FirstOrDefault(p => p.OrganizationName == mySettings.CurrentOrganizationName);
+            
             if (CurrentProject != null)
             {
-                LoadTablesFromProject(CurrentProject.FolderPath);
-                RefreshTreeDisplay();
-                RefreshGlobalEnum();
+                if(Directory.Exists(CurrentProject.FolderPath))
+                {
+                    TableHandler.LoadTablesFromProject(CurrentProject.FolderPath);
+                    RefreshTreeDisplay();
+                    RefreshGlobalEnum();
+                    CurrentProjectTextBox.Text = CurrentProject.FolderPath;
+
+                }
+
+                textBox1.Text = CurrentProject.FolderPath;
+                TableHandler.PathToRegisterTables = CurrentProject.FolderPath + "\\Definitions\\";
+                //MessageBox.Show($"TableHandler.PathToRegisterTables is {TableHandler.PathToRegisterTables}");
+
             }
 
             if (PublisherPrefixes.Count == 0)
@@ -84,39 +105,9 @@ namespace XrmFramework.XrmToolbox
             CloseTool();
         }
 
-        private void tsbSample_Click(object sender, EventArgs e)
-        {
-            // The ExecuteMethod method handles connecting to an
-            // organization if XrmToolBox is not yet connected
-            ExecuteMethod(GetAccounts);
-        }
+       
 
-        private void GetAccounts()
-        {
-            WorkAsync(new WorkAsyncInfo
-            {
-                Message = "Getting accounts",
-                Work = (worker, args) =>
-                {
-                    args.Result = Service.RetrieveMultiple(new QueryExpression("account")
-                    {
-                        TopCount = 50
-                    });
-                },
-                PostWorkCallBack = (args) =>
-                {
-                    if (args.Error != null)
-                    {
-                        MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    var result = args.Result as EntityCollection;
-                    if (result != null)
-                    {
-                        MessageBox.Show($"Found {result.Entities.Count} accounts");
-                    }
-                }
-            });
-        }
+        
 
         /// <summary>
         /// This event occurs when the plugin is closed
@@ -126,7 +117,7 @@ namespace XrmFramework.XrmToolbox
         private void MyPluginControl_OnCloseTool(object sender, EventArgs e)
         {
             // Before leaving, save the settings
-            SettingsManager.Instance.Save(GetType(), mySettings);
+            SettingsManager.Instance.Save(GetType(), Settings);
         }
 
         /// <summary>
@@ -136,13 +127,13 @@ namespace XrmFramework.XrmToolbox
         {
             base.UpdateConnection(newService, detail, actionName, parameter);
 
-            if (mySettings != null && detail != null)
+            if (Settings != null && detail != null)
             {
-                mySettings.LastUsedOrganizationWebappUrl = detail.WebApplicationUrl;
+                Settings.LastUsedOrganizationWebappUrl = detail.WebApplicationUrl;
                 LogInfo("Connection has changed to: {0}", detail.WebApplicationUrl);
                 // Add organizationName
-                mySettings.CurrentOrganizationName = detail.OrganizationFriendlyName;
-                SettingsManager.Instance.Save(GetType(), mySettings);
+                Settings.CurrentOrganizationName = detail.OrganizationFriendlyName;
+                SettingsManager.Instance.Save(GetType(), Settings);
             }
             
         }
@@ -159,25 +150,42 @@ namespace XrmFramework.XrmToolbox
            
             ProjectChoiceDialog.ShowDialog();
             //mySettings.RootFolders[]
+            SetCurrentProject(ProjectChoiceDialog.SelectedPath);
             
-            var pairToRemove = mySettings.RootFolders.FirstOrDefault(p => p.OrganizationName == mySettings.CurrentOrganizationName);
-            if(pairToRemove != null)
+
+            
+
+        }
+
+        public void SetCurrentProject(string path)
+        {
+            if (!Directory.Exists(path) || !ContainsSlnFile(path))
             {
-                mySettings.RootFolders.Remove(pairToRemove);
-            
+                MessageBox.Show("Selected path does not correspond to a visual studio project, please try again");
+                return;
             }
-            mySettings.RootFolders.Add(new Project(mySettings.CurrentOrganizationName, ProjectChoiceDialog.SelectedPath));
-            CurrentProject = mySettings.RootFolders.FirstOrDefault(p => p.OrganizationName == mySettings.CurrentOrganizationName);
+            TableHandler.TableAndPath.Clear();
+            CurrentProjectTextBox.Text = path;
+            var pairToRemove = Settings.RootFolders.FirstOrDefault(p => p.FolderPath == path);
+            if (pairToRemove != null)
+            {
+                Settings.RootFolders.Remove(pairToRemove);
+
+            }
+            Settings.RootFolders.Add(new Project(Settings.CurrentOrganizationName, path));
+            CurrentProject = Settings.RootFolders.FirstOrDefault(p => p.FolderPath == path);
             //var finalPair = mySettings.RootFolders.FirstOrDefault(p => p.OrganizationName == mySettings.CurrentOrganizationName);
             MessageBox.Show($"Project folder has been set to {CurrentProject.FolderPath}");
 
             MessageBox.Show($"Looking for folders in {CurrentProject.FolderPath}");
-            SettingsManager.Instance.Save(GetType(), mySettings);
+            SettingsManager.Instance.Save(GetType(), Settings);
 
-            LoadTablesFromProject(CurrentProject.FolderPath);
+            TableHandler.LoadTablesFromProject(CurrentProject.FolderPath);
             RefreshTreeDisplay();
-
-            
+            textBox1.Text = CurrentProject.FolderPath;
+            TableHandler.PathToRegisterTables = CurrentProject.FolderPath + "\\Definitions\\";
+            MessageBox.Show($"TableHandler.PathToRegisterTables is {TableHandler.PathToRegisterTables}");
+ 
 
         }
 
@@ -186,53 +194,15 @@ namespace XrmFramework.XrmToolbox
             
         }
 
-        private void LoadTablesFromProject(string projectPath)
+        
+
+        private bool ContainsSlnFile(string projectPath)
         {
-            foreach (var fileName in Directory.GetFiles($"{projectPath}", "*.table", SearchOption.AllDirectories))
-            {
-                PreexistingTablePaths.Add(fileName);
-                if(fileName.Contains("OptionSet"))
-                {
-                    //MessageBox.Show(fileName);
-                    var fileInfo = new FileInfo(fileName);
-                    var text = File.ReadAllText(fileInfo.FullName);
-                    var table = JsonConvert.DeserializeObject<Table>(text);
-                    globalEnumsTable = table;
-                }
-                else
-                {
-                    //MessageBox.Show(fileName);
-                    var fileInfo = new FileInfo(fileName);
-                    var text = File.ReadAllText(fileInfo.FullName);
-                    var table = JsonConvert.DeserializeObject<Table>(text);
-                    ProjectTables.Add(table);
-
-                    var splitFilename = fileInfo.Name.Split('\\');
-                    var rootPath = mySettings.RootFolders.FirstOrDefault(r => r.OrganizationName == mySettings.CurrentOrganizationName).FolderPath;
-                    var splitRootPath = rootPath.Split('\\').ToList();
-                    splitRootPath.Remove(splitRootPath.ElementAt(splitRootPath.Count - 1));
-                    rootPath = String.Join("\\", splitRootPath);
-
-                    TableAndPath[table.LogicalName] = new TableData(table, RemoveCurrentProjectPathFromTablePath(fileName));
-                }
-                
-            }
-
-            if(globalEnumsTable == null)
-            {
-                globalEnumsTable = new Table()
-                {
-                    LogicalName = "globalEnums",
-                    Name = "OptionSet"
-                };
-            }
-
-            RefreshTreeDisplay();
-            
+            return Directory.GetFiles(projectPath, "*.sln").Length > 0;
         }
-
         public void RefreshTreeDisplay()
         {
+            TableHandler.CheckDefaultSelectColumns();
             TableTreeView.Nodes.Clear();
             AddTableTreeNodes();
             if(TableTreeView.Nodes.Count!=0)
@@ -246,11 +216,11 @@ namespace XrmFramework.XrmToolbox
         {
 
             
-            foreach (var key in TableAndPath.Keys)
+            foreach (var key in TableHandler.TableAndPath.Keys)
             {
                 
-                var path = TableAndPath[key].path.Split('\\');
-                AddPathTreeNode(null, path, 0,TableAndPath[key].table.LogicalName);
+                var path = TableHandler.TableAndPath[key].path.Split('\\');
+                AddPathTreeNode(null, path, 0,TableHandler.TableAndPath[key].table.LogicalName);
                 
             }
         }
@@ -314,18 +284,29 @@ namespace XrmFramework.XrmToolbox
             //MessageBox.Show(e.Node.Name);
             var name = e.Node.Name;
             
-            if(!TableAndPath.ContainsKey(name))
+            if(!TableHandler.TableAndPath.ContainsKey(name))
             {
                 return;
             }
-            var selectedTable = TableAndPath[name].table;
+            var selectedTable = TableHandler.TableAndPath[name].table;
             if(selectedTable != null)
             {
                 //MessageBox.Show($"You selected a table file of name {selectedTable.Name}");
                 tableBindingSource.DataSource = selectedTable;
                 columnBindingSource.DataSource = selectedTable.Columns;
-                currentTable = selectedTable.LogicalName;
-                
+                TableHandler.CurrentTable = selectedTable.LogicalName;
+                TableHandler.CurrentEnum = null;
+                //if(optionSetEnumValueBindingSource.Count > 0)
+                //{
+                //    optionSetEnumValueBindingSource.RemoveCurrent();
+                //
+                //}
+                //if(optionSetEnumBindingSource.Count >0)
+                //{
+                //    optionSetEnumBindingSource.RemoveCurrent();
+                //
+                //}
+
             }
             
         }
@@ -337,25 +318,62 @@ namespace XrmFramework.XrmToolbox
 
         private void dataGridView1_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
         {
-            //MessageBox.Show(dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString());
+            //Clicked an enum thing
             if(dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString() == "Picklist")
             {
                 //var correspondingEnum
-                var selectedTable = TableAndPath[currentTable].table;
+                var selectedTable = TableHandler.TableAndPath[TableHandler.CurrentTable].table;
                 var column = selectedTable.Columns.FirstOrDefault(c=>c.LogicalName == dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString());
                 var correspondingEnum = selectedTable.Enums.FirstOrDefault(e => e.LogicalName == column.EnumName);
                 if(correspondingEnum == null)
                 {
-                    correspondingEnum = globalEnumsTable.Enums.FirstOrDefault(e => e.LogicalName == column.EnumName);
+                    correspondingEnum = TableHandler.globalEnumsTable.Enums.FirstOrDefault(e => e.LogicalName == column.EnumName);
                 }
-                dataGridView3.DataSource = correspondingEnum.Values;
+                //dataGridView3.DataSource = correspondingEnum.Values;
+                optionSetEnumValueBindingSource.DataSource = correspondingEnum.Values;
+                optionSetEnumBindingSource.DataSource = correspondingEnum;
+                TableHandler.CurrentEnum = correspondingEnum.LogicalName;
+                //EnumNameText.Text = correspondingEnum.Name;
+
             }
+
+           
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
 
         }
+
+
+        private void EnumNameText_Click(object sender,EventArgs e)
+        {
+            if (string.IsNullOrEmpty(EnumNameText.Text) || TableHandler.CurrentTable == null)
+            {
+                return;
+
+            }
+            //Start modifying
+            var text = EnumNameText.Text;
+            var currentTable = TableHandler.TableAndPath[TableHandler.CurrentTable].table;
+            //Get the current table
+            var currentEnum = TableHandler.TableAndPath[TableHandler.CurrentTable].table.Enums.FirstOrDefault(en=>en.LogicalName == TableHandler.CurrentEnum);
+            if(currentEnum == null)
+            {
+                currentEnum = TableHandler.globalEnumsTable.Enums.FirstOrDefault(en => en.LogicalName == TableHandler.CurrentEnum);
+                if(currentEnum == null)
+                {
+                    return;
+                }
+            }
+            TableHandler.ModifyEnumName(EnumNameText.Text, currentEnum, text); ;
+
+            EnumNameText.Text = currentEnum.Name;
+        }
+
+        
+
+        
 
         private void RetrieveEntitiesButton_Click(object sender, EventArgs e)
         {
@@ -366,7 +384,7 @@ namespace XrmFramework.XrmToolbox
             //RetrieveAllEntities();
         }
 
-        public TableCollection RetrieveAllEntities(BindingSource bindingSource,TableCollection basicTables)
+        public void RetrieveAllEntities(BindingSource bindingSource, TableCollection basicTables)
         {
             //var basicTables = new TableCollection();
             WorkAsync(new WorkAsyncInfo
@@ -377,7 +395,7 @@ namespace XrmFramework.XrmToolbox
                 {
                     var req = new RetrieveAllEntitiesRequest
                     {
-                        EntityFilters = EntityFilters.Entity 
+                        EntityFilters = EntityFilters.Entity
                     };
 
                     var response = (RetrieveAllEntitiesResponse)Service.Execute(req);
@@ -385,41 +403,21 @@ namespace XrmFramework.XrmToolbox
                     args.Result = response.EntityMetadata;
                 },
 
-                PostWorkCallBack = (args)=>
+                PostWorkCallBack = (args) =>
                 {
                     // Create the corresponding base tables while also processing the names
                     var entitiesData = (EntityMetadata[])args.Result;
-                    foreach(var entity in entitiesData)
-                    {
-                        basicTables.Add(new Table()
-                        {
-                            LogicalName = entity.LogicalName,
-                            Name = RemovePrefix(entity.SchemaName).FormatText(),
-
-                        });
-                    }
-                    bindingSource.DataSource = basicTables;
+                    TableHandler.ProcessBasicTableRequest(entitiesData);
+                    bindingSource.DataSource = TableHandler.BasicTables;
                     //tableBindingSource1.DataSource = BasicTables;
 
 
                 }
-                
+
             });
-            return basicTables;
+            
         }
 
-        public string RemovePrefix(string name)
-        {
-            foreach (var prefix in PublisherPrefixes)
-            {
-                if (!string.IsNullOrEmpty(prefix) && name.StartsWith(prefix))
-                {
-                    name = name.Substring(prefix.Length + 1);
-                }
-            }
-            name = name.Substring(0, 1).ToUpperInvariant() + name.Substring(1);
-            return name;
-        }
 
         public void LoadPrefixes()
         {
@@ -460,14 +458,14 @@ namespace XrmFramework.XrmToolbox
 
         private void AddBasicTablesToProject()
         {
-            foreach(var table in BasicTables.Where(t=>t.Selected))
+            foreach(var table in TableHandler.BasicTables.Where(t=>t.Selected))
             {
                 //MessageBox.Show($"Adding {table.Name}");
                 //var txt = JsonConvert.SerializeObject(table, Formatting.Indented, new JsonSerializerSettings
                 //{
                 //    DefaultValueHandling = DefaultValueHandling.Ignore
                 //});
-                //var fileInfo = new FileInfo(pathToRegisterTables + $"{table.Name}.table");
+                //var fileInfo = new FileInfo(TableHandler.PathToRegisterTables + $"{table.Name}.table");
                 //File.WriteAllText(fileInfo.FullName, txt);
                 
                 //var projectData = mySettings.RootFolders.FirstOrDefault(p => p.OrganizationName == mySettings.CurrentOrganizationName);
@@ -476,12 +474,12 @@ namespace XrmFramework.XrmToolbox
                 //    LoadTablesFromProject(projectData.FolderPath);
                 //    
                 //}
-                if(TableAndPath.ContainsKey(table.LogicalName))
+                if(TableHandler.TableAndPath.ContainsKey(table.LogicalName))
                 {
                     //MessageBox.Show("This is a message for when a table is already in a project, it should be replaced with a dialog box asking wether you want to overwrite it");
                     return;
                 }
-                TableAndPath[table.LogicalName] = new TableData(table, RemoveCurrentProjectPathFromTablePath(pathToRegisterTables+$"{table.Name}.table"));
+                TableHandler.TableAndPath[table.LogicalName] = new TableData(table, RemoveCurrentProjectPathFromTablePath(TableHandler.PathToRegisterTables+$"{table.Name}.table"));
 
 
                 RefreshTreeDisplay();
@@ -500,9 +498,9 @@ namespace XrmFramework.XrmToolbox
 
         private void SearchColumnTextBox_TextChanged(object sender, EventArgs e)
         {
-            if(currentTable != null)
+            if(TableHandler.CurrentTable != null)
             {
-                if(TableAndPath.ContainsKey(currentTable))
+                if(TableHandler.TableAndPath.ContainsKey(TableHandler.CurrentTable))
                 {
                     var search = SearchColumnTextBox.Text.Split(' ');
                     
@@ -510,13 +508,13 @@ namespace XrmFramework.XrmToolbox
                     {
                         var lowerSearch = SearchColumnTextBox.Text.ToLower();
 
-                        var selectedTable = TableAndPath[currentTable].table;
+                        var selectedTable = TableHandler.TableAndPath[TableHandler.CurrentTable].table;
                         columnBindingSource.DataSource = selectedTable.Columns.Where(t => t.Name.ToLower().Contains(lowerSearch) || t.Type.ToString().ToLower().Contains(lowerSearch) || t.LogicalName.Contains(lowerSearch));
 
                     }
                     else
                     {
-                        var selectedTable = TableAndPath[currentTable].table;
+                        var selectedTable = TableHandler.TableAndPath[TableHandler.CurrentTable].table;
 
                         var columnsToShow = new ColumnCollection();
                         foreach(var searchWord in search)
@@ -539,7 +537,7 @@ namespace XrmFramework.XrmToolbox
                 }
                 else
                 {
-                    throw new Exception($"Current table {currentTable} is not contained in the project");
+                    throw new Exception($"Current table {TableHandler.CurrentTable} is not contained in the project");
                 }
 
 
@@ -562,429 +560,38 @@ namespace XrmFramework.XrmToolbox
             form2.ShowDialog();
         }
 
-        private void RetrieveAttributesForTable(Table table)
-        {
-            
-            //if()
-
-            WorkAsync(new WorkAsyncInfo
-            {
-                Message = "Retrieving Entity Metadata",
-
-                Work = (worker, args) =>
-                {
-
-                    //query.ColumnSet.AllColumns = true;
-                    //var linkPublisher = query.AddLink(Deploy.Publisher.EntityLogicalName, "publisherid", "publisherid");
-                    //linkPublisher.EntityAlias = "publisher";
-                    //linkPublisher.Columns.AddColumn("customizationprefix");
-                    //
-                    //var solutions = Service.RetrieveMultiple(query).Entities.Select(s => s.ToEntity<Solution>());
-                    //args.Result = solutions.ToArray();
-
-                    RetrieveEntityRequest req = new RetrieveEntityRequest()
-                    {
-                        EntityFilters = EntityFilters.All,
-                        LogicalName = table.LogicalName,
-                        //RetrieveAsIfPublished = true
-                    };
-
-                    var result = (RetrieveEntityResponse)Service.Execute(req);
-                    args.Result = result;
-
-                },
-
-                PostWorkCallBack = (args) =>
-                {
-                    var entity = ((RetrieveEntityResponse)args.Result).EntityMetadata;
-
-                    if (entity.Keys != null && entity.Keys.Any())
-                    {
-                        
-                        foreach (var key in entity.Keys)
-                        {
-
-                            var newKey = new Key
-                            {
-                                LogicalName = key.LogicalName,
-                                Name = key.DisplayName.UserLocalizedLabel.Label.FormatText()
-
-                            };
-                            newKey.FieldNames.AddRange(key.KeyAttributes);
-
-
-
-                            table.Keys.Add(newKey);
-                        }
-                    }
-
-                    if (entity.OneToManyRelationships.Any())
-                    {
-                        
-                        foreach (var relationship in entity.OneToManyRelationships)
-                        {
-                            
-
-                            table.OneToManyRelationships.Add(new Relation
-                            {
-                                Name = relationship.SchemaName,
-                                Role = EntityRole.Referenced,
-                                EntityName = relationship.ReferencingEntity,
-                                NavigationPropertyName = relationship.ReferencedEntityNavigationPropertyName,
-                                LookupFieldName = relationship.ReferencingAttribute
-                            });
-                        }
-                    }
-
-                    if (entity.ManyToManyRelationships.Any())
-                    {
-                        
-                        foreach (var relationship in entity.ManyToManyRelationships)
-                        {
-
-                            table.ManyToManyRelationships.Add(new Relation
-                            {
-                                Name = relationship.SchemaName,
-                                Role = EntityRole.Referencing,
-                                EntityName = relationship.Entity1LogicalName == table.LogicalName ? relationship.Entity2LogicalName : relationship.Entity1LogicalName,
-                                NavigationPropertyName = relationship.IntersectEntityName,
-                                LookupFieldName = relationship.Entity1LogicalName == table.LogicalName ? relationship.Entity2IntersectAttribute : relationship.Entity1IntersectAttribute
-                            });
-                        }
-                    }
-
-                    if (entity.ManyToOneRelationships.Any())
-                    {
-                        foreach (var relationship in entity.ManyToOneRelationships)
-                        {
-                            table.ManyToOneRelationships.Add(new Relation
-                            {
-                                Name = relationship.SchemaName,
-                                Role = EntityRole.Referencing,
-                                NavigationPropertyName = relationship.ReferencingEntityNavigationPropertyName,
-                                EntityName = relationship.ReferencedEntity,
-                                LookupFieldName = relationship.ReferencingAttribute
-                            });
-                        }
-                    }
-
-                    foreach (var attributeMetadata in entity.Attributes.OrderBy(a => a.LogicalName))
-                    {
-                        if (!attributeMetadata.IsValidForCreate.Value && !attributeMetadata.IsValidForRead.Value && !attributeMetadata.IsValidForUpdate.Value)
-                        {
-                            continue;
-                        }
-                        if (attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.EntityName || !string.IsNullOrEmpty(attributeMetadata.AttributeOf))
-                        {
-                            continue;
-                        }
-
-                        string attributeEnumName = null;
-
-                        if (attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Picklist || attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.State || attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Status || attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata)
-                        {
-                            var meta = ((EnumAttributeMetadata)attributeMetadata).OptionSet;
-
-                            var enumLogicalName = meta.IsGlobal.Value ? meta.Name : entity.LogicalName + "|" + attributeMetadata.LogicalName;
-
-                            attributeEnumName = enumLogicalName;
-
-
-                            var newEnum = new OptionSetEnum
-                            {
-                                LogicalName = enumLogicalName,
-                                IsGlobal = meta.IsGlobal.Value,
-                                HasNullValue = attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Picklist &&
-                                               meta.Options.All(option => option.Value.GetValueOrDefault() != 0),
-                            };
-
-                            if (attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.State)
-                            {
-
-                                newEnum.Name = table.Name.Replace("Definition", "") + "State";
-                            }
-                            else if (attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Status)
-                            {
-                                newEnum.Name = table.Name.Replace("Definition", "") + "Status";
-                            }
-                            else
-                            {
-                                newEnum.Name = meta.DisplayName.UserLocalizedLabel?.Label.FormatText();
-                            }
-
-                            if (string.IsNullOrEmpty(newEnum.Name))
-                            {
-                                continue;
-                            }
-
-                            foreach (var option in meta.Options)
-                            {
-                                if (option.Label.UserLocalizedLabel == null)
-                                {
-                                    continue;
-                                }
-
-                                var optionValue = new OptionSetEnumValue
-                                {
-                                    Name = option.Label.UserLocalizedLabel.Label.FormatText(),
-                                    Value = option.Value.Value,
-                                    ExternalValue = option.ExternalValue
-                                };
-
-                                foreach (var displayNameLocalizedLabel in option.Label.LocalizedLabels)
-                                {
-                                    optionValue.Labels.Add(new XrmFramework.Core.LocalizedLabel
-                                    {
-                                        Label = displayNameLocalizedLabel.Label,
-                                        LangId = displayNameLocalizedLabel.LanguageCode
-                                    });
-                                }
-
-                                newEnum.Values.Add(optionValue);
-
-                            }
-
-                            if (!newEnum.IsGlobal)
-                            {
-                                table.Enums.Add(newEnum);
-                            }
-                            else if (globalEnumsTable.Enums.All(e => e.LogicalName != newEnum.LogicalName))
-                            {
-                                globalEnumsTable.Enums.Add(newEnum);
-                            }
-            
-                            
-                        }
-
-                        var name = RemovePrefix(attributeMetadata.SchemaName);
-
-                        if (attributeMetadata.LogicalName == entity.PrimaryIdAttribute)
-                        {
-                            name = "Id";
-                        }
-
-                        int? maxLength = null;
-                        double? minRangeDouble = null, maxRangeDouble = null;
-
-                        switch (attributeMetadata.AttributeType.Value)
-                        {
-                            case Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.String:
-                                maxLength = ((StringAttributeMetadata)attributeMetadata).MaxLength;
-                                break;
-                            case Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Memo:
-                                maxLength = ((MemoAttributeMetadata)attributeMetadata).MaxLength;
-                                break;
-                            case Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Money:
-                                var m = (MoneyAttributeMetadata)attributeMetadata;
-                                minRangeDouble = m.MinValue;
-                                maxRangeDouble = m.MaxValue;
-                                break;
-                            case Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Integer:
-                                var mi = (IntegerAttributeMetadata)attributeMetadata;
-                                minRangeDouble = mi.MinValue;
-                                maxRangeDouble = mi.MaxValue;
-                                break;
-                            case Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Double:
-                                var md = (DoubleAttributeMetadata)attributeMetadata;
-                                minRangeDouble = md.MinValue;
-                                maxRangeDouble = md.MaxValue;
-                                break;
-                            case Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Decimal:
-                                var mde = (DecimalAttributeMetadata)attributeMetadata;
-                                minRangeDouble = (double?)mde.MinValue;
-                                maxRangeDouble = (double?)mde.MaxValue;
-                                break;
-                        }
-
-
-                        var attribute = new Column
-                        {
-                            LogicalName = attributeMetadata.LogicalName,
-                            Name = RemovePrefix(name).FormatText(),
-                            Type = (XrmFramework.AttributeTypeCode)(int)(attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata
-                                ? Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Picklist : attributeMetadata.AttributeType.Value),
-                            IsMultiSelect = attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata,
-                            PrimaryType = attributeMetadata.LogicalName == entity.PrimaryIdAttribute ?
-                                PrimaryType.Id :
-                                attributeMetadata.LogicalName == entity.PrimaryNameAttribute ?
-                                    PrimaryType.Name :
-                                    attributeMetadata.LogicalName == entity.PrimaryImageAttribute ? PrimaryType.Image : PrimaryType.None,
-                            StringLength = maxLength,
-                            MinRange = minRangeDouble,
-                            MaxRange = maxRangeDouble,
-                            EnumName = attributeEnumName
-                        };
-
-                        foreach (var displayNameLocalizedLabel in attributeMetadata.DisplayName.LocalizedLabels)
-                        {
-                            attribute.Labels.Add(new XrmFramework.Core.LocalizedLabel
-                            {
-                                Label = displayNameLocalizedLabel.Label,
-                                LangId = displayNameLocalizedLabel.LanguageCode
-                            });
-                        }
-
-                        if (attributeMetadata.IsValidForAdvancedFind.Value)
-                        {
-                            attribute.Capabilities |= AttributeCapabilities.AdvancedFind;
-                        }
-
-                        if (attributeMetadata.IsValidForCreate.Value)
-                        {
-                            attribute.Capabilities |= AttributeCapabilities.Create;
-                        }
-
-                        if (attributeMetadata.IsValidForRead.Value)
-                        {
-                            attribute.Capabilities |= AttributeCapabilities.Read;
-                        }
-
-                        if (attributeMetadata.IsValidForUpdate.Value)
-                        {
-                            attribute.Capabilities |= AttributeCapabilities.Update;
-                        }
-
-
-                        if (attributeMetadata.AttributeType == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.DateTime)
-                        {
-                            var meta = (DateTimeAttributeMetadata)attributeMetadata;
-
-                            attribute.DateTimeBehavior = meta.DateTimeBehavior.ToDateTimeBehavior();
-                        }
-
-                        if (attributeMetadata.LogicalName == "ownerid")
-                        {
-                            
-                        }
-
-                        
-
-                        
-
-                        table.Columns.Add(attribute);
-                    }
-
-
-                    //columnBindingSource.DataSource = selectedTable.Columns;
-                }
-            });
-
-            RefreshGlobalEnum();
-
-        }
 
         public void AddTablesToProject(List<Table> tables)
         {
             foreach(Table table in tables)
             {
-                if(TableAndPath.ContainsKey(table.LogicalName))
+                if(TableHandler.TableAndPath.ContainsKey(table.LogicalName))
                 {
                     continue;
                 }
+                while(TableHandler.IsTableNameUsed(table,table.Name))
+                {
+                    TableHandler.ModifyTableName(table.Name,table, table.Name);
+                }
+                
                 //Get table attributes
-                RetrieveAttributesForTable(table);
-
-                TableAndPath[table.LogicalName] = new TableData(table, RemoveCurrentProjectPathFromTablePath(pathToRegisterTables + $"{table.Name}.table"));
+                //RetrieveAttributesForTable(table);
+                RefreshTableAttributes(table);
+                TableHandler.TableAndPath[table.LogicalName] = new TableData(table, RemoveCurrentProjectPathFromTablePath(TableHandler.PathToRegisterTables + $"{table.Name}.table"));
             }
         }
 
         private void SaveTablesButton_Click(object sender, EventArgs e)
         {
-            if(!Directory.Exists(pathToRegisterTables))
-            {
-                Directory.CreateDirectory(pathToRegisterTables);
-            }
-            foreach(var key in TableAndPath.Keys)
-            {
-                var path = TableAndPath[key].path;
-                var table = TableAndPath[key].table;
-                var splitPath = path.Split('\\').ToList();
-                //var rootPath = mySettings.RootFolders.FirstOrDefault(r => r.OrganizationName == mySettings.CurrentOrganizationName).FolderPath;
-                //var splitRootPath = rootPath.Split('\\').ToList();
-                splitPath.Remove(splitPath.ElementAt(splitPath.Count - 1));
-                splitPath.Remove(splitPath.ElementAt(0));
-                splitPath.Remove(splitPath.ElementAt(0));
-
-
-
-                var project = mySettings.RootFolders.FirstOrDefault(r => r.OrganizationName == mySettings.CurrentOrganizationName);
-                if(project == null)
-                {
-                    MessageBox.Show("Could not save tables");
-                    return;
-                }
-                var projectPath = project.FolderPath;
-                var registrationPath = String.Join("\\", splitPath);
-
-                var txt = JsonConvert.SerializeObject(table, Formatting.Indented, new JsonSerializerSettings
-                {
-                    DefaultValueHandling = DefaultValueHandling.Ignore
-                });
-                var finalPath = projectPath + '\\' + registrationPath + '\\' + $"{table.Name}.table";
-                CheckForDuplicateTableFile(finalPath,table);
-                var fileInfo = new FileInfo(projectPath +'\\'+ registrationPath +'\\'+ $"{table.Name}.table");
-                File.WriteAllText(fileInfo.FullName, txt);
-
-                
-                
-            }
-
-            // Register global enums
-
-            var enumsPath = pathToRegisterTables + $"{globalEnumsTable.Name}.table";
-
-            var splitEnumPath = enumsPath.Split('\\').ToList();
-            //var rootPath = mySettings.RootFolders.FirstOrDefault(r => r.OrganizationName == mySettings.CurrentOrganizationName).FolderPath;
-            //var splitRootPath = rootPath.Split('\\').ToList();
-            splitEnumPath.Remove(splitEnumPath.ElementAt(splitEnumPath.Count - 1));
-            splitEnumPath.Remove(splitEnumPath.ElementAt(0));
-            splitEnumPath.Remove(splitEnumPath.ElementAt(0));
-
-
-
-            var projectE = mySettings.RootFolders.FirstOrDefault(r => r.OrganizationName == mySettings.CurrentOrganizationName);
-            if (projectE == null)
-            {
-                MessageBox.Show("Could not save enums");
-                return;
-            }
-            var projectPathE = projectE.FolderPath;
-            var registrationPathE = String.Join("\\", splitEnumPath);
-
-            var txtE = JsonConvert.SerializeObject(globalEnumsTable, Formatting.Indented, new JsonSerializerSettings
-            {
-                DefaultValueHandling = DefaultValueHandling.Ignore
-            });
-            var fileInfoE = new FileInfo(enumsPath);
-            File.WriteAllText(fileInfoE.FullName, txtE);
+            TableHandler.SaveTables();
         }
 
-        private void CheckForDuplicateTableFile(string finalPath,Table table)
-        {
-            // Check for exisiting file
-            if(File.Exists(finalPath))
-            {
-                return;
-            }
-
-            // Iterate through each preexisting tableFile 
-            foreach(var path in PreexistingTablePaths)
-            {
-                var fileInfo = new FileInfo(path);
-                var text = File.ReadAllText(fileInfo.FullName);
-                var deserializedTable = JsonConvert.DeserializeObject<Table>(text);
-                if(deserializedTable.LogicalName == table.LogicalName)
-                {
-                    //Delete first file
-                    File.Delete(path);
-                   
-                }
-            }
-        }
+        
 
         private void RefreshGlobalEnum()
         {
-            optionSetEnumBindingSource.DataSource = globalEnumsTable.Enums;
+            optionSetEnumBindingSource.DataSource = TableHandler.globalEnumsTable.Enums;
+            
         }
         private void dataGridView3_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -1009,8 +616,33 @@ namespace XrmFramework.XrmToolbox
 
         private void dataGridView3_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
         {
-
+            if(e.ColumnIndex == 0)
+            {
+                //MessageBox.Show(e.ColumnIndex.ToString());
+                //MessageBox.Show(dataGridView3.Rows[e.RowIndex].Cells[0].Value.ToString());
+                var name = dataGridView3.Rows[e.RowIndex].Cells[0].Value;
+                var currentEnum = TableHandler.TableAndPath[TableHandler.CurrentTable].table.Enums.FirstOrDefault(en => en.LogicalName == TableHandler.CurrentEnum);
+                if(currentEnum == null)
+                {
+                    currentEnum = TableHandler.globalEnumsTable.Enums.FirstOrDefault(en => en.LogicalName == TableHandler.CurrentEnum);
+                    if(currentEnum == null)
+                    {
+                        return;
+                    }
+                }
+                //MessageBox.Show(value.ToString());
+                var enumValue = currentEnum.Values.ElementAt(e.RowIndex);
+                //MessageBox.Show(enumValue.Name);
+                TableHandler.ModifyEnumeValueName(enumValue,currentEnum,enumValue.Name);
+                dataGridView3.Rows[e.RowIndex].Cells[0].Value = enumValue.Name;
+                //enumValue.Name = 
+                //MessageBox.Show(currentEnum.LogicalName);
+                
+               
+            }
         }
+
+        
 
         private void splitContainer3_Panel2_Paint(object sender, PaintEventArgs e)
         {
@@ -1029,11 +661,11 @@ namespace XrmFramework.XrmToolbox
 
         private void RefreshAttributesButton_Click(object sender, EventArgs e)
         {
-            if(String.IsNullOrEmpty(currentTable))
+            if(String.IsNullOrEmpty(TableHandler.CurrentTable))
             {
                 return;
             }
-            var selectedTable = TableAndPath[currentTable].table;
+            var selectedTable = TableHandler.TableAndPath[TableHandler.CurrentTable].table;
             if(selectedTable == null)
             {
                 return;
@@ -1055,13 +687,7 @@ namespace XrmFramework.XrmToolbox
                 Work = (worker, args) =>
                 {
 
-                    //query.ColumnSet.AllColumns = true;
-                    //var linkPublisher = query.AddLink(Deploy.Publisher.EntityLogicalName, "publisherid", "publisherid");
-                    //linkPublisher.EntityAlias = "publisher";
-                    //linkPublisher.Columns.AddColumn("customizationprefix");
-                    //
-                    //var solutions = Service.RetrieveMultiple(query).Entities.Select(s => s.ToEntity<Solution>());
-                    //args.Result = solutions.ToArray();
+                    
 
                     RetrieveEntityRequest req = new RetrieveEntityRequest()
                     {
@@ -1079,342 +705,70 @@ namespace XrmFramework.XrmToolbox
                 {
                     var entity = ((RetrieveEntityResponse)args.Result).EntityMetadata;
 
-                    if (entity.Keys != null && entity.Keys.Any())
-                    {
-
-                        foreach (var key in entity.Keys)
-                        {
-
-                            var newKey = new Key
-                            {
-                                LogicalName = key.LogicalName,
-                                Name = key.DisplayName.UserLocalizedLabel.Label.FormatText()
-
-                            };
-                            newKey.FieldNames.AddRange(key.KeyAttributes);
-
-
-
-                            //table.Keys.Add(newKey);
-                        }
-                    }
-
-                    if (entity.OneToManyRelationships.Any())
-                    {
-
-                        foreach (var relationship in entity.OneToManyRelationships)
-                        {
-
-
-                            //table.OneToManyRelationships.Add(new Relation
-                            //{
-                            //    Name = relationship.SchemaName,
-                            //    Role = EntityRole.Referenced,
-                            //    EntityName = relationship.ReferencingEntity,
-                            //    NavigationPropertyName = relationship.ReferencedEntityNavigationPropertyName,
-                            //    LookupFieldName = relationship.ReferencingAttribute
-                            //});
-                        }
-                    }
-
-                    if (entity.ManyToManyRelationships.Any())
-                    {
-
-                        foreach (var relationship in entity.ManyToManyRelationships)
-                        {
-
-                            //table.ManyToManyRelationships.Add(new Relation
-                            //{
-                            //    Name = relationship.SchemaName,
-                            //    Role = EntityRole.Referencing,
-                            //    EntityName = relationship.Entity1LogicalName == table.LogicalName ? relationship.Entity2LogicalName : relationship.Entity1LogicalName,
-                            //    NavigationPropertyName = relationship.IntersectEntityName,
-                            //    LookupFieldName = relationship.Entity1LogicalName == table.LogicalName ? relationship.Entity2IntersectAttribute : relationship.Entity1IntersectAttribute
-                            //});
-                        }
-                    }
-
-                    if (entity.ManyToOneRelationships.Any())
-                    {
-                        //foreach (var relationship in entity.ManyToOneRelationships)
-                        //{
-                        //    table.ManyToOneRelationships.Add(new Relation
-                        //    {
-                        //        Name = relationship.SchemaName,
-                        //        Role = EntityRole.Referencing,
-                        //        NavigationPropertyName = relationship.ReferencingEntityNavigationPropertyName,
-                        //        EntityName = relationship.ReferencedEntity,
-                        //        LookupFieldName = relationship.ReferencingAttribute
-                        //    });
-                        //}
-                    }
-
-                    foreach (var attributeMetadata in entity.Attributes.OrderBy(a => a.LogicalName))
-                    {
-                        if (!attributeMetadata.IsValidForCreate.Value && !attributeMetadata.IsValidForRead.Value && !attributeMetadata.IsValidForUpdate.Value)
-                        {
-                            continue;
-                        }
-                        if (attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.EntityName || !string.IsNullOrEmpty(attributeMetadata.AttributeOf))
-                        {
-                            continue;
-                        }
-
-                        string attributeEnumName = null;
-
-                        if (attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Picklist || attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.State || attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Status || attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata)
-                        {
-                            var meta = ((EnumAttributeMetadata)attributeMetadata).OptionSet;
-
-                            var enumLogicalName = meta.IsGlobal.Value ? meta.Name : entity.LogicalName + "|" + attributeMetadata.LogicalName;
-
-                            attributeEnumName = enumLogicalName;
-
-
-                            var newEnum = new OptionSetEnum
-                            {
-                                LogicalName = enumLogicalName,
-                                IsGlobal = meta.IsGlobal.Value,
-                                HasNullValue = attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Picklist &&
-                                               meta.Options.All(option => option.Value.GetValueOrDefault() != 0),
-                            };
-
-                            if (attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.State)
-                            {
-
-                                newEnum.Name = table.Name.Replace("Definition", "") + "State";
-                            }
-                            else if (attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Status)
-                            {
-                                newEnum.Name = table.Name.Replace("Definition", "") + "Status";
-                            }
-                            else
-                            {
-                                newEnum.Name = meta.DisplayName.UserLocalizedLabel?.Label.FormatText();
-                            }
-
-                            if (string.IsNullOrEmpty(newEnum.Name))
-                            {
-                                continue;
-                            }
-
-                            foreach (var option in meta.Options)
-                            {
-                                if (option.Label.UserLocalizedLabel == null)
-                                {
-                                    continue;
-                                }
-
-                                var optionValue = new OptionSetEnumValue
-                                {
-                                    Name = option.Label.UserLocalizedLabel.Label.FormatText(),
-                                    Value = option.Value.Value,
-                                    ExternalValue = option.ExternalValue
-                                };
-
-                                foreach (var displayNameLocalizedLabel in option.Label.LocalizedLabels)
-                                {
-                                    optionValue.Labels.Add(new XrmFramework.Core.LocalizedLabel
-                                    {
-                                        Label = displayNameLocalizedLabel.Label,
-                                        LangId = displayNameLocalizedLabel.LanguageCode
-                                    });
-                                }
-
-                                newEnum.Values.Add(optionValue);
-
-                            }
-
-                            if (!newEnum.IsGlobal)
-                            {
-                                //table.Enums.Add(newEnum);
-                            }
-                            else if (globalEnumsTable.Enums.All(e => e.LogicalName != newEnum.LogicalName))
-                            {
-                                //globalEnumsTable.Enums.Add(newEnum);
-                            }
-
-
-                        }
-
-                        var name = RemovePrefix(attributeMetadata.SchemaName);
-
-                        if (attributeMetadata.LogicalName == entity.PrimaryIdAttribute)
-                        {
-                            name = "Id";
-                        }
-
-                        int? maxLength = null;
-                        double? minRangeDouble = null, maxRangeDouble = null;
-
-                        switch (attributeMetadata.AttributeType.Value)
-                        {
-                            case Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.String:
-                                maxLength = ((StringAttributeMetadata)attributeMetadata).MaxLength;
-                                break;
-                            case Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Memo:
-                                maxLength = ((MemoAttributeMetadata)attributeMetadata).MaxLength;
-                                break;
-                            case Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Money:
-                                var m = (MoneyAttributeMetadata)attributeMetadata;
-                                minRangeDouble = m.MinValue;
-                                maxRangeDouble = m.MaxValue;
-                                break;
-                            case Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Integer:
-                                var mi = (IntegerAttributeMetadata)attributeMetadata;
-                                minRangeDouble = mi.MinValue;
-                                maxRangeDouble = mi.MaxValue;
-                                break;
-                            case Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Double:
-                                var md = (DoubleAttributeMetadata)attributeMetadata;
-                                minRangeDouble = md.MinValue;
-                                maxRangeDouble = md.MaxValue;
-                                break;
-                            case Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Decimal:
-                                var mde = (DecimalAttributeMetadata)attributeMetadata;
-                                minRangeDouble = (double?)mde.MinValue;
-                                maxRangeDouble = (double?)mde.MaxValue;
-                                break;
-                        }
-
-
-                        var attribute = new Column
-                        {
-                            LogicalName = attributeMetadata.LogicalName,
-                            Name = RemovePrefix(name).FormatText(),
-                            Type = (XrmFramework.AttributeTypeCode)(int)(attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata
-                                ? Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Picklist : attributeMetadata.AttributeType.Value),
-                            IsMultiSelect = attributeMetadata.AttributeType.Value == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata,
-                            PrimaryType = attributeMetadata.LogicalName == entity.PrimaryIdAttribute ?
-                                PrimaryType.Id :
-                                attributeMetadata.LogicalName == entity.PrimaryNameAttribute ?
-                                    PrimaryType.Name :
-                                    attributeMetadata.LogicalName == entity.PrimaryImageAttribute ? PrimaryType.Image : PrimaryType.None,
-                            StringLength = maxLength,
-                            MinRange = minRangeDouble,
-                            MaxRange = maxRangeDouble,
-                            EnumName = attributeEnumName,
-                            Selected = false
-                        };
-
-                        foreach (var displayNameLocalizedLabel in attributeMetadata.DisplayName.LocalizedLabels)
-                        {
-                            attribute.Labels.Add(new XrmFramework.Core.LocalizedLabel
-                            {
-                                Label = displayNameLocalizedLabel.Label,
-                                LangId = displayNameLocalizedLabel.LanguageCode
-                            });
-                        }
-
-                        if (attributeMetadata.IsValidForAdvancedFind.Value)
-                        {
-                            attribute.Capabilities |= AttributeCapabilities.AdvancedFind;
-                        }
-
-                        if (attributeMetadata.IsValidForCreate.Value)
-                        {
-                            attribute.Capabilities |= AttributeCapabilities.Create;
-                        }
-
-                        if (attributeMetadata.IsValidForRead.Value)
-                        {
-                            attribute.Capabilities |= AttributeCapabilities.Read;
-                        }
-
-                        if (attributeMetadata.IsValidForUpdate.Value)
-                        {
-                            attribute.Capabilities |= AttributeCapabilities.Update;
-                        }
-
-
-                        if (attributeMetadata.AttributeType == Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode.DateTime)
-                        {
-                            var meta = (DateTimeAttributeMetadata)attributeMetadata;
-
-                            attribute.DateTimeBehavior = meta.DateTimeBehavior.ToDateTimeBehavior();
-                        }
-
-                        if (attributeMetadata.LogicalName == "ownerid")
-                        {
-
-                        }
-
-
-
-
-
-                        table.Columns.Add(attribute);
-                    }
-
+                    TableHandler.ProcessEntityResponse(table, entity);
+                    // La seule partie a retirer pour utiliser une seule fonction à priori
                     columnBindingSource.DataSource = table.Columns.ToList();
-                    MessageBox.Show(table.Name);
 
                 }
             });
 
-            //RefreshGlobalEnum();
 
         }
 
-        public void TryEnumName(string enumName)
+
+
+
+        
+        private void TableNameText_TextChanged(object sender, EventArgs e)
         {
-            Table currentTable;
-            //First check tables
-            foreach(var key in TableAndPath.Keys)
-            {
-                currentTable = TableAndPath[key].table;
-                if(currentTable.Enums.Any(e=>e.Name == enumName))
-                {
-                    MessageBox.Show($"The name {enumName} is already being used in table {currentTable.LogicalName} for enum {currentTable.Enums.FirstOrDefault(e => e.Name == enumName).LogicalName}");
-                    // Open new name prompt (can be used for table and enums) at the point of creation of a table
-                    //var otherNameForm = new
-                    // Try the newly chosen name again
-                    return;
-                }
+        }
 
-            }
-            var globalEnum = globalEnumsTable.Enums.FirstOrDefault(e => e.Name == enumName);
-            if (globalEnum!=null)
+        private void TableNameText_Click(object sender, EventArgs e)
+        {
+            if(string.IsNullOrEmpty(TableNameText.Text))
             {
-                MessageBox.Show($"The name {enumName} is already being used in global enumerations for enum {globalEnum.LogicalName}");
-                // Open new name prompt (can be used for table and enums) at the point of creation of a table
-
-                // Try the newly chosen name again
                 return;
+
             }
+            //Start modifying
+            var text = TableNameText.Text;
+            //Get the current table
+            var currentTable = TableHandler.TableAndPath[TableLogicalNameText.Text].table;
+            TableHandler.ModifyTableName(TableNameText.Text,currentTable, text);
+            TableNameText.Text = currentTable.Name;
+
+
         }
 
-        public void TryTableName(string tableName)
+        
+
+        
+        private void NewProjectButton_Click(object sender, EventArgs e)
         {
-            Table currentTable;
-            //First check tables
-            foreach (var key in TableAndPath.Keys)
-            {
-                currentTable = TableAndPath[key].table;
-                if (currentTable.Name == tableName)
-                {
-                    MessageBox.Show($"The name {tableName} is already being used in table {currentTable.LogicalName}");
-                    // Open new name prompt (can be used for table and enums) at the point of creation of a table
+            var newProjectForm = new ProjectCreationForm();
+            newProjectForm.PluginControl = this;
 
-                    // Try the newly chosen name again
-                    return;
-                }
-
-            }
+            newProjectForm.ShowDialog();
             
         }
-    }
 
-    public class TableData
-    {
-        public Table table;
-        public String path;
-        public TableData(Table table,string path)
+        public void ReloadProject()
         {
-            this.table = table;
-            this.path = path;   
+
+        }
+
+        private void CurrentProjectTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void EnumNameText_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
+
+    
 
     public static class DateTimeBehaviorExtensions
     {
@@ -1434,3 +788,73 @@ namespace XrmFramework.XrmToolbox
         }
     }
 }
+
+//private void LoadTablesFromProject(string projectPath)
+//{
+//    foreach (var fileName in Directory.GetFiles($"{projectPath}", "*.table", SearchOption.AllDirectories))
+//    {
+//        PreexistingTablePaths.Add(fileName);
+//        if(fileName.Contains("OptionSet"))
+//        {
+//            //MessageBox.Show(fileName);
+//            var fileInfo = new FileInfo(fileName);
+//            var text = File.ReadAllText(fileInfo.FullName);
+//            var table = JsonConvert.DeserializeObject<Table>(text);
+//            globalEnumsTable = table;
+//        }
+//        else
+//        {
+//            //MessageBox.Show(fileName);
+//            var fileInfo = new FileInfo(fileName);
+//            var text = File.ReadAllText(fileInfo.FullName);
+//            var table = JsonConvert.DeserializeObject<Table>(text);
+//
+//            var splitFilename = fileInfo.Name.Split('\\');
+//            var rootPath = Settings.RootFolders.FirstOrDefault(r => r.OrganizationName == Settings.CurrentOrganizationName).FolderPath;
+//            var splitRootPath = rootPath.Split('\\').ToList();
+//            splitRootPath.Remove(splitRootPath.ElementAt(splitRootPath.Count - 1));
+//            rootPath = String.Join("\\", splitRootPath);
+//
+//            TableHandler.TableAndPath[table.LogicalName] = new TableData(table, RemoveCurrentProjectPathFromTablePath(fileName));
+//        }
+//        
+//    }
+//
+//    if(globalEnumsTable == null)
+//    {
+//        globalEnumsTable = new Table()
+//        {
+//            LogicalName = "globalEnums",
+//            Name = "OptionSet"
+//        };
+//    }
+//
+//    
+//}
+
+/*private void GetAccounts()
+        {
+            WorkAsync(new WorkAsyncInfo
+            {
+                Message = "Getting accounts",
+                Work = (worker, args) =>
+                {
+                    args.Result = Service.RetrieveMultiple(new QueryExpression("account")
+                    {
+                        TopCount = 50
+                    });
+                },
+                PostWorkCallBack = (args) =>
+                {
+                    if (args.Error != null)
+                    {
+                        MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    var result = args.Result as EntityCollection;
+                    if (result != null)
+                    {
+                        MessageBox.Show($"Found {result.Entities.Count} accounts");
+                    }
+                }
+            });
+        }*/
