@@ -124,7 +124,7 @@ namespace XrmFramework
             localContext.Log("The context is genuine");
 
             // If currently remote debugging, no need to go on
-            if (SendToRemoteDebugger(localContext)) return;
+            if (IsBeingDebugged(localContext)) return;
 
             localContext.LogContextEntry();
 

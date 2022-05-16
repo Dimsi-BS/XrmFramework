@@ -58,42 +58,16 @@ namespace XrmFramework.RemoteDebugger
 
             var remoteContext = InitRemoteContext(localContext, debugSession);
 
-            var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
+            using var hybridConnection = InitConnection(debugSession);
 
-            using var hybridConnection = new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri);
-            var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
-
-            localContext.LogContextEntry();
+            localContext.Log("Sending context to local machine : {0}", debugSession.HybridConnectionName);
             try
             {
-                RemoteDebuggerMessage response;
-                while (true)
-                {
-                    localContext.Log("Sending context to local machine : {0}", debugSession.HybridConnectionName);
-
-                    response = hybridConnection.SendMessage(message).GetAwaiter().GetResult();
-
-                    localContext.Log($"Received response : {response.MessageType}\n");
-
-                    if (response.MessageType == RemoteDebuggerMessageType.Context || response.MessageType == RemoteDebuggerMessageType.Exception)
-                    {
-                        break;
-                    }
-
-                    var request = response.GetOrganizationRequest();
-
-                    var service = response.UserId.HasValue ? localContext.GetService(response.UserId.Value) : localContext.AdminOrganizationService;
-
-                    var organizationResponse = service.Execute(request);
-
-                    message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Response, organizationResponse, remoteContext.Id);
-                }
-
+                var response = SendToRemoteDebugger(hybridConnection, localContext, remoteContext);
                 if (response.MessageType == RemoteDebuggerMessageType.Exception)
                 {
                     throw response.GetException();
                 }
-
                 var updatedContext = response.GetContext<RemoteDebugExecutionContext>();
                 localContext.UpdateContext(updatedContext);
             }
@@ -102,8 +76,43 @@ namespace XrmFramework.RemoteDebugger
                 localContext.DumpLog();
                 localContext.Log(e.Message);
             }
+
             LogExit(localContext);
         }
+
+
+
+        private RemoteDebuggerMessage SendToRemoteDebugger(HybridConnection hybridConnection, LocalPluginContext localContext, RemoteDebugExecutionContext remoteContext)
+        {
+            var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
+            RemoteDebuggerMessage response;
+            localContext.LogContextEntry();
+
+            while (true)
+            {
+                response = hybridConnection.SendMessage(message).GetAwaiter().GetResult();
+
+                localContext.Log($"Received response : {response.MessageType}\n");
+
+                if (response.MessageType == RemoteDebuggerMessageType.Context || response.MessageType == RemoteDebuggerMessageType.Exception)
+                {
+                    break;
+                }
+
+                var request = response.GetOrganizationRequest();
+
+                var service = response.UserId.HasValue ? localContext.GetService(response.UserId.Value) : localContext.AdminOrganizationService;
+
+                localContext.Log("Executing local machine request");
+                var organizationResponse = service.Execute(request);
+
+                message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Response, organizationResponse, remoteContext.Id);
+                localContext.Log("Transferring response to local machine");
+            }
+
+            return response;
+        }
+
 
         internal virtual RemoteDebugExecutionContext InitRemoteContext(LocalPluginContext localContext, DebugSession debugSession)
         {
@@ -160,6 +169,13 @@ namespace XrmFramework.RemoteDebugger
             queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal,
                 initiatingUserId);
             return queryDebugSessions;
+        }
+
+        private static HybridConnection InitConnection(DebugSession debugSession)
+        {
+            var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
+
+            return new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri);
         }
     }
 }
