@@ -8,8 +8,6 @@
 	  <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
 	  <PublicSign>$(XrmFramework_PublicSign)</PublicSign>
 	  <PackageId>XrmFramework.RemoteDebuggerPlugin</PackageId>
-
-	  
 	  
   </PropertyGroup>
 
