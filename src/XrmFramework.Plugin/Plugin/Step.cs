@@ -39,7 +39,7 @@ namespace XrmFramework
 
             if (Method != null)
             {
-                
+
                 MethodNames.Add(Method.Name);
 
                 var filteringAttributes = Method.GetCustomAttribute<FilteringAttributesAttribute>();
@@ -86,18 +86,17 @@ namespace XrmFramework
                 }
 
                 var executionOrderAttribute = Method.GetCustomAttribute<ExecutionOrderAttribute>();
-                //Get execution order attribute ???????
                 if (executionOrderAttribute != null)
                 {
                     Order = executionOrderAttribute.Order;
                 }
-                // C'est quoi ImpersonationAttribute ?????
+
                 var impersonationUserAttribute = Method.GetCustomAttribute<ImpersonationAttribute>();
                 if (impersonationUserAttribute != null)
                 {
                     ImpersonationUsername = impersonationUserAttribute.ImpersonationUsername;
                 }
-                // C'est quoi UnsecureConfigAttribute ?????
+
                 var unsecureConfigAttribute = Method.GetCustomAttribute<UnsecureConfigAttribute>();
                 if (unsecureConfigAttribute != null)
                 {

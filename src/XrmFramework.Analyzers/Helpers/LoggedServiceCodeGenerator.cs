@@ -31,6 +31,8 @@ namespace XrmFramework.Analyzers.Helpers
 
             var builder = new IndentedStringBuilder();
 
+            builder.AppendLine("#if !DISABLE_SERVICES");
+
             foreach (var ns in namespaces.Where(n => !string.IsNullOrEmpty(n)).OrderBy(n => n).Distinct())
             {
                 builder
@@ -96,6 +98,8 @@ namespace XrmFramework.Analyzers.Helpers
             }
 
             builder.AppendLine("}");
+
+            builder.Append("#endif");
 
             return builder.ToString();
         }

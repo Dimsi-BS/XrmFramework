@@ -4,14 +4,1437 @@
   "CollName": "systemusers",
   "Cols": [
     {
+      "LogName": "accessmode",
+      "Name": "AccessMode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Mode d'accès",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|accessmode",
+      "Select": true
+    },
+    {
+      "LogName": "address1_addressid",
+      "Name": "Address1_AddressId",
+      "Type": "Uniqueidentifier",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : ID",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "address1_addresstypecode",
+      "Name": "Address1_AddressTypeCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Type d'adresse",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|address1_addresstypecode"
+    },
+    {
+      "LogName": "address1_city",
+      "Name": "Address1_City",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Ville",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 128
+    },
+    {
+      "LogName": "address1_composite",
+      "Name": "Address1_Composite",
+      "Type": "Memo",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Adresse",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1000
+    },
+    {
+      "LogName": "address1_country",
+      "Name": "Address1_Country",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Pays/région",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 128
+    },
+    {
+      "LogName": "address1_county",
+      "Name": "Address1_County",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Commune",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 128
+    },
+    {
+      "LogName": "address1_fax",
+      "Name": "Address1_Fax",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Télécopie",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 64
+    },
+    {
+      "LogName": "address1_latitude",
+      "Name": "Address1_Latitude",
+      "Type": "Double",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Latitude",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -90.0,
+      "MaxRange": 90.0
+    },
+    {
+      "LogName": "address1_line1",
+      "Name": "Address1_Line1",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Rue 1",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1024
+    },
+    {
+      "LogName": "address1_line2",
+      "Name": "Address1_Line2",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Rue 2",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1024
+    },
+    {
+      "LogName": "address1_line3",
+      "Name": "Address1_Line3",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Rue 3",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1024
+    },
+    {
+      "LogName": "address1_longitude",
+      "Name": "Address1_Longitude",
+      "Type": "Double",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Longitude",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -180.0,
+      "MaxRange": 180.0
+    },
+    {
+      "LogName": "address1_name",
+      "Name": "Address1_Name",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Nom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "address1_postalcode",
+      "Name": "Address1_PostalCode",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Code postal",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 40
+    },
+    {
+      "LogName": "address1_postofficebox",
+      "Name": "Address1_PostOfficeBox",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Boîte postale",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 40
+    },
+    {
+      "LogName": "address1_shippingmethodcode",
+      "Name": "Address1_ShippingMethodCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Mode de livraison",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|address1_shippingmethodcode"
+    },
+    {
+      "LogName": "address1_stateorprovince",
+      "Name": "Address1_StateOrProvince",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Département/province",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 128
+    },
+    {
+      "LogName": "address1_telephone1",
+      "Name": "Address1_Telephone1",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Téléphone principal",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 64
+    },
+    {
+      "LogName": "address1_telephone2",
+      "Name": "Address1_Telephone2",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Autre téléphone",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_telephone3",
+      "Name": "Address1_Telephone3",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Radiomessagerie",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_upszone",
+      "Name": "Address1_UPSZone",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Zone UPS",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 4
+    },
+    {
+      "LogName": "address1_utcoffset",
+      "Name": "Address1_UTCOffset",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Décalage UTC",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -1500.0,
+      "MaxRange": 1500.0
+    },
+    {
+      "LogName": "address2_addressid",
+      "Name": "Address2_AddressId",
+      "Type": "Uniqueidentifier",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : ID",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "address2_addresstypecode",
+      "Name": "Address2_AddressTypeCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Type d'adresse",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|address2_addresstypecode"
+    },
+    {
+      "LogName": "address2_city",
+      "Name": "Address2_City",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Autre ville",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 128
+    },
+    {
+      "LogName": "address2_composite",
+      "Name": "Address2_Composite",
+      "Type": "Memo",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Autre adresse",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1000
+    },
+    {
+      "LogName": "address2_country",
+      "Name": "Address2_Country",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Autre pays/région",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 128
+    },
+    {
+      "LogName": "address2_county",
+      "Name": "Address2_County",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Commune",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 128
+    },
+    {
+      "LogName": "address2_fax",
+      "Name": "Address2_Fax",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Télécopie",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_latitude",
+      "Name": "Address2_Latitude",
+      "Type": "Double",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Latitude",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -90.0,
+      "MaxRange": 90.0
+    },
+    {
+      "LogName": "address2_line1",
+      "Name": "Address2_Line1",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Autre rue 1",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1024
+    },
+    {
+      "LogName": "address2_line2",
+      "Name": "Address2_Line2",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Autre rue 2",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1024
+    },
+    {
+      "LogName": "address2_line3",
+      "Name": "Address2_Line3",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Autre rue 3",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1024
+    },
+    {
+      "LogName": "address2_longitude",
+      "Name": "Address2_Longitude",
+      "Type": "Double",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Longitude",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -180.0,
+      "MaxRange": 180.0
+    },
+    {
+      "LogName": "address2_name",
+      "Name": "Address2_Name",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Nom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "address2_postalcode",
+      "Name": "Address2_PostalCode",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Autre code postal",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 40
+    },
+    {
+      "LogName": "address2_postofficebox",
+      "Name": "Address2_PostOfficeBox",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Boîte postale",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 40
+    },
+    {
+      "LogName": "address2_shippingmethodcode",
+      "Name": "Address2_ShippingMethodCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Mode de livraison",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|address2_shippingmethodcode"
+    },
+    {
+      "LogName": "address2_stateorprovince",
+      "Name": "Address2_StateOrProvince",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Autre département/province",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 128
+    },
+    {
+      "LogName": "address2_telephone1",
+      "Name": "Address2_Telephone1",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Téléphone 1",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_telephone2",
+      "Name": "Address2_Telephone2",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Téléphone 2",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_telephone3",
+      "Name": "Address2_Telephone3",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Téléphone 3",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_upszone",
+      "Name": "Address2_UPSZone",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Zone UPS",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 4
+    },
+    {
+      "LogName": "address2_utcoffset",
+      "Name": "Address2_UTCOffset",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Décalage UTC",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -1500.0,
+      "MaxRange": 1500.0
+    },
+    {
+      "LogName": "applicationid",
+      "Name": "ApplicationId",
+      "Type": "Uniqueidentifier",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "ID d'application",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "applicationiduri",
+      "Name": "ApplicationIdUri",
+      "Type": "String",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "URI de l'ID d'application",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1024
+    },
+    {
+      "LogName": "azureactivedirectoryobjectid",
+      "Name": "AzureActiveDirectoryObjectId",
+      "Type": "Uniqueidentifier",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "ID d'objet Azure AD",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "azuredeletedon",
+      "Name": "AzureDeletedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Azure Deleted On",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "azurestate",
+      "Name": "AzureState",
+      "Type": "Picklist",
+      "Capa": 11,
+      "Labels": [
+        {
+          "Label": "Azure State",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|azurestate"
+    },
+    {
       "LogName": "businessunitid",
       "Name": "BusinessUnitId",
       "Type": "Lookup",
       "Capa": 15,
-      "Locked": true,
       "Labels": [
         {
           "Label": "Division",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "calendarid",
+      "Name": "CalendarId",
+      "Type": "Lookup",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Calendrier",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "caltype",
+      "Name": "CALType",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Type de licence",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|caltype"
+    },
+    {
+      "LogName": "createdby",
+      "Name": "CreatedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "createdonbehalfby",
+      "Name": "CreatedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "defaultfilterspopulated",
+      "Name": "DefaultFiltersPopulated",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Filtres par défaut renseignés",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "defaultmailbox",
+      "Name": "DefaultMailbox",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Boîte aux lettres",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "defaultodbfoldername",
+      "Name": "DefaultOdbFolderName",
+      "Type": "String",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Nom du dossier OneDrive Entreprise par défaut",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 200
+    },
+    {
+      "LogName": "deletedstate",
+      "Name": "DeletedState",
+      "Type": "Picklist",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Deleted State",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|deletedstate"
+    },
+    {
+      "LogName": "disabledreason",
+      "Name": "DisabledReason",
+      "Type": "String",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Raison du statut Désactivé",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 500
+    },
+    {
+      "LogName": "displayinserviceviews",
+      "Name": "DisplayInServiceViews",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Afficher dans les vues Service",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "domainname",
+      "Name": "DomainName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom d'utilisateur",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1024,
+      "Select": true
+    },
+    {
+      "LogName": "emailrouteraccessapproval",
+      "Name": "EmailRouterAccessApproval",
+      "Type": "Picklist",
+      "Capa": 11,
+      "Labels": [
+        {
+          "Label": "Statut de l’adresse de messagerie principale",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|emailrouteraccessapproval"
+    },
+    {
+      "LogName": "employeeid",
+      "Name": "EmployeeId",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Employé",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "entityimageid",
+      "Name": "EntityImageId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Code d'image de l'entité",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "exchangerate",
+      "Name": "ExchangeRate",
+      "Type": "Decimal",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Taux de change",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": 1E-10,
+      "MaxRange": 100000000000.0
+    },
+    {
+      "LogName": "firstname",
+      "Name": "FirstName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Prénom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "fullname",
+      "Name": "FullName",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Nom complet",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 200,
+      "Select": true
+    },
+    {
+      "LogName": "governmentid",
+      "Name": "GovernmentId",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Organismes d'état",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "homephone",
+      "Name": "HomePhone",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Téléphone personnel",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "identityid",
+      "Name": "IdentityId",
+      "Type": "Integer",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "ID d'identité d'utilisateur unique",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -2147483648.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "importsequencenumber",
+      "Name": "ImportSequenceNumber",
+      "Type": "Integer",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Numéro séquentiel d'importation",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -2147483648.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "incomingemaildeliverymethod",
+      "Name": "IncomingEmailDeliveryMethod",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Mode de distribution des courriers électroniques entrants",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|incomingemaildeliverymethod"
+    },
+    {
+      "LogName": "internalemailaddress",
+      "Name": "InternalEMailAddress",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse de messagerie principale",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "invitestatuscode",
+      "Name": "InviteStatusCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Statut de l'invitation",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|invitestatuscode"
+    },
+    {
+      "LogName": "isdisabled",
+      "Name": "IsDisabled",
+      "Capa": 11,
+      "Labels": [
+        {
+          "Label": "Statut",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "isemailaddressapprovedbyo365admin",
+      "Name": "IsEmailAddressApprovedByO365Admin",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Statut de l'approbation de l'adresse de messagerie par l'administrateur d'O365",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "isintegrationuser",
+      "Name": "IsIntegrationUser",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Mode utilisateur de l’intégration",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "islicensed",
+      "Name": "IsLicensed",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Utilisateur avec licence",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "issyncwithdirectory",
+      "Name": "IsSyncWithDirectory",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Utilisateur synchronisé",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "jobtitle",
+      "Name": "JobTitle",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Fonction",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "lastname",
+      "Name": "LastName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom de famille",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "middlename",
+      "Name": "MiddleName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Deuxième prénom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "mobilealertemail",
+      "Name": "MobileAlertEMail",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Message d'alerte mobile",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "mobileofflineprofileid",
+      "Name": "MobileOfflineProfileId",
+      "Type": "Lookup",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Profil Mobile Offline",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "mobilephone",
+      "Name": "MobilePhone",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Téléphone mobile",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 64
+    },
+    {
+      "LogName": "modifiedby",
+      "Name": "ModifiedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedon",
+      "Name": "ModifiedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "modifiedonbehalfby",
+      "Name": "ModifiedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "msdyn_gdproptout",
+      "Name": "Gdproptout",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Désactivation de RGPD",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "nickname",
+      "Name": "NickName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Surnom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "organizationid",
+      "Name": "OrganizationId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Organisation ",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "outgoingemaildeliverymethod",
+      "Name": "OutgoingEmailDeliveryMethod",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Mode de livraison des courriers électroniques sortants",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|outgoingemaildeliverymethod"
+    },
+    {
+      "LogName": "overriddencreatedon",
+      "Name": "OverriddenCreatedOn",
+      "Type": "DateTime",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Enregistrement créé le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "parentsystemuserid",
+      "Name": "ParentSystemUserId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Directeur",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "passporthi",
+      "Name": "PassportHi",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Passeport max.",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": 0.0,
+      "MaxRange": 1000000000.0
+    },
+    {
+      "LogName": "passportlo",
+      "Name": "PassportLo",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Passeport min.",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": 0.0,
+      "MaxRange": 1000000000.0
+    },
+    {
+      "LogName": "personalemailaddress",
+      "Name": "PersonalEMailAddress",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse de messagerie 2",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "photourl",
+      "Name": "PhotoUrl",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "URL de photos",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 200
+    },
+    {
+      "LogName": "positionid",
+      "Name": "PositionId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Poste",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "preferredaddresscode",
+      "Name": "PreferredAddressCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse privilégiée",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|preferredaddresscode"
+    },
+    {
+      "LogName": "preferredemailcode",
+      "Name": "PreferredEmailCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Messagerie privilégiée",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|preferredemailcode"
+    },
+    {
+      "LogName": "preferredphonecode",
+      "Name": "PreferredPhoneCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Téléphone privilégié",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "systemuser|preferredphonecode"
+    },
+    {
+      "LogName": "processid",
+      "Name": "ProcessId",
+      "Type": "Uniqueidentifier",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Processus",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "queueid",
+      "Name": "QueueId",
+      "Type": "Lookup",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "File d’attente par défaut",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "salutation",
+      "Name": "Salutation",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Salutations",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "setupuser",
+      "Name": "SetupUser",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Mode d'accès restreint",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "sharepointemailaddress",
+      "Name": "SharePointEmailAddress",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse de messagerie SharePoint",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1024
+    },
+    {
+      "LogName": "siteid",
+      "Name": "SiteId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Site",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "skills",
+      "Name": "Skills",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Compétences",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "stageid",
+      "Name": "StageId",
+      "Type": "Uniqueidentifier",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "(Déconseillé) Phase du processus",
           "LangId": 1036
         }
       ]
@@ -22,13 +1445,221 @@
       "Type": "Uniqueidentifier",
       "PrimaryType": "Id",
       "Capa": 13,
-      "Locked": true,
       "Labels": [
         {
           "Label": "Utilisateur",
           "LangId": 1036
         }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "territoryid",
+      "Name": "TerritoryId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Secteur de vente",
+          "LangId": 1036
+        }
       ]
+    },
+    {
+      "LogName": "timezoneruleversionnumber",
+      "Name": "TimeZoneRuleVersionNumber",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Numéro de version de la règle du fuseau horaire",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -1.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "title",
+      "Name": "Title",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Titre",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 128
+    },
+    {
+      "LogName": "transactioncurrencyid",
+      "Name": "TransactionCurrencyId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Devise",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "traversedpath",
+      "Name": "TraversedPath",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "(Déconseillé) Chemin d’accès traversé",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1250
+    },
+    {
+      "LogName": "userlicensetype",
+      "Name": "UserLicenseType",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Type de licence utilisateur",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -2147483648.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "userpuid",
+      "Name": "UserPuid",
+      "Type": "String",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "PUID de l’utilisateur",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "utcconversiontimezonecode",
+      "Name": "UTCConversionTimeZoneCode",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Code de fuseau horaire pour la conversion UTC",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -1.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "versionnumber",
+      "Name": "VersionNumber",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Numéro de version",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "windowsliveid",
+      "Name": "WindowsLiveID",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Windows Live ID",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1024
+    },
+    {
+      "LogName": "yammeremailaddress",
+      "Name": "YammerEmailAddress",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Messagerie électronique Yammer",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 200
+    },
+    {
+      "LogName": "yammeruserid",
+      "Name": "YammerUserId",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "ID d'utilisateur Yammer",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 128
+    },
+    {
+      "LogName": "yomifirstname",
+      "Name": "YomiFirstName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Prénom Yomi",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 64
+    },
+    {
+      "LogName": "yomifullname",
+      "Name": "YomiFullName",
+      "Type": "String",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Nom complet Yomi",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 200
+    },
+    {
+      "LogName": "yomilastname",
+      "Name": "YomiLastName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom Yomi",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 64
+    },
+    {
+      "LogName": "yomimiddlename",
+      "Name": "YomiMiddleName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Deuxième prénom Yomi",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 50
     }
   ],
   "NtoN": [
@@ -27208,13 +28839,6 @@
       "LookName": "owninguser"
     },
     {
-      "Name": "msdyn_systemuser_msdyn_duplicateleadmapping_DismissedBy",
-      "Etn": "msdyn_duplicateleadmapping",
-      "Role": "Referenced",
-      "NavPropName": "msdyn_systemuser_msdyn_duplicateleadmapping_DismissedBy",
-      "LookName": "msdyn_dismissedby"
-    },
-    {
       "Name": "lk_msdyn_dataanalyticscustomizedreport_createdby",
       "Etn": "msdyn_dataanalyticscustomizedreport",
       "Role": "Referenced",
@@ -27885,6 +29509,230 @@
       "Role": "Referenced",
       "NavPropName": "lk_dimsi_xrmframeworkdebugsession_modifiedonbehalfby",
       "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "lk_msdyn_pmanalysishistory_createdby",
+      "Etn": "msdyn_pmanalysishistory",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_pmanalysishistory_createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_msdyn_pmanalysishistory_createdonbehalfby",
+      "Etn": "msdyn_pmanalysishistory",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_pmanalysishistory_createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_msdyn_pmanalysishistory_modifiedby",
+      "Etn": "msdyn_pmanalysishistory",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_pmanalysishistory_modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_msdyn_pmanalysishistory_modifiedonbehalfby",
+      "Etn": "msdyn_pmanalysishistory",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_pmanalysishistory_modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "user_msdyn_pmanalysishistory",
+      "Etn": "msdyn_pmanalysishistory",
+      "Role": "Referenced",
+      "NavPropName": "user_msdyn_pmanalysishistory",
+      "LookName": "owninguser"
+    },
+    {
+      "Name": "lk_msdyn_pmtemplate_createdby",
+      "Etn": "msdyn_pmtemplate",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_pmtemplate_createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_msdyn_pmtemplate_createdonbehalfby",
+      "Etn": "msdyn_pmtemplate",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_pmtemplate_createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_msdyn_pmtemplate_modifiedby",
+      "Etn": "msdyn_pmtemplate",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_pmtemplate_modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_msdyn_pmtemplate_modifiedonbehalfby",
+      "Etn": "msdyn_pmtemplate",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_pmtemplate_modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "user_msdyn_pmtemplate",
+      "Etn": "msdyn_pmtemplate",
+      "Role": "Referenced",
+      "NavPropName": "user_msdyn_pmtemplate",
+      "LookName": "owninguser"
+    },
+    {
+      "Name": "lk_sharedobject_createdby",
+      "Etn": "sharedobject",
+      "Role": "Referenced",
+      "NavPropName": "lk_sharedobject_createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_sharedobject_createdonbehalfby",
+      "Etn": "sharedobject",
+      "Role": "Referenced",
+      "NavPropName": "lk_sharedobject_createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_sharedobject_modifiedby",
+      "Etn": "sharedobject",
+      "Role": "Referenced",
+      "NavPropName": "lk_sharedobject_modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_sharedobject_modifiedonbehalfby",
+      "Etn": "sharedobject",
+      "Role": "Referenced",
+      "NavPropName": "lk_sharedobject_modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "lk_sharedworkspace_createdby",
+      "Etn": "sharedworkspace",
+      "Role": "Referenced",
+      "NavPropName": "lk_sharedworkspace_createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_sharedworkspace_createdonbehalfby",
+      "Etn": "sharedworkspace",
+      "Role": "Referenced",
+      "NavPropName": "lk_sharedworkspace_createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_sharedworkspace_modifiedby",
+      "Etn": "sharedworkspace",
+      "Role": "Referenced",
+      "NavPropName": "lk_sharedworkspace_modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_sharedworkspace_modifiedonbehalfby",
+      "Etn": "sharedworkspace",
+      "Role": "Referenced",
+      "NavPropName": "lk_sharedworkspace_modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "lk_msdyn_customeremailcommunication_createdby",
+      "Etn": "msdyn_customeremailcommunication",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_customeremailcommunication_createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_msdyn_customeremailcommunication_createdonbehalfby",
+      "Etn": "msdyn_customeremailcommunication",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_customeremailcommunication_createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_msdyn_customeremailcommunication_modifiedby",
+      "Etn": "msdyn_customeremailcommunication",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_customeremailcommunication_modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_msdyn_customeremailcommunication_modifiedonbehalfby",
+      "Etn": "msdyn_customeremailcommunication",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_customeremailcommunication_modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "msdyn_customeremailcommunication_ToUserId",
+      "Etn": "msdyn_customeremailcommunication",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_ToUserId",
+      "LookName": "msdyn_touserid"
+    },
+    {
+      "Name": "lk_msdyn_salesaccelerationinsight_createdby",
+      "Etn": "msdyn_salesaccelerationinsight",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_salesaccelerationinsight_createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_msdyn_salesaccelerationinsight_createdonbehalfby",
+      "Etn": "msdyn_salesaccelerationinsight",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_salesaccelerationinsight_createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_msdyn_salesaccelerationinsight_modifiedby",
+      "Etn": "msdyn_salesaccelerationinsight",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_salesaccelerationinsight_modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_msdyn_salesaccelerationinsight_modifiedonbehalfby",
+      "Etn": "msdyn_salesaccelerationinsight",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_salesaccelerationinsight_modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "msdyn_systemuser_msdyn_duplicateleadmapping_DismissedBy",
+      "Etn": "msdyn_duplicateleadmapping",
+      "Role": "Referenced",
+      "NavPropName": "msdyn_systemuser_msdyn_duplicateleadmapping_DismissedBy",
+      "LookName": "msdyn_dismissedby"
+    },
+    {
+      "Name": "lk_msdyn_usagereporting_createdby",
+      "Etn": "msdyn_usagereporting",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_usagereporting_createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_msdyn_usagereporting_createdonbehalfby",
+      "Etn": "msdyn_usagereporting",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_usagereporting_createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_msdyn_usagereporting_modifiedby",
+      "Etn": "msdyn_usagereporting",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_usagereporting_modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_msdyn_usagereporting_modifiedonbehalfby",
+      "Etn": "msdyn_usagereporting",
+      "Role": "Referenced",
+      "NavPropName": "lk_msdyn_usagereporting_modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
     }
   ],
   "NToOne": [
@@ -27991,7 +29839,6 @@
       "LookName": "siteid"
     }
   ],
-  "Locked": true,
   "Keys": [
     {
       "LogicalName": "aadobjectid",
@@ -28005,7 +29852,6 @@
     {
       "LogName": "systemuser|accessmode",
       "Name": "ModeDAcces",
-      "Locked": true,
       "Values": [
         {
           "Name": "LectureEcriture",
@@ -28070,8 +29916,7 @@
     },
     {
       "LogName": "systemuser|address1_addresstypecode",
-      "Name": "Adresse1TypeDAdresse",
-      "Locked": true,
+      "Name": "SystemUserAdresse1TypeDAdresse",
       "Values": [
         {
           "Value": 1,
@@ -28088,8 +29933,7 @@
     },
     {
       "LogName": "systemuser|address1_shippingmethodcode",
-      "Name": "Adresse1ModeDeLivraison",
-      "Locked": true,
+      "Name": "SystemUserAdresse1ModeDeLivraison",
       "Values": [
         {
           "Value": 1,
@@ -28106,8 +29950,7 @@
     },
     {
       "LogName": "systemuser|address2_addresstypecode",
-      "Name": "Adresse2TypeDAdresse",
-      "Locked": true,
+      "Name": "SystemUserAdresse2TypeDAdresse",
       "Values": [
         {
           "Value": 1,
@@ -28124,8 +29967,7 @@
     },
     {
       "LogName": "systemuser|address2_shippingmethodcode",
-      "Name": "Adresse2ModeDeLivraison",
-      "Locked": true,
+      "Name": "SystemUserAdresse2ModeDeLivraison",
       "Values": [
         {
           "Value": 1,
@@ -28143,7 +29985,6 @@
     {
       "LogName": "systemuser|azurestate",
       "Name": "AzureState",
-      "Locked": true,
       "Values": [
         {
           "Name": "Exists",
@@ -28179,7 +30020,6 @@
     {
       "LogName": "systemuser|caltype",
       "Name": "TypesDeLicencesDAccesClient",
-      "Locked": true,
       "Values": [
         {
           "Name": "Professionnel",
@@ -28315,7 +30155,6 @@
     {
       "LogName": "systemuser|deletedstate",
       "Name": "DeleteState",
-      "Locked": true,
       "Values": [
         {
           "Name": "NotDeleted",
@@ -28340,8 +30179,7 @@
     },
     {
       "LogName": "systemuser|emailrouteraccessapproval",
-      "Name": "IndiqueSiLAdresseDeMessagerieEstApprouveePourChaqueBoiteAuxLettresPourLeTraitementDuCourrierElectroniqueViaLaSynchronisationCoteServeurOuEMailRouter.",
-      "Locked": true,
+      "Name": "IndiqueSiLAdresseDeMessagerieEstApprouveePourChaqueBoiteAuxLettresPourLeTraitementDuCourrierElectroniqueViaLaSynchronisationCoteServeurOuEMailRouter",
       "Values": [
         {
           "Name": "Vide",
@@ -28387,7 +30225,6 @@
     {
       "LogName": "systemuser|incomingemaildeliverymethod",
       "Name": "ModeDeDistributionDesCourriersElectroniquesEntrants",
-      "Locked": true,
       "Values": [
         {
           "Name": "AucunE",
@@ -28433,7 +30270,6 @@
     {
       "LogName": "systemuser|invitestatuscode",
       "Name": "StatutDeLInvitation",
-      "Locked": true,
       "Values": [
         {
           "Name": "InvitationNonEnvoyee",
@@ -28509,7 +30345,6 @@
     {
       "LogName": "systemuser|outgoingemaildeliverymethod",
       "Name": "ModeDeLivraisonDesCourriersElectroniquesSortants",
-      "Locked": true,
       "Values": [
         {
           "Name": "AucunE",
@@ -28545,7 +30380,6 @@
     {
       "LogName": "systemuser|preferredaddresscode",
       "Name": "AdressePrivilegiee",
-      "Locked": true,
       "Values": [
         {
           "Value": 1,
@@ -28573,7 +30407,6 @@
     {
       "LogName": "systemuser|preferredemailcode",
       "Name": "MessageriePrivilegiee",
-      "Locked": true,
       "Values": [
         {
           "Value": 1,
@@ -28591,7 +30424,6 @@
     {
       "LogName": "systemuser|preferredphonecode",
       "Name": "TelephonePrivilegie",
-      "Locked": true,
       "Values": [
         {
           "Value": 1,

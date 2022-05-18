@@ -21,8 +21,6 @@ namespace XrmFramework.RemoteDebugger.Client
 
         public AzureRelayHybridConnectionMessageManager()
         {
-
-
             // Check that a debug session exists for this project
             if (ConfigurationManager.ConnectionStrings["DebugConnectionString"] == null)
             {
@@ -53,39 +51,43 @@ namespace XrmFramework.RemoteDebugger.Client
             CurrentResponseCache.AddOrUpdate(message.PluginExecutionId, context.Response, (guid, response) => context.Response);
 
 
-            if (message.MessageType == RemoteDebuggerMessageType.Context)
+            switch (message.MessageType)
             {
-                // Get context info
-                var remoteContext = message.GetContext<RemoteDebugExecutionContext>();
+                case RemoteDebuggerMessageType.Ping:
+                    SendMessage(new RemoteDebuggerMessage(RemoteDebuggerMessageType.Ping, null, message.PluginExecutionId));
+                    break;
+                case RemoteDebuggerMessageType.Context:
+                    {
+                        // Get context info
+                        var remoteContext = message.GetContext<RemoteDebugExecutionContext>();
 
-                OnContextReceived(remoteContext);
+                        OnContextReceived(remoteContext);
 
-                // Cache a response to be sent with the new context
-                SendMessage(new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id));
-            }
+                        // The plugin is done executing, we can send back the Context
+                        SendMessage(new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id));
+                        break;
+                    }
+                case RemoteDebuggerMessageType.Response:
+                    {
+                        // Cache it
+                        MessageReceiveCache.TryAdd(message.PluginExecutionId, message);
 
-            if (message.MessageType == RemoteDebuggerMessageType.Response)
-            {
-                // Cache it
-                MessageReceiveCache.TryAdd(message.PluginExecutionId, message);
+                        RemoteDebuggerMessage response;
+                        // Loop while until it is possible to remove the response from cache which means it is ready to be sent
+                        while (!MessageSendCache.TryRemove(message.PluginExecutionId, out response))
+                        {
+                            // Waiting for the response to come
+                            Thread.Sleep(50);
+                        }
 
-                RemoteDebuggerMessage response;
-                // Loop while until it is possible to remove the response from cache which means it is ready to be sent
-                while (!MessageSendCache.TryRemove(message.PluginExecutionId, out response))
-                {
-                    // Waiting for the response to come
-                    Thread.Sleep(50);
-                }
-
-                //Console.WriteLine("{0}", response);
-
-                SendMessage(response);
+                        SendMessage(response);
+                        break;
+                    }
             }
         }
 
         public Task SendMessage(RemoteDebuggerMessage message)
         {
-
             if (CurrentResponseCache.TryGetValue(message.PluginExecutionId, out var currentResponse))
             {
                 var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
@@ -99,7 +101,6 @@ namespace XrmFramework.RemoteDebugger.Client
                 {
                     // erreur ignorée
                 }
-
             }
 
             return Task.CompletedTask;

@@ -1,11 +1,19 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace XrmFramework
 {
+    /// <summary>Object meant to be serialized and pushed into the unsecured configuration of a step to insert custom parameters</summary>
     [JsonObject(MemberSerialization.OptIn)]
-    internal partial class StepConfiguration
+    public partial class StepConfiguration
     {
         [JsonProperty("relName")]
         public string RelationshipName { get; set; }
+
+        /// <summary>The List of methods that the Crm knows are linked with the step</summary>
+        [JsonProperty("registeredMethods")] public List<string> RegisteredMethods { get; set; } = new();
+
+        /// <summary>Allows for custom bypass of a given method without redeploying</summary>
+        [JsonProperty("bannedMethods")] public List<string> BannedMethods { get; set; } = new();
     }
 }

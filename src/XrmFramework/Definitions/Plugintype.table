@@ -8,104 +8,351 @@
       "Name": "AssemblyName",
       "Type": "String",
       "Capa": 9,
-      "Locked": true,
       "Labels": [
         {
           "Label": "Nom de l’assembly",
           "LangId": 1036
         }
       ],
-      "StrLen": 100
+      "StrLen": 100,
+      "Select": true
+    },
+    {
+      "LogName": "componentstate",
+      "Name": "ComponentState",
+      "Type": "Picklist",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "État du composant",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "componentstate"
+    },
+    {
+      "LogName": "createdby",
+      "Name": "CreatedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "createdonbehalfby",
+      "Name": "CreatedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par (délégué)",
+          "LangId": 1036
+        }
+      ]
     },
     {
       "LogName": "culture",
       "Name": "Culture",
       "Type": "String",
       "Capa": 1,
-      "Locked": true,
       "Labels": [
         {
           "Label": "Culture",
           "LangId": 1036
         }
       ],
-      "StrLen": 32
+      "StrLen": 32,
+      "Select": true
     },
-
-
-
-
+    {
+      "LogName": "customizationlevel",
+      "Name": "CustomizationLevel",
+      "Type": "Integer",
+      "Capa": 1,
+      "Labels": [],
+      "MinRange": -255.0,
+      "MaxRange": 255.0
+    },
+    {
+      "LogName": "customworkflowactivityinfo",
+      "Name": "CustomWorkflowActivityInfo",
+      "Type": "Memo",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Informations sur l'activité de workflow personnalisée",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1048576
+    },
+    {
+      "LogName": "description",
+      "Name": "Description",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Description",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "friendlyname",
+      "Name": "FriendlyName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom complet",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "ismanaged",
+      "Name": "IsManaged",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "isworkflowactivity",
+      "Name": "IsWorkflowActivity",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Est une activité de workflow",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "major",
+      "Name": "Major",
+      "Type": "Integer",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Version principale",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": 0.0,
+      "MaxRange": 65534.0
+    },
+    {
+      "LogName": "minor",
+      "Name": "Minor",
+      "Type": "Integer",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Version secondaire",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": 0.0,
+      "MaxRange": 65534.0
+    },
+    {
+      "LogName": "modifiedby",
+      "Name": "ModifiedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedon",
+      "Name": "ModifiedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "modifiedonbehalfby",
+      "Name": "ModifiedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Modifié par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
     {
       "LogName": "name",
       "Name": "Name",
       "Type": "String",
       "PrimaryType": "Name",
       "Capa": 15,
-      "Locked": true,
       "Labels": [
         {
           "Label": "Nom",
           "LangId": 1036
         }
       ],
-      "StrLen": 256
+      "StrLen": 256,
+      "Select": true
     },
-
+    {
+      "LogName": "organizationid",
+      "Name": "OrganizationId",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "overwritetime",
+      "Name": "OverwriteTime",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Heure de remplacement de l’enregistrement",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "pluginassemblyid",
+      "Name": "PluginAssemblyId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Assembly du plug-in",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
     {
       "LogName": "plugintypeid",
       "Name": "Id",
       "Type": "Uniqueidentifier",
       "PrimaryType": "Id",
       "Capa": 13,
-      "Locked": true,
       "Labels": [
         {
           "Label": "Type de plug-in",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "plugintypeidunique",
+      "Name": "PluginTypeIdUnique",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": []
     },
     {
       "LogName": "publickeytoken",
       "Name": "PublicKeyToken",
       "Type": "String",
       "Capa": 9,
-      "Locked": true,
       "Labels": [
         {
           "Label": "Jeton de clé publique",
           "LangId": 1036
         }
       ],
-      "StrLen": 32
+      "StrLen": 32,
+      "Select": true
+    },
+    {
+      "LogName": "solutionid",
+      "Name": "SolutionId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Solution",
+          "LangId": 1036
+        }
+      ]
     },
     {
       "LogName": "typename",
       "Name": "TypeName",
       "Type": "String",
       "Capa": 15,
-      "Locked": true,
       "Labels": [
         {
           "Label": "Nom du type",
           "LangId": 1036
         }
       ],
-      "StrLen": 256
+      "StrLen": 256,
+      "Select": true
     },
     {
       "LogName": "version",
       "Name": "Version",
       "Type": "String",
       "Capa": 9,
-      "Locked": true,
       "Labels": [
         {
           "Label": "Version",
           "LangId": 1036
         }
       ],
-      "StrLen": 48
+      "StrLen": 48,
+      "Select": true
+    },
+    {
+      "LogName": "versionnumber",
+      "Name": "VersionNumber",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "workflowactivitygroupname",
+      "Name": "WorkflowActivityGroupName",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Nom de groupe de l’activité de workflow",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
     }
   ],
   "NtoN": [],
@@ -191,7 +438,6 @@
       "LookName": "modifiedonbehalfby"
     }
   ],
-  "Locked": true,
   "Keys": [],
   "Enums": []
 }

@@ -109,14 +109,14 @@ namespace XrmFramework
         /// An entity name attribute. Value = 20.
         /// </summary>
         EntityName = 20,
-        
+
         /// <summary>
         /// A mulit select Picklist
         /// </summary>
         MultiSelectPicklist = 21
     }
 
-    
+
     //
     // Summary:
     //     Contains values to indicate the role the entity plays in a relationship.

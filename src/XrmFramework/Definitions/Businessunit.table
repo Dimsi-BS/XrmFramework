@@ -15,9 +15,10 @@
           "Label": "Division",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
-    
+
     {
       "LogName": "name",
       "Name": "Name",
@@ -31,7 +32,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 160
+      "StrLen": 160,
+      "Select": true
     }
   ],
   "NtoN": [],
@@ -4025,7 +4027,7 @@
   "Enums": [
     {
       "LogName": "businessunit|address1_addresstypecode",
-      "Name": "Adresse1TypeDAdresse",
+      "Name": "BusinessUnitAdresse1TypeDAdresse",
       "Locked": true,
       "Values": [
         {
@@ -4043,7 +4045,7 @@
     },
     {
       "LogName": "businessunit|address1_shippingmethodcode",
-      "Name": "Adresse1ModeDeLivraison",
+      "Name": "BusinessUnitAdresse1ModeDeLivraison",
       "Locked": true,
       "Values": [
         {
@@ -4061,7 +4063,7 @@
     },
     {
       "LogName": "businessunit|address2_addresstypecode",
-      "Name": "Adresse2TypeDAdresse",
+      "Name": "BusinessUnitAdresse2TypeDAdresse",
       "Locked": true,
       "Values": [
         {
@@ -4079,7 +4081,7 @@
     },
     {
       "LogName": "businessunit|address2_shippingmethodcode",
-      "Name": "Adresse2ModeDeLivraison",
+      "Name": "BusinessUnitAdresse2ModeDeLivraison",
       "Locked": true,
       "Values": [
         {

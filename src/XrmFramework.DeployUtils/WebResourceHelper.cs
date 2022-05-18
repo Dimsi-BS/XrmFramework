@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System;
-using System.Configuration;
-using System.IO;
-using System.Linq;
-using Deploy;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
+using System;
+using System.Configuration;
+using System.IO;
+using System.Linq;
+using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
 
@@ -31,47 +31,31 @@ namespace XrmFramework.DeployUtils
             Console.ReadKey();
             Console.WriteLine(@"Connecting to CRM...");
 
-            CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
-
             var service = new CrmServiceClient(connectionString);
 
-            service.OrganizationServiceProxy?.EnableProxyTypes();
-
-            var query = new QueryExpression(Solution.EntityLogicalName);
-            query.ColumnSet.AddColumn("uniquename");
-            query.ColumnSet.AddColumn("publisherid");
-            query.ColumnSet.AddColumn("ismanaged");
-            query.Criteria.AddCondition("uniquename", ConditionOperator.Equal, solutionName);
-            var result = service.RetrieveMultiple(query);
-
-            var solution = result.Entities.FirstOrDefault();
+            var solution = GetSolutionByName(service, solutionName);
             if (solution == null)
             {
-                Console.WriteLine(@"Error : Solution not found : {0}", solutionName);
+                Console.WriteLine(@$"Error : Solution not found : {solutionName}");
                 return;
             }
 
-            if (solution.GetAttributeValue<bool>("ismanaged"))
+            if (solution.GetAttributeValue<bool>(SolutionDefinition.Columns.IsManaged))
             {
-                Console.WriteLine(@"Error : Solution {0} is managed, no deployment possible.", solutionName);
+                Console.WriteLine(@$"Error : Solution {solutionName} is managed, no deployment possible.");
                 return;
             }
 
-            var publisherId = solution.GetAttributeValue<EntityReference>("publisherid").Id;
+            var publisherId = solution.GetAttributeValue<EntityReference>(SolutionDefinition.Columns.PublisherId).Id;
 
-            query = new QueryExpression(Publisher.EntityLogicalName);
-            query.ColumnSet.AddColumn("customizationprefix");
-            query.Criteria.AddCondition("publisherid", ConditionOperator.Equal, publisherId);
-            result = service.RetrieveMultiple(query);
-
-            var publisher = result.Entities.FirstOrDefault();
+            var publisher = GetPublisherById(service, publisherId);
             if (publisher == null)
             {
-                Console.WriteLine(@"Error : Publisher not found : {0}", solutionName);
+                Console.WriteLine(@$"Error : Publisher not found : {solutionName}");
                 return;
             }
-            var prefix = publisher.GetAttributeValue<string>("customizationprefix");
-            Console.WriteLine(@" ==> Prefix : {0}", prefix);
+            var prefix = publisher.GetAttributeValue<string>(PublisherDefinition.Columns.CustomizationPrefix);
+            Console.WriteLine($" ==> Prefix : {prefix}");
 
             DirectoryInfo root = new DirectoryInfo(webresourcesPath);
             var resourcesToPublish = string.Empty;
@@ -81,7 +65,7 @@ namespace XrmFramework.DeployUtils
                     .Select(file => new FileInfo(file))
                     .Where(fi => IsWebResource(fi.Extension))
                     .Select(fi => new WebResource(fi, root, prefix))
-                .ToList();
+                    .ToList();
 
             foreach (var fi in files)
             {
@@ -113,9 +97,9 @@ namespace XrmFramework.DeployUtils
                     }
                     else
                     {
-                        var updatedWr = new Entity("webresource", webResource.Id);
-                        updatedWr["content"] = fi.Base64Content;
-                        updatedWr["dependencyxml"] = fi.GetDependenciesXml();
+                        var updatedWr = new Entity(WebResourceDefinition.EntityName, webResource.Id);
+                        updatedWr[WebResourceDefinition.Columns.Content] = fi.Base64Content;
+                        updatedWr[WebResourceDefinition.Columns.DependencyXml] = fi.GetDependenciesXml();
 
                         service.Update(updatedWr);
                         publish = true;
@@ -156,9 +140,11 @@ namespace XrmFramework.DeployUtils
         /// <returns></returns>
         private static WebResource GetWebResource(string name, IOrganizationService service)
         {
-            var query = new QueryExpression("webresource");
-            query.ColumnSet.AddColumns("content", "dependencyxml", "name");
-            query.Criteria.AddCondition("name", ConditionOperator.Equal, name);
+            var query = new QueryExpression(WebResourceDefinition.EntityName);
+            query.ColumnSet.AddColumns(WebResourceDefinition.Columns.Content,
+                                       WebResourceDefinition.Columns.DependencyXml,
+                                       WebResourceDefinition.Columns.Name);
+            query.Criteria.AddCondition(WebResourceDefinition.Columns.Name, ConditionOperator.Equal, name);
             var result = service.RetrieveMultiple(query);
 
             var webResource = result.Entities.Select(e => new WebResource(e)).FirstOrDefault();
@@ -175,11 +161,12 @@ namespace XrmFramework.DeployUtils
         /// <exception cref="System.Exception">Unsupported extension:  + fi.Extension.Remove(0, 1).ToLower()</exception>
         private static Guid CreateWebResource(string webResourceName, WebResource fi, string solutionUniqueName, IOrganizationService service)
         {
-            var wr = new Entity("webresource");
-            wr["name"] = webResourceName;
-            wr["displayname"] = webResourceName;
-            wr["content"] = fi.Base64Content;
-            wr["dependencyxml"] = fi.GetDependenciesXml();
+            var wr = new Entity(WebResourceDefinition.EntityName);
+            wr[WebResourceDefinition.Columns.Name] = webResourceName;
+            wr[WebResourceDefinition.Columns.DisplayName] = fi.Base64Content;
+            wr[WebResourceDefinition.Columns.Content] = Convert.ToBase64String(File.ReadAllBytes(fi.FullName));
+            wr[WebResourceDefinition.Columns.DependencyXml] = fi.GetDependenciesXml();
+
 
             if (string.IsNullOrEmpty(fi.Extension))
             {
@@ -191,46 +178,46 @@ namespace XrmFramework.DeployUtils
             {
                 case "htm":
                 case "html":
-                    wr["webresourcetype"] = new OptionSetValue(1);
+                    wr[WebResourceDefinition.Columns.WebResourceType] = new OptionSetValue(1);
                     break;
                 case "css":
-                    wr["webresourcetype"] = new OptionSetValue(2);
+                    wr[WebResourceDefinition.Columns.WebResourceType] = new OptionSetValue(2);
                     break;
                 case "js":
-                    wr["webresourcetype"] = new OptionSetValue(3);
+                    wr[WebResourceDefinition.Columns.WebResourceType] = new OptionSetValue(3);
                     break;
                 case "xml":
-                    wr["webresourcetype"] = new OptionSetValue(4);
+                    wr[WebResourceDefinition.Columns.WebResourceType] = new OptionSetValue(4);
                     break;
                 case "png":
-                    wr["webresourcetype"] = new OptionSetValue(5);
+                    wr[WebResourceDefinition.Columns.WebResourceType] = new OptionSetValue(5);
                     break;
                 case "jpg":
                 case "jpeg":
-                    wr["webresourcetype"] = new OptionSetValue(6);
+                    wr[WebResourceDefinition.Columns.WebResourceType] = new OptionSetValue(6);
                     break;
                 case "gif":
-                    wr["webresourcetype"] = new OptionSetValue(7);
+                    wr[WebResourceDefinition.Columns.WebResourceType] = new OptionSetValue(7);
                     break;
                 case "xap":
-                    wr["webresourcetype"] = new OptionSetValue(8);
+                    wr[WebResourceDefinition.Columns.WebResourceType] = new OptionSetValue(8);
                     break;
                 case "xsl":
-                    wr["webresourcetype"] = new OptionSetValue(9);
+                    wr[WebResourceDefinition.Columns.WebResourceType] = new OptionSetValue(9);
                     break;
                 case "ico":
-                    wr["webresourcetype"] = new OptionSetValue(10);
+                    wr[WebResourceDefinition.Columns.WebResourceType] = new OptionSetValue(10);
                     break;
                 case "svg":
-                    wr["webresourcetype"] = new OptionSetValue(11);
+                    wr[WebResourceDefinition.Columns.WebResourceType] = new OptionSetValue(11);
                     break;
                 case "resx":
-                    wr["webresourcetype"] = new OptionSetValue(12);
+                    wr[WebResourceDefinition.Columns.WebResourceType] = new OptionSetValue(12);
                     break;
                 default:
                     throw new Exception("Unsupported extension: " + fi.Extension.Remove(0, 1).ToLower());
             }
-            
+
             var id = service.Create(wr);
 
             // Add current web resource to defined solution
@@ -267,6 +254,38 @@ namespace XrmFramework.DeployUtils
                 default:
                     return false;
             }
+        }
+
+        /// <summary>
+        /// Gets the Solution
+        /// </summary>
+        /// <param name="service"></param>
+        /// <param name="solutionName"></param>
+        /// <returns></returns>
+        private static Entity GetSolutionByName(CrmServiceClient service, string solutionName)
+        {
+            var query = new QueryExpression(SolutionDefinition.EntityName);
+            query.ColumnSet.AddColumns(SolutionDefinition.Columns.UniqueName,
+                                       SolutionDefinition.Columns.PublisherId,
+                                       SolutionDefinition.Columns.IsManaged);
+            query.Criteria.AddCondition(SolutionDefinition.Columns.UniqueName, ConditionOperator.Equal, solutionName);
+
+            return service.RetrieveMultiple(query).Entities.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Gets the Publisher
+        /// </summary>
+        /// <param name="service"></param>
+        /// <param name="publisherId"></param>
+        /// <returns></returns>
+        private static Entity GetPublisherById(CrmServiceClient service, Guid publisherId)
+        {
+            var query = new QueryExpression(PublisherDefinition.EntityName);
+            query.ColumnSet.AddColumn(PublisherDefinition.Columns.CustomizationPrefix);
+            query.Criteria.AddCondition(PublisherDefinition.Columns.Id, ConditionOperator.Equal, publisherId);
+
+            return service.RetrieveMultiple(query).Entities.FirstOrDefault();
         }
     }
 }

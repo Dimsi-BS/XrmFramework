@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
  
   <PropertyGroup>
@@ -27,13 +27,15 @@
 
 
   <ItemGroup>
+	  <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj" />
 
-    <ProjectReference Include="..\XrmFramework.Core\XrmFramework.Core.csproj" />
-    <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
+	<ItemGroup>
+    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.42" />
+    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.110" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>

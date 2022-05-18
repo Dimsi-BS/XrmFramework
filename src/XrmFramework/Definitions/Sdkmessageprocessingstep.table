@@ -3,35 +3,389 @@
   "Name": "SdkMessageProcessingStep",
   "CollName": "sdkmessageprocessingsteps",
   "Cols": [
-
-
     {
-      "LogName": "name",
-      "Name": "Name",
-      "Type": "String",
-      "PrimaryType": "Name",
+      "LogName": "asyncautodelete",
+      "Name": "AsyncAutoDelete",
       "Capa": 15,
-      "Locked": true,
       "Labels": [
         {
-          "Label": "Nom ",
+          "Label": "Suppression automatique asynchrone",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "canusereadonlyconnection",
+      "Name": "CanUseReadOnlyConnection",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Intention",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "category",
+      "Name": "Category",
+      "Type": "String",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Category",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "componentstate",
+      "Name": "ComponentState",
+      "Type": "Picklist",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "État du composant",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "componentstate"
+    },
+    {
+      "LogName": "configuration",
+      "Name": "Configuration",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Configuration",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1073741823
+    },
+    {
+      "LogName": "createdby",
+      "Name": "CreatedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "createdonbehalfby",
+      "Name": "CreatedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "customizationlevel",
+      "Name": "CustomizationLevel",
+      "Type": "Integer",
+      "Capa": 1,
+      "Labels": [],
+      "MinRange": -255.0,
+      "MaxRange": 255.0
+    },
+    {
+      "LogName": "description",
+      "Name": "Description",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Description",
           "LangId": 1036
         }
       ],
       "StrLen": 256
     },
     {
+      "LogName": "eventexpander",
+      "Name": "EventExpander",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Développeur d'événement",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1073741823
+    },
+    {
+      "LogName": "eventhandler",
+      "Name": "EventHandler",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Gestionnaire d’événements",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "filteringattributes",
+      "Name": "FilteringAttributes",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Filtrage d’attributs",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100000
+    },
+    {
+      "LogName": "impersonatinguserid",
+      "Name": "ImpersonatingUserId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Usurpation de l’identité d’un utilisateur",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "introducedversion",
+      "Name": "IntroducedVersion",
+      "Type": "String",
+      "Capa": 5,
+      "Labels": [
+        {
+          "Label": "Version présentée",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 48
+    },
+    {
+      "LogName": "invocationsource",
+      "Name": "InvocationSource",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Source d'invocation",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "sdkmessageprocessingstep|invocationsource"
+    },
+    {
+      "LogName": "iscustomizable",
+      "Name": "IsCustomizable",
+      "Type": "ManagedProperty",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Personnalisable",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ishidden",
+      "Name": "IsHidden",
+      "Type": "ManagedProperty",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Masqué",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ismanaged",
+      "Name": "IsManaged",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "État",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "mode",
+      "Name": "Mode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Mode d’exécution",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "sdkmessageprocessingstep|mode"
+    },
+    {
+      "LogName": "modifiedby",
+      "Name": "ModifiedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "modifiedon",
+      "Name": "ModifiedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "modifiedonbehalfby",
+      "Name": "ModifiedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom ",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256,
+      "Select": true
+    },
+    {
+      "LogName": "organizationid",
+      "Name": "OrganizationId",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "overwritetime",
+      "Name": "OverwriteTime",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Heure de remplacement de l’enregistrement",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
       "LogName": "plugintypeid",
       "Name": "PluginTypeId",
       "Type": "Lookup",
       "Capa": 15,
-      "Locked": true,
       "Labels": [
         {
           "Label": "Type de plug-in",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "rank",
+      "Name": "Rank",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Ordre d’exécution",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -2147483648.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "runtimeintegrationproperties",
+      "Name": "RuntimeIntegrationProperties",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Runtime Integration Properties",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 512
+    },
+    {
+      "LogName": "sdkmessagefilterid",
+      "Name": "SdkMessageFilterId",
+      "Type": "Lookup",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Filtre du message sdk",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "sdkmessageid",
+      "Name": "SdkMessageId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Message Sdk",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
     },
     {
       "LogName": "sdkmessageprocessingstepid",
@@ -39,11 +393,100 @@
       "Type": "Uniqueidentifier",
       "PrimaryType": "Id",
       "Capa": 5,
-      "Locked": true,
+      "Labels": [],
+      "Select": true
+    },
+    {
+      "LogName": "sdkmessageprocessingstepidunique",
+      "Name": "SdkMessageProcessingStepIdUnique",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
       "Labels": []
     },
-
-    
+    {
+      "LogName": "sdkmessageprocessingstepsecureconfigid",
+      "Name": "SdkMessageProcessingStepSecureConfigId",
+      "Type": "Lookup",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Configuration sécurisée de l'étape de traitement du message Sdk",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "solutionid",
+      "Name": "SolutionId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Solution",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "stage",
+      "Name": "Stage",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Phase d’exécution",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "sdkmessageprocessingstep|stage",
+      "Select": true
+    },
+    {
+      "LogName": "statecode",
+      "Name": "StateCode",
+      "Type": "State",
+      "Capa": 11,
+      "Labels": [
+        {
+          "Label": "Statut",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "sdkmessageprocessingstep|statecode"
+    },
+    {
+      "LogName": "statuscode",
+      "Name": "StatusCode",
+      "Type": "Status",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Raison du statut",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "sdkmessageprocessingstep|statuscode"
+    },
+    {
+      "LogName": "supporteddeployment",
+      "Name": "SupportedDeployment",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Déploiement",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "sdkmessageprocessingstep|supporteddeployment"
+    },
+    {
+      "LogName": "versionnumber",
+      "Name": "VersionNumber",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": []
+    }
   ],
   "NtoN": [],
   "OneToN": [
@@ -143,13 +586,11 @@
       "LookName": "plugintypeid"
     }
   ],
-  "Locked": true,
   "Keys": [],
   "Enums": [
     {
       "LogName": "sdkmessageprocessingstep|invocationsource",
       "Name": "SourceDInvocation",
-      "Locked": true,
       "Values": [
         {
           "Value": -1,
@@ -185,7 +626,6 @@
     {
       "LogName": "sdkmessageprocessingstep|mode",
       "Name": "Mode",
-      "Locked": true,
       "Values": [
         {
           "Name": "Synchrone",
@@ -211,7 +651,6 @@
     {
       "LogName": "sdkmessageprocessingstep|stage",
       "Name": "Phase",
-      "Locked": true,
       "Values": [
         {
           "Value": 5,
@@ -349,7 +788,6 @@
     {
       "LogName": "sdkmessageprocessingstep|statecode",
       "Name": "SdkmessageprocessingstepState",
-      "Locked": true,
       "Values": [
         {
           "Name": "Activee",
@@ -375,7 +813,6 @@
     {
       "LogName": "sdkmessageprocessingstep|statuscode",
       "Name": "SdkmessageprocessingstepStatus",
-      "Locked": true,
       "Values": [
         {
           "Value": 1,
@@ -402,7 +839,6 @@
     {
       "LogName": "sdkmessageprocessingstep|supporteddeployment",
       "Name": "DeploiementPrisEnCharge",
-      "Locked": true,
       "Values": [
         {
           "Name": "ServeurUniquement",

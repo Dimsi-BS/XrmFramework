@@ -1,0 +1,555 @@
+{
+  "LogName": "solution",
+  "Name": "Solution",
+  "CollName": "solutions",
+  "Cols": [
+    {
+      "LogName": "configurationpageid",
+      "Name": "ConfigurationPageId",
+      "Type": "Lookup",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Page de configuration ",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "createdby",
+      "Name": "CreatedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "createdonbehalfby",
+      "Name": "CreatedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "description",
+      "Name": "Description",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Description",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 2000,
+      "Select": true
+    },
+    {
+      "LogName": "friendlyname",
+      "Name": "FriendlyName",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom complet",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256,
+      "Select": true
+    },
+    {
+      "LogName": "installedon",
+      "Name": "InstalledOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Installé le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "isapimanaged",
+      "Name": "IsApiManaged",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "La solution est gérée par l'API",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "ismanaged",
+      "Name": "IsManaged",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Type de package",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "isvisible",
+      "Name": "IsVisible",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Est visible hors de la plateforme",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "modifiedby",
+      "Name": "ModifiedBy",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Modifié par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedon",
+      "Name": "ModifiedOn",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Modifié le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "modifiedonbehalfby",
+      "Name": "ModifiedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "organizationid",
+      "Name": "OrganizationId",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Organisation",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "parentsolutionid",
+      "Name": "ParentSolutionId",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Solution parente",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "pinpointassetid",
+      "Name": "PinpointAssetId",
+      "Type": "String",
+      "Capa": 1,
+      "Labels": [],
+      "StrLen": 255
+    },
+    {
+      "LogName": "pinpointpublisherid",
+      "Name": "PinpointPublisherId",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "pinpointsolutiondefaultlocale",
+      "Name": "PinpointSolutionDefaultLocale",
+      "Type": "String",
+      "Capa": 1,
+      "Labels": [],
+      "StrLen": 16
+    },
+    {
+      "LogName": "pinpointsolutionid",
+      "Name": "PinpointSolutionId",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "publisherid",
+      "Name": "PublisherId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Éditeur",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "solutionid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 5,
+      "Labels": [
+        {
+          "Label": "Identificateur de la solution",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "solutionpackageversion",
+      "Name": "SolutionPackageVersion",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Version du package de solution",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "solutiontype",
+      "Name": "SolutionType",
+      "Type": "Picklist",
+      "Capa": 5,
+      "Labels": [
+        {
+          "Label": "Type de solution",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "solution|solutiontype",
+      "Select": true
+    },
+    {
+      "LogName": "templatesuffix",
+      "Name": "TemplateSuffix",
+      "Type": "String",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Suffix",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 65
+    },
+    {
+      "LogName": "thumbprint",
+      "Name": "Thumbprint",
+      "Type": "String",
+      "Capa": 12,
+      "Labels": [
+        {
+          "Label": "Thumbprint",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 65
+    },
+    {
+      "LogName": "uniquename",
+      "Name": "UniqueName",
+      "Type": "String",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Nom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 65,
+      "Select": true
+    },
+    {
+      "LogName": "updatedon",
+      "Name": "UpdatedOn",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Mise à jour le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "upgradeinfo",
+      "Name": "UpgradeInfo",
+      "Type": "Memo",
+      "Capa": 1,
+      "Labels": [],
+      "StrLen": 1073741823
+    },
+    {
+      "LogName": "version",
+      "Name": "Version",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Version",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "versionnumber",
+      "Name": "VersionNumber",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": []
+    }
+  ],
+  "NtoN": [
+    {
+      "Name": "package_solution",
+      "Etn": "package",
+      "NavPropName": "package_solution",
+      "LookName": "packageid"
+    }
+  ],
+  "OneToN": [
+    {
+      "Name": "solution_solutioncomponent",
+      "Etn": "solutioncomponent",
+      "Role": "Referenced",
+      "NavPropName": "solution_solutioncomponent",
+      "LookName": "solutionid"
+    },
+    {
+      "Name": "solution_base_dependencynode",
+      "Etn": "dependencynode",
+      "Role": "Referenced",
+      "NavPropName": "solution_base_dependencynode",
+      "LookName": "basesolutionid"
+    },
+    {
+      "Name": "solution_top_dependencynode",
+      "Etn": "dependencynode",
+      "Role": "Referenced",
+      "NavPropName": "solution_top_dependencynode",
+      "LookName": "topsolutionid"
+    },
+    {
+      "Name": "solution_parent_solution",
+      "Etn": "solution",
+      "Role": "Referenced",
+      "NavPropName": "solution_parent_solution",
+      "LookName": "parentsolutionid"
+    },
+    {
+      "Name": "Solution_SyncErrors",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "Solution_SyncErrors",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "userentityinstancedata_solution",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_solution",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "FileAttachment_Solution",
+      "Etn": "fileattachment",
+      "Role": "Referenced",
+      "NavPropName": "regardingobjectid_fileattachment_solution",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "FK_CanvasApp_Solution",
+      "Etn": "canvasapp",
+      "Role": "Referenced",
+      "NavPropName": "FK_CanvasApp_Solution",
+      "LookName": "solutionid"
+    },
+    {
+      "Name": "solution_fieldpermission",
+      "Etn": "fieldpermission",
+      "Role": "Referenced",
+      "NavPropName": "solution_fieldpermission",
+      "LookName": "solutionid"
+    },
+    {
+      "Name": "solution_fieldsecurityprofile",
+      "Etn": "fieldsecurityprofile",
+      "Role": "Referenced",
+      "NavPropName": "solution_fieldsecurityprofile",
+      "LookName": "solutionid"
+    },
+    {
+      "Name": "solution_privilege",
+      "Etn": "privilege",
+      "Role": "Referenced",
+      "NavPropName": "solution_privilege",
+      "LookName": "solutionid"
+    },
+    {
+      "Name": "solution_role",
+      "Etn": "role",
+      "Role": "Referenced",
+      "NavPropName": "solution_role",
+      "LookName": "solutionid"
+    },
+    {
+      "Name": "solution_roleprivileges",
+      "Etn": "roleprivileges",
+      "Role": "Referenced",
+      "NavPropName": "solution_roleprivileges",
+      "LookName": "solutionid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_solution_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_solution_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "solution_parent_solution",
+      "Etn": "solution",
+      "NavPropName": "parentsolutionid",
+      "LookName": "parentsolutionid"
+    },
+    {
+      "Name": "solution_configuration_webresource",
+      "Etn": "webresource",
+      "NavPropName": "configurationpageid",
+      "LookName": "configurationpageid"
+    },
+    {
+      "Name": "lk_solutionbase_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "organization_solution",
+      "Etn": "organization",
+      "NavPropName": "organizationid",
+      "LookName": "organizationid"
+    },
+    {
+      "Name": "lk_solutionbase_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "publisher_solution",
+      "Etn": "publisher",
+      "NavPropName": "publisherid",
+      "LookName": "publisherid"
+    },
+    {
+      "Name": "fileattachment_solution_fileid",
+      "Etn": "fileattachment",
+      "NavPropName": "fileid",
+      "LookName": "fileid"
+    }
+  ],
+  "Keys": [],
+  "Enums": [
+    {
+      "LogName": "solution|solutiontype",
+      "Name": "TypeDeSolution",
+      "Values": [
+        {
+          "Name": "AucunE",
+          "Labels": [
+            {
+              "Label": "Aucun(e)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "CaptureInstantanee",
+          "Labels": [
+            {
+              "Label": "Capture instantanée",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Interne",
+          "Labels": [
+            {
+              "Label": "Interne",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

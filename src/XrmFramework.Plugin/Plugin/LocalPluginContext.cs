@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
+using System;
 
 namespace XrmFramework
 {
@@ -81,9 +81,9 @@ namespace XrmFramework
 
         public bool ShouldExecuteStep(Step step)
         {
-            var isValid = 
-                IsStage(step.Stage) 
-                && Mode == step.Mode 
+            var isValid =
+                IsStage(step.Stage)
+                && Mode == step.Mode
                 && IsMessage(step.Message);
 
             if (isValid && step.EntityName != PrimaryEntityName)
@@ -106,6 +106,51 @@ namespace XrmFramework
             }
 
             return isValid;
+        }
+
+        public void LogStart()
+        {
+            Log($"Entity: {PrimaryEntityName}, Message: {MessageName}, Stage: {Enum.ToObject(typeof(Stages), Stage)}, Mode: {Mode}");
+
+            Log($"\r\nUserId\t\t\t{UserId}\r\nInitiatingUserId\t{InitiatingUserId}");
+            Log($"\r\nStart : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}");
+        }
+
+        public void LogExit()
+        {
+            Log($"End : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}\r\n");
+        }
+
+        public void LogContextEntry()
+        {
+            Log("\r\n------------------ Input Variables (before) ------------------");
+            DumpInputParameters();
+            Log("\r\n------------------ Shared Variables (before) ------------------");
+            DumpSharedVariables();
+            Log("\r\n---------------------------------------------------------------");
+        }
+        public void LogContextExit()
+        {
+            if (IsStage(Stages.PreValidation) || IsStage(Stages.PreOperation))
+            {
+                Log("\r\n\r\n------------------ Input Variables (after) ------------------");
+                DumpInputParameters();
+                Log("\r\n------------------ Shared Variables (after) ------------------");
+                DumpSharedVariables();
+                Log("\r\n---------------------------------------------------------------");
+            }
+        }
+
+        public void LogNotFiredForFilteringAttributes(string childClassName, string methodName)
+        {
+            var stage = Enum.ToObject(typeof(Stages), Stage);
+
+            Log("\r\n{0}.{5} is not fired because filteringAttributes filter is not met.",
+                childClassName,
+                PrimaryEntityName,
+                MessageName,
+                stage,
+                Mode, methodName);
         }
     }
 

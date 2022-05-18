@@ -1,42 +1,27 @@
-﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
-// Licensed under the MIT License. See License.txt in the project root for license information.
+﻿using System.Collections.Generic;
+using XrmFramework.DeployUtils.Model;
 
-using System.Collections.Generic;
-using Deploy;
-
-namespace XrmFramework.DeployUtils.Comparers
+namespace XrmFramework.DeployUtils.Utils
 {
-    public class SdkMessageStepComparer : IEqualityComparer<SdkMessageProcessingStep>
+    /// <summary>
+    /// Compares and Determines whether the specified Steps are equal or need updating
+    /// </summary>
+    public partial class StepComparer : IEqualityComparer<Step>
     {
-        public bool Equals(SdkMessageProcessingStep x, SdkMessageProcessingStep y) =>
-            (x.SdkMessageFilterId != null 
-                && y.SdkMessageFilterId != null 
-                && x.SdkMessageFilterId.Id == y.SdkMessageFilterId.Id)
-            && x.StageEnum == y.StageEnum 
-            && x.SdkMessageId.Id == y.SdkMessageId.Id
-            && x.ModeEnum == y.ModeEnum 
-            && x.EventHandler.Id == y.EventHandler.Id;
+        public bool Equals(Step x, Step y) =>
+            x == null && y == null
+            ||
+            x?.PluginTypeFullName == y?.PluginTypeFullName
+            && x?.EntityName == y?.EntityName
+            && x?.Message == y?.Message
+            && x?.Stage == y?.Stage
+            && x.Mode == y.Mode;
 
-        public int GetHashCode(SdkMessageProcessingStep obj) 
-            =>
-                (obj.SdkMessageFilterId?.GetHashCode() ?? 0) 
-                ^ obj.Stage.GetHashCode() 
-                ^ obj.Mode.GetHashCode() 
-                ^ obj.SdkMessageId.GetHashCode() 
-                ^ obj.EventHandler.GetHashCode();
-
-        public bool NeedsUpdate(SdkMessageProcessingStep x, SdkMessageProcessingStep y)
-        {
-            var needsUpdate = x.AsyncAutoDelete != y.AsyncAutoDelete;
-            needsUpdate |= x.Configuration != y.Configuration;
-            needsUpdate |= x.FilteringAttributes != y.FilteringAttributes;
-            needsUpdate |= !(x.ImpersonatingUserId == null && y.ImpersonatingUserId == null
-                                || x.ImpersonatingUserId != null && y.ImpersonatingUserId != null
-                                || x.ImpersonatingUserId?.Id == y.ImpersonatingUserId?.Id);
-            needsUpdate |= x.Rank != y.Rank;
-            needsUpdate |= x.Description != y.Description;
-
-            return needsUpdate;
-        }
+        public int GetHashCode(Step obj)
+            => obj.PluginTypeName.GetHashCode()
+               + obj.EntityName.GetHashCode()
+               + obj.Message.GetHashCode()
+               + obj.Stage.GetHashCode()
+               + obj.Mode.GetHashCode();
     }
 }

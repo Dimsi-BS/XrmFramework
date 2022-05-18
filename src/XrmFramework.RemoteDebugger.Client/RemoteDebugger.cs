@@ -1,10 +1,13 @@
-﻿using Microsoft.Xrm.Sdk;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
 using System;
 using System.Activities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using XrmFramework.DeployUtils;
+using XrmFramework.DeployUtils.Configuration;
 
 namespace XrmFramework.RemoteDebugger.Common
 {
@@ -17,9 +20,22 @@ namespace XrmFramework.RemoteDebugger.Common
             Manager = new T();
         }
 
-        public void Start<P>(string solutionName)
+        /// <summary>
+        /// Entrypoint for debugging the <typeparamref name="TPlugin"/> Assembly in the solution <paramref name="projectName"/>
+        /// </summary>
+        /// <typeparam name="TPlugin">Root type of all components to deploy, should be <c>XrmFramework.Plugin</c></typeparam>
+        /// <param name="projectName">Name of the local project as named in <c>xrmFramework.config</c></param>
+        public void Start<TPlugin>(string projectName)
         {
-            // Get registered steps
+            Console.WriteLine($"You are about to modify the debug session");
+
+            var serviceProvider = ServiceCollectionHelper.ConfigureForRemoteDebug(projectName);
+
+
+            var remoteDebuggerHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
+
+
+            remoteDebuggerHelper.UpdateDebugger<TPlugin>(projectName);
 
             //var plugins = RegistrationHelper.UpdateCrmData<P>("FrameworkTests.Plugins");
             //RegistrationHelper<XrmFramework.RemoteDebuggerPlugin>
@@ -32,7 +48,6 @@ namespace XrmFramework.RemoteDebugger.Common
                     var serviceProvider = new LocalServiceProvider(remoteContext);
 
                     serviceProvider.RequestSent += request => Manager.SendMessageWithResponse(request).GetAwaiter().GetResult();
-                    List<string> pluginsToBeExecuted = new List<string>();
                     var pluginExecutionTask = Task.Run(() =>
                     {
                         // Get the assembly qualified name of the plugin to be executed
@@ -49,11 +64,10 @@ namespace XrmFramework.RemoteDebugger.Common
                         // If no plugin found, return
                         if (pluginType == null)
                         {
-                            Manager.SendMessage(new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id));
                             return;
                         }
 
-                        // The actions to be performed will be different depending on wether the context is a workflow or not
+                        // The actions to be performed will be different depending on whether the context is a workflow or not
                         if (remoteContext.IsWorkflowContext)
                         {
                             // Create an instance of the workflow
@@ -84,7 +98,6 @@ namespace XrmFramework.RemoteDebugger.Common
                         {
                             // If a plugin or a custom API, juste create the instance and execute it using the local service provider
                             var plugin = (IPlugin)Activator.CreateInstance(pluginType, (string)null, (string)null);
-
                             plugin.Execute(serviceProvider);
                         }
                     });

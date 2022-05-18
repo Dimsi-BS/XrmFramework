@@ -80,6 +80,10 @@ namespace XrmFramework.RemoteDebugger.Converters
 
                         value = (TValue)serializer.Deserialize(reader, valueContract.UnderlyingType);
                     }
+                    else
+                    {
+                        reader.ReadAndAssert();
+                    }
                 }
                 else
                 {
@@ -88,7 +92,6 @@ namespace XrmFramework.RemoteDebugger.Converters
 
                 reader.ReadAndAssert();
             }
-
             return new KeyValuePair<TKey, TValue>(key, value);
         }
     }

@@ -1242,7 +1242,7 @@
     },
     {
       "LogName": "account|address1_addresstypecode",
-      "Name": "Adresse1TypeDAdresse",
+      "Name": "AccountAdresse1TypeDAdresse",
       "Values": [
         {
           "Value": 1,
@@ -1316,7 +1316,7 @@
     },
     {
       "LogName": "account|address1_shippingmethodcode",
-      "Name": "Adresse1ModeDeLivraison",
+      "Name": "AccountAdresse1ModeDeLivraison",
       "Values": [
         {
           "Value": 5,
@@ -1363,7 +1363,7 @@
     },
     {
       "LogName": "account|address2_addresstypecode",
-      "Name": "Adresse2TypeDAdresse",
+      "Name": "AccountAdresse2TypeDAdresse",
       "Values": [
         {
           "Value": 1,
@@ -1397,7 +1397,7 @@
     },
     {
       "LogName": "account|address2_shippingmethodcode",
-      "Name": "Adresse2ModeDeLivraison",
+      "Name": "AccountAdresse2ModeDeLivraison",
       "Values": [
         {
           "Value": 1,

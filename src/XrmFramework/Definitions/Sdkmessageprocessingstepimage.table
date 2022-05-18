@@ -1,23 +1,260 @@
 {
   "LogName": "sdkmessageprocessingstepimage",
-  "Name": "Sdkmessageprocessingstepimage",
+  "Name": "SdkMessageProcessingStepImage",
   "CollName": "sdkmessageprocessingstepimages",
   "Cols": [
-    
+    {
+      "LogName": "attributes",
+      "Name": "Attributes",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Attributs",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100000
+    },
+    {
+      "LogName": "componentstate",
+      "Name": "ComponentState",
+      "Type": "Picklist",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "État du composant",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "componentstate"
+    },
+    {
+      "LogName": "createdby",
+      "Name": "CreatedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "createdonbehalfby",
+      "Name": "CreatedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "customizationlevel",
+      "Name": "CustomizationLevel",
+      "Type": "Integer",
+      "Capa": 1,
+      "Labels": [],
+      "MinRange": -255.0,
+      "MaxRange": 255.0
+    },
+    {
+      "LogName": "description",
+      "Name": "Description",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Description",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "entityalias",
+      "Name": "EntityAlias",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Alias d’entité",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "imagetype",
+      "Name": "ImageType",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Type d'image",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "sdkmessageprocessingstepimage|imagetype"
+    },
+    {
+      "LogName": "introducedversion",
+      "Name": "IntroducedVersion",
+      "Type": "String",
+      "Capa": 5,
+      "Labels": [
+        {
+          "Label": "Version présentée",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 48
+    },
+    {
+      "LogName": "iscustomizable",
+      "Name": "IsCustomizable",
+      "Type": "ManagedProperty",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Personnalisable",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ismanaged",
+      "Name": "IsManaged",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "messagepropertyname",
+      "Name": "MessagePropertyName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom de propriété du message",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "modifiedby",
+      "Name": "ModifiedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedon",
+      "Name": "ModifiedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "modifiedonbehalfby",
+      "Name": "ModifiedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
     {
       "LogName": "name",
       "Name": "Name",
       "Type": "String",
       "PrimaryType": "Name",
       "Capa": 15,
-      "Locked": true,
       "Labels": [
         {
           "Label": "Nom",
           "LangId": 1036
         }
       ],
+      "StrLen": 256,
+      "Select": true
+    },
+    {
+      "LogName": "organizationid",
+      "Name": "OrganizationId",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "overwritetime",
+      "Name": "OverwriteTime",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Heure de remplacement de l’enregistrement",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "relatedattributename",
+      "Name": "RelatedAttributeName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom de l’attribut associé",
+          "LangId": 1036
+        }
+      ],
       "StrLen": 256
+    },
+    {
+      "LogName": "sdkmessageprocessingstepid",
+      "Name": "SdkMessageProcessingStepId",
+      "Type": "Lookup",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Étape de traitement du message SDK",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
     },
     {
       "LogName": "sdkmessageprocessingstepimageid",
@@ -25,7 +262,33 @@
       "Type": "Uniqueidentifier",
       "PrimaryType": "Id",
       "Capa": 13,
-      "Locked": true,
+      "Labels": [],
+      "Select": true
+    },
+    {
+      "LogName": "sdkmessageprocessingstepimageidunique",
+      "Name": "SdkMessageProcessingStepImageIdUnique",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "solutionid",
+      "Name": "SolutionId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Solution",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "versionnumber",
+      "Name": "VersionNumber",
+      "Type": "BigInt",
+      "Capa": 1,
       "Labels": []
     }
   ],
@@ -77,13 +340,11 @@
       "LookName": "modifiedby"
     }
   ],
-  "Locked": true,
   "Keys": [],
   "Enums": [
     {
       "LogName": "sdkmessageprocessingstepimage|imagetype",
       "Name": "TypeDImage",
-      "Locked": true,
       "Values": [
         {
           "Name": "Preimage",
