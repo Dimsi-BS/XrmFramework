@@ -8,8 +8,13 @@
 	  <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
 	  <PublicSign>$(XrmFramework_PublicSign)</PublicSign>
 	  <PackageId>XrmFramework.RemoteDebuggerPlugin</PackageId>
+
 	  
   </PropertyGroup>
+
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);DISABLE_DI</DefineConstants>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.42" />
