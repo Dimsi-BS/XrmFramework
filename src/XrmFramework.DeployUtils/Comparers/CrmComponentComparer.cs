@@ -41,7 +41,7 @@ namespace XrmFramework.DeployUtils.Utils
         {
             if (x.GetType() != y.GetType())
             {
-                return false;
+                throw new ArgumentException("The two components were not of the same type");
             }
 
             return x switch

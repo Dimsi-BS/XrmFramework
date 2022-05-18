@@ -25,7 +25,7 @@ namespace XrmFramework
             {
                 debugSession = GetDebugSession(localContext.AdminOrganizationService, initiatingUserId);
             }
-            catch (Exception e)
+            catch
             {
                 localContext.Log("An error occurred fetching the Debug Session");
                 return false;
