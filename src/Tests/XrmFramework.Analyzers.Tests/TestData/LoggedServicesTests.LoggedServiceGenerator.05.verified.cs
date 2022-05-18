@@ -1,4 +1,5 @@
 ﻿//HintName: XrmFramework.IService.logged.cs
+#if !DISABLE_SERVICES
 using Microsoft.Xrm.Sdk;
 using System;
 using System.Diagnostics;
@@ -148,3 +149,4 @@ namespace XrmFramework
         }
     }
 }
+#endif
