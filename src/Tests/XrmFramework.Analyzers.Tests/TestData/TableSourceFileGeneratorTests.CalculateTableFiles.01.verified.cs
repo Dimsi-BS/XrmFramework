@@ -25,7 +25,7 @@ namespace XrmFramework.Definitions
             /// Validity :  Read | Create | Update | AdvancedFind 
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Lookup)]
-            [CrmLookup("ftp_agentimmobilier","ftp_agent",RelationshipName = ManyToOneRelationships.ftp_ContratdeLocation_Agent_ftp_AgentImmo)]
+            [CrmLookup("ftp_agentimmobilier", "ftp_agent", RelationshipName = ManyToOneRelationships.ftp_ContratdeLocation_Agent_ftp_AgentImmo)]
             public const string Agent = "ftp_agent";
 
             /// <summary>
@@ -43,7 +43,7 @@ namespace XrmFramework.Definitions
             /// Validity :  Read | Create | Update | AdvancedFind 
             /// </summary>
             [AttributeMetadata(AttributeTypeCode.Lookup)]
-            [CrmLookup(ParticulierDefinition.EntityName,ParticulierDefinition.Columns.Id,RelationshipName = ManyToOneRelationships.ftp_ContratdeLocation_Locataire_ftp_Parti)]
+            [CrmLookup(ParticulierDefinition.EntityName, ParticulierDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.ftp_ContratdeLocation_Locataire_ftp_Parti)]
             public const string Locataire = "ftp_locataire";
 
             /// <summary>

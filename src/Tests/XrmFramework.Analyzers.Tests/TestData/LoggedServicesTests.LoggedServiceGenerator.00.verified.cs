@@ -1,4 +1,5 @@
 ﻿//HintName: ClientNamespace.Core.IAccountService.logged.cs
+#if !DISABLE_SERVICES
 using ClientNamespace.Core;
 using Microsoft.Xrm.Sdk;
 using System;
@@ -133,3 +134,4 @@ namespace ClientNamespace.Core
         }
     }
 }
+#endif

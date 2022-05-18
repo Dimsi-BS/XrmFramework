@@ -1,4 +1,5 @@
 ﻿//HintName: DependencyInjection.cs
+#if !DISABLE_SERVICES
 using BoDi;
 using ClientNamespace.Core;
 using XrmFramework;
@@ -16,3 +17,4 @@ namespace XrmFramework
         }
     }
 }
+#endif

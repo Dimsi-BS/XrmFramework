@@ -1,4 +1,5 @@
 ﻿//HintName: ClientNamespace.Core.ISub3Service.logged.cs
+#if !DISABLE_SERVICES
 using ClientNamespace.Core;
 using System;
 using System.Diagnostics;
@@ -19,3 +20,4 @@ namespace ClientNamespace.Core
         #endregion
     }
 }
+#endif
