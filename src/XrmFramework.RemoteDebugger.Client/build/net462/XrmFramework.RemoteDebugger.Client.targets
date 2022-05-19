@@ -1,0 +1,11 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Target Name="CheckAliases" BeforeTargets="Compile">
+    <ItemGroup>
+      <ProjectWithoutAliases Include="@(ProjectReference)" Condition="'%(Identity.Aliases)' == ''" />
+    </ItemGroup>
+
+
+  </Target>
+
+</Project>

@@ -1,5 +1,8 @@
 <Project>
 
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);DISABLE_SERVICES</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Include="$(SolutionDir)\Config\App.config" Condition="">
