@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
+using System.Reflection;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
@@ -86,11 +87,11 @@ namespace XrmFramework.DeployUtils.Utils
         }
 
 
-        public IAssemblyContext WrapDebugDiffForDebugStrategy(IAssemblyContext from, DebugAssemblySettings debugSettings, Type TPlugin)
+        public IAssemblyContext WrapDebugDiffForDebugStrategy(IAssemblyContext from, DebugAssemblySettings debugSettings, Assembly Assembly)
         {
             var debugAssembly = _mapper.Map<IAssemblyContext>(from.AssemblyInfo);
 
-            var localPlugins = TPlugin.Assembly.GetTypes();
+            var localPlugins = Assembly.GetTypes();
 
             var debugPlugin = new Plugin("Father")
             {

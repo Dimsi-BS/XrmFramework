@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using XrmFramework.BindingModel;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
@@ -51,17 +52,17 @@ namespace XrmFramework.DeployUtils
         /// </remarks>
         /// <typeparam name="TPlugin">Root type of all components to deploy, should be <c>XrmFramework.Plugin</c></typeparam>
         /// <param name="projectName">Name of the local project as named in <c>xrmFramework.config</c></param>
-        public void UpdateDebugger<TPlugin>(string projectName)
+        public void UpdateDebugger(Assembly Assembly)
         {
             Console.Write("Fetching Local Assembly...");
 
-            var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(typeof(TPlugin));
+            var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(Assembly);
 
             localAssembly.Workflows.Clear();
 
             Console.WriteLine("Fetching Remote Assembly...");
 
-            var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, projectName);
+            var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, Assembly.GetName().Name);
 
             registeredAssembly.Workflows.Clear();
 
@@ -79,7 +80,7 @@ namespace XrmFramework.DeployUtils
 
             var remoteDebugDiff = _assemblyDiffFactory.ComputeDiffPatch(assemblyToDebug, debugAssembly);
 
-            var debugStrategy = _assemblyFactory.WrapDebugDiffForDebugStrategy(remoteDebugDiff, _debugSettings, typeof(TPlugin));
+            var debugStrategy = _assemblyFactory.WrapDebugDiffForDebugStrategy(remoteDebugDiff, _debugSettings, Assembly);
 
             Console.WriteLine("Updating the Remote Debugger Plugin...");
             ExecuteStrategy(debugStrategy);

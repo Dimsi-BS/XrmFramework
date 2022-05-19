@@ -1,5 +1,6 @@
-﻿using System;
+﻿using System.Reflection;
 using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.RemoteDebugger.Client.Configuration;
 
@@ -38,6 +39,6 @@ namespace XrmFramework.DeployUtils.Utils
         /// <param name="debugAssemblySettings">Information on the target <c>RemoteDebugger</c></param>
         /// <param name="TPlugin">The Type the <paramref name="from"/> Assembly was created from</param>
         /// <returns></returns>
-        IAssemblyContext WrapDebugDiffForDebugStrategy(IAssemblyContext from, DebugAssemblySettings debugAssemblySettings, Type TPlugin);
+        IAssemblyContext WrapDebugDiffForDebugStrategy(IAssemblyContext from, DebugAssemblySettings debugAssemblySettings, Assembly Assembly);
     }
 }

@@ -3,8 +3,8 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
 using System;
 using System.Activities;
-using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using XrmFramework.DeployUtils;
 using XrmFramework.DeployUtils.Configuration;
@@ -21,27 +21,34 @@ namespace XrmFramework.RemoteDebugger.Common
         }
 
         /// <summary>
-        /// Entrypoint for debugging the <typeparamref name="TPlugin"/> Assembly in the solution <paramref name="projectName"/>
+        /// Entrypoint for debugging all referenced projects
         /// </summary>
-        /// <typeparam name="TPlugin">Root type of all components to deploy, should be <c>XrmFramework.Plugin</c></typeparam>
-        /// <param name="projectName">Name of the local project as named in <c>xrmFramework.config</c></param>
-        public void Start<TPlugin>(string projectName)
+        public void Start()
         {
             Console.WriteLine($"You are about to modify the debug session");
 
-            var serviceProvider = ServiceCollectionHelper.ConfigureForRemoteDebug(projectName);
+            var assembliesToDebug = Assembly.GetCallingAssembly().GetReferencedAssemblies()
+                .Select(Assembly.Load)
+                .Where(a => a.GetType("XrmFramework.Plugin") != null
+                            || a.GetType("XrmFramework.CustomApi") != null
+                            || a.GetType("XrmFramework.Workflow.CustomWorkflowActivity") != null
+                )
+                .ToList();
 
+            if (!assembliesToDebug.Any())
+            {
+                throw new ArgumentException(
+                    "No project containing components to debug were found, please check that they are referenced");
+            }
+
+            var anyAssembly = assembliesToDebug.First();
+
+            var serviceProvider = ServiceCollectionHelper.ConfigureForRemoteDebug(anyAssembly.GetName().Name);
 
             var remoteDebuggerHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
 
+            assembliesToDebug.ForEach(remoteDebuggerHelper.UpdateDebugger);
 
-            remoteDebuggerHelper.UpdateDebugger<TPlugin>(projectName);
-
-            //var plugins = RegistrationHelper.UpdateCrmData<P>("FrameworkTests.Plugins");
-            //RegistrationHelper<XrmFramework.RemoteDebuggerPlugin>
-
-
-            //RegistrationHelper.UpdateRemoteDebuggerPlugin<P>(solutionName);
             Manager.ContextReceived += remoteContext =>
                 {
                     // Create local service provider from remote context

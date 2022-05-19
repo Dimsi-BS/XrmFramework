@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Service;
 
@@ -17,9 +18,8 @@ namespace XrmFramework.DeployUtils.Utils
             _importer = importer;
         }
 
-        public IAssemblyContext CreateFromLocalAssemblyContext(Type TPlugin)
+        public IAssemblyContext CreateFromLocalAssemblyContext(Assembly Assembly)
         {
-            var Assembly = TPlugin.Assembly;
             var pluginType = Assembly.GetType("XrmFramework.Plugin");
             var customApiType = Assembly.GetType("XrmFramework.CustomApi");
             var workflowType = Assembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");

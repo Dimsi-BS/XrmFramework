@@ -1,5 +1,4 @@
 ﻿using Deploy;
-using Microsoft.Extensions.Options;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
@@ -8,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.Definitions;
-using XrmFramework.DeployUtils.Configuration;
 
 namespace XrmFramework.DeployUtils.Service
 {
@@ -17,12 +15,13 @@ namespace XrmFramework.DeployUtils.Service
     /// </summary>
     public class RegistrationService : IRegistrationService
     {
-        private readonly CrmServiceClient _client;
+        private readonly IOrganizationService _client;
 
-        public RegistrationService(IOptions<SolutionSettings> settings)
+        public RegistrationService(IOrganizationService client)
         {
-            _client = new CrmServiceClient(settings.Value.ConnectionString);
+            _client = client;
         }
+
         public RegistrationService(string connectionString)
         {
             _client = new CrmServiceClient(connectionString);

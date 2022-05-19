@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Tooling.Connector;
 using System;
 using System.Configuration;
 using System.Linq;
@@ -37,6 +39,8 @@ namespace XrmFramework.DeployUtils.Configuration
                 s.ConnectionString = settings.ConnectionString;
                 s.PluginSolutionUniqueName = settings.PluginSolutionUniqueName;
             });
+
+            serviceCollection.AddScoped<IOrganizationService, CrmServiceClient>(_ => new CrmServiceClient(settings.ConnectionString));
 
             return serviceCollection.BuildServiceProvider();
         }

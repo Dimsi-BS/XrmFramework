@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
+using System.Reflection;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
@@ -38,7 +39,8 @@ namespace XrmFramework.DeployUtils
         /// <param name="projectName">Name of the local project as named in <c>xrmFramework.config</c></param>
         public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
         {
-            var serviceProvider = ServiceCollectionHelper.ConfigureForDeploy(projectName);
+            var localDll = typeof(TPlugin).Assembly;
+            var serviceProvider = ServiceCollectionHelper.ConfigureForDeploy(localDll.GetName().Name);
 
             var solutionSettings = serviceProvider.GetRequiredService<IOptions<SolutionSettings>>();
 
@@ -48,23 +50,22 @@ namespace XrmFramework.DeployUtils
 
             var registrationHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
 
-            registrationHelper.Register<TPlugin>(projectName);
+            registrationHelper.Register(localDll);
         }
 
         /// <summary>
-        /// Main algorithm for deploying a <typeparamref name="TPlugin"></typeparamref> assembly into the <paramref name="projectName"/>
+        /// Main algorithm for deploying the <see cref="Assembly"/> assembly
         /// </summary>
-        /// <typeparam name="TPlugin">Root type of all components to deploy, should be <c>XrmFramework.Plugin</c></typeparam>
-        /// <param name="projectName">Name of the local project as named in <c>xrmFramework.config</c></param>
-        protected void Register<TPlugin>(string projectName)
+        /// <param name="localDll">The local Assembly, should appear in <c>xrmFramework.config</c></param>
+        protected void Register(Assembly localDll)
         {
             Console.WriteLine("Fetching Local Assembly...");
 
-            var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(typeof(TPlugin));
+            var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(localDll);
 
             Console.WriteLine("Fetching Remote Assembly...");
 
-            var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, projectName);
+            var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, localDll.GetName().Name);
 
             Console.Write("Computing Difference...");
 
