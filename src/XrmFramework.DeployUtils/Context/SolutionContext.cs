@@ -17,7 +17,7 @@ namespace XrmFramework.DeployUtils.Context
     /// </summary>
     public class SolutionContext : ISolutionContext
     {
-        public SolutionContext(IRegistrationService service, IOptions<SolutionSettings> settings)
+        public SolutionContext(IRegistrationService service, IOptions<DeploySettings> settings)
         {
             _service = service;
 

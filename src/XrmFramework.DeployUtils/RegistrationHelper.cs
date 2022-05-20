@@ -42,7 +42,7 @@ namespace XrmFramework.DeployUtils
             var localDll = typeof(TPlugin).Assembly;
             var serviceProvider = ServiceCollectionHelper.ConfigureForDeploy(localDll.GetName().Name);
 
-            var solutionSettings = serviceProvider.GetRequiredService<IOptions<SolutionSettings>>();
+            var solutionSettings = serviceProvider.GetRequiredService<IOptions<DeploySettings>>();
 
             Console.WriteLine($"You are about to deploy on organization:\nUrl : {solutionSettings.Value.Url}\nClientId : {solutionSettings.Value.ClientId}\nIf ok press any key.");
             //Console.ReadKey();

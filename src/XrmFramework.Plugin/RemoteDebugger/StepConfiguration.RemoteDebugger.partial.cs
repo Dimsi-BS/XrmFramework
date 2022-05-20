@@ -9,6 +9,8 @@ namespace XrmFramework
         [JsonProperty("pluginName")]
         public string PluginName { get; set; }
 
+        [JsonProperty("assemblyFullName")] public string AssemblyName { get; set; }
+
         /// <summary>Name of the Assembly</summary>
         [JsonProperty("assemblyQualifiedName")]
         public string AssemblyQualifiedName { get; set; }

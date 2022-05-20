@@ -6,8 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using XrmFramework.BindingModel;
 using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Service;
+using XrmFramework.RemoteDebugger;
 using XrmFramework.RemoteDebugger.Client.Configuration;
 
 namespace XrmFramework.DeployUtils.Configuration
@@ -23,8 +25,8 @@ namespace XrmFramework.DeployUtils.Configuration
         ///     <item><see cref="IRegistrationService"/>, the service used for communicating with the CRM</item>
         ///     <item><see cref="AutoMapper.IMapper"/>, used for conversion between <see cref="Deploy"/> and <see cref="Model"/> objects
         ///         as well as cloning</item>
-        ///     <item><see cref="SolutionSettings"/>, an object that contains information on the target <c>Solution</c></item>
-        ///     <item><see cref="DebugSessionSettings"/>, an object that contains information on the target <c>Debug Session</c></item>
+        ///     <item><see cref="DeploySettings"/>, an object that contains information on the target <c>Solution</c></item>
+        ///     <item><see cref="DebugSettings"/>, an object that contains information on the target <c>Debug Session</c></item>
         ///     <item>The configuration of all other implemented interfaces used by <c>Dependency Injection</c></item>
         /// </list>
         /// </summary>
@@ -42,9 +44,9 @@ namespace XrmFramework.DeployUtils.Configuration
 
             var solutionSettings = ChooseSolutionSettings(projectName);
 
-            var debugSessionId = GetDebugSessionId(solutionSettings.ConnectionString);
+            var debugSession = GetDebugSession(solutionSettings.ConnectionString);
 
-            serviceCollection.Configure<SolutionSettings>((settings) =>
+            serviceCollection.Configure<DeploySettings>((settings) =>
             {
                 settings.ConnectionString = solutionSettings.ConnectionString;
                 settings.PluginSolutionUniqueName = solutionSettings.PluginSolutionUniqueName;
@@ -52,10 +54,9 @@ namespace XrmFramework.DeployUtils.Configuration
 
             serviceCollection.AddScoped<IOrganizationService, CrmServiceClient>(_ => new CrmServiceClient(solutionSettings.ConnectionString));
 
-
-            serviceCollection.Configure<DebugSessionSettings>((settings) =>
+            serviceCollection.Configure<DebugSession>((ds) =>
             {
-                settings.DebugSessionId = debugSessionId;
+                debugSession.CopyTo(ds);
             });
 
             return serviceCollection.BuildServiceProvider();
@@ -65,8 +66,8 @@ namespace XrmFramework.DeployUtils.Configuration
         /// Allows for the user to choose the <c>Target Environment</c> on console
         /// </summary>
         /// <param name="projectName">Name of the Local Project</param>
-        /// <returns>The Connection String and Target Plugin Name wrapped in a <see cref="SolutionSettings"/></returns>
-        private static SolutionSettings ChooseSolutionSettings(string projectName)
+        /// <returns>The Connection String and Target Plugin Name wrapped in a <see cref="DeploySettings"/></returns>
+        private static DeploySettings ChooseSolutionSettings(string projectName)
         {
             var xrmFrameworkConfigSection = ConfigHelper.GetSection();
 
@@ -114,7 +115,7 @@ namespace XrmFramework.DeployUtils.Configuration
                 ? connectionStringIntDic[value].ConnectionString
                 : connectionStringNameDic[response].ConnectionString;
 
-            return new SolutionSettings()
+            return new DeploySettings()
             {
                 PluginSolutionUniqueName = pluginSolutionUniqueName,
                 ConnectionString = connectionString,
@@ -127,46 +128,24 @@ namespace XrmFramework.DeployUtils.Configuration
         /// <param name="connectionString"></param>
         /// <returns>The Id of the <c>Debug Session</c></returns>
         /// <exception cref="ArgumentException"> if the Debug Session doesn't exist on the CRM</exception>
-        private static Guid GetDebugSessionId(string connectionString)
+        private static DebugSession GetDebugSession(string connectionString)
         {
             var client = new RegistrationService(connectionString);
             var debugSessionString = ConfigurationManager.ConnectionStrings["DebugConnectionString"].ConnectionString;
 
-            ParseDebugConnectionString(debugSessionString, out string key, out string path);
+            var keyName = ConnectionStringParser.GetConnectionStringField(debugSessionString, "SharedAccessKeyName");
+            var entityPath = ConnectionStringParser.GetConnectionStringField(debugSessionString, "EntityPath");
 
             var queryDebugSessions = new QueryExpression(DebugSessionDefinition.EntityName);
             queryDebugSessions.ColumnSet.AllColumns = true;
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.SasKeyName, ConditionOperator.Equal, key);
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.HybridConnectionName, ConditionOperator.Equal, path);
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.SasKeyName, ConditionOperator.Equal, keyName);
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.HybridConnectionName, ConditionOperator.Equal, entityPath);
 
-            var debugSession = client.RetrieveAll(queryDebugSessions).FirstOrDefault();
+            var debugSession = client.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
 
             if (debugSession == null) throw new ArgumentException("Debug Session not Found on the Crm");
 
-            return debugSession.Id;
-        }
-
-        private static void ParseDebugConnectionString(string raw, out string SasKeyName, out string entityPath)
-        {
-            var columns = raw.Split(';');
-            SasKeyName = "";
-            entityPath = "";
-            foreach (var column in columns)
-            {
-                var key = column.Split('=')[0].Trim();
-                if (string.IsNullOrEmpty(key)) continue;
-                var value = column.Split('=')[1].Trim();
-
-                switch (key)
-                {
-                    case "SharedAccessKeyName":
-                        SasKeyName = value;
-                        break;
-                    case "EntityPath":
-                        entityPath = value;
-                        break;
-                }
-            }
+            return debugSession;
         }
     }
 }

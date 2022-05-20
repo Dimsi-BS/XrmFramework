@@ -6,6 +6,7 @@ using System.Reflection;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
+using XrmFramework.RemoteDebugger;
 using XrmFramework.RemoteDebugger.Client.Configuration;
 
 
@@ -13,14 +14,14 @@ namespace XrmFramework.DeployUtils.Utils
 {
     internal partial class AssemblyFactory
     {
-        private readonly Guid _debugSessionId;
+        private readonly DebugSession _debugSession;
         private readonly IMapper _mapper;
 
-        public AssemblyFactory(IOptions<DebugSessionSettings> debugSettings,
+        public AssemblyFactory(IOptions<DebugSession> debugSession,
                                IAssemblyImporter importer,
                                IMapper mapper)
         {
-            _debugSessionId = debugSettings.Value.DebugSessionId;
+            _debugSession = debugSession.Value;
             _importer = importer;
             _mapper = mapper;
         }
@@ -60,7 +61,8 @@ namespace XrmFramework.DeployUtils.Utils
 
             var pluginsParsed = pluginRaw.Steps
                 .Select(s => (s, s.StepConfiguration))
-                .Where(su => su.StepConfiguration.DebugSessionId == _debugSessionId) // Only look at the current debug session
+                .Where(su => su.StepConfiguration.DebugSessionId == _debugSession.Id
+                                            && su.StepConfiguration.AssemblyName == assembly.Name) // Only look at the current debug session
                 .GroupBy(su => su.StepConfiguration.PluginName) // Regroup the steps by plugin
                 .Select(stepGroup =>
                 {
@@ -78,11 +80,17 @@ namespace XrmFramework.DeployUtils.Utils
 
             pluginsParsed.ForEach(debugAssemblyParsed.AddChild);
 
-            foreach (var customApi in debugAssemblyRaw.CustomApis)
-            {
-                customApi.UniqueName = DebugAssemblySettings.RemoveCustomPrefix(customApi.UniqueName);
-                debugAssemblyParsed.AddChild(customApi);
-            }
+            var customApiParsed = debugAssemblyRaw.CustomApis
+                .Where(c => debugSettings.HasCurrentCustomPrefix(c.UniqueName))
+                .Select(c =>
+                {
+                    c.UniqueName = DebugAssemblySettings.RemoveCustomPrefix(c.UniqueName);
+                    return c;
+                })
+                .Where(c => _debugSession.GetCorrespondingAssemblyInfo(c.UniqueName) != null)
+                .ToList();
+
+            customApiParsed.ForEach(debugAssemblyParsed.AddChild);
 
             return debugAssemblyParsed;
         }
@@ -98,7 +106,7 @@ namespace XrmFramework.DeployUtils.Utils
             {
                 RegistrationState = RegistrationState.Computed
             };
-
+            var assemblyName = Assembly.GetName().Name;
             foreach (var plugin in from.Plugins)
             {
                 var assemblyQualifiedName = localPlugins.FirstOrDefault(p => p.FullName == plugin.FullName)?.AssemblyQualifiedName;
@@ -107,7 +115,8 @@ namespace XrmFramework.DeployUtils.Utils
                 {
                     step.StepConfiguration.PluginName = step.PluginTypeFullName;
                     step.StepConfiguration.AssemblyQualifiedName = assemblyQualifiedName;
-                    step.StepConfiguration.DebugSessionId = _debugSessionId;
+                    step.StepConfiguration.DebugSessionId = _debugSession.Id;
+                    step.StepConfiguration.AssemblyName = assemblyName;
 
                     debugPlugin.AddChild(step);
                 }

@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using XrmFramework.BindingModel;
 using XrmFramework.RemoteDebugger.Client.Configuration;
 using XrmFramework.RemoteDebugger.Model.CrmComponentInfos;
@@ -16,13 +14,11 @@ namespace XrmFramework.RemoteDebugger
 
         internal override RemoteDebugExecutionContext InitRemoteContext(LocalPluginContext localContext, DebugSession debugSession)
         {
-            var debugAssemblies =
-                JsonConvert.DeserializeObject<List<AssemblyContextInfo>>(debugSession.AssembliesDebugInfo);
-
+            // Parse the Name of the CustomApi as it normally would be on the CRM
             var customApiUniqueName = DebugAssemblySettings.RemoveCustomPrefix(localContext.MessageName.ToString());
 
-            var currentAssembly = debugAssemblies
-                .FirstOrDefault(a => a.CustomApis.Exists(c => c.UniqueName == customApiUniqueName));
+            // Check if there is assembly that contains the api in the ContextInfo
+            var currentAssembly = debugSession.GetCorrespondingAssemblyInfo(customApiUniqueName);
 
             if (currentAssembly == null)
             {

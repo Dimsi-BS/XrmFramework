@@ -69,5 +69,12 @@ namespace XrmFramework.RemoteDebugger.Client.Configuration
         {
             return uniqueName.Insert(uniqueName.IndexOf('_'), DebugCustomApiPrefix);
         }
+
+        public bool HasCurrentCustomPrefix(string uniqueName)
+        {
+            var index = uniqueName.IndexOf('_');
+            var customPrefix = uniqueName.Substring(index - DebugCustomPrefixNumber, DebugCustomPrefixNumber);
+            return DebugCustomApiPrefix.Equals(customPrefix);
+        }
     }
 }
