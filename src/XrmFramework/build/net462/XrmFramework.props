@@ -9,8 +9,7 @@
 
         <Reference Include="System.Net.Http" />
         <Reference Include="Microsoft.CSharp" />
-        <Reference Include="System.Configuration.ConfigurationManager" />
-        <Reference Include="System.ComponentModel.Annotations" />
+        <Reference Include="System.Configuration" />
 
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 
