@@ -74,6 +74,7 @@ namespace XrmFramework.DeployUtils
 
             Console.WriteLine("Fetching Debug Assembly...");
 
+            _debugSettings.TargetAssemblyUniqueName = localAssembly.UniqueName;
             var debugAssembly = _assemblyFactory.CreateFromDebugAssembly(_registrationService, _debugSettings);
 
             Console.WriteLine("Computing Difference With Debug Assembly...");

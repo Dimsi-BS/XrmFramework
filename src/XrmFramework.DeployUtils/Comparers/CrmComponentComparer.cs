@@ -11,12 +11,8 @@ namespace XrmFramework.DeployUtils.Utils
     /// </summary>
     public class CrmComponentComparer : ICrmComponentComparer
     {
-        private readonly StepComparer _stepComparer;
+        private readonly StepComparer _stepComparer = new();
 
-        public CrmComponentComparer()
-        {
-            _stepComparer = new StepComparer();
-        }
         public ICrmComponent CorrespondingComponent(ICrmComponent from, IReadOnlyCollection<ICrmComponent> target)
         {
             return target.FirstOrDefault(x => Equals(from, x));
@@ -24,25 +20,20 @@ namespace XrmFramework.DeployUtils.Utils
 
         public bool Equals(ICrmComponent x, ICrmComponent y)
         {
-            if (x.GetType() != y.GetType()) return false;
+            if (x == null || y == null || x.GetType() != y.GetType()) return false;
 
             return x switch
             {
                 Step step => _stepComparer.Equals(step, (Step)y),
                 StepImage image => _stepComparer.Equals(image.FatherStep, ((StepImage)y).FatherStep) &&
                                    image.IsPreImage == ((StepImage)y).IsPreImage,
-                AssemblyInfo => true,
-                IAssemblyContext => true,
                 _ => x.UniqueName == y.UniqueName
             };
         }
 
         public bool NeedsUpdate(ICrmComponent x, ICrmComponent y)
         {
-            if (x.GetType() != y.GetType())
-            {
-                throw new ArgumentException("The two components were not of the same type");
-            }
+            if (!Equals(x, y)) return false;
 
             return x switch
             {

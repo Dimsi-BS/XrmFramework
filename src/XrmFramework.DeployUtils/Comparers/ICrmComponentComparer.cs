@@ -16,7 +16,6 @@ public interface ICrmComponentComparer : IEqualityComparer<ICrmComponent>
     /// <summary>
     /// Checks if two components have different non-defining properties
     /// </summary>
-    /// <remarks>This method doesn't check for Equality before comparing, but only checks if they are of the same <c>Type</c></remarks>
     /// <returns>true if they need updating, false if they are exactly the same</returns>
     /// <exception cref="ArgumentException">If the two components were not of the same type or of unknown type</exception>
     bool NeedsUpdate(ICrmComponent x, ICrmComponent y);

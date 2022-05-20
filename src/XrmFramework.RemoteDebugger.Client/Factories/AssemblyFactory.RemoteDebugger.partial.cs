@@ -34,6 +34,7 @@ namespace XrmFramework.DeployUtils.Utils
                 throw new ArgumentException("The DebugAssembly is not deployed on this Solution");
             }
 
+            assembly.Name = debugSettings.TargetAssemblyUniqueName;
             var debugAssemblyRaw = _importer.CreateAssemblyFromRemote(assembly);
 
             Console.WriteLine("Remote Debug Plugin Exists, Fetching Components...");

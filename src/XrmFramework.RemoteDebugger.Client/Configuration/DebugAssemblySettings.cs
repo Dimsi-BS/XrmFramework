@@ -1,4 +1,5 @@
 ﻿using System;
+using XrmFramework.DeployUtils;
 
 namespace XrmFramework.RemoteDebugger.Client.Configuration
 {
@@ -15,6 +16,9 @@ namespace XrmFramework.RemoteDebugger.Client.Configuration
 
         /// <summary>Name of the Remote Debugger CustomApi, should be standard and pushed in all recent solutions</summary>
         public const string DebugCustomApiName = "XrmFramework.RemoteDebugger.RemoteDebuggerCustomApi";
+
+        /// <summary> Name of the Assembly that is currently being computed for debugging in <see cref="RegistrationHelper.UpdateDebugger"/> </summary>
+        public string TargetAssemblyUniqueName { get; set; }
 
         ///<summary>
         /// This constant defines how many characters will be added in the CustomApis prefix to make them unique <br/>
@@ -43,6 +47,7 @@ namespace XrmFramework.RemoteDebugger.Client.Configuration
         /// <remarks>As the debug Assembly is heavily manipulated,
         /// it is simpler to keep these stored in a separate object make sure they're not lost</remarks>
         public Guid CustomApiId { get; set; }
+
 
         /// <summary>
         /// Removes the added prefix used to deploy a CustomApi so it can look like the original
