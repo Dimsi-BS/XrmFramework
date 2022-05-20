@@ -32,15 +32,16 @@ namespace XrmFramework.DeployUtils.Configuration
         {
             var serviceCollection = InitServiceCollection();
 
-            var settings = ParseSolutionSettings(projectName);
+            var targetSolutionName = GetTargetSolutionName(projectName);
+            var connectionString = GetSelectedConnectionString();
 
             serviceCollection.Configure<DeploySettings>((s) =>
             {
-                s.ConnectionString = settings.ConnectionString;
-                s.PluginSolutionUniqueName = settings.PluginSolutionUniqueName;
+                s.ConnectionString = connectionString;
+                s.PluginSolutionUniqueName = targetSolutionName;
             });
 
-            serviceCollection.AddScoped<IOrganizationService, CrmServiceClient>(_ => new CrmServiceClient(settings.ConnectionString));
+            serviceCollection.AddScoped<IOrganizationService, CrmServiceClient>(_ => new CrmServiceClient(connectionString));
 
             return serviceCollection.BuildServiceProvider();
         }
@@ -70,11 +71,11 @@ namespace XrmFramework.DeployUtils.Configuration
         }
 
         /// <summary>
-        /// Retrieves the config files to get the solution settings
+        /// Retrieves the config files to get the target solution name as defined in xrmFramework.config
         /// </summary>
-        /// <param name="projectName">, The name of the target solution</param>
-        /// <returns><see cref="DeploySettings"/> that stores the selected ConnectionString and the target solution name</returns>
-        private static DeploySettings ParseSolutionSettings(string projectName)
+        /// <param name="projectName">, The name of the local project</param>
+        /// <returns>The Name of the Target Solution</returns>
+        public static string GetTargetSolutionName(string projectName)
         {
             var xrmFrameworkConfigSection = ConfigHelper.GetSection();
 
@@ -90,11 +91,18 @@ namespace XrmFramework.DeployUtils.Configuration
                 System.Environment.Exit(1);
             }
 
-            return new DeploySettings()
-            {
-                PluginSolutionUniqueName = projectConfig.TargetSolution,
-                ConnectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString
-            };
+            return projectConfig.TargetSolution;
+        }
+
+        /// <summary>
+        /// Retrieves the selected connection string as defined in xrmFramework.config
+        /// </summary>
+        /// <returns></returns>
+        public static string GetSelectedConnectionString()
+        {
+            var xrmFrameworkConfigSection = ConfigHelper.GetSection();
+            return ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection]
+                .ConnectionString;
         }
 
     }

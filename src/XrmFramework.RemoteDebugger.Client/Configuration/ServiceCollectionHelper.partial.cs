@@ -10,7 +10,6 @@ using XrmFramework.BindingModel;
 using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.RemoteDebugger;
-using XrmFramework.RemoteDebugger.Client.Configuration;
 
 namespace XrmFramework.DeployUtils.Configuration
 {
@@ -33,7 +32,7 @@ namespace XrmFramework.DeployUtils.Configuration
         /// <param name="projectName">The Name of the Local Project</param>
         /// <returns><see cref="IServiceProvider"/> the service provider used to instantiate every object needed</returns>
 
-        public static IServiceProvider ConfigureForRemoteDebug(string projectName)
+        public static IServiceProvider ConfigureForRemoteDebug()
         {
             if (ConfigurationManager.ConnectionStrings["DebugConnectionString"] == null)
             {
@@ -42,17 +41,16 @@ namespace XrmFramework.DeployUtils.Configuration
 
             var serviceCollection = InitServiceCollection();
 
-            var solutionSettings = ChooseSolutionSettings(projectName);
+            var connectionString = ChooseConnectionString();
 
-            var debugSession = GetDebugSession(solutionSettings.ConnectionString);
+            var debugSession = GetDebugSession(connectionString);
 
             serviceCollection.Configure<DeploySettings>((settings) =>
             {
-                settings.ConnectionString = solutionSettings.ConnectionString;
-                settings.PluginSolutionUniqueName = solutionSettings.PluginSolutionUniqueName;
+                settings.ConnectionString = connectionString;
             });
 
-            serviceCollection.AddScoped<IOrganizationService, CrmServiceClient>(_ => new CrmServiceClient(solutionSettings.ConnectionString));
+            serviceCollection.AddScoped<IOrganizationService, CrmServiceClient>(_ => new CrmServiceClient(connectionString));
 
             serviceCollection.Configure<DebugSession>((ds) =>
             {
@@ -65,25 +63,9 @@ namespace XrmFramework.DeployUtils.Configuration
         /// <summary>
         /// Allows for the user to choose the <c>Target Environment</c> on console
         /// </summary>
-        /// <param name="projectName">Name of the Local Project</param>
-        /// <returns>The Connection String and Target Plugin Name wrapped in a <see cref="DeploySettings"/></returns>
-        private static DeploySettings ChooseSolutionSettings(string projectName)
+        /// <returns>The chosen Connection String</returns>
+        private static string ChooseConnectionString()
         {
-            var xrmFrameworkConfigSection = ConfigHelper.GetSection();
-
-            var projectConfig = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>()
-                .FirstOrDefault(p => p.Name == projectName);
-
-            if (projectConfig == null)
-            {
-                var defaultColor = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"No reference to the project {projectName} has been found in the xrmFramework.config file.");
-                Console.ForegroundColor = defaultColor;
-                System.Environment.Exit(1);
-            }
-
-
             var connectionStringNameDic = new Dictionary<string, ConnectionStringSettings>();
             var connectionStringIntDic = new Dictionary<int, ConnectionStringSettings>();
 
@@ -110,16 +92,11 @@ namespace XrmFramework.DeployUtils.Configuration
                 System.Environment.Exit(0);
             }
 
-            var pluginSolutionUniqueName = projectConfig.TargetSolution;
             var connectionString = int.TryParse(response, out int value)
                 ? connectionStringIntDic[value].ConnectionString
                 : connectionStringNameDic[response].ConnectionString;
 
-            return new DeploySettings()
-            {
-                PluginSolutionUniqueName = pluginSolutionUniqueName,
-                ConnectionString = connectionString,
-            };
+            return connectionString;
         }
 
         /// <summary>

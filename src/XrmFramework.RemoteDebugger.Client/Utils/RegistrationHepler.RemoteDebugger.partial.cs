@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using XrmFramework.BindingModel;
 using XrmFramework.DeployUtils.Context;
@@ -105,9 +103,7 @@ namespace XrmFramework.DeployUtils
 
             var patchInfo = _mapper.Map<AssemblyContextInfo>(deployDiff);
 
-            var patches = !string.IsNullOrEmpty(_debugSession.AssembliesDebugInfo)
-                ? JsonConvert.DeserializeObject<List<AssemblyContextInfo>>(_debugSession.AssembliesDebugInfo)
-                : new List<AssemblyContextInfo>();
+            var patches = _debugSession.AssemblyContexts;
 
             var index = patches.FindIndex(p => p.AssemblyName == patchInfo.AssemblyName);
             if (index == -1)
@@ -116,8 +112,6 @@ namespace XrmFramework.DeployUtils
             {
                 patches[index] = patchInfo;
             }
-
-            _debugSession.AssembliesDebugInfo = JsonConvert.SerializeObject(patches);
 
             var updatedDebugSession = _debugSession.ToEntity(_registrationService);
             _registrationService.Update(updatedDebugSession);

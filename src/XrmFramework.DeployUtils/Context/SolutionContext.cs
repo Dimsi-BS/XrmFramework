@@ -22,9 +22,6 @@ namespace XrmFramework.DeployUtils.Context
             _service = service;
 
             SolutionName = settings.Value.PluginSolutionUniqueName;
-            InitSolution();
-            InitPublisher();
-            InitComponents();
         }
         private readonly IRegistrationService _service;
 
@@ -38,7 +35,7 @@ namespace XrmFramework.DeployUtils.Context
         #endregion
 
         #region Public getters implementing the interface
-        public string SolutionName { get; }
+        public string SolutionName { get; private set; }
         public Solution Solution => _solution;
         public Publisher Publisher => _publisher;
         public List<SolutionComponent> Components => _components;
@@ -47,7 +44,22 @@ namespace XrmFramework.DeployUtils.Context
         public List<KeyValuePair<string, Guid>> Users => _users;
         #endregion
 
+        public void InitSolutionContext(string solutionName = null)
+        {
+            if (solutionName != null)
+            {
+                SolutionName = solutionName;
+            }
 
+            _components.Clear();
+            _filters.Clear();
+            _messages.Clear();
+            _users.Clear();
+
+            InitSolution();
+            InitPublisher();
+            InitComponents();
+        }
         public void InitMetadata()
         {
             Console.WriteLine("Metadata initialization");

@@ -43,6 +43,12 @@ namespace XrmFramework.RemoteDebugger
             set => _assemblyContexts = JsonConvert.DeserializeObject<List<AssemblyContextInfo>>(value);
         }
 
+        public List<AssemblyContextInfo> AssemblyContexts
+        {
+            get => _assemblyContexts;
+            set => _assemblyContexts = value;
+        }
+
         private List<AssemblyContextInfo> _assemblyContexts = new();
 
         public Guid Id { get; set; }

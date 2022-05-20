@@ -42,6 +42,12 @@ namespace XrmFramework.DeployUtils.Context
         /// <param name="steps"></param>
         void InitExportMetadata(IEnumerable<Step> steps);
 
+        /// <summary>
+        /// Inits the components essential for importing an <see cref="IAssemblyContext"/>
+        /// The solutionName is already configured in <see cref="DeployUtils"/>
+        /// </summary>
+        /// <param name="solutionName"></param>
+        void InitSolutionContext(string solutionName = null);
 
 
     }

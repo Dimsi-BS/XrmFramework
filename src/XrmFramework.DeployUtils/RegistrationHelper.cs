@@ -48,6 +48,9 @@ namespace XrmFramework.DeployUtils
             //Console.ReadKey();
             Console.WriteLine("Connecting to CRM...");
 
+            var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
+            solutionContext.InitSolutionContext();
+
             var registrationHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
 
             registrationHelper.Register(localDll);

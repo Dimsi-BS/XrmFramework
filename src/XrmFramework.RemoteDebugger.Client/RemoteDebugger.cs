@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using XrmFramework.DeployUtils;
 using XrmFramework.DeployUtils.Configuration;
+using XrmFramework.DeployUtils.Context;
 
 namespace XrmFramework.RemoteDebugger.Common
 {
@@ -41,13 +42,18 @@ namespace XrmFramework.RemoteDebugger.Common
                     "No project containing components to debug were found, please check that they are referenced");
             }
 
-            var anyAssembly = assembliesToDebug.First();
+            var serviceProvider = ServiceCollectionHelper.ConfigureForRemoteDebug();
 
-            var serviceProvider = ServiceCollectionHelper.ConfigureForRemoteDebug(anyAssembly.GetName().Name);
+            var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
 
             var remoteDebuggerHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
 
-            assembliesToDebug.ForEach(remoteDebuggerHelper.UpdateDebugger);
+            assembliesToDebug.ForEach(assembly =>
+            {
+                var targetSolutionName = ServiceCollectionHelper.GetTargetSolutionName(assembly.GetName().Name);
+                solutionContext.InitSolutionContext(targetSolutionName);
+                remoteDebuggerHelper.UpdateDebugger(assembly);
+            });
 
             Manager.ContextReceived += remoteContext =>
                 {
