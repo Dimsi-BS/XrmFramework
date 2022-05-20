@@ -2,9 +2,14 @@
 
   <Target Name="CheckAliases" BeforeTargets="Compile">
     <ItemGroup>
-      <ProjectWithoutAliases Include="@(ProjectReference)" Condition="'%(Identity.Aliases)' == ''" />
+      <ProjectWithoutAliases Remove="%(ProjectWithoutAliases)"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectWithoutAliases Include="@(ProjectReference)" Condition="'%(ProjectReference.Aliases)' == ''" />
+    </ItemGroup>
+
+    <Error Text="Project %(ProjectWithoutAliases.Filename) added as reference to RemoteDebugger needs an alias (&lt;Aliases&gt; element)" />
 
   </Target>
 

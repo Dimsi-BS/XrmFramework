@@ -44,8 +44,10 @@ foreach ($element in $remoteDebuggerProj.Project.ItemGroup)
     foreach ($project in $element.ProjectReference) {
         if ($project.Include -like '*$safeprojectname$.csproj') {
            if ($project.Aliases -eq $null) {
-               $aliases = $project.CreateElement('Aliases')
-               $aliases.Value = [System.String]::Copy("$safeprojectname$").Replace(".","")
+               $aliases = $remoteDebuggerProj.CreateElement('Aliases')
+               $textNode =  $remoteDebuggerProj.CreateTextNode([System.String]::Copy("$safeprojectname$").Replace(".",""))
+               $aliases.AppendChild($textNode)
+               $project.AppendChild($aliases)
            }
         }
     }
