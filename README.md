@@ -72,7 +72,7 @@ This file will contain the connectionStrings needed for the tools to connect to 
          You can specify several connection strings, you will select the one corresponding to the deployment
          environnement in the xrmFramework selectedConnection attribute below    
     -->
-    <add name="XrmDev" connectionString="AuthType=Office365; Url=https://yourorg.crm.dynamics.com; Username=****@***.**; Password=*****"/>
+    <add name="XrmDev" connectionString="AuthType=OAuth; Url=https://yourorg.crm.dynamics.com; Username=****@***.**; Password=*****; AppId=*****; RedirectUri=*****"/>
     <add name="XrmDev2" connectionString="AuthType=ClientSecret; Url=https://yourorg.crm.dynamics.com; ClientId=00000000-0000-0000-0000-000000000000; ClientSecret=*****"/>
   </connectionStrings>
 

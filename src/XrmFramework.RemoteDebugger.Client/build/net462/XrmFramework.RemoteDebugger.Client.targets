@@ -9,7 +9,7 @@
       <ProjectWithoutAliases Include="@(ProjectReference)" Condition="'%(ProjectReference.Aliases)' == ''" />
     </ItemGroup>
 
-    <Error Text="Project %(ProjectWithoutAliases.Filename) added as reference to RemoteDebugger needs an alias (&lt;Aliases&gt; element)" />
+    <Error Text="Project %(ProjectWithoutAliases.Filename) added as reference to RemoteDebugger needs an alias (&lt;Aliases&gt; element)" Condition="@(ProjectWithoutAliases->Count()) &gt; 0"/>
 
   </Target>
 

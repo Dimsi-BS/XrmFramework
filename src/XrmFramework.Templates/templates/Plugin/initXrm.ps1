@@ -52,4 +52,4 @@ foreach ($element in $remoteDebuggerProj.Project.ItemGroup)
         }
     }
 }
-$xmlDoc.Save('.\Utils\RemoteDebugger\RemoteDebugger.csproj')
+$remoteDebuggerProj.Save('.\Utils\RemoteDebugger\RemoteDebugger.csproj')
