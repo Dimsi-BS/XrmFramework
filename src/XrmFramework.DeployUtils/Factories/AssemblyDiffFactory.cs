@@ -23,7 +23,7 @@ namespace XrmFramework.DeployUtils.Utils
         /// <param name="target"></param>
         /// <returns>A copy of the <paramref name="from"/> AssemblyContext
         /// with computed <see cref="RegistrationState"/> properties according to the other <paramref name="target"/> AssemblyContext</returns>
-        internal IAssemblyContext ComputeDiffPatch(IAssemblyContext from, IAssemblyContext target)
+        public IAssemblyContext ComputeDiffPatch(IAssemblyContext from, IAssemblyContext target)
         {
             //Clone the from AssemblyContext
             var fromCopy = _mapper.Map<IAssemblyContext>(from);

@@ -11,7 +11,7 @@ namespace XrmFramework.DeployUtils.Model
     /// </summary>
     /// <seealso cref="XrmFramework.DeployUtils.Model.ICustomApiComponent" />
     /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
-    class CustomApiResponseProperty : ICustomApiComponent
+    public class CustomApiResponseProperty : ICustomApiComponent
     {
         public Guid Id { get; set; }
         public Guid ParentId { get; set; }

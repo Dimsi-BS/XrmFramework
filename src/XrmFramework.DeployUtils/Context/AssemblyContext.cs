@@ -5,7 +5,7 @@ using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Context
 {
-    partial class AssemblyContext : IAssemblyContext
+    public partial class AssemblyContext : IAssemblyContext
     {
         public AssemblyInfo AssemblyInfo { get; set; } = new();
 

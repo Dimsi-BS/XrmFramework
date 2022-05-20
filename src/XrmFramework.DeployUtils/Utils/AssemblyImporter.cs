@@ -104,7 +104,6 @@ namespace XrmFramework.DeployUtils.Utils
 
             var pluginFullName = sdkStep.EventHandler.Name;
             step.PluginTypeFullName = pluginFullName;
-            step.PluginTypeName = pluginFullName.Substring(pluginFullName.LastIndexOf('.') + 1);
             step.ParentId = sdkStep.EventHandler.Id;
 
             step.FilteringAttributes.Add(sdkStep.FilteringAttributes);

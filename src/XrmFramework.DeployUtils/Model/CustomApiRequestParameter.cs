@@ -10,7 +10,7 @@ namespace XrmFramework.DeployUtils.Model
     /// </summary>
     /// <seealso cref="XrmFramework.DeployUtils.Model.ICustomApiComponent" />
     /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
-    class CustomApiRequestParameter : ICustomApiComponent
+    public class CustomApiRequestParameter : ICustomApiComponent
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public Guid ParentId { get; set; } = Guid.NewGuid();

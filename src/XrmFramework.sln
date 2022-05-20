@@ -48,6 +48,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.ModelManager",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.Analyzers.Contracts", "XrmFramework.Analyzers.Contracts\XrmFramework.Analyzers.Contracts.csproj", "{8337C924-18B7-4C97-B3D2-150021057BBA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmFramework.DeployUtils.Tests", "Tests\XrmFramework.DeployUtils.Tests\XrmFramework.DeployUtils.Tests.csproj", "{1C445C4D-84F1-4A9F-815F-054BDD2ACB3B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -114,6 +116,10 @@ Global
 		{8337C924-18B7-4C97-B3D2-150021057BBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8337C924-18B7-4C97-B3D2-150021057BBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8337C924-18B7-4C97-B3D2-150021057BBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C445C4D-84F1-4A9F-815F-054BDD2ACB3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C445C4D-84F1-4A9F-815F-054BDD2ACB3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C445C4D-84F1-4A9F-815F-054BDD2ACB3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C445C4D-84F1-4A9F-815F-054BDD2ACB3B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -123,9 +129,10 @@ Global
 		{F640F8B2-D3B3-4407-85B6-20C490C4CD03} = {B88F9CEB-5647-49D0-BD31-27E658C52654}
 		{F0F25FBD-4399-4827-9473-6BF7569B5592} = {B88F9CEB-5647-49D0-BD31-27E658C52654}
 		{9D13B1BA-A572-4E63-9D91-EBDC09C05314} = {B88F9CEB-5647-49D0-BD31-27E658C52654}
+		{1C445C4D-84F1-4A9F-815F-054BDD2ACB3B} = {B88F9CEB-5647-49D0-BD31-27E658C52654}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {101361B0-96D3-40B0-8818-D69388B1A16D}
 		RESX_NeutralResourcesLanguage = en-US
+		SolutionGuid = {101361B0-96D3-40B0-8818-D69388B1A16D}
 	EndGlobalSection
 EndGlobal
