@@ -28,6 +28,12 @@ namespace XrmFramework.DeployUtils.Utils
             //Clone the from AssemblyContext
             var fromCopy = _mapper.Map<IAssemblyContext>(from);
 
+            if (target == null)
+            {
+                FlagAllFromComponent(fromCopy, RegistrationState.ToCreate);
+                return fromCopy;
+            }
+
             var fromPool = fromCopy.ComponentsOrderedPool;
             var targetPool = target.ComponentsOrderedPool;
 

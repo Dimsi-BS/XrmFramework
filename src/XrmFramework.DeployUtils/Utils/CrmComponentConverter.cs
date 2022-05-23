@@ -28,6 +28,9 @@ namespace XrmFramework.DeployUtils.Utils
                 case AssemblyInfo assembly:
                     return _mapper.Map<Deploy.PluginAssembly>(assembly);
 
+                case IAssemblyContext assembly:
+                    return _mapper.Map<Deploy.PluginAssembly>(assembly.AssemblyInfo);
+
                 case CustomApi customApi:
                     return _mapper.Map<Deploy.CustomApi>(customApi);
 

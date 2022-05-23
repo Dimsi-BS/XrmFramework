@@ -87,7 +87,12 @@ namespace XrmFramework.DeployUtils.Utils
                     c.UniqueName = DebugAssemblySettings.RemoveCustomPrefix(c.UniqueName);
                     return c;
                 })
-                .Where(c => _debugSession.GetCorrespondingAssemblyInfo(c.UniqueName) != null)
+                .Where(c =>
+                {
+                    var assemblyName = _debugSession.GetCorrespondingAssemblyInfo(c.UniqueName)?.AssemblyName;
+                    return assemblyName != null &&
+                           assemblyName.Equals(assembly.Name);
+                })
                 .ToList();
 
             customApiParsed.ForEach(debugAssemblyParsed.AddChild);

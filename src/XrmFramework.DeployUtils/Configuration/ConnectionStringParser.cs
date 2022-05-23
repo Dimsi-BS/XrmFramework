@@ -51,7 +51,8 @@ namespace XrmFramework.DeployUtils.Configuration
         public static string GetConnectionStringField(string rawConnectionString, string field) => rawConnectionString
             .Split(';')
             .FirstOrDefault(s => s.Trim().StartsWith(field + '='))
-            ?.Split('=')[1];
+            ?.Split('=')[1]
+            .Trim();
     }
 
     public class ConnectionString

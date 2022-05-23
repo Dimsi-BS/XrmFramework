@@ -51,7 +51,7 @@ namespace XrmFramework.DeployUtils.Utils
 
         public IAssemblyContext CreateAssemblyFromRemote(Deploy.PluginAssembly assembly)
         {
-            var info = assembly != null ? _mapper.Map<AssemblyInfo>(assembly) : new AssemblyInfo();
+            var info = assembly != null ? _mapper.Map<AssemblyInfo>(assembly) : null;
             return _mapper.Map<IAssemblyContext>(info);
         }
 
@@ -92,9 +92,11 @@ namespace XrmFramework.DeployUtils.Utils
         public Step CreateStepFromRemote(Deploy.SdkMessageProcessingStep sdkStep, IEnumerable<Deploy.SdkMessageProcessingStepImage> sdkImages)
         {
             var entityName = sdkStep.EntityName;
+            var pluginFullName = sdkStep.EventHandler.Name;
+            var pluginName = pluginFullName.Split('.').Last();
 
 #pragma warning disable CS0612 // Type or member is obsolete
-            var step = new Step(sdkStep.PluginTypeId.Name,
+            var step = new Step(pluginName,
                                 Messages.GetMessage(sdkStep.SdkMessageId.Name),
                                 (Stages)(int)sdkStep.StageEnum,
                                 (Modes)(int)sdkStep.ModeEnum,
@@ -102,7 +104,6 @@ namespace XrmFramework.DeployUtils.Utils
 #pragma warning restore CS0612 // Type or member is obsolete
             step.Id = sdkStep.Id;
 
-            var pluginFullName = sdkStep.EventHandler.Name;
             step.PluginTypeFullName = pluginFullName;
             step.ParentId = sdkStep.EventHandler.Id;
 

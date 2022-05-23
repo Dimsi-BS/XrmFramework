@@ -113,7 +113,7 @@ namespace XrmFramework.DeployUtils
             {
                 Console.WriteLine("Creating assembly");
 
-                _assemblyExporter.CreateComponent(strategy.AssemblyInfo);
+                _assemblyExporter.CreateComponent(strategy);
                 strategy.RegistrationState = RegistrationState.Computed;
                 return;
             }

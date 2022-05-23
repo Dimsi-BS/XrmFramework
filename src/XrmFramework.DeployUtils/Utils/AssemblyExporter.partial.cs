@@ -1,5 +1,6 @@
 ﻿using System;
 using XrmFramework.Definitions;
+using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
@@ -22,7 +23,10 @@ namespace XrmFramework.DeployUtils.Utils
                 CreateCustomApiPluginType(customApi);
             }
 
-            component.Id = Guid.Empty;
+            component.Id = component is IAssemblyContext
+                ? Guid.NewGuid()
+                : Guid.Empty;
+
             var registeringComponent = _converter.ToRegisterComponent(component);
             component.Id = _registrationService.Create(registeringComponent);
             registeringComponent.Id = component.Id;
