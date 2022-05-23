@@ -1,11 +1,8 @@
-﻿using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Query;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
+using XrmFramework.Remote;
 using XrmFramework.RemoteDebugger;
 using XrmFramework.RemoteDebugger.Model.CrmComponentInfos;
 
@@ -18,12 +15,13 @@ namespace XrmFramework
         {
             if (localContext.IsDebugContext) return false;
 
-            var initiatingUserId = localContext.GetInitiatingUserId().ToString();
 
-            DebugSession debugSession = null;
+            var debuggerManager = new PluginDebuggerCommunicationManager(GetType().AssemblyQualifiedName, SecuredConfig, UnSecuredConfig);
+
+            DebugSession debugSession;
             try
             {
-                debugSession = GetDebugSession(localContext.AdminOrganizationService, initiatingUserId);
+                debugSession = debuggerManager.GetDebugSession(localContext);
             }
             catch
             {
@@ -39,45 +37,31 @@ namespace XrmFramework
 
             localContext.Log($"A DebugSession exists for this User : \n\tHybridConnectionName : {debugSession.HybridConnectionName}");
 
-            if (initiatingUserId != debugSession.Debugee)
+
+            var isInRemoteDebugger = StepIsInRemoteDebugger(localContext, debugSession);
+            var listenerIsOnline = HybridConnection.TryPingDebugSession(debugSession);
+
+            if (!listenerIsOnline)
             {
-                localContext.Log("Is currently debugging but not for this user, execute the step normally");
+                localContext.Log("There are no listeners on this Debug Session");
                 return false;
             }
-
-            if (!StepIsInDebugSession(localContext, debugSession))
+            if (isInRemoteDebugger)
             {
-                return false;
+                localContext.Log("This Step is currently being debugged via the RemoteDebugger Plugin, standing down.");
+                return true;
             }
-            localContext.Log($"This step is in the DebugSession configuration");
 
-            if (!HybridConnection.TryPingDebugSession(debugSession))
-            {
-                return false;
-            }
-            // We have to check whether the remoteDebugger has this step, if not we need to send context to remote debugger ourselves
+            localContext.Log($"The Relay is active, sending context to {debugSession.HybridConnectionName}");
 
-            //Context will be sent by remote debugger plugin
-            localContext.Log("The Debugee is online, standing down");
+
+            debuggerManager.SendRemoteContextToLocal(debugSession, localContext);
 
             return true;
         }
 
-        private static DebugSession GetDebugSession(IOrganizationService service, string initiatingUserId)
-        {
 
-            var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal,
-                initiatingUserId);
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal,
-                DebugSessionState.Active.ToInt());
-
-            var debugSession = service.RetrieveAll<DebugSession>(queryDebugSessions)
-                .FirstOrDefault();
-            return debugSession;
-        }
-
-        private bool StepIsInDebugSession(LocalPluginContext localContext, DebugSession debugSession)
+        private bool StepIsInRemoteDebugger(LocalPluginContext localContext, DebugSession debugSession)
         {
             var DebugAssemblyInfo =
                 JsonConvert.DeserializeObject<List<AssemblyContextInfo>>(debugSession.AssembliesDebugInfo);

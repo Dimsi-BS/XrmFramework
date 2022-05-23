@@ -1,10 +1,7 @@
 ﻿using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Query;
 using Newtonsoft.Json;
 using System;
-using System.Linq;
-using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
+using XrmFramework.Remote;
 
 namespace XrmFramework.RemoteDebugger
 {
@@ -21,11 +18,17 @@ namespace XrmFramework.RemoteDebugger
             StepConfig = string.IsNullOrEmpty(unsecuredConfig)
             ? new()
             : JsonConvert.DeserializeObject<StepConfiguration>(unsecuredConfig);
+
+            CommunicationManager = new RemotePluginDebuggerCommunicationManager(StepConfig.AssemblyQualifiedName,
+                    securedConfig,
+                    unsecuredConfig);
         }
 
         public string UnsecuredConfig { get; }
         public string SecuredConfig { get; }
         public StepConfiguration StepConfig { get; }
+
+        protected IDebuggerCommunicationManager CommunicationManager { get; set; }
 
         public void Execute(IServiceProvider serviceProvider)
         {
@@ -48,7 +51,8 @@ namespace XrmFramework.RemoteDebugger
             localContext.Log($"\r\nIntended Plugin {StepConfig.PluginName}");
             localContext.LogStart();
 
-            if (!GetDebugSession(localContext, out var debugSession))
+            var debugSession = CommunicationManager.GetDebugSession(localContext);
+            if (!ValidateDebugSession(localContext, debugSession))
             {
                 LogExit(localContext);
                 return;
@@ -56,73 +60,11 @@ namespace XrmFramework.RemoteDebugger
 
             localContext.Log($"Debug Session :\n\tDebugeeId : {debugSession.Debugee}\n\tHybridConnectionName  : {debugSession.HybridConnectionName}");
 
-            var remoteContext = InitRemoteContext(localContext, debugSession);
-
-            using var hybridConnection = InitConnection(debugSession);
-
-            localContext.Log("Sending context to local machine : {0}", debugSession.HybridConnectionName);
-            try
-            {
-                var response = SendToRemoteDebugger(hybridConnection, localContext, remoteContext);
-                if (response.MessageType == RemoteDebuggerMessageType.Exception)
-                {
-                    throw response.GetException();
-                }
-                var updatedContext = response.GetContext<RemoteDebugExecutionContext>();
-                localContext.UpdateContext(updatedContext);
-            }
-            catch (Exception e)
-            {
-                localContext.DumpLog();
-                localContext.Log(e.Message);
-            }
+            CommunicationManager.SendRemoteContextToLocal(debugSession, localContext);
 
             LogExit(localContext);
         }
 
-
-
-        private RemoteDebuggerMessage SendToRemoteDebugger(HybridConnection hybridConnection, LocalPluginContext localContext, RemoteDebugExecutionContext remoteContext)
-        {
-            var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
-            RemoteDebuggerMessage response;
-            localContext.LogContextEntry();
-
-            while (true)
-            {
-                response = hybridConnection.SendMessage(message).GetAwaiter().GetResult();
-
-                localContext.Log($"Received response : {response.MessageType}\n");
-
-                if (response.MessageType == RemoteDebuggerMessageType.Context || response.MessageType == RemoteDebuggerMessageType.Exception)
-                {
-                    break;
-                }
-
-                var request = response.GetOrganizationRequest();
-
-                var service = response.UserId.HasValue ? localContext.GetService(response.UserId.Value) : localContext.AdminOrganizationService;
-
-                localContext.Log("Executing local machine request");
-                var organizationResponse = service.Execute(request);
-
-                message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Response, organizationResponse, remoteContext.Id);
-                localContext.Log("Transferring response to local machine");
-            }
-
-            return response;
-        }
-
-
-        internal virtual RemoteDebugExecutionContext InitRemoteContext(LocalPluginContext localContext, DebugSession debugSession)
-        {
-            var remoteContext = localContext.RemoteContext;
-            remoteContext.Id = Guid.NewGuid();
-            remoteContext.TypeAssemblyQualifiedName = StepConfig.AssemblyQualifiedName;
-            remoteContext.UnsecureConfig = UnsecuredConfig;
-            remoteContext.SecureConfig = SecuredConfig;
-            return remoteContext;
-        }
 
         private void LogExit(LocalPluginContext localContext)
         {
@@ -131,16 +73,6 @@ namespace XrmFramework.RemoteDebugger
             localContext.LogExit();
         }
 
-        internal virtual bool GetDebugSession(LocalPluginContext localContext, out DebugSession debugSession)
-        {
-            var queryDebugSessions = CreateBaseDebugSessionQuery(localContext);
-
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Id, ConditionOperator.Equal, StepConfig.DebugSessionId);
-
-            debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
-
-            return ValidateDebugSession(localContext, debugSession);
-        }
 
         internal static bool ValidateDebugSession(LocalPluginContext localContext, DebugSession debugSession)
         {
@@ -155,27 +87,7 @@ namespace XrmFramework.RemoteDebugger
                 localContext.Log("Debug Session expired, please contact your admin");
                 return false;
             }
-
             return true;
-        }
-
-        internal static QueryExpression CreateBaseDebugSessionQuery(LocalPluginContext localContext)
-        {
-            var initiatingUserId = localContext.GetInitiatingUserId().ToString();
-
-            var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal,
-                DebugSessionState.Active.ToInt());
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal,
-                initiatingUserId);
-            return queryDebugSessions;
-        }
-
-        private static HybridConnection InitConnection(DebugSession debugSession)
-        {
-            var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
-
-            return new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri);
         }
     }
 }
