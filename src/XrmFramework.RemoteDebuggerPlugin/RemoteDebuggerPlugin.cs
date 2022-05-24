@@ -19,16 +19,17 @@ namespace XrmFramework.RemoteDebugger
             ? new()
             : JsonConvert.DeserializeObject<StepConfiguration>(unsecuredConfig);
 
-            CommunicationManager = new RemotePluginDebuggerCommunicationManager(StepConfig.AssemblyQualifiedName,
-                    securedConfig,
-                    unsecuredConfig);
         }
 
         public string UnsecuredConfig { get; }
         public string SecuredConfig { get; }
         public StepConfiguration StepConfig { get; }
 
-        protected IDebuggerCommunicationManager CommunicationManager { get; set; }
+        internal virtual IDebuggerCommunicationManager GetCommunicationManager(LocalPluginContext localContext)
+            => new RemotePluginDebuggerCommunicationManager(localContext, StepConfig.AssemblyQualifiedName,
+                SecuredConfig,
+                UnsecuredConfig);
+
 
         public void Execute(IServiceProvider serviceProvider)
         {
@@ -47,11 +48,13 @@ namespace XrmFramework.RemoteDebugger
             }
             #endregion
 
+            var communicationManager = GetCommunicationManager(localContext);
+
             localContext.Log("The context is genuine");
             localContext.Log($"\r\nIntended Plugin {StepConfig.PluginName}");
             localContext.LogStart();
 
-            var debugSession = CommunicationManager.GetDebugSession(localContext);
+            var debugSession = communicationManager.GetDebugSession();
             if (!ValidateDebugSession(localContext, debugSession))
             {
                 LogExit(localContext);
@@ -60,7 +63,7 @@ namespace XrmFramework.RemoteDebugger
 
             localContext.Log($"Debug Session :\n\tDebugeeId : {debugSession.Debugee}\n\tHybridConnectionName  : {debugSession.HybridConnectionName}");
 
-            CommunicationManager.SendLocalContextToDebugSession(debugSession, localContext);
+            communicationManager.SendLocalContextToDebugSession(debugSession);
 
             LogExit(localContext);
         }

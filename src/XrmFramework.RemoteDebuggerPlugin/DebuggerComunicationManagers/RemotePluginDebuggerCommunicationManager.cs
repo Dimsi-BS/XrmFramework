@@ -12,8 +12,8 @@ namespace XrmFramework.Remote
     {
         private readonly Guid _debugSessionId;
 
-        public RemotePluginDebuggerCommunicationManager(string assemblyQualifiedName, string securedConfig, string unsecuredConfig)
-        : base(assemblyQualifiedName, securedConfig, unsecuredConfig)
+        public RemotePluginDebuggerCommunicationManager(LocalPluginContext localContext, string assemblyQualifiedName, string securedConfig, string unsecuredConfig)
+        : base(localContext, assemblyQualifiedName, securedConfig, unsecuredConfig)
         {
             var stepConfig = string.IsNullOrEmpty(unsecuredConfig)
                 ? new()
@@ -22,13 +22,13 @@ namespace XrmFramework.Remote
             AssemblyQualifiedName = assemblyQualifiedName;
         }
 
-        public override DebugSession GetDebugSession(LocalPluginContext localContext)
+        public override DebugSession GetDebugSession()
         {
-            var queryDebugSessions = CreateBaseDebugSessionQuery(localContext.GetInitiatingUserId().ToString());
+            var queryDebugSessions = CreateBaseDebugSessionQuery(Context.GetInitiatingUserId().ToString());
 
             queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Id, ConditionOperator.Equal, _debugSessionId);
 
-            var debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
+            var debugSession = Context.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
 
             return debugSession;
         }

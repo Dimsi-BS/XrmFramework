@@ -8,48 +8,55 @@ namespace XrmFramework.Remote
 {
     internal abstract class DebuggerCommunicationManager : IDebuggerCommunicationManager
     {
-        public abstract DebugSession GetDebugSession(LocalPluginContext localContext);
+        protected LocalPluginContext Context { get; }
 
-        protected abstract RemoteDebugExecutionContext InitRemoteContext(LocalPluginContext localContext);
+        protected DebuggerCommunicationManager(LocalPluginContext context)
+        {
+            Context = context;
+        }
 
-        public void SendLocalContextToDebugSession(DebugSession debugSession, LocalPluginContext localContext)
+        public abstract DebugSession GetDebugSession();
+
+        protected abstract RemoteDebugExecutionContext InitRemoteContext();
+
+        public void SendLocalContextToDebugSession(DebugSession debugSession)
         {
             using var hybridConnection = InitConnection(debugSession);
 
-            var remoteContext = InitRemoteContext(localContext);
+            var remoteContext = InitRemoteContext();
 
-            localContext.Log("Sending context to local machine : {0}", debugSession.HybridConnectionName);
+            Context.Log("Sending context to local machine : {0}", debugSession.HybridConnectionName);
             try
             {
-                var response = ExchangeWithRemoteDebugger(hybridConnection, localContext, remoteContext);
+                var response = ExchangeWithRemoteDebugger(hybridConnection, remoteContext);
                 if (response.MessageType == RemoteDebuggerMessageType.Exception)
                 {
                     throw response.GetException();
                 }
                 var updatedContext = response.GetContext<RemoteDebugExecutionContext>();
-                localContext.UpdateContext(updatedContext);
+                Context.UpdateContext(updatedContext);
             }
             catch (Exception e)
             {
-                localContext.DumpLog();
-                localContext.Log(e.Message);
+                Context.DumpLog();
+                Context.Log(e.Message);
             }
         }
 
 
 
 
-        private RemoteDebuggerMessage ExchangeWithRemoteDebugger(HybridConnection hybridConnection, LocalPluginContext localContext, RemoteDebugExecutionContext remoteContext)
+        private RemoteDebuggerMessage ExchangeWithRemoteDebugger(HybridConnection hybridConnection, RemoteDebugExecutionContext remoteContext)
         {
             var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
             RemoteDebuggerMessage response;
-            localContext.LogContextEntry();
+            Context.LogContextEntry();
 
             while (true)
             {
                 response = hybridConnection.SendMessage(message).GetAwaiter().GetResult();
 
-                localContext.Log($"Received response : {response.MessageType}\n");
+                Context.Log($"Received response : {response.MessageType}\n");
 
                 if (response.MessageType is RemoteDebuggerMessageType.Context or RemoteDebuggerMessageType.Exception)
                 {
@@ -58,13 +65,13 @@ namespace XrmFramework.Remote
 
                 var request = response.GetOrganizationRequest();
 
-                var service = response.UserId.HasValue ? localContext.GetService(response.UserId.Value) : localContext.AdminOrganizationService;
+                var service = response.UserId.HasValue ? Context.GetService(response.UserId.Value) : Context.AdminOrganizationService;
 
-                localContext.Log("Executing local machine request");
+                Context.Log("Executing local machine request");
                 var organizationResponse = service.Execute(request);
 
                 message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Response, organizationResponse, remoteContext.Id);
-                localContext.Log("Transferring response to local machine");
+                Context.Log("Transferring response to local machine");
             }
 
             return response;
@@ -86,15 +93,14 @@ namespace XrmFramework.Remote
             return new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri);
         }
 
-        DebugSession IDebuggerCommunicationManager.GetDebugSession(LocalPluginContext localContext)
+        DebugSession IDebuggerCommunicationManager.GetDebugSession()
         {
-            return GetDebugSession(localContext);
+            return GetDebugSession();
         }
 
-        void IDebuggerCommunicationManager.SendLocalContextToDebugSession(DebugSession debugSession,
-            LocalPluginContext localContext)
+        void IDebuggerCommunicationManager.SendLocalContextToDebugSession(DebugSession debugSession)
         {
-            SendLocalContextToDebugSession(debugSession, localContext);
+            SendLocalContextToDebugSession(debugSession);
         }
     }
 }

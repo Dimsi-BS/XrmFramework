@@ -16,12 +16,12 @@ namespace XrmFramework
             if (localContext.IsDebugContext) return false;
 
 
-            var debuggerManager = new PluginDebuggerCommunicationManager(GetType().AssemblyQualifiedName, SecuredConfig, UnSecuredConfig);
+            var debuggerManager = new PluginDebuggerCommunicationManager(localContext, GetType().AssemblyQualifiedName, SecuredConfig, UnSecuredConfig);
 
             DebugSession debugSession;
             try
             {
-                debugSession = debuggerManager.GetDebugSession(localContext);
+                debugSession = debuggerManager.GetDebugSession();
             }
             catch
             {
@@ -55,7 +55,7 @@ namespace XrmFramework
             localContext.Log($"The Relay is active, sending context to {debugSession.HybridConnectionName}");
 
 
-            debuggerManager.SendLocalContextToDebugSession(debugSession, localContext);
+            debuggerManager.SendLocalContextToDebugSession(debugSession);
 
             localContext.LogContextExit();
             localContext.Log($"Exiting {ChildClassName} Remote Debugging");
