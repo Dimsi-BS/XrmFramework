@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using XrmFramework.Core;
+using XrmFramework.XrmToolbox.DataHandlers;
 
 namespace XrmFramework.XrmToolbox
 {
@@ -80,7 +81,7 @@ namespace XrmFramework.XrmToolbox
 
         public void AddSelectedTablesToPluginControl()
         {
-            PluginControl.AddTablesToProject(BaseTables.Where(t => t.Selected).ToList());
+            PluginControl.AddTablesToProject(TableHandler.BasicTables.Where(t => t.Selected).ToList());
             PluginControl.RefreshTreeDisplay();
 
         }

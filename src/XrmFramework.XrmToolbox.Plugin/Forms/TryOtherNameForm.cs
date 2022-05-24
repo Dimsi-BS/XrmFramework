@@ -24,7 +24,7 @@ namespace XrmFramework.XrmToolbox
 
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
-            if(!String.IsNullOrEmpty(Name))
+            if(!String.IsNullOrEmpty(textBox2.Text))
             {
                 Name = textBox2.Text;
             }

@@ -47,14 +47,24 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                     var fileInfo = new FileInfo(fileName);
                     var text = File.ReadAllText(fileInfo.FullName);
                     var table = JsonConvert.DeserializeObject<Table>(text);
-
-                    var splitFilename = fileInfo.Name.Split('\\');
+                    var splitFilename = fileName.Split('\\').ToList();
+                    splitFilename.RemoveAt(splitFilename.Count - 1);
                     var rootPath = projectPath;
                     var splitRootPath = rootPath.Split('\\').ToList();
                     splitRootPath.Remove(splitRootPath.ElementAt(splitRootPath.Count - 1));
                     rootPath = String.Join("\\", splitRootPath);
+                    //var path = RemoveCurrentProjectPathFromTablePath(string.Join("\\", splitFilename), projectPath);
+                    var path = RemoveCurrentProjectPathFromTablePath(string.Join("\\",splitFilename), projectPath);
 
-                    TableAndPath[table.LogicalName] = new TableData(table, RemoveCurrentProjectPathFromTablePath(fileName, projectPath));
+                    //MessageBox.Show(fileName);
+                    //foreach(var txt in splitFilename)
+                    //{
+                    //    MessageBox.Show(txt);
+                    //}
+                    //MessageBox.Show(string.Join("\\", splitFilename));
+                    //MessageBox.Show(projectPath);
+                    //MessageBox.Show(path);
+                    TableAndPath[table.LogicalName] = new TableData(table, path);
                 }
 
 
@@ -64,13 +74,15 @@ namespace XrmFramework.XrmToolbox.DataHandlers
 
         }
 
-        private static string RemoveCurrentProjectPathFromTablePath(string path, string projectPath)
+        public static string RemoveCurrentProjectPathFromTablePath(string path, string projectPath)
         {
-            var splitPath = path.Split('\\');
-            var rootPath = projectPath;
-            var splitRootPath = rootPath.Split('\\').ToList();
-            splitRootPath.Remove(splitRootPath.ElementAt(splitRootPath.Count - 1));
-            rootPath = String.Join("\\", splitRootPath);
+
+            var splitPath = projectPath.Split('\\').ToList();
+            splitPath.RemoveAt(splitPath.Count - 1);
+            var rootPath = string.Join("\\", splitPath);
+            //var splitRootPath = rootPath.Split('\\').ToList();
+            //splitRootPath.Remove(splitRootPath.ElementAt(splitRootPath.Count - 1));
+            //rootPath = String.Join("\\", splitRootPath);
             return path.Replace(rootPath.Trim('\\'), "");
         }
         public static void ModifyEnumName(string previousText, OptionSetEnum en, string text)
@@ -144,6 +156,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
 
         public static void ProcessBasicTableRequest(EntityMetadata[] response)
         {
+            BasicTables.Clear();
             foreach (var entity in response)
             {
 
@@ -601,6 +614,10 @@ namespace XrmFramework.XrmToolbox.DataHandlers
             // Iterate through each preexisting tableFile 
             foreach (var path in TableHandler.PreexistingTablePaths)
             {
+                if(!File.Exists(path))
+                {
+                    return;
+                }
                 var fileInfo = new FileInfo(path);
                 var text = File.ReadAllText(fileInfo.FullName);
                 var deserializedTable = JsonConvert.DeserializeObject<Table>(text);
@@ -626,14 +643,13 @@ namespace XrmFramework.XrmToolbox.DataHandlers
             {
                 var path = TableHandler.TableAndPath[key].path;
                 var table = TableHandler.TableAndPath[key].table;
-                var splitPath = path.Split('\\').ToList();
+                var splitPath = PluginControl.CurrentProject.FolderPath.Split('\\').ToList();
                 //var rootPath = mySettings.RootFolders.FirstOrDefault(r => r.OrganizationName == mySettings.CurrentOrganizationName).FolderPath;
                 //var splitRootPath = rootPath.Split('\\').ToList();
                 splitPath.Remove(splitPath.ElementAt(splitPath.Count - 1));
-                splitPath.Remove(splitPath.ElementAt(0));
-                splitPath.Remove(splitPath.ElementAt(0));
 
-
+                var splitTablePath = path.Split('\\').ToList();
+                //splitTablePath = 
 
                 //var project = mySettings.RootFolders.FirstOrDefault(r => r.FolderPath == CurrentProject);
                 if (PluginControl.CurrentProject == null)
@@ -641,14 +657,8 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                     MessageBox.Show("Could not save tables");
                     return;
                 }
-                // if(project == null)
-                // {
-                //     MessageBox.Show("Could not save tables");
-                //     return;
-                // }
-                var projectPath = PluginControl.CurrentProject.FolderPath;
-                var registrationPath = String.Join("\\", splitPath);
-
+                
+                var projectPath = String.Join("\\", splitPath);
                 var txt = JsonConvert.SerializeObject(table, Formatting.Indented, new JsonSerializerSettings
                 {
                     DefaultValueHandling = DefaultValueHandling.Ignore
@@ -656,13 +666,11 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                 //MessageBox.Show(projectPath);
                 //MessageBox.Show(registrationPath);
 
-                var finalPath = projectPath + '\\' + registrationPath + '\\' + $"{table.Name}.table";
+
+                var finalPath = projectPath +path +"\\"+ $"{table.Name}.table";
                 CheckForDuplicateTableFile(finalPath, table);
-                var fileInfo = new FileInfo(projectPath + '\\' + registrationPath + '\\' + $"{table.Name}.table");
+                var fileInfo = new FileInfo(finalPath);
                 File.WriteAllText(fileInfo.FullName, txt);
-
-
-
             }
 
             // Register global enums

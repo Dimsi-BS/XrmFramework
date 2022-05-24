@@ -56,6 +56,7 @@
     <None Include="Properties\DataSources\XrmFramework.Core.ColumnCollection.datasource" />
     <None Include="Properties\DataSources\XrmFramework.Core.Key.datasource" />
     <None Include="Properties\DataSources\XrmFramework.Core.Model.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.ModelProperty.datasource" />
     <None Include="Properties\DataSources\XrmFramework.Core.OptionSetEnum.datasource" />
     <None Include="Properties\DataSources\XrmFramework.Core.OptionSetEnumValue.datasource" />
     <None Include="Properties\DataSources\XrmFramework.Core.Relation.datasource" />
@@ -98,12 +99,31 @@
     <Reference Include="System.Workflow.Runtime" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataHandlers\ModelHandler.cs" />
     <Compile Include="DataHandlers\TableHandler.cs" />
+    <Compile Include="Forms\AddModelPropertyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AddModelPropertyForm.Designer.cs">
+      <DependentUpon>AddModelPropertyForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\AddTableForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\AddTableForm.Designer.cs">
       <DependentUpon>AddTableForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\CreateModelForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CreateModelForm.Designer.cs">
+      <DependentUpon>CreateModelForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\PickListChoiceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\PickListChoiceForm.Designer.cs">
+      <DependentUpon>PickListChoiceForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ProjectCreationForm.cs">
       <SubType>Form</SubType>
@@ -236,8 +256,17 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\AddModelPropertyForm.resx">
+      <DependentUpon>AddModelPropertyForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\AddTableForm.resx">
       <DependentUpon>AddTableForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CreateModelForm.resx">
+      <DependentUpon>CreateModelForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\PickListChoiceForm.resx">
+      <DependentUpon>PickListChoiceForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ProjectCreationForm.resx">
       <DependentUpon>ProjectCreationForm.cs</DependentUpon>
