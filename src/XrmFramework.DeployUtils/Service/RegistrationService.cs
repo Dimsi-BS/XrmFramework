@@ -52,9 +52,13 @@ namespace XrmFramework.DeployUtils.Service
 
         public PluginAssembly GetAssemblyByName(string assemblyName)
         {
-            var assemblies = GetAssemblies();
+            var query = new QueryExpression(PluginAssemblyDefinition.EntityName);
+            query.ColumnSet.AddColumns(PluginAssemblyDefinition.Columns.Id, PluginAssemblyDefinition.Columns.Name);
+            query.Distinct = true;
+            query.Criteria.FilterOperator = LogicalOperator.And;
+            query.Criteria.AddCondition(PluginAssemblyDefinition.Columns.Name, ConditionOperator.Equal, assemblyName);
 
-            return assemblies.FirstOrDefault(a => assemblyName == a.Name);
+            return RetrieveAll(query).FirstOrDefault()?.ToEntity<PluginAssembly>();
         }
 
         public ICollection<CustomApiRequestParameter> GetRegisteredCustomApiRequestParameters(Guid assemblyId)

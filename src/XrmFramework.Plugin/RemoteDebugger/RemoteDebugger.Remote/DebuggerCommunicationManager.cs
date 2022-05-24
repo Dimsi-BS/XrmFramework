@@ -21,7 +21,7 @@ namespace XrmFramework.Remote
             localContext.Log("Sending context to local machine : {0}", debugSession.HybridConnectionName);
             try
             {
-                var response = SendToRemoteDebugger(hybridConnection, localContext, remoteContext);
+                var response = ExchangeWithRemoteDebugger(hybridConnection, localContext, remoteContext);
                 if (response.MessageType == RemoteDebuggerMessageType.Exception)
                 {
                     throw response.GetException();
@@ -37,17 +37,9 @@ namespace XrmFramework.Remote
         }
 
 
-        protected static QueryExpression CreateBaseDebugSessionQuery(string initiatingUserId)
-        {
-            var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal,
-                DebugSessionState.Active.ToInt());
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal,
-                initiatingUserId);
-            return queryDebugSessions;
-        }
 
-        private RemoteDebuggerMessage SendToRemoteDebugger(HybridConnection hybridConnection, LocalPluginContext localContext, RemoteDebugExecutionContext remoteContext)
+
+        private RemoteDebuggerMessage ExchangeWithRemoteDebugger(HybridConnection hybridConnection, LocalPluginContext localContext, RemoteDebugExecutionContext remoteContext)
         {
             var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
             RemoteDebuggerMessage response;
@@ -76,6 +68,15 @@ namespace XrmFramework.Remote
             }
 
             return response;
+        }
+        protected static QueryExpression CreateBaseDebugSessionQuery(string initiatingUserId)
+        {
+            var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal,
+                DebugSessionState.Active.ToInt());
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal,
+                initiatingUserId);
+            return queryDebugSessions;
         }
 
         private static HybridConnection InitConnection(DebugSession debugSession)
