@@ -35,34 +35,27 @@ namespace XrmFramework.DeployUtils.Utils
                 throw new ArgumentException("The DebugAssembly is not deployed on this Solution");
             }
 
-            assembly.Name = debugSettings.TargetAssemblyUniqueName;
-            var debugAssemblyRaw = _importer.CreateAssemblyFromRemote(assembly);
+            var debugAssembly = _importer.CreateAssemblyFromRemote(assembly);
 
             Console.WriteLine("Remote Debug Plugin Exists, Fetching Components...");
 
-            FillRemoteAssemblyContext(service, debugAssemblyRaw);
+            var pluginTypes = service.GetRegisteredPluginTypes(debugAssembly.Id);
 
-            var debugAssemblyParsed = _mapper.Map<IAssemblyContext>(debugAssemblyRaw.AssemblyInfo);
+            var pluginRaw = pluginTypes.Single(p => p.Name == DebugAssemblySettings.DebugPluginName);
+            var customApiRaw = pluginTypes.Single(p => p.Name == DebugAssemblySettings.DebugCustomApiName);
 
-            var pluginRaw = debugAssemblyRaw.Plugins.Single(p => p.FullName == DebugAssemblySettings.DebugPluginName);
+            debugAssembly.AssemblyInfo.Name = debugSettings.TargetAssemblyUniqueName;
 
             debugSettings.AssemblyId = assembly.Id;
             debugSettings.PluginId = pluginRaw.Id;
+            debugSettings.CustomApiId = customApiRaw.Id;
 
-            /*
-             * Little trick here :
-             * If there is already a CustomApi registered on the RemoteDebugger, then its PluginType will be filtered out
-             * Then we can get the Id of the PluginType from any registered CustomApi's ParentId
-             * Else the actual PluginType wasn't filtered out and we can get its Id directly
-             */
-            debugSettings.CustomApiId = debugAssemblyRaw.CustomApis.Any()
-                ? debugAssemblyRaw.CustomApis.First().ParentId
-                : debugAssemblyRaw.Plugins.Single(p => p.FullName == DebugAssemblySettings.DebugCustomApiName).Id;
+            var stepsRaw = GetParsedSteps(service, debugAssembly.Id);
 
-            var pluginsParsed = pluginRaw.Steps
+            var pluginsParsed = stepsRaw
                 .Select(s => (s, s.StepConfiguration))
                 .Where(su => su.StepConfiguration.DebugSessionId == _debugSession.Id
-                                            && su.StepConfiguration.AssemblyName == assembly.Name) // Only look at the current debug session
+                                            && su.StepConfiguration.AssemblyName == debugSettings.TargetAssemblyUniqueName) // Only look at the current debug session
                 .GroupBy(su => su.StepConfiguration.PluginName) // Regroup the steps by plugin
                 .Select(stepGroup =>
                 {
@@ -70,6 +63,7 @@ namespace XrmFramework.DeployUtils.Utils
                     foreach (var (s, stepConfiguration) in stepGroup)
                     {
                         s.PluginTypeFullName = stepConfiguration.PluginName;
+                        s.PluginTypeName = stepConfiguration.PluginName.Split('.').Last();
                         pluginParsed.Steps.Add(s);
                     }
                     pluginParsed.Id = pluginRaw.Id;
@@ -78,9 +72,11 @@ namespace XrmFramework.DeployUtils.Utils
                 }) // Recreate the plugin and place its children in it
                 .ToList();
 
-            pluginsParsed.ForEach(debugAssemblyParsed.AddChild);
+            pluginsParsed.ForEach(debugAssembly.AddChild);
 
-            var customApiParsed = debugAssemblyRaw.CustomApis
+            var customApisRaw = GetParsedCustomApis(service, debugAssembly.Id);
+
+            var customApiParsed = customApisRaw
                 .Where(c => debugSettings.HasCurrentCustomPrefix(c.UniqueName))
                 .Select(c =>
                 {
@@ -95,9 +91,9 @@ namespace XrmFramework.DeployUtils.Utils
                 })
                 .ToList();
 
-            customApiParsed.ForEach(debugAssemblyParsed.AddChild);
+            customApiParsed.ForEach(debugAssembly.AddChild);
 
-            return debugAssemblyParsed;
+            return debugAssembly;
         }
 
 

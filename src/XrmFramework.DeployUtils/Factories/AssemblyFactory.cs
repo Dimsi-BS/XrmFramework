@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Utils
@@ -83,24 +85,17 @@ namespace XrmFramework.DeployUtils.Utils
         {
             Console.WriteLine("Remote Assembly Exists, Fetching Components...");
 
-            var registeredPluginTypes = service.GetRegisteredPluginTypes(registeredAssembly.AssemblyInfo.Id);
+            var customApis = GetParsedCustomApis(service, registeredAssembly.Id);
 
-            var registeredSteps = service.GetRegisteredSteps(registeredAssembly.AssemblyInfo.Id);
-            var registeredStepImages = service.GetRegisteredImages(registeredAssembly.AssemblyInfo.Id);
-
-
-            var registeredCustomApis = service.GetRegisteredCustomApis(registeredAssembly.AssemblyInfo.Id);
-            var registeredRequestParameters = service.GetRegisteredCustomApiRequestParameters(registeredAssembly.AssemblyInfo.Id);
-            var registeredResponseProperties = service.GetRegisteredCustomApiResponseProperties(registeredAssembly.AssemblyInfo.Id);
+            var registeredPluginTypes = service.GetRegisteredPluginTypes(registeredAssembly.Id);
 
             // Why ReSharper ? .All() means you have to go through the whole list
             // Btw this filters PluginTypes that are not CustomApis
-            registeredPluginTypes = registeredPluginTypes.Where(p => !registeredCustomApis.Any(c => c.PluginTypeId.Id == p.Id))
+            registeredPluginTypes = registeredPluginTypes.Where(p => !registeredAssembly.CustomApis.Any(c => c.Id == p.Id))
                 .ToList();
 
-            Console.WriteLine("Parsing...");
+            var steps = GetParsedSteps(service, registeredAssembly.Id);
 
-            var steps = registeredSteps.Select(s => _importer.CreateStepFromRemote(s, registeredStepImages));
             var pluginsAndWorkflows = registeredPluginTypes
                 .Select(p => _importer.CreatePluginFromRemote(p, steps))
                 .ToList();
@@ -109,13 +104,31 @@ namespace XrmFramework.DeployUtils.Utils
             var workflows = pluginsAndWorkflows.Where(p => p.IsWorkflow).ToList();
 
 
+            plugins.ForEach(registeredAssembly.AddChild);
+            workflows.ForEach(registeredAssembly.AddChild);
+            customApis.ForEach(registeredAssembly.AddChild);
+        }
+
+        private List<CustomApi> GetParsedCustomApis(IRegistrationService service, Guid targetId)
+        {
+            var registeredCustomApis = service.GetRegisteredCustomApis(targetId);
+            var registeredRequestParameters = service.GetRegisteredCustomApiRequestParameters(targetId);
+            var registeredResponseProperties = service.GetRegisteredCustomApiResponseProperties(targetId);
+
             var customApis = registeredCustomApis
                 .Select(c => _importer.CreateCustomApiFromRemote(c, registeredRequestParameters, registeredResponseProperties))
                 .ToList();
 
-            plugins.ForEach(registeredAssembly.AddChild);
-            customApis.ForEach(registeredAssembly.AddChild);
-            workflows.ForEach(registeredAssembly.AddChild);
+            return customApis;
+        }
+
+        private List<Step> GetParsedSteps(IRegistrationService service, Guid targetId)
+        {
+            var registeredSteps = service.GetRegisteredSteps(targetId);
+            var registeredStepImages = service.GetRegisteredImages(targetId);
+
+            var steps = registeredSteps.Select(s => _importer.CreateStepFromRemote(s, registeredStepImages));
+            return steps.ToList();
         }
     }
 }
