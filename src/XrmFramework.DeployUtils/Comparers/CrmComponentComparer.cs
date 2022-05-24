@@ -38,7 +38,7 @@ namespace XrmFramework.DeployUtils.Utils
             return x switch
             {
                 Step step => _stepComparer.NeedsUpdate(step, (Step)y),
-                StepImage image => image.JoinedAttributes != ((StepImage)y).JoinedAttributes,
+                StepImage image => image.JoinedAttributes != ((StepImage)y).JoinedAttributes || image.AllAttributes ^ ((StepImage)y).AllAttributes,
                 CustomApiRequestParameter request => NeedsUpdate(request, (CustomApiRequestParameter)y),
                 CustomApiResponseProperty response => NeedsUpdate(response, (CustomApiResponseProperty)y),
                 Plugin => false,

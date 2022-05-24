@@ -1,7 +1,4 @@
 ﻿using Moq;
-using System;
-using System.Linq;
-using System.Reflection;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Tests.Mocks;
 using XrmFramework.DeployUtils.Utils;
@@ -55,26 +52,5 @@ namespace XrmFramework.DeployUtils.Tests
             Assert.IsTrue(component2.GetType() == component1.GetType());
         }
 
-        [TestMethod]
-        public void AssemblyNameTests()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-
-            var AssemblyName = assembly.FullName;
-
-            var anyType = assembly.GetTypes().First();
-
-            var anyTypeAssemblyQualifiedName = anyType.AssemblyQualifiedName;
-
-            var anyTypeAssemblyName = anyType.Assembly.FullName;
-
-            var sameAssembly = Assembly.Load(AssemblyName);
-
-            var sameType = sameAssembly.GetType(anyType.FullName);
-
-            var sameTypeQuestionMark = Type.GetType(anyType.FullName);
-
-            Assert.AreEqual(AssemblyName, anyTypeAssemblyQualifiedName);
-        }
     }
 }
