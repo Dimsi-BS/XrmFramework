@@ -13,12 +13,13 @@ namespace XrmFramework.Remote
         private readonly Guid _debugSessionId;
 
         public RemotePluginDebuggerCommunicationManager(string assemblyQualifiedName, string securedConfig, string unsecuredConfig)
-            : base(assemblyQualifiedName, securedConfig, unsecuredConfig)
+        : base(assemblyQualifiedName, securedConfig, unsecuredConfig)
         {
             var stepConfig = string.IsNullOrEmpty(unsecuredConfig)
                 ? new()
                 : JsonConvert.DeserializeObject<StepConfiguration>(unsecuredConfig);
             _debugSessionId = stepConfig.DebugSessionId;
+            AssemblyQualifiedName = assemblyQualifiedName;
         }
 
         public override DebugSession GetDebugSession(LocalPluginContext localContext)

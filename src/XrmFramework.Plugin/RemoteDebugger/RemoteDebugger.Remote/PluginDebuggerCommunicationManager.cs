@@ -7,14 +7,14 @@ namespace XrmFramework.Remote;
 
 internal class PluginDebuggerCommunicationManager : DebuggerCommunicationManager
 {
-    private readonly string _assemblyQualifiedName;
+    protected string AssemblyQualifiedName;
     private readonly string _unSecuredConfig;
     private readonly string _securedConfig;
 
     public PluginDebuggerCommunicationManager(string assemblyQualifiedName, string securedConfig,
         string unsecuredConfig)
     {
-        _assemblyQualifiedName = assemblyQualifiedName;
+        AssemblyQualifiedName = assemblyQualifiedName;
         _unSecuredConfig = unsecuredConfig;
         _securedConfig = securedConfig;
     }
@@ -29,7 +29,7 @@ internal class PluginDebuggerCommunicationManager : DebuggerCommunicationManager
     {
         var remoteContext = localContext.RemoteContext;
         remoteContext.Id = Guid.NewGuid();
-        remoteContext.TypeAssemblyQualifiedName = _assemblyQualifiedName;
+        remoteContext.TypeAssemblyQualifiedName = AssemblyQualifiedName;
         remoteContext.UnsecureConfig = _unSecuredConfig;
         remoteContext.SecureConfig = _securedConfig;
         return remoteContext;

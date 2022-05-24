@@ -12,7 +12,7 @@ namespace XrmFramework.Remote
 
         protected abstract RemoteDebugExecutionContext InitRemoteContext(LocalPluginContext localContext);
 
-        public void SendRemoteContextToLocal(DebugSession debugSession, LocalPluginContext localContext)
+        public void SendLocalContextToDebugSession(DebugSession debugSession, LocalPluginContext localContext)
         {
             using var hybridConnection = InitConnection(debugSession);
 
@@ -59,7 +59,7 @@ namespace XrmFramework.Remote
 
                 localContext.Log($"Received response : {response.MessageType}\n");
 
-                if (response.MessageType == RemoteDebuggerMessageType.Context || response.MessageType == RemoteDebuggerMessageType.Exception)
+                if (response.MessageType is RemoteDebuggerMessageType.Context or RemoteDebuggerMessageType.Exception)
                 {
                     break;
                 }
@@ -90,10 +90,10 @@ namespace XrmFramework.Remote
             return GetDebugSession(localContext);
         }
 
-        void IDebuggerCommunicationManager.SendRemoteContextToLocal(DebugSession debugSession,
+        void IDebuggerCommunicationManager.SendLocalContextToDebugSession(DebugSession debugSession,
             LocalPluginContext localContext)
         {
-            SendRemoteContextToLocal(debugSession, localContext);
+            SendLocalContextToDebugSession(debugSession, localContext);
         }
     }
 }

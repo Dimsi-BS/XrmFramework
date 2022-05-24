@@ -55,7 +55,11 @@ namespace XrmFramework
             localContext.Log($"The Relay is active, sending context to {debugSession.HybridConnectionName}");
 
 
-            debuggerManager.SendRemoteContextToLocal(debugSession, localContext);
+            debuggerManager.SendLocalContextToDebugSession(debugSession, localContext);
+
+            localContext.LogContextExit();
+            localContext.Log($"Exiting {ChildClassName} Remote Debugging");
+            localContext.LogExit();
 
             return true;
         }

@@ -60,7 +60,7 @@ namespace XrmFramework.RemoteDebugger
 
             localContext.Log($"Debug Session :\n\tDebugeeId : {debugSession.Debugee}\n\tHybridConnectionName  : {debugSession.HybridConnectionName}");
 
-            CommunicationManager.SendRemoteContextToLocal(debugSession, localContext);
+            CommunicationManager.SendLocalContextToDebugSession(debugSession, localContext);
 
             LogExit(localContext);
         }
