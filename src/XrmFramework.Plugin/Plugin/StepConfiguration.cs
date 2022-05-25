@@ -11,7 +11,7 @@ namespace XrmFramework
         public string RelationshipName { get; set; }
 
         /// <summary>The List of methods that the Crm knows are linked with the step</summary>
-        [JsonProperty("registeredMethods")] public List<string> RegisteredMethods { get; set; } = new();
+        [JsonProperty("registeredMethods")] public HashSet<string> RegisteredMethods { get; set; } = new();
 
         /// <summary>Allows for custom bypass of a given method without redeploying</summary>
         [JsonProperty("bannedMethods")] public List<string> BannedMethods { get; set; } = new();

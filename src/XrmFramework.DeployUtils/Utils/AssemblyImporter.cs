@@ -203,22 +203,22 @@ namespace XrmFramework.DeployUtils.Utils
             var step = new Step(s.Plugin.GetType().Name, Messages.GetMessage(s.Message.ToString()), (Stages)(int)s.Stage, (Modes)(int)s.Mode, s.EntityName);
 
             step.PluginTypeFullName = s.Plugin.GetType().FullName;
-            step.FilteringAttributes.AddRange(s.FilteringAttributes);
+            step.FilteringAttributes.UnionWith(s.FilteringAttributes);
             step.ImpersonationUsername = s.ImpersonationUsername ?? "";
             step.Order = s.Order;
 
             step.PreImage.AllAttributes = s.PreImageAllAttributes;
-            step.PreImage.Attributes.AddRange(s.PreImageAttributes);
+            step.PreImage.Attributes.UnionWith(s.PreImageAttributes);
 
             step.PostImage.AllAttributes = s.PostImageAllAttributes;
-            step.PostImage.Attributes.AddRange(s.PostImageAttributes);
+            step.PostImage.Attributes.UnionWith(s.PostImageAttributes);
 
             if (!string.IsNullOrWhiteSpace(s.UnsecureConfig))
             {
                 step.StepConfiguration = JsonConvert.DeserializeObject<StepConfiguration>(s.UnsecureConfig);
             }
 
-            step.MethodNames.AddRange(s.MethodNames);
+            step.MethodNames.UnionWith(s.MethodNames);
             return step;
         }
 
