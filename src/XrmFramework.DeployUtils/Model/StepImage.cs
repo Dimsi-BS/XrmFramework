@@ -64,7 +64,7 @@ namespace XrmFramework.DeployUtils.Model
         public bool AllAttributes { get; set; }
 
         /// <summary>List of the attributes that must appear in the StepImage</summary>
-        public List<string> Attributes { get; } = new List<string>();
+        public HashSet<string> Attributes { get; } = new HashSet<string>();
 
         /// <summary>Joined string of the <see cref="Attributes"/></summary>
         public string JoinedAttributes => string.Join(",", Attributes);
@@ -74,6 +74,20 @@ namespace XrmFramework.DeployUtils.Model
 
         public string EntityTypeName => SdkMessageProcessingStepImageDefinition.EntityName;
         public string UniqueName => "ISolutionComponent Implementation";
+
+        public void Merge(StepImage other)
+        {
+            AllAttributes |= other.AllAttributes;
+
+            if (AllAttributes)
+            {
+                Attributes.Clear();
+            }
+            else
+            {
+                Attributes.UnionWith(other.Attributes);
+            }
+        }
 
         /// <summary><see cref="Step"/> this StepImage is attached to</summary>
         /// <remarks>

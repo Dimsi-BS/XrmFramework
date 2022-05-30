@@ -11,23 +11,23 @@ internal class PluginDebuggerCommunicationManager : DebuggerCommunicationManager
     private readonly string _unSecuredConfig;
     private readonly string _securedConfig;
 
-    public PluginDebuggerCommunicationManager(string assemblyQualifiedName, string securedConfig,
-        string unsecuredConfig)
+    public PluginDebuggerCommunicationManager(LocalPluginContext context, string assemblyQualifiedName, string securedConfig,
+        string unsecuredConfig) : base(context)
     {
         AssemblyQualifiedName = assemblyQualifiedName;
         _unSecuredConfig = unsecuredConfig;
         _securedConfig = securedConfig;
     }
-    public override DebugSession GetDebugSession(LocalPluginContext localContext)
+    public override DebugSession GetDebugSession()
     {
-        var query = CreateBaseDebugSessionQuery(localContext.GetInitiatingUserId().ToString());
+        var query = CreateBaseDebugSessionQuery(Context.GetInitiatingUserId().ToString());
 
-        return localContext.AdminOrganizationService.RetrieveAll<DebugSession>(query).FirstOrDefault();
+        return Context.AdminOrganizationService.RetrieveAll<DebugSession>(query).FirstOrDefault();
     }
 
-    protected override RemoteDebugExecutionContext InitRemoteContext(LocalPluginContext localContext)
+    protected override RemoteDebugExecutionContext InitRemoteContext()
     {
-        var remoteContext = localContext.RemoteContext;
+        var remoteContext = Context.RemoteContext;
         remoteContext.Id = Guid.NewGuid();
         remoteContext.TypeAssemblyQualifiedName = AssemblyQualifiedName;
         remoteContext.UnsecureConfig = _unSecuredConfig;

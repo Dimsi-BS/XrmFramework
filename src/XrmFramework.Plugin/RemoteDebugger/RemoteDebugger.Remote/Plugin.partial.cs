@@ -16,12 +16,12 @@ namespace XrmFramework
             if (localContext.IsDebugContext) return false;
 
 
-            var debuggerManager = new PluginDebuggerCommunicationManager(GetType().AssemblyQualifiedName, SecuredConfig, UnSecuredConfig);
+            var debuggerManager = new PluginDebuggerCommunicationManager(localContext, GetType().AssemblyQualifiedName, SecuredConfig, UnSecuredConfig);
 
             DebugSession debugSession;
             try
             {
-                debugSession = debuggerManager.GetDebugSession(localContext);
+                debugSession = debuggerManager.GetDebugSession();
             }
             catch
             {
@@ -55,7 +55,7 @@ namespace XrmFramework
             localContext.Log($"The Relay is active, sending context to {debugSession.HybridConnectionName}");
 
 
-            debuggerManager.SendLocalContextToDebugSession(debugSession, localContext);
+            debuggerManager.SendLocalContextToDebugSession(debugSession);
 
             localContext.LogContextExit();
             localContext.Log($"Exiting {ChildClassName} Remote Debugging");
@@ -67,21 +67,21 @@ namespace XrmFramework
 
         private bool StepIsInRemoteDebugger(LocalPluginContext localContext, DebugSession debugSession)
         {
-            var DebugAssemblyInfo =
+            var debugAssemblyInfo =
                 JsonConvert.DeserializeObject<List<AssemblyContextInfo>>(debugSession.AssembliesDebugInfo);
 
             var assemblyName = this.GetType().Assembly.GetName().Name;
             var pluginName = this.GetType().FullName;
 
-            var assemblyInfo = DebugAssemblyInfo.FirstOrDefault(a => a.AssemblyName == assemblyName);
-
-            var pluginInfo = assemblyInfo?.Plugins.FirstOrDefault(p => p.Name == pluginName);
-            if (pluginInfo == null) return false;
-
             var message = localContext.MessageName.ToString();
             var stage = Enum.ToObject(typeof(Stages), localContext.Stage).ToString();
             var mode = localContext.Mode.ToString();
             var entityName = localContext.PrimaryEntityName;
+
+            var assemblyInfo = debugAssemblyInfo.FirstOrDefault(a => a.AssemblyName == assemblyName);
+
+            var pluginInfo = assemblyInfo?.Plugins.FirstOrDefault(p => p.Name == pluginName);
+            if (pluginInfo == null) return false;
 
             return pluginInfo.Steps.Exists(s =>
                 s.Message == message

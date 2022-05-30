@@ -6,8 +6,9 @@ namespace XrmFramework.RemoteDebugger
     {
         public RemoteDebuggerCustomApi(string methodName) : base(null, null)
         {
-            CommunicationManager = new RemoteCustomApiDebuggerCommunicationManager();
         }
 
+        internal override IDebuggerCommunicationManager GetCommunicationManager(LocalPluginContext localContext)
+         => new RemoteCustomApiDebuggerCommunicationManager(localContext);
     }
 }

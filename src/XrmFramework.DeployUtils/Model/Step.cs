@@ -80,7 +80,7 @@ namespace XrmFramework.DeployUtils.Model
         public bool DoNotFilterAttributes { get; set; }
 
         /// <summary>List of Attributes to Filter on trigger</summary>
-        public List<string> FilteringAttributes { get; } = new List<string>();
+        public HashSet<string> FilteringAttributes { get; } = new HashSet<string>();
 
         /// <summary>PreImage of the Step, may not be used</summary>
         public StepImage PreImage { get; set; }
@@ -95,7 +95,7 @@ namespace XrmFramework.DeployUtils.Model
         public string ImpersonationUsername { get; set; }
 
         /// <summary><inheritdoc cref="XrmFramework.StepConfiguration.RegisteredMethods"/></summary>
-        public List<string> MethodNames => StepConfiguration.RegisteredMethods;
+        public HashSet<string> MethodNames => StepConfiguration.RegisteredMethods;
 
         /// <summary>Joined string of the <see cref="MethodNames"/></summary>
         public string MethodsDisplayName => string.Join(",", MethodNames);
@@ -108,34 +108,22 @@ namespace XrmFramework.DeployUtils.Model
         /// <param name="step"></param>
         public void Merge(Step step)
         {
-            if (!step.FilteringAttributes.Any())
-            {
-                DoNotFilterAttributes = true;
-            }
+            DoNotFilterAttributes |= step.DoNotFilterAttributes;
 
-            FilteringAttributes.AddRange(step.FilteringAttributes);
-
-            if (step.PreImage.AllAttributes)
+            if (DoNotFilterAttributes)
             {
-                PreImage.AllAttributes = true;
-                PreImage.Attributes.Clear();
+                FilteringAttributes.Clear();
             }
             else
             {
-                PreImage.Attributes.AddRange(step.PreImage.Attributes);
+                FilteringAttributes.UnionWith(step.FilteringAttributes);
             }
 
-            if (step.PostImage.AllAttributes)
-            {
-                PostImage.AllAttributes = true;
-                PostImage.Attributes.Clear();
-            }
-            else
-            {
-                PostImage.Attributes.AddRange(step.PostImage.Attributes);
-            }
+            PreImage.Merge(step.PreImage);
 
-            MethodNames.AddRange(step.MethodNames);
+            PostImage.Merge(step.PostImage);
+
+            MethodNames.UnionWith(step.MethodNames);
         }
 
         /// <summary>

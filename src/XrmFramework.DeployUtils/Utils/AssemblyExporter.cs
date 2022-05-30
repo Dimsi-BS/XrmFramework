@@ -76,7 +76,7 @@ public partial class AssemblyExporter : IAssemblyExporter
         int? objectTypeCode = null)
     {
         AddSolutionComponentRequest res = null;
-        if (_solutionContext.Components.Any(c => c.ObjectId.Equals(objectRef.Id))) return res;
+        if (_solutionContext.GetComponentByObjectRef(objectRef) != null) return res;
         res = new AddSolutionComponentRequest
         {
             AddRequiredComponents = false,
