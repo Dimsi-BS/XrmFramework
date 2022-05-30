@@ -8,9 +8,5 @@
     <PackageReference Include="XrmFramework" Version="#{GitBuildVersionSimple}#" />
     <PackageReference Include="XrmFramework.Plugin" Version="#{GitBuildVersionSimple}#" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="$(SolutionDir)\$(XrmFrameworkCoreProjectName)\\**\\*.cs" Exclude="$(SolutionDir)\$(XrmFrameworkCoreProjectName)\obj\**;$(SolutionDir)\$(XrmFrameworkCoreProjectName)\bin\**" Link="__Imports\$(XrmFrameworkCoreProjectName)\%(RecursiveDir)%(Filename)%(Extension)" />
-  </ItemGroup>
   
 </Project>

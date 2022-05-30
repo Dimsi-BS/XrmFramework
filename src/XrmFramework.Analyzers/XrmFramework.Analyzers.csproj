@@ -18,6 +18,7 @@
     <AnalysisLevel>latest</AnalysisLevel>
     
     <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
+    <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.Analyzers.nuspec</NuspecFile>
 
   </PropertyGroup>
 

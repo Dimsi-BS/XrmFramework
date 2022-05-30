@@ -17,9 +17,6 @@
       <group targetFramework="net462">
         <dependency id="System.ComponentModel.Annotations" version="5.0.0" exclude="Build,Analyzers" />
         <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.42" />
-        <dependency id="System.Net.Http" version="4.3.4" />
-        <dependency id="Microsoft.CSharp" version="4.7.0" />
-        <dependency id="System.Configuration.ConfigurationManager" version="5.0.0" />
         <dependency id="XrmFramework.Analyzers" version="[$version$]" />
       </group>
       <group targetFramework="netcoreapp3.1">

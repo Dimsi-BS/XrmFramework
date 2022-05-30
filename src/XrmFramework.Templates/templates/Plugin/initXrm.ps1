@@ -35,4 +35,21 @@ $xmlDoc.xrmFramework.projects.AppendChild($project)
 $xmlDoc.Save($configFileName)
 
 
-dotnet add .\Utils\RemoteDebugger\RemoteDebugger.csproj reference .\$safeprojectname$\$safeprojectname$.csproj
+dotnet add .\Utils\RemoteDebugger\RemoteDebugger.csproj reference '.\$safeprojectname$\$safeprojectname$.csproj'
+
+[xml]$remoteDebuggerProj = Get-Content '.\Utils\RemoteDebugger\RemoteDebugger.csproj'
+
+foreach ($element in $remoteDebuggerProj.Project.ItemGroup)
+{
+    foreach ($project in $element.ProjectReference) {
+        if ($project.Include -like '*$safeprojectname$.csproj') {
+           if ($project.Aliases -eq $null) {
+               $aliases = $remoteDebuggerProj.CreateElement('Aliases')
+               $textNode =  $remoteDebuggerProj.CreateTextNode([System.String]::Copy("$safeprojectname$").Replace(".",""))
+               $aliases.AppendChild($textNode)
+               $project.AppendChild($aliases)
+           }
+        }
+    }
+}
+$remoteDebuggerProj.Save('.\Utils\RemoteDebugger\RemoteDebugger.csproj')

@@ -6,6 +6,10 @@
     <Reference Include="System.Configuration" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);DISABLE_SERVICES</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)/$(XrmFrameworkCoreProjectName)/$(XrmFrameworkCoreProjectName).csproj" />
   </ItemGroup>

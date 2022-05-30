@@ -1,0 +1,16 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <Target Name="CheckAliases" BeforeTargets="Compile">
+    <ItemGroup>
+      <ProjectWithoutAliases Remove="%(ProjectWithoutAliases)"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectWithoutAliases Include="@(ProjectReference)" Condition="'%(ProjectReference.Aliases)' == ''" />
+    </ItemGroup>
+
+    <Error Text="Project %(ProjectWithoutAliases.Filename) added as reference to RemoteDebugger needs an alias (&lt;Aliases&gt; element)" Condition="@(ProjectWithoutAliases->Count()) &gt; 0"/>
+
+  </Target>
+
+</Project>
