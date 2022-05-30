@@ -68,7 +68,7 @@ namespace XrmFramework.DeployUtils.Model
                 PreImageAllAttributes = true;
                 PreImageAttributes.Clear();
             }
-            else
+            else if (!PreImageAllAttributes)
             {
                 PreImageAttributes.AddRange(step.PreImageAttributes);
             }
@@ -78,7 +78,7 @@ namespace XrmFramework.DeployUtils.Model
                 PostImageAllAttributes = true;
                 PostImageAttributes.Clear();
             }
-            else
+            else if (!PostImageAllAttributes)
             {
                 PostImageAttributes.AddRange(step.PostImageAttributes);
             }
