@@ -19,6 +19,9 @@
         <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.42" />
       </group>
     </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Activities" targetFramework="net462" />
+    </frameworkAssemblies>
   </metadata>
 
   <files>

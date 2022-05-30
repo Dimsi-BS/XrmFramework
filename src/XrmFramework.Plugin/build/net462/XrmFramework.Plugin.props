@@ -7,12 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="System.Activities">
-      <Private>true</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Include="$(RootFolder)\$(XrmFrameworkCoreProjectName)\**\*.cs" Exclude="$(RootFolder)\$(XrmFrameworkCoreProjectName)\obj\**;$(RootFolder)\$(XrmFrameworkCoreProjectName)\bin\**" Link="__Imports\$(XrmFrameworkCoreProjectName)\%(RecursiveDir)%(Filename)%(Extension)" />
     <AdditionalFiles Include="$(RootFolder)\$(XrmFrameworkCoreProjectName)\**\*.table" Link="__Imports\$(XrmFrameworkCoreProjectName)\%(RecursiveDir)%(Filename)%(Extension)" />
 
