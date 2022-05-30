@@ -67,21 +67,21 @@ namespace XrmFramework
 
         private bool StepIsInRemoteDebugger(LocalPluginContext localContext, DebugSession debugSession)
         {
-            var DebugAssemblyInfo =
+            var debugAssemblyInfo =
                 JsonConvert.DeserializeObject<List<AssemblyContextInfo>>(debugSession.AssembliesDebugInfo);
 
             var assemblyName = this.GetType().Assembly.GetName().Name;
             var pluginName = this.GetType().FullName;
 
-            var assemblyInfo = DebugAssemblyInfo.FirstOrDefault(a => a.AssemblyName == assemblyName);
-
-            var pluginInfo = assemblyInfo?.Plugins.FirstOrDefault(p => p.Name == pluginName);
-            if (pluginInfo == null) return false;
-
             var message = localContext.MessageName.ToString();
             var stage = Enum.ToObject(typeof(Stages), localContext.Stage).ToString();
             var mode = localContext.Mode.ToString();
             var entityName = localContext.PrimaryEntityName;
+
+            var assemblyInfo = debugAssemblyInfo.FirstOrDefault(a => a.AssemblyName == assemblyName);
+
+            var pluginInfo = assemblyInfo?.Plugins.FirstOrDefault(p => p.Name == pluginName);
+            if (pluginInfo == null) return false;
 
             return pluginInfo.Steps.Exists(s =>
                 s.Message == message

@@ -108,9 +108,16 @@ namespace XrmFramework.DeployUtils.Model
         /// <param name="step"></param>
         public void Merge(Step step)
         {
-            DoNotFilterAttributes &= step.DoNotFilterAttributes;
+            DoNotFilterAttributes |= step.DoNotFilterAttributes;
 
-            FilteringAttributes.UnionWith(step.FilteringAttributes);
+            if (DoNotFilterAttributes)
+            {
+                FilteringAttributes.Clear();
+            }
+            else
+            {
+                FilteringAttributes.UnionWith(step.FilteringAttributes);
+            }
 
             PreImage.Merge(step.PreImage);
 
