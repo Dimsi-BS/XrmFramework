@@ -26,6 +26,11 @@
         <dependency id="XrmFramework.Analyzers" version="[$version$]" />
       </group>
     </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework="net462" />
+      <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="net462" />
+      <frameworkAssembly assemblyName="System.Configuration" targetFramework="net462" />
+    </frameworkAssemblies>
   </metadata>
 
   <files>
