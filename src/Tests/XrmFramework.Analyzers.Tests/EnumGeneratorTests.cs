@@ -13,6 +13,8 @@ public class EnumGeneratorTests
     {
         // The source code to test
         var source = @"
+using System;
+
 namespace XrmFramework {
 
     [AttributeUsage(AttributeTargets.Class)]
@@ -25,6 +27,8 @@ namespace XrmFramework {
     {
         public static Messages Create = new Messages(""Create"");
         public static Messages Update = new Messages(""Update"");
+        [Obsolete]
+        public static Messages SetState = new Messages(""SetState"");
     
         private Messages(string name)
         {

@@ -113,6 +113,7 @@ namespace XrmFramework
 
             Log(nameof(AssociateRecords), "End : duration = {0}", sw.Elapsed);
         }
+        #pragma warning disable CS0612
 
         public void TestEnum(global::XrmFramework.EnumTest value = Null)
         {
@@ -128,6 +129,7 @@ namespace XrmFramework
 
             Log(nameof(TestEnum), "End : duration = {0}", sw.Elapsed);
         }
+        #pragma warning restore CS0612
 
         public void Update(global::Microsoft.Xrm.Sdk.Entity entity)
         {

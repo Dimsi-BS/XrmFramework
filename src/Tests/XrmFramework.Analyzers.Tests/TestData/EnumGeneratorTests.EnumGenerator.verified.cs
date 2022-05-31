@@ -12,7 +12,14 @@ namespace XrmFramework
 
       private static IReadOnlyList<Messages> GetItems()
       {
-         return new[] { Create, Update };
+        return new[] { 
+            Create,
+            Update,
+#pragma warning disable CS0612
+            SetState
+#pragma warning restore CS0612
+
+        };
       }
    }
 }
