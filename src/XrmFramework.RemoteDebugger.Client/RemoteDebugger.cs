@@ -67,8 +67,6 @@ namespace XrmFramework.RemoteDebugger.Common
                         var typeQualifiedName = remoteContext.TypeAssemblyQualifiedName.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).ToList();
                         // Remove the version part of the list and the public key token
                         typeQualifiedName.RemoveAll(i => i.StartsWith("Version") || i.StartsWith("PublicKeyToken"));
-                        //Console.WriteLine(typeQualifiedName);
-
 
                         var typeName = string.Join(", ", typeQualifiedName);
                         // Get the pluginType from the newly constructed typeName
@@ -109,8 +107,18 @@ namespace XrmFramework.RemoteDebugger.Common
                         }
                         else
                         {
+
                             // If a plugin or a custom API, juste create the instance and execute it using the local service provider
-                            var plugin = (IPlugin)Activator.CreateInstance(pluginType, (string)null, (string)null);
+                            // Preferably, use the constructor that takes two strings as parameters, else use the default one
+                            var plugin = pluginType.GetConstructors().Any(c =>
+                                {
+                                    var parameters = c.GetParameters();
+                                    return parameters.Length == 2
+                                           && parameters[0].ParameterType == typeof(string)
+                                           && parameters[1].ParameterType == typeof(string);
+                                })
+                                ? (IPlugin)Activator.CreateInstance(pluginType, remoteContext.SecureConfig, remoteContext.UnsecureConfig)
+                                : (IPlugin)Activator.CreateInstance(pluginType);
                             plugin.Execute(serviceProvider);
                         }
                     });

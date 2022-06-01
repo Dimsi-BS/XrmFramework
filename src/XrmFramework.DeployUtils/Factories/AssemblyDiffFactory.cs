@@ -37,7 +37,7 @@ namespace XrmFramework.DeployUtils.Utils
              * Reset registration states
              */
 
-            FlagAllFromComponent(from, RegistrationState.NotComputed);
+            FlagAllFromComponent(fromCopy, RegistrationState.NotComputed);
             FlagAllFromComponent(target, RegistrationState.NotComputed);
 
             var fromPool = fromCopy.ComponentsOrderedPool;

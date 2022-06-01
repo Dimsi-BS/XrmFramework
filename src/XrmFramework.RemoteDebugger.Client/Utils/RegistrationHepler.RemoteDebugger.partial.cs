@@ -33,7 +33,6 @@ namespace XrmFramework.DeployUtils
             _mapper = mapper;
             _debugSession = settings.Value;
             _debugSettings = new DebugAssemblySettings(_debugSession.Id);
-
         }
 
         /// <summary>
@@ -48,8 +47,7 @@ namespace XrmFramework.DeployUtils
         /// <remarks>
         /// This will silence the obsolete steps deployed on Remote and add the new/updated ones to the Debugger so it will still trigger and redirect to the Relay
         /// </remarks>
-        /// <typeparam name="TPlugin">Root type of all components to deploy, should be <c>XrmFramework.Plugin</c></typeparam>
-        /// <param name="projectName">Name of the local project as named in <c>xrmFramework.config</c></param>
+        /// <param name="Assembly">The local Assembly to Debug</param>
         public void UpdateDebugger(Assembly Assembly)
         {
             Console.Write("Fetching Local Assembly...");

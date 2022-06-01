@@ -91,7 +91,7 @@ namespace XrmFramework.DeployUtils.Utils
 
             // Why ReSharper ? .All() means you have to go through the whole list
             // Btw this filters PluginTypes that are not CustomApis
-            registeredPluginTypes = registeredPluginTypes.Where(p => !registeredAssembly.CustomApis.Any(c => c.Id == p.Id))
+            registeredPluginTypes = registeredPluginTypes.Where(p => !customApis.Any(c => c.ParentId == p.Id))
                 .ToList();
 
             var steps = GetParsedSteps(service, registeredAssembly.Id);

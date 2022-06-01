@@ -48,12 +48,17 @@ namespace XrmFramework.RemoteDebugger.Converters
             while (reader.TokenType == JsonToken.PropertyName)
             {
                 string propertyName = reader.Value.ToString();
+
                 if (string.Equals(propertyName, TypeName, StringComparison.OrdinalIgnoreCase))
                 {
+                    ReadAndAssert(reader);
+
                     typeName = serializer.Deserialize<string>(reader);
                 }
                 else if (string.Equals(propertyName, KeyName, StringComparison.OrdinalIgnoreCase))
                 {
+                    ReadAndAssert(reader);
+
                     key = serializer.Deserialize<TKey>(reader);
                 }
                 else if (string.Equals(propertyName, ValueName, StringComparison.OrdinalIgnoreCase))
@@ -61,12 +66,13 @@ namespace XrmFramework.RemoteDebugger.Converters
                     if (!string.IsNullOrEmpty(typeName))
                     {
                         var valueType = Type.GetType(typeName);
+                        ReadAndAssert(reader);
 
                         value = (TValue)serializer.Deserialize(reader, valueType);
                     }
                     else
                     {
-                        ReadAndAssert(reader);
+                        reader.Skip();
                     }
                 }
                 else
