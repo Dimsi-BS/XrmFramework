@@ -236,12 +236,12 @@ namespace XrmFramework.DeployUtils.Tests
             // Arrange
             var thisComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi",
+                Name = "thisCustomApi",
             };
 
             var otherComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi"
+                Name = "thisCustomApi"
             };
 
             // Act
@@ -259,12 +259,12 @@ namespace XrmFramework.DeployUtils.Tests
             // Arrange
             var thisComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi",
+                Name = "thisCustomApi",
             };
 
             var otherComponent = new CustomApi()
             {
-                UniqueName = "otherCustomApi"
+                Name = "otherCustomApi"
             };
 
             // Act
@@ -590,7 +590,7 @@ namespace XrmFramework.DeployUtils.Tests
             // Arrange
             var thisComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi",
+                Name = "thisCustomApi",
                 BindingType = new OptionSetValue(0),
                 BoundEntityLogicalName = "thisEntity",
                 IsFunction = true,
@@ -600,7 +600,7 @@ namespace XrmFramework.DeployUtils.Tests
 
             var otherComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi",
+                Name = "thisCustomApi",
                 BindingType = new OptionSetValue(0),
                 BoundEntityLogicalName = "thisEntity",
                 IsFunction = true,
@@ -623,7 +623,7 @@ namespace XrmFramework.DeployUtils.Tests
             // Arrange
             var thisComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi",
+                Name = "thisCustomApi",
                 BindingType = new OptionSetValue(0),
                 BoundEntityLogicalName = "thisEntity",
                 IsFunction = true,
@@ -633,7 +633,7 @@ namespace XrmFramework.DeployUtils.Tests
 
             var otherComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi",
+                Name = "thisCustomApi",
                 BindingType = new OptionSetValue(10),
                 BoundEntityLogicalName = "thisEntity",
                 IsFunction = true,
@@ -656,7 +656,7 @@ namespace XrmFramework.DeployUtils.Tests
             // Arrange
             var thisComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi",
+                Name = "thisCustomApi",
                 BindingType = new OptionSetValue(0),
                 BoundEntityLogicalName = "thisEntity",
                 IsFunction = true,
@@ -666,7 +666,7 @@ namespace XrmFramework.DeployUtils.Tests
 
             var otherComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi",
+                Name = "thisCustomApi",
                 BindingType = new OptionSetValue(0),
                 BoundEntityLogicalName = "otherEntity",
                 IsFunction = true,
@@ -689,7 +689,7 @@ namespace XrmFramework.DeployUtils.Tests
             // Arrange
             var thisComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi",
+                Name = "thisCustomApi",
                 BindingType = new OptionSetValue(0),
                 BoundEntityLogicalName = "thisEntity",
                 IsFunction = true,
@@ -699,7 +699,7 @@ namespace XrmFramework.DeployUtils.Tests
 
             var otherComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi",
+                Name = "thisCustomApi",
                 BindingType = new OptionSetValue(0),
                 BoundEntityLogicalName = "thisEntity",
                 IsFunction = false,
@@ -722,7 +722,7 @@ namespace XrmFramework.DeployUtils.Tests
             // Arrange
             var thisComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi",
+                Name = "thisCustomApi",
                 BindingType = new OptionSetValue(0),
                 BoundEntityLogicalName = "thisEntity",
                 IsFunction = true,
@@ -732,7 +732,7 @@ namespace XrmFramework.DeployUtils.Tests
 
             var otherComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi",
+                Name = "thisCustomApi",
                 BindingType = new OptionSetValue(0),
                 BoundEntityLogicalName = "thisEntity",
                 IsFunction = true,
@@ -755,7 +755,7 @@ namespace XrmFramework.DeployUtils.Tests
             // Arrange
             var thisComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi",
+                Name = "thisCustomApi",
                 BindingType = new OptionSetValue(0),
                 BoundEntityLogicalName = "thisEntity",
                 IsFunction = true,
@@ -765,7 +765,7 @@ namespace XrmFramework.DeployUtils.Tests
 
             var otherComponent = new CustomApi()
             {
-                UniqueName = "thisCustomApi",
+                Name = "thisCustomApi",
                 BindingType = new OptionSetValue(0),
                 BoundEntityLogicalName = "thisEntity",
                 IsFunction = true,

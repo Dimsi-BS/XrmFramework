@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Moq;
+using System;
 using System.Collections.Generic;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
@@ -82,9 +83,17 @@ namespace XrmFramework.DeployUtils.Tests
             var from = new Mock<IAssemblyContext>();
             var target = new Mock<IAssemblyContext>();
 
-            from.SetupProperty(m => m.RegistrationState);
+            var targetId = Guid.NewGuid();
+            var targetParentId = Guid.NewGuid();
 
+            from.SetupProperty(m => m.RegistrationState);
             target.SetupProperty(m => m.RegistrationState);
+
+            target.SetupProperty(m => m.Id, targetId);
+            target.SetupProperty(m => m.ParentId, targetParentId);
+
+            from.SetupProperty(m => m.Id, Guid.NewGuid());
+            from.SetupProperty(m => m.ParentId, Guid.NewGuid());
 
             _mockMapper.Setup(x => x.Map<IAssemblyContext>(It.IsAny<IAssemblyContext>()))
                 .Returns(from.Object);
@@ -130,7 +139,137 @@ namespace XrmFramework.DeployUtils.Tests
 
             Assert.AreEqual(RegistrationState.Ignore, from.Object.RegistrationState);
             Assert.AreEqual(RegistrationState.Computed, target.Object.RegistrationState);
+
+            Assert.AreEqual(targetId, result.Id);
+            Assert.AreEqual(targetParentId, result.ParentId);
+
+            Assert.AreEqual(targetId, target.Object.Id);
+            Assert.AreEqual(targetParentId, target.Object.ParentId);
         }
 
+        [TestMethod]
+        public void DiffTest_TwoCustomApis()
+        {
+            // Arrange
+            var from = new Mock<IAssemblyContext>();
+            var target = new Mock<IAssemblyContext>();
+
+            var targetId = Guid.NewGuid();
+            var targetParentId = Guid.NewGuid();
+            var targetAssemblyId = Guid.NewGuid();
+
+            var fromCustomApi = new CustomApi()
+            {
+                Id = Guid.NewGuid(),
+                ParentId = Guid.NewGuid(),
+                AssemblyId = Guid.NewGuid(),
+            };
+
+            var targetCustomApi = new CustomApi()
+            {
+                Id = targetId,
+                ParentId = targetParentId,
+                AssemblyId = targetAssemblyId,
+            };
+
+            _mockMapper.Setup(x => x.Map<IAssemblyContext>(It.IsAny<IAssemblyContext>()))
+                .Returns(from.Object);
+
+            from.Setup(m => m.ComponentsOrderedPool)
+                .Returns(new List<ICrmComponent>() { fromCustomApi });
+
+            target.Setup(m => m.ComponentsOrderedPool)
+                .Returns(new List<ICrmComponent>() { targetCustomApi });
+
+            _mockComparer.Setup(m =>
+                    m.CorrespondingComponent(It.IsAny<ICrmComponent>(), It.IsAny<IReadOnlyCollection<ICrmComponent>>()))
+                .Returns(targetCustomApi);
+
+            _mockComparer.Setup(m => m.NeedsUpdate(It.IsAny<ICrmComponent>(), It.IsAny<ICrmComponent>()))
+                .Returns(true);
+
+            // Act
+            _diffFactory.ComputeDiffPatch(from.Object, target.Object);
+
+            // Assert
+            Assert.AreEqual(RegistrationState.ToUpdate, fromCustomApi.RegistrationState);
+            Assert.AreEqual(RegistrationState.Computed, targetCustomApi.RegistrationState);
+
+            Assert.AreEqual(targetId, fromCustomApi.Id);
+            Assert.AreEqual(targetParentId, fromCustomApi.ParentId);
+
+            Assert.AreEqual(targetId, targetCustomApi.Id);
+            Assert.AreEqual(targetParentId, targetCustomApi.ParentId);
+        }
+
+        [TestMethod]
+        public void DiffTest_CustomApiToDelete()
+        {
+            // Arrange
+            var from = new Mock<IAssemblyContext>();
+            var target = new Mock<IAssemblyContext>();
+
+            var targetId = Guid.NewGuid();
+            var targetParentId = Guid.NewGuid();
+            var targetAssemblyId = Guid.NewGuid();
+
+            var targetCustomApi = new CustomApi()
+            {
+                Id = targetId,
+                ParentId = targetParentId,
+                AssemblyId = targetAssemblyId,
+                RegistrationState = RegistrationState.NotComputed
+            };
+
+            _mockMapper.Setup(x => x.Map<IAssemblyContext>(It.IsAny<IAssemblyContext>()))
+                .Returns(from.Object);
+
+            from.Setup(m => m.ComponentsOrderedPool)
+                .Returns(new List<ICrmComponent>() { from.Object });
+
+            from.SetupProperty(f => f.RegistrationState,
+                RegistrationState.NotComputed);
+
+            from.SetupProperty(f => f.Id,
+                Guid.NewGuid());
+
+            from.SetupProperty(f => f.ParentId,
+                Guid.NewGuid());
+
+            target.Setup(m => m.ComponentsOrderedPool)
+                .Returns(new List<ICrmComponent>() { target.Object, targetCustomApi });
+
+
+            target.SetupProperty(f => f.RegistrationState,
+                RegistrationState.NotComputed);
+
+            target.SetupProperty(f => f.Id,
+                targetAssemblyId);
+
+            target.SetupProperty(f => f.ParentId,
+                Guid.NewGuid());
+
+            _mockComparer.Setup(m =>
+                    m.CorrespondingComponent(It.IsAny<ICrmComponent>(), It.IsAny<IReadOnlyCollection<ICrmComponent>>()))
+                .Returns(target.Object);
+
+            _mockComparer.Setup(m => m.NeedsUpdate(It.IsAny<ICrmComponent>(), It.IsAny<ICrmComponent>()))
+                .Returns(true);
+
+            // Act
+            _diffFactory.ComputeDiffPatch(from.Object, target.Object);
+
+            // Assert
+            Assert.AreEqual(RegistrationState.ToDelete, targetCustomApi.RegistrationState);
+
+            Assert.AreEqual(targetId, targetCustomApi.Id);
+            Assert.AreEqual(targetParentId, targetCustomApi.ParentId);
+
+            from.VerifySet(m => m.RegistrationState = RegistrationState.ToUpdate, Times.Once);
+            from.VerifySet(m => m.Id = targetAssemblyId, Times.Once);
+
+            from.Verify(m => m.AddChild(It.IsAny<CustomApi>()), Times.Once);
+
+        }
     }
 }

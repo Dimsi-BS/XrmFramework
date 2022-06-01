@@ -12,7 +12,6 @@ namespace XrmFramework.DeployUtils.Tests.CrmComponentsTests
 
         private const string EntityTypeName = "plugintype";
 
-
         public PluginTests()
         {
             _component = new("thisPlugin");
@@ -41,5 +40,34 @@ namespace XrmFramework.DeployUtils.Tests.CrmComponentsTests
             ICrmComponent anyComponent = new Mock<ICrmComponent>().Object;
             Assert.ThrowsException<ArgumentException>(() => _component.AddChild(anyComponent));
         }
+
+        [TestMethod]
+        public void AddChildTest_Step()
+        {
+            var step = new Step("thisPlugin", Messages.AddItem, Stages.PostOperation, Modes.Asynchronous, "thisEntity");
+
+            _component.AddChild(step);
+
+            Assert.IsTrue(_component.Children.Count() == 1);
+        }
+
+        [TestMethod]
+        public void CleanChildTest()
+        {
+            // Assert
+            var step = new Step("thisPlugin", Messages.AddItem, Stages.PostOperation, Modes.Asynchronous, "thisEntity")
+            {
+                RegistrationState = RegistrationState.ToDelete
+            };
+
+            _component.Steps.Add(step);
+
+            // Act
+            _component.CleanChildrenWithState(RegistrationState.ToDelete);
+
+            // Assert
+            Assert.IsFalse(_component.Children.Any());
+        }
+
     }
 }
