@@ -4,7 +4,6 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
@@ -13,10 +12,8 @@ namespace XrmFramework.DeployUtils.Model
     /// Component of a <see cref="Plugin"/> that defines on which particular input said plugin should be executed
     /// </summary>
     /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
-    public class Step : ICrmComponent
+    public class Step : BaseCrmComponent
     {
-        private Guid _id = Guid.NewGuid();
-
         public Step(string pluginTypeName, Messages message, Stages stage, Modes mode, string entityName)
         {
             PluginTypeName = pluginTypeName;
@@ -38,18 +35,6 @@ namespace XrmFramework.DeployUtils.Model
             EntityName = string.Empty;
             StepConfiguration.RelationshipName = entityName;
         }
-
-        public Guid Id
-        {
-            get => _id;
-            set
-            {
-                PreImage.ParentId = value;
-                PostImage.ParentId = value;
-                _id = value;
-            }
-        }
-        public Guid ParentId { get; set; }
 
         /// <summary>Full Name of the <see cref="Plugin"/></summary>
         /// <example>Assembly.NameSpace.Plugin</example>
@@ -103,7 +88,6 @@ namespace XrmFramework.DeployUtils.Model
         /// <summary>Serialized string of <see cref="StepConfiguration"/></summary>
         public string UnsecureConfig => JsonConvert.SerializeObject(StepConfiguration);
 
-
         /// <summary>Merge two Steps that trigger on the same event</summary>
         /// <param name="step"></param>
         public void Merge(Step step)
@@ -133,10 +117,14 @@ namespace XrmFramework.DeployUtils.Model
         /// </summary>
         public string Description => $"{PluginTypeName} : {Stage} {Message} of {EntityName} ({MethodsDisplayName})";
 
-        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
-        public string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
-        public string UniqueName => $"{PluginTypeFullName}.{Stage}.{Message}.{EntityName}.{MethodsDisplayName}";
-        public IEnumerable<ICrmComponent> Children
+        #region BaseCrmComponent overrides
+        public override string UniqueName
+        {
+            get => $"{PluginTypeFullName}.{Stage}.{Message}.{EntityName}.{MethodsDisplayName}";
+            set => _ = value;
+        }
+
+        public override IEnumerable<ICrmComponent> Children
         {
             get
             {
@@ -146,37 +134,25 @@ namespace XrmFramework.DeployUtils.Model
                 return res;
             }
         }
-        public void AddChild(ICrmComponent child)
+        public override void AddChild(ICrmComponent child)
         {
             if (child is not StepImage stepChild) throw new ArgumentException("Step doesn't take this type of children");
             if (stepChild.IsPreImage)
             {
-                PreImage.Id = _id;
                 PreImage = stepChild;
             }
             else
             {
-                PostImage.Id = _id;
                 PostImage = stepChild;
             }
+            base.AddChild(child);
         }
 
-        public void CleanChildrenWithState(RegistrationState state)
-        {
-            var childrenWithStateSafe = Children
-                .Where(c => c.RegistrationState == state)
-                .ToList();
-            foreach (var child in childrenWithStateSafe)
-            {
-
-                child.RegistrationState = RegistrationState.Computed;
-
-            }
-        }
-
-        public int Rank => 2;
-        public bool DoAddToSolution => true;
-        public bool DoFetchTypeCode => false;
+        protected override void RemoveChild(ICrmComponent child) { }
+        public override string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
+        public override int Rank => 2;
+        public override bool DoAddToSolution => true;
+        public override bool DoFetchTypeCode => false;
+        #endregion
     }
-
 }

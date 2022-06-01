@@ -32,11 +32,18 @@ namespace XrmFramework.Remote
                 _debugSession = GetDebugSession();
             }
 
+            var debugApiName = Context.MessageName.ToString().Split('_');
+
+            Context.Log($"Message received is {debugApiName}");
+
             // Parse the Name of the CustomApi as it normally would be on the CRM
-            var customApiUniqueName = DebugAssemblySettings.RemoveCustomPrefix(Context.MessageName.ToString());
+            var apiPrefix = DebugAssemblySettings.RemoveCustomPrefix(debugApiName[0]);
+            var apiName = debugApiName[1];
+
+            Context.Log($"Looking int the debug session with prefix {apiPrefix} and name {apiName}");
 
             // Check if there is assembly that contains the api in the ContextInfo
-            var currentAssembly = _debugSession.GetCorrespondingAssemblyInfo(customApiUniqueName);
+            var currentAssembly = _debugSession.GetCorrespondingAssemblyInfo($"{apiPrefix}_{apiName}");
 
             if (currentAssembly == null)
             {
@@ -45,7 +52,7 @@ namespace XrmFramework.Remote
                 return null;
             }
 
-            var assemblyQualifiedName = BuildTypeQualifiedName(currentAssembly, customApiUniqueName);
+            var assemblyQualifiedName = BuildTypeQualifiedName(currentAssembly, apiName);
 
             var remoteContext = Context.RemoteContext;
             remoteContext.Id = Guid.NewGuid();
@@ -54,10 +61,9 @@ namespace XrmFramework.Remote
             return remoteContext;
         }
 
-        private string BuildTypeQualifiedName(AssemblyContextInfo assembly, string prefixedApiName)
+        private string BuildTypeQualifiedName(AssemblyContextInfo assembly, string apiName)
         {
-            var customApiName = prefixedApiName.Substring(prefixedApiName.IndexOf('_') + 1);
-            return $"{assembly.AssemblyName}.{customApiName},{assembly.AssemblyName},Culture={assembly.Culture}";
+            return $"{assembly.AssemblyName}.{apiName},{assembly.AssemblyName},Culture={assembly.Culture}";
         }
     }
 

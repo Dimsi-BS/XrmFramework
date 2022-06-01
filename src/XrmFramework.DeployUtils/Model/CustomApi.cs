@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
@@ -10,109 +9,55 @@ namespace XrmFramework.DeployUtils.Model
     /// Metadata of CustomApi
     /// </summary>
     /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
-    public class CustomApi : ICrmComponent
+    public class CustomApi : BaseCrmComponent
     {
         // Don't put these fields in readonly, AutoMapper wouldn't be able to map them
         // but if you know a way enjoy :D
-        private List<CustomApiRequestParameter> _inArguments = new();
-        private List<CustomApiResponseProperty> _outArguments = new();
-
-        /// <summary>Id of the PluginType it is attached to</summary>
-        public Guid ParentId { get; set; } = Guid.NewGuid();
+        private List<ICustomApiComponent> _arguments = new();
 
         /// <summary>Id of the Assembly the PluginType is attached to</summary>
-        public Guid AssemblyId { get; set; }
+        public Guid AssemblyId { get; set; } = Guid.NewGuid();
 
-        private Guid _id = Guid.NewGuid();
+        public override IEnumerable<ICrmComponent> Children => _arguments;
 
-        public Guid Id
+        public override void AddChild(ICrmComponent child)
         {
-            get => _id;
+            if (child is not ICustomApiComponent apiComponent)
+            {
+                throw new ArgumentException("CustomApi doesn't take this type of children");
+            }
+            _arguments.Add(apiComponent);
+            base.AddChild(child);
+        }
+
+        protected override void RemoveChild(ICrmComponent child)
+        {
+            if (child is not ICustomApiComponent apiComponent)
+            {
+                throw new ArgumentException("CustomApi doesn't have this type of children");
+            }
+            _arguments.Remove(apiComponent);
+        }
+
+        public override int Rank => 1;
+        public override bool DoAddToSolution => true;
+        public override bool DoFetchTypeCode => true;
+        public override string UniqueName
+        {
+            get => $"{Prefix}_{Name}";
             set
             {
-                foreach (var req in _inArguments)
-                {
-                    req.ParentId = value;
-                }
-                foreach (var rep in _outArguments)
-                {
-                    rep.ParentId = value;
-                }
-                _id = value;
+                var split = value.Split('_');
+                Prefix = split[0];
+                Name = split[1];
             }
         }
-
-        public IEnumerable<ICrmComponent> Children
-        {
-            get
-            {
-                var args = new List<ICrmComponent>();
-                args.AddRange(_inArguments);
-                args.AddRange(_outArguments);
-                return args;
-            }
-        }
-
-        public void AddChild(ICrmComponent child)
-        {
-
-            switch (child)
-            {
-                case CustomApiRequestParameter req:
-                    req.ParentId = _id;
-                    _inArguments.Add(req);
-                    break;
-                case CustomApiResponseProperty rep:
-                    rep.ParentId = _id;
-                    _outArguments.Add(rep);
-                    break;
-                default:
-                    throw new ArgumentException("CustomApi doesn't take this type of children");
-            }
-        }
-
-        private void RemoveChild(ICrmComponent child)
-        {
-            switch (child)
-            {
-                case CustomApiRequestParameter req:
-                    _inArguments.Remove(req);
-                    break;
-                case CustomApiResponseProperty rep:
-                    _outArguments.Remove(rep);
-                    break;
-                default:
-                    throw new ArgumentException("CustomApi doesn't have this type of children");
-            }
-        }
-
-        public void CleanChildrenWithState(RegistrationState state)
-        {
-            var childrenWithStateSafe = Children
-                .Where(c => c.RegistrationState == state)
-                .ToList();
-            foreach (var child in childrenWithStateSafe)
-            {
-                child.CleanChildrenWithState(state);
-                if (!child.Children.Any())
-                {
-                    RemoveChild(child);
-                }
-            }
-        }
-
-
-        public int Rank => 1;
-        public bool DoAddToSolution => true;
-        public bool DoFetchTypeCode => true;
-        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
-
+        public override string EntityTypeName => CustomApiDefinition.EntityName;
 
         public string FullName { get; set; }
-        public string UniqueName { get; set; }
-        public string EntityTypeName => CustomApiDefinition.EntityName;
         public string DisplayName { get; set; }
         public string Name { get; set; }
+        public string Prefix { get; set; }
 
         public OptionSetValue AllowedCustomProcessingStepType { get; set; }
         public string BoundEntityLogicalName { get; set; }

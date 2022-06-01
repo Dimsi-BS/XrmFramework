@@ -52,29 +52,27 @@ namespace XrmFramework.RemoteDebugger.Client.Configuration
         /// <summary>
         /// Removes the added prefix used to deploy a CustomApi so it can look like the original
         /// </summary>
-        /// <param name="uniqueName"> Unique Name of the CustomApi deployed on the RemoteDebugger</param>
+        /// <param name="prefix"> Unique Name of the CustomApi deployed on the RemoteDebugger</param>
         /// <returns>The Unique Name of the CustomApi stripped from its artificial prefix</returns>
-        public static string RemoveCustomPrefix(string uniqueName)
+        public static string RemoveCustomPrefix(string prefix)
         {
-            var index = uniqueName.IndexOf('_');
-            return uniqueName.Remove(index - DebugCustomPrefixNumber, DebugCustomPrefixNumber);
+            return prefix.Remove(prefix.Length - DebugCustomPrefixNumber);
         }
 
         /// <summary>
         /// Adds an artificial prefix to a Unique Name so it can be pushed on the CRM without conflicting the original CustomApi
         /// </summary>
-        /// <param name="uniqueName"> Unique Name of the original CustomApi</param>
+        /// <param name="prefix"> Unique Name of the original CustomApi</param>
         /// <returns>The Unique Name of the CustomApi ready to be deployed on the RemoteDebugger</returns>
-        public string AddCustomPrefix(string uniqueName)
+        public string AddCustomPrefix(string prefix)
         {
-            return uniqueName.Insert(uniqueName.IndexOf('_'), DebugCustomApiPrefix);
+            return prefix + DebugCustomApiPrefix;
         }
 
-        public bool HasCurrentCustomPrefix(string uniqueName)
+        public bool HasCurrentCustomPrefix(string prefix)
         {
-            var index = uniqueName.IndexOf('_');
-            var customPrefix = uniqueName.Substring(index - DebugCustomPrefixNumber, DebugCustomPrefixNumber);
-            return DebugCustomApiPrefix.Equals(customPrefix);
+            var index = prefix.Length - DebugCustomPrefixNumber;
+            return prefix.Substring(index).Equals(DebugCustomApiPrefix);
         }
     }
 }

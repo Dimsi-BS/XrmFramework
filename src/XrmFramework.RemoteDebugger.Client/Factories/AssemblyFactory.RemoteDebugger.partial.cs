@@ -77,17 +77,17 @@ namespace XrmFramework.DeployUtils.Utils
             var customApisRaw = GetParsedCustomApis(service, debugAssembly.Id);
 
             var customApiParsed = customApisRaw
-                .Where(c => debugSettings.HasCurrentCustomPrefix(c.UniqueName))
+                .Where(c => debugSettings.HasCurrentCustomPrefix(c.Prefix))
                 .Select(c =>
                 {
-                    c.UniqueName = DebugAssemblySettings.RemoveCustomPrefix(c.UniqueName);
+                    c.Prefix = DebugAssemblySettings.RemoveCustomPrefix(c.Prefix);
                     return c;
                 })
                 .Where(c =>
                 {
                     var assemblyName = _debugSession.GetCorrespondingAssemblyInfo(c.UniqueName)?.AssemblyName;
                     return assemblyName != null &&
-                           assemblyName.Equals(assembly.Name);
+                           assemblyName.Equals(debugSettings.TargetAssemblyUniqueName);
                 })
                 .ToList();
 
@@ -132,7 +132,7 @@ namespace XrmFramework.DeployUtils.Utils
             {
                 customApi.ParentId = debugSettings.CustomApiId;
                 //Insert seemingly random value to make the customApi unique
-                customApi.UniqueName = debugSettings.AddCustomPrefix(customApi.UniqueName);
+                customApi.Prefix = debugSettings.AddCustomPrefix(customApi.Prefix);
                 debugAssembly.AddChild(customApi);
             }
 

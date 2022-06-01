@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
@@ -12,10 +11,8 @@ namespace XrmFramework.DeployUtils.Model
     /// Metadata of a Plugin
     /// </summary>
     /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
-    public class Plugin : ICrmComponent
+    public class Plugin : BaseCrmComponent
     {
-        private Guid _id;
-
         public Plugin(string fullName)
         {
             FullName = fullName;
@@ -26,68 +23,41 @@ namespace XrmFramework.DeployUtils.Model
             DisplayName = displayName;
         }
 
-        public string FullName { get; }
-        public Guid Id
-        {
-            get => _id;
-            set
-            {
-                foreach (var step in Steps)
-                {
-                    step.ParentId = value;
-                }
-                _id = value;
-            }
-        }
-        public Guid ParentId { get; set; }
-
-        /// <summary>Indicates whether this <see cref="Plugin"/> is a WorkFlow</summary>
-        public bool IsWorkflow => !string.IsNullOrWhiteSpace(DisplayName);
+        public string FullName { get; set; }
+        public string DisplayName { get; }
 
         /// <summary>Collection of the <see cref="Step"/></summary>
         public StepCollection Steps { get; } = new StepCollection();
 
-
-        public string DisplayName { get; }
-
-        public string UniqueName => FullName;
-        public string EntityTypeName => PluginTypeDefinition.EntityName;
+        /// <summary>Indicates whether this <see cref="Plugin"/> is a WorkFlow</summary>
+        public bool IsWorkflow => !string.IsNullOrWhiteSpace(DisplayName);
 
 
-        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
+        #region BaseCrmComponent overrides
 
-        public IEnumerable<ICrmComponent> Children => Steps;
+        public override string UniqueName
+        {
+            get => FullName;
+            set => FullName = value;
+        }
+        public override IEnumerable<ICrmComponent> Children => Steps;
 
-        public void AddChild(ICrmComponent child)
+        public override void AddChild(ICrmComponent child)
         {
             if (child is not Step step) throw new ArgumentException("Plugin doesn't take this type of children");
-            step.ParentId = _id;
+            base.AddChild(child);
             Steps.Add(step);
         }
 
-        private void RemoveChild(ICrmComponent child)
+        protected override void RemoveChild(ICrmComponent child)
         {
             if (child is not Step step) throw new ArgumentException("Plugin doesn't have this type of children");
             Steps.Remove(step);
         }
-
-        public void CleanChildrenWithState(RegistrationState state)
-        {
-            var childrenWithStateSafe = Children
-                .Where(c => c.RegistrationState == state)
-                .ToList();
-            foreach (var child in childrenWithStateSafe)
-            {
-                child.CleanChildrenWithState(state);
-                if (!child.Children.Any())
-                {
-                    RemoveChild(child);
-                }
-            }
-        }
-
-        public int Rank => 1;
-        public bool DoAddToSolution => false;
-        public bool DoFetchTypeCode => false;
+        public override string EntityTypeName => PluginTypeDefinition.EntityName;
+        public override int Rank => 1;
+        public override bool DoAddToSolution => false;
+        public override bool DoFetchTypeCode => false;
+        #endregion
     }
 }

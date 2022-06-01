@@ -14,7 +14,7 @@ namespace XrmFramework.DeployUtils.Utils
     /// <summary>
     /// Base implementation of <see cref="IAssemblyImporter"/>
     /// </summary>
-    class AssemblyImporter : IAssemblyImporter
+    public class AssemblyImporter : IAssemblyImporter
     {
         private readonly ISolutionContext _solutionContext;
         private readonly IMapper _mapper;
@@ -122,7 +122,7 @@ namespace XrmFramework.DeployUtils.Utils
             return step;
         }
 
-        private void CreateStepImageFromRemote(Step step, bool isPreImage,
+        public void CreateStepImageFromRemote(Step step, bool isPreImage,
             IEnumerable<Deploy.SdkMessageProcessingStepImage> stepImages)
         {
             var imageType = isPreImage
@@ -142,25 +142,28 @@ namespace XrmFramework.DeployUtils.Utils
 
         public Plugin CreatePluginFromRemote(Deploy.PluginType pluginType, IEnumerable<Step> steps)
         {
-            Plugin plugin;
             if (pluginType.WorkflowActivityGroupName != null)
             {
-                plugin = new Plugin(pluginType.TypeName, pluginType.Name);
-                plugin.Id = pluginType.Id;
-                plugin.ParentId = pluginType.PluginAssemblyId.Id;
-            }
-            else
-            {
-                plugin = new Plugin(pluginType.TypeName);
-                plugin.Id = pluginType.Id;
-                plugin.ParentId = pluginType.PluginAssemblyId.Id;
-                foreach (var s in steps.Where(s => s.ParentId == plugin.Id))
+                return new Plugin(pluginType.TypeName, pluginType.Name)
                 {
-                    plugin.Steps.Add(s);
-                }
+                    Id = pluginType.Id,
+                    ParentId = pluginType.PluginAssemblyId.Id
+                };
+            }
+
+            var plugin = new Plugin(pluginType.TypeName)
+            {
+                Id = pluginType.Id,
+                ParentId = pluginType.PluginAssemblyId.Id
+            };
+
+            foreach (var s in steps.Where(s => s.ParentId == plugin.Id))
+            {
+                plugin.Steps.Add(s);
             }
             return plugin;
         }
+
 
         public CustomApi CreateCustomApiFromRemote(Deploy.CustomApi customApi,
                                                    IEnumerable<Deploy.CustomApiRequestParameter> registeredRequestParameters,
@@ -246,7 +249,7 @@ namespace XrmFramework.DeployUtils.Utils
                 ExecutePrivilegeName = customApiAttribute.ExecutePrivilegeName,
                 IsFunction = customApiAttribute.IsFunction,
                 IsPrivate = customApiAttribute.IsPrivate,
-                UniqueName = $"{_solutionContext.Publisher.CustomizationPrefix}_{name}",
+                Prefix = _solutionContext.Publisher.CustomizationPrefix,
                 WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled,
                 FullName = type.FullName,
             };
