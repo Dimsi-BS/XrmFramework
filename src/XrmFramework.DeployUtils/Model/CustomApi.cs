@@ -39,7 +39,7 @@ namespace XrmFramework.DeployUtils.Model
             _arguments.Remove(apiComponent);
         }
 
-        public override int Rank => 1;
+        public override int Rank => 15;
         public override bool DoAddToSolution => true;
         public override bool DoFetchTypeCode => true;
         public override string UniqueName

@@ -3,7 +3,10 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Messages;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using XrmFramework.DeployUtils.Configuration;
@@ -44,8 +47,9 @@ namespace XrmFramework.DeployUtils
 
             var solutionSettings = serviceProvider.GetRequiredService<IOptions<DeploySettings>>();
 
+            Console.WriteLine($"Assembly {localDll.GetName().Name}\n");
             Console.WriteLine($"You are about to deploy on organization:\nUrl : {solutionSettings.Value.Url}\nClientId : {solutionSettings.Value.ClientId}\nIf ok press any key.");
-            //Console.ReadKey();
+            Console.ReadKey();
             Console.WriteLine("Connecting to CRM...");
 
             var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
@@ -62,17 +66,20 @@ namespace XrmFramework.DeployUtils
         /// <param name="localDll">The local Assembly, should appear in <c>xrmFramework.config</c></param>
         protected void Register(Assembly localDll)
         {
-            Console.WriteLine("Fetching Local Assembly...");
+            Console.WriteLine("\tFetching Local Assembly...");
 
             var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(localDll);
 
-            Console.WriteLine("Fetching Remote Assembly...");
+            Console.WriteLine("\tFetching Remote Assembly...");
 
-            var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, localDll.GetName().Name);
+            var registeredAssembly =
+                _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, localDll.GetName().Name);
 
-            Console.Write("Computing Difference...");
+            Console.WriteLine("\tComputing Difference...");
 
             var registrationStrategy = _assemblyDiffFactory.ComputeDiffPatch(localAssembly, registeredAssembly);
+
+            Console.WriteLine($"\tExecuting Registration Strategy...");
 
             ExecuteStrategy(registrationStrategy);
         }
@@ -89,60 +96,75 @@ namespace XrmFramework.DeployUtils
 
             _assemblyExporter.InitExportMetadata(stepsForMetadata);
 
-            Console.WriteLine();
-            Console.WriteLine("Registering assembly");
-
-            RegisterAssembly(strategy);
-
-            var componentsToCreate = strategyPool
-                .Where(d => d.RegistrationState == RegistrationState.ToCreate);
-
-            _assemblyExporter.CreateAllComponents(componentsToCreate);
-
-            var componentsToUpdate = strategyPool
-                .Where(d => d.RegistrationState == RegistrationState.ToUpdate);
-
-            _assemblyExporter.UpdateAllComponents(componentsToUpdate);
-        }
-
-        /// <summary>Create or Update the Assembly, deleting all obsolete components in the process by calling <see cref="CleanAssembly"/></summary>
-        private void RegisterAssembly(IAssemblyContext strategy)
-        {
-
             if (strategy.RegistrationState == RegistrationState.ToCreate)
             {
-                Console.WriteLine("Creating assembly");
-
-                _assemblyExporter.CreateComponent(strategy);
-                strategy.RegistrationState = RegistrationState.Computed;
-                return;
+                RegisterAssembly(strategy);
             }
 
-            Console.WriteLine();
-            Console.WriteLine(@"Cleaning Assembly");
+            var allRequests = CreateDeleteRequests(strategyPool).ToList();
 
-            CleanAssembly(strategy);
+            allRequests.AddRange(CreateUpdateRequests(strategyPool));
 
-            if (strategy.RegistrationState != RegistrationState.ToUpdate) return;
+            //allRequests.AddRange(CreateCreateRequests(strategyPool));
 
-            Console.WriteLine();
-            Console.WriteLine("Updating plugin assembly");
+            ExecuteAllRequests(allRequests);
 
-            _assemblyExporter.UpdateComponent(strategy.AssemblyInfo);
+            var componentsToCreate = strategyPool.Where(c =>
+            c.RegistrationState == RegistrationState.ToCreate);
+            _assemblyExporter.CreateAllComponents(componentsToCreate);
+        }
+
+        private void ExecuteAllRequests(List<OrganizationRequest> allRequests)
+        {
+            var crmRequests = InitCrmRequest();
+            while (allRequests.Any())
+            {
+                crmRequests.Requests.AddRange(allRequests.Take(1000));
+                allRequests.RemoveRange(0, Math.Min(allRequests.Count, 1000));
+                var results = (ExecuteMultipleResponse)_registrationService.Execute(crmRequests);
+                crmRequests.Requests.Clear();
+                if (results.IsFaulted)
+                {
+                    throw new Exception(results.Responses.Last().Fault.Message);
+                }
+            }
+        }
+
+        /// <summary>Create or Update the Assembly, deleting all obsolete components in the process by calling <see cref="CreateDeleteRequests"/></summary>
+        private void RegisterAssembly(IAssemblyContext strategy)
+        {
+            Console.WriteLine("Creating assembly");
+
+            _assemblyExporter.CreateComponent(strategy);
             strategy.RegistrationState = RegistrationState.Computed;
         }
 
-        /// <summary>Deletes all components with <see cref="RegistrationState.ToDelete"/></summary>
-        private void CleanAssembly(IAssemblyContext strategy)
+        private IEnumerable<OrganizationRequest> CreateDeleteRequests(IReadOnlyCollection<ICrmComponent> strategyPool)
         {
-            var strategyPool = strategy.ComponentsOrderedPool;
-
             var componentsToDelete = strategyPool
                 .Where(d => d.RegistrationState == RegistrationState.ToDelete);
 
-            _assemblyExporter.DeleteAllComponents(componentsToDelete);
+            return _assemblyExporter.ToDeleteRequestCollection(componentsToDelete);
         }
+
+        private IEnumerable<OrganizationRequest> CreateUpdateRequests(IReadOnlyCollection<ICrmComponent> strategyPool)
+        {
+            var componentsToUpdate = strategyPool
+                .Where(d => d.RegistrationState == RegistrationState.ToUpdate);
+
+            return _assemblyExporter.ToUpdateRequestCollection(componentsToUpdate);
+        }
+
+        private ExecuteMultipleRequest InitCrmRequest() => new ExecuteMultipleRequest()
+        {
+            // Assign settings that define execution behavior: continue on error, return responses.
+            Settings = new ExecuteMultipleSettings()
+            {
+                ContinueOnError = false,
+                ReturnResponses = true
+            },
+            // Create an empty organization request collection.
+            Requests = new OrganizationRequestCollection()
+        };
     }
-
-
 }

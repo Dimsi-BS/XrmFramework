@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Xrm.Sdk;
+using System.Collections.Generic;
+using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
@@ -13,6 +15,22 @@ namespace XrmFramework.DeployUtils.Utils
         /// </summary>
         /// <param name="componentsToCreate"></param>
         void CreateAllComponents(IEnumerable<ICrmComponent> componentsToCreate);
+
+        /// <summary>
+        /// Creates a list that contains a request to delete each of the given components
+        /// <br/>The list is ordered in the reverse order of <see cref="IAssemblyContext.ComponentsOrderedPool"/>
+        /// </summary>
+        /// <param name="componentsToDelete"></param>
+        IEnumerable<OrganizationRequest> ToDeleteRequestCollection(IEnumerable<ICrmComponent> componentsToDelete);
+
+
+        /// <summary>
+        /// Creates a list that contains a request to update each of the given components
+        /// <br/>The list is ordered in the same order of <see cref="IAssemblyContext.ComponentsOrderedPool"/>
+        /// </summary>
+        /// <param name="componentsToUpdate"></param>
+        IEnumerable<OrganizationRequest> ToUpdateRequestCollection(IEnumerable<ICrmComponent> componentsToUpdate);
+
 
         /// <summary>
         /// Deletes an enumeration of <see cref="ICrmComponent"/> on the Crm

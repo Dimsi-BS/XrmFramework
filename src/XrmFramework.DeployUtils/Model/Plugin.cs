@@ -55,7 +55,7 @@ namespace XrmFramework.DeployUtils.Model
             Steps.Remove(step);
         }
         public override string EntityTypeName => PluginTypeDefinition.EntityName;
-        public override int Rank => 1;
+        public override int Rank => 10;
         public override bool DoAddToSolution => false;
         public override bool DoFetchTypeCode => false;
         #endregion

@@ -88,7 +88,7 @@ namespace XrmFramework.DeployUtils.Model
 
         #region BaseCrmComponent overrides
         public override string EntityTypeName => SdkMessageProcessingStepImageDefinition.EntityName;
-        public override int Rank => 3;
+        public override int Rank => 30;
         public override bool DoAddToSolution => false;
         public override bool DoFetchTypeCode => false;
         #endregion

@@ -150,7 +150,7 @@ namespace XrmFramework.DeployUtils.Model
 
         protected override void RemoveChild(ICrmComponent child) { }
         public override string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
-        public override int Rank => 2;
+        public override int Rank => 20;
         public override bool DoAddToSolution => true;
         public override bool DoFetchTypeCode => false;
         #endregion

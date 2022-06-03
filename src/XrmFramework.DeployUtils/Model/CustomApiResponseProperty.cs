@@ -24,7 +24,7 @@ namespace XrmFramework.DeployUtils.Model
         #region ICrmComponent implementation
         public override string EntityTypeName => CustomApiResponsePropertyDefinition.EntityName;
         public override string UniqueName { get; set; }
-        public override int Rank => 2;
+        public override int Rank => 20;
         public override bool DoAddToSolution => true;
         public override bool DoFetchTypeCode => true;
         #endregion

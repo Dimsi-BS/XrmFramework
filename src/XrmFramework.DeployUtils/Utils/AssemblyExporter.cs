@@ -1,5 +1,6 @@
 ﻿using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,10 +29,6 @@ public partial class AssemblyExporter : IAssemblyExporter
 
     public void CreateAllComponents(IEnumerable<ICrmComponent> componentsToCreate)
     {
-        if (!componentsToCreate.Any())
-        {
-            return;
-        }
         var sortedList = componentsToCreate.ToList();
         sortedList.Sort((x, y) => x.Rank.CompareTo(y.Rank));
 
@@ -39,6 +36,15 @@ public partial class AssemblyExporter : IAssemblyExporter
         {
             CreateComponent(component);
         }
+    }
+
+    public IEnumerable<OrganizationRequest> ToUpdateRequestCollection(IEnumerable<ICrmComponent> componentsToUpdate)
+    {
+        var sortedList = componentsToUpdate.ToList();
+
+        sortedList.Sort((x, y) => x.Rank.CompareTo(y.Rank));
+
+        return sortedList.Select(ToUpdateRequest);
     }
 
     public void DeleteAllComponents(IEnumerable<ICrmComponent> componentsToDelete)
@@ -57,12 +63,27 @@ public partial class AssemblyExporter : IAssemblyExporter
         var updatedComponent = _converter.ToRegisterComponent(component);
         _registrationService.Update(updatedComponent);
     }
+
+    private UpdateRequest ToUpdateRequest(ICrmComponent component)
+    {
+        return new UpdateRequest()
+        {
+            Target = _converter.ToRegisterComponent(component)
+        };
+    }
+
+    public DeleteRequest ToDeleteRequest(ICrmComponent component)
+    {
+        return new DeleteRequest()
+        {
+            Target = new EntityReference(component.EntityTypeName, component.Id)
+        };
+    }
+
     public void UpdateAllComponents(IEnumerable<ICrmComponent> componentsToUpdate)
     {
-        var updatedComponents = componentsToUpdate.Select(_converter.ToRegisterComponent);
-
-        foreach (var registeringComponent in updatedComponents)
-            _registrationService.Update(registeringComponent);
+        foreach (var registeringComponent in componentsToUpdate)
+            UpdateComponent(registeringComponent);
     }
 
     /// <summary>
