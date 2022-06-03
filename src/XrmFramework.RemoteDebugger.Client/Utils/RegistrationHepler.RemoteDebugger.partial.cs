@@ -50,39 +50,41 @@ namespace XrmFramework.DeployUtils
         /// <param name="Assembly">The local Assembly to Debug</param>
         public void UpdateDebugger(Assembly Assembly)
         {
-            Console.Write("Fetching Local Assembly...");
+            Console.WriteLine($"\nAssembly {Assembly.GetName().Name}");
+            Console.WriteLine("\tFetching Local Assembly...");
 
             var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(Assembly);
 
             localAssembly.Workflows.Clear();
 
-            Console.WriteLine("Fetching Remote Assembly...");
+            Console.WriteLine("\tFetching Remote Assembly...");
 
             var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, Assembly.GetName().Name);
 
             registeredAssembly.Workflows.Clear();
 
-            Console.WriteLine("Computing Difference With Local Assembly...");
+            Console.WriteLine("\tComputing Difference With Local Assembly...");
 
             var deployAssemblyDiff = _assemblyDiffFactory.ComputeDiffPatch(localAssembly, registeredAssembly);
 
             var assemblyToDebug = _assemblyFactory.WrapDiffAssemblyForDebugDiff(deployAssemblyDiff);
 
-            Console.WriteLine("Fetching Debug Assembly...");
+            Console.WriteLine("\tFetching Debug Assembly...");
 
             _debugSettings.TargetAssemblyUniqueName = localAssembly.UniqueName;
             var debugAssembly = _assemblyFactory.CreateFromDebugAssembly(_registrationService, _debugSettings);
 
-            Console.WriteLine("Computing Difference With Debug Assembly...");
+            Console.WriteLine("\tComputing Difference With Debug Assembly...");
 
             var remoteDebugDiff = _assemblyDiffFactory.ComputeDiffPatch(assemblyToDebug, debugAssembly);
 
             var debugStrategy = _assemblyFactory.WrapDebugDiffForDebugStrategy(remoteDebugDiff, _debugSettings, Assembly);
 
-            Console.WriteLine("Updating the Remote Debugger Plugin...");
+            Console.WriteLine("\tExecuting Registration Strategy...");
+
             ExecuteStrategy(debugStrategy);
 
-            Console.WriteLine("Updating the Debug Session...");
+            Console.WriteLine("\tUpdating the Debug Session...");
 
             RegisterStepsToDebugSession(deployAssemblyDiff);
         }

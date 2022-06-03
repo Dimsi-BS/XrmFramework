@@ -51,7 +51,7 @@ namespace XrmFramework.RemoteDebugger
             var communicationManager = GetCommunicationManager(localContext);
 
             localContext.Log("The context is genuine");
-            localContext.Log($"\r\nIntended Plugin {StepConfig.PluginName}");
+            localContext.Log($"\r\nIntended Class {StepConfig.PluginName}");
             localContext.LogStart();
 
             var debugSession = communicationManager.GetDebugSession();

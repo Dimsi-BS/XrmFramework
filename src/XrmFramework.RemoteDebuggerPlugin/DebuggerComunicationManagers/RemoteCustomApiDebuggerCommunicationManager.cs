@@ -34,22 +34,16 @@ namespace XrmFramework.Remote
 
             var debugApiName = Context.MessageName.ToString().Split('_');
 
-            Context.Log($"Message received is {debugApiName}");
-
             // Parse the Name of the CustomApi as it normally would be on the CRM
             var apiPrefix = DebugAssemblySettings.RemoveCustomPrefix(debugApiName[0]);
             var apiName = debugApiName[1];
-
-            Context.Log($"Looking int the debug session with prefix {apiPrefix} and name {apiName}");
 
             // Check if there is assembly that contains the api in the ContextInfo
             var currentAssembly = _debugSession.GetCorrespondingAssemblyInfo($"{apiPrefix}_{apiName}");
 
             if (currentAssembly == null)
             {
-                Context.Log("This CustomApi is not registered in the DebugSession");
-                //TODO find out what to do in that case
-                return null;
+                throw new ArgumentException("This CustomApi is not registered in the DebugSession");
             }
 
             var assemblyQualifiedName = BuildTypeQualifiedName(currentAssembly, apiName);

@@ -83,8 +83,6 @@ namespace XrmFramework.DeployUtils.Utils
         private void FillRemoteAssemblyContext(IRegistrationService service,
             IAssemblyContext registeredAssembly)
         {
-            Console.WriteLine("Remote Assembly Exists, Fetching Components...");
-
             var customApis = GetParsedCustomApis(service, registeredAssembly.Id);
 
             var registeredPluginTypes = service.GetRegisteredPluginTypes(registeredAssembly.Id);

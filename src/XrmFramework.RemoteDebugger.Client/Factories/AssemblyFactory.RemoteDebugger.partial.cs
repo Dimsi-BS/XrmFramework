@@ -37,8 +37,6 @@ namespace XrmFramework.DeployUtils.Utils
 
             var debugAssembly = _importer.CreateAssemblyFromRemote(assembly);
 
-            Console.WriteLine("Remote Debug Plugin Exists, Fetching Components...");
-
             var pluginTypes = service.GetRegisteredPluginTypes(debugAssembly.Id);
 
             var pluginRaw = pluginTypes.Single(p => p.Name == DebugAssemblySettings.DebugPluginName);
