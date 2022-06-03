@@ -39,7 +39,7 @@ namespace XrmFramework.DeployUtils.Configuration
 
             // Specify very VERY explicitly that AutoMapper should map the private lists in StepCollection and CustomApi
             // I know how ugly this looks but it was the best way I found to at least keep them private
-            ShouldMapField = fi => fi.IsPublic || fi.Name is "_internalList" or "_inArguments" or "_outArguments";
+            ShouldMapField = fi => fi.IsPublic || fi.Name is "_internalList" or "_arguments";
 
             CreateMap<StepCollection, StepCollection>();
 
