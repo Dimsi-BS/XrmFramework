@@ -80,6 +80,10 @@ namespace XrmFramework.RemoteDebugger.Converters
 
                         value = (TValue)serializer.Deserialize(reader, valueContract.UnderlyingType);
                     }
+                    else
+                    {
+                        reader.Skip();
+                    }
                 }
                 else
                 {
