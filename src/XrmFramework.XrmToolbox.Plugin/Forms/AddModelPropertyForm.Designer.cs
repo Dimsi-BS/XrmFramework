@@ -44,11 +44,11 @@
             this.ColumnLogicalName = new System.Windows.Forms.TextBox();
             this.splitContainer5 = new System.Windows.Forms.SplitContainer();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.nameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.columnBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.modelPropertyBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.modelPropertyBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -76,10 +76,10 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(227, 323);
-            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button1.Location = new System.Drawing.Point(303, 398);
+            this.button1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(110, 32);
+            this.button1.Size = new System.Drawing.Size(147, 39);
             this.button1.TabIndex = 0;
             this.button1.Text = "Add property";
             this.button1.UseVisualStyleBackColor = true;
@@ -91,26 +91,26 @@
             this.TypeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.TypeComboBox.FormattingEnabled = true;
             this.TypeComboBox.Location = new System.Drawing.Point(0, 0);
-            this.TypeComboBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.TypeComboBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.TypeComboBox.Name = "TypeComboBox";
-            this.TypeComboBox.Size = new System.Drawing.Size(169, 21);
+            this.TypeComboBox.Size = new System.Drawing.Size(226, 24);
             this.TypeComboBox.TabIndex = 1;
             // 
             // textBox1
             // 
             this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox1.Location = new System.Drawing.Point(0, 0);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(98, 20);
+            this.textBox1.Size = new System.Drawing.Size(130, 22);
             this.textBox1.TabIndex = 2;
             this.textBox1.Text = "Name";
             // 
             // splitContainer1
             // 
-            this.splitContainer1.Location = new System.Drawing.Point(12, 36);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.splitContainer1.Location = new System.Drawing.Point(16, 44);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -120,24 +120,23 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.PropertyNameTextBox);
-            this.splitContainer1.Size = new System.Drawing.Size(295, 20);
-            this.splitContainer1.SplitterDistance = 98;
-            this.splitContainer1.SplitterWidth = 3;
+            this.splitContainer1.Size = new System.Drawing.Size(393, 25);
+            this.splitContainer1.SplitterDistance = 130;
             this.splitContainer1.TabIndex = 3;
             // 
             // PropertyNameTextBox
             // 
             this.PropertyNameTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PropertyNameTextBox.Location = new System.Drawing.Point(0, 0);
-            this.PropertyNameTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.PropertyNameTextBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.PropertyNameTextBox.Name = "PropertyNameTextBox";
-            this.PropertyNameTextBox.Size = new System.Drawing.Size(194, 20);
+            this.PropertyNameTextBox.Size = new System.Drawing.Size(259, 22);
             this.PropertyNameTextBox.TabIndex = 3;
             // 
             // splitContainer2
             // 
-            this.splitContainer2.Location = new System.Drawing.Point(12, 79);
-            this.splitContainer2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.splitContainer2.Location = new System.Drawing.Point(16, 97);
+            this.splitContainer2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitContainer2.Name = "splitContainer2";
             // 
             // splitContainer2.Panel1
@@ -147,26 +146,25 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.TypeComboBox);
-            this.splitContainer2.Size = new System.Drawing.Size(257, 23);
-            this.splitContainer2.SplitterDistance = 85;
-            this.splitContainer2.SplitterWidth = 3;
+            this.splitContainer2.Size = new System.Drawing.Size(343, 28);
+            this.splitContainer2.SplitterDistance = 113;
             this.splitContainer2.TabIndex = 4;
             // 
             // textBox2
             // 
             this.textBox2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox2.Location = new System.Drawing.Point(0, 0);
-            this.textBox2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
-            this.textBox2.Size = new System.Drawing.Size(85, 20);
+            this.textBox2.Size = new System.Drawing.Size(113, 22);
             this.textBox2.TabIndex = 3;
             this.textBox2.Text = "Type";
             // 
             // splitContainer3
             // 
-            this.splitContainer3.Location = new System.Drawing.Point(12, 121);
-            this.splitContainer3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.splitContainer3.Location = new System.Drawing.Point(16, 149);
+            this.splitContainer3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitContainer3.Name = "splitContainer3";
             // 
             // splitContainer3.Panel1
@@ -176,19 +174,18 @@
             // splitContainer3.Panel2
             // 
             this.splitContainer3.Panel2.Controls.Add(this.JsonNameTextBox);
-            this.splitContainer3.Size = new System.Drawing.Size(285, 20);
-            this.splitContainer3.SplitterDistance = 133;
-            this.splitContainer3.SplitterWidth = 3;
+            this.splitContainer3.Size = new System.Drawing.Size(380, 25);
+            this.splitContainer3.SplitterDistance = 177;
             this.splitContainer3.TabIndex = 5;
             // 
             // textBox3
             // 
             this.textBox3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox3.Location = new System.Drawing.Point(0, 0);
-            this.textBox3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox3.Name = "textBox3";
             this.textBox3.ReadOnly = true;
-            this.textBox3.Size = new System.Drawing.Size(133, 20);
+            this.textBox3.Size = new System.Drawing.Size(177, 22);
             this.textBox3.TabIndex = 2;
             this.textBox3.Text = "Json Property Name";
             // 
@@ -196,15 +193,15 @@
             // 
             this.JsonNameTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.JsonNameTextBox.Location = new System.Drawing.Point(0, 0);
-            this.JsonNameTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.JsonNameTextBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.JsonNameTextBox.Name = "JsonNameTextBox";
-            this.JsonNameTextBox.Size = new System.Drawing.Size(149, 20);
+            this.JsonNameTextBox.Size = new System.Drawing.Size(199, 22);
             this.JsonNameTextBox.TabIndex = 3;
             // 
             // splitContainer4
             // 
-            this.splitContainer4.Location = new System.Drawing.Point(12, 2);
-            this.splitContainer4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.splitContainer4.Location = new System.Drawing.Point(16, 2);
+            this.splitContainer4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitContainer4.Name = "splitContainer4";
             // 
             // splitContainer4.Panel1
@@ -214,19 +211,18 @@
             // splitContainer4.Panel2
             // 
             this.splitContainer4.Panel2.Controls.Add(this.ColumnLogicalName);
-            this.splitContainer4.Size = new System.Drawing.Size(285, 20);
-            this.splitContainer4.SplitterDistance = 141;
-            this.splitContainer4.SplitterWidth = 3;
+            this.splitContainer4.Size = new System.Drawing.Size(380, 25);
+            this.splitContainer4.SplitterDistance = 188;
             this.splitContainer4.TabIndex = 6;
             // 
             // textBox4
             // 
             this.textBox4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox4.Location = new System.Drawing.Point(0, 0);
-            this.textBox4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox4.Name = "textBox4";
             this.textBox4.ReadOnly = true;
-            this.textBox4.Size = new System.Drawing.Size(141, 20);
+            this.textBox4.Size = new System.Drawing.Size(188, 22);
             this.textBox4.TabIndex = 2;
             this.textBox4.Text = "Corresponding column Name";
             // 
@@ -234,10 +230,10 @@
             // 
             this.ColumnLogicalName.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ColumnLogicalName.Location = new System.Drawing.Point(0, 0);
-            this.ColumnLogicalName.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ColumnLogicalName.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ColumnLogicalName.Name = "ColumnLogicalName";
             this.ColumnLogicalName.ReadOnly = true;
-            this.ColumnLogicalName.Size = new System.Drawing.Size(141, 20);
+            this.ColumnLogicalName.Size = new System.Drawing.Size(188, 22);
             this.ColumnLogicalName.TabIndex = 3;
             this.ColumnLogicalName.TextChanged += new System.EventHandler(this.ColumnLogicalName_TextChanged);
             // 
@@ -245,7 +241,7 @@
             // 
             this.splitContainer5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer5.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.splitContainer5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitContainer5.Name = "splitContainer5";
             // 
             // splitContainer5.Panel1
@@ -260,9 +256,8 @@
             this.splitContainer5.Panel2.Controls.Add(this.splitContainer1);
             this.splitContainer5.Panel2.Controls.Add(this.splitContainer3);
             this.splitContainer5.Panel2.Controls.Add(this.splitContainer2);
-            this.splitContainer5.Size = new System.Drawing.Size(600, 366);
-            this.splitContainer5.SplitterDistance = 249;
-            this.splitContainer5.SplitterWidth = 3;
+            this.splitContainer5.Size = new System.Drawing.Size(800, 450);
+            this.splitContainer5.SplitterDistance = 330;
             this.splitContainer5.TabIndex = 7;
             // 
             // dataGridView1
@@ -275,23 +270,14 @@
             this.dataGridView1.DataSource = this.columnBindingSource;
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(0, 0);
-            this.dataGridView1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 51;
             this.dataGridView1.RowTemplate.Height = 24;
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView1.Size = new System.Drawing.Size(249, 366);
+            this.dataGridView1.Size = new System.Drawing.Size(330, 450);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
-            // 
-            // Column1
-            // 
-            this.Column1.DataPropertyName = "LogicalName";
-            this.Column1.HeaderText = "Logical Name";
-            this.Column1.MinimumWidth = 6;
-            this.Column1.Name = "Column1";
-            this.Column1.ReadOnly = true;
-            this.Column1.Width = 125;
             // 
             // nameDataGridViewTextBoxColumn
             // 
@@ -302,32 +288,42 @@
             this.nameDataGridViewTextBoxColumn.ReadOnly = true;
             this.nameDataGridViewTextBoxColumn.Width = 125;
             // 
+            // Column1
+            // 
+            this.Column1.DataPropertyName = "LogicalName";
+            this.Column1.HeaderText = "Logical Name";
+            this.Column1.MinimumWidth = 6;
+            this.Column1.Name = "Column1";
+            this.Column1.ReadOnly = true;
+            this.Column1.Width = 125;
+            // 
             // columnBindingSource
             // 
             this.columnBindingSource.DataSource = typeof(XrmFramework.Core.Column);
             // 
-            // modelPropertyBindingSource
-            // 
-            this.modelPropertyBindingSource.DataSource = typeof(XrmFramework.Core.ModelProperty);
-            // 
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(12, 163);
+            this.checkBox1.Location = new System.Drawing.Point(16, 201);
+            this.checkBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(116, 17);
+            this.checkBox1.Size = new System.Drawing.Size(141, 20);
             this.checkBox1.TabIndex = 7;
             this.checkBox1.Text = "Is Valid For Update";
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
+            // modelPropertyBindingSource
+            // 
+            this.modelPropertyBindingSource.DataSource = typeof(XrmFramework.Core.ModelProperty);
+            // 
             // AddModelPropertyForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(600, 366);
+            this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.splitContainer5);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "AddModelPropertyForm";
             this.Text = "Add model property";
             this.Load += new System.EventHandler(this.AddModelPropertyForm_Load);

@@ -24,7 +24,7 @@ namespace XrmFramework.XrmToolbox
         
         public Settings Settings;
         
-        private List<string> PublisherPrefixes { get; } = new();
+        //private List<string> PublisherPrefixes { get; } = new();
         public Project CurrentProject;
         string RedCircleIcon = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAABmJLR0QA/wD/AP+gvaeTAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDIxLTA0LTI3VDE4OjMxOjMxKzAwOjAwQs1UEQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyMS0wNC0yN1QxODozMTozMSswMDowMDOQ7K0AAAGnSURBVDhPnZO/S0JRFMe/9z6fLy1JCavBCIpoCFxaAzcF/4tC2hqShpZAKJAgiIZaXPoHWoOC2oKWlghqaXCwMCVI/NnzeTvn+gitIe0zXHjn3O95997zPUIR6MF5K6N6dIjW7RWclzyElDBm5mGtxBFIb0H4R9ydXfoKvK+ton52Cs+cH/BaEIZHx5XThmo24Tw3ENjYxng2q+PMd4HichSd+iNkKEQKneKlBwpSyCmWYC7GET6/0FHJC/9Zi4MsZuFPMUMxyhlTYdhPl6js7nWj7WJJvS6EYS6FXfEACAX7voRIVcFIe81Mp3wH4bHc7GAIX5vONAFj0/zMKOcDQhhuahDopLRd1SSkbpX72kMhPbrNVEK/4/+QguqQSbjPQ0Ma1kp2GMgkus8Do+j+DVixBESn1lCFSR/M6DBt7MB+KCNSUXQL8jbbkx3G/f0T2tPOlxE8yLmfrpVLyYR2mDHNJ9EpXnpgK3fF/mQKodyPAgzbs7K/A2OWBslPxqJWaXiY6M5OwdZ/HltPdePEr3FmqscnaN1c6z5zq/i1rVgcozQz/QBfkF6s4ueHnhgAAAAASUVORK5CYII=";
         string PurpleCircleIcon = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAFzUkdCAK7OHOkAAAAEZ0FNQQAAsY8L/GEFAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAa1JREFUOE+dU88rBGEYfmZmJTM7y+JEUluyCrdN5KDc3CQcXMQ/oLiQXCQXyj9ALk4b5eJAykEhR1rZsiXLCbO7Y7aY+WZ837uNX0uWp57p/Z7vfZ+++b73lTwOfIPUyTXMW4tivV5DpKOR4q8oMtiZO0Bq6w4hLQRFkUljzEXOyiHSX4e++R7SfLwZWGYea72bqAyEEVAVsQPfWRIfT4KTZ8g6Bsb2B6DpamHPN1iJraNarQHKSP8ZNvCYf8DE6Sgt6Yzbs7sIKjqY4oC5v5DniNzt2b13g0Q8BakCcD1WEkVuIn5VMEgeXUGrUME87s43S6NDNcmjFORMOgdPdkn8C0VNJp2FLO7a8dx/UdTKlfU6bPsZLr+gv1DUiFo52tUEwzT4DRf+rSTyXOPJgKilV2gbjsJ6eoHteiVR5LYPRekV3hppqmURVWoYUoD0H8EPgEzewNLFNK3fWzlnYSa2Ao03SbnG25H69wN41rNlw2ImFk4nEAxpJBcN0+pkHMcb59A1nQ8TnwkOxhgfJhOdI60YXx4kzUeRgY+zw0vc3xgU1zaE0dbdTPFnAK+Za64FTBl3nwAAAABJRU5ErkJggg==";
@@ -123,7 +123,7 @@ namespace XrmFramework.XrmToolbox
 
             }
 
-            if (PublisherPrefixes.Count == 0)
+            if (TableHandler.PublisherPrefixes.Count == 0)
             {
                 LoadPrefixes();
             }
@@ -192,12 +192,15 @@ namespace XrmFramework.XrmToolbox
 
         public void SetCurrentProject(string path)
         {
+            LoadPrefixes();
+            //TableHandler.loas
             if (!Directory.Exists(path) || !ContainsSlnFile(path))
             {
                 MessageBox.Show("Selected path does not correspond to a visual studio project, please try again");
                 return;
             }
             TableHandler.TableAndPath.Clear();
+            ModelHandler.ModelAndPath.Clear();
             CurrentProjectTextBox.Text = path;
             var pairToRemove = Settings.RootFolders.FirstOrDefault(p => p.FolderPath == path);
             if (pairToRemove != null)
@@ -208,17 +211,19 @@ namespace XrmFramework.XrmToolbox
             Settings.RootFolders.Add(new Project(Settings.CurrentOrganizationName, path));
             CurrentProject = Settings.RootFolders.FirstOrDefault(p => p.FolderPath == path);
             //var finalPair = mySettings.RootFolders.FirstOrDefault(p => p.OrganizationName == mySettings.CurrentOrganizationName);
-            MessageBox.Show($"Project folder has been set to {CurrentProject.FolderPath}");
+            //MessageBox.Show($"Project folder has been set to {CurrentProject.FolderPath}");
 
-            MessageBox.Show($"Looking for folders in {CurrentProject.FolderPath}");
+            //MessageBox.Show($"Looking for folders in {CurrentProject.FolderPath}");
             SettingsManager.Instance.Save(GetType(), Settings);
-
+            ModelHandler.LoadModelsFromProject(CurrentProject.FolderPath);
             TableHandler.LoadTablesFromProject(CurrentProject.FolderPath);
             RefreshTreeDisplay();
+            RefreshModelsDisplay();
+            //RefreshModelDetails();
             textBox1.Text = CurrentProject.FolderPath;
             TableHandler.PathToRegisterTables = CurrentProject.FolderPath + "\\Definitions\\";
             ModelHandler.PathToRegisterModel = CurrentProject.FolderPath + "\\Models\\";
-            MessageBox.Show($"TableHandler.PathToRegisterTables is {TableHandler.PathToRegisterTables}");
+            //MessageBox.Show($"TableHandler.PathToRegisterTables is {TableHandler.PathToRegisterTables}");
  
 
         }
@@ -441,10 +446,11 @@ namespace XrmFramework.XrmToolbox
                 TableHandler.CurrentTable = selectedTable.LogicalName;
                 TableHandler.CurrentEnum = null;
                 
-
+               
             }
             
         }
+
 
         private void tabPage3_Click(object sender, EventArgs e)
         {
@@ -453,6 +459,10 @@ namespace XrmFramework.XrmToolbox
 
         private void dataGridView1_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
         {
+            if(e.RowIndex<0)
+            {
+                return;
+            }
             //Clicked an enum thing
             if(dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString() == "Picklist")
             {
@@ -470,6 +480,46 @@ namespace XrmFramework.XrmToolbox
                 TableHandler.CurrentEnum = correspondingEnum.LogicalName;
                 //EnumNameText.Text = correspondingEnum.Name;
 
+            }
+            else if(e.ColumnIndex == 1)
+            {
+                var currentTable = TableHandler.TableAndPath[TableHandler.CurrentTable].table;
+                var currentColumn = currentTable.Columns.FirstOrDefault(c=>c.LogicalName == dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString());
+                if(currentColumn == null)
+                {
+                    throw new Exception("Could not find corresponding column");
+                }
+                var name = dataGridView1.Rows[e.RowIndex].Cells[1].Value.ToString();
+                //MessageBox.Show(dataGridView1.Rows[e.RowIndex].Cells[1].Value.ToString());
+                var newForm = new TryOtherNameForm(name);
+                newForm.FormClosing += (s, e) =>
+                 {
+                     if (!newForm.ModifyName || newForm.Name == name)
+                     {
+                         return;
+                     }
+                     // Check if a table is already using this name 
+
+                     if (currentTable.Columns.Any(c=>c.Name == newForm.Name))
+                     {
+                         // If already used, don't modify table name and notify user
+                         MessageBox.Show("This name is already in use");
+                         return;
+                     }
+                     else
+                     {
+                         // If not, then modify the name 
+                         //MessageBox.Show("You modified this Name");
+                        
+
+                         var finalName = newForm.Name.StrongFormat();
+                         currentColumn.Name = finalName;
+                         // Now refresh the whole property
+                         //RefreshTabme();
+
+                     }
+                 };
+                newForm.ShowDialog();
             }
 
            
@@ -512,7 +562,7 @@ namespace XrmFramework.XrmToolbox
 
         private void RetrieveEntitiesButton_Click(object sender, EventArgs e)
         {
-            if (PublisherPrefixes.Count == 0)
+            if (TableHandler.PublisherPrefixes.Count == 0)
             {
                 LoadPrefixes();
             }
@@ -579,7 +629,7 @@ namespace XrmFramework.XrmToolbox
                     // Create the corresponding base tables while also processing the names
                     Solution[] solutions = (Solution[])args.Result;
                     
-                    PublisherPrefixes.AddRange(solutions.Select(s => s.GetAttributeValue<AliasedValue>("publisher.customizationprefix").Value as string).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct());
+                    TableHandler.PublisherPrefixes.AddRange(solutions.Select(s => s.GetAttributeValue<AliasedValue>("publisher.customizationprefix").Value as string).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct());
 
                 }
 
@@ -680,7 +730,7 @@ namespace XrmFramework.XrmToolbox
         {
             //RetrieveAttributesForTable(currentTable);
             var form2 = new AddTableForm();
-            form2.PublisherPrefixes = this.PublisherPrefixes;
+            form2.PublisherPrefixes = TableHandler.PublisherPrefixes;
             form2.PluginControl = this;
             form2.RetrieveEntities();            
             form2.ShowDialog();
@@ -700,7 +750,7 @@ namespace XrmFramework.XrmToolbox
                 {
                     TableHandler.ModifyTableName(table.Name,table, table.Name);
                 }
-                MessageBox.Show($"adding table {table.LogicalName} at {TableHandler.PathToRegisterTables}");
+                //MessageBox.Show($"adding table {table.LogicalName} at {TableHandler.PathToRegisterTables}");
                 RefreshTableAttributes(table);
                 TableHandler.TableAndPath[table.LogicalName] = new TableData(table, RemoveCurrentProjectPathFromTablePath(TableHandler.PathToRegisterTables));
             }
@@ -715,7 +765,7 @@ namespace XrmFramework.XrmToolbox
 
         private void RefreshGlobalEnum()
         {
-            optionSetEnumBindingSource.DataSource = TableHandler.globalEnumsTable.Enums;
+            //optionSetEnumBindingSource.DataSource = TableHandler.globalEnumsTable.Enums;
             
         }
         
@@ -1038,15 +1088,75 @@ namespace XrmFramework.XrmToolbox
                       {
                           if(newForm.CreateProperty)
                           {
+                              Table correspondingTable = null;
+                              correspondingTable = TableHandler.TableAndPath.FirstOrDefault(tp => tp.Value.table.Name == newForm.typeFullName.Replace("Model", "")).Value.table;
+                              if(correspondingTable == null)
+                              {
+                                  throw new Exception("This table should not be null");
+                              }
                               var newProp = new ModelProperty();
                               newProp.IsValidForUpdate = newForm.isValidForUpdate;
                               newProp.Name = newForm.propertyName;
                               newProp.JsonPropertyName = newForm.JsonPropertyName;
-                              newProp.TypeFullName = newForm.typeFullName;
-                              newProp.LogicalName = newForm.logicalName;
-                              if (newProp.IsValidForUpdate)
+                              if(newForm.typeFullName.Contains("Model"))
                               {
-                                  MessageBox.Show("the newly added property is valid for update");
+                                  // Check if this model exists
+                                  if(!ModelHandler.ModelAndPath.ContainsKey(newForm.typeFullName))
+                                  {
+                                      // If not create it
+                                     
+                                      var newModel = new XrmFramework.Core.Model()
+                                      {
+                                          TableLogicalName = correspondingTable.LogicalName,
+                                          ModelNamespace = "BindingModel",
+                                          Name = newForm.typeFullName,
+                                      };
+
+                                      var idCol = correspondingTable.Columns.FirstOrDefault(c => c.PrimaryType == PrimaryType.Id);
+                                      if (idCol == null)
+                                      {
+                                          throw new Exception("Error, table id corresponding to model was not found");
+                                      }
+                                      var idProperty = new ModelProperty();
+                                      idProperty.Name = "Id";
+                                      idProperty.LogicalName = idCol.LogicalName;
+                                      idProperty.TypeFullName = "Guid";
+
+                                      var nameCol = correspondingTable.Columns.FirstOrDefault(c => c.PrimaryType == PrimaryType.Name);
+                                      //idProperty.JsonPropertyName = 
+                                      var nameProperty = new ModelProperty();
+
+                                      if (nameCol == null)
+                                      {
+                                          throw new Exception("Error, table name corresponding to model was not found");
+                                      }
+                                      nameProperty.Name = "Name";
+                                      nameProperty.LogicalName = nameCol.LogicalName;
+                                      nameProperty.TypeFullName = "string";
+                                      newModel.Properties.Add(nameProperty);
+                                      newModel.Properties.Add(idProperty);
+
+                                      
+                                      ModelHandler.ModelAndPath[newModel.Name] = new ModelData(newModel, ModelHandler.RemoveCurrentProjectPathFromModelPath(ModelHandler.PathToRegisterModel, CurrentProject.FolderPath));
+
+                                      newProp.TypeFullName = newModel.ModelNamespace + "." + newModel.Name;
+
+                                      RefreshModelsDisplay();
+
+                                  }
+                                  else
+                                  {
+                                      newProp.TypeFullName = newForm.typeFullName;
+
+                                  }
+
+
+
+
+                              }
+                              newProp.LogicalName = newForm.logicalName;
+                              {
+                                  //MessageBox.Show("the newly added property is valid for update");
                                   var sameProp = model.Properties.FirstOrDefault(p => p.LogicalName == newProp.LogicalName && p.IsValidForUpdate);
                                   if(sameProp != null)
                                   {
@@ -1207,6 +1317,22 @@ namespace XrmFramework.XrmToolbox
 
             }
 
+        }
+
+        private void ReloadProjectButton_Click(object sender, EventArgs e)
+        {
+            TableHandler.TableAndPath.Clear();
+            ModelHandler.ModelAndPath.Clear();
+            
+            ModelHandler.LoadModelsFromProject(CurrentProject.FolderPath);
+            TableHandler.LoadTablesFromProject(CurrentProject.FolderPath);
+            RefreshTreeDisplay();
+            RefreshModelsDisplay();
+            //RefreshModelDetails();
+            //textBox1.Text = CurrentProject.FolderPath;
+            TableHandler.PathToRegisterTables = CurrentProject.FolderPath + "\\Definitions\\";
+            ModelHandler.PathToRegisterModel = CurrentProject.FolderPath + "\\Models\\";
+            //MessageBox.Show($"TableHandler.PathToRegisterTables is {TableHandler.PathToRegisterTables}");
         }
     }
 

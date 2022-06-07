@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using XrmFramework.Core;
 
 namespace XrmFramework.ModelManager
@@ -467,7 +468,7 @@ namespace XrmFramework.ModelManager
             OptionSetEnum SecondEnum;
             var possibleTypes = new List<String>();
 
-
+            
             var table = Tables.FirstOrDefault(t => t.LogicalName == model.TableLogicalName);
             if (table == null)
             {
@@ -534,8 +535,8 @@ namespace XrmFramework.ModelManager
                     break;
                 case AttributeTypeCode.Lookup:
                     //Get the corresponding relation, find the corresponding model if it exists
-                    
-                    
+
+
                     var re = table.ManyToOneRelationships.FirstOrDefault(r => r.LookupFieldName == column.LogicalName);
                     if (re == null)
                     {
@@ -545,6 +546,7 @@ namespace XrmFramework.ModelManager
                     {
                         if(possibleModel.TableLogicalName == re.EntityName)
                         {
+
                             possibleTypes.Add($"{CoreProjectName}.{possibleModel.ModelNamespace}.{possibleModel.Name}");
 
                         }

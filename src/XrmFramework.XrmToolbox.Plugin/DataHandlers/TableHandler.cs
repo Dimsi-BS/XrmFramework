@@ -71,6 +71,15 @@ namespace XrmFramework.XrmToolbox.DataHandlers
 
             }
 
+            if(globalEnumsTable == null)
+            {
+                globalEnumsTable = new Table()
+                {
+                    Name = "OptionSet",
+                    LogicalName = "globalEnums"
+                };
+            }
+
 
         }
 
@@ -119,6 +128,10 @@ namespace XrmFramework.XrmToolbox.DataHandlers
 
         private static bool IsEnumNameUsed(OptionSetEnum en, string name)
         {
+            if(TableHandler.globalEnumsTable == null)
+            {
+                return false;
+            }
             // Is enum name used in a global enum
             if (TableHandler.globalEnumsTable.Enums.Any(e => e.Name == name && e.LogicalName != en.LogicalName))
             {
@@ -421,24 +434,28 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                         }
                         //table.Enums.Add(newEnum);
                     }
-                    else if (TableHandler.globalEnumsTable.Enums.All(e => e.LogicalName != newEnum.LogicalName))
+                    else if (TableHandler.globalEnumsTable == null)
                     {
-                        var sameEnum = TableHandler.globalEnumsTable.Enums.FirstOrDefault(e => e.LogicalName == newEnum.LogicalName);
-                        if (sameEnum != null)
+                        if(TableHandler.globalEnumsTable.Enums.All(e => e.LogicalName != newEnum.LogicalName))
                         {
-                            newEnum.Name = sameEnum.Name;
-                            TableHandler.globalEnumsTable.Enums.Remove(sameEnum);
-                            TableHandler.globalEnumsTable.Enums.Add(newEnum);
-                        }
-                        else
-                        {
-                            while (IsEnumNameUsed(newEnum, newEnum.Name))
+                            var sameEnum = TableHandler.globalEnumsTable.Enums.FirstOrDefault(e => e.LogicalName == newEnum.LogicalName);
+                            if (sameEnum != null)
                             {
-                                ModifyEnumName(newEnum.Name, newEnum, newEnum.Name);
+                                newEnum.Name = sameEnum.Name;
+                                TableHandler.globalEnumsTable.Enums.Remove(sameEnum);
+                                TableHandler.globalEnumsTable.Enums.Add(newEnum);
                             }
-                            TableHandler.globalEnumsTable.Enums.Add(newEnum);
+                            else
+                            {
+                                while (IsEnumNameUsed(newEnum, newEnum.Name))
+                                {
+                                    ModifyEnumName(newEnum.Name, newEnum, newEnum.Name);
+                                }
+                                TableHandler.globalEnumsTable.Enums.Add(newEnum);
 
+                            }
                         }
+                        
                     }
 
 

@@ -13,6 +13,8 @@ namespace XrmFramework.Analyzers.Generators
     {
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
+
+            //return;
 			//var tableFiles = context.AdditionalTextsProvider.Where(a => a.Path.EndsWith(".table"));
 			var files =
 			context.AdditionalTextsProvider
@@ -70,6 +72,10 @@ namespace XrmFramework.Analyzers.Generators
 
         private void WriteModelFiles(SourceProductionContext productionContext, List<XrmFramework.Core.Model> models,TableCollection tables, Table globalEnums)
         {
+            if(globalEnums == null)
+            {
+                throw new Exception("global enums is null for some reason");
+            }
 			foreach(var model in models)
             {
 				var table = tables.FirstOrDefault(t => t.LogicalName == model.TableLogicalName);
@@ -96,7 +102,18 @@ namespace XrmFramework.Analyzers.Generators
                     sb.AppendLine("using XrmFramework;");
                     sb.AppendLine("using Newtonsoft.Json;");
                     sb.AppendLine("using XrmFramework.BindingModel;");
-                    sb.AppendLine("using XrmFramework.Definitions");
+                    sb.AppendLine("using XrmFramework.Definitions;");
+                    foreach(var otherModel in models)
+                    {
+                        //if(otherModel.Name != model.Name)
+                        //{
+                        //    if(!string.IsNullOrEmpty(otherModel.ModelNamespace))
+                        //    {
+                        //        sb.AppendLine("using " + otherModel.ModelNamespace + ";");
+                        //
+                        //    }
+                        //}
+                    }
                     //sb.AppendLine($"using {CoreProjectName};");
                     sb.AppendLine();
                     if (model.ModelNamespace != null && model.ModelNamespace != "")
@@ -122,21 +139,25 @@ namespace XrmFramework.Analyzers.Generators
 
 
 
-                        sb.AppendLine($"public partial class {model.Name}Model : BindingModelBase");
+                        sb.AppendLine($"public partial class {model.Name} : BindingModelBase");
 
 
-                        sb.AppendLine();
                         sb.AppendLine("{");
                         // Properties
                         using (sb.Indent())
                         {
-                            sb.AppendLine();
-                            sb.AppendLine($"[CrmMapping({correspondingTable.Name}Definition.Columns.Id)]");
-                            sb.AppendLine("public Guid Id { get; set; }");
+                           //sb.AppendLine();
+                           //sb.AppendLine($"[CrmMapping({correspondingTable.Name}Definition.Columns.Id)]");
+                           //sb.AppendLine("public Guid Id { get; set; }");
                             sb.AppendLine();
                             foreach (var prop in model.Properties)
                             {
+                                
                                 var correspondingColumn = correspondingTable.Columns.FirstOrDefault(c => c.LogicalName == prop.LogicalName);
+                                if(!correspondingColumn.Selected)
+                                {
+                                    continue;
+                                }
                                 {
                                     if (correspondingColumn != null)
                                     {   //This property is a column
@@ -160,6 +181,7 @@ namespace XrmFramework.Analyzers.Generators
                                             }
                                             else
                                             {
+                                                sb.AppendLine();
                                                 sb.Append($"[CrmLookup(");
                                                 var referencedTable = tables.FirstOrDefault(t => t.LogicalName == correspondingRelation.EntityName);
                                                 if (referencedTable != null)
@@ -196,6 +218,7 @@ namespace XrmFramework.Analyzers.Generators
 
                                     if (prop.JsonPropertyName != null)
                                     {
+                                        sb.AppendLine();
                                         sb.AppendLine($"[JsonProperty(\"{prop.JsonPropertyName}\")]");
                                     }
 

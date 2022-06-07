@@ -183,6 +183,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                 }
                 else
                 {
+                    var possibleModelAdded = false;
                     // Find a corresponding model and return
                     foreach(var key in ModelAndPath.Keys)
                     {
@@ -191,9 +192,24 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                         {
                             //possibleTypes.Add($"{CoreProjectName}.{possibleModel.ModelNamespace}.{possibleModel.Name}");
                             //Todo : Find a way to use the full typename of the model
-                            possibleTypes.Add($"{possibleModel.Name}");
+                            possibleTypes.Add(possibleModel.ModelNamespace+"."+possibleModel.Name);
+                            possibleModelAdded = true;
 
 
+                        }
+                    }
+                    if(!possibleModelAdded)
+                    {
+                        // Find corresponding table, and get its name
+                        // Find corresponding table, and get its name
+                        if (!TableHandler.TableAndPath.ContainsKey(relation.EntityName))
+                        {
+                            MessageBox.Show($"can't find table {relation.EntityName}");
+                        }
+                        else
+                        {
+                            var correspondingTable = TableHandler.TableAndPath[relation.EntityName].table;
+                            possibleTypes.Add(correspondingTable.Name + "Model");
                         }
                     }
                     //foreach (var possibleModel in Models)
@@ -250,12 +266,31 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                     {
                         throw new Exception();
                     }
+                    var possibleModelAdded = false;
                     foreach(var key in ModelAndPath.Keys)
                     {
                         var possibleModel = ModelAndPath[key].model;
                         //TODO : find a way to use the typefullname
-                        possibleTypes.Add($"{possibleModel.Name}");
+                        if(possibleModel.TableLogicalName == re.EntityName)
+                        {
+                            possibleTypes.Add(possibleModel.ModelNamespace + "." + possibleModel.Name);
+                            possibleModelAdded = true;
+                        }
 
+
+                    }
+                    if(!possibleModelAdded)
+                    {
+                        // Find corresponding table, and get its name
+                        if (!TableHandler.TableAndPath.ContainsKey(re.EntityName))
+                        {
+                            MessageBox.Show($"can't find table {re.EntityName}");
+                        }
+                        else
+                        {
+                            var correspondingTable = TableHandler.TableAndPath[re.EntityName].table;
+                            possibleTypes.Add(correspondingTable.Name + "Model");
+                        }
 
                     }
                     //foreach (var possibleModel in Models)

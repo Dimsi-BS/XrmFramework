@@ -21,7 +21,6 @@ namespace XrmFramework.XrmToolbox
         public AddTableForm()
         {
             InitializeComponent();
-            
         }
 
         public void RetrieveEntities()
@@ -46,9 +45,11 @@ namespace XrmFramework.XrmToolbox
 
             if (search.Length == 1)
             {
+                
                 var lowerSearch = SearchBar.Text.ToLower();
 
-                tableBindingSource1.DataSource = BaseTables.Where(t => t.Name.ToLower().Contains(lowerSearch) || t.LogicalName.Contains(lowerSearch));
+                tableBindingSource1.DataSource = TableHandler.BasicTables.Where(t => t.Name.ToLower().Contains(lowerSearch) || t.LogicalName.Contains(lowerSearch));
+                //tableBindingSource1.DataSource = Tableh;
 
             }
             else
@@ -62,7 +63,7 @@ namespace XrmFramework.XrmToolbox
                         continue;
                     }
                     var lowerSearch = searchWord.ToLower();
-                    var correspondingTables = BaseTables.Where(t => t.Name.ToLower().Contains(lowerSearch) || t.LogicalName.Contains(lowerSearch));
+                    var correspondingTables = TableHandler.BasicTables.Where(t => t.Name.ToLower().Contains(lowerSearch) || t.LogicalName.Contains(lowerSearch));
                     foreach (var table in correspondingTables)
                     {
                         tablesToShow.Add(table);
@@ -74,7 +75,7 @@ namespace XrmFramework.XrmToolbox
 
             if(SearchBar.Text == "")
             {
-                tableBindingSource1.DataSource = BaseTables;
+                tableBindingSource1.DataSource = TableHandler.BasicTables;
 
             }
         }
