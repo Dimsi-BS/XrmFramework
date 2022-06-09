@@ -46,7 +46,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
 
                     return service;
-                }, ServiceLifetime.Scoped));
+                }, ServiceLifetime.Singleton));
 #endif
 
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IOrganizationService), sp =>
