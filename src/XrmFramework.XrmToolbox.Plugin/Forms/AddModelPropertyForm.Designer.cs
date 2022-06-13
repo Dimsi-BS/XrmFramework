@@ -175,7 +175,7 @@
             // 
             this.splitContainer3.Panel2.Controls.Add(this.JsonNameTextBox);
             this.splitContainer3.Size = new System.Drawing.Size(380, 25);
-            this.splitContainer3.SplitterDistance = 177;
+            this.splitContainer3.SplitterDistance = 176;
             this.splitContainer3.TabIndex = 5;
             // 
             // textBox3
@@ -185,7 +185,7 @@
             this.textBox3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox3.Name = "textBox3";
             this.textBox3.ReadOnly = true;
-            this.textBox3.Size = new System.Drawing.Size(177, 22);
+            this.textBox3.Size = new System.Drawing.Size(176, 22);
             this.textBox3.TabIndex = 2;
             this.textBox3.Text = "Json Property Name";
             // 
@@ -195,7 +195,7 @@
             this.JsonNameTextBox.Location = new System.Drawing.Point(0, 0);
             this.JsonNameTextBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.JsonNameTextBox.Name = "JsonNameTextBox";
-            this.JsonNameTextBox.Size = new System.Drawing.Size(199, 22);
+            this.JsonNameTextBox.Size = new System.Drawing.Size(200, 22);
             this.JsonNameTextBox.TabIndex = 3;
             // 
             // splitContainer4
@@ -305,7 +305,7 @@
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.Location = new System.Drawing.Point(16, 201);
-            this.checkBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.checkBox1.Margin = new System.Windows.Forms.Padding(4);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(141, 20);
             this.checkBox1.TabIndex = 7;

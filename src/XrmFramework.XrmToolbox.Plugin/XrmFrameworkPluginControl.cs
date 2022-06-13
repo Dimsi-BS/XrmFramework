@@ -728,6 +728,11 @@ namespace XrmFramework.XrmToolbox
 
         private void RetrieveAttributesButton_Click(object sender, EventArgs e)
         {
+            if(CurrentProject == null)
+            {
+                MessageBox.Show("Select or create a project first.");
+                return;
+            }
             //RetrieveAttributesForTable(currentTable);
             var form2 = new AddTableForm();
             form2.PublisherPrefixes = TableHandler.PublisherPrefixes;
@@ -965,6 +970,12 @@ namespace XrmFramework.XrmToolbox
 
         private void AddModelButton_Click(object sender, EventArgs e)
         {
+            if(CurrentProject == null)
+            {
+                MessageBox.Show("Select or create a project first.");
+                return;
+
+            }
             ModelHandler.AddModel();
         }
 
@@ -1321,6 +1332,11 @@ namespace XrmFramework.XrmToolbox
 
         private void ReloadProjectButton_Click(object sender, EventArgs e)
         {
+            if(CurrentProject == null)
+            {
+                MessageBox.Show("Create or select a project first");
+                return;
+            }
             TableHandler.TableAndPath.Clear();
             ModelHandler.ModelAndPath.Clear();
             

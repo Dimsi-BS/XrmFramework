@@ -48,17 +48,27 @@
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.logicalNameDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.nameDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.selectedDataGridViewCheckBoxColumn1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.columnBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.splitContainer5 = new System.Windows.Forms.SplitContainer();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.SearchColumnTextBox = new System.Windows.Forms.TextBox();
             this.dataGridView3 = new System.Windows.Forms.DataGridView();
+            this.nameDataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.valueDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.optionSetEnumValueBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.splitContainer7 = new System.Windows.Forms.SplitContainer();
             this.EnumNameText = new System.Windows.Forms.TextBox();
+            this.optionSetEnumBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.EnumLogicalNameText = new System.Windows.Forms.TextBox();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.splitContainer6 = new System.Windows.Forms.SplitContainer();
             this.TableNameText = new System.Windows.Forms.TextBox();
+            this.tableBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.TableLogicalNameText = new System.Windows.Forms.TextBox();
             this.RefreshAttributesButton = new System.Windows.Forms.Button();
             this.tabPage4 = new System.Windows.Forms.TabPage();
@@ -72,16 +82,6 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.ReloadProjectButton = new System.Windows.Forms.Button();
-            this.logicalNameDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.nameDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.selectedDataGridViewCheckBoxColumn1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.columnBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.nameDataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.valueDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.optionSetEnumValueBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.optionSetEnumBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.tableBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.modelBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.tableBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.tableCollectionBindingSource = new System.Windows.Forms.BindingSource(this.components);
@@ -100,15 +100,18 @@
             this.splitContainer4.Panel2.SuspendLayout();
             this.splitContainer4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.columnBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer5)).BeginInit();
             this.splitContainer5.Panel1.SuspendLayout();
             this.splitContainer5.Panel2.SuspendLayout();
             this.splitContainer5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.optionSetEnumValueBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer7)).BeginInit();
             this.splitContainer7.Panel1.SuspendLayout();
             this.splitContainer7.Panel2.SuspendLayout();
             this.splitContainer7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.optionSetEnumBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
             this.splitContainer3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
@@ -119,11 +122,8 @@
             this.splitContainer6.Panel1.SuspendLayout();
             this.splitContainer6.Panel2.SuspendLayout();
             this.splitContainer6.SuspendLayout();
-            this.tabPage4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.columnBindingSource)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.optionSetEnumValueBindingSource)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.optionSetEnumBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tableBindingSource)).BeginInit();
+            this.tabPage4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.modelBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tableBindingSource1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tableCollectionBindingSource)).BeginInit();
@@ -149,7 +149,7 @@
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(415, -3);
-            this.button1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button1.Margin = new System.Windows.Forms.Padding(4);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(183, 28);
             this.button1.TabIndex = 5;
@@ -163,7 +163,7 @@
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
-            this.tabControl1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(4);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(695, 768);
@@ -176,9 +176,9 @@
             this.tabPage1.Controls.Add(this.textBox1);
             this.tabPage1.Controls.Add(this.SaveTablesButton);
             this.tabPage1.Location = new System.Drawing.Point(4, 25);
-            this.tabPage1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabPage1.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(4);
             this.tabPage1.Size = new System.Drawing.Size(687, 739);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Tables";
@@ -188,7 +188,7 @@
             // 
             this.TableTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TableTreeView.Location = new System.Drawing.Point(4, 60);
-            this.TableTreeView.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.TableTreeView.Margin = new System.Windows.Forms.Padding(4);
             this.TableTreeView.Name = "TableTreeView";
             this.TableTreeView.Size = new System.Drawing.Size(679, 613);
             this.TableTreeView.TabIndex = 0;
@@ -234,9 +234,9 @@
             this.tabPage2.Controls.Add(this.SaveModelsButton);
             this.tabPage2.Controls.Add(this.AddModelButton);
             this.tabPage2.Location = new System.Drawing.Point(4, 25);
-            this.tabPage2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabPage2.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(4);
             this.tabPage2.Size = new System.Drawing.Size(687, 739);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Models";
@@ -280,7 +280,7 @@
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 25);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -301,7 +301,7 @@
             this.tabControl2.Controls.Add(this.tabPage4);
             this.tabControl2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl2.Location = new System.Drawing.Point(0, 0);
-            this.tabControl2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabControl2.Margin = new System.Windows.Forms.Padding(4);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
             this.tabControl2.Size = new System.Drawing.Size(1041, 768);
@@ -313,9 +313,9 @@
             this.tabPage3.Controls.Add(this.splitContainer3);
             this.tabPage3.Controls.Add(this.splitContainer2);
             this.tabPage3.Location = new System.Drawing.Point(4, 25);
-            this.tabPage3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabPage3.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(4);
             this.tabPage3.Size = new System.Drawing.Size(1033, 739);
             this.tabPage3.TabIndex = 0;
             this.tabPage3.Text = "Attributes";
@@ -326,7 +326,7 @@
             // 
             this.splitContainer4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer4.Location = new System.Drawing.Point(4, 65);
-            this.splitContainer4.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.splitContainer4.Margin = new System.Windows.Forms.Padding(4);
             this.splitContainer4.Name = "splitContainer4";
             // 
             // splitContainer4.Panel1
@@ -356,18 +356,57 @@
             this.dataGridView1.DataSource = this.columnBindingSource;
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(0, 34);
-            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 51;
             this.dataGridView1.Size = new System.Drawing.Size(513, 636);
             this.dataGridView1.TabIndex = 1;
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick_1);
             // 
+            // logicalNameDataGridViewTextBoxColumn1
+            // 
+            this.logicalNameDataGridViewTextBoxColumn1.DataPropertyName = "LogicalName";
+            this.logicalNameDataGridViewTextBoxColumn1.HeaderText = "LogicalName";
+            this.logicalNameDataGridViewTextBoxColumn1.MinimumWidth = 6;
+            this.logicalNameDataGridViewTextBoxColumn1.Name = "logicalNameDataGridViewTextBoxColumn1";
+            this.logicalNameDataGridViewTextBoxColumn1.ReadOnly = true;
+            this.logicalNameDataGridViewTextBoxColumn1.Width = 125;
+            // 
+            // nameDataGridViewTextBoxColumn1
+            // 
+            this.nameDataGridViewTextBoxColumn1.DataPropertyName = "Name";
+            this.nameDataGridViewTextBoxColumn1.HeaderText = "Name";
+            this.nameDataGridViewTextBoxColumn1.MinimumWidth = 6;
+            this.nameDataGridViewTextBoxColumn1.Name = "nameDataGridViewTextBoxColumn1";
+            this.nameDataGridViewTextBoxColumn1.ReadOnly = true;
+            this.nameDataGridViewTextBoxColumn1.Width = 125;
+            // 
+            // Type
+            // 
+            this.Type.DataPropertyName = "Type";
+            this.Type.HeaderText = "Type";
+            this.Type.MinimumWidth = 6;
+            this.Type.Name = "Type";
+            this.Type.ReadOnly = true;
+            this.Type.Width = 125;
+            // 
+            // selectedDataGridViewCheckBoxColumn1
+            // 
+            this.selectedDataGridViewCheckBoxColumn1.DataPropertyName = "Selected";
+            this.selectedDataGridViewCheckBoxColumn1.HeaderText = "Selected";
+            this.selectedDataGridViewCheckBoxColumn1.MinimumWidth = 6;
+            this.selectedDataGridViewCheckBoxColumn1.Name = "selectedDataGridViewCheckBoxColumn1";
+            this.selectedDataGridViewCheckBoxColumn1.Width = 125;
+            // 
+            // columnBindingSource
+            // 
+            this.columnBindingSource.DataSource = typeof(XrmFramework.Core.Column);
+            // 
             // splitContainer5
             // 
             this.splitContainer5.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitContainer5.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer5.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.splitContainer5.Margin = new System.Windows.Forms.Padding(4);
             this.splitContainer5.Name = "splitContainer5";
             // 
             // splitContainer5.Panel1
@@ -416,12 +455,34 @@
             this.dataGridView3.DataSource = this.optionSetEnumValueBindingSource;
             this.dataGridView3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView3.Location = new System.Drawing.Point(0, 34);
-            this.dataGridView3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.dataGridView3.Margin = new System.Windows.Forms.Padding(4);
             this.dataGridView3.Name = "dataGridView3";
             this.dataGridView3.RowHeadersWidth = 51;
             this.dataGridView3.Size = new System.Drawing.Size(507, 636);
             this.dataGridView3.TabIndex = 0;
             this.dataGridView3.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView3_CellContentClick_1);
+            // 
+            // nameDataGridViewTextBoxColumn2
+            // 
+            this.nameDataGridViewTextBoxColumn2.DataPropertyName = "Name";
+            this.nameDataGridViewTextBoxColumn2.HeaderText = "Name";
+            this.nameDataGridViewTextBoxColumn2.MinimumWidth = 6;
+            this.nameDataGridViewTextBoxColumn2.Name = "nameDataGridViewTextBoxColumn2";
+            this.nameDataGridViewTextBoxColumn2.ReadOnly = true;
+            this.nameDataGridViewTextBoxColumn2.Width = 125;
+            // 
+            // valueDataGridViewTextBoxColumn
+            // 
+            this.valueDataGridViewTextBoxColumn.DataPropertyName = "Value";
+            this.valueDataGridViewTextBoxColumn.HeaderText = "Value";
+            this.valueDataGridViewTextBoxColumn.MinimumWidth = 6;
+            this.valueDataGridViewTextBoxColumn.Name = "valueDataGridViewTextBoxColumn";
+            this.valueDataGridViewTextBoxColumn.ReadOnly = true;
+            this.valueDataGridViewTextBoxColumn.Width = 125;
+            // 
+            // optionSetEnumValueBindingSource
+            // 
+            this.optionSetEnumValueBindingSource.DataSource = typeof(XrmFramework.Core.OptionSetEnumValue);
             // 
             // splitContainer7
             // 
@@ -453,6 +514,10 @@
             this.EnumNameText.TabIndex = 0;
             this.EnumNameText.TextChanged += new System.EventHandler(this.EnumNameText_TextChanged);
             // 
+            // optionSetEnumBindingSource
+            // 
+            this.optionSetEnumBindingSource.DataSource = typeof(XrmFramework.Core.OptionSetEnum);
+            // 
             // EnumLogicalNameText
             // 
             this.EnumLogicalNameText.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.optionSetEnumBindingSource, "LogicalName", true));
@@ -468,7 +533,7 @@
             // 
             this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitContainer3.Location = new System.Drawing.Point(4, 34);
-            this.splitContainer3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.splitContainer3.Margin = new System.Windows.Forms.Padding(4);
             this.splitContainer3.Name = "splitContainer3";
             // 
             // splitContainer3.Panel2
@@ -483,7 +548,7 @@
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitContainer2.Location = new System.Drawing.Point(4, 4);
-            this.splitContainer2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.splitContainer2.Margin = new System.Windows.Forms.Padding(4);
             this.splitContainer2.Name = "splitContainer2";
             // 
             // splitContainer2.Panel1
@@ -502,7 +567,7 @@
             // 
             this.splitContainer6.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitContainer6.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer6.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.splitContainer6.Margin = new System.Windows.Forms.Padding(4);
             this.splitContainer6.Name = "splitContainer6";
             // 
             // splitContainer6.Panel1
@@ -531,6 +596,10 @@
             this.TableNameText.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.TableNameText.TextChanged += new System.EventHandler(this.TableNameText_TextChanged);
             // 
+            // tableBindingSource
+            // 
+            this.tableBindingSource.DataSource = typeof(XrmFramework.Core.Table);
+            // 
             // TableLogicalNameText
             // 
             this.TableLogicalNameText.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.tableBindingSource, "LogicalName", true));
@@ -548,7 +617,7 @@
             // 
             this.RefreshAttributesButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.RefreshAttributesButton.Location = new System.Drawing.Point(0, 0);
-            this.RefreshAttributesButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.RefreshAttributesButton.Margin = new System.Windows.Forms.Padding(4);
             this.RefreshAttributesButton.Name = "RefreshAttributesButton";
             this.RefreshAttributesButton.Size = new System.Drawing.Size(682, 30);
             this.RefreshAttributesButton.TabIndex = 6;
@@ -641,75 +710,6 @@
             this.ReloadProjectButton.UseVisualStyleBackColor = true;
             this.ReloadProjectButton.Click += new System.EventHandler(this.ReloadProjectButton_Click);
             // 
-            // logicalNameDataGridViewTextBoxColumn1
-            // 
-            this.logicalNameDataGridViewTextBoxColumn1.DataPropertyName = "LogicalName";
-            this.logicalNameDataGridViewTextBoxColumn1.HeaderText = "LogicalName";
-            this.logicalNameDataGridViewTextBoxColumn1.MinimumWidth = 6;
-            this.logicalNameDataGridViewTextBoxColumn1.Name = "logicalNameDataGridViewTextBoxColumn1";
-            this.logicalNameDataGridViewTextBoxColumn1.ReadOnly = true;
-            this.logicalNameDataGridViewTextBoxColumn1.Width = 125;
-            // 
-            // nameDataGridViewTextBoxColumn1
-            // 
-            this.nameDataGridViewTextBoxColumn1.DataPropertyName = "Name";
-            this.nameDataGridViewTextBoxColumn1.HeaderText = "Name";
-            this.nameDataGridViewTextBoxColumn1.MinimumWidth = 6;
-            this.nameDataGridViewTextBoxColumn1.Name = "nameDataGridViewTextBoxColumn1";
-            this.nameDataGridViewTextBoxColumn1.ReadOnly = true;
-            this.nameDataGridViewTextBoxColumn1.Width = 125;
-            // 
-            // Type
-            // 
-            this.Type.DataPropertyName = "Type";
-            this.Type.HeaderText = "Type";
-            this.Type.MinimumWidth = 6;
-            this.Type.Name = "Type";
-            this.Type.ReadOnly = true;
-            this.Type.Width = 125;
-            // 
-            // selectedDataGridViewCheckBoxColumn1
-            // 
-            this.selectedDataGridViewCheckBoxColumn1.DataPropertyName = "Selected";
-            this.selectedDataGridViewCheckBoxColumn1.HeaderText = "Selected";
-            this.selectedDataGridViewCheckBoxColumn1.MinimumWidth = 6;
-            this.selectedDataGridViewCheckBoxColumn1.Name = "selectedDataGridViewCheckBoxColumn1";
-            this.selectedDataGridViewCheckBoxColumn1.Width = 125;
-            // 
-            // columnBindingSource
-            // 
-            this.columnBindingSource.DataSource = typeof(XrmFramework.Core.Column);
-            // 
-            // nameDataGridViewTextBoxColumn2
-            // 
-            this.nameDataGridViewTextBoxColumn2.DataPropertyName = "Name";
-            this.nameDataGridViewTextBoxColumn2.HeaderText = "Name";
-            this.nameDataGridViewTextBoxColumn2.MinimumWidth = 6;
-            this.nameDataGridViewTextBoxColumn2.Name = "nameDataGridViewTextBoxColumn2";
-            this.nameDataGridViewTextBoxColumn2.ReadOnly = true;
-            this.nameDataGridViewTextBoxColumn2.Width = 125;
-            // 
-            // valueDataGridViewTextBoxColumn
-            // 
-            this.valueDataGridViewTextBoxColumn.DataPropertyName = "Value";
-            this.valueDataGridViewTextBoxColumn.HeaderText = "Value";
-            this.valueDataGridViewTextBoxColumn.MinimumWidth = 6;
-            this.valueDataGridViewTextBoxColumn.Name = "valueDataGridViewTextBoxColumn";
-            this.valueDataGridViewTextBoxColumn.ReadOnly = true;
-            this.valueDataGridViewTextBoxColumn.Width = 125;
-            // 
-            // optionSetEnumValueBindingSource
-            // 
-            this.optionSetEnumValueBindingSource.DataSource = typeof(XrmFramework.Core.OptionSetEnumValue);
-            // 
-            // optionSetEnumBindingSource
-            // 
-            this.optionSetEnumBindingSource.DataSource = typeof(XrmFramework.Core.OptionSetEnum);
-            // 
-            // tableBindingSource
-            // 
-            this.tableBindingSource.DataSource = typeof(XrmFramework.Core.Table);
-            // 
             // modelBindingSource
             // 
             this.modelBindingSource.DataSource = typeof(XrmFramework.Core.Model);
@@ -732,7 +732,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.toolStripMenu);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "XrmFrameworkPluginControl";
             this.Size = new System.Drawing.Size(1741, 793);
             this.Load += new System.EventHandler(this.MyPluginControl_Load);
@@ -753,6 +753,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).EndInit();
             this.splitContainer4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.columnBindingSource)).EndInit();
             this.splitContainer5.Panel1.ResumeLayout(false);
             this.splitContainer5.Panel1.PerformLayout();
             this.splitContainer5.Panel2.ResumeLayout(false);
@@ -760,12 +761,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer5)).EndInit();
             this.splitContainer5.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.optionSetEnumValueBindingSource)).EndInit();
             this.splitContainer7.Panel1.ResumeLayout(false);
             this.splitContainer7.Panel1.PerformLayout();
             this.splitContainer7.Panel2.ResumeLayout(false);
             this.splitContainer7.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer7)).EndInit();
             this.splitContainer7.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.optionSetEnumBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
             this.splitContainer3.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
@@ -778,11 +781,8 @@
             this.splitContainer6.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer6)).EndInit();
             this.splitContainer6.ResumeLayout(false);
-            this.tabPage4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.columnBindingSource)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.optionSetEnumValueBindingSource)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.optionSetEnumBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tableBindingSource)).EndInit();
+            this.tabPage4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.modelBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tableBindingSource1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tableCollectionBindingSource)).EndInit();

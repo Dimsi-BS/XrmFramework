@@ -120,6 +120,11 @@ namespace XrmFramework.XrmToolbox.DataHandlers
 
         public static void SaveModels()
         {
+            if(string.IsNullOrEmpty(PathToRegisterModel))
+            {
+
+                return;
+            }
             if (!Directory.Exists(ModelHandler.PathToRegisterModel))
             {
                 Directory.CreateDirectory(ModelHandler.PathToRegisterModel);

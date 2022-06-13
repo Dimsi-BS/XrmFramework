@@ -649,6 +649,10 @@ namespace XrmFramework.XrmToolbox.DataHandlers
 
         public static void SaveTables()
         {
+            if(string.IsNullOrEmpty(PathToRegisterTables))
+            {
+                return;
+            }
             if (!Directory.Exists(TableHandler.PathToRegisterTables))
             {
                 Directory.CreateDirectory(TableHandler.PathToRegisterTables);
