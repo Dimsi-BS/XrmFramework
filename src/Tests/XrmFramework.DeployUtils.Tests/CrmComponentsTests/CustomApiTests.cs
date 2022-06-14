@@ -1,45 +1,62 @@
-﻿using Moq;
-using System;
+﻿using System;
 using System.Linq;
+using Moq;
 using XrmFramework.DeployUtils.Model;
 
-namespace XrmFramework.DeployUtils.Tests.CrmComponentsTests
+namespace XrmFramework.DeployUtils.Tests.CrmComponentsTests;
+
+[TestClass]
+public class CustomApiTests
 {
-    [TestClass]
-    public class CustomApiTests
+    private const string EntityTypeName = "customapi";
+    private readonly CustomApi _component;
+
+
+    public CustomApiTests()
     {
-        private readonly CustomApi _component;
+        _component = new CustomApi();
+    }
 
-        private const string EntityTypeName = "customapi";
 
+    [TestMethod]
+    public void CrmPropertiesTests()
+    {
+        Assert.AreEqual(_component.EntityTypeName, EntityTypeName);
+        Assert.AreEqual(_component.Rank, 15);
+        Assert.AreEqual(_component.DoAddToSolution, true);
+        Assert.AreEqual(_component.DoFetchTypeCode, true);
+    }
 
-        public CustomApiTests()
+    [TestMethod]
+    public void ChildrenTests()
+    {
+        Assert.IsTrue(_component.Children != null);
+        Assert.IsFalse(_component.Children.Any());
+    }
+
+    [TestMethod]
+    public void AddChildTests()
+    {
+        var anyComponent = new Mock<ICrmComponent>().Object;
+        Assert.ThrowsException<ArgumentException>(() => _component.AddChild(anyComponent),
+            "CustomApi doesn't take this type of children");
+    }
+
+    [TestMethod]
+    public void CleanChildrenWithStateTest()
+    {
+        // Arrange
+        _component.AddChild(new CustomApiRequestParameter
         {
-            _component = new();
-        }
+            UniqueName = "thisRequest"
+        });
 
+        Assert.IsTrue(_component.Children.Any());
 
-        [TestMethod]
-        public void CrmPropertiesTests()
-        {
-            Assert.AreEqual(_component.EntityTypeName, EntityTypeName);
-            Assert.AreEqual(_component.Rank, 15);
-            Assert.AreEqual(_component.DoAddToSolution, true);
-            Assert.AreEqual(_component.DoFetchTypeCode, true);
-        }
+        // Act
+        _component.CleanChildrenWithState(RegistrationState.NotComputed);
 
-        [TestMethod]
-        public void ChildrenTests()
-        {
-            Assert.IsTrue(_component.Children != null);
-            Assert.IsFalse(_component.Children.Any());
-        }
-
-        [TestMethod]
-        public void AddChildTests()
-        {
-            ICrmComponent anyComponent = new Mock<ICrmComponent>().Object;
-            Assert.ThrowsException<ArgumentException>(() => _component.AddChild(anyComponent), "CustomApi doesn't take this type of children");
-        }
+        // Assert
+        Assert.IsFalse(_component.Children.Any());
     }
 }

@@ -1,11 +1,11 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AutoMapper;
 using Deploy;
 using Microsoft.Xrm.Sdk;
 using Moq;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
@@ -16,17 +16,15 @@ namespace XrmFramework.DeployUtils.Tests.ConverterTests;
 [TestClass]
 public class AssemblyImporterTests
 {
-    private readonly Mock<ISolutionContext> _mockContext;
-    private readonly Mock<IMapper> _mockMapper;
-
     private readonly AssemblyImporter _importer;
+    private readonly Mock<IMapper> _mockMapper;
 
     public AssemblyImporterTests()
     {
-        _mockMapper = new();
-        _mockContext = new();
+        _mockMapper = new Mock<IMapper>();
+        Mock<ISolutionContext> mockContext = new();
 
-        _importer = new AssemblyImporter(_mockContext.Object, _mockMapper.Object);
+        _importer = new AssemblyImporter(mockContext.Object, _mockMapper.Object);
     }
 
     [TestMethod]
@@ -40,7 +38,7 @@ public class AssemblyImporterTests
         var stepImageId = Guid.NewGuid();
         var attribute = "thisAttribute";
 
-        var sdkStepImage = new SdkMessageProcessingStepImage()
+        var sdkStepImage = new SdkMessageProcessingStepImage
         {
             ImageTypeEnum = imageType,
             SdkMessageProcessingStepId = new EntityReference(SdkMessageProcessingStepDefinition.EntityName, stepId),
@@ -48,11 +46,11 @@ public class AssemblyImporterTests
             Attributes1 = attribute
         };
 
-        var sdkStepImageList = new List<SdkMessageProcessingStepImage>() { sdkStepImage };
+        var sdkStepImageList = new List<SdkMessageProcessingStepImage> {sdkStepImage};
 
         var step = new Step("thisPlugin", Messages.Merge, Stages.PostOperation, Modes.Asynchronous, "thisEntity")
         {
-            Id = stepId,
+            Id = stepId
         };
 
         // Act
@@ -80,14 +78,14 @@ public class AssemblyImporterTests
         var pluginId = Guid.NewGuid();
         var stepId = Guid.NewGuid();
 
-        var stepConfig = new StepConfiguration()
+        var stepConfig = new StepConfiguration
         {
             AssemblyName = "thisAssembly",
             AssemblyQualifiedName = "thisAssemblyQualifiedName",
-            BannedMethods = new() { "thisMethod" },
+            BannedMethods = new List<string> {"thisMethod"},
             DebugSessionId = Guid.NewGuid(),
             PluginName = pluginTypeName,
-            RegisteredMethods = new() { "thisMethod" },
+            RegisteredMethods = new HashSet<string> {"thisMethod"},
             RelationshipName = "thisRelationshipName"
         };
         var unsecureConfig = JsonConvert.SerializeObject(stepConfig);
@@ -99,7 +97,7 @@ public class AssemblyImporterTests
         var impersonationUserName = "thisUser";
         var userId = Guid.NewGuid();
 
-        var sdkStep = new SdkMessageProcessingStep()
+        var sdkStep = new SdkMessageProcessingStep
         {
             Id = stepId,
             EventHandler = new EntityReference("someEventHandler", "blabla", null)
@@ -111,7 +109,7 @@ public class AssemblyImporterTests
             StageEnum = sdkmessageprocessingstep_stage.Preoperation,
             ModeEnum = sdkmessageprocessingstep_mode.Asynchronous,
             FilteringAttributes = filteringAttribute,
-            ImpersonatingUserId = new EntityReference("blabla", "", null) { Name = impersonationUserName },
+            ImpersonatingUserId = new EntityReference("blabla", "", null) {Name = impersonationUserName},
             Rank = order,
             Configuration = unsecureConfig
         };
@@ -125,6 +123,8 @@ public class AssemblyImporterTests
         Assert.AreEqual(step.PluginTypeName, pluginTypeName);
         Assert.AreEqual(step.PluginTypeFullName, pluginTypeFullName);
         Assert.AreEqual(step.ImpersonationUsername, impersonationUserName);
+        Assert.AreEqual(step.Stage, stage);
+        Assert.AreEqual(step.Mode, mode);
         Assert.AreEqual(step.FilteringAttributes.Count, 1);
         Assert.IsTrue(step.FilteringAttributes.Contains(filteringAttribute));
         Assert.AreEqual(step.Order, order);
@@ -146,7 +146,7 @@ public class AssemblyImporterTests
         var id = Guid.NewGuid();
         var assemblyId = Guid.NewGuid();
 
-        var sdkPlugin = new PluginType()
+        var sdkPlugin = new PluginType
         {
             TypeName = pluginName,
             Name = pluginName,
@@ -173,7 +173,7 @@ public class AssemblyImporterTests
         var id = Guid.NewGuid();
         var assemblyId = Guid.NewGuid();
 
-        var sdkPlugin = new PluginType()
+        var sdkPlugin = new PluginType
         {
             TypeName = pluginName,
             Name = name,
@@ -193,4 +193,3 @@ public class AssemblyImporterTests
         Assert.IsTrue(result.IsWorkflow);
     }
 }
-

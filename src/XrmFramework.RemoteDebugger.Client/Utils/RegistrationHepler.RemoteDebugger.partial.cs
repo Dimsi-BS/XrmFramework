@@ -47,19 +47,19 @@ namespace XrmFramework.DeployUtils
         /// <remarks>
         /// This will silence the obsolete steps deployed on Remote and add the new/updated ones to the Debugger so it will still trigger and redirect to the Relay
         /// </remarks>
-        /// <param name="Assembly">The local Assembly to Debug</param>
-        public void UpdateDebugger(Assembly Assembly)
+        /// <param name="assembly">The local Assembly to Debug</param>
+        public void UpdateDebugger(Assembly assembly)
         {
-            Console.WriteLine($"\nAssembly {Assembly.GetName().Name}");
+            Console.WriteLine($"\nAssembly {assembly.GetName().Name}");
             Console.WriteLine("\tFetching Local Assembly...");
 
-            var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(Assembly);
+            var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(assembly);
 
             localAssembly.Workflows.Clear();
 
             Console.WriteLine("\tFetching Remote Assembly...");
 
-            var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, Assembly.GetName().Name);
+            var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, assembly.GetName().Name);
 
             registeredAssembly.Workflows.Clear();
 
@@ -78,7 +78,7 @@ namespace XrmFramework.DeployUtils
 
             var remoteDebugDiff = _assemblyDiffFactory.ComputeDiffPatch(assemblyToDebug, debugAssembly);
 
-            var debugStrategy = _assemblyFactory.WrapDebugDiffForDebugStrategy(remoteDebugDiff, _debugSettings, Assembly);
+            var debugStrategy = _assemblyFactory.WrapDebugDiffForDebugStrategy(remoteDebugDiff, _debugSettings, assembly);
 
             Console.WriteLine("\tExecuting Registration Strategy...");
 
