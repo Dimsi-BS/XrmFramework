@@ -30,9 +30,7 @@ namespace XrmFramework.DeployUtils.Model
         /// This workaround is necessary as a StepImage is always instantiated<br/>
         /// This is a way of hiding it without actually disposing of it
         /// </remarks>
-        /// TODO The way things are now I think the ToDelete part has become unnecessary, but hey it works I'll check later
-        public bool ShouldAppearAsChild => IsUsed && RegistrationState != RegistrationState.Computed ||
-                                           RegistrationState == RegistrationState.ToDelete;
+        public bool ShouldAppearAsChild => IsUsed && RegistrationState != RegistrationState.Computed;
 
         /// <summary>Indicates whether the <see cref="StepImage"/> is relevant to the Crm</summary>
         public bool IsUsed => UniversalImageUsedPrefix && ImageUsedPrefix && (AllAttributes || Attributes.Any());

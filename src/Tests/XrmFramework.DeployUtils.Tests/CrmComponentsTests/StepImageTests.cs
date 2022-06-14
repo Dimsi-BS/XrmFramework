@@ -25,7 +25,7 @@ namespace XrmFramework.DeployUtils.Tests.CrmComponentsTests
         {
             Assert.AreEqual(_component.EntityTypeName, EntityTypeName);
             Assert.AreEqual(_component.UniqueName, Name);
-            Assert.AreEqual(_component.Rank, 3);
+            Assert.AreEqual(_component.Rank, 30);
             Assert.AreEqual(_component.DoAddToSolution, false);
             Assert.AreEqual(_component.DoFetchTypeCode, false);
         }

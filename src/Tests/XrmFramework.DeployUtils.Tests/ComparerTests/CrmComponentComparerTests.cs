@@ -11,11 +11,8 @@ namespace XrmFramework.DeployUtils.Tests
     {
         private readonly CrmComponentComparer _comparer;
 
-        private readonly StepComparer _stepComparer;
-
         public CrmComponentComparerTests()
         {
-            _stepComparer = new();
             _comparer = new();
         }
 
@@ -283,11 +280,13 @@ namespace XrmFramework.DeployUtils.Tests
             var thisComponent = new CustomApiRequestParameter()
             {
                 UniqueName = "thisCustomApiRequestParameter",
+                Type = new OptionSetValue(2)
             };
 
             var otherComponent = new CustomApiRequestParameter()
             {
-                UniqueName = "thisCustomApiRequestParameter"
+                UniqueName = "thisCustomApiRequestParameter",
+                Type = new OptionSetValue(2)
             };
 
             // Act
@@ -329,11 +328,13 @@ namespace XrmFramework.DeployUtils.Tests
             var thisComponent = new CustomApiResponseProperty()
             {
                 UniqueName = "thisCustomApiResponseProperty",
+                Type = new OptionSetValue(2)
             };
 
             var otherComponent = new CustomApiResponseProperty()
             {
-                UniqueName = "thisCustomApiResponseProperty"
+                UniqueName = "thisCustomApiResponseProperty",
+                Type = new OptionSetValue(2)
             };
 
             // Act
@@ -810,33 +811,6 @@ namespace XrmFramework.DeployUtils.Tests
         }
 
         [TestMethod]
-        public void NeedsUpdate_SameComponent_CustomApiRequestParameter_DifferentType()
-        {
-            // Arrange
-            var thisComponent = new CustomApiRequestParameter()
-            {
-                UniqueName = "thisCustomApiRequestParameter",
-                IsOptional = true,
-                Type = new OptionSetValue(42)
-            };
-
-            var otherComponent = new CustomApiRequestParameter()
-            {
-                UniqueName = "thisCustomApiRequestParameter",
-                IsOptional = true,
-                Type = new OptionSetValue(47)
-            };
-
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
         public void NeedsUpdate_SameComponent_CustomApiRequestParameter_DifferentIsOptional()
         {
             // Arrange
@@ -886,31 +860,6 @@ namespace XrmFramework.DeployUtils.Tests
             // Assert
 
             Assert.IsFalse(result);
-        }
-
-        [TestMethod]
-        public void NeedsUpdate_CustomApiResponseProperty_DifferentType()
-        {
-            // Arrange
-            var thisComponent = new CustomApiResponseProperty()
-            {
-                UniqueName = "thisCustomApiRequestParameter",
-                Type = new OptionSetValue(42)
-            };
-
-            var otherComponent = new CustomApiResponseProperty()
-            {
-                UniqueName = "thisCustomApiRequestParameter",
-                Type = new OptionSetValue(2)
-            };
-
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsTrue(result);
         }
 
         #endregion

@@ -148,7 +148,11 @@ namespace XrmFramework.DeployUtils.Model
             base.AddChild(child);
         }
 
-        protected override void RemoveChild(ICrmComponent child) { }
+        protected override void RemoveChild(ICrmComponent child)
+        {
+            child.RegistrationState = RegistrationState.Computed;
+        }
+        
         public override string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
         public override int Rank => 20;
         public override bool DoAddToSolution => true;

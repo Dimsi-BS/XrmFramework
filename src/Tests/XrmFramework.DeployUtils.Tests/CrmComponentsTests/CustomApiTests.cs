@@ -23,7 +23,7 @@ namespace XrmFramework.DeployUtils.Tests.CrmComponentsTests
         public void CrmPropertiesTests()
         {
             Assert.AreEqual(_component.EntityTypeName, EntityTypeName);
-            Assert.AreEqual(_component.Rank, 1);
+            Assert.AreEqual(_component.Rank, 15);
             Assert.AreEqual(_component.DoAddToSolution, true);
             Assert.AreEqual(_component.DoFetchTypeCode, true);
         }

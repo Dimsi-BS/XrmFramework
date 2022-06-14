@@ -92,7 +92,8 @@ namespace XrmFramework.DeployUtils
         {
             var strategyPool = strategy.ComponentsOrderedPool;
 
-            var stepsForMetadata = strategyPool.OfType<Step>();
+            var stepsForMetadata = strategyPool.OfType<Step>()
+                .Where(s => s.RegistrationState == RegistrationState.ToCreate);
 
             _assemblyExporter.InitExportMetadata(stepsForMetadata);
 
@@ -104,8 +105,6 @@ namespace XrmFramework.DeployUtils
             var allRequests = CreateDeleteRequests(strategyPool).ToList();
 
             allRequests.AddRange(CreateUpdateRequests(strategyPool));
-
-            //allRequests.AddRange(CreateCreateRequests(strategyPool));
 
             ExecuteAllRequests(allRequests);
 
@@ -130,7 +129,7 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        /// <summary>Create or Update the Assembly, deleting all obsolete components in the process by calling <see cref="CreateDeleteRequests"/></summary>
+        /// <summary>Creates the Assembly, deleting all obsolete components in the process by calling <see cref="CreateDeleteRequests"/></summary>
         private void RegisterAssembly(IAssemblyContext strategy)
         {
             Console.WriteLine("Creating assembly");
@@ -155,7 +154,7 @@ namespace XrmFramework.DeployUtils
             return _assemblyExporter.ToUpdateRequestCollection(componentsToUpdate);
         }
 
-        private ExecuteMultipleRequest InitCrmRequest() => new ExecuteMultipleRequest()
+        private static ExecuteMultipleRequest InitCrmRequest() => new ExecuteMultipleRequest()
         {
             // Assign settings that define execution behavior: continue on error, return responses.
             Settings = new ExecuteMultipleSettings()
