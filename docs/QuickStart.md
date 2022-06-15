@@ -40,3 +40,14 @@ Click the button to create a project.
 
 
 ![CreateProj](https://github.com/PeteGuy/XrmFramework/blob/master/docs/images/CreateProjTool.PNG)
+ Choose a folder and name your project.
+ 
+ ![ProjectCreationForm](https://github.com/PeteGuy/XrmFramework/blob/master/docs/images/ProjectCreationForm.PNG)
+ 
+ 
+ ### Add tables to your project
+ 
+ To do this open the xrmTool and select your project.
+ 
+  ![Project choice](https://github.com/PeteGuy/XrmFramework/blob/master/docs/images/ChooseProject.PNG)
+ 
