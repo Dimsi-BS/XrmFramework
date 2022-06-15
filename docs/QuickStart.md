@@ -34,5 +34,9 @@ You need to accept this execution to be sure to have the solution configured cor
 
 Open the tool 
 
-![Tool](docs/images/ToolPic.PNG)
+![Tool](https://github.com/PeteGuy/XrmFramework/blob/master/docs/images/ToolPic.PNG)
 
+Click the button to create a project.
+
+
+![CreateProj](https://github.com/PeteGuy/XrmFramework/blob/master/docs/images/CreateProjTool.PNG)
