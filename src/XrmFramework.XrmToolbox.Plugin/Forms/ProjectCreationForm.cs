@@ -44,6 +44,7 @@ namespace XrmFramework.XrmToolbox
             var projectName = textBox1.Text;
             var cmdText = $"/C powershell -command \" dotnet new -i XrmFramework.Templates\"";
             var cmdText2 = $"/C powershell -command \"Set-Location {ProjectPath}; dotnet new xrmSolution -n {projectName};\"";
+            var cmdText3 = $"/C powershell -command \"Set-Location {ProjectPath}" +"\\"+projectName + "; mv gitignore .gitignore;cp Config/connectionStrings.config.sample Config/connectionStrings.config ;rm initXrm.ps1;\"";
             //Process process = new Process();
             ProcessStartInfo startInfo = new ProcessStartInfo();
             //startInfo.Arguments = $"new -i XrmFramework.Templates";
@@ -59,9 +60,14 @@ namespace XrmFramework.XrmToolbox
             //startInfo.FileName = "dotnet";
             startInfo.Arguments = cmdText2;
 
-            startInfo.Verb = "runas";
+            //startInfo.Verb = "runas";
             var process2 = Process.Start(startInfo);
             process2.WaitForExit();
+
+            startInfo.WorkingDirectory = ProjectPath + "\\" + projectName;
+            startInfo.Arguments = cmdText3;
+            var process3 = Process.Start(startInfo);
+            process3.WaitForExit();
 
             // plugin Control add the path to this project and set it as current
             PluginControl.SetCurrentProject(ProjectPath + "\\" + projectName);

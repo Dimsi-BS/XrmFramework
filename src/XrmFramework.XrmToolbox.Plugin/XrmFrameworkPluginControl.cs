@@ -898,9 +898,10 @@ namespace XrmFramework.XrmToolbox
         
         private void TableNameText_TextChanged(object sender, EventArgs e)
         {
+
         }
 
-        private void TableNameText_Click(object sender, EventArgs e)
+        private void TableNameText_Click(object sender, EventArgs e)    
         {
             if(string.IsNullOrEmpty(TableNameText.Text))
             {
