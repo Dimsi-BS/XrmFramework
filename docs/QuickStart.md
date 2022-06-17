@@ -44,6 +44,8 @@ Click the button to create a project.
  
  ![ProjectCreationForm](https://github.com/PeteGuy/XrmFramework/blob/master/docs/images/ProjectCreationForm.PNG)
  
+ After creating a project, in order to use the new version of the framework, you need to follow the PreRelease update documentation.
+ 
  
  ### Add tables to your project
  
