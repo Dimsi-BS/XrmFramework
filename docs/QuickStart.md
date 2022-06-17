@@ -54,5 +54,7 @@ Click the button to create a project.
  Use the attribute panel to select the columns you want to add to your project. You can also rename the attributes by clicking on the corresponding column.
  
   ![Attributes Panel](https://github.com/PeteGuy/XrmFramework/blob/master/docs/images/AttributesPanel.PNG)
+  
+  Next save the tables. You will now be able to use the definition classes in your project.
  
  
