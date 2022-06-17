@@ -16,7 +16,7 @@
 
 - ### Remote debugger : (to be completed)
 	- unload the project
-	or
+	**OR**
 	- keep the current version of the remote debugger package
 	
 
