@@ -15,7 +15,9 @@
 	- copy the text 2) in the csproj, replace the "PROJECTCORE" part by the name of your Core project, ex : TestProjet.Core 
 
 - ### Remote debugger : (to be completed)
-unload the project
+	- unload the project
+	or
+	- keep the current version of the remote debugger package
 	
 
 
