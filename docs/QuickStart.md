@@ -49,5 +49,5 @@ Click the button to create a project.
  
  To do this open the xrmTool and select your project.
  
-  ![Project choice](https://github.com/PeteGuy/XrmFramework/blob/master/docs/images/AddTablesButton.PNG)
+  ![Project choice](https://github.com/PeteGuy/XrmFramework/blob/master/docs/images/AddTablesButton2.PNG)
  
