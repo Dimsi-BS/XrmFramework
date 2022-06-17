@@ -2,17 +2,17 @@
 
 - Delete the DefinitionManager
 - ### For Deploy; Deploy.Webresources :
-   - go in the Nugget package manager, tick PreRelease on, update the Nugget packages to the most recent preRelease version.
+   - go in the Nugget package manager, tick PreRelease on, update the Nugget packages to the latest recent preRelease version.
 
-- ### Pour le projet Core :
-	- supprimer le package XrmFramework.Coreproject
-	- update le package XrmFramework à la dernière version preRelease
-	- ajouter le package XrmFramework.Analyzers en version preRelease
-	- copier le texte 1) dans le fichier csproj
-- ### Pour le projet Plugin :
-	- update les package XrmFramework à la dernière version preRelease 
-	- copier le texte 1) dans le fichier csproj
-	- copier le texte 2) dans le fichier csproj en remplacant PROJETCORE par le nom du projet Core ex : TestProjet.Core
+- ### Core project :
+	- delete the XrmFramework.Coreproject package
+	- update the XrmFramework package to the latest preRelease version
+	- add the latest preRelease version of the XrmFramework.Analyzers package 
+	- copy the text 1) in the csproj
+- ### Plugins project :
+	- update the XrmFramework package to the latest preRelease version.
+	- copy the text 1) in the csproj
+	- copy the text 2) in the csproj, replace the "PROJECTCORE" part by the name of your Core project, ex : TestProjet.Core 
 
 - ### Remote debugger : (to be completed)
 unload the project
