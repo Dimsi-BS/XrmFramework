@@ -60,11 +60,10 @@
             this.Selected});
             this.dataGridView1.DataSource = this.tableBindingSource1;
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.dataGridView1.Location = new System.Drawing.Point(0, 26);
-            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4);
+            this.dataGridView1.Location = new System.Drawing.Point(0, 21);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 51;
-            this.dataGridView1.Size = new System.Drawing.Size(1704, 668);
+            this.dataGridView1.Size = new System.Drawing.Size(1278, 543);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             // 
@@ -101,10 +100,9 @@
             // button1
             // 
             this.button1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.button1.Location = new System.Drawing.Point(0, 694);
-            this.button1.Margin = new System.Windows.Forms.Padding(4);
+            this.button1.Location = new System.Drawing.Point(0, 564);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(1704, 28);
+            this.button1.Size = new System.Drawing.Size(1278, 23);
             this.button1.TabIndex = 1;
             this.button1.Text = "Add Selected Table To Project";
             this.button1.UseVisualStyleBackColor = true;
@@ -114,7 +112,6 @@
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -124,19 +121,17 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.SearchBar);
-            this.splitContainer1.Size = new System.Drawing.Size(1704, 26);
-            this.splitContainer1.SplitterDistance = 568;
-            this.splitContainer1.SplitterWidth = 5;
+            this.splitContainer1.Size = new System.Drawing.Size(1278, 21);
+            this.splitContainer1.SplitterDistance = 426;
             this.splitContainer1.TabIndex = 2;
             // 
             // Search
             // 
             this.Search.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.Search.Location = new System.Drawing.Point(0, 4);
-            this.Search.Margin = new System.Windows.Forms.Padding(4);
+            this.Search.Location = new System.Drawing.Point(0, 1);
             this.Search.Name = "Search";
             this.Search.ReadOnly = true;
-            this.Search.Size = new System.Drawing.Size(568, 22);
+            this.Search.Size = new System.Drawing.Size(426, 20);
             this.Search.TabIndex = 1;
             this.Search.Text = "Search";
             this.Search.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -146,9 +141,8 @@
             // 
             this.SearchBar.Dock = System.Windows.Forms.DockStyle.Fill;
             this.SearchBar.Location = new System.Drawing.Point(0, 0);
-            this.SearchBar.Margin = new System.Windows.Forms.Padding(4);
             this.SearchBar.Name = "SearchBar";
-            this.SearchBar.Size = new System.Drawing.Size(1131, 22);
+            this.SearchBar.Size = new System.Drawing.Size(848, 20);
             this.SearchBar.TabIndex = 0;
             this.SearchBar.TextChanged += new System.EventHandler(this.SearchBar_TextChanged);
             // 
@@ -164,13 +158,12 @@
             // 
             // AddTableForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1704, 722);
+            this.ClientSize = new System.Drawing.Size(1278, 587);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.button1);
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "AddTableForm";
             this.Text = "Table Selection";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();

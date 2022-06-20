@@ -22,6 +22,7 @@ namespace GenerateTableFilesFromLocalCode
                 Console.WriteLine();
                 Console.WriteLine("GenerateTableFilesFromLocalCode \"path\\to\\dll\" \"path\\to\\.tableDirectory\"");
                 Console.WriteLine();
+                Console.ReadKey();
 
                 return;
             }
@@ -37,6 +38,7 @@ namespace GenerateTableFilesFromLocalCode
                 Console.WriteLine();
                 Console.WriteLine($"Error argument \"{args[0]}\" is invalid, no assembly could be loaded from it, reminder : it should be a path to a .dll file.");
                 Console.WriteLine();
+                Console.ReadKey();
                 return;
             }
 
@@ -45,6 +47,8 @@ namespace GenerateTableFilesFromLocalCode
                 Console.WriteLine();
                 Console.WriteLine($"Error argument \"{args[1]}\" is invalid, reminder : it should be the path to the directory in which you want to save your .table files");
                 Console.WriteLine();
+                Console.ReadKey();
+
                 return;
 
             }
@@ -85,10 +89,11 @@ namespace GenerateTableFilesFromLocalCode
             }
 
             var tableList = new List<Table>();
-
+            Console.WriteLine($"F{definitionTypes.Count()} definitions were found.");
 
             foreach (var t in definitionTypes)
             {
+                Console.WriteLine($"Adding {t.Name} to tables.");
                 if (t.GetCustomAttributes(definitionManagerIgnoreAttributeType).Any())
                 {
                     continue;
@@ -234,6 +239,7 @@ namespace GenerateTableFilesFromLocalCode
             }
 
             return tables;
+           
         }
 
 

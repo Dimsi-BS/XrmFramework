@@ -429,6 +429,8 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                             {
                                 ModifyEnumName(newEnum.Name, newEnum, newEnum.Name);
                             }
+                            
+
                             table.Enums.Add(newEnum);
 
                         }
