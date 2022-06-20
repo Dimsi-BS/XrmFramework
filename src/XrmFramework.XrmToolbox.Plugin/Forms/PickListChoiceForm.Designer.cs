@@ -43,7 +43,7 @@
             this.ChoiceComboBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ChoiceComboBox.FormattingEnabled = true;
             this.ChoiceComboBox.Location = new System.Drawing.Point(0, 0);
-            this.ChoiceComboBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ChoiceComboBox.Margin = new System.Windows.Forms.Padding(2);
             this.ChoiceComboBox.Name = "ChoiceComboBox";
             this.ChoiceComboBox.Size = new System.Drawing.Size(314, 21);
             this.ChoiceComboBox.TabIndex = 0;
@@ -52,7 +52,7 @@
             // splitContainer1
             // 
             this.splitContainer1.Location = new System.Drawing.Point(28, 67);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -71,7 +71,7 @@
             // 
             this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox1.Location = new System.Drawing.Point(0, 0);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(2);
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(158, 20);
@@ -80,10 +80,11 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(363, 160);
-            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.button1.Location = new System.Drawing.Point(0, 188);
+            this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(101, 26);
+            this.button1.Size = new System.Drawing.Size(521, 26);
             this.button1.TabIndex = 2;
             this.button1.Text = "Change value";
             this.button1.UseVisualStyleBackColor = true;
@@ -96,9 +97,9 @@
             this.ClientSize = new System.Drawing.Size(521, 214);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.splitContainer1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "PickListChoiceForm";
-            this.Text = "PickListChoiceForm";
+            this.Text = "Choice";
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);

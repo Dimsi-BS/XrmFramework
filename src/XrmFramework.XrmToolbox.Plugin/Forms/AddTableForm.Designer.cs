@@ -30,22 +30,22 @@
         {
             this.components = new System.ComponentModel.Container();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.nameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.logicalNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Selected = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.tableBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.button1 = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.Search = new System.Windows.Forms.TextBox();
             this.SearchBar = new System.Windows.Forms.TextBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.nameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.logicalNameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tableBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.tableBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.tableBindingSource1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tableBindingSource1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tableBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
@@ -59,13 +59,76 @@
             this.logicalNameDataGridViewTextBoxColumn,
             this.Selected});
             this.dataGridView1.DataSource = this.tableBindingSource1;
-            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(0, 21);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 51;
-            this.dataGridView1.Size = new System.Drawing.Size(1278, 543);
+            this.dataGridView1.Size = new System.Drawing.Size(434, 543);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
+            // 
+            // Selected
+            // 
+            this.Selected.DataPropertyName = "Selected";
+            this.Selected.HeaderText = "Selected";
+            this.Selected.MinimumWidth = 6;
+            this.Selected.Name = "Selected";
+            this.Selected.Width = 125;
+            // 
+            // button1
+            // 
+            this.button1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.button1.Location = new System.Drawing.Point(0, 564);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(434, 23);
+            this.button1.TabIndex = 1;
+            this.button1.Text = "Add Selected Table To Project";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.Search);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.SearchBar);
+            this.splitContainer1.Size = new System.Drawing.Size(434, 21);
+            this.splitContainer1.SplitterDistance = 232;
+            this.splitContainer1.TabIndex = 2;
+            // 
+            // Search
+            // 
+            this.Search.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.Search.Location = new System.Drawing.Point(0, 1);
+            this.Search.Name = "Search";
+            this.Search.ReadOnly = true;
+            this.Search.Size = new System.Drawing.Size(232, 20);
+            this.Search.TabIndex = 1;
+            this.Search.Text = "Search";
+            this.Search.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.Search.TextChanged += new System.EventHandler(this.Search_TextChanged);
+            // 
+            // SearchBar
+            // 
+            this.SearchBar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.SearchBar.Location = new System.Drawing.Point(0, 0);
+            this.SearchBar.Name = "SearchBar";
+            this.SearchBar.Size = new System.Drawing.Size(198, 20);
+            this.SearchBar.TabIndex = 0;
+            this.SearchBar.TextChanged += new System.EventHandler(this.SearchBar_TextChanged);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
             // nameDataGridViewTextBoxColumn
             // 
@@ -85,72 +148,9 @@
             this.logicalNameDataGridViewTextBoxColumn.ReadOnly = true;
             this.logicalNameDataGridViewTextBoxColumn.Width = 125;
             // 
-            // Selected
-            // 
-            this.Selected.DataPropertyName = "Selected";
-            this.Selected.HeaderText = "Selected";
-            this.Selected.MinimumWidth = 6;
-            this.Selected.Name = "Selected";
-            this.Selected.Width = 125;
-            // 
             // tableBindingSource1
             // 
             this.tableBindingSource1.DataSource = typeof(XrmFramework.Core.Table);
-            // 
-            // button1
-            // 
-            this.button1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.button1.Location = new System.Drawing.Point(0, 564);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(1278, 23);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "Add Selected Table To Project";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // splitContainer1
-            // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Name = "splitContainer1";
-            // 
-            // splitContainer1.Panel1
-            // 
-            this.splitContainer1.Panel1.Controls.Add(this.Search);
-            // 
-            // splitContainer1.Panel2
-            // 
-            this.splitContainer1.Panel2.Controls.Add(this.SearchBar);
-            this.splitContainer1.Size = new System.Drawing.Size(1278, 21);
-            this.splitContainer1.SplitterDistance = 426;
-            this.splitContainer1.TabIndex = 2;
-            // 
-            // Search
-            // 
-            this.Search.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.Search.Location = new System.Drawing.Point(0, 1);
-            this.Search.Name = "Search";
-            this.Search.ReadOnly = true;
-            this.Search.Size = new System.Drawing.Size(426, 20);
-            this.Search.TabIndex = 1;
-            this.Search.Text = "Search";
-            this.Search.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.Search.TextChanged += new System.EventHandler(this.Search_TextChanged);
-            // 
-            // SearchBar
-            // 
-            this.SearchBar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.SearchBar.Location = new System.Drawing.Point(0, 0);
-            this.SearchBar.Name = "SearchBar";
-            this.SearchBar.Size = new System.Drawing.Size(848, 20);
-            this.SearchBar.TabIndex = 0;
-            this.SearchBar.TextChanged += new System.EventHandler(this.SearchBar_TextChanged);
-            // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
             // tableBindingSource
             // 
@@ -160,20 +160,20 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1278, 587);
+            this.ClientSize = new System.Drawing.Size(434, 587);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.button1);
             this.Name = "AddTableForm";
             this.Text = "Table Selection";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.tableBindingSource1)).EndInit();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.tableBindingSource1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tableBindingSource)).EndInit();
             this.ResumeLayout(false);
 

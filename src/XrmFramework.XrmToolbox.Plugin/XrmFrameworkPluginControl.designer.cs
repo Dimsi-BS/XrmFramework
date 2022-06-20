@@ -175,7 +175,7 @@
             this.tabPage1.Controls.Add(this.SaveTablesButton);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage1.Size = new System.Drawing.Size(513, 593);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Tables";
@@ -194,7 +194,7 @@
             // 
             this.AddTableButton.Dock = System.Windows.Forms.DockStyle.Top;
             this.AddTableButton.Location = new System.Drawing.Point(3, 23);
-            this.AddTableButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.AddTableButton.Margin = new System.Windows.Forms.Padding(2);
             this.AddTableButton.Name = "AddTableButton";
             this.AddTableButton.Size = new System.Drawing.Size(507, 28);
             this.AddTableButton.TabIndex = 8;
@@ -206,7 +206,7 @@
             // 
             this.textBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.textBox1.Location = new System.Drawing.Point(3, 3);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(2);
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(507, 20);
@@ -216,7 +216,7 @@
             // 
             this.SaveTablesButton.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.SaveTablesButton.Location = new System.Drawing.Point(3, 540);
-            this.SaveTablesButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.SaveTablesButton.Margin = new System.Windows.Forms.Padding(2);
             this.SaveTablesButton.Name = "SaveTablesButton";
             this.SaveTablesButton.Size = new System.Drawing.Size(507, 50);
             this.SaveTablesButton.TabIndex = 9;
@@ -231,8 +231,8 @@
             this.tabPage2.Controls.Add(this.AddModelButton);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.tabPage2.Size = new System.Drawing.Size(513, 598);
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(513, 593);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Models";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -241,17 +241,17 @@
             // 
             this.ModelsTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ModelsTreeView.Location = new System.Drawing.Point(3, 40);
-            this.ModelsTreeView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ModelsTreeView.Margin = new System.Windows.Forms.Padding(2);
             this.ModelsTreeView.Name = "ModelsTreeView";
-            this.ModelsTreeView.Size = new System.Drawing.Size(507, 514);
+            this.ModelsTreeView.Size = new System.Drawing.Size(507, 509);
             this.ModelsTreeView.TabIndex = 11;
             this.ModelsTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ModelsTreeView_AfterSelect);
             // 
             // SaveModelsButton
             // 
             this.SaveModelsButton.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.SaveModelsButton.Location = new System.Drawing.Point(3, 554);
-            this.SaveModelsButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.SaveModelsButton.Location = new System.Drawing.Point(3, 549);
+            this.SaveModelsButton.Margin = new System.Windows.Forms.Padding(2);
             this.SaveModelsButton.Name = "SaveModelsButton";
             this.SaveModelsButton.Size = new System.Drawing.Size(507, 41);
             this.SaveModelsButton.TabIndex = 1;
@@ -263,7 +263,7 @@
             // 
             this.AddModelButton.Dock = System.Windows.Forms.DockStyle.Top;
             this.AddModelButton.Location = new System.Drawing.Point(3, 3);
-            this.AddModelButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.AddModelButton.Margin = new System.Windows.Forms.Padding(2);
             this.AddModelButton.Name = "AddModelButton";
             this.AddModelButton.Size = new System.Drawing.Size(507, 37);
             this.AddModelButton.TabIndex = 0;
@@ -306,7 +306,7 @@
             this.tabPage3.Controls.Add(this.splitContainer2);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage3.Size = new System.Drawing.Size(773, 593);
             this.tabPage3.TabIndex = 0;
             this.tabPage3.Text = "Attributes";
@@ -329,7 +329,7 @@
             this.splitContainer4.Panel2.Controls.Add(this.dataGridView3);
             this.splitContainer4.Panel2.Controls.Add(this.splitContainer7);
             this.splitContainer4.Size = new System.Drawing.Size(767, 538);
-            this.splitContainer4.SplitterDistance = 383;
+            this.splitContainer4.SplitterDistance = 472;
             this.splitContainer4.TabIndex = 14;
             // 
             // dataGridView1
@@ -347,7 +347,7 @@
             this.dataGridView1.Location = new System.Drawing.Point(0, 28);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 51;
-            this.dataGridView1.Size = new System.Drawing.Size(383, 510);
+            this.dataGridView1.Size = new System.Drawing.Size(472, 510);
             this.dataGridView1.TabIndex = 1;
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick_1);
             // 
@@ -404,18 +404,18 @@
             // splitContainer5.Panel2
             // 
             this.splitContainer5.Panel2.Controls.Add(this.SearchColumnTextBox);
-            this.splitContainer5.Size = new System.Drawing.Size(383, 28);
-            this.splitContainer5.SplitterDistance = 125;
+            this.splitContainer5.Size = new System.Drawing.Size(472, 28);
+            this.splitContainer5.SplitterDistance = 154;
             this.splitContainer5.TabIndex = 8;
             // 
             // textBox3
             // 
             this.textBox3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox3.Location = new System.Drawing.Point(0, 0);
-            this.textBox3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox3.Margin = new System.Windows.Forms.Padding(2);
             this.textBox3.Name = "textBox3";
             this.textBox3.ReadOnly = true;
-            this.textBox3.Size = new System.Drawing.Size(125, 20);
+            this.textBox3.Size = new System.Drawing.Size(154, 20);
             this.textBox3.TabIndex = 6;
             this.textBox3.Text = "Search Column";
             this.textBox3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -424,9 +424,9 @@
             // 
             this.SearchColumnTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.SearchColumnTextBox.Location = new System.Drawing.Point(0, 0);
-            this.SearchColumnTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.SearchColumnTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.SearchColumnTextBox.Name = "SearchColumnTextBox";
-            this.SearchColumnTextBox.Size = new System.Drawing.Size(254, 20);
+            this.SearchColumnTextBox.Size = new System.Drawing.Size(314, 20);
             this.SearchColumnTextBox.TabIndex = 7;
             this.SearchColumnTextBox.TextChanged += new System.EventHandler(this.SearchColumnTextBox_TextChanged);
             // 
@@ -443,7 +443,7 @@
             this.dataGridView3.Location = new System.Drawing.Point(0, 28);
             this.dataGridView3.Name = "dataGridView3";
             this.dataGridView3.RowHeadersWidth = 51;
-            this.dataGridView3.Size = new System.Drawing.Size(380, 510);
+            this.dataGridView3.Size = new System.Drawing.Size(291, 510);
             this.dataGridView3.TabIndex = 0;
             this.dataGridView3.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView3_CellContentClick_1);
             // 
@@ -473,7 +473,7 @@
             // 
             this.splitContainer7.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitContainer7.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer7.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.splitContainer7.Margin = new System.Windows.Forms.Padding(2);
             this.splitContainer7.Name = "splitContainer7";
             // 
             // splitContainer7.Panel1
@@ -483,8 +483,8 @@
             // splitContainer7.Panel2
             // 
             this.splitContainer7.Panel2.Controls.Add(this.EnumLogicalNameText);
-            this.splitContainer7.Size = new System.Drawing.Size(380, 28);
-            this.splitContainer7.SplitterDistance = 199;
+            this.splitContainer7.Size = new System.Drawing.Size(291, 28);
+            this.splitContainer7.SplitterDistance = 152;
             this.splitContainer7.SplitterWidth = 3;
             this.splitContainer7.TabIndex = 1;
             // 
@@ -493,10 +493,10 @@
             this.EnumNameText.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.optionSetEnumBindingSource, "Name", true));
             this.EnumNameText.Dock = System.Windows.Forms.DockStyle.Fill;
             this.EnumNameText.Location = new System.Drawing.Point(0, 0);
-            this.EnumNameText.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.EnumNameText.Margin = new System.Windows.Forms.Padding(2);
             this.EnumNameText.Name = "EnumNameText";
             this.EnumNameText.ReadOnly = true;
-            this.EnumNameText.Size = new System.Drawing.Size(199, 20);
+            this.EnumNameText.Size = new System.Drawing.Size(152, 20);
             this.EnumNameText.TabIndex = 0;
             this.EnumNameText.TextChanged += new System.EventHandler(this.EnumNameText_TextChanged);
             // 
@@ -509,10 +509,10 @@
             this.EnumLogicalNameText.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.optionSetEnumBindingSource, "LogicalName", true));
             this.EnumLogicalNameText.Dock = System.Windows.Forms.DockStyle.Fill;
             this.EnumLogicalNameText.Location = new System.Drawing.Point(0, 0);
-            this.EnumLogicalNameText.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.EnumLogicalNameText.Margin = new System.Windows.Forms.Padding(2);
             this.EnumLogicalNameText.Name = "EnumLogicalNameText";
             this.EnumLogicalNameText.ReadOnly = true;
-            this.EnumLogicalNameText.Size = new System.Drawing.Size(178, 20);
+            this.EnumLogicalNameText.Size = new System.Drawing.Size(136, 20);
             this.EnumLogicalNameText.TabIndex = 1;
             // 
             // splitContainer3
@@ -568,7 +568,7 @@
             this.TableNameText.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.tableBindingSource, "Name", true));
             this.TableNameText.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TableNameText.Location = new System.Drawing.Point(0, 0);
-            this.TableNameText.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.TableNameText.Margin = new System.Windows.Forms.Padding(2);
             this.TableNameText.Name = "TableNameText";
             this.TableNameText.ReadOnly = true;
             this.TableNameText.Size = new System.Drawing.Size(102, 20);
@@ -585,7 +585,7 @@
             this.TableLogicalNameText.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.tableBindingSource, "LogicalName", true));
             this.TableLogicalNameText.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TableLogicalNameText.Location = new System.Drawing.Point(0, 0);
-            this.TableLogicalNameText.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.TableLogicalNameText.Margin = new System.Windows.Forms.Padding(2);
             this.TableLogicalNameText.Name = "TableLogicalNameText";
             this.TableLogicalNameText.ReadOnly = true;
             this.TableLogicalNameText.Size = new System.Drawing.Size(146, 20);
@@ -609,10 +609,10 @@
             this.tabPage4.Controls.Add(this.ChoicePickList);
             this.tabPage4.Controls.Add(this.ModelDetailTree);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
-            this.tabPage4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage4.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.tabPage4.Size = new System.Drawing.Size(773, 598);
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(2);
+            this.tabPage4.Size = new System.Drawing.Size(773, 593);
             this.tabPage4.TabIndex = 1;
             this.tabPage4.Text = "Model Details";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -622,7 +622,7 @@
             this.ChoicePickList.Enabled = false;
             this.ChoicePickList.FormattingEnabled = true;
             this.ChoicePickList.Location = new System.Drawing.Point(169, 186);
-            this.ChoicePickList.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ChoicePickList.Margin = new System.Windows.Forms.Padding(2);
             this.ChoicePickList.Name = "ChoicePickList";
             this.ChoicePickList.Size = new System.Drawing.Size(92, 21);
             this.ChoicePickList.TabIndex = 1;
@@ -632,9 +632,9 @@
             // 
             this.ModelDetailTree.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ModelDetailTree.Location = new System.Drawing.Point(2, 2);
-            this.ModelDetailTree.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ModelDetailTree.Margin = new System.Windows.Forms.Padding(2);
             this.ModelDetailTree.Name = "ModelDetailTree";
-            this.ModelDetailTree.Size = new System.Drawing.Size(769, 594);
+            this.ModelDetailTree.Size = new System.Drawing.Size(769, 589);
             this.ModelDetailTree.TabIndex = 0;
             this.ModelDetailTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ModelDetailTree_AfterSelect);
             // 
@@ -649,7 +649,7 @@
             // NewProjectButton
             // 
             this.NewProjectButton.Location = new System.Drawing.Point(6, -1);
-            this.NewProjectButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.NewProjectButton.Margin = new System.Windows.Forms.Padding(2);
             this.NewProjectButton.Name = "NewProjectButton";
             this.NewProjectButton.Size = new System.Drawing.Size(196, 21);
             this.NewProjectButton.TabIndex = 9;
@@ -660,7 +660,7 @@
             // CurrentProjectTextBox
             // 
             this.CurrentProjectTextBox.Location = new System.Drawing.Point(454, 2);
-            this.CurrentProjectTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.CurrentProjectTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.CurrentProjectTextBox.Name = "CurrentProjectTextBox";
             this.CurrentProjectTextBox.ReadOnly = true;
             this.CurrentProjectTextBox.Size = new System.Drawing.Size(300, 20);
@@ -682,7 +682,7 @@
             // ReloadProjectButton
             // 
             this.ReloadProjectButton.Location = new System.Drawing.Point(206, 0);
-            this.ReloadProjectButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ReloadProjectButton.Margin = new System.Windows.Forms.Padding(2);
             this.ReloadProjectButton.Name = "ReloadProjectButton";
             this.ReloadProjectButton.Size = new System.Drawing.Size(100, 19);
             this.ReloadProjectButton.TabIndex = 11;

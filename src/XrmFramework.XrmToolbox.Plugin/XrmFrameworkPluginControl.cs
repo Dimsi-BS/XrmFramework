@@ -467,12 +467,20 @@ namespace XrmFramework.XrmToolbox
             if(dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString() == "Picklist")
             {
                 //var correspondingEnum
+                if(TableHandler.CurrentTable == null)
+                {
+                    return;
+                }
                 var selectedTable = TableHandler.TableAndPath[TableHandler.CurrentTable].table;
                 var column = selectedTable.Columns.FirstOrDefault(c=>c.LogicalName == dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString());
                 var correspondingEnum = selectedTable.Enums.FirstOrDefault(e => e.LogicalName == column.EnumName);
                 if(correspondingEnum == null)
                 {
                     correspondingEnum = TableHandler.globalEnumsTable.Enums.FirstOrDefault(e => e.LogicalName == column.EnumName);
+                }
+                if(correspondingEnum == null)
+                {
+                    return;
                 }
                 //dataGridView3.DataSource = correspondingEnum.Values;
                 optionSetEnumValueBindingSource.DataSource = correspondingEnum.Values;
@@ -483,6 +491,10 @@ namespace XrmFramework.XrmToolbox
             }
             else if(e.ColumnIndex == 1)
             {
+                if(TableHandler.CurrentTable == null)
+                {
+                    return;
+                }
                 var currentTable = TableHandler.TableAndPath[TableHandler.CurrentTable].table;
                 var currentColumn = currentTable.Columns.FirstOrDefault(c=>c.LogicalName == dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString());
                 if(currentColumn == null)

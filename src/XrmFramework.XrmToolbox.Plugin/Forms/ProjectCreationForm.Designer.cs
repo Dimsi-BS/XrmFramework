@@ -51,7 +51,7 @@
             // 
             this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox1.Location = new System.Drawing.Point(0, 0);
-            this.textBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(2);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(198, 20);
             this.textBox1.TabIndex = 0;
@@ -60,7 +60,7 @@
             // 
             this.textBox2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox2.Location = new System.Drawing.Point(0, 0);
-            this.textBox2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox2.Margin = new System.Windows.Forms.Padding(2);
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
             this.textBox2.Size = new System.Drawing.Size(99, 20);
@@ -69,8 +69,8 @@
             // 
             // splitContainer1
             // 
-            this.splitContainer1.Location = new System.Drawing.Point(139, 109);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.splitContainer1.Location = new System.Drawing.Point(73, 109);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -87,10 +87,11 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(242, 219);
-            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.button1.Location = new System.Drawing.Point(0, 312);
+            this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(101, 54);
+            this.button1.Size = new System.Drawing.Size(600, 54);
             this.button1.TabIndex = 3;
             this.button1.Text = "Create Project";
             this.button1.UseVisualStyleBackColor = true;
@@ -98,8 +99,8 @@
             // 
             // splitContainer2
             // 
-            this.splitContainer2.Location = new System.Drawing.Point(139, 156);
-            this.splitContainer2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.splitContainer2.Location = new System.Drawing.Point(73, 156);
+            this.splitContainer2.Margin = new System.Windows.Forms.Padding(2);
             this.splitContainer2.Name = "splitContainer2";
             // 
             // splitContainer2.Panel1
@@ -118,7 +119,7 @@
             // 
             this.textBox3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox3.Location = new System.Drawing.Point(0, 0);
-            this.textBox3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox3.Margin = new System.Windows.Forms.Padding(2);
             this.textBox3.Name = "textBox3";
             this.textBox3.ReadOnly = true;
             this.textBox3.Size = new System.Drawing.Size(99, 20);
@@ -129,7 +130,7 @@
             // 
             this.textBox4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox4.Location = new System.Drawing.Point(0, 0);
-            this.textBox4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox4.Margin = new System.Windows.Forms.Padding(2);
             this.textBox4.Name = "textBox4";
             this.textBox4.ReadOnly = true;
             this.textBox4.Size = new System.Drawing.Size(198, 20);
@@ -138,8 +139,8 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(443, 156);
-            this.button2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button2.Location = new System.Drawing.Point(377, 156);
+            this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(148, 21);
             this.button2.TabIndex = 4;
@@ -156,7 +157,7 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.splitContainer2);
             this.Controls.Add(this.splitContainer1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "ProjectCreationForm";
             this.Text = "Project Creation";
             this.splitContainer1.Panel1.ResumeLayout(false);
