@@ -1,7 +1,7 @@
 # How to update a regular project to the prerelease version.
 
 - Delete the DefinitionManager
-- ### For Deploy; Deploy.Webresources :
+- ### Deploy; Deploy.Webresources :
    - go in the Nugget package manager, tick PreRelease on, update the Nugget packages to the latest recent preRelease version.
 
 - ### Core project :
