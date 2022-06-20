@@ -44,10 +44,19 @@ Click the button to create a project.
  
  ![ProjectCreationForm](https://github.com/PeteGuy/XrmFramework/blob/master/docs/images/ProjectCreationForm.PNG)
  
+ After creating a project, in order to use the new version of the framework, you need to follow the PreRelease update documentation.
+ 
  
  ### Add tables to your project
  
  To do this open the xrmTool and select your project.
  
-  ![Project choice](https://github.com/PeteGuy/XrmFramework/blob/master/docs/images/ChooseProject.PNG)
+  ![Project choice](https://github.com/PeteGuy/XrmFramework/blob/master/docs/images/AddTablesButton2.PNG)
+ 
+ Use the attribute panel to select the columns you want to add to your project. You can also rename the attributes by clicking on the corresponding column.
+ 
+  ![Attributes Panel](https://github.com/PeteGuy/XrmFramework/blob/master/docs/images/AttributesPanel.PNG)
+  
+  Next save the tables. You will now be able to use the definition classes in your project.
+ 
  
