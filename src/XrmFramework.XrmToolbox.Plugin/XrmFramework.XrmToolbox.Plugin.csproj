@@ -155,6 +155,9 @@
     <PackageReference Include="DockPanelSuite.ThemeVS2015">
       <Version>3.0.6</Version>
     </PackageReference>
+    <PackageReference Include="ilmerge">
+      <Version>3.0.41</Version>
+    </PackageReference>
     <PackageReference Include="jacobslusser.ScintillaNET">
       <Version>3.6.3</Version>
     </PackageReference>
@@ -289,6 +292,15 @@
       )
     </PostBuildEvent>
   </PropertyGroup>
+
+
+
+	<Target Name="AfterBuild">
+		<!-- the ILMergePath property points to the location of ILMerge.exe console application -->
+		
+		<Exec Command="$(ILMergeConsolePath) /out:bin\Debug\XrmFramework.XrmToolboxPlugin.dll bin\Debug\XrmFramework.XrmToolbox.Plugin.dll bin\Debug\XrmFramework.DeployUtils.dll" />
+	</Target>
+	
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.  
   <Target Name="BeforeBuild">
