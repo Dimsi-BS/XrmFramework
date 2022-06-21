@@ -18,9 +18,10 @@ image de la commande
 - You should now have one .table file in your destination folder for each definitions
 - you can now delete the definition .cs files from your project (or save them out of your project)
 
-- Now you should update your project to the latest version of the framework (you can do so by following [this tutorial](PreReleaseUpdate.md)
-- you can now launch the project manager tool on XrmToolBox and select your project
-- you should see the tables that were just generated in the UI
-- for each of these tables, press the "Refresh attributes" button, the details should update and you should now see the full table with your selected attributes ticked on and your custom names.
-- now if you rebuild your old project, you should have the exact same definition classes generated in your project
+- Now you should update your project to the latest version of the framework (you can do so by following [this tutorial](PreReleaseUpdate.md))
+- 
+- You can now launch the project manager tool on XrmToolBox and select your project
+- You should see the tables that were just generated in the UI, just like a regular project.
+- For each of these tables, press the "Refresh attributes" button, the details should update and you should now see the full table with your selected attributes ticked on and your custom names.
+- now if you rebuild your old project, you should have the exact same definition classes generated in your project.
 
