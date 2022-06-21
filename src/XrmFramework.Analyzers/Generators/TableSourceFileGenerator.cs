@@ -93,15 +93,19 @@ namespace XrmFramework.Analyzers.Generators
 							{
 								foreach (var col in table.Columns)
 								{
+									if (!col.Selected)
+									{
+										continue;
+									}
 									var enumDefinition = scopedEnums.FirstOrDefault(e => e.LogicalName == col.EnumName);
 
 									AddColumnSummary(sb, col, enumDefinition);
 
-									sb.AppendLine($"[AttributeMetadata(AttributeTypeCode.{col.Type})]");
+									sb.AppendLine($"[AttributeMetadata(AttributeTypeCode.{col.Type.ToString()})]");
 									if (col.Type == AttributeTypeCode.Lookup)
 									{
-										var relations = table.ManyToOneRelationships.Where(r => r.LookupFieldName == col.LogicalName);
-										foreach (var relation in relations)
+										var relation = table.ManyToOneRelationships.FirstOrDefault(r => r.LookupFieldName == col.LogicalName);
+										if (relation != null)
 										{
 											var tb = tables.FirstOrDefault(t => t.LogicalName == relation.EntityName);
 											//var eC = this._entityCollection[relationship.ReferencedEntity];
@@ -109,10 +113,10 @@ namespace XrmFramework.Analyzers.Generators
 
 											if (tb != null)
 											{
-												sb.Append($"[CrmLookup({tb.Name}Definition.EntityName, ");
+												sb.Append($"[CrmLookup({tb.Name}Definition.EntityName,");
 												if (rcol != null)
 												{
-													sb.Append($"{tb.Name}Definition.Columns.{rcol.Name}, ");
+													sb.Append($"{tb.Name}Definition.Columns.{rcol.Name},");
 												}
 												else
 												{
@@ -123,12 +127,13 @@ namespace XrmFramework.Analyzers.Generators
 											}
 											else
 											{
-												sb
-													.Append($"[CrmLookup(\"{relation.EntityName}\", ")
-													.Append($"\"{relation.LookupFieldName}\", ");
+												sb.Append($"[CrmLookup(\"{relation.EntityName}\",");
+												sb.Append($"\"{relation.LookupFieldName}\",");
 
 											}
 											sb.AppendLine($"RelationshipName = ManyToOneRelationships.{relation.Name})]");
+
+
 										}
 									}
 
@@ -184,7 +189,6 @@ namespace XrmFramework.Analyzers.Generators
 
 							sb.AppendLine("}");
 
-							//if(table.Enums.Any(e=>table.Columns.Any())
 
 							if (table.Keys != null && table.Keys.Any())
 							{
@@ -200,188 +204,7 @@ namespace XrmFramework.Analyzers.Generators
 								}
 								sb.AppendLine("}");
 							}
-							/*
-							if (table.ManyToOneRelationships.Any())
-							{
-								sb.AppendLine("public static class ManyToOneRelationships");
-								sb.AppendLine("{");
-								using (sb.Indent())
-								{
-									foreach (var relationship in table.ManyToOneRelationships)
-									{
-										sb.Append("[Relationship(");
-										var targetTable = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
-										if (targetTable != null)
-										{
-											sb.Append($"{targetTable.Name}Definition.EntityName");
-										}
-										else
-										{
-											sb.Append($"\"{relationship.EntityName}\""); 
-										}
 
-										sb.Append($", EntityRole.{relationship.Role}, \"{relationship.NavigationPropertyName}\", ");
-
-										if (relationship.Role == EntityRole.Referencing)
-										{
-											//var tb = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
-
-
-											//var re = tb?.OneToManyRelationships.FirstOrDefault(r => r.Name == relationship.Name);
-											var rc = table.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
-
-											if (rc != null)
-											{
-												sb.Append($"{table.Name}Definition.Columns.{rc.Name}");
-											}
-											else
-											{
-												sb.Append($"\"{relationship.LookupFieldName}\"");
-											}
-										}
-										else
-										{
-											var rc = table.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
-
-											//var r = tb?.OneToManyRelationships.FirstOrDefault(r => r.Name == relationship.Name);
-
-
-											if (rc != null)
-											{
-												sb.Append($"{table.Name}Definition.Columns.{rc.Name}");
-											}
-											else
-											{
-												sb.Append($"\"{relationship.LookupFieldName}\"");
-											}
-										}
-
-										sb.AppendLine(")]");
-										sb.AppendLine($"public const string {relationship.Name} = \"{relationship.Name}\";");
-									}
-
-
-								}
-								sb.AppendLine("}");
-							}
-
-							if (table.ManyToManyRelationships.Any())
-							{
-								sb.AppendLine("public static class ManyToManyRelationships");
-								sb.AppendLine("{");
-								using (sb.Indent())
-								{
-									foreach (var relationship in table.ManyToManyRelationships)
-									{
-										sb.Append("[Relationship(");
-										var targetTable = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
-										if (targetTable != null)
-										{
-											sb.Append($"{targetTable.Name}Definition.EntityName");
-										}
-										else
-										{
-											sb.Append($"\"{relationship.EntityName}\"");
-										}
-
-										sb.Append($", EntityRole.{relationship.Role}, \"{relationship.NavigationPropertyName}\", ");
-
-										if (relationship.Role == EntityRole.Referencing)
-										{
-											var tb = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
-											var rc = tb?.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
-
-											if (rc != null && tb != null)
-											{
-												sb.Append($"{tb.Name}Definition.Columns.{rc.Name}");
-											}
-											else
-											{
-												sb.Append($"\"{relationship.LookupFieldName}\"");
-											}
-										}
-										else
-										{
-											var tb = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
-
-											var rc = tb?.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
-
-											if (rc != null && tb != null)
-											{
-												sb.Append($"{tb.Name}Definition.Columns.{rc.Name}");
-											}
-											else
-											{
-												sb.Append($"\"{relationship.LookupFieldName}\"");
-											}
-										}
-
-										sb.AppendLine(")]");
-										sb.AppendLine($"public const string {relationship.Name} = \"{relationship.Name}\";");
-									}
-								}
-								sb.AppendLine("}");
-							}
-
-							if (table.OneToManyRelationships.Any())
-							{
-								sb.AppendLine("public static class OneToManyRelationships");
-								sb.AppendLine("{");
-								using (sb.Indent())
-								{
-									foreach (var relationship in table.OneToManyRelationships)
-									{
-										sb.Append("[Relationship(");
-										var targetTable = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
-
-										if (targetTable != null)
-										{
-											sb.Append($"{targetTable.Name}Definition.EntityName");
-										}
-										else
-										{
-											sb.Append($"\"{relationship.EntityName}\"");
-										}
-
-										sb.Append($", EntityRole.{relationship.Role}, \"{relationship.NavigationPropertyName}\", ");
-
-										if (relationship.Role == EntityRole.Referencing)
-										{
-											var tb = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
-											var rc = tb?.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
-
-											if (rc != null && tb != null)
-											{
-												sb.Append($"{tb.Name}Definition.Columns.{rc.Name}");
-											}
-											else
-											{
-												sb.Append($"\"{relationship.LookupFieldName}\"");
-											}
-										}
-										else
-										{
-											var tb = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
-
-											var rc = tb?.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
-
-											if (rc != null && tb != null)
-											{
-												sb.Append($"{tb.Name}Definition.Columns.{rc.Name}");
-											}
-											else
-											{
-												sb.Append($"\"{relationship.LookupFieldName}\"");
-											}
-										}
-
-										sb.AppendLine(")]");
-										sb.AppendLine($"public const string {relationship.Name} = \"{relationship.Name}\";");
-									}
-								}
-								sb.AppendLine("}");
-							}
-							*/
 							AddRelations(sb, tables, table, table.ManyToOneRelationships, "ManyToOneRelationships");
 							AddRelations(sb, tables, table, table.ManyToManyRelationships, "ManyToManyRelationships");
 							AddRelations(sb, tables, table, table.OneToManyRelationships, "OneToManyRelationships");
@@ -396,7 +219,7 @@ namespace XrmFramework.Analyzers.Generators
 					{
 						foreach (var ose in table.Enums)
 						{
-							if (ose.IsGlobal && tables.All(t => t.Columns.All(c => c.EnumName != ose.LogicalName)))
+							if (ose.IsGlobal && tables.All(t => t.Columns.All(c => c.EnumName != ose.LogicalName || (c.EnumName == ose.LogicalName && !c.Selected))))
 							{
 								continue;
 							}
@@ -411,7 +234,7 @@ namespace XrmFramework.Analyzers.Generators
 								var referencedColumn =
 									table.Columns.FirstOrDefault(col => col.EnumName == ose.LogicalName);
 
-								if (referencedColumn == null)
+								if (referencedColumn == null || !referencedColumn.Selected)
 								{
 									continue;
 								}
@@ -535,13 +358,9 @@ namespace XrmFramework.Analyzers.Generators
 						{
 							if (relationship.Role == EntityRole.Referencing)
 							{
-								//var tb = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
-
-
-								//var re = tb?.OneToManyRelationships.FirstOrDefault(r => r.Name == relationship.Name);
 								var rc = table.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
 
-								if (rc != null)
+								if (rc != null && rc.Selected)
 								{
 									sb.Append($"{table.Name}Definition.Columns.{rc.Name}");
 								}
@@ -554,7 +373,6 @@ namespace XrmFramework.Analyzers.Generators
 							{
 								var rc = table.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
 
-								//var r = tb?.OneToManyRelationships.FirstOrDefault(r => r.Name == relationship.Name);
 
 
 								if (rc != null)
@@ -577,7 +395,7 @@ namespace XrmFramework.Analyzers.Generators
 								var tb = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
 								var rc = tb?.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
 
-								if (rc != null && tb != null)
+								if ((rc != null && rc.Selected) && tb != null)
 								{
 									sb.Append($"{tb.Name}Definition.Columns.{rc.Name}");
 								}
@@ -592,7 +410,7 @@ namespace XrmFramework.Analyzers.Generators
 
 								var rc = tb?.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
 
-								if (rc != null && tb != null)
+								if ((rc != null && rc.Selected) && tb != null)
 								{
 									sb.Append($"{tb.Name}Definition.Columns.{rc.Name}");
 								}

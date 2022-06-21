@@ -30180,6 +30180,9 @@
     {
       "LogName": "systemuser|emailrouteraccessapproval",
       "Name": "IndiqueSiLAdresseDeMessagerieEstApprouveePourChaqueBoiteAuxLettresPourLeTraitementDuCourrierElectroniqueViaLaSynchronisationCoteServeurOuEMailRouter",
+
+      "Locked": true,
+
       "Values": [
         {
           "Name": "Vide",

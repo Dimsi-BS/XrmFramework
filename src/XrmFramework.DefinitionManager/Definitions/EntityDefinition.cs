@@ -79,6 +79,7 @@ namespace DefinitionManager
             LogicalCollectionName = def.LogicalCollectionName;
 
             IsLoaded = definition.IsLoaded;
+            IsSelected = definition.IsSelected;
 
             _attributes.AddRange(def.AttributesCollection.Definitions);
 

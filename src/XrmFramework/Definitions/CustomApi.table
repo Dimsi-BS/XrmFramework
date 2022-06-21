@@ -353,6 +353,7 @@
       "Name": "PluginTypeId",
       "Type": "Lookup",
       "Capa": 15,
+      "Select": true,
       "Labels": [
         {
           "Label": "Plugin Type",

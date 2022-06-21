@@ -32,6 +32,10 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj">
+      <Project>{C6444169-E29C-4B5B-B5EE-94E5CA4FF836}</Project>
+      <Name>XrmFramework.DeployUtils</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
@@ -40,6 +44,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\Generated\**;..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
+    <Compile Include="..\XrmFramework.Core\**\*.cs" Link="_Imports\XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />
     <AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
   </ItemGroup>
   <ItemGroup>
@@ -47,6 +52,16 @@
     <None Include="Generated\**" />
     <None Remove="**\*.table" />
     <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
+    <None Include="Properties\DataSources\XrmFramework.Core.Column.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.ColumnCollection.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.Key.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.Model.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.ModelProperty.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.OptionSetEnum.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.OptionSetEnumValue.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.Relation.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.Table.datasource" />
+    <None Include="Properties\DataSources\XrmFramework.Core.TableCollection.datasource" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -61,6 +76,7 @@
     <Reference Include="Microsoft.VisualStudio.CoreUtility">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Management.Automation" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Activities" />
@@ -83,6 +99,45 @@
     <Reference Include="System.Workflow.Runtime" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataHandlers\ModelHandler.cs" />
+    <Compile Include="DataHandlers\TableHandler.cs" />
+    <Compile Include="Forms\AddModelPropertyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AddModelPropertyForm.Designer.cs">
+      <DependentUpon>AddModelPropertyForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\AddTableForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AddTableForm.Designer.cs">
+      <DependentUpon>AddTableForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\CreateModelForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CreateModelForm.Designer.cs">
+      <DependentUpon>CreateModelForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\PickListChoiceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\PickListChoiceForm.Designer.cs">
+      <DependentUpon>PickListChoiceForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ProjectCreationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ProjectCreationForm.Designer.cs">
+      <DependentUpon>ProjectCreationForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TextHelper.cs" />
+    <Compile Include="Forms\TryOtherNameForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\TryOtherNameForm.Designer.cs">
+      <DependentUpon>TryOtherNameForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="XrmFrameworkPlugin.cs" />
     <Compile Include="XrmFrameworkPluginControl.cs">
       <SubType>UserControl</SubType>
@@ -99,6 +154,9 @@
     </PackageReference>
     <PackageReference Include="DockPanelSuite.ThemeVS2015">
       <Version>3.0.6</Version>
+    </PackageReference>
+    <PackageReference Include="ilmerge">
+      <Version>3.0.41</Version>
     </PackageReference>
     <PackageReference Include="jacobslusser.ScintillaNET">
       <Version>3.6.3</Version>
@@ -200,6 +258,30 @@
       <Version>1.2022.4.55</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\AddModelPropertyForm.resx">
+      <DependentUpon>AddModelPropertyForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\AddTableForm.resx">
+      <DependentUpon>AddTableForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CreateModelForm.resx">
+      <DependentUpon>CreateModelForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\PickListChoiceForm.resx">
+      <DependentUpon>PickListChoiceForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ProjectCreationForm.resx">
+      <DependentUpon>ProjectCreationForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\TryOtherNameForm.resx">
+      <DependentUpon>TryOtherNameForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="XrmFrameworkPluginControl.resx">
+      <DependentUpon>XrmFrameworkPluginControl.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
@@ -210,6 +292,10 @@
       )
     </PostBuildEvent>
   </PropertyGroup>
+  <Target Name="AfterBuild">
+    <!-- the ILMergePath property points to the location of ILMerge.exe console application -->
+    <Exec Command="$(ILMergeConsolePath) /out:bin\Debug\XrmFramework.XrmToolboxPlugin.dll bin\Debug\XrmFramework.XrmToolbox.Plugin.dll bin\Debug\XrmFramework.DeployUtils.dll /allowDup" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.  
   <Target Name="BeforeBuild">
