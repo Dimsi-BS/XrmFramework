@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>$(XrmFramework_FullFramework_TFM)</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Castle.Core" Version="4.4.1" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\XrmFramework.Core\XrmFramework.Core.csproj" />
+    <ProjectReference Include="..\XrmFramework\XrmFramework.csproj" />
+  </ItemGroup>
+
+</Project>

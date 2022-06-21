@@ -225,6 +225,7 @@ namespace DefinitionManager
                     }
                 }
 
+                
                 var lookupFields = new Dictionary<string, List<OneToManyRelationshipMetadata>>();
                 if (entity.ManyToOneRelationships.Any())
                 {
@@ -275,6 +276,7 @@ namespace DefinitionManager
                     }
                 }
 
+                // bar 2
                 entities.Add(entityDefinition);
                 newEntities.Add(newEntity);
 
@@ -562,6 +564,8 @@ namespace DefinitionManager
 
         object DoRetrieveAttributes(object item)
         {
+            var list = new List<AttributeDefinition>();
+            return list;
             var i = item as EntityDefinition;
 
             SendStepChange(string.Format("Retrieving '{0}' attributes...", i.LogicalName));
@@ -575,7 +579,7 @@ namespace DefinitionManager
 
             var response = (RetrieveEntityResponse)_service.Execute(request);
 
-            var list = new List<AttributeDefinition>();
+            
 
             foreach (AttributeMetadata attributeMetadata in response.EntityMetadata.Attributes.OrderBy(a => a.LogicalName))
             {

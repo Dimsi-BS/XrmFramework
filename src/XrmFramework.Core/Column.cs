@@ -40,7 +40,7 @@ namespace XrmFramework.Core
 
         public string EnumName { get; set; }
 
-        [JsonIgnore]
+        [JsonProperty("Select")]
         public bool Selected { get; set; }
     }
 }

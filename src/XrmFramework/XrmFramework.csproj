@@ -59,4 +59,8 @@
     <None Include="**/Generated/**/*.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Generated\XrmFramework.Analyzers\XrmFramework.Analyzers.Generators.TableSourceFileGenerator\" />
+  </ItemGroup>
+
 </Project>
