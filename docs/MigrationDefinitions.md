@@ -8,8 +8,7 @@ This document explains how to setup a project that uses the old Definition syste
 - Open a powershell window and set the working directory to the one where the executable is located
 - launch the executable with the following arguments : path to the dll for the core project of the project you want to migrate and the path to the folder were you want your tables to be saved.
 
-image du core project
-
+[CoreProject](MigrationCoreProject.PNG)
 
 
 image de la commande 
