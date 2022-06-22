@@ -8,6 +8,9 @@ There are three classes related to a an Entity from a CRM at various levels of a
 
 
 ## Creating a Binding Model
+First, you need a Definition corresponding to your Entity. You need to retrieve it from the CRM. You can see how by following [this](QuickStart.md) tutorial
+
+Photo du tool XRM
 
 ## Retrieving the CRM data
 
