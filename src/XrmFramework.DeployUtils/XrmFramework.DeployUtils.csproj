@@ -1,79 +1,77 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
-		<AssemblyName>XrmFramework.DeployUtils</AssemblyName>
-		<AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
-		<SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
-		<PublicSign>$(XrmFramework_PublicSign)</PublicSign>
-		<PackageId>XrmFramework.DeployUtils</PackageId>
+    <PropertyGroup>
+        <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
+        <AssemblyName>XrmFramework.DeployUtils</AssemblyName>
+        <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
+        <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
+        <PublicSign>$(XrmFramework_PublicSign)</PublicSign>
+        <PackageId>XrmFramework.DeployUtils</PackageId>
 
-		<NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.DeployUtils.nuspec</NuspecFile>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.DeployUtils.nuspec</NuspecFile>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
 
-		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<EmbedUntrackedSources>true</EmbedUntrackedSources>
-		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
 
-		<NoWarn>$(NoWarn);1591</NoWarn>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-	</PropertyGroup>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="AutoMapper" Version="10.1.1" />
-		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
-		<PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.42" />
-		<PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.42" />
-		<PackageReference Include="Microsoft.CrmSdk.Deployment" Version="9.0.2.34" />
-		<PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.110" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="AutoMapper" Version="10.1.1"/>
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1"/>
+        <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.42"/>
+        <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.42"/>
+        <PackageReference Include="Microsoft.CrmSdk.Deployment" Version="9.0.2.34"/>
+        <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.110"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0"/>
+    </ItemGroup>
 
-	<ItemGroup>
-		<Reference Include="System.Configuration" />
-		<Reference Include="Microsoft.CSharp" />
-	</ItemGroup>
+    <ItemGroup>
+        <Reference Include="System.Configuration"/>
+        <Reference Include="Microsoft.CSharp"/>
+    </ItemGroup>
 
-	<ItemGroup>
-		<Compile Include="..\XrmFramework.Core\**\*.cs" Link="XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />
-		<Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**;..\XrmFramework\Generated\**" />
+    <ItemGroup>
+        <Compile Include="..\XrmFramework.Core\**\*.cs" Link="XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**"/>
+        <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Definitions\Generated\DebugSessionDefinition.cs">
+            <Link>_Imports\XrmFramework.Plugin\RemoteDebugger\Definitions\Generated\DebugSessionDefinition.cs</Link>
+        </Compile>
+        <Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**;..\XrmFramework\Generated\**"/>
 
-		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\**\*.cs" Link="_Imports\XrmFramework.Plugin\RemoteDebugger\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\**\*partial*.cs;..\XrmFramework.Plugin\RemoteDebugger\RemoteDebugger.Remote\*.cs" />
-		<!--		<Compile Include="..\XrmFramework\Definitions\*.cs" Link="_Imports\XrmFramework\Definitions\%(RecursiveDir)%(Filename)%(Extension)" />-->
-<!--		<Compile Include="..\XrmFramework\Utils\Statics.cs" Link="_Imports\XrmFramework\Utils\Statics.cs" />-->
-<!--		<Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="_Imports\XrmFramework\Utils\SdkEnums.cs" />-->
-<!--		<Compile Include="..\XrmFramework\Attributes\*.cs" Link="_Imports\XrmFramework\Attributes\%(RecursiveDir)%(Filename)%(Extension)" />-->
-<!--		<Compile Include="..\XrmFramework\Utils\Relationship.cs" Link="_Imports\XrmFramework\Utils\Relationship.cs" />-->
+        <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\**\*.cs" Link="_Imports\XrmFramework.Plugin\RemoteDebugger\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\**\*partial*.cs;..\XrmFramework.Plugin\RemoteDebugger\RemoteDebugger.Remote\*.cs"/>
+        <Compile Include="..\XrmFramework.Plugin\**\StepConfiguration*.cs" Link="Model\StepConfigurations\%(RecursiveDir)%(Filename)%(Extension)"/>
 
-		<Compile Include="..\XrmFramework.Plugin\**\StepConfiguration*.cs" Link="Model\StepConfigurations\%(RecursiveDir)%(Filename)%(Extension)" />
 
-		<Reference Include="System.ComponentModel.DataAnnotations" />
-	</ItemGroup>
+        <Reference Include="System.ComponentModel.DataAnnotations"/>
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    </ItemGroup>
 
-	<PropertyGroup>
-		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-		<DefineConstants>$(DefineConstants);DISABLE_SERVICES</DefineConstants>
+    <PropertyGroup>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+        <DefineConstants>$(DefineConstants);DISABLE_SERVICES</DefineConstants>
 
-	</PropertyGroup>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<Compile Remove="**\Generated\**" />
-		<None Include="**\Generated\**" />
-	</ItemGroup>
+    <ItemGroup>
+        <Compile Remove="**\Generated\**"/>
+        <None Include="**\Generated\**"/>
+    </ItemGroup>
 
-	<ItemGroup>
-		<None Remove="**\*.table" />
-		<AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**" />
-		<AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
-	</ItemGroup>
+    <ItemGroup>
+        <None Remove="**\*.table"/>
+        <AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**"/>
+        <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**"/>
+    </ItemGroup>
 
 </Project>
