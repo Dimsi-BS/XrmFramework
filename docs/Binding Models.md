@@ -9,7 +9,9 @@ There are three classes related to a an Entity from a CRM at various levels of a
 
 ## Creating a Binding Model
 
-## Retrieving the binding data
+## Retrieving the CRM data
+
+## Updating the CRM data
 
 
 
