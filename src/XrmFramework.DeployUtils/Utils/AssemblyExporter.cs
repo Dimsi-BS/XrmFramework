@@ -93,7 +93,7 @@ public partial class AssemblyExporter : IAssemblyExporter
     /// <param name="objectRef"></param>
     /// <param name="objectTypeCode"></param>
     /// <returns></returns>
-    private AddSolutionComponentRequest CreateAddSolutionComponentRequest(EntityReference objectRef,
+    public AddSolutionComponentRequest CreateAddSolutionComponentRequest(EntityReference objectRef,
         int? objectTypeCode = null)
     {
         AddSolutionComponentRequest res = null;

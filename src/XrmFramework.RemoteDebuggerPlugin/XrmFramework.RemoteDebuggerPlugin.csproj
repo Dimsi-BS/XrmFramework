@@ -37,7 +37,7 @@
 	<ItemGroup>
 		<Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**;..\XrmFramework\Generated\**" />
 		<Compile Include="..\XrmFramework.Plugin\**\*.cs" Link="_Imports\XrmFramework.Plugin\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\bin\**;..\XrmFramework.Plugin\obj\**;..\XrmFramework.Plugin\Generated\**" />
-		<Compile Include="..\XrmFramework.RemoteDebugger.Client\Configuration\DebugAssemblySettings.cs" Link="_Imports\XrmFramework.RemoteDebugger.Client\Configuration\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\bin\**;..\XrmFramework.Plugin\obj\**" />
+		<Compile Include="..\XrmFramework.DeployUtils/RemoteDebugger/Configuration/DebugAssemblySettings.cs" Link="_Imports\XrmFramework.DeployUtils/RemoteDebugger/Configuration/%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\bin\**;..\XrmFramework.Plugin\obj\**" />
 	</ItemGroup>
 
 	<ItemGroup>

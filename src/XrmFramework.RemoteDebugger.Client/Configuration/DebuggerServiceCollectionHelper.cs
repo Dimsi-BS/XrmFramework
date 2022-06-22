@@ -9,6 +9,7 @@ using System.Linq;
 using XrmFramework.BindingModel;
 using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Service;
+using XrmFramework.DeployUtils.Utils;
 using XrmFramework.RemoteDebugger;
 
 namespace XrmFramework.DeployUtils.Configuration
@@ -16,7 +17,7 @@ namespace XrmFramework.DeployUtils.Configuration
     /// <summary>
     /// Configures the necessary services and parameters of the project
     /// </summary>
-    internal partial class ServiceCollectionHelper
+    public static class DebuggerServiceCollectionHelper
     {
         /// <summary>
         /// Configures the required objects used during RemoteDebug, such as :
@@ -39,7 +40,9 @@ namespace XrmFramework.DeployUtils.Configuration
                 throw new Exception("The connectionString \"DebugConnectionString\" is not defined.");
             }
 
-            var serviceCollection = InitServiceCollection();
+            var serviceCollection = ServiceCollectionHelper.InitServiceCollection();
+
+            serviceCollection.AddScoped<IAssemblyExporter, DebuggerAssemblyExporter>();
 
             var connectionString = ChooseConnectionString();
 

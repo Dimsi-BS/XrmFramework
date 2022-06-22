@@ -14,7 +14,7 @@ namespace XrmFramework.DeployUtils.Configuration
     /// <summary>
     /// Configures the necessary services and parameters of the project
     /// </summary>
-    internal partial class ServiceCollectionHelper
+    public class ServiceCollectionHelper
     {
         /// <summary>
         /// Configures the required objects used during Deploy, such as :
@@ -31,7 +31,9 @@ namespace XrmFramework.DeployUtils.Configuration
         public static IServiceProvider ConfigureForDeploy(string projectName)
         {
             var serviceCollection = InitServiceCollection();
-
+            
+            serviceCollection.AddScoped<IAssemblyExporter, AssemblyExporter>();
+            
             var targetSolutionName = GetTargetSolutionName(projectName);
             var connectionString = GetSelectedConnectionString();
 
@@ -51,13 +53,12 @@ namespace XrmFramework.DeployUtils.Configuration
         /// for more functionalities you can add them in the returned <see cref="IServiceCollection"/>
         /// </summary>
         /// <returns><see cref="IServiceCollection"/></returns>
-        private static IServiceCollection InitServiceCollection()
+        public static IServiceCollection InitServiceCollection()
         {
             var serviceCollection = new ServiceCollection();
 
             serviceCollection.AddScoped<IRegistrationService, RegistrationService>();
             serviceCollection.AddScoped<ISolutionContext, SolutionContext>();
-            serviceCollection.AddScoped<IAssemblyExporter, AssemblyExporter>();
             serviceCollection.AddScoped<IAssemblyImporter, AssemblyImporter>();
             serviceCollection.AddScoped<ICrmComponentComparer, CrmComponentComparer>();
             serviceCollection.AddScoped<ICrmComponentConverter, CrmComponentConverter>();

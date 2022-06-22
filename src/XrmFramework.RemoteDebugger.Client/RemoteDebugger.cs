@@ -42,7 +42,7 @@ namespace XrmFramework.RemoteDebugger.Common
                     "No project containing components to debug were found, please check that they are referenced");
             }
 
-            var serviceProvider = ServiceCollectionHelper.ConfigureForRemoteDebug();
+            var serviceProvider = DebuggerServiceCollectionHelper.ConfigureForRemoteDebug();
 
             var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
 

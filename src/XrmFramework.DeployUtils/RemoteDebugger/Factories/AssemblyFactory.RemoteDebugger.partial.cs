@@ -18,8 +18,8 @@ namespace XrmFramework.DeployUtils.Utils
         private readonly IMapper _mapper;
 
         public AssemblyFactory(IOptions<DebugSession> debugSession,
-                               IAssemblyImporter importer,
-                               IMapper mapper)
+                                IAssemblyImporter importer,
+                                IMapper mapper)
         {
             _debugSession = debugSession.Value;
             _importer = importer;

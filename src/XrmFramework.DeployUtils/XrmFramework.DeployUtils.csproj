@@ -40,12 +40,14 @@
 
 	<ItemGroup>
 		<Compile Include="..\XrmFramework.Core\**\*.cs" Link="XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />
+		<Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**;..\XrmFramework\Generated\**" />
 
-		<Compile Include="..\XrmFramework\Definitions\*.cs" Link="_Imports\XrmFramework\Definitions\%(RecursiveDir)%(Filename)%(Extension)" />
-		<Compile Include="..\XrmFramework\Utils\Statics.cs" Link="_Imports\XrmFramework\Utils\Statics.cs" />
-		<Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="_Imports\XrmFramework\Utils\SdkEnums.cs" />
-		<Compile Include="..\XrmFramework\Attributes\*.cs" Link="_Imports\XrmFramework\Attributes\%(RecursiveDir)%(Filename)%(Extension)" />
-		<Compile Include="..\XrmFramework\Utils\Relationship.cs" Link="_Imports\XrmFramework\Utils\Relationship.cs" />
+		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\**\*.cs" Link="_Imports\XrmFramework.Plugin\RemoteDebugger\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\**\*partial*.cs;..\XrmFramework.Plugin\RemoteDebugger\RemoteDebugger.Remote\*.cs" />
+		<!--		<Compile Include="..\XrmFramework\Definitions\*.cs" Link="_Imports\XrmFramework\Definitions\%(RecursiveDir)%(Filename)%(Extension)" />-->
+<!--		<Compile Include="..\XrmFramework\Utils\Statics.cs" Link="_Imports\XrmFramework\Utils\Statics.cs" />-->
+<!--		<Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="_Imports\XrmFramework\Utils\SdkEnums.cs" />-->
+<!--		<Compile Include="..\XrmFramework\Attributes\*.cs" Link="_Imports\XrmFramework\Attributes\%(RecursiveDir)%(Filename)%(Extension)" />-->
+<!--		<Compile Include="..\XrmFramework\Utils\Relationship.cs" Link="_Imports\XrmFramework\Utils\Relationship.cs" />-->
 
 		<Compile Include="..\XrmFramework.Plugin\**\StepConfiguration*.cs" Link="Model\StepConfigurations\%(RecursiveDir)%(Filename)%(Extension)" />
 
@@ -64,8 +66,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="**\Generated\**"/>
-		<None Include="**\Generated\**"/>
+		<Compile Remove="**\Generated\**" />
+		<None Include="**\Generated\**" />
 	</ItemGroup>
 
 	<ItemGroup>
