@@ -12,7 +12,7 @@ First, you need a Definition corresponding to your Entity. You need to retrieve 
 
      Photo du tool XRM
 
-Then create a new class in your project, it needs to inherit either IBindingModel or BindingModelBase.
+Then create a new class in your project, it needs to inherit either IBindingModel or BindingModelBase the difference between the two is explained in [this](## Updating the CRM data part).
 
 ## Retrieving the CRM data
 
