@@ -13,6 +13,8 @@ First, you need a Definition corresponding to your Entity. You need to retrieve 
      Photo du tool XRM
 
 Then create a new class in your project, it needs to inherit either IBindingModel or BindingModelBase the difference between the two is explained in [this](##updating-the_crm-data) part.
+You can add a property for each column you want to see in the object.
+To do so, use the CrmMapping attribute and the corresponding EntityDefinition. The type of the property has to make sense for the 
 
 ## Retrieving the CRM data
 
