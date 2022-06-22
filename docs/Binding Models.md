@@ -7,5 +7,10 @@ There are three classes related to a an Entity from a CRM at various levels of a
 
 # Quickstart
 
+## Creating a Binding Model
+
+## Retrieving the binding data
+
+
 
 # JSon Serialization
