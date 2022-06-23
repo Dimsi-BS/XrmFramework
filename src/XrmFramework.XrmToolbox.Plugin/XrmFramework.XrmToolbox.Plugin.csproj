@@ -162,13 +162,13 @@
       <Version>3.6.3</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies">
-      <Version>9.0.2.42</Version>
+      <Version>9.0.2.45</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CrmSdk.Deployment">
       <Version>9.0.2.34</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CrmSdk.Workflow">
-      <Version>9.0.2.42</Version>
+      <Version>9.0.2.45</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly">
       <Version>9.1.0.110</Version>

@@ -9,7 +9,7 @@
 
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
 
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
         <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.110" />
     </ItemGroup>
 

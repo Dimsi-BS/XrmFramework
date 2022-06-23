@@ -34,29 +34,29 @@ namespace Newtonsoft.Json.Serialization
 {
     internal class JsonSerializerProxy : JsonSerializer
     {
-        private readonly JsonSerializerReader _serializerReader;
-        private readonly JsonSerializerWriter _serializerWriter;
-        private readonly JsonSerializer _serializer;
+        private readonly JsonSerializerInternalReader? _serializerReader;
+        private readonly JsonSerializerInternalWriter? _serializerWriter;
+        internal readonly JsonSerializer _serializer;
 
-        public override event EventHandler<ErrorEventArgs> Error
+        public override event EventHandler<ErrorEventArgs>? Error
         {
             add => _serializer.Error += value;
             remove => _serializer.Error -= value;
         }
 
-        public override IReferenceResolver ReferenceResolver
+        public override IReferenceResolver? ReferenceResolver
         {
             get => _serializer.ReferenceResolver;
             set => _serializer.ReferenceResolver = value;
         }
 
-        public override ITraceWriter TraceWriter
+        public override ITraceWriter? TraceWriter
         {
             get => _serializer.TraceWriter;
             set => _serializer.TraceWriter = value;
         }
 
-        public override IEqualityComparer EqualityComparer
+        public override IEqualityComparer? EqualityComparer
         {
             get => _serializer.EqualityComparer;
             set => _serializer.EqualityComparer = value;
@@ -222,7 +222,7 @@ namespace Newtonsoft.Json.Serialization
             set => _serializer.CheckAdditionalContent = value;
         }
 
-        internal JsonSerializerBase GetInternalSerializer()
+        internal JsonSerializerInternalBase GetInternalSerializer()
         {
             if (_serializerReader != null)
             {
@@ -230,11 +230,11 @@ namespace Newtonsoft.Json.Serialization
             }
             else
             {
-                return _serializerWriter;
+                return _serializerWriter!;
             }
         }
 
-        public JsonSerializerProxy(JsonSerializerReader serializerReader)
+        public JsonSerializerProxy(JsonSerializerInternalReader serializerReader)
         {
             ValidationUtils.ArgumentNotNull(serializerReader, nameof(serializerReader));
 
@@ -242,7 +242,7 @@ namespace Newtonsoft.Json.Serialization
             _serializer = serializerReader.Serializer;
         }
 
-        public JsonSerializerProxy(JsonSerializerWriter serializerWriter)
+        public JsonSerializerProxy(JsonSerializerInternalWriter serializerWriter)
         {
             ValidationUtils.ArgumentNotNull(serializerWriter, nameof(serializerWriter));
 
@@ -250,7 +250,7 @@ namespace Newtonsoft.Json.Serialization
             _serializer = serializerWriter.Serializer;
         }
 
-        internal override object DeserializeInternal(JsonReader reader, Type objectType)
+        internal override object? DeserializeInternal(JsonReader reader, Type? objectType)
         {
             if (_serializerReader != null)
             {
@@ -274,7 +274,7 @@ namespace Newtonsoft.Json.Serialization
             }
         }
 
-        internal override void SerializeInternal(JsonWriter jsonWriter, object value, Type rootType)
+        internal override void SerializeInternal(JsonWriter jsonWriter, object? value, Type? rootType)
         {
             if (_serializerWriter != null)
             {
