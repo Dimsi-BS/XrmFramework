@@ -59,10 +59,10 @@
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Configuration;
-using System.Linq;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -584,15 +584,14 @@ namespace BoDi
 
         static ObjectContainer()
         {
-            DisableThreadSafeResolution =
-                !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(DISABLE_THREAD_SAFE_RESOLUTION));
+            DisableThreadSafeResolution = false;
         }
 
         public event Action<object> ObjectCreated;
         public IObjectContainer BaseContainer => baseContainer;
 
-        public static TimeSpan ConcurrentObjectResolutionTimeout { get; set; } = TimeSpan.FromSeconds(1); 
-            
+        public static TimeSpan ConcurrentObjectResolutionTimeout { get; set; } = TimeSpan.FromSeconds(1);
+
         public ObjectContainer(IObjectContainer baseContainer = null)
         {
             if (baseContainer != null && !(baseContainer is ObjectContainer))
@@ -663,11 +662,11 @@ namespace BoDi
 
         private IRegistration EnsureImplicitRegistration(RegistrationKey key)
         {
-           var registration =  registrations.GetOrAdd(key, (registrationKey =>  new TypeRegistration(registrationKey.Type)));
+            var registration = registrations.GetOrAdd(key, (registrationKey => new TypeRegistration(registrationKey.Type)));
 
-           AddNamedDictionaryRegistration(key);
+            AddNamedDictionaryRegistration(key);
 
-           return registration;
+            return registration;
         }
 
         private void AddNamedDictionaryRegistration(RegistrationKey key)
@@ -920,7 +919,7 @@ namespace BoDi
             var resolutionPathForResolve = registrationToUse.Key == this ?
                 resolutionPath : new ResolutionList();
             var result = registrationToUse.Value.Resolve(registrationToUse.Key, keyToResolve, resolutionPathForResolve);
-           
+
             return result;
         }
 
