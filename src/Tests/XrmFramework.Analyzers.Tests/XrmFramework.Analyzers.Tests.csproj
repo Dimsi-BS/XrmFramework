@@ -30,8 +30,9 @@
   <ItemGroup>
     <Compile Remove="**\*.verified.*" />
   </ItemGroup>
-  
+
   <ItemGroup>
+    <ProjectReference Include="..\..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" />
   </ItemGroup>
 
 </Project>
