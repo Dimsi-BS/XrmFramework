@@ -33,6 +33,8 @@ namespace XrmFramework.Analyzers.Generators
                 }
             }
 
+            sb.AppendLine("#if PLUGIN || CORE_PROJECT");
+
             foreach (var ns in namespaceSet.OrderBy(n => n))
             {
                 sb
@@ -81,6 +83,8 @@ namespace XrmFramework.Analyzers.Generators
             }
 
             sb.AppendLine("}");
+
+            sb.AppendLine("#endif");
 
             return sb.ToString();
         }
