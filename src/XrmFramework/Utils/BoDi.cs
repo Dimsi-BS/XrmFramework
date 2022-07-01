@@ -1,23 +1,23 @@
 ﻿/**************************************************************************************
- * 
- * BoDi: A very simple IoC container, easily embeddable also as a source code. 
- * 
+ *
+ * BoDi: A very simple IoC container, easily embeddable also as a source code.
+ *
  * BoDi was created to support SpecFlow (http://www.specflow.org) by Gaspar Nagy (http://gasparnagy.com/)
- * 
+ *
  * Project source & unit tests: http://github.com/gasparnagy/BoDi
  * License: Apache License 2.0
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED 
- * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+ * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
- * 
+ *
  * Change history
  * V1.5
  *   - Thread-safe object resolution
  *   - New 'instance per dependency' strategy added for type and factory registrations (by MKMZ)
- * 
+ *
  * v1.4
  *   - Provide .NET Standard 2.0 and .NET 4.5 library package (#14 by SabotageAndi)
  *   - Fix: Collection was modified issue (#7)
@@ -41,16 +41,16 @@
  *   - should be able to disable configuration file support (and the dependency on System.Configuration) with BODI_DISABLECONFIGFILESUPPORT compilation symbol
  *   - smaller code refactoring
  *   - improve resolution path handling
- * 
+ *
  * v1.1 - released with SpecFlow v1.9.0
- * 
- * 
+ *
+ *
  * --------------
  * Note about thread safety
- * 
+ *
  * BoDi container is not reentrant and can't be used from different threads without further considerations.
  * Typical user (Specflow) ensures it by allocating container per test thread and all feature- and scenario- containers as child containers.
- * The manual synchronization is not necessary for usual cases 
+ * The manual synchronization is not necessary for usual cases
  * (using test-thread, feature or scenario containers and not creating multiple threads from the binding code).
  * Thread-safe object resolution has been introduced to handle the rare cases when dependencies might be resolved from the shared global context concurrently.
  *
@@ -59,10 +59,10 @@
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Configuration;
-using System.Linq;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -116,7 +116,7 @@ namespace BoDi
         IStrategyRegistration RegisterTypeAs<TType, TInterface>(string name = null) where TType : class, TInterface;
 
         /// <summary>
-        /// Registers an instance 
+        /// Registers an instance
         /// </summary>
         /// <typeparam name="TInterface">Interface will be resolved</typeparam>
         /// <param name="instance">The instance implements the interface.</param>
@@ -131,7 +131,7 @@ namespace BoDi
         void RegisterInstanceAs<TInterface>(TInterface instance, string name = null, bool dispose = false) where TInterface : class;
 
         /// <summary>
-        /// Registers an instance 
+        /// Registers an instance
         /// </summary>
         /// <param name="instance">The instance implements the interface.</param>
         /// <param name="interfaceType">Interface will be resolved</param>
@@ -219,7 +219,7 @@ namespace BoDi
         /// <returns></returns>
         IStrategyRegistration InstancePerDependency();
         /// <summary>
-        /// Changes resolving strategy to a single instance per object container. This strategy is a default behaviour. 
+        /// Changes resolving strategy to a single instance per object container. This strategy is a default behaviour.
         /// </summary>
         /// <returns></returns>
         IStrategyRegistration InstancePerContext();
@@ -584,15 +584,14 @@ namespace BoDi
 
         static ObjectContainer()
         {
-            DisableThreadSafeResolution =
-                !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(DISABLE_THREAD_SAFE_RESOLUTION));
+            DisableThreadSafeResolution = false;
         }
 
         public event Action<object> ObjectCreated;
         public IObjectContainer BaseContainer => baseContainer;
 
-        public static TimeSpan ConcurrentObjectResolutionTimeout { get; set; } = TimeSpan.FromSeconds(1); 
-            
+        public static TimeSpan ConcurrentObjectResolutionTimeout { get; set; } = TimeSpan.FromSeconds(1);
+
         public ObjectContainer(IObjectContainer baseContainer = null)
         {
             if (baseContainer != null && !(baseContainer is ObjectContainer))
@@ -663,11 +662,11 @@ namespace BoDi
 
         private IRegistration EnsureImplicitRegistration(RegistrationKey key)
         {
-           var registration =  registrations.GetOrAdd(key, (registrationKey =>  new TypeRegistration(registrationKey.Type)));
+            var registration = registrations.GetOrAdd(key, (registrationKey => new TypeRegistration(registrationKey.Type)));
 
-           AddNamedDictionaryRegistration(key);
+            AddNamedDictionaryRegistration(key);
 
-           return registration;
+            return registration;
         }
 
         private void AddNamedDictionaryRegistration(RegistrationKey key)
@@ -920,7 +919,7 @@ namespace BoDi
             var resolutionPathForResolve = registrationToUse.Key == this ?
                 resolutionPath : new ResolutionList();
             var result = registrationToUse.Value.Resolve(registrationToUse.Key, keyToResolve, resolutionPathForResolve);
-           
+
             return result;
         }
 
