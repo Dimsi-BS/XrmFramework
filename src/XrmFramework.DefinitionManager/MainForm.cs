@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using XrmFramework.Core;
+using XrmFramework.DefinitionManager.Extensions;
 using RelationshipAttributeDefinition = DefinitionManager.Definitions.RelationshipAttributeDefinition;
 
 namespace XrmFramework.DefinitionManager
@@ -525,10 +526,10 @@ namespace XrmFramework.DefinitionManager
                                                 }
                                                 else
                                                 {
-                                                    sb.Append($"\"{rAttr.TargetEntityName}\"");
+                                                    sb.Append($"\"{rAttr.TargetEntityName.EscapeQuotes()}\"");
                                                 }
 
-                                                sb.Append($", EntityRole.{rAttr.Role}, \"{rAttr.NavigationPropertyName}\", ");
+                                                sb.Append($", EntityRole.{rAttr.Role}, \"{rAttr.NavigationPropertyName.EscapeQuotes()}\", ");
 
                                                 if (rAttr.Role == "Referencing")
                                                 {
@@ -545,7 +546,7 @@ namespace XrmFramework.DefinitionManager
                                                     }
                                                     else
                                                     {
-                                                        sb.Append($"\"{rAttr.LookupFieldName}\"");
+                                                        sb.Append($"\"{rAttr.LookupFieldName.EscapeQuotes()}\"");
                                                     }
                                                 }
                                                 else
