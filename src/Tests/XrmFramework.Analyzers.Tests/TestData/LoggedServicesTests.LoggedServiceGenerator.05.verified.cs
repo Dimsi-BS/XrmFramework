@@ -128,6 +128,44 @@ namespace XrmFramework
             Log(nameof(TestEnum), "End : duration = {0}", sw.Elapsed);
         }
 
+        public byte[] GetByteContent()
+        {
+            #region Parameters check
+            #endregion
+
+            var sw = new Stopwatch();
+            sw.Start();
+
+            Log(nameof(GetByteContent), "Start");
+
+            var returnValue = Service.GetByteContent();
+
+            Log(nameof(GetByteContent), "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
+
+            return returnValue;
+        }
+
+        public int[] GetIntArray(byte[] content)
+        {
+            #region Parameters check
+            if (content == default)
+            {
+                throw new ArgumentNullException(nameof(content));
+            }
+            #endregion
+
+            var sw = new Stopwatch();
+            sw.Start();
+
+            Log(nameof(GetIntArray), "Start: content = {0}", content);
+
+            var returnValue = Service.GetIntArray(content);
+
+            Log(nameof(GetIntArray), "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
+
+            return returnValue;
+        }
+
         public void Update(global::Microsoft.Xrm.Sdk.Entity entity)
         {
             #region Parameters check

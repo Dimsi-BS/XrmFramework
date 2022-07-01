@@ -37,6 +37,10 @@ namespace XrmFramework {
         void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, bool bypassCustomPluginExecution, params EntityReference[] entityReferences);
 
         void TestEnum(EnumTest value = EnumTest.Null);
+
+        byte[] GetByteContent();
+
+        int[] GetIntArray(byte[] content);
     }
 
     public enum EnumTest

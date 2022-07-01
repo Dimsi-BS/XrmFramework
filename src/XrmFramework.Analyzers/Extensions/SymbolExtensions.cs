@@ -8,6 +8,8 @@ namespace XrmFramework.Analyzers.Extensions
     {
         public static string GetFullMetadataName(this ISymbol? s)
         {
+            var symbolName = s?.ToString();
+
             if (s == null || IsRootNamespace(s))
             {
                 return string.Empty;
@@ -16,22 +18,29 @@ namespace XrmFramework.Analyzers.Extensions
             var sb = new StringBuilder(s.MetadataName);
             var last = s;
 
-            s = s.ContainingSymbol;
-
-            while (!IsRootNamespace(s))
+            if (s.ContainingSymbol != null)
             {
-                if (s is ITypeSymbol && last is ITypeSymbol)
-                {
-                    sb.Insert(0, '+');
-                }
-                else
-                {
-                    sb.Insert(0, '.');
-                }
-
-                sb.Insert(0, s.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
-                //sb.Insert(0, s.MetadataName);
                 s = s.ContainingSymbol;
+
+                while (!IsRootNamespace(s))
+                {
+                    if (s is ITypeSymbol && last is ITypeSymbol)
+                    {
+                        sb.Insert(0, '+');
+                    }
+                    else
+                    {
+                        sb.Insert(0, '.');
+                    }
+
+                    sb.Insert(0, s.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
+
+                    s = s.ContainingSymbol;
+                }
+            }
+            else
+            {
+                sb.Insert(0, s.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
             }
 
             return sb.ToString();
