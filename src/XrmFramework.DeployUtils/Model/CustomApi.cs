@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Microsoft.Xrm.Sdk;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Xrm.Sdk;
 
 namespace Deploy
 {
@@ -13,7 +13,7 @@ namespace Deploy
         public List<CustomApiResponseProperty> OutArguments { get; } = new List<CustomApiResponseProperty>();
 
 
-        public static CustomApi FromXrmFrameworkCustomApi(dynamic record, string prefix)
+        public static CustomApi FromXrmFrameworkCustomApi(dynamic record, string prefix, bool isOnPrem)
         {
             var type = (Type)record.GetType();
 
@@ -28,7 +28,7 @@ namespace Deploy
 
             var customApi = new CustomApi
             {
-                DisplayName = string.IsNullOrWhiteSpace(customApiAttribute.DisplayName) ? name: customApiAttribute.DisplayName,
+                DisplayName = string.IsNullOrWhiteSpace(customApiAttribute.DisplayName) ? name : customApiAttribute.DisplayName,
                 Name = name,
                 AllowedCustomProcessingStepType = new OptionSetValue((int)customApiAttribute.AllowedCustomProcessing),
                 BindingType = new OptionSetValue((int)customApiAttribute.BindingType),
@@ -38,9 +38,13 @@ namespace Deploy
                 IsFunction = customApiAttribute.IsFunction,
                 IsPrivate = customApiAttribute.IsPrivate,
                 UniqueName = $"{prefix}_{name}",
-                WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled,
                 FullName = type.FullName
             };
+
+            if (!isOnPrem)
+            {
+                customApi.WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled;
+            }
 
             foreach (var argument in record.Arguments)
             {

@@ -25,7 +25,7 @@ namespace XrmFramework.DeployUtils
     {
         private static readonly List<PluginAssembly> _list = new();
 
-        public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
+        public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName, bool isOnPrem = false)
         {
             var xrmFrameworkConfigSection = ConfigHelper.GetSection();
 
@@ -111,7 +111,7 @@ namespace XrmFramework.DeployUtils
                     customApiTemp = Activator.CreateInstance(type, new object[] { });
                 }
 
-                var customApi = CustomApi.FromXrmFrameworkCustomApi(customApiTemp, _publisher.CustomizationPrefix);
+                var customApi = CustomApi.FromXrmFrameworkCustomApi(customApiTemp, _publisher.CustomizationPrefix, isOnPrem);
 
                 customApis.Add(customApi);
             }
@@ -642,7 +642,7 @@ namespace XrmFramework.DeployUtils
 
         private static SdkMessageProcessingStep GetStepToRegister(Guid pluginTypeId, Model.Step step)
         {
-            // Issue with CRM SDK / Description field max length = 256 characters 
+            // Issue with CRM SDK / Description field max length = 256 characters
             var descriptionAttributeMaxLength = 256;
 
             var entityName = step.EntityName;
