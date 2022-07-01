@@ -32,22 +32,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\XrmFramework.Analyzers\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Compile Update="TableFiles.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>TableFiles.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <EmbeddedResource Update="TableFiles.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>TableFiles.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

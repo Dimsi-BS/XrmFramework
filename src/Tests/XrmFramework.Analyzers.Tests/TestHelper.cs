@@ -1,11 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Xrm.Sdk;
-using System.Collections.Immutable;
-using System.Linq;
 using System.Threading.Tasks;
 using VerifyXunit;
-using XrmFramework.Analyzers.Model;
 
 namespace XrmFramework.Analyzers.Tests
 {
@@ -31,8 +28,7 @@ namespace XrmFramework.Analyzers.Tests
 
             // The GeneratorDriver is used to run our generator against a compilation
             GeneratorDriver driver = CSharpGeneratorDriver
-                .Create(generator)
-                .AddAdditionalTexts(ImmutableArray.CreateRange(additionalTexts.Select(a => new TableAdditionalText(a)).Cast<AdditionalText>()));
+                .Create(generator);
 
             // Run the source generator!
             driver = driver.RunGenerators(compilation);

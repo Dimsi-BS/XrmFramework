@@ -29,6 +29,20 @@ namespace XrmFramework {
     public partial interface IService
     {
         Guid Create(Entity entity);
+
+        Guid Create2(Entity entity);
+
+        void AssociateRecords(EntityReference objectRef, Relationship relationName, params EntityReference[] entityReferences);
+
+        void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, bool bypassCustomPluginExecution, params EntityReference[] entityReferences);
+
+        void TestEnum(EnumTest value = EnumTest.Null);
+    }
+
+    public enum EnumTest
+    {
+        Null = 0,
+        FirstValue = 1
     }
 
     public partial class DefaultService : IService
@@ -36,6 +50,22 @@ namespace XrmFramework {
         public Guid Create(Entity entity)
         {
             return Guid.Empty;
+        }
+        public Guid Create2(Entity entity)
+        {
+            return Guid.Empty;
+        }
+
+        public void AssociateRecords(EntityReference objectRef, Relationship relationName, params EntityReference[] entityReferences)
+        {
+        }
+
+        public void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, bool bypassCustomPluginExecution, params EntityReference[] entityReferences)
+        {
+        }
+
+        void IService.TestEnum(EnumTest value = EnumTest.Null)
+        {
         }
     }
 

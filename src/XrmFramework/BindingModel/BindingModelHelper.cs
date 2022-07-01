@@ -1473,7 +1473,7 @@ namespace XrmFramework.BindingModel
                     request.ColumnSet.AddColumn(mappingAttribute.AttributeName);
                 }
 
-                if (!entityDefinition.IsLookupAttribute(mappingAttribute.AttributeName) || property.ObjectType == typeof(Guid) || property.ObjectType == typeof(EntityReference))
+                if (!entityDefinition.IsLookupAttribute(mappingAttribute.AttributeName) || property.CrmLookupAttribute == null && (property.ObjectType == typeof(Guid) || property.ObjectType == typeof(EntityReference)))
                 {
                     continue;
                 }

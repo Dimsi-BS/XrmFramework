@@ -1,69 +1,19 @@
 ﻿<Project ToolsVersion="14.0"
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
-  <ItemGroup Condition="'$(XrmFrameworkDisableDependencyProjectGeneration)' == '' AND $(DefineConstants.IndexOf('XRMFRAMEWORK_PLUGIN')) == -1">
-    <Compile Include="obj\XrmFrameworkServiceCollectionExtension.cs" />
-  </ItemGroup>
+         xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 
   <PropertyGroup>
     <!-- Here you need to experiment with [Build/Compile/SomeOther]DependsOn property -->
     <CoreCompileDependsOn>
-      GenerateDependencyInjection;
+      CheckVariables;
       $(CoreCompileDependsOn)
     </CoreCompileDependsOn>
   </PropertyGroup>
 
-
-
-  <Target Name="RestoreDependencyProject" Condition="'$(XrmFrameworkDisableDependencyProjectGeneration)' == '' AND '$(BuildingProject)' == 'true' AND $(DefineConstants.IndexOf('XRMFRAMEWORK_PLUGIN')) == -1">
-    <Message Importance="High" Text="Preparing DependencyProject .Net Framework 4.6.2" />
-
-    <PropertyGroup>
-      <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
-      <ProjectFile>$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\DependencyProject.csproj</ProjectFile>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <FilesToCopy Include="$([MSBuild]::Escape($(MSBuildThisFileDirectory)))\..\DependencyProject\**" />
-    </ItemGroup>
-
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\%(RecursiveDir)%(Filename)%(Extension)')" />
-
-    <MSBuild Projects="$(ProjectFile)" Targets="Restore" Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);FakeProperty=restore" ContinueOnError="false" />
-
-  </Target>
-
-  <Target Name="GenerateDependencyInjection" DependsOnTargets="RestoreDependencyProject" Condition="'$(XrmFrameworkDisableDependencyProjectGeneration)' == '' AND '$(BuildingProject)' == 'true' AND $(DefineConstants.IndexOf('XRMFRAMEWORK_PLUGIN')) == -1">
-    <Message Importance="High" Text="Building DependencyProject .Net Framework 4.6.2" />
-
-    <PropertyGroup>
-      <_XrmFrameworkTaskDir Condition=" '$(_XrmFrameworkTaskDir)'=='' ">$(MSBuildThisFileDirectory)tasks</_XrmFrameworkTaskDir>
-      <_XrmFrameworkDependencyProjectGenerator Condition=" '$(_XrmFrameworkTaskAssemblyFullPath)'=='' ">XrmFramework.MSBuild.Reflection.exe</_XrmFrameworkDependencyProjectGenerator>
-    </PropertyGroup>
-
-    <PropertyGroup>
-      <ProjectFolderPath>$([System.IO.Directory]::GetParent($(MSBuildProjectFullPath)))</ProjectFolderPath>
-    </PropertyGroup>
-
-    <Delete Files="@(LoggedFiles)" ContinueOnError="true" />
-
-    <PropertyGroup>
-      <ProjectFile>$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\DependencyProject.csproj</ProjectFile>
-      <ProjectOutputFile>$([MSBuild]::Escape($(ProjectFolderPath)))\bin\DependencyProject\bin\$(Configuration)\net462\DependencyProject.dll</ProjectOutputFile>
-    </PropertyGroup>
-
-    <MSBuild
-     Projects="$(ProjectFile)"
-     Targets="Clean;Build"
-     Properties="Configuration=$(Configuration);SolutionDir=$(SolutionDir);RootFolder=$(RootFolder);FakeProperty=one"
-     ContinueOnError="true" />
-
-    <Exec Command="$(_XrmFrameworkDependencyProjectGenerator) &quot;$(ProjectOutputFile)&quot; &quot;$([MSBuild]::Escape($(ProjectFolderPath)))\obj&quot;"
-          WorkingDirectory="$([MSBuild]::Escape($(_XrmFrameworkTaskDir)))"
-          YieldDuringToolExecution="true" 
-          StandardErrorImportance="High" />
-
+  <Target Name="CheckVariables" >
+    <Error
+      Text="The RootFolder property must be set in the root Directory.Build.props file. It must be set like this  &lt;PropertyGroup&gt; &lt;RootFolder&gt;%24(MSBuildThisFileDirectory)&lt;/RootFolder&gt; &lt;/PropertyGroup&gt;"
+      Condition="'$(RootFolder)' == ''" />
   </Target>
 
 </Project>
