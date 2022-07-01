@@ -1,5 +1,5 @@
 ﻿
-#if !DISABLE_DI
+#if PLUGIN || CORE_PROJECT
 
 using Microsoft.Extensions.DependencyInjection;
 

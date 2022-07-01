@@ -1,4 +1,4 @@
-#if !DISABLE_DI
+#if PLUGIN || CORE_PROJECT
 
 using BoDi;
 using Microsoft.Extensions.DependencyInjection.Extensions;

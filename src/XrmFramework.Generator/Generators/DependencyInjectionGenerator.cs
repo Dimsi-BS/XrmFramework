@@ -26,7 +26,7 @@ namespace XrmFramework.Generator.Generators
                 namespaceSet.Add(t.Namespace);
             }
 
-            sb.AppendLine("#if !DISABLE_DI");
+            sb.AppendLine("#if PLUGIN || CORE_PROJECT");
 
             foreach (var ns in namespaceSet.OrderBy(n => n))
             {

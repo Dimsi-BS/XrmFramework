@@ -44,10 +44,6 @@
     <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="0.6.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="build\DependencyProject\DependencyProject.csproj" />
-  </ItemGroup>
-
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
