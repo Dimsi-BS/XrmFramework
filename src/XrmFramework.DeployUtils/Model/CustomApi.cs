@@ -50,11 +50,11 @@ namespace Deploy
             {
                 if (argument.IsInArgument)
                 {
-                    customApi.InArguments.Add(CustomApiRequestParameter.FromXrmFrameworkArgument(customApi.Name, argument));
+                    customApi.InArguments.Add(CustomApiRequestParameter.FromXrmFrameworkArgument(customApi.Name, argument, isOnPrem));
                 }
                 else
                 {
-                    customApi.OutArguments.Add(CustomApiResponseProperty.FromXrmFrameworkArgument(customApi.Name, argument));
+                    customApi.OutArguments.Add(CustomApiResponseProperty.FromXrmFrameworkArgument(customApi.Name, argument, isOnPrem));
                 }
             }
 
