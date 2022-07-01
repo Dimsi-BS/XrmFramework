@@ -16,8 +16,4 @@
     </Content>
   </ItemGroup>
 
-    <PropertyGroup>
-        <DefineConstants>$(DefineConstants);PLUGIN</DefineConstants>
-    </PropertyGroup>
-
 </Project>

@@ -24,4 +24,8 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
+
+    <PropertyGroup>
+        <DefineConstants>$(DefineConstants);PLUGIN</DefineConstants>
+    </PropertyGroup>
 </Project>
