@@ -117,7 +117,7 @@ namespace ClientNamespace.Core
             Log(nameof(StringParameter), "End : duration = {0}", sw.Elapsed);
         }
 
-        public void StringParameterDefaultValue(string parameter = null)
+        public void StringParameterDefaultValue(string parameter)
         {
             #region Parameters check
             #endregion

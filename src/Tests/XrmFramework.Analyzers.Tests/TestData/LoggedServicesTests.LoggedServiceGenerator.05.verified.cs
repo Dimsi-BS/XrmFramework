@@ -113,7 +113,7 @@ namespace XrmFramework
             Log(nameof(AssociateRecords), "End : duration = {0}", sw.Elapsed);
         }
 
-        public void TestEnum(global::XrmFramework.EnumTest value = Null)
+        public void TestEnum(global::XrmFramework.EnumTest value)
         {
             #region Parameters check
             #endregion

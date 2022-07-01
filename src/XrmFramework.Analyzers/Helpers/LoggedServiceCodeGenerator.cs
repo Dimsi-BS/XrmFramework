@@ -2,11 +2,7 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using XrmFramework.Analyzers.Extensions;
 using XrmFramework.DeployUtils.Generators;
 
@@ -197,11 +193,11 @@ namespace XrmFramework.Analyzers.Helpers
                 .WithGenericsOptions(SymbolDisplayGenericsOptions.IncludeVariance |
                                      SymbolDisplayGenericsOptions.IncludeTypeParameters |
                                      SymbolDisplayGenericsOptions.IncludeTypeConstraints)
-                .WithParameterOptions(SymbolDisplayParameterOptions.IncludeDefaultValue |
-                                      SymbolDisplayParameterOptions.IncludeName |
+                .WithParameterOptions(SymbolDisplayParameterOptions.IncludeName |
                                       SymbolDisplayParameterOptions.IncludeType |
                                       SymbolDisplayParameterOptions.IncludeParamsRefOut |
-                                      SymbolDisplayParameterOptions.IncludeExtensionThis);
+                                      SymbolDisplayParameterOptions.IncludeExtensionThis)
+                ;
 
             if (!displayTypes)
             {
