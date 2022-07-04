@@ -4,9 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Text;
-using System.Threading;
 using XrmFramework.Analyzers.Extensions;
 using XrmFramework.Analyzers.Helpers;
 
@@ -49,7 +47,7 @@ namespace XrmFramework.Analyzers.Generators
 
 
             var content = new InternalDependencyGenerator().GetInternalDependencyFileContent(services, implementations);
-            context.AddSource("DependencyInjection.cs", SourceText.From(content, Encoding.UTF8));
+            context.AddSource("XrmFrameworkServiceCollectionExtension.partial.cs", SourceText.From(content, Encoding.UTF8));
         }
 
         private bool IsIServiceSyntax(SyntaxNode node, CancellationToken cancellationToken)

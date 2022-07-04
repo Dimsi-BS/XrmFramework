@@ -45,13 +45,13 @@ namespace XrmFramework.Analyzers.Generators
 
             sb
                 .AppendLine()
-                .AppendLine("namespace XrmFramework")
+                .AppendLine("namespace Microsoft.Extensions.DependencyInjection")
                 .AppendLine("{");
 
             using (sb.Indent())
             {
                 sb
-                    .AppendLine("partial class InternalDependencyProvider")
+                    .AppendLine("partial class XrmFrameworkServiceCollectionExtension")
                     .AppendLine("{");
 
                 using (sb.Indent())
