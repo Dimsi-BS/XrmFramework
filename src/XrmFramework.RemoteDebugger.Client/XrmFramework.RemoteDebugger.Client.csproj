@@ -42,8 +42,8 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.42" />
-    <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.42" />
+    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.45" />
+    <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.45" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
