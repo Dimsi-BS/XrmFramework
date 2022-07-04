@@ -1,4 +1,4 @@
-#if PLUGIN || CORE_PROJECT
+#if CORE_PROJECT
 
 using BoDi;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -23,40 +23,40 @@ namespace Microsoft.Extensions.DependencyInjection
 
 #if NETCOREAPP
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IOrganizationServiceAsync), sp =>
-                {
-                    var serviceClient = sp.GetRequiredService<ServiceClient>();
+            {
+                var serviceClient = sp.GetRequiredService<ServiceClient>();
 
-                    return serviceClient;
-                }, ServiceLifetime.Scoped));
+                return serviceClient;
+            }, ServiceLifetime.Scoped));
 
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IOrganizationServiceAsync2), sp =>
-                {
-                    var serviceClient = sp.GetRequiredService<ServiceClient>();
+            {
+                var serviceClient = sp.GetRequiredService<ServiceClient>();
 
-                    return serviceClient;
-                }, ServiceLifetime.Scoped));
+                return serviceClient;
+            }, ServiceLifetime.Scoped));
 
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(ServiceClient), sp =>
+            {
+                var service = new ServiceClient(optionsBuilder.ConnectionString);
+
+                if (optionsBuilder.UseWebApiForced)
                 {
-                    var service = new ServiceClient(optionsBuilder.ConnectionString);
+                    service.UseWebApi = optionsBuilder.WebApiUsage;
+                }
 
-                    if (optionsBuilder.UseWebApiForced)
-                    {
-                        service.UseWebApi = optionsBuilder.WebApiUsage;
-                    }
-
-                    return service;
-                }, ServiceLifetime.Singleton));
+                return service;
+            }, ServiceLifetime.Scoped));
 #endif
 
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IOrganizationService), sp =>
-                {
+            {
 #if NETCOREAPP
-                    return sp.GetRequiredService<ServiceClient>();
+                return sp.GetRequiredService<ServiceClient>();
 #else
                     return new Xrm.Tooling.Connector.CrmServiceClient(optionsBuilder.ConnectionString);
 #endif
-                }, ServiceLifetime.Scoped));
+            }, ServiceLifetime.Scoped));
 
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IServiceContext), sp =>
             {
