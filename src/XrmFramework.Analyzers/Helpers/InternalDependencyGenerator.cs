@@ -85,6 +85,9 @@ namespace XrmFramework.Analyzers.Generators
             sb.AppendLine("}");
 
 
+            sb.AppendLine("#endif");
+
+            sb.AppendLine("#if CORE_PROJECT");
             sb
                 .AppendLine()
                 .AppendLine("namespace Microsoft.Extensions.DependencyInjection")
