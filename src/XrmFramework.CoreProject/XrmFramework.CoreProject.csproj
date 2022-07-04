@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);DEPENDENCY_INJECTION</DefineConstants>
+    <DefineConstants>$(DefineConstants);DEPENDENCY_INJECTION;CORE_PROJECT</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">

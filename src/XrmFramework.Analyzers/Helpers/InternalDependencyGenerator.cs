@@ -45,13 +45,13 @@ namespace XrmFramework.Analyzers.Generators
 
             sb
                 .AppendLine()
-                .AppendLine("namespace Microsoft.Extensions.DependencyInjection")
+                .AppendLine("namespace XrmFramework")
                 .AppendLine("{");
 
             using (sb.Indent())
             {
                 sb
-                    .AppendLine("partial class XrmFrameworkServiceCollectionExtension")
+                    .AppendLine("partial class InternalDependencyProvider")
                     .AppendLine("{");
 
                 using (sb.Indent())
@@ -83,6 +83,45 @@ namespace XrmFramework.Analyzers.Generators
             }
 
             sb.AppendLine("}");
+
+
+            sb
+                .AppendLine()
+                .AppendLine("namespace Microsoft.Extensions.DependencyInjection")
+                .AppendLine("{");
+
+            using (sb.Indent())
+            {
+                sb
+                    .AppendLine("partial class XrmFrameworkServiceCollectionExtension")
+                    .AppendLine("{");
+
+                using (sb.Indent())
+                {
+                    sb
+                        .AppendLine("static partial void RegisterServices(IServiceCollection serviceCollection)")
+                        .AppendLine("{");
+
+                    using (sb.Indent())
+                    {
+                        foreach (var service in listServices)
+                        {
+                            sb
+                                .Append("RegisterService<")
+                                .Append(service.serviceType.Name)
+                                .AppendLine(">(serviceCollection);")
+                                .AppendLine();
+                        }
+                    }
+
+                    sb.AppendLine("}");
+                }
+
+                sb.AppendLine("}");
+            }
+
+            sb.AppendLine("}");
+
 
             sb.AppendLine("#endif");
 
