@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Xrm.Sdk;
 
 namespace XrmFramework
 {
@@ -15,6 +15,11 @@ namespace XrmFramework
         public static T ToEnum<T>(this int value)
         {
             return (T)Enum.ToObject(typeof(T), value);
+        }
+
+        public static T ToEnum<T>(this OptionSetValue value)
+        {
+            return value == null ? default : value.Value.ToEnum<T>();
         }
 
         public static T ParseDescription<T>(this string value)

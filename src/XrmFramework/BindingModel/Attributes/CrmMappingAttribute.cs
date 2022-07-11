@@ -27,6 +27,8 @@ namespace XrmFramework.BindingModel
         public bool IsValidForUpdate { get; set; } = true;
 
         public LookupAttributeInfo LookupInfo { get; set; }
+
+        public StringComparison DiffStringComparisonBehavior { get; set; } = StringComparison.InvariantCulture;
     }
 
     public enum LookupAttributeInfo

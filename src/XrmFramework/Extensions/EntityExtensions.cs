@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xrm.Sdk;
 
 namespace XrmFramework
 {
@@ -243,14 +243,22 @@ namespace XrmFramework
             }
         }
 
-        public static void CopyField(this Entity sourceEntity, Entity targetEntity, string sourceColumnName, string targetColumnName)
+        public static void CopyField(this Entity sourceEntity, Entity targetEntity, string sourceColumnName, string targetColumnName, bool useDefaultValue = false)
         {
-            CopyField(sourceEntity, null, targetEntity, sourceColumnName, targetColumnName);
+            CopyField(sourceEntity, null, targetEntity, sourceColumnName, targetColumnName, useDefaultValue);
         }
 
-        public static void CopyField(this Entity sourceEntity, Entity preImage, Entity targetEntity, string sourceColumnName, string targetColumnName)
+        public static void CopyField(this Entity sourceEntity, Entity preImage, Entity targetEntity, string sourceColumnName, string targetColumnName, bool useDefaultValue = false)
         {
-            if (!sourceEntity.Contains(sourceColumnName)) return;
+            if (!sourceEntity.Contains(sourceColumnName))
+            {
+                if (useDefaultValue)
+                {
+                    targetEntity[targetColumnName] = null;
+                }
+
+                return;
+            }
 
             var newValue = sourceEntity[sourceColumnName];
 
@@ -266,7 +274,6 @@ namespace XrmFramework
                     }
                 }
             }
-
 
             targetEntity[targetColumnName] = newValue;
         }

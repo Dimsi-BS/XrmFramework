@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using XrmFramework.BindingModel;
-using XrmFramework.Model;
 
 namespace XrmFramework
 {
@@ -104,11 +103,13 @@ namespace XrmFramework
                 }
 
                 if ((!attribute.IsKey || result.Id != Guid.Empty) &&
-                       (
-                           (valueSource == null && valueTarget == null)
+                    (
+                        (valueSource == null && valueTarget == null)
                         || (valueSource != null && valueSource.Equals(valueTarget))
                         || (valueTarget != null && valueTarget.Equals(valueSource))
-                       )
+                        || (valueSource != null && valueTarget != null && valueSource is string valueSourceString && valueTarget is string valueTargetString
+                            && string.Compare(valueSourceString, valueTargetString, attribute.CrmMapping.DiffStringComparisonBehavior) == 0)
+                    )
                    )
                 {
                     continue;
