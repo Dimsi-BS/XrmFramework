@@ -46,7 +46,7 @@ namespace XrmFramework.Sdk.Queries
 
         public abstract string ToWebApiString(Func<int> aliasIndexer = null);
 
-        internal void CleanLinks()
+        public void CleanLinks()
         {
             for (var i = Links.Count - 1; i >= 0; i--)
             {
