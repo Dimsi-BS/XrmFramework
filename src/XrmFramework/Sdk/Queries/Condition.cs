@@ -9,7 +9,7 @@ using System.Text;
 
 namespace XrmFramework.Sdk.Queries
 {
-    internal class Condition : IQueryToString
+    public class Condition : IQueryToString
     {
         public string EntityName { get; }
 
@@ -74,10 +74,10 @@ namespace XrmFramework.Sdk.Queries
                 switch (AttributeType)
                 {
                     case AttributeTypeCode.Boolean:
-                        stringValue = (bool) Values.First() ? "1" : "0";
+                        stringValue = (bool)Values.First() ? "1" : "0";
                         break;
                     case AttributeTypeCode.DateTime:
-                        stringValue = ((DateTime) Values.First()).ToString("o");
+                        stringValue = ((DateTime)Values.First()).ToString("o");
                         break;
                     default:
                         stringValue = $"{Values.First()}";

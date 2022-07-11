@@ -14,9 +14,9 @@ namespace XrmFramework.Sdk.Queries
 
         public LogicalOperator Operator { get; set; }
 
-        internal IList<Condition> Conditions { get; } = new List<Condition>();
+        public IList<Condition> Conditions { get; } = new List<Condition>();
 
-        internal IList<QueryCriteria> Filters { get; } = new List<QueryCriteria>();
+        public IList<QueryCriteria> Filters { get; } = new List<QueryCriteria>();
 
         public string WebApiAliasString
         {
