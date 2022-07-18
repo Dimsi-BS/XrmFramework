@@ -37,9 +37,9 @@ Any BindingModel instance can be serialized, you just need to do this.
 | ----------- | ----------- |
 | memo      | string       |
 | Id   | Guid, EntityReference,another BindingModel        |
-  |    | Guid, EntityReference,another BindingModel        |
-  |    | Guid, EntityReference,another BindingModel        |
-  |    | Guid, EntityReference,another BindingModel        |
+  |    | EntityReference        |
+  |    | another BindingModel        |
+
   
 
 
