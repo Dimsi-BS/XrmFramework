@@ -36,7 +36,7 @@ Any BindingModel instance can be serialized, you just need to do this.
   | CRM data type      | c# equivalents |
 | ----------- | ----------- |
 | memo      | string       |
-| Id   | Guid, \nEntityReference, \nanother BindingModel        |
+| Id   | - Guid, - EntityReference, - another BindingModel        |
   
 
 
