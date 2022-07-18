@@ -33,10 +33,10 @@ Any BindingModel instance can be serialized, you just need to do this.
 
 ## Types to use for CRM data
   
-  | Syntax      | Description |
+  | CRM data type      | c# equivalents |
 | ----------- | ----------- |
-| Header      | Title       |
-| Paragraph   | Text        |
+| memo      | string       |
+| Id   | Guid, EntityReference, another BindingModel        |
   
 
 
