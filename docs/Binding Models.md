@@ -43,10 +43,17 @@ if(diffAccount.InitializedProperties.Any())
 }
 ```
 
-Another way to control the way a CRM record is updated is to create a custom Upsert behavior. An UpsertBehavior is a class that implements the IBehavior interface
+Another way to control the way a CRM record is updated is to create a custom Upsert behavior. For example, if your model contains a custom property that connects to a list of other BindingModels, you can add the upsert of these model in your custom behavior. An UpsertBehavior is a class that implements the IBehavior interface.
 
 ```cs
 public class MyUpsertBehavior : IBehavior<MyModel>
+{
+  public void ApplyBehavior(IOrganizationService service, MyModel model)
+  {
+    // Put your custom logic here
+  }
+
+}
 ```
 
 
