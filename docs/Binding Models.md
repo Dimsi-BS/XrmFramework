@@ -33,7 +33,7 @@ Any BindingModel instance can be serialized, you just need to do this.
 
 ## Types to use for CRM data
   
-  | CRM data type      | c# equivalents |
+  | CRM Attribute type      | c# equivalents |
 | ----------- | ----------- |
   | Boolean   | System.Boolean       |
   |    | System.Int32       |
