@@ -24,7 +24,7 @@ In order to retrieve entity records as BindingModel, the framework uses the func
 
 ## Updating the CRM data
 
-  - If you want to update the data from the Crm using a model, you need to follow a precise procedure.
+When modifying a record on a CRM using an instance of the Entity class. You can simply use the OrganisationService.Update() function. To update a record using a BindingModel, the procedure is slightly different.
 
 ## JSon Serialization
 Any BindingModel instance can be serialized, you just need to do this.
