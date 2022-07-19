@@ -45,9 +45,16 @@ if(diffAccount.InitializedProperties.Any())
 ```
 
 ## JSon Serialization
-Any BindingModel instance can be serialized, you just need to do this.
+Any BindingModel instance can be serialized by using the JsonProperty attribute :
+```
+[JsonProperty("name")]
+[CrmMapping(BaseDefinition.Columns.Name)]
+public string Name {get;set;}
 
-## JSon Deserialization
+
+```
+
+
 
 
 
