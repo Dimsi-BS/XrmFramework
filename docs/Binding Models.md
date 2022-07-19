@@ -53,7 +53,7 @@ public string Name {get;set;}
 ```
 
 If a property is of a complex type such as another BindingModel, you can use a custom type converter.
-```
+```cs
 [JsonConverter(typeof(MyCustomConverter))]
 ```
 
