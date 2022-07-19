@@ -33,7 +33,6 @@ When you use the RetrieveAll function, fields like lookup that connect to anothe
 In order to update the data you can use the Upsert function. However, to avoid any chance of overwriting data, we recommend the following steps : 
 Make it so that your BindingModel inherits BindingModelBase and then call the OnPropertyChanged function inside of the set function of any property you wish to be able to update on the CRM. Then create the difference between the CRM record and the local record by using the GetDiffGeneric function. Then use the Upsert function.
 
-
 ```cs
 var existingAccount = service.getById<AccountModel>(accountID);
 var newAccountModel = new AccountModel {Name = "Titi"};
@@ -42,6 +41,20 @@ if(diffAccount.InitializedProperties.Any())
 {
     service.Upsert(diffAccount);
 }
+```
+
+Another way to control the way a CRM record is updated is to create a custom Upsert behavior. An UpsertBehavior is a class that implements the IBehavior interface
+
+```cs
+public class MyUpsertBehavior : IBehavior<MyModel>
+```
+
+
+```cs
+[CrmEntity(MyDefinition.EntityName)]
+[UpsertBehavior(typeof(MyUpsertBehavior))]
+public class MyModel : BindingModelBase
+
 ```
 
 ## JSon Serialization
