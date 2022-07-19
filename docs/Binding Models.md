@@ -19,7 +19,7 @@ To do so, use the CrmMapping attribute and the corresponding EntityDefinition. T
 
 ## Retrieving the CRM data
 In order to retrieve entity records as BindingModel, the framework uses custom AdminOrganizationService functions : 
-``` csharp
+```cs
 query = BindingModelHelper.GetRetrieveAllQuery<BindingModel>();
 AdminOrganizationService.RetrieveAll<BindingModel>(query); // Returns all records corresponding to the Entity present on the CRM as BindingModels.
 
