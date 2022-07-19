@@ -82,10 +82,10 @@ If a property is of a complex type such as another BindingModel, you can use a c
 ## Types to use for CRM data
   
   | CRM Attribute type      | C# equivalents |
-| ----------- | ----------- |
+  | ----------- | ----------- |
   | Boolean   | System.Boolean       |
   |    | System.Int32       |
-|    | System.String       |
+  |    | System.String       |
   | Integer   | System.Int32       |
   | DateTime   | System.DateTime       |
   |    | System.String       |
