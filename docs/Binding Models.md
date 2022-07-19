@@ -33,6 +33,24 @@ If you want to retrieve the data corresponding to a lookup property in the form 
 public LeadModel FirstLead {get;set;}
 ```
 
+If you want total control on the way the properties of your BindingModel are filled, you can also add a custom function to a service.
+
+```cs
+public MyBindingModel GetMyModelById(Guid Id)
+{
+  var request = new RetrieveRequest
+  {
+    Target = new EntityReference(MyEntityDefinition.EntityName,Id),
+    ColumnSet = new ColumnSet(MyEntityDefinition.Columns.Name,MyEntityDefinition.Columns.PrimaryContactId) // PrimaryContactId mapps to a BindingModel property, its                                                                                                              // information needs to be retrieved
+  };
+  
+  request.RelatedEntitiesQuery.Add(new RelationShip(MyEntityDefinition.ManyToOneRelationship.entity_primary_contact),
+      BindingModelHelper.GetRetrieveAllQuery<ContactModel>() 
+  
+  return AdminOrganizationService.GetById<MyBindingModel(Id);
+}
+```
+
 ## Updating the CRM data
 
 In order to update the data you can use the Upsert function. However, to avoid any chance of overwriting data, we recommend the following steps : 
