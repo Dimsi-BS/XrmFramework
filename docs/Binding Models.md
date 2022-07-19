@@ -29,6 +29,10 @@ AdminOrganizationService.GetById<BindingModel>(ID); // Returns the Entity record
 
 ## Updating the CRM data
 
+In order to update the data you can use the Upsert function. However, to avoid overwriting data, we recommend the following steps : 
+First your BindingModel, has to inherit BindingModelBase.
+Any property that needs to be updated must call OnPropertyChanged inside of its set property.
+
 ```cs
 var existingAccount = service.getById<AccountModel>(accountID);
 var newAccountModel = new AccountModel {Name = "Titi"};
@@ -38,10 +42,6 @@ if(diffAccount.InitializedProperties.Any())
     service.Upsert(diffAccount);
 }
 ```
-
-When modifying a record on a CRM using an instance of the Entity class. You can simply use the OrganisationService.Update() function. To update a record using a BindingModel, the procedure is slightly different.
-First your BindingModel, has to inherit BindingModelBase. A model that inherits IBindingModel can only be used as a way to view data from the CRM, not to update it.
-Any property that needs to be updated must call OnPropertyChanged inside of its set property.
 
 ## JSon Serialization
 Any BindingModel instance can be serialized, you just need to do this.
