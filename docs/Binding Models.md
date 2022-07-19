@@ -26,7 +26,12 @@ AdminOrganizationService.RetrieveAll<BindingModel>(query); // Returns all record
 AdminOrganizationService.GetById<BindingModel>(ID); // Returns the Entity record corresponding to the ID as a BindingModel
 
 ```
-When you use the RetrieveAll function, fields like lookup that connect to another BindingModel class will also be filled. However, to avoid circular request, the data is only be retrieved on one level.
+
+If you want to retrieve the data corresponding to a lookup property in the form of a model, you should use the FollowLink option for the CrmMapping Attribute.
+```cs
+[CrmMapping(ContactDefinition.Columns.FirstLeadId, FollowLink = true)]
+public LeadModel FirstLead {get;set;}
+```
 
 ## Updating the CRM data
 
