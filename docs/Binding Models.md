@@ -10,9 +10,9 @@ There are three classes related to a an Entity from a CRM at various levels of a
 ## Creating a Binding Model
 First, you need a Definition corresponding to your Entity. You need to retrieve it from the CRM. You can see how by following [this](QuickStart.md) tutorial
 
-Then create a new class in your project, it needs to inherit either IBindingModel or BindingModelBase the difference between the two is explained in [this](##updating-the_crm-data) part.
+Then create a new class in your project, it needs to inherit either IBindingModel or BindingModelBase the difference between the two is explained in [this](#updating-the_crm-data) part.
 You can add a property for each column you want to see in the object.
-To do so, use the CrmMapping attribute and the corresponding EntityDefinition. The type of the property has to make sense for the data you want to retrieve. For example, a property corresponding to the name field of an object will have to be of type string. The various types to use are detailed in [this](##types-to-use-for-crm-data) section.
+To do so, use the CrmMapping attribute and the corresponding EntityDefinition. The type of the property has to make sense for the data you want to retrieve. For example, a property corresponding to the name field of an object will have to be of type string. The various types to use are detailed in [this](#types-to-use-for-crm-data) section.
 
 - photo de public class model : IBindingModel
 - photo d'un field avec une explication des différentes parties
