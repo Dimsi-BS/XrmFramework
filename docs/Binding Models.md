@@ -26,6 +26,7 @@ AdminOrganizationService.RetrieveAll<BindingModel>(query); // Returns all record
 AdminOrganizationService.GetById<BindingModel>(ID); // Returns the Entity record corresponding to the ID as a BindingModel
 
 ```
+When you use the RetrieveAll function, fields like lookup that connect to another BindingModel class will also be filled. However, to avoid circular request, the data is only be retrieved on one level.
 
 ## Updating the CRM data
 
@@ -47,6 +48,8 @@ if(diffAccount.InitializedProperties.Any())
 Any BindingModel instance can be serialized, you just need to do this.
 
 ## JSon Deserialization
+
+
 
 ## Types to use for CRM data
   
@@ -75,13 +78,7 @@ Any BindingModel instance can be serialized, you just need to do this.
   | EntityName   | System.String       |
 
 
-
-
-  
-  
-  
-  
-  - lookup
+Lookup et oneToManyRelationShip 
   
   
 
