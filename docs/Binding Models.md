@@ -52,6 +52,14 @@ Any BindingModel instance can be serialized, you just need to do this.
   | State   | System.Int32       |
   | Status   | Corresponding OptionSetEnum       |
   | Status   | System.Int32       |
+    | String   | System.String       |
+    | UniqueIdentifier   | System.Guid       |
+    | BigInt   | System.Int64       |
+    | EntityName   | System.String       |
+
+
+
+
   
   
   
