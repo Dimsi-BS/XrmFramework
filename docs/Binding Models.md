@@ -39,23 +39,23 @@ Any BindingModel instance can be serialized, you just need to do this.
   |    | System.Int32       |
 |    | System.String       |
   | Integer   | System.Int32       |
-   | DateTime   | System.DateTime       |
-   |    | System.String       |
-   | Decimal   | System.Decimal       |
-   | Double   | System.Double       |
-   | Lookup   | To be explained further       |
-   | Memo   | System.String       |
-   | PartyList   | To be explained further       |
-   | PickList   | System.Int32       |
-   | PickList   | Corresponding OptionSetEnum       |
+  | DateTime   | System.DateTime       |
+  |    | System.String       |
+  | Decimal   | System.Decimal       |
+  | Double   | System.Double       |
+  | Lookup   | To be explained further       |
+  | Memo   | System.String       |
+  | PartyList   | To be explained further       |
+  | PickList   | System.Int32       |
+  | PickList   | Corresponding OptionSetEnum       |
   | State   | Corresponding OptionSetEnum       |
   | State   | System.Int32       |
   | Status   | Corresponding OptionSetEnum       |
   | Status   | System.Int32       |
-    | String   | System.String       |
-    | UniqueIdentifier   | System.Guid       |
-    | BigInt   | System.Int64       |
-    | EntityName   | System.String       |
+  | String   | System.String       |
+  | UniqueIdentifier   | System.Guid       |
+  | BigInt   | System.Int64       |
+  | EntityName   | System.String       |
 
 
 
