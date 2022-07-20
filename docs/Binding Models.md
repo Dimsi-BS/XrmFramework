@@ -177,14 +177,14 @@ You
 </tr>
 <tr>
 <td>
-<pre>
+
 {
   "id": 1,
   "username": "joe",
   "email": "joe@example.com",
   "order_id": "3544fc0"
 }
-</pre>
+
   
 
   
@@ -207,14 +207,14 @@ You
   
   <tr>
 <td>
-<pre>
+
 {
   "id": 1,
   "username": "joe",
   "email": "joe@example.com",
   "order_id": "3544fc0"
 }
-</pre>
+
   
 
   
