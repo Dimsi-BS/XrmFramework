@@ -204,16 +204,37 @@ You
 </td>
 </tr>
   
+  
   <tr>
-    <td>
-      wolololo
-    </td>
-    
-    
-    <td>
-      wololo2
-    </td>
-  </tr>
+<td>
+<pre>
+{
+  "id": 1,
+  "username": "joe",
+  "email": "joe@example.com",
+  "order_id": "3544fc0"
+}
+</pre>
+  
+
+  
+  
+</td>
+<td>
+
+```json
+{
+  "id": 5,
+  "username": "mary",
+  "email": "mary@example.com",
+  "order_id": "f7177da"
+}
+```
+
+</td>
+</tr>
+  
+  
   
   
   
