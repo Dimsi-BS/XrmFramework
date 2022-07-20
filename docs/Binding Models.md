@@ -226,7 +226,7 @@ You
 </tr>
   
   
-  <tr>
+<tr>
 <td>
 ```cs
     [JsonObject(MemberSerialization.OptIn)]
