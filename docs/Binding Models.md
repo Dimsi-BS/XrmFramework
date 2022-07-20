@@ -1,8 +1,7 @@
 ##  Introduction
 There are three classes related to a an Entity from a CRM at various levels of abstraction.
   - Entity, stores the data corresponding to an entity record from the CRM.
-  - EntityDefinition, lists the various components of an table. Each Entity has one per project.
-  Photo d'une définition, ex compte
+  - EntityDefinition, lists the various components of a table. Each Entity can have one per project.
   - BindingModel, strongly typed representation of an Entity record. There can be as many binding models as there as needs for one Entity in one project.
 
 
@@ -11,11 +10,24 @@ There are three classes related to a an Entity from a CRM at various levels of a
 First, you need a Definition corresponding to your Entity. You need to retrieve it from the CRM. You can see how by following [this](QuickStart.md) tutorial
 
 Then create a new class in your project, it needs to inherit either IBindingModel or BindingModelBase the difference between the two is explained in [this](#updating-the-crm-data) part.
-You can add a property for each column you want to see in the object.
-To do so, use the CrmMapping attribute and the corresponding EntityDefinition. The type of the property has to make sense for the data you want to retrieve. For example, a property corresponding to the name field of an object will have to be of type string. The various types to use are detailed in [this](#types-to-use-for-crm-data) section.
+You can add a property for each column you want to use in your project.
+To do so, use the CrmMapping attribute and the corresponding EntityDefinition. The type of the property has to make sense for the data you want to retrieve. For example, a property corresponding to the name field of an Entity will have to be of type string. The various types to use are detailed in [this](#types-to-use-for-crm-data) section.
 
-- photo de public class model : IBindingModel
-- photo d'un field avec une explication des différentes parties
+```CS
+
+    [CrmEntity(AccountDefinition.EntityName)] //Specifies the Entity to which the model maps 
+    public class AccountModel : IBindingModel // Can be replaced with BindingModelBase
+    {
+        public Guid Id { get; set; } // Corresponds to the unique identifier of the record
+        
+        [CrmMapping(AccountDefinition.Columns.Name)] // Specifies the attribute to which the property maps
+        public string Name { get; set; }
+        
+    }
+```
+
+
+
 
 ## Retrieving the CRM data
 In order to retrieve entity records as BindingModel, the framework uses custom AdminOrganizationService functions : 
@@ -39,8 +51,8 @@ public LeadModel FirstLead {get;set;}
 
 ## Updating the CRM data
 
-In order to update the data you can use the Upsert function. However, to avoid any chance of overwriting data, we recommend the following steps : 
-Make it so that your BindingModel inherits BindingModelBase and then call the OnPropertyChanged function inside of the set function of any property you wish to be able to update on the CRM. Then create the difference between the CRM record and the local record by using the GetDiffGeneric function. Then use the Upsert function.
+In order to update the data using a BindingModel you can use the Upsert function. However, to avoid any chance of overwriting CRM data, we recommend the following steps : 
+Make it so that your BindingModel inherits BindingModelBase and then call the OnPropertyChanged function inside of the set function of any property you wish to be able to update on the CRM. Then create the difference between the CRM record and the local record by using the GetDiffGeneric function. Then use the Upsert function on the result.
 
 ```cs
 var existingAccount = service.getById<AccountModel>(accountID);
