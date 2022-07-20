@@ -231,7 +231,7 @@ You
     [CrmEntity(AccountDefinition.EntityName)]
     public class AccountModel : IBindingModel
     {
-    [JsonProperty("id)]
+    [JsonProperty("id")]
     public Guid Id {get;set;}
     
     [CrmMapping(AccountEntity.Columns.PrimaryContactId)]
@@ -244,7 +244,6 @@ You
     [JsonProperty("Address")]
     [ExtendBindingModel]
     public AccountAddressModel Address {get;set;}
-    
     }
     
     [JsonObject(MemberSerialization.OptIn)]
