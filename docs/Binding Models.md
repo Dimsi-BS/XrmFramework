@@ -253,7 +253,9 @@ You
     public class AccountAddressModel : IBindingModel
     
     {
-    
+    [JsonProperty("id")]
+    public Guid Id {get;set;}
+  
     [JsonProperty("Line")]
     [CrmMapping(AccountEntity.Columns.Address1_Line1)]
     public string AddressLine1 {get;set;}
@@ -269,7 +271,7 @@ You
 
 ```json
 {
-  "id": 0f8fad5b-d9cb-469f-a165-70867728950e,
+  "id": "0f8fad5b-d9cb-469f-a165-70867728950e",
   "name": "mary",
   "Address : 
   {
