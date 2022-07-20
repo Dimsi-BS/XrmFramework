@@ -249,6 +249,7 @@ You can regroup several Entity attributes together under one property by using t
     public AccountAddressModel Address {get;set;}
     }
     
+    // Second BindingModel
     [JsonObject(MemberSerialization.OptIn)]
     [CrmEntity(AccountDefinition.EntityName)]
     public class AccountAddressModel : IBindingModel
@@ -256,14 +257,16 @@ You can regroup several Entity attributes together under one property by using t
     {
     [JsonProperty("id")]
     public Guid Id {get;set;}
-  
-    [JsonProperty("Line")]
-    [CrmMapping(AccountEntity.Columns.Address1_Line1)]
-    public string AddressLine1 {get;set;}
     
-    [JsonProperty("City")]
-    [CrmMapping(AccountEntity.Columns.Address1_City)]
-    public string AddressLine1 {get;set;}
+   ///// Properties to be grouped
+   ///[JsonProperty("Line")]
+   ///[CrmMapping(AccountEntity.Columns.Address1_Line1)]
+   ///public string AddressLine1 {get;set;}
+   ///
+   ///[JsonProperty("City")]
+   ///[CrmMapping(AccountEntity.Columns.Address1_City)]
+   ///public string AddressLine1 {get;set;}
+   ///////
     }
 ```
 
