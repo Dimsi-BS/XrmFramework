@@ -4,7 +4,7 @@
 - [Creating a BindingModel](#creating-a-binding-model)
 - [Retrieving the CRM data](#retrieving-the-crm-data)
 - [Updating the CRM data](#updating-the-crm-data)
-- [Json serialization](#json-serialisation)
+- [Json serialization](#json-serialization)
 - [Types to use for CRM data](#types-to-use-for-crm-data)
 - [Connecting to other BindingModels](#connecting-to-other-bindingmodels)
 - [Structuring the data](#structuring-the-data)
