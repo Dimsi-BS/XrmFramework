@@ -177,29 +177,33 @@ You
 </tr>
 <tr>
 <td>
-  <pre>
-    
+  ```cs
+    [JsonObject(MemberSerialization.OptIn)]
     [CrmEntity(AccountDefinition.EntityName)]
     public class AccountModel : IBindingModel
-    
+    {
+    [JsonProperty("id)]
     public Guid Id {get;set;}
     
     [CrmMapping(AccountEntity.Columns.PrimaryContactId)]
     public EntityReference PrimaryContactRef {get;set;}
     
+    [JsonProperty("name")]
     [CrmMapping(AccountEntity.Columns.Name)]
     public string Name {get;set;}
     
+    [JsonProperty("Address1Line")]
     [CrmMapping(AccountEntity.Columns.Address1_Line1)]
     public string AddressLine1 {get;set;}
     
+    [JsonProperty("Address1City")]
     [CrmMapping(AccountEntity.Columns.Address1_City)]
     public string AddressLine1 {get;set;}
     
+    }
     
     
-    
-  </pre>
+  ```
 
 
 
@@ -212,10 +216,10 @@ You
 
 ```json
 {
-  "id": 5,
-  "username": "mary",
-  "email": "mary@example.com",
-  "order_id": "f7177da"
+  "id": 0f8fad5b-d9cb-469f-a165-70867728950e,
+  "name": "mary",
+  "Address1City": "San York",
+  "Address1Line": "23 Rupert Street"
 }
 ```
 
@@ -225,27 +229,59 @@ You
   
   <tr>
 <td>
-
-{
-  "id": 1,
-  "username": "joe",
-  "email": "joe@example.com",
-  "order_id": "3544fc0"
-}
+```cs
+    [JsonObject(MemberSerialization.OptIn)]
+    [CrmEntity(AccountDefinition.EntityName)]
+    public class AccountModel : IBindingModel
+    {
+    [JsonProperty("id)]
+    public Guid Id {get;set;}
+    
+    [CrmMapping(AccountEntity.Columns.PrimaryContactId)]
+    public EntityReference PrimaryContactRef {get;set;}
+    
+    [JsonProperty("name")]
+    [CrmMapping(AccountEntity.Columns.Name)]
+    public string Name {get;set;}
+    
+    [JsonProperty("Address")]
+    [ExtendBindingModel]
+    public AccountAddressModel Address {get;set;}
+    
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    [CrmEntity(AccountDefinition.EntityName)]
+    public class AccountAddressModel : IBindingModel
+    
+    {
+    
+    [JsonProperty("Line")]
+    [CrmMapping(AccountEntity.Columns.Address1_Line1)]
+    public string AddressLine1 {get;set;}
+    
+    [JsonProperty("City")]
+    [CrmMapping(AccountEntity.Columns.Address1_City)]
+    public string AddressLine1 {get;set;}
+    }
 
   
 
-  
+  ```
   
 </td>
 <td>
 
 ```json
 {
-  "id": 5,
-  "username": "mary",
-  "email": "mary@example.com",
-  "order_id": "f7177da"
+  "id": 0f8fad5b-d9cb-469f-a165-70867728950e,
+  "name": "mary",
+  "Address : 
+  {
+    "City": "San York",
+    "Line": "23 Rupert Street"
+  }
+  
 }
 ```
 
