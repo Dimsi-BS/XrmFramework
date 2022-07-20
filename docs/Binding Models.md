@@ -120,7 +120,6 @@ If a property is of a complex type such as another BindingModel, you can use a c
   | Double   | System.Double       |
   | Lookup   | To be explained further       |
   | Memo   | System.String       |
-  | PartyList   | To be explained further       |
   | PickList   | System.Int32       |
   | PickList   | Corresponding OptionSetEnum       |
   | State   | Corresponding OptionSetEnum       |
@@ -169,6 +168,37 @@ public ContactModel PrimaryContact {get;set;}
 ```
 
 ## Structuring the data
+You 
 
+<table>
+<tr>
+<th>Json 1</th>
+<th>Markdown</th>
+</tr>
+<tr>
+<td>
+<pre>
+{
+  "id": 1,
+  "username": "joe",
+  "email": "joe@example.com",
+  "order_id": "3544fc0"
+}
+</pre>
+</td>
+<td>
+
+```json
+{
+  "id": 5,
+  "username": "mary",
+  "email": "mary@example.com",
+  "order_id": "f7177da"
+}
+```
+
+</td>
+</tr>
+</table>
 
 
