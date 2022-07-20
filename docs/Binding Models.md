@@ -130,7 +130,7 @@ If a property is of a complex type such as another BindingModel, you can use a c
 Lookup et oneToManyRelationShip 
   
   
-## Connecting to other BindingModelks
+## Connecting to other BindingModels
 An Entity attribute of type Lookup can be used to retrieve :
 - the data corresponding to the ID of another Entity, 
 - the data of a particular attribute 
