@@ -227,7 +227,7 @@ You
   
 <tr>
 <td>
-```cs
+
     [JsonObject(MemberSerialization.OptIn)]
     [CrmEntity(AccountDefinition.EntityName)]
     public class AccountModel : IBindingModel
@@ -261,7 +261,7 @@ You
     [CrmMapping(AccountEntity.Columns.Address1_City)]
     public string AddressLine1 {get;set;}
     }
-```
+
 </td>
 </tr>
 </table>
