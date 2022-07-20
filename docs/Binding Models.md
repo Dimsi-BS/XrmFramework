@@ -172,18 +172,34 @@ You
 
 <table>
 <tr>
-<th>Json 1</th>
-<th>Markdown</th>
+<th>Code</th>
+<th>Corresponding data structure</th>
 </tr>
 <tr>
 <td>
+  <code>
+    
+    [CrmEntity(AccountDefinition.EntityName)]
+    public class AccountModel : IBindingModel
+    
+    public Guid Id {get;set;}
+    
+    [CrmMapping(AccountEntity.Columns.PrimaryContactId)]
+    public EntityReference PrimaryContactRef {get;set;}
+    
+    [CrmMapping(AccountEntity.Columns.Name)]
+    public string Name {get;set;}
+    
+    [CrmMapping(AccountEntity.Columns.Address1_Line1)]
+    public string AddressLine1 {get;set;}
+    
+    [CrmMapping(AccountEntity.Columns.Address1_City)]
+    public string AddressLine1 {get;set;}
+    
+    
+  </code>
 
-{
-  "id": 1,
-  "username": "joe",
-  "email": "joe@example.com",
-  "order_id": "3544fc0"
-}
+
 
   
 
