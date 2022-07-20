@@ -132,7 +132,8 @@ Lookup et oneToManyRelationShip
   
 ## Connecting to other BindingModels
 An Entity attribute of type Lookup can be used to retrieve :
-- the data corresponding to the ID of another Entity, 
-- the data of a particular attribute 
-- the data of a collection attribute through another BindingModel
+- the data corresponding to the ID of the corresponding Entity record, 
+- the EntityReference instance of the corresponding Entity record,
+- the data of a particular attribute of the corresponding Entity record 
+- the data of a collection of attributes through another BindingModel instance of the corresponding Entity record
 
