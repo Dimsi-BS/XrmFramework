@@ -86,8 +86,14 @@ public class MyModel : BindingModelBase
 ```
 
 ## JSon Serialization
-Any BindingModel instance can be serialized by using the JsonProperty attribute :
+Any BindingModel instance can be serialized by using the JsonProperty and JsonObject attributes :
 ```cs
+
+[JsonObject(MemberSerialization.OptIn)]
+[CrmEntity(BaseDefinition.EntityName)]
+public class BaseModel : IBindingModel
+
+//////////////////////////////////////////////////////////////////////////
 [JsonProperty("name")]
 [CrmMapping(BaseDefinition.Columns.Name)]
 public string Name {get;set;}
@@ -133,7 +139,36 @@ Lookup et oneToManyRelationShip
 ## Connecting to other BindingModels
 An Entity attribute of type Lookup can be used to retrieve :
 - the data corresponding to the ID of the corresponding Entity record, 
+```cs
+[CrmMapping(AccountDefinition.Columns.PrimaryContactId)]
+public Guid PrimaryContactIdentifier {get;set;}
+```
 - the EntityReference instance of the corresponding Entity record,
-- the data of a particular attribute of the corresponding Entity record 
-- the data of a collection of attributes through another BindingModel instance of the corresponding Entity record
+```cs
+[CrmMapping(AccountDefinition.Columns.PrimaryContactId)]
+public EntityReference PrimaryContactReference {get;set;}
+```
+- the data of a particular attribute of the corresponding Entity record by using the CrmLookup attribute
+```cs
+[CrmMapping(AccountDefinition.Columns.PrimaryContactId)]
+[CrmLookup(ContactDefinition.EntityName,ContactDefinition.Columns.Name)]
+public string PrimaryContactName {get;set;} // Corresponds to the name of the record corresponding to the primary contact of the account record
+```
+- the data of a collection of attributes through the BindingModel instance of the corresponding Entity record
+```cs
+[CrmMapping(AccountDefinition.Columns.PrimaryContactId)]
+public ContactModel PrimaryContact {get;set;}
+
+// [CrmEntity(ContactDefinition.EntityName)]
+// public ContactModel : IBindingModel
+// {
+//   [CrmMapping(ContactDefinition.Columns.Name)]
+//   public string Name {get;set;}
+// }
+
+```
+
+## Structuring the data
+
+
 
