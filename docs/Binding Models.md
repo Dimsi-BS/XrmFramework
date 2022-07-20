@@ -177,8 +177,8 @@ You
 </tr>
 <tr>
 <td>
-  <code>
-    
+  <pre>
+    ```cs
     [CrmEntity(AccountDefinition.EntityName)]
     public class AccountModel : IBindingModel
     
@@ -196,8 +196,10 @@ You
     [CrmMapping(AccountEntity.Columns.Address1_City)]
     public string AddressLine1 {get;set;}
     
+    ```
     
-  </code>
+    
+  </pre>
 
 
 
