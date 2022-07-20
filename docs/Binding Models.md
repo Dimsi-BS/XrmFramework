@@ -1,3 +1,15 @@
+## Binding Models
+
+- [Introduction](#introduction)
+- [Creating a BindingModel](#creating-a-binding-model)
+- [Retrieving the CRM data](#retrieving-the-crm-data)
+- [Updating the CRM data](#updating-the-crm-data)
+- [Json serialization](#json-serialisation)
+- [Types to use for CRM data](#types-to-use-for-crm-data)
+- [Connecting to other BindingModels](#connecting-to-other-bindingmodels)
+- [Structuring the data](#structuring-the-data)
+
+
 ##  Introduction
 There are three classes related to a an Entity from a CRM at various levels of abstraction.
   - Entity, stores the data corresponding to an entity record from the CRM.
