@@ -188,7 +188,7 @@ public ICollection<ContactModel> SubContacts {get;} = new List<ContactModel>();
 ```
 
 ## Structuring the data
-You can regroup several Entity attributes together under one property by using the ExtendBindingModel attribute. You can do so by creating a second model of the for the same entity, in this model, map the attributes you want to see grouped together. Then for your first model, add a property with the second BindingModel and use the ExtendBindingModel attribute.
+You can regroup several Entity attributes together under one property by using the ExtendBindingModel attribute. You can do so by creating a second model for the same entity, in this model, map the attributes you want to see grouped together. Then for your first model, add a property with the second BindingModel and use the ExtendBindingModel attribute.
 
 
 <table>
