@@ -279,13 +279,13 @@ You can regroup several Entity attributes together under one property by using t
     public Guid Id {get;set;}
     
    ///// Properties to be grouped
-   ///[JsonProperty("Line")]
-   ///[CrmMapping(AccountEntity.Columns.Address1_Line1)]
-   ///public string AddressLine1 {get;set;}
-   ///
-   ///[JsonProperty("City")]
-   ///[CrmMapping(AccountEntity.Columns.Address1_City)]
-   ///public string AddressLine1 {get;set;}
+    [JsonProperty("Line")]
+    [CrmMapping(AccountEntity.Columns.Address1_Line1)]
+    public string AddressLine1 {get;set;}
+    
+    [JsonProperty("City")]
+    [CrmMapping(AccountEntity.Columns.Address1_City)]
+    public string AddressLine1 {get;set;}
    ///////
     }
 ```
