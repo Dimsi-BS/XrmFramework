@@ -11,28 +11,28 @@
 
 
 ##  Introduction
-There are three classes related to a an Entity from a CRM at various levels of abstraction.
-  - Entity, stores the data corresponding to an entity record from the CRM.
-  - EntityDefinition, lists the various components of a table. Each Entity can have one per project.
-  - BindingModel, strongly typed representation of an Entity record. There can be as many binding models as there as needs for one Entity in one project.
+There are three classes related to a a table from a CRM at various levels of abstraction.
+  - Entity, stores the data corresponding to a table record from the CRM.
+  - EntityDefinition, lists the various components of a table. Each table can have one per project.
+  - BindingModel, strongly typed representation of a table record. There can be as many binding models as there are needs for one table in one project.
 
 
 
 ## Creating a Binding Model
-First, you need a Definition corresponding to your Entity. You need to retrieve it from the CRM. You can see how by following [this](https://github.com/cgoconseils/XrmFramework#readme) tutorial
+First, you need a Definition corresponding to your table. You need to retrieve it from the CRM. You can see how by following [this](https://github.com/cgoconseils/XrmFramework#readme) tutorial
 
 Then create a new class in your project, it needs to inherit either IBindingModel or BindingModelBase the difference between the two is explained in [this](#updating-the-crm-data) part.
 You can add a property for each column you want to use in your project.
-To do so, use the CrmMapping attribute and the corresponding EntityDefinition. The type of the property has to make sense for the data you want to retrieve. For example, a property corresponding to the name field of an Entity will have to be of type string. The various types to use are detailed in [this](#types-to-use-for-crm-data) section.
+To do so, use the CrmMapping attribute and the corresponding TableDefinition. The type of the property has to make sense for the column you want to retrieve. For example, a property corresponding to the name column of a table will have to be of type string. The various types to use are detailed in [this](#types-to-use-for-crm-data) section.
 
 ```CS
 
-    [CrmEntity(AccountDefinition.EntityName)] //Specifies the Entity to which the model maps 
+    [CrmEntity(AccountDefinition.EntityName)] //Specifies the table to which the model maps 
     public class AccountModel : IBindingModel // Can be replaced with BindingModelBase
     {
         public Guid Id { get; set; } // Corresponds to the unique identifier of the record
         
-        [CrmMapping(AccountDefinition.Columns.Name)] // Specifies the attribute to which the property maps
+        [CrmMapping(AccountDefinition.Columns.Name)] // Specifies the column to which the property maps
         public string Name { get; set; }
         
     }
@@ -42,12 +42,12 @@ To do so, use the CrmMapping attribute and the corresponding EntityDefinition. T
 
 
 ## Retrieving the CRM data
-In order to retrieve entity records as BindingModel, the framework uses custom AdminOrganizationService functions : 
+In order to retrieve table records as BindingModel, the framework uses custom AdminOrganizationService functions : 
 ```cs
-query = BindingModelHelper.GetRetrieveAllQuery<BindingModel>();
-AdminOrganizationService.RetrieveAll<BindingModel>(query); // Returns all records corresponding to the Entity present on the CRM as BindingModels.
+query = BindingModelHelper.GetRetrieveAllQuery<AccountModel>();
+AdminOrganizationService.RetrieveAll<BindingModel>(query); // Returns all records corresponding to the table present on the CRM as BindingModels.
 
-AdminOrganizationService.GetById<BindingModel>(ID); // Returns the Entity record corresponding to the ID as a BindingModel
+AdminOrganizationService.GetById<AccountModel>(ID); // Returns the table record corresponding to the ID as a BindingModel
 
 ```
 
@@ -120,14 +120,13 @@ If a property is of a complex type such as another BindingModel, you can use a c
 
 ## Types to use for CRM data
   
-  | CRM Attribute type      | C# equivalents |
+  | CRM column type      | C# equivalents |
   | ----------- | ----------- |
   | Boolean   | System.Boolean       |
   |    | System.Int32       |
   |    | System.String       |
   | Integer   | System.Int32       |
   | DateTime   | System.DateTime       |
-  |    | System.String       |
   | Decimal   | System.Decimal       |
   | Double   | System.Double       |
   | Lookup   | To be explained further       |
@@ -179,7 +178,7 @@ public ContactModel PrimaryContact {get;set;}
 
 ```
 
-You can also have a list of BindingModel instances by using a OneToMany relationship of the Entity.
+You can also have a list of BindingModel instances by using a OneToMany relationship of the table.
 
 ```cs
 [ChildRelationship(AccountDefinition.OneToManyRelationShip.contact_customer_accounts)]
@@ -188,7 +187,7 @@ public ICollection<ContactModel> SubContacts {get;} = new List<ContactModel>();
 ```
 
 ## Structuring the data
-You can regroup several Entity attributes together under one property by using the ExtendBindingModel attribute. You can do so by creating a second model for the same entity, in this model, map the attributes you want to see grouped together. Then for your first model, add a property with the second BindingModel and use the ExtendBindingModel attribute.
+You can regroup several table columns together under one property by using the ExtendBindingModel attribute. You can do so by creating a second model for the same table, in this model, map the attributes you want to see grouped together. Then for your first model, add a property with the second BindingModel and use the ExtendBindingModel attribute.
 
 
 <table>
