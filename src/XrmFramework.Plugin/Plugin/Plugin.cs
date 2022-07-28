@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
-using Microsoft.Xrm.Sdk;
 
 namespace XrmFramework
 {
@@ -129,7 +129,7 @@ namespace XrmFramework
             }
 
             // Construct the Local plug-in context.
-            var localContext = new LocalPluginContext(serviceProvider);
+            var localContext = new LocalPluginContext(serviceProvider, UnSecuredConfig, SecuredConfig);
 
             localContext.Log($"Entity: {localContext.PrimaryEntityName}, Message: {localContext.MessageName}, Stage: {Enum.ToObject(typeof(Stages), localContext.Stage)}, Mode: {localContext.Mode}");
 

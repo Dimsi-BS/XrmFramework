@@ -9,9 +9,14 @@ namespace XrmFramework
 {
     internal partial class LocalPluginContext : LocalContext, IPluginContext
     {
-        public LocalPluginContext(IServiceProvider serviceProvider)
+        public string UnsecureConfig { get; }
+        public string SecureConfig { get; }
+
+        public LocalPluginContext(IServiceProvider serviceProvider, string unsecureConfig, string secureConfig)
             : base(serviceProvider)
         {
+            UnsecureConfig = unsecureConfig;
+            SecureConfig = secureConfig;
             if (PluginExecutionContext.ParentContext != null)
             {
                 ParentLocalContext = new LocalPluginContext(this, PluginExecutionContext.ParentContext);
@@ -91,11 +96,11 @@ namespace XrmFramework
                 isValid = false;
 
                 if ((step.Message == Messages.Associate || step.Message == Messages.Disassociate)
-                    && !string.IsNullOrWhiteSpace(step.UnsecureConfig))
+                    && !string.IsNullOrWhiteSpace(UnsecureConfig))
                 {
                     try
                     {
-                        var stepConfig = JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig);
+                        var stepConfig = JsonConvert.DeserializeObject<StepConfiguration>(UnsecureConfig);
                         isValid = step.EntityName == stepConfig.RelationshipName;
                     }
                     catch
