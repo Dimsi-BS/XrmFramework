@@ -91,7 +91,7 @@ namespace XrmFramework
                 && Mode == step.Mode
                 && IsMessage(step.Message);
 
-            if (isValid && string.IsNullOrWhiteSpace(PrimaryEntityName) && !string.IsNullOrWhiteSpace(step.EntityName))
+            if (isValid && (string.IsNullOrWhiteSpace(PrimaryEntityName) && !string.IsNullOrWhiteSpace(step.EntityName) || PrimaryEntityName != step.EntityName))
             {
                 isValid = false;
 
