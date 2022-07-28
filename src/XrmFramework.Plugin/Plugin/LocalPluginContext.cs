@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
+using System;
 
 namespace XrmFramework
 {
@@ -52,7 +52,7 @@ namespace XrmFramework
             return PluginExecutionContext.Stage == (int)stage;
         }
 
-        public string PrimaryEntityName => PluginExecutionContext.PrimaryEntityName;
+        public string PrimaryEntityName => PluginExecutionContext.PrimaryEntityName == "none" ? string.Empty : PluginExecutionContext.PrimaryEntityName;
 
         public Guid PrimaryEntityId => PluginExecutionContext.PrimaryEntityId;
 
@@ -81,12 +81,12 @@ namespace XrmFramework
 
         public bool ShouldExecuteStep(Step step)
         {
-            var isValid = 
-                IsStage(step.Stage) 
-                && Mode == step.Mode 
+            var isValid =
+                IsStage(step.Stage)
+                && Mode == step.Mode
                 && IsMessage(step.Message);
 
-            if (isValid && step.EntityName != PrimaryEntityName)
+            if (isValid && string.IsNullOrWhiteSpace(PrimaryEntityName) && !string.IsNullOrWhiteSpace(step.EntityName))
             {
                 isValid = false;
 

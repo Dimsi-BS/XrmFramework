@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Workflow;
+using System;
 using System.Activities;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Workflow;
-using XrmFramework.RemoteDebugger;
 
 namespace XrmFramework.RemoteDebugger.Common
 {
@@ -28,7 +27,7 @@ namespace XrmFramework.RemoteDebugger.Common
 
                     var pluginExecutionTask = Task.Run(() =>
                     {
-                        var typeQualifiedName = remoteContext.TypeAssemblyQualifiedName.Split(new [] {", "}, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        var typeQualifiedName = remoteContext.TypeAssemblyQualifiedName.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).ToList();
                         typeQualifiedName.RemoveAll(i => i.StartsWith("Version") || i.StartsWith("PublicKeyToken"));
 
                         var typeName = string.Join(", ", typeQualifiedName);
@@ -65,7 +64,7 @@ namespace XrmFramework.RemoteDebugger.Common
                         }
                         else
                         {
-                            var plugin = (IPlugin)Activator.CreateInstance(pluginType, (string)null, (string)null);
+                            var plugin = (IPlugin)Activator.CreateInstance(pluginType, remoteContext.UnsecureConfig, remoteContext.SecureConfig);
 
                             plugin.Execute(serviceProvider);
                         }
