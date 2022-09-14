@@ -8,6 +8,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using Microsoft.Xrm.Sdk;
+
 [assembly: Microsoft.Xrm.Sdk.Client.ProxyTypesAssemblyAttribute()]
 
 namespace Deploy
@@ -735,12 +737,30 @@ namespace Deploy
 				this.SetAttributeValue("content", value);
 				this.OnPropertyChanged("Content");
 			}
-		}
-		
-		/// <summary>
-		/// Unique identifier of the user who created the plug-in assembly.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+        }
+
+        /// <summary>
+        /// Name of the plug-in package.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("packageid")]
+        public EntityReference PackageId
+        {
+            get
+            {
+                return this.GetAttributeValue<EntityReference>("packageid");
+            }
+            set
+            {
+                this.OnPropertyChanging("PackageId");
+                this.SetAttributeValue("packageid", value);
+                this.OnPropertyChanged("PackageId");
+            }
+        }
+
+        /// <summary>
+        /// Unique identifier of the user who created the plug-in assembly.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
 		public Microsoft.Xrm.Sdk.EntityReference CreatedBy
 		{
 			get
@@ -1203,12 +1223,371 @@ namespace Deploy
 				SourceType = value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null;
 			}
 		}
-	}
-	
-	/// <summary>
-	/// Type that inherits from the IPlugin interface and is contained within a plug-in assembly.
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
+    }
+
+    /// <summary>
+    /// Type that inherits from the IPlugin interface and is contained within a plug-in assembly.
+    /// </summary>
+    [System.Runtime.Serialization.DataContractAttribute()]
+    [Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("pluginpackage")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
+    [System.Diagnostics.DebuggerStepThrough()]
+    public partial class PluginPackage : Microsoft.Xrm.Sdk.Entity, System.ComponentModel.INotifyPropertyChanging, System.ComponentModel.INotifyPropertyChanged
+    {
+
+        /// <summary>
+        /// Default Constructor.
+        /// </summary>
+        public PluginPackage() :
+                base(EntityLogicalName)
+        {
+        }
+
+        public const string EntityLogicalName = "pluginpackage";
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            if ((this.PropertyChanged != null))
+            {
+                this.PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        private void OnPropertyChanging(string propertyName)
+        {
+            if ((this.PropertyChanging != null))
+            {
+                this.PropertyChanging(this, new System.ComponentModel.PropertyChangingEventArgs(propertyName));
+            }
+        }
+
+        /// <summary>
+        /// Full path name of the plug-in assembly.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("content")]
+        public string Content
+        {
+            get
+            {
+                return this.GetAttributeValue<string>("content");
+            }
+            set
+            {
+                this.OnPropertyChanging("Content");
+                this.SetAttributeValue("content", value);
+                this.OnPropertyChanged("Content");
+            }
+        }
+
+        /// <summary>
+        /// For internal use only.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("componentstate")]
+        public Microsoft.Xrm.Sdk.OptionSetValue ComponentState
+        {
+            get
+            {
+                return this.GetAttributeValue<Microsoft.Xrm.Sdk.OptionSetValue>("componentstate");
+            }
+        }
+
+        /// <summary>
+        /// Unique identifier of the user who created the plug-in type.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+        public Microsoft.Xrm.Sdk.EntityReference CreatedBy
+        {
+            get
+            {
+                return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdby");
+            }
+        }
+
+        /// <summary>
+        /// Date and time when the plug-in type was created.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdon")]
+        public System.Nullable<System.DateTime> CreatedOn
+        {
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<System.DateTime>>("createdon");
+            }
+        }
+
+        /// <summary>
+        /// Unique identifier of the delegate user who created the plugintype.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+        public Microsoft.Xrm.Sdk.EntityReference CreatedOnBehalfBy
+        {
+            get
+            {
+                return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdonbehalfby");
+            }
+        }
+
+        /// <summary>
+        /// Name of the plug-in package.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("name")]
+        public string Name
+        {
+            get
+            {
+                return this.GetAttributeValue<string>("name");
+            }
+            set
+            {
+                this.OnPropertyChanging("Name");
+                this.SetAttributeValue("name", value);
+                this.OnPropertyChanged("Name");
+            }
+        }
+
+        /// <summary>
+        /// Name of the plug-in package.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("uniquename")]
+        public string UniqueName
+        {
+            get
+            {
+                return this.GetAttributeValue<string>("uniquename");
+            }
+            set
+            {
+                this.OnPropertyChanging("UniqueName");
+                this.SetAttributeValue("uniquename", value);
+                this.OnPropertyChanged("UniqueName");
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ismanaged")]
+        public System.Nullable<bool> IsManaged
+        {
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<bool>>("ismanaged");
+            }
+        }
+        
+        /// <summary>
+        /// Unique identifier of the user who last modified the plug-in type.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+        public Microsoft.Xrm.Sdk.EntityReference ModifiedBy
+        {
+            get
+            {
+                return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedby");
+            }
+        }
+
+        /// <summary>
+        /// Date and time when the plug-in type was last modified.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedon")]
+        public System.Nullable<System.DateTime> ModifiedOn
+        {
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<System.DateTime>>("modifiedon");
+            }
+        }
+
+        /// <summary>
+        /// Unique identifier of the delegate user who last modified the plugintype.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+        public Microsoft.Xrm.Sdk.EntityReference ModifiedOnBehalfBy
+        {
+            get
+            {
+                return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedonbehalfby");
+            }
+        }
+
+        /// <summary>
+        /// Unique identifier of the organization with which the plug-in type is associated.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("organizationid")]
+        public Microsoft.Xrm.Sdk.EntityReference OrganizationId
+        {
+            get
+            {
+                return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("organizationid");
+            }
+        }
+
+        /// <summary>
+        /// For internal use only.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("overwritetime")]
+        public System.Nullable<System.DateTime> OverwriteTime
+        {
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<System.DateTime>>("overwritetime");
+            }
+        }
+
+        /// <summary>
+        /// Unique identifier of the plug-in type.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("pluginpackageid")]
+        public System.Nullable<System.Guid> PluginPackageId
+        {
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<System.Guid>>("pluginpackageid");
+            }
+            set
+            {
+                this.OnPropertyChanging("PluginPackageId");
+                this.SetAttributeValue("pluginpackageid", value);
+                if (value.HasValue)
+                {
+                    base.Id = value.Value;
+                }
+                else
+                {
+                    base.Id = System.Guid.Empty;
+                }
+                this.OnPropertyChanged("PluginPackageId");
+            }
+        }
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("pluginpackageid")]
+        public override System.Guid Id
+        {
+            get
+            {
+                return base.Id;
+            }
+            set
+            {
+                this.PluginPackageId = value;
+            }
+        }
+
+        /// <summary>
+        /// Unique identifier of the associated solution.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("solutionid")]
+        public System.Nullable<System.Guid> SolutionId
+        {
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<System.Guid>>("solutionid");
+            }
+        }
+
+        /// <summary>
+        /// Version number of the assembly for the plug-in type.
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("version")]
+        public string Version
+        {
+            get
+            {
+                return this.GetAttributeValue<string>("version");
+            }
+            set
+            {
+                this.OnPropertyChanging("Version");
+                this.SetAttributeValue("version", value);
+                this.OnPropertyChanged("Version");
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("versionnumber")]
+        public System.Nullable<long> VersionNumber
+        {
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<long>>("versionnumber");
+            }
+        }
+
+        /// <summary>
+        /// 1:N plugintype_sdkmessageprocessingstep
+        /// </summary>
+        [Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("pluginpackage_pluginassembly")]
+        public System.Collections.Generic.IEnumerable<Deploy.PluginAssembly> pluginpackage_pluginassembly
+        {
+            get
+            {
+                return this.GetRelatedEntities<Deploy.PluginAssembly>("pluginpackage_pluginassembly", null);
+            }
+            set
+            {
+                this.OnPropertyChanging("pluginpackage_pluginassembly");
+                this.SetRelatedEntities<Deploy.PluginAssembly>("pluginpackage_pluginassembly", null, value);
+                this.OnPropertyChanged("pluginpackage_pluginassembly");
+            }
+        }
+
+        /// <summary>
+        /// 1:N plugintypeid_sdkmessageprocessingstep
+        /// </summary>
+        [Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("plugintypeid_sdkmessageprocessingstep")]
+        public System.Collections.Generic.IEnumerable<Deploy.SdkMessageProcessingStep> plugintypeid_sdkmessageprocessingstep
+        {
+            get
+            {
+                return this.GetRelatedEntities<Deploy.SdkMessageProcessingStep>("plugintypeid_sdkmessageprocessingstep", null);
+            }
+            set
+            {
+                this.OnPropertyChanging("plugintypeid_sdkmessageprocessingstep");
+                this.SetRelatedEntities<Deploy.SdkMessageProcessingStep>("plugintypeid_sdkmessageprocessingstep", null, value);
+                this.OnPropertyChanged("plugintypeid_sdkmessageprocessingstep");
+            }
+        }
+
+        /// <summary>
+        /// N:1 pluginassembly_plugintype
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("pluginassemblyid")]
+        [Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("pluginassembly_plugintype")]
+        public Deploy.PluginAssembly pluginassembly_plugintype
+        {
+            get
+            {
+                return this.GetRelatedEntity<Deploy.PluginAssembly>("pluginassembly_plugintype", null);
+            }
+            set
+            {
+                this.OnPropertyChanging("pluginassembly_plugintype");
+                this.SetRelatedEntity<Deploy.PluginAssembly>("pluginassembly_plugintype", null, value);
+                this.OnPropertyChanged("pluginassembly_plugintype");
+            }
+        }
+
+        public virtual componentstate? ComponentStateEnum
+        {
+            get
+            {
+                return ((componentstate?)(EntityOptionSetEnum.GetEnum(this, "componentstate")));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Type that inherits from the IPlugin interface and is contained within a plug-in assembly.
+    /// </summary>
+    [System.Runtime.Serialization.DataContractAttribute()]
 	[Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("plugintype")]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
 	[System.Diagnostics.DebuggerStepThrough()]

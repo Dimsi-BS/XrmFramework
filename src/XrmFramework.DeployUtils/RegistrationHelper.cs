@@ -17,6 +17,7 @@ using System.Linq;
 using System.Reflection;
 using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Configuration;
+using XrmFramework.DeployUtils.Extensions;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils
@@ -62,6 +63,7 @@ namespace XrmFramework.DeployUtils
             var pluginType = pluginAssembly.GetType("XrmFramework.Plugin");
             var customApiType = pluginAssembly.GetType("XrmFramework.CustomApi");
             var workflowType = pluginAssembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");
+            var pluginPackageEntityTypeCode = GetEntityTypeCode("pluginpackage", service);
 
             var pluginList = new List<Plugin>();
 
@@ -116,7 +118,6 @@ namespace XrmFramework.DeployUtils
                 customApis.Add(customApi);
             }
 
-
             var assembly = GetAssemblyByName(service, pluginAssembly.GetName().Name);
 
             var profilerAssembly = GetProfilerAssembly(service);
@@ -130,23 +131,21 @@ namespace XrmFramework.DeployUtils
 
             var assemblyPath = pluginAssembly.Location;
 
+            var package = GetPackageToRegister(pluginAssembly.GetAssemblyInfo(), "../../../../../packageFiles/", _publisher.CustomizationPrefix);
+
             if (assembly == null)
             {
                 Console.WriteLine("Registering assembly");
 
-                assembly = GetAssemblyToRegister(pluginAssembly, assemblyPath);
+                service.Create(package);
 
-                assembly.Id = service.Create(assembly);
+                assembly = GetAssemblyByName(service, pluginAssembly.GetName().Name, true);
             }
             else
             {
                 Console.WriteLine("Updating plugin assembly");
 
-                var updatedAssembly = new Entity("pluginassembly")
-                {
-                    Id = assembly.Id,
-                    ["content"] = Convert.ToBase64String(File.ReadAllBytes(assemblyPath))
-                };
+                package.Id = assembly.PackageId?.Id ?? Guid.Empty;
 
                 registeredPluginTypes = GetRegisteredPluginTypes(service, assembly.Id).ToList();
                 registeredCustomApis = GetRegisteredCustomApis(service, assembly.Id).ToList();
@@ -180,8 +179,10 @@ namespace XrmFramework.DeployUtils
                     }
                 }
 
-                service.Update(updatedAssembly);
+                service.Update(package);
             }
+
+            AddSolutionComponentToSolution(service, pluginSolutionUniqueName, package.ToEntityReference(), pluginPackageEntityTypeCode);
 
             AddSolutionComponentToSolution(service, pluginSolutionUniqueName, assembly.ToEntityReference());
 
@@ -547,12 +548,17 @@ namespace XrmFramework.DeployUtils
             return list;
         }
 
-        private static IEnumerable<PluginAssembly> GetAssemblies(IOrganizationService service)
+        private static IEnumerable<PluginAssembly> GetAssemblies(IOrganizationService service, bool forceRefresh = false)
         {
+            if (forceRefresh == false)
+            {
+                _list.Clear();
+            }
+
             if (_list.Count == 0)
             {
                 var query = new QueryExpression("pluginassembly");
-                query.ColumnSet.AddColumns("pluginassemblyid", "name");
+                query.ColumnSet.AddColumns("pluginassemblyid", "name", "packageid");
                 query.Distinct = true;
                 query.Criteria.FilterOperator = LogicalOperator.And;
                 query.Criteria.AddCondition("name", ConditionOperator.NotLike, "CompiledWorkflow%");
@@ -571,32 +577,45 @@ namespace XrmFramework.DeployUtils
             return _list;
         }
 
-        private static PluginAssembly GetAssemblyByName(IOrganizationService service, string assemblyName)
+        private static PluginAssembly GetAssemblyByName(IOrganizationService service, string assemblyName, bool forceRefresh = false)
         {
-            var assemblies = GetAssemblies(service);
+            var assemblies = GetAssemblies(service, forceRefresh);
 
             return assemblies.FirstOrDefault(a => assemblyName == a.Name);
         }
 
+        private static PluginPackage GetPackageToRegister(AssemblyInfo assemblyInfos, string packageRootDirectory, string prefix)
+        {
+            var directoryInfos = new DirectoryInfo(packageRootDirectory);
+
+            var files = directoryInfos.GetFiles($"{assemblyInfos.Name}.*.nupkg");
+
+            var fileInfo = files.First();
+
+            var t = new PluginPackage
+            {
+                Name = $"{prefix}_{assemblyInfos.Name}",
+                UniqueName = $"{prefix}_{assemblyInfos.Name}",
+                Version = assemblyInfos.Version,
+                Content = Convert.ToBase64String(File.ReadAllBytes(fileInfo.FullName))
+            };
+
+            return t;
+        }
+
         private static PluginAssembly GetAssemblyToRegister(Assembly a, string assemblyPath)
         {
-            var fullNameSplit = a.FullName.Split(',');
-
-            var name = fullNameSplit[0];
-            var version = fullNameSplit[1].Substring(fullNameSplit[1].IndexOf('=') + 1);
-            var culture = fullNameSplit[2].Substring(fullNameSplit[2].IndexOf('=') + 1);
-            var publicKeyToken = fullNameSplit[3].Substring(fullNameSplit[3].IndexOf('=') + 1);
-            var description = string.Format("{0} plugin assembly", name);
+            var infos = a.GetAssemblyInfo();
 
             var t = new PluginAssembly()
             {
-                Name = name,
+                Name = infos.Name,
                 SourceType = new OptionSetValue((int)pluginassembly_sourcetype.Database),
                 IsolationMode = new OptionSetValue((int)pluginassembly_isolationmode.Sandbox),
-                Culture = culture,
-                PublicKeyToken = publicKeyToken,
-                Version = version,
-                Description = description,
+                Culture = infos.Culture,
+                PublicKeyToken = infos.PublicKeyToken,
+                Version = infos.Version,
+                Description = $"{infos.Name} plugin assembly",
                 Content = Convert.ToBase64String(File.ReadAllBytes(assemblyPath))
             };
 

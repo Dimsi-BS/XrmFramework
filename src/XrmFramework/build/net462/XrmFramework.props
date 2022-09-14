@@ -1,7 +1,7 @@
 ﻿<Project>
 
     <ItemGroup>
-        <Compile Include="obj\LoggedServices\*.cs" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     </ItemGroup>
 
 </Project>

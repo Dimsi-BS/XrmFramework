@@ -1,33 +1,30 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
+using Deploy;
 using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Tooling.Connector;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Security.Policy;
-using Deploy;
-using Microsoft.Xrm.Sdk.Client;
-using XrmFramework;
+using XrmFramework.Core;
+using XrmFramework.DefinitionManager;
+using XrmFramework.DeployUtils.Configuration;
 using AttributeMetadata = Microsoft.Xrm.Sdk.Metadata.AttributeMetadata;
 using AttributeTypeCode = Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode;
 using DateTimeAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.DateTimeAttributeMetadata;
 using DecimalAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.DecimalAttributeMetadata;
 using DoubleAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.DoubleAttributeMetadata;
 using IntegerAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.IntegerAttributeMetadata;
+using LocalizedLabel = XrmFramework.Core.LocalizedLabel;
 using MultiSelectPicklistAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.MultiSelectPicklistAttributeMetadata;
 using RelationshipAttributeDefinition = DefinitionManager.Definitions.RelationshipAttributeDefinition;
 using StringAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.StringAttributeMetadata;
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Tooling.Connector;
-using XrmFramework.Core;
-using XrmFramework.DeployUtils.Configuration;
 using Table = XrmFramework.Core.Table;
-using LocalizedLabel = XrmFramework.Core.LocalizedLabel;
-using System.Diagnostics;
-using XrmFramework.DefinitionManager;
 
 namespace DefinitionManager
 {
@@ -100,8 +97,8 @@ namespace DefinitionManager
             };
 
             var sw = Stopwatch.StartNew();
-            var response = (RetrieveAllEntitiesResponse) _service.Execute(req);
-                        sw.Stop();
+            var response = (RetrieveAllEntitiesResponse)_service.Execute(req);
+            sw.Stop();
 
             var entitiesMetadata = response.EntityMetadata;
 
@@ -113,7 +110,7 @@ namespace DefinitionManager
             var publisherPrefixes = _service.RetrieveMultiple(queryPublishers).Entities.Select(e => e.GetAttributeValue<string>("customizationprefix")).ToList();
 
             foreach (var entity in entitiesMetadata)
-            {                
+            {
                 var entityDefinition = new EntityDefinition
                 {
                     LogicalName = entity.LogicalName,

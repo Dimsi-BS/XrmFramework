@@ -1,7 +1,7 @@
 ﻿
-using System;
 using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
+using System;
 
 namespace XrmFramework.RemoteDebugger.Converters
 {
@@ -17,7 +17,7 @@ namespace XrmFramework.RemoteDebugger.Converters
             writer.WritePropertyName("value");
 
             serializer.Serialize(writer, new ObjectSerialization(value.Value));
-            
+
             writer.WriteEndObject();
         }
 
@@ -41,7 +41,7 @@ namespace XrmFramework.RemoteDebugger.Converters
             reader.Read();
 
             var serializedValue = serializer.Deserialize<ObjectSerialization>(reader);
-            
+
             reader.Read();
 
             var aliasedValue = new AliasedValue(entityLogicalName, attributeLogicalName, serializedValue.Value);

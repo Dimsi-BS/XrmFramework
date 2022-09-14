@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using Microsoft.Xrm.Sdk.Metadata;
+﻿using Microsoft.Xrm.Sdk.Metadata;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System.Collections.Generic;
 
 namespace XrmFramework.Core
 {
@@ -10,7 +10,7 @@ namespace XrmFramework.Core
     {
         [JsonProperty("LogName")]
         public string LogicalName { get; set; }
-        
+
         public string Name { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
