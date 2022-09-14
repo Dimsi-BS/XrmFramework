@@ -231,7 +231,7 @@ namespace XrmFramework.BindingModel
                                     {
                                         if (entity.RelatedEntities.Keys.Any(r => r.SchemaName == relationship.RelationshipName))
                                         {
-                                            var relatedEntity = entity.RelatedEntities.First(r => r.Key.SchemaName == relationship.RelationshipName).Value.Entities.FirstOrDefault();
+                                            var relatedEntity = entity.RelatedEntities.First(r => r.Key.SchemaName == relationship.RelationshipName).Value?.Entities.FirstOrDefault();
 
                                             if (relatedEntity != null)
                                             {

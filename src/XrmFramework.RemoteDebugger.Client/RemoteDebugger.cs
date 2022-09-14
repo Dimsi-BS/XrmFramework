@@ -64,7 +64,12 @@ namespace XrmFramework.RemoteDebugger.Common
                         }
                         else
                         {
-                            var plugin = (IPlugin)Activator.CreateInstance(pluginType, remoteContext.UnsecureConfig, remoteContext.SecureConfig);
+                            IPlugin plugin;
+                            if (pluginType.GetConstructor(new Type[] {typeof(string), typeof(string)}) != null) {
+                                plugin = (IPlugin)Activator.CreateInstance(pluginType, remoteContext.UnsecureConfig, remoteContext.SecureConfig);
+                            } else {
+                                plugin = (IPlugin)Activator.CreateInstance(pluginType);
+                            }                           
 
                             plugin.Execute(serviceProvider);
                         }
