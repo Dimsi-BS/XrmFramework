@@ -973,7 +973,7 @@ namespace XrmFramework.BindingModel
                         {
                             var elements = propElement.Elements(xmlAttributeTemp.RelativePath);
 
-                            if (!elements.Any())
+                            if (!Enumerable.Any(elements))
                             {
                                 elements = propElement.Elements(xmlAttributeTemp.AlternateRelativePath);
                             }
