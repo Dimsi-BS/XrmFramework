@@ -308,7 +308,7 @@ namespace XrmFramework.BindingModel
                                         {
                                             if (entity.RelatedEntities.Keys.Any(r => r.SchemaName == relationship.RelationshipName))
                                             {
-                                                entityTemp = entity.RelatedEntities.First(r => r.Key.SchemaName == relationship.RelationshipName).Value.Entities.FirstOrDefault();
+                                                entityTemp = entity.RelatedEntities.First(r => r.Key.SchemaName == relationship.RelationshipName).Value?.Entities.FirstOrDefault();
                                                 if (entityTemp != null && DefinitionCache.TryGetModelDefinition(property.ObjectType, out var modelDefinitionTemp))
                                                 {
                                                     if (modelDefinitionTemp.MainDefinition.EntityName == entityTemp.LogicalName)
@@ -378,7 +378,9 @@ namespace XrmFramework.BindingModel
 
                 if (entity.RelatedEntities.Keys.Any(r => r.SchemaName == relationship.SchemaName) && property.IsCollectionProperty(out bindingType))
                 {
-                    foreach (var entityTemp in entity.RelatedEntities.First(r => r.Key.SchemaName == relationship.SchemaName).Value.Entities)
+                    var entityList = entity.RelatedEntities.First(r => r.Key.SchemaName == relationship.SchemaName).Value ?? new EntityCollection();
+
+                    foreach (var entityTemp in entityList.Entities)
                     {
                         var model = entityTemp.CachedToBindingModel(bindingType, cache);
 
@@ -971,7 +973,7 @@ namespace XrmFramework.BindingModel
                         {
                             var elements = propElement.Elements(xmlAttributeTemp.RelativePath);
 
-                            if (!elements.Any())
+                            if (!Enumerable.Any(elements))
                             {
                                 elements = propElement.Elements(xmlAttributeTemp.AlternateRelativePath);
                             }

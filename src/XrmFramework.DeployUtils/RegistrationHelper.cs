@@ -701,7 +701,7 @@ namespace XrmFramework.DeployUtils
                 AsyncAutoDelete = step.Mode == Model.Modes.Asynchronous,
                 Description = description,
                 EventHandler = new EntityReference(PluginType.EntityLogicalName, pluginTypeId),
-                FilteringAttributes = step.FilteringAttributes.Any() ? string.Join(",", step.FilteringAttributes) : null,
+                FilteringAttributes = step.DoNotFilterAttributes ? null : string.Join(",", step.FilteringAttributes),
                 ImpersonatingUserId = string.IsNullOrEmpty(step.ImpersonationUsername) ? null : new EntityReference("systemuser", _users.First(u => u.Key == step.ImpersonationUsername).Value),
 #pragma warning disable 0612
                 InvocationSource = new OptionSetValue((int)sdkmessageprocessingstep_invocationsource.Child),
