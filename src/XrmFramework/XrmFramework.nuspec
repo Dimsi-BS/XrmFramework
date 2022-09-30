@@ -16,7 +16,7 @@
     <dependencies>
       <group targetFramework="net462">
         <dependency id="System.ComponentModel.Annotations" version="5.0.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.45" />
+        <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.46" />
         <dependency id="System.Net.Http" version="4.3.4" />
         <dependency id="Microsoft.CSharp" version="4.7.0" />
         <dependency id="System.Configuration.ConfigurationManager" version="5.0.0" />
@@ -24,8 +24,8 @@
         <dependency id="XrmFramework.Analyzers" version="[$version$]" />
       </group>
       <group targetFramework="netcoreapp3.1">
-        <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="1.0.1" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="1.0.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="1.0.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="1.0.9" exclude="Build,Analyzers" />
         <dependency id="System.Reflection.DispatchProxy" version="4.7.1" exclude="Build,Analyzers" />
         <dependency id="Newtonsoft.Json" version="13.0.1" />
         <dependency id="XrmFramework.Analyzers" version="[$version$]" />
