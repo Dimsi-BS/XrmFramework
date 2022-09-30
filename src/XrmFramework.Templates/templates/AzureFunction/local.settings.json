@@ -1,6 +1,10 @@
 {
-  "ConnectionStrings": {
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
     "Xrm": "AuthType=ClientSecret; Url=https://crm.crm4.dynamics.com/; ClientId=00000000-0000-0000-0000-000000000000; ClientSecret=;"
+  },
+  "ConnectionStrings": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=True"
   }
-
 }
