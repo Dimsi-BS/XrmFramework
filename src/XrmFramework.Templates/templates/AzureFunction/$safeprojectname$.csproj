@@ -10,13 +10,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FunctionMonkey.Cgo" Version="6.0.8" />
-    <PackageReference Include="FunctionMonkey.Compiler.Cgo" Version="6.0.8" />
-    <PackageReference Include="FunctionMonkey.FluentValidation.Cgo" Version="6.0.8" />
+    <PackageReference Include="FunctionMonkey.Cgo" Version="6.0.10" />
+    <PackageReference Include="FunctionMonkey.Compiler.Cgo" Version="6.0.10" />
+    <PackageReference Include="FunctionMonkey.FluentValidation.Cgo" Version="6.0.10" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.1.1" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.3" />
     <PackageReference Include="Refit.HttpClientFactory" Version="6.1.15" />
     <PackageReference Include="Refit.Newtonsoft.Json" Version="6.0.38" />
     <PackageReference Include="System.Net.Http.WinHttpHandler" Version="6.0.0" />
