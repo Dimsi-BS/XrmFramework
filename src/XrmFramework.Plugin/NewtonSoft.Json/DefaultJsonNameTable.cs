@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Threading;
 
 namespace Newtonsoft.Json
 {
@@ -59,7 +60,7 @@ namespace Newtonsoft.Json
         /// <param name="start">The zero-based index into the array specifying the first character of the name.</param>
         /// <param name="length">The number of characters in the name.</param>
         /// <returns>A string containing the same characters as the specified range of characters in the given array.</returns>
-        public override string Get(char[] key, int start, int length)
+        public override string? Get(char[] key, int start, int length)
         {
             if (length == 0)
             {
@@ -78,7 +79,12 @@ namespace Newtonsoft.Json
             hashCode -= hashCode >> 5;
 
             // make sure index is evaluated before accessing _entries, otherwise potential race condition causing IndexOutOfRangeException
-            var index = hashCode & _mask;
+#if NET20 || NET35 || NET40
+            int mask = Thread.VolatileRead(ref _mask);
+#else
+            int mask = Volatile.Read(ref _mask);
+#endif
+            var index = hashCode & mask;
             var entries = _entries;
 
             for (Entry entry = entries[index]; entry != null; entry = entry.Next)
@@ -160,7 +166,12 @@ namespace Newtonsoft.Json
                 }
             }
             _entries = newEntries;
-            _mask = newMask;
+
+#if NET20 || NET35 || NET40
+            Thread.VolatileWrite(ref _mask, newMask);
+#else
+            Volatile.Write(ref _mask, newMask);
+#endif
         }
 
         private static bool TextEquals(string str1, char[] str2, int str2Start, int str2Length)

@@ -4,10 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using XrmFramework.Core;
 
 namespace XrmFramework.ModelManager
-{
+{/*
     public static class ModelManager
     {
         public static TableCollection Tables = new TableCollection();
@@ -80,8 +81,14 @@ namespace XrmFramework.ModelManager
             // If a model does not have a corresponding class exit
             foreach (var model in models)
             {
-                var hasCorrespondingTable = tables.Any(t => t.LogicalName == model.TableLogicalName);
-
+                var hasCorrespondingTable = false;
+                foreach (var table in tables)
+                {
+                    if (table.LogicalName == model.TableLogicalName) ;
+                    {
+                        hasCorrespondingTable |= true;
+                    }
+                }
                 if (!hasCorrespondingTable)
                 {
                     Console.WriteLine($"No corresponding table was found for {model.Name}, press any key to exit.");
@@ -95,7 +102,7 @@ namespace XrmFramework.ModelManager
                 // Create start of class
                 var sb = new IndentedStringBuilder();
                 var correspondingTable = tables.FirstOrDefault(t => t.LogicalName == model.TableLogicalName);
-                if (correspondingTable == null)
+                if(correspondingTable == null)
                 {
                     throw new Exception("The table corresponding to this model was not found, its logical name is : " + model.TableLogicalName);
                 }
@@ -141,10 +148,12 @@ namespace XrmFramework.ModelManager
 
                             if (correspondingColumn != null)
                             {
-                                //This property is a column
-                                sb
-                                    .Append($"[CrmMapping({correspondingTable.Name}Definition.Columns.{correspondingColumn.Name}")
-                                    .AppendLine(prop.IsValidForUpdate ? ")]" : ", IsValidForUpdate = false)]");
+                                if (correspondingColumn != null)
+                                {   //This property is a column
+                                    sb.Append($"[CrmMapping({correspondingTable.Name}Definition.Columns.{correspondingColumn.Name}");//)]");
+                                    if(prop.IsValidForUpdate)
+                                    {
+                                        sb.Append(")]");
 
                                 if (correspondingColumn.Type == AttributeTypeCode.Lookup)
                                 {
@@ -233,10 +242,33 @@ namespace XrmFramework.ModelManager
                             else
                             {
 
-                                // Write property declaration with call to OnPropertyChanged()
-                                if (correspondingColumn != null)
+                                if (prop.JsonPropertyName != null)
                                 {
-                                    string tmp = @$"
+                                    sb.AppendLine($"[JsonProperty(\"{prop.JsonPropertyName}\")]");
+                                }
+
+                                // Add other possible attributes
+
+
+                                if (!prop.IsValidForUpdate)
+                                {
+                                    // Write regular declaration
+                                    if (correspondingColumn != null)
+                                    {
+                                        sb.AppendLine(String.Format("public {0} {1} {{get; set;}}", prop.TypeFullName, prop.Name));
+                                    }
+                                    else
+                                    {
+                                        sb.AppendLine($"public List<{prop.TypeFullName}> {prop.Name} {{get;set;}} = new List<{prop.TypeFullName}>();");
+                                    }
+                                }
+                                else
+                                {
+
+                                    // Write property declaration with call to OnPropertyChanged()
+                                    if (correspondingColumn != null)
+                                    {
+                                        string tmp = @$"
         public {prop.TypeFullName} {prop.Name}
         {{
             get => _{prop.Name};
@@ -341,6 +373,7 @@ namespace XrmFramework.ModelManager
             model.TableLogicalName = table.LogicalName;
             // Temporaire
             model.Name = table.Name; // A modifier
+            //model.Properties = new List<ModelProperty>();
             //foreach (var col in table.Columns)
             //{
             //    var prop = new ModelProperty();
@@ -403,7 +436,7 @@ namespace XrmFramework.ModelManager
             }
         }
 
-        public static void SetPropertyJsonName(Model model, string propertyLogicalName, string JsonPropertyName)
+        public static void SetPropertyJsonPropertyName(Model model, string propertyLogicalName, string JsonPropertyName)
         {
             var prop = model.Properties.FirstOrDefault(p => p.LogicalName == propertyLogicalName);
             prop.Name = JsonPropertyName;
@@ -425,7 +458,7 @@ namespace XrmFramework.ModelManager
         {
             var possibleTypes = new List<string>();
 
-
+            
             var table = Tables.FirstOrDefault(t => t.LogicalName == model.TableLogicalName);
             if (table == null)
             {
@@ -442,8 +475,11 @@ namespace XrmFramework.ModelManager
                     possibleTypes.Add(possibleModel.TypeFullName);
                 }
 
-                possibleTypes.Add("System.Guid");
-                possibleTypes.Add("Microsoft.Xrm.Sdk.EntityReference");
+                    foreach (var possibleModel in Models)
+                    {
+                        if (possibleModel.TableLogicalName == relation.EntityName)
+                        {
+                            possibleTypes.Add($"{CoreProjectName}.{possibleModel.ModelNamespace}.{possibleModel.Name}");
 
                 return possibleTypes;
 
@@ -480,7 +516,20 @@ namespace XrmFramework.ModelManager
                     possibleTypes.Add("System.Double");
                     break;
                 case AttributeTypeCode.Lookup:
-                    var relations = table.ManyToOneRelationships.Where(r => r.LookupFieldName == column.LogicalName);
+                    //Get the corresponding relation, find the corresponding model if it exists
+
+
+                    var re = table.ManyToOneRelationships.FirstOrDefault(r => r.LookupFieldName == column.LogicalName);
+                    if (re == null)
+                    {
+                        throw new Exception();
+                    }
+                    foreach(var possibleModel in Models)
+                    {
+                        if(possibleModel.TableLogicalName == re.EntityName)
+                        {
+
+                            possibleTypes.Add($"{CoreProjectName}.{possibleModel.ModelNamespace}.{possibleModel.Name}");
 
                     foreach (var possibleModel in relations.Join(Models, r => r.EntityName, m => m.TableLogicalName, (r, m) => m))
                     {
@@ -878,14 +927,13 @@ namespace XrmFramework.ModelManager
 
                 newProperty.Name = userInput;
 
-
                 Console.WriteLine("Enter p to set IsValidForUpdate to true, enter anything else to not");
                 if (Console.ReadLine() == "p")
                 {
                     newProperty.IsValidForUpdate = true;
                     //Check if any other common crm mapping is true
                     var similarMapping = model.Properties.FirstOrDefault(p => p.LogicalName == newProperty.LogicalName && p.IsValidForUpdate);
-                    if (similarMapping != null)
+                    if(similarMapping != null)
                     {
                         //Choose the right one
                         do
@@ -916,7 +964,7 @@ namespace XrmFramework.ModelManager
 
                 Console.WriteLine("If you want this property to be serialized, enter a name, otherwise press enter");
                 userInput = Console.ReadLine();
-                var samejsonProperty = model.Properties.FirstOrDefault(p => p.JsonPropertyName == userInput);
+                var samejsonProperty = model.Properties.FirstOrDefault(p=>p.JsonPropertyName == userInput);
                 if (userInput != "" && samejsonProperty != null)
                 {
                     newProperty.JsonPropertyName = userInput;
@@ -1091,7 +1139,7 @@ namespace XrmFramework.ModelManager
                 }
                 else if (userInput == "c")
                 {
-                    // Modify JsonName
+                    // Modify JsonPropertyName
                     ModelProperty sameProperty;
                     do
                     {
@@ -1140,5 +1188,5 @@ namespace XrmFramework.ModelManager
 
         }
 
-    }
+    }*/
 }

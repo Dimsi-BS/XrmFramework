@@ -15,8 +15,8 @@
     <copyright>$copyrigth$</copyright>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.42" />
-        <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.42" />
+        <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.45" />
+        <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.45" />
         <dependency id="Microsoft.CrmSdk.Deployment" version="9.0.2.34" />
         <dependency id="Microsoft.CrmSdk.XrmTooling.CoreAssembly" version="9.1.0.110" />
       </group>

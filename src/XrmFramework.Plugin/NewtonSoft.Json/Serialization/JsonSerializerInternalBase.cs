@@ -31,11 +31,11 @@ using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Serialization
 {
-    internal abstract class JsonSerializerBase
+    internal abstract class JsonSerializerInternalBase
     {
         private class ReferenceEqualsEqualityComparer : IEqualityComparer<object>
         {
-            bool IEqualityComparer<object>.Equals(object x, object y)
+            bool IEqualityComparer<object>.Equals(object? x, object? y)
             {
                 return ReferenceEquals(x, y);
             }
@@ -47,14 +47,14 @@ namespace Newtonsoft.Json.Serialization
             }
         }
 
-        private ErrorContext _currentErrorContext;
-        private BidirectionalDictionary<string, object> _mappings;
+        private ErrorContext? _currentErrorContext;
+        private BidirectionalDictionary<string, object>? _mappings;
 
         internal readonly JsonSerializer Serializer;
-        internal readonly ITraceWriter TraceWriter;
-        protected JsonSerializerProxy InternalSerializer;
+        internal readonly ITraceWriter? TraceWriter;
+        protected JsonSerializerProxy? InternalSerializer;
 
-        protected JsonSerializerBase(JsonSerializer serializer)
+        protected JsonSerializerInternalBase(JsonSerializer serializer)
         {
             ValidationUtils.ArgumentNotNull(serializer, nameof(serializer));
 
@@ -81,7 +81,7 @@ namespace Newtonsoft.Json.Serialization
             }
         }
 
-        protected NullValueHandling ResolvedNullValueHandling(JsonObjectContract containerContract, JsonProperty property)
+        protected NullValueHandling ResolvedNullValueHandling(JsonObjectContract? containerContract, JsonProperty property)
         {
             NullValueHandling resolvedNullValueHandling =
                 property.NullValueHandling
@@ -91,7 +91,7 @@ namespace Newtonsoft.Json.Serialization
             return resolvedNullValueHandling;
         }
 
-        private ErrorContext GetErrorContext(object currentObject, object member, string path, Exception error)
+        private ErrorContext GetErrorContext(object? currentObject, object? member, string path, Exception error)
         {
             if (_currentErrorContext == null)
             {
@@ -116,7 +116,7 @@ namespace Newtonsoft.Json.Serialization
             _currentErrorContext = null;
         }
 
-        protected bool IsErrorHandled(object currentObject, JsonContract contract, object keyValue, IJsonLineInfo lineInfo, string path, Exception ex)
+        protected bool IsErrorHandled(object? currentObject, JsonContract? contract, object? keyValue, IJsonLineInfo? lineInfo, string path, Exception ex)
         {
             ErrorContext errorContext = GetErrorContext(currentObject, keyValue, path, ex);
 
@@ -126,7 +126,7 @@ namespace Newtonsoft.Json.Serialization
                 errorContext.Traced = true;
 
                 // kind of a hack but meh. might clean this up later
-                string message = (GetType() == typeof(JsonSerializerWriter)) ? "Error serializing" : "Error deserializing";
+                string message = (GetType() == typeof(JsonSerializerInternalWriter)) ? "Error serializing" : "Error deserializing";
                 if (contract != null)
                 {
                     message += " " + contract.UnderlyingType;

@@ -20,15 +20,16 @@ namespace XrmFramework.Core
                 if (item.Selected || item.IsLocked)
                 {
                     existingColumn.Name = item.Name;
-                    existingColumn.Selected = true;
+                    existingColumn.Selected = item.Selected;
                 }
                 else if (existingColumn.Selected || existingColumn.IsLocked)
                 {
                     item.Name = existingColumn.Name;
-                    item.Selected = true;
+                    item.Selected = existingColumn.Selected;
 
-                    Columns[item.LogicalName] = item;
                 }
+                Columns[item.LogicalName] = item;
+
             }
             else
             {

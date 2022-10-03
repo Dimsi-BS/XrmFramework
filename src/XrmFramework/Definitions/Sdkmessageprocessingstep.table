@@ -121,7 +121,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 256
+      "StrLen": 256,
+      "Select": true
     },
     {
       "LogName": "eventexpander",

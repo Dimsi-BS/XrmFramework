@@ -119,6 +119,9 @@ namespace XrmFramework.Analyzers.Helpers
         {
             var isAsyncMethod = IsAssignableFrom(m.ReturnType, typeof(Task).FullName);
 
+            var isObsoleteMethod = m.GetAttributes().Any(a => a.AttributeClass.GetFullMetadataName() == "System.ObsoleteAttribute");
+
+
             builder
                 .AppendLine()
                 .Append("public ");
@@ -150,6 +153,11 @@ namespace XrmFramework.Analyzers.Helpers
                     .AppendLine()
                     ;
 
+                if (isObsoleteMethod)
+                {
+                    builder.AppendLine("#pragma warning disable CS0612");
+                }
+
                 if (m.ReturnType.SpecialType != SpecialType.System_Void && m.ReturnType.GetFullMetadataName() != typeof(Task).FullName)
                 {
                     builder
@@ -169,6 +177,11 @@ namespace XrmFramework.Analyzers.Helpers
                 builder
                     .AppendLine(";")
                     .AppendLine();
+
+                if (isObsoleteMethod)
+                {
+                    builder.AppendLine("#pragma warning restore CS0612");
+                }
 
                 GetMethodLog(m, false, builder);
 

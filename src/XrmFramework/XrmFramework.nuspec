@@ -16,16 +16,21 @@
     <dependencies>
       <group targetFramework="net462">
         <dependency id="System.ComponentModel.Annotations" version="5.0.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.42" />
+        <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.45" />
         <dependency id="XrmFramework.Analyzers" version="[$version$]" />
       </group>
       <group targetFramework="netcoreapp3.1">
-        <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="0.6.6" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="0.6.6" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="1.0.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="1.0.1" exclude="Build,Analyzers" />
         <dependency id="System.Reflection.DispatchProxy" version="4.7.1" exclude="Build,Analyzers" />
         <dependency id="XrmFramework.Analyzers" version="[$version$]" />
       </group>
     </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework="net462" />
+      <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="net462" />
+      <frameworkAssembly assemblyName="System.Configuration" targetFramework="net462" />
+    </frameworkAssemblies>
   </metadata>
 
   <files>

@@ -9,7 +9,7 @@ using XrmFramework.BindingModel;
 
 namespace XrmFramework
 {
-    public class AttributeMetadata
+    internal class AttributeMetadata
     {
         public string AttributeName { get; private set; }
 
