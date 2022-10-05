@@ -347,7 +347,10 @@ namespace XrmFramework.DefinitionManager
                     .Select(en => en.EnumName).Distinct().ToList();
 
                 entity.Enums.RemoveAll(en => !enumsToKeep.Contains(en.LogicalName));
-
+                foreach(var column in entity.Columns)
+                {
+                    column.Selected = true;
+                }
                 var entityTxt = JsonConvert.SerializeObject(entity, Formatting.Indented, new JsonSerializerSettings
                 {
                     DefaultValueHandling = DefaultValueHandling.Ignore
