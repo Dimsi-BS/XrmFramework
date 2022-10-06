@@ -1,33 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
-  <metadata>
-    <id>XrmFramework.DeployUtils</id>
-    <version>$version$</version>
-    <title>XrmFramework.DeployUtils</title>
-    <authors>$author$</authors>
-    <owners>$owner$</owners>
-    <description>XrmFramework aims at simplifying Microsoft Dynamics 365 and Dataverse plugin, workflows development, deployment and testing</description>
-    <summary>XrmFramework aims at simplifying Microsoft Dynamics 365 and Dataverse plugin, workflows development, deployment and testing</summary>
-    <language>en-US</language>
-    <projectUrl>https://aka.ms/XrmFramework</projectUrl>
-    <license type="expression">MIT</license>
-    <tags>Dynamics365 CRM DynamicsCrm Dataverse PowerApps</tags>
-    <copyright>$copyrigth$</copyright>
-    <dependencies>
-      <group targetFramework="net462">
-        <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.45" />
-        <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.45" />
-        <dependency id="Microsoft.CrmSdk.Deployment" version="9.0.2.34" />
-        <dependency id="Microsoft.CrmSdk.XrmTooling.CoreAssembly" version="9.1.0.110" />
-      </group>
-    </dependencies>
-  </metadata>
+    <metadata>
+        <id>XrmFramework.DeployUtils</id>
+        <version>$version$</version>
+        <title>XrmFramework.DeployUtils</title>
+        <authors>$author$</authors>
+        <owners>$owner$</owners>
+        <description>XrmFramework aims at simplifying Microsoft Dynamics 365 and Dataverse plugin, workflows
+            development, deployment and testing
+        </description>
+        <summary>XrmFramework aims at simplifying Microsoft Dynamics 365 and Dataverse plugin, workflows development,
+            deployment and testing
+        </summary>
+        <language>en-US</language>
+        <projectUrl>https://aka.ms/XrmFramework</projectUrl>
+        <license type="expression">MIT</license>
+        <tags>Dynamics365 CRM DynamicsCrm Dataverse PowerApps</tags>
+        <copyright>$copyrigth$</copyright>
+        <dependencies>
+            <group targetFramework="net462">
+                <dependency id="AutoMapper" version="10.1.1"/>
+                <dependency id="AutoMapper.Extensions.Microsoft.DependencyInjection" version="8.1.1"/>
+                <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.45"/>
+                <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.45"/>
+                <dependency id="Microsoft.CrmSdk.Deployment" version="9.0.2.34"/>
+                <dependency id="Microsoft.CrmSdk.XrmTooling.CoreAssembly" version="9.1.0.110"/>
+                <dependency id="Microsoft.Extensions.DependencyInjection" version="6.0.0"/>
+                <dependency id="Microsoft.Extensions.Options" version="6.0.0"/>
+            </group>
 
-  <files>
-    <file src="bin\$config$\net462\XrmFramework.DeployUtils.*" target="lib\$XrmFramework_FullFramework_Runtime_TFM$" />
-    
-    <file src="build\**\*" target="build/" />
+        </dependencies>
+    </metadata>
 
-    <file src="$SolutionDir$\*.txt" target="" />
-  </files>
+    <files>
+        <file src="bin\$config$\net462\XrmFramework.DeployUtils.*"
+              target="lib\$XrmFramework_FullFramework_Runtime_TFM$"/>
+
+        <file src="build\**\*" target="build/"/>
+
+        <file src="$SolutionDir$\*.txt" target=""/>
+    </files>
 </package>

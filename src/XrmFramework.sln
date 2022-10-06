@@ -47,6 +47,7 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.ModelManager", "XrmFramework.ModelManager\XrmFramework.ModelManager.csproj", "{24CA564D-6656-4DFF-B4EF-68B2FDFB989F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.Analyzers.Contracts", "XrmFramework.Analyzers.Contracts\XrmFramework.Analyzers.Contracts.csproj", "{8337C924-18B7-4C97-B3D2-150021057BBA}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenerateTableFilesFromLocalCode", "GenerateTableFilesFromLocalCode\GenerateTableFilesFromLocalCode.csproj", "{9C53B650-6A44-463F-9380-73EFAF6D3B06}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmFramework.XrmToolbox.Plugin", "XrmFramework.XrmToolbox.Plugin\XrmFramework.XrmToolbox.Plugin.csproj", "{7DD9F376-F6BA-426E-A559-28B8216EDCD7}"

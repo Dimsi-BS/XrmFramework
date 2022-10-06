@@ -1,307 +1,310 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{7DD9F376-F6BA-426E-A559-28B8216EDCD7}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>XrmFramework.XrmToolbox</RootNamespace>
-    <AssemblyName>XrmFramework.XrmToolbox.Plugin</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XrmFramework_ENABLE_STRONG_NAME_SIGNING;DISABLE_DI</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;XrmFramework_ENABLE_STRONG_NAME_SIGNING;DISABLE_DI</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj">
-      <Project>{C6444169-E29C-4B5B-B5EE-94E5CA4FF836}</Project>
-      <Name>XrmFramework.DeployUtils</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <PropertyGroup>
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-    <XrmFramework_EnableStrongNameSigning>false</XrmFramework_EnableStrongNameSigning>
-  </PropertyGroup>
-  <ItemGroup>
-    <!--<Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\Generated\**;..\XrmFramework\bin\**;..\XrmFramework\obj\**" />-->
-    <!--<Compile Include="..\XrmFramework.Core\**\*.cs" Link="_Imports\XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />-->
-    <Compile Include="..\XrmFramework\**\InternalDependencyProvider.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\Generated\**;..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
-    <AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Generated\**" />
-    <None Include="Generated\**" />
-    <None Remove="**\*.table" />
-    <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
-    <None Include="Properties\DataSources\XrmFramework.Core.Column.datasource" />
-    <None Include="Properties\DataSources\XrmFramework.Core.ColumnCollection.datasource" />
-    <None Include="Properties\DataSources\XrmFramework.Core.Key.datasource" />
-    <None Include="Properties\DataSources\XrmFramework.Core.Model.datasource" />
-    <None Include="Properties\DataSources\XrmFramework.Core.ModelProperty.datasource" />
-    <None Include="Properties\DataSources\XrmFramework.Core.OptionSetEnum.datasource" />
-    <None Include="Properties\DataSources\XrmFramework.Core.OptionSetEnumValue.datasource" />
-    <None Include="Properties\DataSources\XrmFramework.Core.Relation.datasource" />
-    <None Include="Properties\DataSources\XrmFramework.Core.Table.datasource" />
-    <None Include="Properties\DataSources\XrmFramework.Core.TableCollection.datasource" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.VisualStudio.CoreUtility">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System.Management.Automation" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.Activities" />
-    <Reference Include="System.Activities.Presentation" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.DirectoryServices" />
-    <Reference Include="System.DirectoryServices.AccountManagement" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.IdentityModel" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.ServiceModel.Web" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Web.Services" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Workflow.Activities" />
-    <Reference Include="System.Workflow.ComponentModel" />
-    <Reference Include="System.Workflow.Runtime" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="DataHandlers\ModelHandler.cs" />
-    <Compile Include="DataHandlers\TableHandler.cs" />
-    <Compile Include="Forms\AddModelPropertyForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\AddModelPropertyForm.Designer.cs">
-      <DependentUpon>AddModelPropertyForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\AddTableForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\AddTableForm.Designer.cs">
-      <DependentUpon>AddTableForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\CreateModelForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\CreateModelForm.Designer.cs">
-      <DependentUpon>CreateModelForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\PickListChoiceForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\PickListChoiceForm.Designer.cs">
-      <DependentUpon>PickListChoiceForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ProjectCreationForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ProjectCreationForm.Designer.cs">
-      <DependentUpon>ProjectCreationForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TextHelper.cs" />
-    <Compile Include="Forms\TryOtherNameForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\TryOtherNameForm.Designer.cs">
-      <DependentUpon>TryOtherNameForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="XrmFrameworkPlugin.cs" />
-    <Compile Include="XrmFrameworkPluginControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="XrmFrameworkPluginControl.designer.cs">
-      <DependentUpon>XrmFrameworkPluginControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="DockPanelSuite">
-      <Version>3.0.6</Version>
-    </PackageReference>
-    <PackageReference Include="DockPanelSuite.ThemeVS2015">
-      <Version>3.0.6</Version>
-    </PackageReference>
-    <PackageReference Include="ilmerge">
-      <Version>3.0.41</Version>
-    </PackageReference>
-    <PackageReference Include="jacobslusser.ScintillaNET">
-      <Version>3.6.3</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies">
-      <Version>9.0.2.45</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CrmSdk.Deployment">
-      <Version>9.0.2.34</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CrmSdk.Workflow">
-      <Version>9.0.2.45</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly">
-      <Version>9.1.0.110</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.WpfControls">
-      <Version>9.1.0.110</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.IdentityModel">
-      <Version>7.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory">
-      <Version>5.2.9</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Web.WebView2">
-      <Version>1.0.1054.31</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Web.Xdt">
-      <Version>3.1.0</Version>
-    </PackageReference>
-    <PackageReference Include="MscrmTools.Xrm.Connection">
-      <Version>1.2022.4.48</Version>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="NuGet.Client">
-      <Version>4.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="NuGet.Common">
-      <Version>5.9.1</Version>
-    </PackageReference>
-    <PackageReference Include="NuGet.Configuration">
-      <Version>5.9.1</Version>
-    </PackageReference>
-    <PackageReference Include="NuGet.ContentModel">
-      <Version>4.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="NuGet.Frameworks">
-      <Version>5.9.1</Version>
-    </PackageReference>
-    <PackageReference Include="NuGet.Packaging">
-      <Version>5.9.1</Version>
-    </PackageReference>
-    <PackageReference Include="NuGet.Packaging.Core">
-      <Version>5.9.1</Version>
-    </PackageReference>
-    <PackageReference Include="NuGet.Packaging.Core.Types">
-      <Version>4.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="NuGet.Protocol">
-      <Version>5.9.1</Version>
-    </PackageReference>
-    <PackageReference Include="NuGet.Repositories">
-      <Version>4.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="NuGet.RuntimeModel">
-      <Version>4.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="NuGet.Versioning">
-      <Version>5.9.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Net.Http">
-      <Version>4.3.4</Version>
-    </PackageReference>
-    <PackageReference Include="System.Private.Uri">
-      <Version>4.3.2</Version>
-    </PackageReference>
-    <PackageReference Include="System.Security.Cryptography.Algorithms">
-      <Version>4.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Security.Cryptography.Cng">
-      <Version>5.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Security.Cryptography.Encoding">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Security.Cryptography.Pkcs">
-      <Version>5.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Security.Cryptography.Primitives">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Security.Cryptography.X509Certificates">
-      <Version>4.3.2</Version>
-    </PackageReference>
-    <PackageReference Include="XrmToolBoxPackage">
-      <Version>1.2022.4.55</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Forms\AddModelPropertyForm.resx">
-      <DependentUpon>AddModelPropertyForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\AddTableForm.resx">
-      <DependentUpon>AddTableForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\CreateModelForm.resx">
-      <DependentUpon>CreateModelForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\PickListChoiceForm.resx">
-      <DependentUpon>PickListChoiceForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ProjectCreationForm.resx">
-      <DependentUpon>ProjectCreationForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\TryOtherNameForm.resx">
-      <DependentUpon>TryOtherNameForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="XrmFrameworkPluginControl.resx">
-      <DependentUpon>XrmFrameworkPluginControl.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-      IF $(ConfigurationName) == Debug (
-      IF NOT EXIST Plugins mkdir Plugins
-      xcopy "$(TargetDir)$(TargetFileName)" "$(TargetDir)Plugins\" /Y
-      xcopy "$(TargetDir)$(TargetName).pdb" "$(TargetDir)Plugins\" /Y
-      )
-    </PostBuildEvent>
-  </PropertyGroup>
-  <Target Name="AfterBuild">
-    <!-- the ILMergePath property points to the location of ILMerge.exe console application -->
-    <Exec Command="$(ILMergeConsolePath) /out:bin\Debug\XrmFramework.XrmToolboxPlugin.dll bin\Debug\XrmFramework.XrmToolbox.Plugin.dll bin\Debug\XrmFramework.DeployUtils.dll /allowDup" />
-  </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
-       Other similar extension points exist, see Microsoft.Common.targets.  
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
--->
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProductVersion>8.0.30703</ProductVersion>
+        <SchemaVersion>2.0</SchemaVersion>
+        <ProjectGuid>{7DD9F376-F6BA-426E-A559-28B8216EDCD7}</ProjectGuid>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>XrmFramework.XrmToolbox</RootNamespace>
+        <AssemblyName>XrmFramework.XrmToolbox.Plugin</AssemblyName>
+        <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+        <FileAlignment>512</FileAlignment>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>TRACE;DEBUG;XrmFramework_ENABLE_STRONG_NAME_SIGNING;DISABLE_DI</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE;XrmFramework_ENABLE_STRONG_NAME_SIGNING;DISABLE_DI</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <!--        <ProjectReference Include="..\XrmFramework\XrmFramework.csproj"/>-->
+        <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj">
+            <Project>{C6444169-E29C-4B5B-B5EE-94E5CA4FF836}</Project>
+            <Name>XrmFramework.DeployUtils</Name>
+        </ProjectReference>
+    </ItemGroup>
+    <PropertyGroup>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+        <XrmFramework_EnableStrongNameSigning>false</XrmFramework_EnableStrongNameSigning>
+    </PropertyGroup>
+    <ItemGroup>
+        <!--        <Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\Generated\**;..\XrmFramework\bin\**;..\XrmFramework\obj\**"/>-->
+        <!--        <Compile Include="..\XrmFramework.Core\**\*.cs" Link="_Imports\XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**"/>-->
+        <!--        <AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**"/>-->
+        <Compile Include="..\XrmFramework\**\InternalDependencyProvider.cs"
+                 Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)"
+                 Exclude="..\XrmFramework\Generated\**;..\XrmFramework\bin\**;..\XrmFramework\obj\**"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Remove="Generated\**"/>
+        <None Include="Generated\**"/>
+        <None Remove="**\*.table"/>
+        <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**"/>
+        <None Include="Properties\DataSources\XrmFramework.Core.Column.datasource"/>
+        <None Include="Properties\DataSources\XrmFramework.Core.ColumnCollection.datasource"/>
+        <None Include="Properties\DataSources\XrmFramework.Core.Key.datasource"/>
+        <None Include="Properties\DataSources\XrmFramework.Core.Model.datasource"/>
+        <None Include="Properties\DataSources\XrmFramework.Core.ModelProperty.datasource"/>
+        <None Include="Properties\DataSources\XrmFramework.Core.OptionSetEnum.datasource"/>
+        <None Include="Properties\DataSources\XrmFramework.Core.OptionSetEnumValue.datasource"/>
+        <None Include="Properties\DataSources\XrmFramework.Core.Relation.datasource"/>
+        <None Include="Properties\DataSources\XrmFramework.Core.Table.datasource"/>
+        <None Include="Properties\DataSources\XrmFramework.Core.TableCollection.datasource"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="System"/>
+        <Reference Include="System.ComponentModel.DataAnnotations"/>
+        <Reference Include="System.Configuration"/>
+        <Reference Include="System.Core"/>
+        <Reference Include="System.Xml.Linq"/>
+        <Reference Include="System.Data.DataSetExtensions"/>
+        <Reference Include="Microsoft.CSharp"/>
+        <Reference Include="System.Data"/>
+        <Reference Include="System.Xml"/>
+        <Reference Include="Microsoft.VisualStudio.CoreUtility">
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="System.Management.Automation"/>
+        <Reference Include="PresentationFramework"/>
+        <Reference Include="System"/>
+        <Reference Include="System.Activities"/>
+        <Reference Include="System.Activities.Presentation"/>
+        <Reference Include="System.ComponentModel.Composition"/>
+        <Reference Include="System.Core"/>
+        <Reference Include="System.DirectoryServices"/>
+        <Reference Include="System.DirectoryServices.AccountManagement"/>
+        <Reference Include="System.Drawing"/>
+        <Reference Include="System.IdentityModel"/>
+        <Reference Include="System.Runtime.Serialization"/>
+        <Reference Include="System.Security"/>
+        <Reference Include="System.ServiceModel"/>
+        <Reference Include="System.ServiceModel.Web"/>
+        <Reference Include="System.Web"/>
+        <Reference Include="System.Web.Services"/>
+        <Reference Include="System.Windows.Forms"/>
+        <Reference Include="System.Workflow.Activities"/>
+        <Reference Include="System.Workflow.ComponentModel"/>
+        <Reference Include="System.Workflow.Runtime"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="DataHandlers\ModelHandler.cs"/>
+        <Compile Include="DataHandlers\TableHandler.cs"/>
+        <Compile Include="Forms\AddModelPropertyForm.cs">
+            <SubType>Form</SubType>
+        </Compile>
+        <Compile Include="Forms\AddModelPropertyForm.Designer.cs">
+            <DependentUpon>AddModelPropertyForm.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Forms\AddTableForm.cs">
+            <SubType>Form</SubType>
+        </Compile>
+        <Compile Include="Forms\AddTableForm.Designer.cs">
+            <DependentUpon>AddTableForm.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Forms\CreateModelForm.cs">
+            <SubType>Form</SubType>
+        </Compile>
+        <Compile Include="Forms\CreateModelForm.Designer.cs">
+            <DependentUpon>CreateModelForm.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Forms\PickListChoiceForm.cs">
+            <SubType>Form</SubType>
+        </Compile>
+        <Compile Include="Forms\PickListChoiceForm.Designer.cs">
+            <DependentUpon>PickListChoiceForm.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Forms\ProjectCreationForm.cs">
+            <SubType>Form</SubType>
+        </Compile>
+        <Compile Include="Forms\ProjectCreationForm.Designer.cs">
+            <DependentUpon>ProjectCreationForm.cs</DependentUpon>
+        </Compile>
+        <Compile Include="TextHelper.cs"/>
+        <Compile Include="Forms\TryOtherNameForm.cs">
+            <SubType>Form</SubType>
+        </Compile>
+        <Compile Include="Forms\TryOtherNameForm.Designer.cs">
+            <DependentUpon>TryOtherNameForm.cs</DependentUpon>
+        </Compile>
+        <Compile Include="XrmFrameworkPlugin.cs"/>
+        <Compile Include="XrmFrameworkPluginControl.cs">
+            <SubType>UserControl</SubType>
+        </Compile>
+        <Compile Include="XrmFrameworkPluginControl.designer.cs">
+            <DependentUpon>XrmFrameworkPluginControl.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="Settings.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="DockPanelSuite">
+            <Version>3.0.6</Version>
+        </PackageReference>
+        <PackageReference Include="DockPanelSuite.ThemeVS2015">
+            <Version>3.0.6</Version>
+        </PackageReference>
+        <PackageReference Include="ilmerge">
+            <Version>3.0.41</Version>
+        </PackageReference>
+        <PackageReference Include="jacobslusser.ScintillaNET">
+            <Version>3.6.3</Version>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies">
+            <Version>9.0.2.45</Version>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CrmSdk.Deployment">
+            <Version>9.0.2.34</Version>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CrmSdk.Workflow">
+            <Version>9.0.2.45</Version>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly">
+            <Version>9.1.0.110</Version>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CrmSdk.XrmTooling.WpfControls">
+            <Version>9.1.0.110</Version>
+        </PackageReference>
+        <PackageReference Include="Microsoft.IdentityModel">
+            <Version>7.0.0</Version>
+        </PackageReference>
+        <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory">
+            <Version>5.2.9</Version>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Web.WebView2">
+            <Version>1.0.1054.31</Version>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Web.Xdt">
+            <Version>3.1.0</Version>
+        </PackageReference>
+        <PackageReference Include="MscrmTools.Xrm.Connection">
+            <Version>1.2022.4.48</Version>
+        </PackageReference>
+        <PackageReference Include="Newtonsoft.Json">
+            <Version>13.0.1</Version>
+        </PackageReference>
+        <PackageReference Include="NuGet.Client">
+            <Version>4.2.0</Version>
+        </PackageReference>
+        <PackageReference Include="NuGet.Common">
+            <Version>5.9.1</Version>
+        </PackageReference>
+        <PackageReference Include="NuGet.Configuration">
+            <Version>5.9.1</Version>
+        </PackageReference>
+        <PackageReference Include="NuGet.ContentModel">
+            <Version>4.2.0</Version>
+        </PackageReference>
+        <PackageReference Include="NuGet.Frameworks">
+            <Version>5.9.1</Version>
+        </PackageReference>
+        <PackageReference Include="NuGet.Packaging">
+            <Version>5.9.1</Version>
+        </PackageReference>
+        <PackageReference Include="NuGet.Packaging.Core">
+            <Version>5.9.1</Version>
+        </PackageReference>
+        <PackageReference Include="NuGet.Packaging.Core.Types">
+            <Version>4.2.0</Version>
+        </PackageReference>
+        <PackageReference Include="NuGet.Protocol">
+            <Version>5.9.1</Version>
+        </PackageReference>
+        <PackageReference Include="NuGet.Repositories">
+            <Version>4.2.0</Version>
+        </PackageReference>
+        <PackageReference Include="NuGet.RuntimeModel">
+            <Version>4.2.0</Version>
+        </PackageReference>
+        <PackageReference Include="NuGet.Versioning">
+            <Version>5.9.1</Version>
+        </PackageReference>
+        <PackageReference Include="System.Net.Http">
+            <Version>4.3.4</Version>
+        </PackageReference>
+        <PackageReference Include="System.Private.Uri">
+            <Version>4.3.2</Version>
+        </PackageReference>
+        <PackageReference Include="System.Security.Cryptography.Algorithms">
+            <Version>4.3.1</Version>
+        </PackageReference>
+        <PackageReference Include="System.Security.Cryptography.Cng">
+            <Version>5.0.0</Version>
+        </PackageReference>
+        <PackageReference Include="System.Security.Cryptography.Encoding">
+            <Version>4.3.0</Version>
+        </PackageReference>
+        <PackageReference Include="System.Security.Cryptography.Pkcs">
+            <Version>5.0.1</Version>
+        </PackageReference>
+        <PackageReference Include="System.Security.Cryptography.Primitives">
+            <Version>4.3.0</Version>
+        </PackageReference>
+        <PackageReference Include="System.Security.Cryptography.X509Certificates">
+            <Version>4.3.2</Version>
+        </PackageReference>
+        <PackageReference Include="XrmToolBoxPackage">
+            <Version>1.2022.4.55</Version>
+        </PackageReference>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Forms\AddModelPropertyForm.resx">
+            <DependentUpon>AddModelPropertyForm.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Forms\AddTableForm.resx">
+            <DependentUpon>AddTableForm.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Forms\CreateModelForm.resx">
+            <DependentUpon>CreateModelForm.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Forms\PickListChoiceForm.resx">
+            <DependentUpon>PickListChoiceForm.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Forms\ProjectCreationForm.resx">
+            <DependentUpon>ProjectCreationForm.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Forms\TryOtherNameForm.resx">
+            <DependentUpon>TryOtherNameForm.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="XrmFrameworkPluginControl.resx">
+            <DependentUpon>XrmFrameworkPluginControl.cs</DependentUpon>
+        </EmbeddedResource>
+    </ItemGroup>
+    <ItemGroup/>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+    <PropertyGroup>
+        <PostBuildEvent>
+            IF $(ConfigurationName) == Debug (
+            IF NOT EXIST Plugins mkdir Plugins
+            xcopy "$(TargetDir)$(TargetFileName)" "$(TargetDir)Plugins\" /Y
+            xcopy "$(TargetDir)$(TargetName).pdb" "$(TargetDir)Plugins\" /Y
+            )
+        </PostBuildEvent>
+    </PropertyGroup>
+    <Target Name="AfterBuild">
+        <!-- the ILMergePath property points to the location of ILMerge.exe console application -->
+        <Exec Command="$(ILMergeConsolePath) /out:bin\Debug\XrmFramework.XrmToolboxPlugin.dll bin\Debug\XrmFramework.XrmToolbox.Plugin.dll bin\Debug\XrmFramework.DeployUtils.dll /allowDup"/>
+    </Target>
+    <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+         Other similar extension points exist, see Microsoft.Common.targets.  
+    <Target Name="BeforeBuild">
+    </Target>
+    <Target Name="AfterBuild">
+    </Target>
+  -->
 </Project>
