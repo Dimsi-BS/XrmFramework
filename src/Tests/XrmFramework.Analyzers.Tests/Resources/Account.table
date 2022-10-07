@@ -14,7 +14,8 @@
           "LangId": 1036
         }
       ],
-      "EnumName": "account|accountcategorycode"
+      "EnumName": "account|accountcategorycode",
+      "Select": true
     },
     {
       "LogName": "accountid",
@@ -27,7 +28,8 @@
           "Label": "Compte",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
     {
       "LogName": "accountnumber",
@@ -40,7 +42,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 20
+      "StrLen": 20,
+      "Select": true
     },
     {
       "LogName": "address1_county",
@@ -53,6 +56,7 @@
           "LangId": 1036
         }
       ],
+      "Select": true,
       "StrLen": 50
     },
     {
@@ -66,6 +70,7 @@
           "LangId": 1036
         }
       ],
+      "Select": true,
       "MinRange": -90.0,
       "MaxRange": 90.0
     },
@@ -80,6 +85,7 @@
           "LangId": 1036
         }
       ],
+      "Select": true,
       "StrLen": 250
     },
     {
@@ -93,6 +99,7 @@
           "LangId": 1036
         }
       ],
+      "Select": true,
       "StrLen": 20
     },
     {
@@ -106,6 +113,7 @@
           "LangId": 1036
         }
       ],
+      "Select": true,
       "StrLen": 50
     },
     {
@@ -119,6 +127,7 @@
           "LangId": 1036
         }
       ],
+      "Select": true,
       "EnumName": "account|address2_freighttermscode"
     },
     {
@@ -133,6 +142,7 @@
           "LangId": 1036
         }
       ],
+      "Select": true,
       "StrLen": 160
     }
   ],
@@ -1204,7 +1214,8 @@
           ]
         }
       ],
-      "HasNullValue": true
+      "HasNullValue": true,
+      "Select": true
     },
     {
       "LogName": "account|accountclassificationcode",

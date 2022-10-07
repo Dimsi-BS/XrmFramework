@@ -15,7 +15,8 @@
         }
       ],
       "MinRange": 100.0,
-      "MaxRange": 2000.0
+      "MaxRange": 2000.0,
+      "Select": true
     },
     {
       "LogName": "ftp_name",
@@ -29,7 +30,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 100
+      "StrLen": 100,
+      "Select": true
     },
     {
       "LogName": "ftp_particulierid",
@@ -42,7 +44,8 @@
           "Label": "Particulier",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     }
   ],
   "NtoN": [],

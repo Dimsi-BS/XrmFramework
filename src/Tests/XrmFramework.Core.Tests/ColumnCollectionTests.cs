@@ -1,166 +1,164 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace XrmFramework.Core.Tests
+namespace XrmFramework.Core.Tests;
+
+[TestClass]
+public class ColumnCollectionTests
 {
-    [TestClass]
-    public class ColumnCollectionTests
-    {
-        private ColumnCollection _columnCollection = null!;
+	private ColumnCollection _columnCollection = null!;
 
-        private Column _selectedColumn = new Column
-        {
-            LogicalName = "LogicalName",
-            Name = "SelectedName",
-            Selected = true
-        };
+	private Column _notSelectedColumn = new()
+	{
+		LogicalName = "LogicalName",
+		Name = "NotSelectedName"
+	};
 
-        private Column _notSelectedColumn = new Column
-        {
-            LogicalName = "LogicalName",
-            Name = "NotSelectedName"
-        };
+	private Column _otherColumn = new()
+	{
+		LogicalName = "OtherLogicalName",
+		Name = "OtherName"
+	};
 
-        private Column _otherColumn = new Column
-        {
-            LogicalName = "OtherLogicalName",
-            Name = "OtherName"
-        };
+	private Column _selectedColumn = new()
+	{
+		LogicalName = "LogicalName",
+		Name = "SelectedName",
+		Selected = true
+	};
 
-        [TestInitialize]
-        public void InitTests()
-        {
-            _columnCollection = new ColumnCollection();
-        }
+	[TestInitialize]
+	public void InitTests()
+	{
+		_columnCollection = new ColumnCollection();
+	}
 
-        [TestMethod]
-        public void ObjectInitialization()
-        {
-            Assert.IsNotNull(_columnCollection.GetEnumerator());
+	[TestMethod]
+	public void ObjectInitialization()
+	{
+		Assert.IsNotNull(_columnCollection.GetEnumerator());
 
-            Assert.AreEqual(0, _columnCollection.Count);
+		Assert.AreEqual(0, _columnCollection.Count);
+	}
 
-        }
-
-        [TestMethod]
-        public void AddColumn()
-        {
-            _columnCollection.Add(null);
+	[TestMethod]
+	public void AddColumn()
+	{
+		_columnCollection.Add(null);
 
 
-            _columnCollection.Add(_selectedColumn);
+		_columnCollection.Add(_selectedColumn);
 
-            Assert.AreEqual(1, _columnCollection.Count);
-            CollectionAssert.AreEquivalent(new List<Column> { _selectedColumn }, _columnCollection.ToList());
+		Assert.AreEqual(1, _columnCollection.Count);
+		CollectionAssert.AreEquivalent(new List<Column> {_selectedColumn}, _columnCollection.ToList());
 
 
-            _columnCollection.Add(_notSelectedColumn);
+		_columnCollection.Add(_notSelectedColumn);
 
-            Assert.AreEqual(1, _columnCollection.Count);
+		Assert.AreEqual(1, _columnCollection.Count);
 
-            var retrievedColumn = _columnCollection.Single();
+		var retrievedColumn = _columnCollection.Single();
 
-            Assert.AreEqual(_selectedColumn.Name, retrievedColumn.Name);
-            Assert.IsTrue(retrievedColumn.Selected);
+		Assert.AreEqual(_selectedColumn.Name, retrievedColumn.Name);
+		Assert.IsTrue(retrievedColumn.Selected);
 
-            _columnCollection.Clear();
+		_columnCollection.Clear();
 
-            Assert.AreEqual(0, _columnCollection.Count);
+		Assert.AreEqual(0, _columnCollection.Count);
 
-            _columnCollection.Add(_notSelectedColumn);
-            _columnCollection.Add(_selectedColumn);
+		_columnCollection.Add(_notSelectedColumn);
+		_columnCollection.Add(_selectedColumn);
 
-            retrievedColumn = _columnCollection.Single();
+		retrievedColumn = _columnCollection.Single();
 
-            Assert.AreEqual(_selectedColumn.Name, retrievedColumn.Name);
-            Assert.IsTrue(retrievedColumn.Selected);
+		Assert.AreEqual(_selectedColumn.Name, retrievedColumn.Name);
+		Assert.IsTrue(retrievedColumn.Selected);
 
-            _columnCollection.Add(_otherColumn);
+		_columnCollection.Add(_otherColumn);
 
-            CollectionAssert.AreEquivalent(new List<Column> { _otherColumn, _notSelectedColumn }, _columnCollection.ToList());
-        }
+		CollectionAssert.AreEquivalent(new List<Column> {_otherColumn, _selectedColumn}, _columnCollection.ToList());
+	}
 
-        [TestMethod]
-        public void RemoveColumn()
-        {
-            _columnCollection.Add(_selectedColumn);
+	[TestMethod]
+	public void RemoveColumn()
+	{
+		_columnCollection.Add(_selectedColumn);
 
-            Assert.IsFalse(_columnCollection.Remove(null));
+		Assert.IsFalse(_columnCollection.Remove(null));
 
-            _columnCollection.Remove(_notSelectedColumn);
+		_columnCollection.Remove(_notSelectedColumn);
 
-            Assert.AreEqual(0, _columnCollection.Count);
-        }
+		Assert.AreEqual(0, _columnCollection.Count);
+	}
 
-        [TestMethod]
-        public void ContainsColumn()
-        {
-            _columnCollection.Add(_selectedColumn);
+	[TestMethod]
+	public void ContainsColumn()
+	{
+		_columnCollection.Add(_selectedColumn);
 
-            Assert.IsFalse(_columnCollection.Contains(null));
+		Assert.IsFalse(_columnCollection.Contains(null));
 
-            Assert.IsTrue(_columnCollection.Contains(_notSelectedColumn));
-        }
+		Assert.IsTrue(_columnCollection.Contains(_notSelectedColumn));
+	}
 
-        [TestMethod]
-        public void IsReadOnly()
-        {
-            Assert.IsFalse(_columnCollection.IsReadOnly);
-        }
+	[TestMethod]
+	public void IsReadOnly()
+	{
+		Assert.IsFalse(_columnCollection.IsReadOnly);
+	}
 
-        [TestMethod]
-        public void GetEnumeratorGeneric()
-        {
-            _columnCollection.Add(_selectedColumn);
-            _columnCollection.Add(_otherColumn);
+	[TestMethod]
+	public void GetEnumeratorGeneric()
+	{
+		_columnCollection.Add(_selectedColumn);
+		_columnCollection.Add(_otherColumn);
 
-            using var enumerator = _columnCollection.GetEnumerator();
+		using var enumerator = _columnCollection.GetEnumerator();
 
-            Assert.IsNull(enumerator.Current);
+		Assert.IsNull(enumerator.Current);
 
-            enumerator.MoveNext();
+		enumerator.MoveNext();
 
-            Assert.AreEqual(_selectedColumn, enumerator.Current);
+		Assert.AreEqual(_selectedColumn, enumerator.Current);
 
-            enumerator.MoveNext();
+		enumerator.MoveNext();
 
-            Assert.AreEqual(_otherColumn, enumerator.Current);
-        }
+		Assert.AreEqual(_otherColumn, enumerator.Current);
+	}
 
-        [TestMethod]
-        public void GetEnumerator()
-        {
-            _columnCollection.Add(_selectedColumn);
-            _columnCollection.Add(_otherColumn);
+	[TestMethod]
+	public void GetEnumerator()
+	{
+		_columnCollection.Add(_selectedColumn);
+		_columnCollection.Add(_otherColumn);
 
-            var enumerator = ((IEnumerable)_columnCollection).GetEnumerator();
+		var enumerator = ((IEnumerable) _columnCollection).GetEnumerator();
 
-            Assert.ThrowsException<InvalidOperationException>(() => enumerator.Current);
+		Assert.ThrowsException<InvalidOperationException>(() => enumerator.Current);
 
-            enumerator.MoveNext();
+		enumerator.MoveNext();
 
-            Assert.AreEqual(_selectedColumn, enumerator.Current);
+		Assert.AreEqual(_selectedColumn, enumerator.Current);
 
-            enumerator.MoveNext();
+		enumerator.MoveNext();
 
-            Assert.AreEqual(_otherColumn, enumerator.Current);
-        }
+		Assert.AreEqual(_otherColumn, enumerator.Current);
+	}
 
-        [TestMethod]
-        public void MergeColumns()
-        {
-            _columnCollection.Add(_selectedColumn);
+	[TestMethod]
+	public void MergeColumns()
+	{
+		_columnCollection.Add(_selectedColumn);
 
-            var list = new List<Column> { _selectedColumn, _otherColumn };
+		var list = new List<Column> {_selectedColumn, _otherColumn};
 
-            _columnCollection.MergeColumns(list);
+		_columnCollection.MergeColumns(list);
 
-            Assert.AreEqual(list.Count, _columnCollection.Count);
+		Assert.AreEqual(list.Count, _columnCollection.Count);
 
-            CollectionAssert.AreEquivalent(list, _columnCollection.ToList());
-        }
-    }
+		CollectionAssert.AreEquivalent(list, _columnCollection.ToList());
+	}
 }
