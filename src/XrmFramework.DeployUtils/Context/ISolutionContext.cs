@@ -20,17 +20,13 @@ namespace XrmFramework.DeployUtils.Context
         /// <summary>Publisher</summary>
         Publisher Publisher { get; }
 
-        /// <summary>List of Components of the solution</summary>
-        List<SolutionComponent> Components { get; }
+        SolutionComponent GetComponentByObjectRef(EntityReference objectRef);
 
-        /// <summary>Filters used in the solution</summary>
-        List<SdkMessageFilter> Filters { get; }
+        Guid GetUserId(string userName);
 
-        /// <summary>Messages</summary>
-        Dictionary<Messages, EntityReference> Messages { get; }
+        EntityReference GetMessage(Messages message);
 
-        /// <summary>Users</summary>
-        List<KeyValuePair<string, Guid>> Users { get; }
+        EntityReference GetMessageFilter(Messages message, string entityName);
 
         /// <summary>Retrieves all metadata of the solution</summary>
         /// <remarks>This method is not used anymore, but is left because it would be a pain to write it again if it's ever needed</remarks>
@@ -42,6 +38,12 @@ namespace XrmFramework.DeployUtils.Context
         /// <param name="steps"></param>
         void InitExportMetadata(IEnumerable<Step> steps);
 
+        /// <summary>
+        /// Inits the components essential for importing an <see cref="IAssemblyContext"/>
+        /// The solutionName is already configured in <see cref="DeployUtils"/>
+        /// </summary>
+        /// <param name="solutionName"></param>
+        void InitSolutionContext(string solutionName = null);
 
 
     }

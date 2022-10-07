@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -11,7 +10,7 @@ namespace XrmFramework
 {
     [JsonObject(MemberSerialization.OptIn)]
     [JsonArray]
-    public class ModelDefinition
+    internal class ModelDefinition
     {
         public Type BindingType { get; set; }
         [JsonProperty]
@@ -30,7 +29,7 @@ namespace XrmFramework
         public EntityDefinition MainDefinition { get; set; }
 
         public XmlMappingAttribute XmlMappingAttribute { get; set; }
-        
+
         public ModelDefinition(Type bindingType)
         {
             /*
@@ -62,14 +61,14 @@ namespace XrmFramework
             }
             */
         }
-        
+
         [JsonConstructor]
         public ModelDefinition()
         {
-            
+
         }
 
-       
+
 
         /*public void AddAttribute(AttributeDefinition attribute)
         {
@@ -103,10 +102,10 @@ namespace XrmFramework
         }*/
     }
     [JsonObject(MemberSerialization.OptIn)]
-    public class AttributeDefinition
+    internal class AttributeDefinition
     {
         public ModelDefinition Model { get; internal set; }
-        
+
         public PropertyInfo Property { get; internal set; }
 
         public Type PropertyType => ModelImplementationAttribute?.ImplementationType ?? Property.PropertyType;
@@ -263,7 +262,7 @@ namespace XrmFramework
 
         public bool IsUpsertable()
         {
-                                                                                                                                                                        //IsCollectionProperty(out collectionType)
+            //IsCollectionProperty(out collectionType)
             Type collectionType;
             return !IsExtendBindingModel && ((CrmMappingAttribute != null && typeof(IBindingModel).IsAssignableFrom(PropertyType)) || (RelationshipAttribute != null && IsCollectionProperty(out collectionType) && typeof(IBindingModel).IsAssignableFrom(collectionType)));
         }

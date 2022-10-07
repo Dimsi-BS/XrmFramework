@@ -6,7 +6,7 @@ using XrmFramework.BindingModel;
 
 namespace XrmFramework.Utils
 {
-    public static class ModelFactory
+    internal static class ModelFactory
     {
         public static ModelDefinition CreateFromType(Type bindingType)
         {
@@ -56,7 +56,7 @@ namespace XrmFramework.Utils
             model._attributes.Add(attribute);
         }
 
-        public static void SetId(ModelDefinition model,object instance, Guid id)
+        public static void SetId(ModelDefinition model, object instance, Guid id)
         {
             if (instance == null)
             {
@@ -76,14 +76,14 @@ namespace XrmFramework.Utils
             attribute.Model = model;
             attribute.Property = property;
 
-            attribute.CrmMappingAttribute = GetAttribute<CrmMappingAttribute>(attribute,property);
+            attribute.CrmMappingAttribute = GetAttribute<CrmMappingAttribute>(attribute, property);
 
 
-            attribute.CrmLookupAttribute = GetAttribute<CrmLookupAttribute>(attribute,property);
+            attribute.CrmLookupAttribute = GetAttribute<CrmLookupAttribute>(attribute, property);
 
-            attribute.ModelImplementationAttribute = GetAttribute<CrmModelImplementationAttribute>(attribute,property);
+            attribute.ModelImplementationAttribute = GetAttribute<CrmModelImplementationAttribute>(attribute, property);
 
-            var extendBindingModel = GetAttribute<ExtendBindingModelAttribute>(attribute,property);
+            var extendBindingModel = GetAttribute<ExtendBindingModelAttribute>(attribute, property);
 
             attribute.IsExtendBindingModel = extendBindingModel != null;
 
@@ -97,9 +97,9 @@ namespace XrmFramework.Utils
                 attribute.IsNullable = true;
             }
 
-            attribute.UpsertOrder = GetAttribute<UpsertOrderAttribute>(attribute,property)?.Order;
+            attribute.UpsertOrder = GetAttribute<UpsertOrderAttribute>(attribute, property)?.Order;
 
-            var converterAttribute = GetAttribute<ModelPropertyConverterAttribute>(attribute,property);
+            var converterAttribute = GetAttribute<ModelPropertyConverterAttribute>(attribute, property);
 
             if (converterAttribute != null)
             {
@@ -113,9 +113,9 @@ namespace XrmFramework.Utils
                 }
             }
 
-            attribute.XmlMappingAttribute = GetAttribute<XmlMappingAttribute>(attribute,property);
+            attribute.XmlMappingAttribute = GetAttribute<XmlMappingAttribute>(attribute, property);
 
-            attribute.RelationshipAttribute = GetAttribute<CrmRelationshipAttribute>(attribute,property);
+            attribute.RelationshipAttribute = GetAttribute<CrmRelationshipAttribute>(attribute, property);
 
             var addMethods = attribute.PropertyType.GetMethods().Where(m => m.Name == "Add").ToList();
             if (addMethods.Count == 1)
@@ -124,7 +124,7 @@ namespace XrmFramework.Utils
             }
         }
 
-        private static T GetAttribute<T>(AttributeDefinition attribute,PropertyInfo property) where T : Attribute
+        private static T GetAttribute<T>(AttributeDefinition attribute, PropertyInfo property) where T : Attribute
         {
             return property.GetCustomAttribute<T>(true)
                    ?? attribute.Model.ImplementedInterfaces.FirstOrDefault(t => t.GetProperty(property.Name)?.GetCustomAttribute<T>() != null)?.GetProperty(property.Name)?.GetCustomAttribute<T>();
@@ -135,11 +135,11 @@ namespace XrmFramework.Utils
         {
             var attribute = new AttributeDefinition();
 
-            InitAttribute(attribute,model, property);
+            InitAttribute(attribute, model, property);
             return attribute;
         }
 
-        public static void SetAttributeValue(AttributeDefinition attribute,object instance, object value)
+        public static void SetAttributeValue(AttributeDefinition attribute, object instance, object value)
         {
             if (attribute.Property.SetMethod != null)
             {
@@ -166,12 +166,12 @@ namespace XrmFramework.Utils
             return attribute.Name;
         }
 
-        public static object GetAttributeValue(AttributeDefinition attribute,object instance)
+        public static object GetAttributeValue(AttributeDefinition attribute, object instance)
         {
             return attribute.Property.GetValue(instance);
         }
 
-        public static bool IsAttributeCollectionProperty(AttributeDefinition attribute,out Type collectionBindingType)
+        public static bool IsAttributeCollectionProperty(AttributeDefinition attribute, out Type collectionBindingType)
         {
             var retour = false;
             collectionBindingType = null;
@@ -190,7 +190,7 @@ namespace XrmFramework.Utils
             return retour;
         }
 
-        public static object ConvertAttributeFrom( AttributeDefinition attribute,object initialValue)
+        public static object ConvertAttributeFrom(AttributeDefinition attribute, object initialValue)
         {
             if (!attribute.HasConverter)
             {
@@ -199,11 +199,11 @@ namespace XrmFramework.Utils
             return attribute._typeConverter.ConvertFrom(initialValue);
         }
 
-        public static void AddElementToAttribute(AttributeDefinition attribute,object instance, object model)
+        public static void AddElementToAttribute(AttributeDefinition attribute, object instance, object model)
         {
             attribute._addMethod.Invoke(attribute.Property.GetValue(instance), new[] { model });
         }
 
-        
+
     }
 }

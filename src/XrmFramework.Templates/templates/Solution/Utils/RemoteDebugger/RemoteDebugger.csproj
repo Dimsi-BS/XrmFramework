@@ -1,16 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net462</TargetFramework>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net462</TargetFramework>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="$(RootFolder)/$safeprojectname$.Plugins/$safeprojectname$.Plugins.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="$(RootFolder)/$safeprojectname$.Plugins/$safeprojectname$.Plugins.csproj"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="XrmFramework.RemoteDebugger.Client" Version="#{GitBuildVersionSimple}#" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="XrmFramework.RemoteDebugger.Client" Version="#{GitBuildVersionSimple}#"/>
+    </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Update="@(ProjectReference)" Exclude="">
+            <Aliases>$([System.String]::Copy("%(FileName)").Replace(".",""))</Aliases>
+        </ProjectReference>
+        <ProjectReference Update="../../Framework/XrmFramework.RemoteDebugger.Client\XrmFramework.RemoteDebugger.Client.csproj">
+            <Aliases></Aliases>
+        </ProjectReference>
+    </ItemGroup>
+  
 </Project>

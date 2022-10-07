@@ -21,8 +21,6 @@
 		<PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.45" />
 		<PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.110" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
 		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
@@ -40,7 +38,7 @@
 	<ItemGroup>
 		<Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**;..\XrmFramework\Generated\**" />
 		<Compile Include="..\XrmFramework.Plugin\**\*.cs" Link="_Imports\XrmFramework.Plugin\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\bin\**;..\XrmFramework.Plugin\obj\**;..\XrmFramework.Plugin\Generated\**" />
-		<Compile Include="..\XrmFramework.RemoteDebugger.Client\Configuration\DebugAssemblySettings.cs" Link="_Imports\XrmFramework.RemoteDebugger.Client\Configuration\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\bin\**;..\XrmFramework.Plugin\obj\**" />
+		<Compile Include="..\XrmFramework.DeployUtils/RemoteDebugger/Configuration/DebugAssemblySettings.cs" Link="_Imports\XrmFramework.DeployUtils/RemoteDebugger/Configuration/%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\bin\**;..\XrmFramework.Plugin\obj\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -55,8 +53,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="Generated\**"/>
-		<None Include="Generated\**"/>
+		<Compile Remove="Generated\**" />
+		<None Include="Generated\**" />
 	</ItemGroup>
 
 	<ItemGroup>

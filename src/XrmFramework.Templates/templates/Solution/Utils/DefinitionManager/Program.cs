@@ -17,7 +17,7 @@ namespace DefinitionManager
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm(typeof(XrmFramework.IService), "$safeprojectname$.Core"));
+            Application.Run(new MainForm("$safeprojectname$.Core"));
         }
     }
 }

@@ -16,23 +16,30 @@ namespace XrmFramework.DeployUtils.Configuration
         public AutoMapperLocalToLocalProfile()
         {
             // Ignore the children as they are only getters defined by other properties and AutoMapper would try and fail to map them
-            CreateMap<AssemblyInfo, AssemblyInfo>();
+            CreateMap<AssemblyInfo, AssemblyInfo>()
+                .ForMember(dest => dest.Children, opt => opt.Ignore());
             CreateMap<Plugin, Plugin>()
                 .ForMember(dest => dest.Children, opt => opt.Ignore());
             CreateMap<Step, Step>();
             CreateMap<StepConfiguration, StepConfiguration>();
-            CreateMap<StepImage, StepImage>();
+            CreateMap<StepImage, StepImage>()
+                .ForMember(dest => dest.Children, opt => opt.Ignore());
+
 
 
             CreateMap<CustomApi, CustomApi>()
                 .ForMember(dest => dest.Children, opt => opt.Ignore());
 
-            CreateMap<CustomApiRequestParameter, CustomApiRequestParameter>();
-            CreateMap<CustomApiResponseProperty, CustomApiResponseProperty>();
+            CreateMap<CustomApiRequestParameter, CustomApiRequestParameter>()
+                .ForMember(dest => dest.Children, opt => opt.Ignore());
+
+            CreateMap<CustomApiResponseProperty, CustomApiResponseProperty>()
+                .ForMember(dest => dest.Children, opt => opt.Ignore());
+
 
             // Specify very VERY explicitly that AutoMapper should map the private lists in StepCollection and CustomApi
             // I know how ugly this looks but it was the best way I found to at least keep them private
-            ShouldMapField = fi => fi.IsPublic || fi.Name is "_internalList" or "_inArguments" or "_outArguments";
+            ShouldMapField = fi => fi.IsPublic || fi.Name is "_internalList" or "_arguments";
 
             CreateMap<StepCollection, StepCollection>();
 
@@ -60,7 +67,11 @@ namespace XrmFramework.DeployUtils.Configuration
                     opt => opt.MapFrom(src => src));
 
             CreateMap<Deploy.CustomApi, CustomApi>()
-            .ForMember(p => p.ParentId, opt => opt.MapFrom(d => d.PluginTypeId.Id));
+            .ForMember(p => p.ParentId, opt => opt.MapFrom(d => d.PluginTypeId.Id))
+            .ForMember(dest => dest.Prefix,
+                opt => opt.MapFrom(src => src.UniqueName.Split('_')[0]))
+            .ForMember(dest => dest.Name,
+                opt => opt.MapFrom(src => src.UniqueName.Split('_')[1]));
 
             CreateMap<Deploy.CustomApiRequestParameter, CustomApiRequestParameter>()
                 .ForMember(dest => dest.UniqueName,

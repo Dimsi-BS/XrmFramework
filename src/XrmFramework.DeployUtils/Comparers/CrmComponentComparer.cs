@@ -11,12 +11,8 @@ namespace XrmFramework.DeployUtils.Utils
     /// </summary>
     public class CrmComponentComparer : ICrmComponentComparer
     {
-        private readonly StepComparer _stepComparer;
+        private readonly StepComparer _stepComparer = new();
 
-        public CrmComponentComparer()
-        {
-            _stepComparer = new StepComparer();
-        }
         public ICrmComponent CorrespondingComponent(ICrmComponent from, IReadOnlyCollection<ICrmComponent> target)
         {
             return target.FirstOrDefault(x => Equals(from, x));
@@ -24,32 +20,29 @@ namespace XrmFramework.DeployUtils.Utils
 
         public bool Equals(ICrmComponent x, ICrmComponent y)
         {
-            if (x.GetType() != y.GetType()) return false;
+            if (x == null || y == null || x.GetType() != y.GetType()) return false;
 
             return x switch
             {
                 Step step => _stepComparer.Equals(step, (Step)y),
                 StepImage image => _stepComparer.Equals(image.FatherStep, ((StepImage)y).FatherStep) &&
                                    image.IsPreImage == ((StepImage)y).IsPreImage,
-                AssemblyInfo => true,
-                IAssemblyContext => true,
+                ICustomApiComponent apiComponent => apiComponent.UniqueName == y.UniqueName
+                                                    && apiComponent.Type.Equals(((ICustomApiComponent)y).Type),
                 _ => x.UniqueName == y.UniqueName
             };
         }
 
         public bool NeedsUpdate(ICrmComponent x, ICrmComponent y)
         {
-            if (x.GetType() != y.GetType())
-            {
-                return false;
-            }
+            if (!Equals(x, y)) return false;
 
             return x switch
             {
                 Step step => _stepComparer.NeedsUpdate(step, (Step)y),
-                StepImage image => image.JoinedAttributes != ((StepImage)y).JoinedAttributes,
+                StepImage image => image.JoinedAttributes != ((StepImage)y).JoinedAttributes || image.AllAttributes ^ ((StepImage)y).AllAttributes,
                 CustomApiRequestParameter request => NeedsUpdate(request, (CustomApiRequestParameter)y),
-                CustomApiResponseProperty response => NeedsUpdate(response, (CustomApiResponseProperty)y),
+                CustomApiResponseProperty response => false,
                 Plugin => false,
                 CustomApi api => NeedsUpdate(api, (CustomApi)y),
                 AssemblyInfo => true,
@@ -77,17 +70,7 @@ namespace XrmFramework.DeployUtils.Utils
         /// <returns>true if they need updating, false if they are exactly the same</returns>
         private static bool NeedsUpdate(CustomApiRequestParameter x, CustomApiRequestParameter y)
         {
-            return !x.IsOptional == y.IsOptional
-                || !x.Type.Equals(y.Type);
-        }
-
-        /// <summary>
-        /// NeedsUpdate implementation for two <see cref="CustomApiResponseProperty"/>
-        /// </summary>
-        /// <returns>true if they need updating, false if they are exactly the same</returns>
-        private static bool NeedsUpdate(CustomApiResponseProperty x, CustomApiResponseProperty y)
-        {
-            return !x.Type.Equals(y.Type);
+            return !x.IsOptional == y.IsOptional;
         }
 
         public int GetHashCode(ICrmComponent obj)

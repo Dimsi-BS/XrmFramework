@@ -1,5 +1,4 @@
 ﻿using Deploy;
-using Microsoft.Extensions.Options;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
@@ -8,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.Definitions;
-using XrmFramework.DeployUtils.Configuration;
 
 namespace XrmFramework.DeployUtils.Service
 {
@@ -17,12 +15,13 @@ namespace XrmFramework.DeployUtils.Service
     /// </summary>
     public class RegistrationService : IRegistrationService
     {
-        private readonly CrmServiceClient _client;
+        private readonly IOrganizationService _client;
 
-        public RegistrationService(IOptions<SolutionSettings> settings)
+        public RegistrationService(IOrganizationService client)
         {
-            _client = new CrmServiceClient(settings.Value.ConnectionString);
+            _client = client;
         }
+
         public RegistrationService(string connectionString)
         {
             _client = new CrmServiceClient(connectionString);
@@ -53,9 +52,13 @@ namespace XrmFramework.DeployUtils.Service
 
         public PluginAssembly GetAssemblyByName(string assemblyName)
         {
-            var assemblies = GetAssemblies();
+            var query = new QueryExpression(PluginAssemblyDefinition.EntityName);
+            query.ColumnSet.AddColumns(PluginAssemblyDefinition.Columns.Id, PluginAssemblyDefinition.Columns.Name);
+            query.Distinct = true;
+            query.Criteria.FilterOperator = LogicalOperator.And;
+            query.Criteria.AddCondition(PluginAssemblyDefinition.Columns.Name, ConditionOperator.Equal, assemblyName);
 
-            return assemblies.FirstOrDefault(a => assemblyName == a.Name);
+            return RetrieveAll(query).FirstOrDefault()?.ToEntity<PluginAssembly>();
         }
 
         public ICollection<CustomApiRequestParameter> GetRegisteredCustomApiRequestParameters(Guid assemblyId)

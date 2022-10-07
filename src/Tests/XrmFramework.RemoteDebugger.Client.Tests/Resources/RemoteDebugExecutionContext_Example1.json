@@ -1,0 +1,77 @@
+{
+  "IsWorkflowContext": false,
+  "Mode": 0,
+  "IsolationMode": 2,
+  "Depth": 1,
+  "MessageName": "redb2d_ApiTest2",
+  "PrimaryEntityName": "red_dummysomething",
+  "RequestId": "2177d4ce-4615-47e3-aa20-106d1e03d6c3",
+  "SecondaryEntityName": "none",
+  "InputParameters": [
+    {
+      "Type": "System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+      "Key": "Toto",
+      "Value": 32
+    },
+    {
+      "Type": "System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+      "Key": "Toto2",
+      "Value": "L"
+    },
+    {
+      "Type": "System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+      "Key": "Toto6",
+      "Value": 21
+    },
+    {
+      "Type": "Microsoft.Xrm.Sdk.EntityReference, Microsoft.Xrm.Sdk, Version=9.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35",
+      "Key": "Target",
+      "Value": {
+        "Id": "57c38c0b-f4d4-ec11-a7b5-000d3adcbde8",
+        "LogicalName": "red_dummysomething",
+        "Name": null,
+        "KeyAttributes": [],
+        "RowVersion": null
+      }
+    }
+  ],
+  "OutputParameters": [],
+  "SharedVariables": [
+    {
+      "Type": null,
+      "Key": "IsAutoTransact",
+      "Value": null
+    }
+  ],
+  "UserId": "cd5c8917-1bac-ec11-983f-0022489f47ce",
+  "InitiatingUserId": "cd5c8917-1bac-ec11-983f-0022489f47ce",
+  "BusinessUnitId": "021917ea-3da4-ea11-a812-000d3ab4f625",
+  "OrganizationId": "b057ca34-74f5-47d0-aaec-cb524e78a37f",
+  "OrganizationName": "org449b9d46",
+  "PrimaryEntityId": "57c38c0b-f4d4-ec11-a7b5-000d3adcbde8",
+  "PreEntityImages": [],
+  "PostEntityImages": [],
+  "OwningExtension": {
+    "Id": "cf062eaf-f2e0-ec11-bb3c-002248a06676",
+    "LogicalName": "sdkmessageprocessingstep",
+    "Name": "CustomApi 'redb2d_ApiTest2' implementation",
+    "KeyAttributes": [],
+    "RowVersion": null
+  },
+  "CorrelationId": "215eea41-d870-4f5e-aa7f-487bde24ec7f",
+  "IsExecutingOffline": false,
+  "IsOfflinePlayback": false,
+  "IsInTransaction": true,
+  "OperationId": "2177d4ce-4615-47e3-aa20-106d1e03d6c3",
+  "OperationCreatedOn": "2022-05-31T15:46:15",
+  "Id": "3878454d-e511-4dc0-b317-0b300e71a7c4",
+  "Arguments": [],
+  "Stage": 30,
+  "StageName": null,
+  "WorkflowCategory": 0,
+  "WorkflowMode": 0,
+  "RemoteParentContext": null,
+  "TypeAssemblyQualifiedName": "FrameworkTestsAymeric2.Plugins.ApiTest2,FrameworkTestsAymeric2.Plugins,Culture=neutral",
+  "UnsecureConfig": null,
+  "SecureConfig": null
+}

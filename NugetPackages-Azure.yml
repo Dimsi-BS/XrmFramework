@@ -21,10 +21,19 @@ pool:
 
 steps:
 
+- task: NuGetToolInstaller@1
+  inputs:
+    versionSpec: '>=5.0.0'
+
+- task: NuGetRestore@1
+  inputs:
+    solution: '**/XrmFramework.sln'
+    selectOrConfig: 'select'
+
 - task: MSBuild@1
   inputs:
     solution: '**/XrmFramework.sln'
-    configuration: '$(buildConfiguration) /p:PublicRelease=true'
+    configuration: '$(buildConfiguration)'
     msbuildArguments: '/p:PublicRelease=true'
 
 #- task: DotNetCoreCLI@2

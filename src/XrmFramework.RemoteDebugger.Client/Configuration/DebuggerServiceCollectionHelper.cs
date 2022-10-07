@@ -1,19 +1,23 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Tooling.Connector;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using XrmFramework.BindingModel;
 using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Service;
-using XrmFramework.RemoteDebugger.Client.Configuration;
+using XrmFramework.DeployUtils.Utils;
+using XrmFramework.RemoteDebugger;
 
 namespace XrmFramework.DeployUtils.Configuration
 {
     /// <summary>
     /// Configures the necessary services and parameters of the project
     /// </summary>
-    internal partial class ServiceCollectionHelper
+    public static class DebuggerServiceCollectionHelper
     {
         /// <summary>
         /// Configures the required objects used during RemoteDebug, such as :
@@ -21,37 +25,39 @@ namespace XrmFramework.DeployUtils.Configuration
         ///     <item><see cref="IRegistrationService"/>, the service used for communicating with the CRM</item>
         ///     <item><see cref="AutoMapper.IMapper"/>, used for conversion between <see cref="Deploy"/> and <see cref="Model"/> objects
         ///         as well as cloning</item>
-        ///     <item><see cref="SolutionSettings"/>, an object that contains information on the target <c>Solution</c></item>
-        ///     <item><see cref="DebugSessionSettings"/>, an object that contains information on the target <c>Debug Session</c></item>
+        ///     <item><see cref="DeploySettings"/>, an object that contains information on the target <c>Solution</c></item>
+        ///     <item><see cref="DebugSettings"/>, an object that contains information on the target <c>Debug Session</c></item>
         ///     <item>The configuration of all other implemented interfaces used by <c>Dependency Injection</c></item>
         /// </list>
         /// </summary>
         /// <param name="projectName">The Name of the Local Project</param>
         /// <returns><see cref="IServiceProvider"/> the service provider used to instantiate every object needed</returns>
 
-        public static IServiceProvider ConfigureForRemoteDebug(string projectName)
+        public static IServiceProvider ConfigureForRemoteDebug()
         {
             if (ConfigurationManager.ConnectionStrings["DebugConnectionString"] == null)
             {
                 throw new Exception("The connectionString \"DebugConnectionString\" is not defined.");
             }
 
-            var serviceCollection = InitServiceCollection();
+            var serviceCollection = ServiceCollectionHelper.InitServiceCollection();
 
-            var solutionSettings = ChooseSolutionSettings(projectName);
+            serviceCollection.AddScoped<IAssemblyExporter, DebuggerAssemblyExporter>();
 
-            var debugSessionId = GetDebugSessionId(solutionSettings.ConnectionString);
+            var connectionString = ChooseConnectionString();
 
-            serviceCollection.Configure<SolutionSettings>((settings) =>
+            var debugSession = GetDebugSession(connectionString);
+
+            serviceCollection.Configure<DeploySettings>((settings) =>
             {
-                settings.ConnectionString = solutionSettings.ConnectionString;
-                settings.PluginSolutionUniqueName = solutionSettings.PluginSolutionUniqueName;
+                settings.ConnectionString = connectionString;
             });
 
+            serviceCollection.AddScoped<IOrganizationService, CrmServiceClient>(_ => new CrmServiceClient(connectionString));
 
-            serviceCollection.Configure<DebugSessionSettings>((settings) =>
+            serviceCollection.Configure<DebugSession>((ds) =>
             {
-                settings.DebugSessionId = debugSessionId;
+                debugSession.CopyTo(ds);
             });
 
             return serviceCollection.BuildServiceProvider();
@@ -60,25 +66,9 @@ namespace XrmFramework.DeployUtils.Configuration
         /// <summary>
         /// Allows for the user to choose the <c>Target Environment</c> on console
         /// </summary>
-        /// <param name="projectName">Name of the Local Project</param>
-        /// <returns>The Connection String and Target Plugin Name wrapped in a <see cref="SolutionSettings"/></returns>
-        private static SolutionSettings ChooseSolutionSettings(string projectName)
+        /// <returns>The chosen Connection String</returns>
+        private static string ChooseConnectionString()
         {
-            var xrmFrameworkConfigSection = ConfigHelper.GetSection();
-
-            var projectConfig = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>()
-                .FirstOrDefault(p => p.Name == projectName);
-
-            if (projectConfig == null)
-            {
-                var defaultColor = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"No reference to the project {projectName} has been found in the xrmFramework.config file.");
-                Console.ForegroundColor = defaultColor;
-                System.Environment.Exit(1);
-            }
-
-
             var connectionStringNameDic = new Dictionary<string, ConnectionStringSettings>();
             var connectionStringIntDic = new Dictionary<int, ConnectionStringSettings>();
 
@@ -105,16 +95,11 @@ namespace XrmFramework.DeployUtils.Configuration
                 System.Environment.Exit(0);
             }
 
-            var pluginSolutionUniqueName = projectConfig.TargetSolution;
             var connectionString = int.TryParse(response, out int value)
                 ? connectionStringIntDic[value].ConnectionString
                 : connectionStringNameDic[response].ConnectionString;
 
-            return new SolutionSettings()
-            {
-                PluginSolutionUniqueName = pluginSolutionUniqueName,
-                ConnectionString = connectionString,
-            };
+            return connectionString;
         }
 
         /// <summary>
@@ -123,46 +108,24 @@ namespace XrmFramework.DeployUtils.Configuration
         /// <param name="connectionString"></param>
         /// <returns>The Id of the <c>Debug Session</c></returns>
         /// <exception cref="ArgumentException"> if the Debug Session doesn't exist on the CRM</exception>
-        private static Guid GetDebugSessionId(string connectionString)
+        private static DebugSession GetDebugSession(string connectionString)
         {
             var client = new RegistrationService(connectionString);
             var debugSessionString = ConfigurationManager.ConnectionStrings["DebugConnectionString"].ConnectionString;
 
-            ParseDebugConnectionString(debugSessionString, out string key, out string path);
+            var keyName = ConnectionStringParser.GetConnectionStringField(debugSessionString, "SharedAccessKeyName");
+            var entityPath = ConnectionStringParser.GetConnectionStringField(debugSessionString, "EntityPath");
 
             var queryDebugSessions = new QueryExpression(DebugSessionDefinition.EntityName);
             queryDebugSessions.ColumnSet.AllColumns = true;
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.SasKeyName, ConditionOperator.Equal, key);
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.HybridConnectionName, ConditionOperator.Equal, path);
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.SasKeyName, ConditionOperator.Equal, keyName);
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.HybridConnectionName, ConditionOperator.Equal, entityPath);
 
-            var debugSession = client.RetrieveAll(queryDebugSessions).FirstOrDefault();
+            var debugSession = client.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
 
             if (debugSession == null) throw new ArgumentException("Debug Session not Found on the Crm");
 
-            return debugSession.Id;
-        }
-
-        private static void ParseDebugConnectionString(string raw, out string SasKeyName, out string entityPath)
-        {
-            var columns = raw.Split(';');
-            SasKeyName = "";
-            entityPath = "";
-            foreach (var column in columns)
-            {
-                var key = column.Split('=')[0].Trim();
-                if (string.IsNullOrEmpty(key)) continue;
-                var value = column.Split('=')[1].Trim();
-
-                switch (key)
-                {
-                    case "SharedAccessKeyName":
-                        SasKeyName = value;
-                        break;
-                    case "EntityPath":
-                        entityPath = value;
-                        break;
-                }
-            }
+            return debugSession;
         }
     }
 }
