@@ -298,7 +298,7 @@
     </PropertyGroup>
     <Target Name="AfterBuild">
         <!-- the ILMergePath property points to the location of ILMerge.exe console application -->
-        <Exec Command="$(ILMergeConsolePath) /out:bin\Debug\XrmFramework.XrmToolboxPlugin.dll bin\Debug\XrmFramework.XrmToolbox.Plugin.dll bin\Debug\XrmFramework.DeployUtils.dll /allowDup"/>
+        <Exec Command="$(ILMergeConsolePath) /out:bin\$(Configuration)\XrmFramework.XrmToolboxPlugin.dll bin\$(Configuration)\XrmFramework.XrmToolbox.Plugin.dll bin\$(Configuration)\XrmFramework.DeployUtils.dll /allowDup"/>
     </Target>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
          Other similar extension points exist, see Microsoft.Common.targets.  
