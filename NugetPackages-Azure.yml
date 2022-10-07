@@ -24,7 +24,7 @@ steps:
 - task: MSBuild@1
   inputs:
     solution: '**/XrmFramework.sln'
-    configuration: '$(buildConfiguration) /p:PublicRelease=true'
+    configuration: '$(buildConfiguration)'
     msbuildArguments: '/p:PublicRelease=true'
 
 #- task: DotNetCoreCLI@2
