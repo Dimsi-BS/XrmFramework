@@ -17,14 +17,11 @@ namespace XrmFramework.DeployUtils.Context
     /// </summary>
     public class SolutionContext : ISolutionContext
     {
-        public SolutionContext(IRegistrationService service, IOptions<SolutionSettings> settings)
+        public SolutionContext(IRegistrationService service, IOptions<DeploySettings> settings)
         {
             _service = service;
 
             SolutionName = settings.Value.PluginSolutionUniqueName;
-            InitSolution();
-            InitPublisher();
-            InitComponents();
         }
         private readonly IRegistrationService _service;
 
@@ -34,19 +31,39 @@ namespace XrmFramework.DeployUtils.Context
         private readonly List<SolutionComponent> _components = new();
         private readonly List<SdkMessageFilter> _filters = new();
         private readonly Dictionary<Messages, EntityReference> _messages = new();
-        private readonly List<KeyValuePair<string, Guid>> _users = new();
+        private readonly Dictionary<string, Guid> _users = new();
         #endregion
 
-        #region Public getters implementing the interface
-        public string SolutionName { get; }
+        public string SolutionName { get; private set; }
         public Solution Solution => _solution;
         public Publisher Publisher => _publisher;
-        public List<SolutionComponent> Components => _components;
-        public List<SdkMessageFilter> Filters => _filters;
-        public Dictionary<Messages, EntityReference> Messages => _messages;
-        public List<KeyValuePair<string, Guid>> Users => _users;
-        #endregion
 
+        public void InitSolutionContext(string solutionName = null)
+        {
+            if (solutionName != null)
+            {
+                SolutionName = solutionName;
+            }
+
+            _components.Clear();
+            _filters.Clear();
+            _messages.Clear();
+            _users.Clear();
+
+            InitSolution();
+            InitPublisher();
+            InitComponents();
+        }
+
+        public Guid GetUserId(string userName)
+        {
+            var userId = _users[userName];
+
+            if (userId == default)
+                throw new Exception($"User with full name {userName} was requested but not found on the CRM");
+
+            return userId;
+        }
 
         public void InitMetadata()
         {
@@ -133,7 +150,7 @@ namespace XrmFramework.DeployUtils.Context
 
             foreach (var user in _service.RetrieveAll(query))
             {
-                _users.Add(new KeyValuePair<string, Guid>(user.GetAttributeValue<string>(SystemUserDefinition.Columns.DomainName), user.Id));
+                _users.Add(user.GetAttributeValue<string>(SystemUserDefinition.Columns.DomainName), user.Id);
             }
         }
 
@@ -185,7 +202,7 @@ namespace XrmFramework.DeployUtils.Context
             _messages.Clear();
             foreach (SdkMessage e in messages)
             {
-                _messages.Add(XrmFramework.Messages.GetMessage(e.Name), e.ToEntityReference());
+                _messages.Add(Messages.GetMessage(e.Name), e.ToEntityReference());
             }
         }
 
@@ -199,7 +216,7 @@ namespace XrmFramework.DeployUtils.Context
 
             foreach (var user in _service.RetrieveAll(query))
             {
-                _users.Add(new KeyValuePair<string, Guid>(user.GetAttributeValue<string>(SystemUserDefinition.Columns.DomainName), user.Id));
+                _users.Add(user.GetAttributeValue<string>(SystemUserDefinition.Columns.DomainName), user.Id);
             }
         }
 
@@ -232,6 +249,24 @@ namespace XrmFramework.DeployUtils.Context
 
             _filters.Clear();
             _filters.AddRange(filters.Select(f => f.ToEntity<SdkMessageFilter>()));
+        }
+
+        public SolutionComponent GetComponentByObjectRef(EntityReference objectRef)
+        {
+            return _components.FirstOrDefault(c => c.ObjectId.Equals(objectRef.Id));
+        }
+
+        public EntityReference GetMessage(Messages message)
+        {
+            return _messages[message];
+        }
+
+        public EntityReference GetMessageFilter(Messages message, string entityName)
+        {
+            return _filters.FirstOrDefault(f =>
+                f.SdkMessageId.Name == message.ToString()
+                && f.PrimaryObjectTypeCode == entityName)
+                ?.ToEntityReference();
         }
     }
 }

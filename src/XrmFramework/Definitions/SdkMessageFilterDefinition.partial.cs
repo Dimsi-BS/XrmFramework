@@ -1,9 +1,7 @@
-﻿namespace XrmFramework.Definitions
-{
-    partial class SdkMessageFilterDefinition
-    {
+﻿namespace XrmFramework.Definitions;
 
-        [AttributeMetadata(AttributeTypeCode.String)]
-        public const string PrimaryObjectTypeCode = "primaryobjecttypecode";
-    }
+public static partial class SdkMessageFilterDefinition
+{
+	[AttributeMetadata(AttributeTypeCode.String)]
+	public const string PrimaryObjectTypeCode = "primaryobjecttypecode";
 }

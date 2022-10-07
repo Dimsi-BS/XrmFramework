@@ -5,11 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using XrmFramework.Model;
 
 namespace XrmFramework.BindingModel
 {
-    public class EntityMetadata
+    internal class EntityMetadata
     {
         private static readonly object SyncRoot = new object();
 

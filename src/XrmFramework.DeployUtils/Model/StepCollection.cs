@@ -9,7 +9,7 @@ namespace XrmFramework.DeployUtils.Model
     {
         private readonly StepComparer _stepComparer = new();
 
-        // Do not make this field readonly as AutoMapper wouldn't be able to map it anymor
+        // Do not make this field readonly as AutoMapper wouldn't be able to map it anymore
         // Same comment for the CustomApi arguments ^^
         private List<Step> _internalList = new List<Step>();
 

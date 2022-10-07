@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 
 namespace XrmFramework.DeployUtils.Configuration
 {
@@ -46,11 +47,17 @@ namespace XrmFramework.DeployUtils.Configuration
             value = value.Trim();
             return value;
         }
+
+        public static string GetConnectionStringField(string rawConnectionString, string field) => rawConnectionString
+            .Split(';')
+            .FirstOrDefault(s => s.Trim().StartsWith(field + '='))
+            ?.Split('=')[1]
+            .Trim();
     }
 
     public class ConnectionString
     {
-        public string Url {get; set; }
+        public string Url { get; set; }
 
         public string Username { get; set; }
 

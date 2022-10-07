@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xrm.Sdk;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
@@ -11,12 +12,8 @@ namespace XrmFramework.DeployUtils.Model
     /// </summary>
     /// <seealso cref="XrmFramework.DeployUtils.Model.ICustomApiComponent" />
     /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
-    class CustomApiResponseProperty : ICustomApiComponent
+    public class CustomApiResponseProperty : BaseCrmComponent, ICustomApiComponent
     {
-        public Guid Id { get; set; }
-        public Guid ParentId { get; set; }
-        public string EntityTypeName => CustomApiResponsePropertyDefinition.EntityName;
-        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
 
         public string Description { get; set; }
         public string DisplayName { get; set; }
@@ -24,18 +21,18 @@ namespace XrmFramework.DeployUtils.Model
         public OptionSetValue Type { get; set; }
         public string Name { get; set; }
 
-        public string UniqueName { get; set; }
-        public int Rank => 2;
-        public bool DoAddToSolution => true;
-        public bool DoFetchTypeCode => true;
+        #region ICrmComponent implementation
+        public override string EntityTypeName => CustomApiResponsePropertyDefinition.EntityName;
+        public override string UniqueName { get; set; }
+        public override int Rank => 20;
+        public override bool DoAddToSolution => true;
+        public override bool DoFetchTypeCode => true;
+        #endregion
 
         #region ICrmComponent dummy Implementation
-        public IEnumerable<ICrmComponent> Children => new List<ICrmComponent>();
-        public void AddChild(ICrmComponent child) => throw new ArgumentException("CustomApiResponseProperty doesn't take children");
-
-        public void CleanChildrenWithState(RegistrationState state)
-        {
-        }
+        public override IEnumerable<ICrmComponent> Children => Enumerable.Empty<ICrmComponent>();
+        public override void AddChild(ICrmComponent child) => throw new ArgumentException("CustomApiResponseProperty doesn't take children");
+        protected override void RemoveChild(ICrmComponent child) { }
         #endregion
     }
 }

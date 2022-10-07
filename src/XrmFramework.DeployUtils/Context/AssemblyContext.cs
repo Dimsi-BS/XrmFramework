@@ -5,7 +5,7 @@ using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Context
 {
-    partial class AssemblyContext : IAssemblyContext
+    public partial class AssemblyContext : IAssemblyContext
     {
         public AssemblyInfo AssemblyInfo { get; set; } = new();
 
@@ -34,7 +34,6 @@ namespace XrmFramework.DeployUtils.Context
                 foreach (var customApi in _customApis)
                 {
                     CreateSolutionComponentPoolRecursive(pool, customApi);
-
                 }
 
                 foreach (var workflow in _workflows)
@@ -70,7 +69,6 @@ namespace XrmFramework.DeployUtils.Context
                 {
                     child.ParentId = value;
                 }
-
                 foreach (var child in Workflows)
                 {
                     child.ParentId = value;

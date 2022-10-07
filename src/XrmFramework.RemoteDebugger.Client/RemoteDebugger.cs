@@ -3,11 +3,12 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
 using System;
 using System.Activities;
-using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using XrmFramework.DeployUtils;
 using XrmFramework.DeployUtils.Configuration;
+using XrmFramework.DeployUtils.Context;
 
 namespace XrmFramework.RemoteDebugger.Common
 {
@@ -21,27 +22,39 @@ namespace XrmFramework.RemoteDebugger.Common
         }
 
         /// <summary>
-        /// Entrypoint for debugging the <typeparamref name="TPlugin"/> Assembly in the solution <paramref name="projectName"/>
+        /// Entrypoint for debugging all referenced projects
         /// </summary>
-        /// <typeparam name="TPlugin">Root type of all components to deploy, should be <c>XrmFramework.Plugin</c></typeparam>
-        /// <param name="projectName">Name of the local project as named in <c>xrmFramework.config</c></param>
-        public void Start<TPlugin>(string projectName)
+        public void Start()
         {
             Console.WriteLine($"You are about to modify the debug session");
 
-            var serviceProvider = ServiceCollectionHelper.ConfigureForRemoteDebug(projectName);
+            var assembliesToDebug = Assembly.GetCallingAssembly().GetReferencedAssemblies()
+                .Select(Assembly.Load)
+                .Where(a => a.GetType("XrmFramework.Plugin") != null
+                            || a.GetType("XrmFramework.CustomApi") != null
+                            || a.GetType("XrmFramework.Workflow.CustomWorkflowActivity") != null
+                )
+                .ToList();
 
+            if (!assembliesToDebug.Any())
+            {
+                throw new ArgumentException(
+                    "No project containing components to debug were found, please check that they are referenced");
+            }
+
+            var serviceProvider = DebuggerServiceCollectionHelper.ConfigureForRemoteDebug();
+
+            var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
 
             var remoteDebuggerHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
 
+            assembliesToDebug.ForEach(assembly =>
+            {
+                var targetSolutionName = ServiceCollectionHelper.GetTargetSolutionName(assembly.GetName().Name);
+                solutionContext.InitSolutionContext(targetSolutionName);
+                remoteDebuggerHelper.UpdateDebugger(assembly);
+            });
 
-            remoteDebuggerHelper.UpdateDebugger<TPlugin>(projectName);
-
-            //var plugins = RegistrationHelper.UpdateCrmData<P>("FrameworkTests.Plugins");
-            //RegistrationHelper<XrmFramework.RemoteDebuggerPlugin>
-
-
-            //RegistrationHelper.UpdateRemoteDebuggerPlugin<P>(solutionName);
             Manager.ContextReceived += remoteContext =>
                 {
                     // Create local service provider from remote context
@@ -54,8 +67,6 @@ namespace XrmFramework.RemoteDebugger.Common
                         var typeQualifiedName = remoteContext.TypeAssemblyQualifiedName.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).ToList();
                         // Remove the version part of the list and the public key token
                         typeQualifiedName.RemoveAll(i => i.StartsWith("Version") || i.StartsWith("PublicKeyToken"));
-                        //Console.WriteLine(typeQualifiedName);
-
 
                         var typeName = string.Join(", ", typeQualifiedName);
                         // Get the pluginType from the newly constructed typeName
@@ -96,8 +107,18 @@ namespace XrmFramework.RemoteDebugger.Common
                         }
                         else
                         {
+
                             // If a plugin or a custom API, juste create the instance and execute it using the local service provider
-                            var plugin = (IPlugin)Activator.CreateInstance(pluginType, (string)null, (string)null);
+                            // Preferably, use the constructor that takes two strings as parameters, else use the default one
+                            var plugin = pluginType.GetConstructors().Any(c =>
+                                {
+                                    var parameters = c.GetParameters();
+                                    return parameters.Length == 2
+                                           && parameters[0].ParameterType == typeof(string)
+                                           && parameters[1].ParameterType == typeof(string);
+                                })
+                                ? (IPlugin)Activator.CreateInstance(pluginType, remoteContext.SecureConfig, remoteContext.UnsecureConfig)
+                                : (IPlugin)Activator.CreateInstance(pluginType);
                             plugin.Execute(serviceProvider);
                         }
                     });

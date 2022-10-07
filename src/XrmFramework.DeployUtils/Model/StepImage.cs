@@ -9,7 +9,7 @@ namespace XrmFramework.DeployUtils.Model
     /// Metadata of a StepImage, allows the user to ask for more data concerning the context when triggered
     /// </summary>
     /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
-    public class StepImage : ICrmComponent
+    public class StepImage : BaseCrmComponent
     {
         public StepImage(Messages message, bool isPreImage, Stages stage)
         {
@@ -17,9 +17,6 @@ namespace XrmFramework.DeployUtils.Model
             Stage = stage;
             IsPreImage = isPreImage;
         }
-
-        public Guid Id { get; set; } = Guid.NewGuid();
-        public Guid ParentId { get; set; }
 
         /// <summary>
         /// Determines the type of <see cref="StepImage"/>
@@ -33,9 +30,7 @@ namespace XrmFramework.DeployUtils.Model
         /// This workaround is necessary as a StepImage is always instantiated<br/>
         /// This is a way of hiding it without actually disposing of it
         /// </remarks>
-        /// TODO The way things are now I think the ToDelete part has become unnecessary, but hey it works I'll check later
-        public bool ShouldAppearAsChild => IsUsed && RegistrationState != RegistrationState.Computed ||
-                                           RegistrationState == RegistrationState.ToDelete;
+        public bool ShouldAppearAsChild => IsUsed && RegistrationState != RegistrationState.Computed;
 
         /// <summary>Indicates whether the <see cref="StepImage"/> is relevant to the Crm</summary>
         public bool IsUsed => UniversalImageUsedPrefix && ImageUsedPrefix && (AllAttributes || Attributes.Any());
@@ -64,16 +59,23 @@ namespace XrmFramework.DeployUtils.Model
         public bool AllAttributes { get; set; }
 
         /// <summary>List of the attributes that must appear in the StepImage</summary>
-        public List<string> Attributes { get; } = new List<string>();
+        public HashSet<string> Attributes { get; } = new HashSet<string>();
 
         /// <summary>Joined string of the <see cref="Attributes"/></summary>
         public string JoinedAttributes => string.Join(",", Attributes);
+        public void Merge(StepImage other)
+        {
+            AllAttributes |= other.AllAttributes;
 
-
-        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
-
-        public string EntityTypeName => SdkMessageProcessingStepImageDefinition.EntityName;
-        public string UniqueName => "ISolutionComponent Implementation";
+            if (AllAttributes)
+            {
+                Attributes.Clear();
+            }
+            else
+            {
+                Attributes.UnionWith(other.Attributes);
+            }
+        }
 
         /// <summary><see cref="Step"/> this StepImage is attached to</summary>
         /// <remarks>
@@ -82,14 +84,23 @@ namespace XrmFramework.DeployUtils.Model
         /// </remarks>
         public Step FatherStep { get; set; }
 
-        public int Rank => 3;
-        public bool DoAddToSolution => false;
-        public bool DoFetchTypeCode => false;
+        #region BaseCrmComponent overrides
+        public override string EntityTypeName => SdkMessageProcessingStepImageDefinition.EntityName;
+        public override int Rank => 30;
+        public override bool DoAddToSolution => false;
+        public override bool DoFetchTypeCode => false;
+        #endregion
 
         #region ICrmComponent dummy implementation
-        public IEnumerable<ICrmComponent> Children => new List<ICrmComponent>();
-        public void AddChild(ICrmComponent child) => throw new ArgumentException("StepImage doesn't take children");
-        public void CleanChildrenWithState(RegistrationState state) { }
+        public override string UniqueName
+        {
+            get => "ISolutionComponent Implementation";
+            set => _ = value;
+        }
+        public override IEnumerable<ICrmComponent> Children => Enumerable.Empty<ICrmComponent>();
+        public override void AddChild(ICrmComponent child) => throw new ArgumentException("StepImage doesn't take children");
+        protected override void RemoveChild(ICrmComponent child) { }
+
         #endregion
     }
 }

@@ -14,7 +14,7 @@ namespace XrmFramework.DeployUtils.Utils
     /// <summary>
     /// Base implementation of <see cref="IAssemblyImporter"/>
     /// </summary>
-    class AssemblyImporter : IAssemblyImporter
+    public class AssemblyImporter : IAssemblyImporter
     {
         private readonly ISolutionContext _solutionContext;
         private readonly IMapper _mapper;
@@ -51,7 +51,7 @@ namespace XrmFramework.DeployUtils.Utils
 
         public IAssemblyContext CreateAssemblyFromRemote(Deploy.PluginAssembly assembly)
         {
-            var info = assembly != null ? _mapper.Map<AssemblyInfo>(assembly) : new AssemblyInfo();
+            var info = assembly != null ? _mapper.Map<AssemblyInfo>(assembly) : null;
             return _mapper.Map<IAssemblyContext>(info);
         }
 
@@ -92,9 +92,11 @@ namespace XrmFramework.DeployUtils.Utils
         public Step CreateStepFromRemote(Deploy.SdkMessageProcessingStep sdkStep, IEnumerable<Deploy.SdkMessageProcessingStepImage> sdkImages)
         {
             var entityName = sdkStep.EntityName;
+            var pluginFullName = sdkStep.EventHandler.Name;
+            var pluginName = pluginFullName.Split('.').Last();
 
 #pragma warning disable CS0612 // Type or member is obsolete
-            var step = new Step(sdkStep.PluginTypeId.Name,
+            var step = new Step(pluginName,
                                 Messages.GetMessage(sdkStep.SdkMessageId.Name),
                                 (Stages)(int)sdkStep.StageEnum,
                                 (Modes)(int)sdkStep.ModeEnum,
@@ -102,9 +104,7 @@ namespace XrmFramework.DeployUtils.Utils
 #pragma warning restore CS0612 // Type or member is obsolete
             step.Id = sdkStep.Id;
 
-            var pluginFullName = sdkStep.EventHandler.Name;
             step.PluginTypeFullName = pluginFullName;
-            step.PluginTypeName = pluginFullName.Substring(pluginFullName.LastIndexOf('.') + 1);
             step.ParentId = sdkStep.EventHandler.Id;
 
             step.FilteringAttributes.Add(sdkStep.FilteringAttributes);
@@ -122,7 +122,7 @@ namespace XrmFramework.DeployUtils.Utils
             return step;
         }
 
-        private void CreateStepImageFromRemote(Step step, bool isPreImage,
+        public void CreateStepImageFromRemote(Step step, bool isPreImage,
             IEnumerable<Deploy.SdkMessageProcessingStepImage> stepImages)
         {
             var imageType = isPreImage
@@ -142,25 +142,28 @@ namespace XrmFramework.DeployUtils.Utils
 
         public Plugin CreatePluginFromRemote(Deploy.PluginType pluginType, IEnumerable<Step> steps)
         {
-            Plugin plugin;
             if (pluginType.WorkflowActivityGroupName != null)
             {
-                plugin = new Plugin(pluginType.TypeName, pluginType.Name);
-                plugin.Id = pluginType.Id;
-                plugin.ParentId = pluginType.PluginAssemblyId.Id;
-            }
-            else
-            {
-                plugin = new Plugin(pluginType.TypeName);
-                plugin.Id = pluginType.Id;
-                plugin.ParentId = pluginType.PluginAssemblyId.Id;
-                foreach (var s in steps.Where(s => s.ParentId == plugin.Id))
+                return new Plugin(pluginType.TypeName, pluginType.Name)
                 {
-                    plugin.Steps.Add(s);
-                }
+                    Id = pluginType.Id,
+                    ParentId = pluginType.PluginAssemblyId.Id
+                };
+            }
+
+            var plugin = new Plugin(pluginType.TypeName)
+            {
+                Id = pluginType.Id,
+                ParentId = pluginType.PluginAssemblyId.Id
+            };
+
+            foreach (var s in steps.Where(s => s.ParentId == plugin.Id))
+            {
+                plugin.Steps.Add(s);
             }
             return plugin;
         }
+
 
         public CustomApi CreateCustomApiFromRemote(Deploy.CustomApi customApi,
                                                    IEnumerable<Deploy.CustomApiRequestParameter> registeredRequestParameters,
@@ -203,22 +206,22 @@ namespace XrmFramework.DeployUtils.Utils
             var step = new Step(s.Plugin.GetType().Name, Messages.GetMessage(s.Message.ToString()), (Stages)(int)s.Stage, (Modes)(int)s.Mode, s.EntityName);
 
             step.PluginTypeFullName = s.Plugin.GetType().FullName;
-            step.FilteringAttributes.AddRange(s.FilteringAttributes);
+            step.FilteringAttributes.UnionWith(s.FilteringAttributes);
             step.ImpersonationUsername = s.ImpersonationUsername ?? "";
             step.Order = s.Order;
 
             step.PreImage.AllAttributes = s.PreImageAllAttributes;
-            step.PreImage.Attributes.AddRange(s.PreImageAttributes);
+            step.PreImage.Attributes.UnionWith(s.PreImageAttributes);
 
             step.PostImage.AllAttributes = s.PostImageAllAttributes;
-            step.PostImage.Attributes.AddRange(s.PostImageAttributes);
+            step.PostImage.Attributes.UnionWith(s.PostImageAttributes);
 
             if (!string.IsNullOrWhiteSpace(s.UnsecureConfig))
             {
                 step.StepConfiguration = JsonConvert.DeserializeObject<StepConfiguration>(s.UnsecureConfig);
             }
 
-            step.MethodNames.AddRange(s.MethodNames);
+            step.MethodNames.UnionWith(s.MethodNames);
             return step;
         }
 
@@ -246,7 +249,7 @@ namespace XrmFramework.DeployUtils.Utils
                 ExecutePrivilegeName = customApiAttribute.ExecutePrivilegeName,
                 IsFunction = customApiAttribute.IsFunction,
                 IsPrivate = customApiAttribute.IsPrivate,
-                UniqueName = $"{_solutionContext.Publisher.CustomizationPrefix}_{name}",
+                Prefix = _solutionContext.Publisher.CustomizationPrefix,
                 WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled,
                 FullName = type.FullName,
             };

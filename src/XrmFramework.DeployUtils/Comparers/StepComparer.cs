@@ -12,6 +12,7 @@ namespace XrmFramework.DeployUtils.Utils
             x == null && y == null
             ||
             x?.PluginTypeFullName == y?.PluginTypeFullName
+            && x?.PluginTypeName == y?.PluginTypeName
             && x?.EntityName == y?.EntityName
             && x?.Message == y?.Message
             && x?.Stage == y?.Stage

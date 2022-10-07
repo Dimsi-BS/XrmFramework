@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
@@ -23,29 +22,27 @@ namespace XrmFramework.DeployUtils.Utils
         /// <param name="target"></param>
         /// <returns>A copy of the <paramref name="from"/> AssemblyContext
         /// with computed <see cref="RegistrationState"/> properties according to the other <paramref name="target"/> AssemblyContext</returns>
-        internal IAssemblyContext ComputeDiffPatch(IAssemblyContext from, IAssemblyContext target)
+        public IAssemblyContext ComputeDiffPatch(IAssemblyContext from, IAssemblyContext target)
         {
             //Clone the from AssemblyContext
             var fromCopy = _mapper.Map<IAssemblyContext>(from);
 
+            if (target == null)
+            {
+                FlagAllFromComponent(fromCopy, RegistrationState.ToCreate);
+                return fromCopy;
+            }
+
+            /*
+             * Reset registration states
+             */
+
+            FlagAllFromComponent(fromCopy, RegistrationState.NotComputed);
+            FlagAllFromComponent(target, RegistrationState.NotComputed);
+
             var fromPool = fromCopy.ComponentsOrderedPool;
             var targetPool = target.ComponentsOrderedPool;
 
-            ComputeDiffPatchFromPool(fromPool, targetPool);
-
-            return fromCopy;
-        }
-
-        /// <summary>
-        /// Computes the difference between two Collections of <see cref="ICrmComponent"/>,
-        /// fills the <paramref name="fromPool"/>'s component's <see cref="RegistrationState"/>,
-        /// and adds the components that are only present in the <paramref name="targetPool"/> as <see cref="RegistrationState.ToDelete"/>
-        /// </summary>
-        /// <param name="fromPool"></param>
-        /// <param name="targetPool"></param>
-        /// <returns></returns>
-        private void ComputeDiffPatchFromPool(IReadOnlyCollection<ICrmComponent> fromPool, IReadOnlyCollection<ICrmComponent> targetPool)
-        {
             /*
              * Some explanation here :
              * Collections are ordered such as a component's parent is always before it.
@@ -53,29 +50,6 @@ namespace XrmFramework.DeployUtils.Utils
              * We can compute them ahead of time and they won't be computed a second time when encountered later on.
              * This is done because CorrespondingComponent is a costly function.
              */
-
-
-            /*
-             * Reset registration states if already computed
-             */
-
-            #region Reset
-            if (fromPool.Any(c => c.RegistrationState != RegistrationState.NotComputed))
-            {
-                foreach (var crmComponent in fromPool)
-                {
-                    crmComponent.RegistrationState = RegistrationState.NotComputed;
-                }
-            }
-
-            if (targetPool.Any(c => c.RegistrationState != RegistrationState.NotComputed))
-            {
-                foreach (var crmComponent in targetPool)
-                {
-                    crmComponent.RegistrationState = RegistrationState.NotComputed;
-                }
-            }
-            #endregion
 
             foreach (var fromComponent in fromPool)
             {
@@ -110,7 +84,7 @@ namespace XrmFramework.DeployUtils.Utils
             }
 
             // Go through every component of target that have not yet been computed
-            // This mean there were no corresponding component in from, so they all have to be deleted
+            // This means there were no corresponding component in from, so they all have to be deleted
             foreach (var targetComponent in targetPool)
             {
                 if (targetComponent.RegistrationState != RegistrationState.NotComputed)
@@ -124,6 +98,8 @@ namespace XrmFramework.DeployUtils.Utils
                 : fromPool.First(c => c.Id == targetComponent.ParentId);
                 componentFather.AddChild(targetComponent);
             }
+
+            return fromCopy;
         }
 
         /// <summary>

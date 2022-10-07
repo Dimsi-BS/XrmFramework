@@ -8,7 +8,6 @@ namespace XrmFramework.DeployUtils.Utils
         /// <summary>
         /// Checks if two Steps have different non-defining properties
         /// </summary>
-        /// <remarks>This method doesn't check for Equality before comparing, but only checks if they are of the same <c>Type</c></remarks>
         /// <returns>true if they need updating, false if they are exactly the same</returns>
         ///
         /// This method is in a partial file because it is implemented differently in the RemoteDebugger.Client project
@@ -18,6 +17,7 @@ namespace XrmFramework.DeployUtils.Utils
             || x.FilteringAttributes.Any() != x.FilteringAttributes.Any()
             || string.Join(",", x.FilteringAttributes) != string.Join(",", y.FilteringAttributes)
             || x?.UnsecureConfig != y?.UnsecureConfig
+            || x?.Order != y?.Order
             || x.ImpersonationUsername != y.ImpersonationUsername;
     }
 }

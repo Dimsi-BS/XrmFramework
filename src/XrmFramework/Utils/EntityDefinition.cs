@@ -10,7 +10,7 @@ using System.Reflection;
 namespace XrmFramework
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class EntityDefinition
+    internal class EntityDefinition
     {
 
         public Type DefinitionType { get; private set; }
@@ -19,7 +19,7 @@ namespace XrmFramework
         public IReadOnlyCollection<AttributeDefinition> Attributes => new ReadOnlyCollection<AttributeDefinition>(_attributes);
 
         private readonly List<AttributeDefinition> _attributes = new List<AttributeDefinition>();
-        
+
         private readonly IDictionary<string, IList<CrmLookupAttribute>> _crmLookupAttributes = new Dictionary<string, IList<CrmLookupAttribute>>();
 
         private readonly IDictionary<string, AttributeTypeCode> _attributeTypes = new Dictionary<string, AttributeTypeCode>();
@@ -52,7 +52,7 @@ namespace XrmFramework
 
                 var at = field.GetCustomAttribute<RelationshipAttribute>();
 
-                _manyToOneRelationships.Add(relationshipName, new Relationship { PrimaryEntityRole = at.Role, NavigationPropertyName = at.NavigationPropertyName, SchemaName = relationshipName, LookupFieldName = at.LookupFieldName, TargetEntityName = at.TargetEntityName});
+                _manyToOneRelationships.Add(relationshipName, new Relationship { PrimaryEntityRole = at.Role, NavigationPropertyName = at.NavigationPropertyName, SchemaName = relationshipName, LookupFieldName = at.LookupFieldName, TargetEntityName = at.TargetEntityName });
             }
 
             foreach (var field in DefinitionType.GetNestedType("OneToManyRelationships")?.GetFields() ?? Enumerable.Empty<FieldInfo>())
@@ -145,7 +145,7 @@ namespace XrmFramework
         public string PrimaryImageAttributeName { get; }
 
         public bool IsFullyValid => !string.IsNullOrEmpty(PrimaryIdAttributeName) && !string.IsNullOrEmpty(PrimaryNameAttributeName) && _attributeTypes.Any();
-        
+
         public AttributeTypeCode GetAttributeType(string attributeName)
         {
             if (!_attributeTypes.ContainsKey(attributeName))

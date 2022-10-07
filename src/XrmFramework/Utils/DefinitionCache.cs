@@ -10,7 +10,7 @@ using XrmFramework.Utils;
 
 namespace XrmFramework
 {
-    public static class DefinitionCache
+    internal static class DefinitionCache
     {
         private static readonly ConcurrentDictionary<string, EntityDefinition> InternalDefinitionCache = new ConcurrentDictionary<string, EntityDefinition>();
 
@@ -85,14 +85,14 @@ namespace XrmFramework
             if (crmEntityAttribute == null)
             {
                 var interfaceType = type.GetInterfaces()
-                    .FirstOrDefault(t => CustomAttributeExtensions.GetCustomAttribute<CrmEntityAttribute>((MemberInfo) t, true) != null);
+                    .FirstOrDefault(t => CustomAttributeExtensions.GetCustomAttribute<CrmEntityAttribute>((MemberInfo)t, true) != null);
 
                 if (interfaceType != null)
                 {
                     crmEntityAttribute = interfaceType.GetCustomAttribute<CrmEntityAttribute>(true);
                 }
             }
-            
+
             if (crmEntityAttribute == null)
             {
                 throw new Exception($"Type {type.Name} does not have a CrmEntityAttribute defined.");

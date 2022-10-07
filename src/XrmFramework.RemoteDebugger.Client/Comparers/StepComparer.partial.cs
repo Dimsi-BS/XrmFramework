@@ -16,19 +16,7 @@ namespace XrmFramework.DeployUtils.Utils
             x?.DoNotFilterAttributes != y?.DoNotFilterAttributes
             || x.FilteringAttributes.Any() != x.FilteringAttributes.Any()
             || string.Join(",", x.FilteringAttributes) != string.Join(",", y.FilteringAttributes)
-            || x.ImpersonationUsername != y.ImpersonationUsername
-            || !MethodsNamesEqual(x, y);
+            || x.ImpersonationUsername != y.ImpersonationUsername;
 
-
-        /// <summary>
-        /// Compares the two sets of method names
-        /// </summary>
-        /// <returns>true if the sets are identical, false otherwise</returns>
-        private static bool MethodsNamesEqual(Step x, Step y)
-        {
-            x.MethodNames.Sort();
-            y.MethodNames.Sort();
-            return x.MethodNames.SequenceEqual(y.MethodNames);
-        }
     }
 }

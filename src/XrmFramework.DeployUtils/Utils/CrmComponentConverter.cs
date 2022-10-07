@@ -28,6 +28,9 @@ namespace XrmFramework.DeployUtils.Utils
                 case AssemblyInfo assembly:
                     return _mapper.Map<Deploy.PluginAssembly>(assembly);
 
+                case IAssemblyContext assembly:
+                    return _mapper.Map<Deploy.PluginAssembly>(assembly.AssemblyInfo);
+
                 case CustomApi customApi:
                     return _mapper.Map<Deploy.CustomApi>(customApi);
 
@@ -89,17 +92,6 @@ namespace XrmFramework.DeployUtils.Utils
             ? description
             : description.Substring(0, descriptionAttributeMaxLength - 4) + "...)";
 
-            if (!string.IsNullOrEmpty(step.ImpersonationUsername))
-            {
-                var count = _context.Users.Count(u => u.Key == step.ImpersonationUsername);
-
-                if (count == 0)
-                    throw new Exception($"{description} : No user have fullname '{step.ImpersonationUsername}' in CRM.");
-                if (count > 1)
-                    throw new Exception(
-                        $"{description} : {count} users have the fullname '{step.ImpersonationUsername}' in CRM.");
-            }
-
             var t = new Deploy.SdkMessageProcessingStep
             {
                 AsyncAutoDelete = step.Mode.Equals(Modes.Asynchronous),
@@ -109,7 +101,7 @@ namespace XrmFramework.DeployUtils.Utils
                 ImpersonatingUserId = string.IsNullOrEmpty(step.ImpersonationUsername)
                     ? null
                     : new EntityReference(SystemUserDefinition.EntityName,
-                        _context.Users.First(u => u.Key == step.ImpersonationUsername).Value),
+                        _context.GetUserId(step.ImpersonationUsername)),
 
 #pragma warning disable 0612
                 InvocationSource = new OptionSetValue((int)Deploy.sdkmessageprocessingstep_invocationsource.Child),
@@ -122,11 +114,9 @@ namespace XrmFramework.DeployUtils.Utils
                 PluginTypeId = new EntityReference(PluginTypeDefinition.EntityName, step.ParentId),
 #pragma warning restore 0612
                 Rank = step.Order,
-                SdkMessageId = _context.Messages[step.Message], //GetSdkMessageRef(service, step.Message),
-                SdkMessageFilterId = _context.Filters.Where(f => f.SdkMessageId.Name == step.Message.ToString()
-                                                                 && f.PrimaryObjectTypeCode == step.EntityName)
-                    .Select(f => f.ToEntityReference()).FirstOrDefault(), //GetSdkMessageFilterRef(service, step),
-                                                                          //SdkMessageProcessingStepSecureConfigId = GetSdkMessageProcessingStepSecureConfigRef(service, step),
+                SdkMessageId = _context.GetMessage(step.Message), //GetSdkMessageRef(service, step.Message),
+                SdkMessageFilterId = _context.GetMessageFilter(step.Message, step.EntityName), //GetSdkMessageFilterRef(service, step),
+                                                                                               //SdkMessageProcessingStepSecureConfigId = GetSdkMessageProcessingStepSecureConfigRef(service, step),
                 Stage = new OptionSetValue((int)step.Stage),
                 SupportedDeployment = new OptionSetValue((int)Deploy.sdkmessageprocessingstep_supporteddeployment.ServerOnly),
                 Configuration = step.UnsecureConfig

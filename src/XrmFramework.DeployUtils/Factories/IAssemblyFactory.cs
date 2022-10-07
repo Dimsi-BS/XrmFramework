@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Reflection;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Service;
 
@@ -10,11 +10,11 @@ namespace XrmFramework.DeployUtils.Utils
     public partial interface IAssemblyFactory
     {
         /// <summary>
-        /// Imports the <paramref name="TPlugin"/> Local Assembly and parses it as a <see cref="IAssemblyContext"/>
+        /// Imports the <paramref name="Assembly"/> Local Assembly and parses it as a <see cref="IAssemblyContext"/>
         /// </summary>
-        /// <param name="TPlugin">The local assembly to load</param>
+        /// <param name="Assembly">The local assembly to load</param>
         /// <returns><see cref="IAssemblyContext"/> The parsed AssemblyContext</returns>
-        IAssemblyContext CreateFromLocalAssemblyContext(Type TPlugin);
+        IAssemblyContext CreateFromLocalAssemblyContext(Assembly Assembly);
 
         /// <summary>
         /// Imports the <paramref name="assemblyName"/> Remote Assembly and parses it as a <see cref="IAssemblyContext"/>
