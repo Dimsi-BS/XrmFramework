@@ -1,49 +1,57 @@
 # Starter pipeline
-
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
-
 trigger:
- branches:
-  include:
-    - master
-    - v2.*
- paths:
-  include:
-    - src
-
+  branches:
+    include:
+      - master
+      - v2.*
+  paths:
+    include:
+      - src
 variables:
   buildConfiguration: 'Release'
-
 pool:
-  vmImage: ubuntu-latest
+  vmImage: windows-latest
 
 steps:
 
-- task: DotNetCoreCLI@2
-  displayName: Build
-  inputs:
-    command: 'build'
-    projects: '**/XrmFramework.sln'
-    arguments: '--configuration $(buildConfiguration) /p:PublicRelease=true'
-    workingDirectory: 'src'
+  - task: NuGetToolInstaller@1
+    inputs:
+      versionSpec: '>=5.0.0'
 
-- task: DotNetCoreCLI@2
-  displayName: Test
-  inputs:
-    command: 'test'
-    projects: '**/XrmFramework.sln'
-    workingDirectory: 'src'
-  
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: 'src/GeneratedNuGetPackages/$(buildConfiguration)/'
-    Contents: '**'
-    TargetFolder: '$(build.artifactstagingdirectory)'
+  - task: NuGetRestore@1
+    inputs:
+      solution: '**/XrmFramework.sln'
+      selectOrConfig: 'select'
 
-- task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: '$(build.artifactstagingdirectory)'
-    artifact: 'Packages'
-    publishLocation: 'pipeline'
+  - task: MSBuild@1
+    inputs:
+      solution: '**/XrmFramework.sln'
+      configuration: '$(buildConfiguration)'
+      msbuildArguments: '/p:PublicRelease=true'
+  #- task: DotNetCoreCLI@2
+  #  displayName: Build
+  #  inputs:
+  #    command: 'build'
+  #    projects: '**/XrmFramework.sln'
+  #    arguments: '--configuration $(buildConfiguration) /p:PublicRelease=true'
+  #    workingDirectory: 'src'
+  - task: DotNetCoreCLI@2
+    displayName: Test
+    inputs:
+      command: 'test'
+      projects: '**/XrmFramework.sln'
+      workingDirectory: 'src'
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: 'src/GeneratedNuGetPackages/$(buildConfiguration)/'
+      Contents: '**'
+      TargetFolder: '$(build.artifactstagingdirectory)'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(build.artifactstagingdirectory)'
+      artifact: 'Packages'
+      publishLocation: 'pipeline'
