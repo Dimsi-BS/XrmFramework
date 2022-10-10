@@ -68,9 +68,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-        <!--        <ProjectReference Include="..\XrmFramework\XrmFramework.csproj">-->
-        <!--            <Private>True</Private>-->
-        <!--        </ProjectReference>-->
     </ItemGroup>
 
     <PropertyGroup>
@@ -87,7 +84,10 @@
 
     <ItemGroup>
         <None Remove="**\*.table"/>
-        <AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**"/>
+        <AdditionalFiles Include="..\XrmFramework\**\*.table" 
+                         Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" 
+                         Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**"/>
+        
         <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**"/>
     </ItemGroup>
 

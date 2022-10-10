@@ -1,79 +1,79 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
-    <AssemblyName>XrmFramework.RemoteDebugger.Client</AssemblyName>
-    <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
-    <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
-    <PublicSign>$(XrmFramework_PublicSign)</PublicSign>
-    <PackageId>XrmFramework.RemoteDebugger.Client</PackageId>
+    <PropertyGroup>
+        <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
+        <AssemblyName>XrmFramework.RemoteDebugger.Client</AssemblyName>
+        <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
+        <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
+        <PublicSign>$(XrmFramework_PublicSign)</PublicSign>
+        <PackageId>XrmFramework.RemoteDebugger.Client</PackageId>
 
-    <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.RemoteDebugger.Client.nuspec</NuspecFile>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>    
+        <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.RemoteDebugger.Client.nuspec</NuspecFile>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
 
-    <NoWarn>$(NoWarn);1591</NoWarn>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <DefineConstants>$(DefineConstants);HAVE_ADO_NET;HAVE_APP_DOMAIN;HAVE_ASYNC;HAVE_BINARY_FORMATTER;HAVE_BINARY_SERIALIZATION;HAVE_BINARY_EXCEPTION_SERIALIZATION;HAVE_CAS;HAVE_CHAR_TO_LOWER_WITH_CULTURE;HAVE_CHAR_TO_STRING_WITH_CULTURE;HAVE_COMPONENT_MODEL;HAVE_CONCURRENT_COLLECTIONS;HAVE_COVARIANT_GENERICS;HAVE_DATA_CONTRACTS;HAVE_DATE_TIME_OFFSET;HAVE_DB_NULL_TYPE_CODE;HAVE_DYNAMIC;HAVE_EMPTY_TYPES;HAVE_ENTITY_FRAMEWORK;HAVE_EXPRESSIONS;HAVE_FAST_REVERSE;HAVE_FSHARP_TYPES;HAVE_FULL_REFLECTION;HAVE_GUID_TRY_PARSE;HAVE_HASH_SET;HAVE_ICLONEABLE;HAVE_ICONVERTIBLE;HAVE_IGNORE_DATA_MEMBER_ATTRIBUTE;HAVE_INOTIFY_COLLECTION_CHANGED;HAVE_INOTIFY_PROPERTY_CHANGING;HAVE_ISET;HAVE_LINQ;HAVE_MEMORY_BARRIER;HAVE_METHOD_IMPL_ATTRIBUTE;HAVE_NON_SERIALIZED_ATTRIBUTE;HAVE_READ_ONLY_COLLECTIONS;HAVE_REFLECTION_EMIT;HAVE_SERIALIZATION_BINDER_BIND_TO_NAME;HAVE_STREAM_READER_WRITER_CLOSE;HAVE_STRING_JOIN_WITH_ENUMERABLE;HAVE_TIME_SPAN_PARSE_WITH_CULTURE;HAVE_TIME_SPAN_TO_STRING_WITH_CULTURE;HAVE_TIME_ZONE_INFO;HAVE_TRACE_WRITER;HAVE_TYPE_DESCRIPTOR;HAVE_UNICODE_SURROGATE_DETECTION;HAVE_VARIANT_TYPE_PARAMETERS;HAVE_VERSION_TRY_PARSE;HAVE_XLINQ;HAVE_XML_DOCUMENT;HAVE_XML_DOCUMENT_TYPE;HAVE_CONCURRENT_DICTIONARY</DefineConstants>
-  </PropertyGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj" />
-	</ItemGroup>
+    <PropertyGroup>
+        <DefineConstants>$(DefineConstants);HAVE_ADO_NET;HAVE_APP_DOMAIN;HAVE_ASYNC;HAVE_BINARY_FORMATTER;HAVE_BINARY_SERIALIZATION;HAVE_BINARY_EXCEPTION_SERIALIZATION;HAVE_CAS;HAVE_CHAR_TO_LOWER_WITH_CULTURE;HAVE_CHAR_TO_STRING_WITH_CULTURE;HAVE_COMPONENT_MODEL;HAVE_CONCURRENT_COLLECTIONS;HAVE_COVARIANT_GENERICS;HAVE_DATA_CONTRACTS;HAVE_DATE_TIME_OFFSET;HAVE_DB_NULL_TYPE_CODE;HAVE_DYNAMIC;HAVE_EMPTY_TYPES;HAVE_ENTITY_FRAMEWORK;HAVE_EXPRESSIONS;HAVE_FAST_REVERSE;HAVE_FSHARP_TYPES;HAVE_FULL_REFLECTION;HAVE_GUID_TRY_PARSE;HAVE_HASH_SET;HAVE_ICLONEABLE;HAVE_ICONVERTIBLE;HAVE_IGNORE_DATA_MEMBER_ATTRIBUTE;HAVE_INOTIFY_COLLECTION_CHANGED;HAVE_INOTIFY_PROPERTY_CHANGING;HAVE_ISET;HAVE_LINQ;HAVE_MEMORY_BARRIER;HAVE_METHOD_IMPL_ATTRIBUTE;HAVE_NON_SERIALIZED_ATTRIBUTE;HAVE_READ_ONLY_COLLECTIONS;HAVE_REFLECTION_EMIT;HAVE_SERIALIZATION_BINDER_BIND_TO_NAME;HAVE_STREAM_READER_WRITER_CLOSE;HAVE_STRING_JOIN_WITH_ENUMERABLE;HAVE_TIME_SPAN_PARSE_WITH_CULTURE;HAVE_TIME_SPAN_TO_STRING_WITH_CULTURE;HAVE_TIME_ZONE_INFO;HAVE_TRACE_WRITER;HAVE_TYPE_DESCRIPTOR;HAVE_UNICODE_SURROGATE_DETECTION;HAVE_VARIANT_TYPE_PARAMETERS;HAVE_VERSION_TRY_PARSE;HAVE_XLINQ;HAVE_XML_DOCUMENT;HAVE_XML_DOCUMENT_TYPE;HAVE_CONCURRENT_DICTIONARY
+        </DefineConstants>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj"/>
+    </ItemGroup>
 
-	<ItemGroup>
-<!--		<Compile Include="..\XrmFramework.Plugin\RemoteDebugger\**\*.cs" Link="_Imports\XrmFramework.Plugin\RemoteDebugger\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\**\*partial*.cs;..\XrmFramework.Plugin\RemoteDebugger\RemoteDebugger.Remote\*.cs" />-->
-<!--		<Compile Include="..\XrmFramework.Plugin\**\StepConfiguration*.cs" Link="Model\StepConfigurations\%(RecursiveDir)%(Filename)%(Extension)" />-->
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="AutoMapper" Version="10.1.1"/>
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1"/>
+        <PackageReference Include="Microsoft.Azure.Relay" Version="2.0.15596"/>
+        <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.110"/>
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0"/>
+    </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="AutoMapper" Version="10.1.1" />
-		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
-		<PackageReference Include="Microsoft.Azure.Relay" Version="2.0.15596" />
-		<PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.110" />
-		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-	</ItemGroup>
+    <PropertyGroup>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+        <DefineConstants>$(DefineConstants);DISABLE_SERVICES</DefineConstants>
 
-	<PropertyGroup>
-		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-		<DefineConstants>$(DefineConstants);DISABLE_SERVICES</DefineConstants>
+    </PropertyGroup>
 
-	</PropertyGroup>
+    <ItemGroup>
+        <Compile Remove="Generated\**"/>
+        <None Include="Generated\**"/>
+    </ItemGroup>
 
-	<ItemGroup>
-		<Compile Remove="Generated\**" />
-		<None Include="Generated\**" />
-	</ItemGroup>
+    <ItemGroup>
+        <None Remove="**\*.table"/>
+        <AdditionalFiles Include="..\XrmFramework\**\*.table"
+                         Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**"/>
 
-	<ItemGroup>
-		<None Remove="**\*.table" />
-		<AdditionalFiles Include="..\XrmFramework\**\*.table" Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**" />
-		<AdditionalFiles Include="..\XrmFramework.DeployUtils\**\*.table" Exclude="..\XrmFramework.DeployUtils\bin/**;..\XrmFramework.DeployUtils\obj/**" />
-		<AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
-	</ItemGroup>
+        <AdditionalFiles Include="..\XrmFramework.DeployUtils\**\*.table"
+                         Exclude="..\XrmFramework.DeployUtils\bin/**;..\XrmFramework.DeployUtils\obj/**"/>
 
-  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.45" />
-    <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.45" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <Reference Include="System.Configuration" />
-  </ItemGroup>
-  <!--
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="0.4.11" />
-  </ItemGroup>-->
+        <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+        <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.45"/>
+        <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.45"/>
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0"/>
+        <Reference Include="System.Configuration"/>
+    </ItemGroup>
+    <!--
+    <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+      <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="0.4.11" />
+    </ItemGroup>-->
 
 </Project>
