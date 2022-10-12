@@ -27,7 +27,7 @@ namespace XrmFramework.DeployUtils
 
             var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
 
-            if (!args.Select(a => a.ToLowerInvariant()).Contains("-noprompt"))
+            if (args == null || !args.Select(a => a.ToLowerInvariant()).Contains("-noprompt"))
             {
                 Console.WriteLine($@"You are about to deploy on {connectionString} organization. If ok press any key.");
                 Console.ReadKey();
