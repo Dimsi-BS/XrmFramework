@@ -25,7 +25,7 @@ namespace XrmFramework.DeployUtils
     {
         private static readonly List<PluginAssembly> _list = new();
 
-        public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName, bool isOnPrem = false)
+        public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName, bool isOnPrem = false, params string[] args)
         {
             var xrmFrameworkConfigSection = ConfigHelper.GetSection();
 
@@ -45,8 +45,12 @@ namespace XrmFramework.DeployUtils
 
             var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
 
-            Console.WriteLine($"You are about to deploy on {connectionString} organization. If ok press any key.");
-            Console.ReadKey();
+            if (!args.Select(a => a.ToLowerInvariant()).Contains("-noprompt"))
+            {
+                Console.WriteLine($"You are about to deploy on {connectionString} organization. If ok press any key.");
+                Console.ReadKey();
+            }
+
             Console.WriteLine("Connecting to CRM...");
 
             CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);

@@ -17,7 +17,7 @@ namespace XrmFramework.DeployUtils
 {
     public static class WebResourceHelper
     {
-        public static void SyncWebResources(string webresourcesPath, string projectName)
+        public static void SyncWebResources(string webresourcesPath, string projectName, params string[] args)
         {
             var nbWebresources = 0;
 
@@ -27,8 +27,12 @@ namespace XrmFramework.DeployUtils
 
             var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
 
-            Console.WriteLine($@"You are about to deploy on {connectionString} organization. If ok press any key.");
-            Console.ReadKey();
+            if (!args.Select(a => a.ToLowerInvariant()).Contains("-noprompt"))
+            {
+                Console.WriteLine($@"You are about to deploy on {connectionString} organization. If ok press any key.");
+                Console.ReadKey();
+            }
+
             Console.WriteLine(@"Connecting to CRM...");
 
             CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
