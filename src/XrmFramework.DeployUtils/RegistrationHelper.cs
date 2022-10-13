@@ -67,6 +67,10 @@ public partial class RegistrationHelper
 	/// <param name="localDll">The local Assembly, should appear in <c>xrmFramework.config</c></param>
 	protected void Register(Assembly localDll)
 	{
+		Console.WriteLine("\tRegistering Package/Dll...");
+
+		RegisterAssembly(localDll);
+
 		Console.WriteLine("\tFetching Local Assembly...");
 
 		var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(localDll);
@@ -98,8 +102,6 @@ public partial class RegistrationHelper
 
 		_assemblyExporter.InitExportMetadata(stepsForMetadata);
 
-		if (strategy.RegistrationState == RegistrationState.ToCreate) RegisterAssembly(strategy);
-
 		var allRequests = CreateDeleteRequests(strategyPool).ToList();
 
 		allRequests.AddRange(CreateUpdateRequests(strategyPool));
@@ -119,8 +121,8 @@ public partial class RegistrationHelper
 			crmRequests.Requests.AddRange(allRequests.Take(1000));
 			allRequests.RemoveRange(0, Math.Min(allRequests.Count, 1000));
 			var results = (ExecuteMultipleResponse) _registrationService.Execute(crmRequests);
-			crmRequests.Requests.Clear();
 			if (results.IsFaulted) throw new Exception(results.Responses.Last().Fault.Message);
+			crmRequests.Requests.Clear();
 		}
 	}
 
@@ -128,12 +130,25 @@ public partial class RegistrationHelper
 	///     Creates the Assembly, deleting all obsolete components in the process by calling
 	///     <see cref="CreateDeleteRequests" />
 	/// </summary>
-	private void RegisterAssembly(IAssemblyContext strategy)
+	private void RegisterAssembly(Assembly assemblyContext)
 	{
 		Console.WriteLine("Creating assembly");
 
-		_assemblyExporter.CreateComponent(strategy);
-		strategy.RegistrationState = RegistrationState.Computed;
+		// var localAssembly = _assemblyFactory.
+		// if (assemblyContext.AssemblyInfo.Package is {RegistrationState: RegistrationState.ToCreate})
+		// {
+		// 	assemblyContext.AssemblyInfo.Package.Id =
+		// 		_assemblyExporter.CreateComponent(assemblyContext.AssemblyInfo.Package);
+		// 	assemblyContext.AssemblyInfo.Package.RegistrationState = RegistrationState.Computed;
+		// 	assemblyContext.Id = _registrationService.GetAssemblyInfoByName(assemblyContext.UniqueName).Id;
+		// 	_assemblyExporter.AddComponentToSolution(assemblyContext);
+		// }
+		//
+		// else
+		// {
+		// 	_assemblyExporter.CreateComponent(assemblyContext);
+		// 	assemblyContext.RegistrationState = RegistrationState.Computed;
+		// }
 	}
 
 	private IEnumerable<OrganizationRequest> CreateDeleteRequests(IReadOnlyCollection<ICrmComponent> strategyPool)

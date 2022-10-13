@@ -35,7 +35,8 @@
       "Type": "String",
       "Capa": 7,
       "Labels": [],
-      "StrLen": 1073741823
+      "StrLen": 1073741823,
+      "Select": true
     },
     {
       "LogName": "createdby",
@@ -85,7 +86,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 32
+      "StrLen": 32,
+      "Select": true
     },
     {
       "LogName": "customizationlevel",
@@ -108,7 +110,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 256
+      "StrLen": 256,
+      "Select": true
     },
     {
       "LogName": "introducedversion",
@@ -156,7 +159,8 @@
           "Label": "État",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
     {
       "LogName": "isolationmode",
@@ -169,7 +173,8 @@
           "LangId": 1036
         }
       ],
-      "EnumName": "pluginassembly|isolationmode"
+      "EnumName": "pluginassembly|isolationmode",
+      "Select": true
     },
     {
       "LogName": "ispasswordset",
@@ -289,7 +294,8 @@
           "Label": "Package",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
     {
       "LogName": "password",
@@ -331,7 +337,8 @@
       "Name": "PluginAssemblyIdUnique",
       "Type": "Uniqueidentifier",
       "Capa": 1,
-      "Labels": []
+      "Labels": [],
+      "Select": true
     },
     {
       "LogName": "publickeytoken",
@@ -344,7 +351,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 32
+      "StrLen": 32,
+      "Select": true
     },
     {
       "LogName": "solutionid",
@@ -356,7 +364,8 @@
           "Label": "Solution",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
     {
       "LogName": "sourcehash",
@@ -377,7 +386,8 @@
           "LangId": 1036
         }
       ],
-      "EnumName": "pluginassembly|sourcetype"
+      "EnumName": "pluginassembly|sourcetype",
+      "Select": true
     },
     {
       "LogName": "url",
@@ -416,7 +426,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 48
+      "StrLen": 48,
+      "Select": true
     },
     {
       "LogName": "versionnumber",
@@ -475,16 +486,16 @@
       "LookName": "createdonbehalfby"
     },
     {
-      "Name": "managedidentity_PluginAssembly",
-      "Etn": "managedidentity",
-      "NavPropName": "managedidentityid",
-      "LookName": "managedidentityid"
-    },
-    {
       "Name": "pluginpackage_pluginassembly",
       "Etn": "pluginpackage",
       "NavPropName": "PackageId",
       "LookName": "packageid"
+    },
+    {
+      "Name": "managedidentity_PluginAssembly",
+      "Etn": "managedidentity",
+      "NavPropName": "managedidentityid",
+      "LookName": "managedidentityid"
     }
   ],
   "Keys": [],
@@ -586,10 +597,10 @@
         },
         {
           "Value": 4,
-          "Name": "Filestore",
+          "Name": "MagasinDeFichiers",
           "Labels": [
             {
-              "Label": "FileStore",
+              "Label": "Magasin de fichiers",
               "LangId": 1036
             }
           ]
