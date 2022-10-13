@@ -59,6 +59,7 @@ namespace XrmFramework
                 var definitionTypes = typeof(DefinitionCache)
                     .Assembly
                     .GetTypes()
+                    .Where(t => t.GetCustomAttribute<EntityDefinitionAttribute>() != null)
                     .Where(t => t.GetField("EntityName") != null)
                     .Where(t =>
                         t.GetField("EntityName").FieldType == typeof(string)
@@ -84,14 +85,14 @@ namespace XrmFramework
             if (crmEntityAttribute == null)
             {
                 var interfaceType = type.GetInterfaces()
-                    .FirstOrDefault(t => CustomAttributeExtensions.GetCustomAttribute<CrmEntityAttribute>((MemberInfo) t, true) != null);
+                    .FirstOrDefault(t => CustomAttributeExtensions.GetCustomAttribute<CrmEntityAttribute>((MemberInfo)t, true) != null);
 
                 if (interfaceType != null)
                 {
                     crmEntityAttribute = interfaceType.GetCustomAttribute<CrmEntityAttribute>(true);
                 }
             }
-            
+
             if (crmEntityAttribute == null)
             {
                 throw new Exception($"Type {type.Name} does not have a CrmEntityAttribute defined.");
