@@ -51,6 +51,11 @@ namespace XrmFramework.DeployUtils
                 Console.ReadKey();
             }
 
+            if (args != null && args.Select(a => a.ToLowerInvariant()).Contains("-debug"))
+            {
+                Console.WriteLine($"ConnectionString : {connectionString}");
+            }
+
             Console.WriteLine("Connecting to CRM...");
 
             CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
