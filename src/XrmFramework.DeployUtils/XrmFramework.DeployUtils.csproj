@@ -26,7 +26,7 @@
         <PackageReference Include="AutoMapper" Version="10.1.1"/>
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1"/>
         <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.45"/>
-        <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.45"/>
+        <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.46"/>
         <PackageReference Include="Microsoft.CrmSdk.Deployment" Version="9.0.2.34"/>
         <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.110"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0"/>
@@ -84,10 +84,10 @@
 
     <ItemGroup>
         <None Remove="**\*.table"/>
-        <AdditionalFiles Include="..\XrmFramework\**\*.table" 
-                         Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" 
+        <AdditionalFiles Include="..\XrmFramework\**\*.table"
+                         Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)"
                          Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**"/>
-        
+
         <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**"/>
     </ItemGroup>
 

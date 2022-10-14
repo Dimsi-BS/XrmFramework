@@ -17,6 +17,7 @@
                          Link="__Imports\$(XrmFrameworkCoreProjectName)\%(RecursiveDir)%(Filename)%(Extension)"/>
 
         <PackageReference Remove="Microsoft.Extensions.DependencyInjection"/>
+        <PackageReference Update="Newtonsoft.Json" Pack="true"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -24,4 +25,9 @@
             <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
         </ProjectReference>
     </ItemGroup>
+    
+    <PropertyGroup>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <DefineConstants>$(DefineConstants);PLUGIN</DefineConstants>
+    </PropertyGroup>
 </Project>
