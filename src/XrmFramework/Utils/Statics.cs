@@ -29,6 +29,7 @@ namespace XrmFramework
     }
 
     [EnumGeneration]
+    // ReSharper disable once PartialTypeWithSinglePart
     public partial class InputParameters
     {
         protected string ParameterName { get; }
@@ -44,25 +45,26 @@ namespace XrmFramework
 
         public override bool Equals(object obj) => obj is InputParameters message && message.ParameterName == ParameterName;
 
-        public static InputParameters Assignee = new InputParameters("Assignee");
-        public static InputParameters EntityMoniker = new InputParameters("EntityMoniker");
-        public static InputParameters OpportunityClose = new InputParameters("OpportunityClose");
-        public static InputParameters Query = new InputParameters("Query");
-        public static InputParameters Record = new InputParameters("Record");
-        public static InputParameters RelatedEntities = new InputParameters("RelatedEntities");
-        public static InputParameters Relationship = new InputParameters("Relationship");
-        public static InputParameters State = new InputParameters("State");
-        public static InputParameters Status = new InputParameters("Status");
-        public static InputParameters SystemUserId = new InputParameters("SystemUserId");
-        public static InputParameters Target = new InputParameters("Target");
-        public static InputParameters TeamTemplateId = new InputParameters("TeamTemplateId");
-        public static InputParameters AppointmentId = new InputParameters("AppointmentId");
-        public static InputParameters FetchXml = new InputParameters("FetchXml");
-        public static InputParameters SubordinateId = new InputParameters("SubordinateId");
-        public static InputParameters UpdateContent = new InputParameters("UpdateContent");
+        public static InputParameters Assignee { get; } = new InputParameters("Assignee");
+        public static InputParameters EntityMoniker { get; } = new InputParameters("EntityMoniker");
+        public static InputParameters OpportunityClose { get; } = new InputParameters("OpportunityClose");
+        public static InputParameters Query { get; } = new InputParameters("Query");
+        public static InputParameters Record { get; } = new InputParameters("Record");
+        public static InputParameters RelatedEntities { get; } = new InputParameters("RelatedEntities");
+        public static InputParameters Relationship { get; } = new InputParameters("Relationship");
+        public static InputParameters State { get; } = new InputParameters("State");
+        public static InputParameters Status { get; } = new InputParameters("Status");
+        public static InputParameters SystemUserId { get; } = new InputParameters("SystemUserId");
+        public static InputParameters Target { get; } = new InputParameters("Target");
+        public static InputParameters TeamTemplateId { get; } = new InputParameters("TeamTemplateId");
+        public static InputParameters AppointmentId { get; } = new InputParameters("AppointmentId");
+        public static InputParameters FetchXml { get; } = new InputParameters("FetchXml");
+        public static InputParameters SubordinateId { get; } = new InputParameters("SubordinateId");
+        public static InputParameters UpdateContent { get; } = new InputParameters("UpdateContent");
     }
 
     [EnumGeneration]
+    // ReSharper disable once PartialTypeWithSinglePart
     public partial class OutputParameters
     {
         protected string ParameterName { get; }
@@ -78,102 +80,103 @@ namespace XrmFramework
 
         public override bool Equals(object obj) => obj is OutputParameters message && message.ParameterName == ParameterName;
 
-        public static OutputParameters BusinessEntityCollection = new OutputParameters("BusinessEntityCollection");
-        public static OutputParameters ValidationResult = new OutputParameters("ValidationResult");
+        public static OutputParameters BusinessEntityCollection { get; } = new OutputParameters("BusinessEntityCollection");
+        public static OutputParameters ValidationResult { get; } = new OutputParameters("ValidationResult");
     }
 
     [EnumGeneration]
+    // ReSharper disable once PartialTypeWithSinglePart
     public partial class Messages
     {
-        public static Messages AddItem = new Messages("AddItem");
-        public static Messages AddListMembers = new Messages("AddListMembers");
-        public static Messages AddMember = new Messages("AddMember");
-        public static Messages AddMembers = new Messages("AddMembers");
-        public static Messages AddPrivileges = new Messages("AddPrivileges");
-        public static Messages AddProductToKit = new Messages("AddProductToKit");
-        public static Messages AddRecurrence = new Messages("AddRecurrence");
-        public static Messages AddToQueue = new Messages("AddToQueue");
-        public static Messages AddUserToRecordTeam = new Messages("AddUserToRecordTeam");
-        public static Messages Assign = new Messages("Assign");
-        public static Messages AssignUserRoles = new Messages("AssignUserRoles");
-        public static Messages Associate = new Messages("Associate");
-        public static Messages BackgroundSend = new Messages("BackgroundSend");
-        public static Messages Book = new Messages("Book");
-        public static Messages Cancel = new Messages("Cancel");
-        public static Messages CheckIncoming = new Messages("CheckIncoming");
-        public static Messages CheckPromote = new Messages("CheckPromote");
-        public static Messages Clone = new Messages("Clone");
-        public static Messages Close = new Messages("Close");
-        public static Messages CopyDynamicListToStatic = new Messages("CopyDynamicListToStatic");
-        public static Messages CopySystemForm = new Messages("CopySystemForm");
-        public static Messages Create = new Messages("Create");
-        public static Messages CreateException = new Messages("CreateException");
-        public static Messages CreateInstance = new Messages("CreateInstance");
-        public static Messages Delete = new Messages("Delete");
-        public static Messages DeleteOpenInstances = new Messages("DeleteOpenInstances");
-        public static Messages DeliverIncoming = new Messages("DeliverIncoming");
-        public static Messages DeliverPromote = new Messages("DeliverPromote");
-        public static Messages DetachFromQueue = new Messages("DetachFromQueue");
-        public static Messages Disassociate = new Messages("Disassociate");
-        public static Messages Execute = new Messages("Execute");
-        public static Messages ExecuteById = new Messages("ExecuteById");
-        public static Messages Export = new Messages("Export");
-        public static Messages ExportAll = new Messages("ExportAll");
-        public static Messages ExportCompressed = new Messages("ExportCompressed");
-        public static Messages ExportCompressedAll = new Messages("ExportCompressedAll");
-        public static Messages GrantAccess = new Messages("GrantAccess");
-        public static Messages Handle = new Messages("Handle");
-        public static Messages Import = new Messages("Import");
-        public static Messages ImportAll = new Messages("ImportAll");
-        public static Messages ImportCompressedAll = new Messages("ImportCompressedAll");
-        public static Messages ImportCompressedWithProgress = new Messages("ImportCompressedWithProgress");
-        public static Messages ImportWithProgress = new Messages("ImportWithProgress");
-        public static Messages LockInvoicePricing = new Messages("LockInvoicePricing");
-        public static Messages LockSalesOrderPricing = new Messages("LockSalesOrderPricing");
-        public static Messages Lose = new Messages("Lose");
-        public static Messages Merge = new Messages("Merge");
-        public static Messages ModifyAccess = new Messages("ModifyAccess");
-        public static Messages Publish = new Messages("Publish");
-        public static Messages PublishAll = new Messages("PublishAll");
-        public static Messages QualifyLead = new Messages("QualifyLead");
-        public static Messages Recalculate = new Messages("Recalculate");
-        public static Messages RemoveItem = new Messages("RemoveItem");
-        public static Messages RemoveMember = new Messages("RemoveMember");
-        public static Messages RemoveMembers = new Messages("RemoveMembers");
-        public static Messages RemovePrivilege = new Messages("RemovePrivilege");
-        public static Messages RemoveProductFromKit = new Messages("RemoveProductFromKit");
-        public static Messages RemoveRelated = new Messages("RemoveRelated");
-        public static Messages RemoveUserFromRecordTeam = new Messages("RemoveUserFromRecordTeam");
-        public static Messages RemoveUserRoles = new Messages("RemoveUserRoles");
-        public static Messages ReplacePrivileges = new Messages("ReplacePrivileges");
-        public static Messages Reschedule = new Messages("Reschedule");
-        public static Messages Retrieve = new Messages("Retrieve");
-        public static Messages RetrieveExchangeRate = new Messages("RetrieveExchangeRate");
-        public static Messages RetrieveFilteredForms = new Messages("RetrieveFilteredForms");
-        public static Messages RetrieveMultiple = new Messages("RetrieveMultiple");
-        public static Messages RetrievePersonalWall = new Messages("RetrievePersonalWall");
-        public static Messages RetrievePrincipalAccess = new Messages("RetrievePrincipalAccess");
-        public static Messages RetrieveRecordWall = new Messages("RetrieveRecordWall");
-        public static Messages RetrieveSharedPrincipalsAndAccess = new Messages("RetrieveSharedPrincipalsAndAccess");
-        public static Messages RetrieveUnpublished = new Messages("RetrieveUnpublished");
-        public static Messages RetrieveUnpublishedMultiple = new Messages("RetrieveUnpublishedMultiple");
-        public static Messages RevokeAccess = new Messages("RevokeAccess");
-        public static Messages Route = new Messages("Route");
-        public static Messages Send = new Messages("Send");
-        public static Messages SendFromTemplate = new Messages("SendFromTemplate");
-        public static Messages SetRelated = new Messages("SetRelated");
+        public static Messages AddItem { get; } = new Messages("AddItem");
+        public static Messages AddListMembers { get; } = new Messages("AddListMembers");
+        public static Messages AddMember { get; } = new Messages("AddMember");
+        public static Messages AddMembers { get; } = new Messages("AddMembers");
+        public static Messages AddPrivileges { get; } = new Messages("AddPrivileges");
+        public static Messages AddProductToKit { get; } = new Messages("AddProductToKit");
+        public static Messages AddRecurrence { get; } = new Messages("AddRecurrence");
+        public static Messages AddToQueue { get; } = new Messages("AddToQueue");
+        public static Messages AddUserToRecordTeam { get; } = new Messages("AddUserToRecordTeam");
+        public static Messages Assign { get; } = new Messages("Assign");
+        public static Messages AssignUserRoles { get; } = new Messages("AssignUserRoles");
+        public static Messages Associate { get; } = new Messages("Associate");
+        public static Messages BackgroundSend { get; } = new Messages("BackgroundSend");
+        public static Messages Book { get; } = new Messages("Book");
+        public static Messages Cancel { get; } = new Messages("Cancel");
+        public static Messages CheckIncoming { get; } = new Messages("CheckIncoming");
+        public static Messages CheckPromote { get; } = new Messages("CheckPromote");
+        public static Messages Clone { get; } = new Messages("Clone");
+        public static Messages Close { get; } = new Messages("Close");
+        public static Messages CopyDynamicListToStatic { get; } = new Messages("CopyDynamicListToStatic");
+        public static Messages CopySystemForm { get; } = new Messages("CopySystemForm");
+        public static Messages Create { get; } = new Messages("Create");
+        public static Messages CreateException { get; } = new Messages("CreateException");
+        public static Messages CreateInstance { get; } = new Messages("CreateInstance");
+        public static Messages Delete { get; } = new Messages("Delete");
+        public static Messages DeleteOpenInstances { get; } = new Messages("DeleteOpenInstances");
+        public static Messages DeliverIncoming { get; } = new Messages("DeliverIncoming");
+        public static Messages DeliverPromote { get; } = new Messages("DeliverPromote");
+        public static Messages DetachFromQueue { get; } = new Messages("DetachFromQueue");
+        public static Messages Disassociate { get; } = new Messages("Disassociate");
+        public static Messages Execute { get; } = new Messages("Execute");
+        public static Messages ExecuteById { get; } = new Messages("ExecuteById");
+        public static Messages Export { get; } = new Messages("Export");
+        public static Messages ExportAll { get; } = new Messages("ExportAll");
+        public static Messages ExportCompressed { get; } = new Messages("ExportCompressed");
+        public static Messages ExportCompressedAll { get; } = new Messages("ExportCompressedAll");
+        public static Messages GrantAccess { get; } = new Messages("GrantAccess");
+        public static Messages Handle { get; } = new Messages("Handle");
+        public static Messages Import { get; } = new Messages("Import");
+        public static Messages ImportAll { get; } = new Messages("ImportAll");
+        public static Messages ImportCompressedAll { get; } = new Messages("ImportCompressedAll");
+        public static Messages ImportCompressedWithProgress { get; } = new Messages("ImportCompressedWithProgress");
+        public static Messages ImportWithProgress { get; } = new Messages("ImportWithProgress");
+        public static Messages LockInvoicePricing { get; } = new Messages("LockInvoicePricing");
+        public static Messages LockSalesOrderPricing { get; } = new Messages("LockSalesOrderPricing");
+        public static Messages Lose { get; } = new Messages("Lose");
+        public static Messages Merge { get; } = new Messages("Merge");
+        public static Messages ModifyAccess { get; } = new Messages("ModifyAccess");
+        public static Messages Publish { get; } = new Messages("Publish");
+        public static Messages PublishAll { get; } = new Messages("PublishAll");
+        public static Messages QualifyLead { get; } = new Messages("QualifyLead");
+        public static Messages Recalculate { get; } = new Messages("Recalculate");
+        public static Messages RemoveItem { get; } = new Messages("RemoveItem");
+        public static Messages RemoveMember { get; } = new Messages("RemoveMember");
+        public static Messages RemoveMembers { get; } = new Messages("RemoveMembers");
+        public static Messages RemovePrivilege { get; } = new Messages("RemovePrivilege");
+        public static Messages RemoveProductFromKit { get; } = new Messages("RemoveProductFromKit");
+        public static Messages RemoveRelated { get; } = new Messages("RemoveRelated");
+        public static Messages RemoveUserFromRecordTeam { get; } = new Messages("RemoveUserFromRecordTeam");
+        public static Messages RemoveUserRoles { get; } = new Messages("RemoveUserRoles");
+        public static Messages ReplacePrivileges { get; } = new Messages("ReplacePrivileges");
+        public static Messages Reschedule { get; } = new Messages("Reschedule");
+        public static Messages Retrieve { get; } = new Messages("Retrieve");
+        public static Messages RetrieveExchangeRate { get; } = new Messages("RetrieveExchangeRate");
+        public static Messages RetrieveFilteredForms { get; } = new Messages("RetrieveFilteredForms");
+        public static Messages RetrieveMultiple { get; } = new Messages("RetrieveMultiple");
+        public static Messages RetrievePersonalWall { get; } = new Messages("RetrievePersonalWall");
+        public static Messages RetrievePrincipalAccess { get; } = new Messages("RetrievePrincipalAccess");
+        public static Messages RetrieveRecordWall { get; } = new Messages("RetrieveRecordWall");
+        public static Messages RetrieveSharedPrincipalsAndAccess { get; } = new Messages("RetrieveSharedPrincipalsAndAccess");
+        public static Messages RetrieveUnpublished { get; } = new Messages("RetrieveUnpublished");
+        public static Messages RetrieveUnpublishedMultiple { get; } = new Messages("RetrieveUnpublishedMultiple");
+        public static Messages RevokeAccess { get; } = new Messages("RevokeAccess");
+        public static Messages Route { get; } = new Messages("Route");
+        public static Messages Send { get; } = new Messages("Send");
+        public static Messages SendFromTemplate { get; } = new Messages("SendFromTemplate");
+        public static Messages SetRelated { get; } = new Messages("SetRelated");
         [Obsolete("Use Update message with state filtering attribute instead")]
-        public static Messages SetState = new Messages("SetState");
+        public static Messages SetState { get; } = new Messages("SetState");
         [Obsolete("Use Update message with state filtering attribute instead")]
-        public static Messages SetStateDynamicEntity = new Messages("SetStateDynamicEntity");
-        public static Messages TriggerServiceEndpointCheck = new Messages("TriggerServiceEndpointCheck");
-        public static Messages UnlockInvoicePricing = new Messages("UnlockInvoicePricing");
-        public static Messages UnlockSalesOrderPricing = new Messages("UnlockSalesOrderPricing");
-        public static Messages Update = new Messages("Update");
-        public static Messages ValidateRecurrenceRule = new Messages("ValidateRecurrenceRule");
-        public static Messages Win = new Messages("Win");
-        public static Messages ExecuteWorkflow = new Messages("ExecuteWorkflow");
-        public static Messages Default = new Messages("Default");
+        public static Messages SetStateDynamicEntity { get; } = new Messages("SetStateDynamicEntity");
+        public static Messages TriggerServiceEndpointCheck { get; } = new Messages("TriggerServiceEndpointCheck");
+        public static Messages UnlockInvoicePricing { get; } = new Messages("UnlockInvoicePricing");
+        public static Messages UnlockSalesOrderPricing { get; } = new Messages("UnlockSalesOrderPricing");
+        public static Messages Update { get; } = new Messages("Update");
+        public static Messages ValidateRecurrenceRule { get; } = new Messages("ValidateRecurrenceRule");
+        public static Messages Win { get; } = new Messages("Win");
+        public static Messages ExecuteWorkflow { get; } = new Messages("ExecuteWorkflow");
+        public static Messages Default { get; } = new Messages("Default");
 
         protected string MessageName { get; }
 
