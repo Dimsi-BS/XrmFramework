@@ -24,7 +24,6 @@
 #endregion
 
 using System;
-using System.Threading;
 
 namespace Newtonsoft.Json
 {
@@ -79,12 +78,7 @@ namespace Newtonsoft.Json
             hashCode -= hashCode >> 5;
 
             // make sure index is evaluated before accessing _entries, otherwise potential race condition causing IndexOutOfRangeException
-#if NET20 || NET35 || NET40
-            int mask = Thread.VolatileRead(ref _mask);
-#else
-            int mask = Volatile.Read(ref _mask);
-#endif
-            var index = hashCode & mask;
+            var index = hashCode & _mask;
             var entries = _entries;
 
             for (Entry entry = entries[index]; entry != null; entry = entry.Next)
@@ -166,12 +160,7 @@ namespace Newtonsoft.Json
                 }
             }
             _entries = newEntries;
-
-#if NET20 || NET35 || NET40
-            Thread.VolatileWrite(ref _mask, newMask);
-#else
-            Volatile.Write(ref _mask, newMask);
-#endif
+            _mask = newMask;
         }
 
         private static bool TextEquals(string str1, char[] str2, int str2Start, int str2Length)

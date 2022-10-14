@@ -353,13 +353,7 @@ namespace Newtonsoft.Json.Linq
 
         internal override int GetDeepHashCode()
         {
-            int hash;
-#if HAVE_GETHASHCODE_STRING_COMPARISON
-            hash = _name.GetHashCode(StringComparison.Ordinal);
-#else
-            hash = _name.GetHashCode();
-#endif
-            return hash ^ (Value?.GetDeepHashCode() ?? 0);
+            return _name.GetHashCode() ^ (Value?.GetDeepHashCode() ?? 0);
         }
 
         /// <summary>

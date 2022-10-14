@@ -133,7 +133,7 @@ namespace Newtonsoft.Json.Converters
 
 #if HAVE_DATE_TIME_OFFSET
             Type t = (nullable)
-                ? Nullable.GetUnderlyingType(objectType)!
+                ? Nullable.GetUnderlyingType(objectType)
                 : objectType;
 #endif
 
@@ -166,8 +166,6 @@ namespace Newtonsoft.Json.Converters
             {
                 return null;
             }
-
-            MiscellaneousUtils.Assert(dateText != null);
 
 #if HAVE_DATE_TIME_OFFSET
             if (t == typeof(DateTimeOffset))

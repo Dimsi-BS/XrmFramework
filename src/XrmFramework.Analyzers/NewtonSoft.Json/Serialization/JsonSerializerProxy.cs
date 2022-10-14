@@ -36,7 +36,7 @@ namespace Newtonsoft.Json.Serialization
     {
         private readonly JsonSerializerInternalReader? _serializerReader;
         private readonly JsonSerializerInternalWriter? _serializerWriter;
-        internal readonly JsonSerializer _serializer;
+        private readonly JsonSerializer _serializer;
 
         public override event EventHandler<ErrorEventArgs>? Error
         {

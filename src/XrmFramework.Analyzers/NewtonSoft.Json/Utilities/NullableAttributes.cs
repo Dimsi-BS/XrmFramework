@@ -23,8 +23,6 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 #endregion
 
-#if !HAVE_NULLABLE_ATTRIBUTES
-
 namespace System.Diagnostics.CodeAnalysis
 {
     /// <summary>Specifies that an output will not be null even if the corresponding type allows it.</summary>
@@ -74,5 +72,3 @@ namespace System.Diagnostics.CodeAnalysis
         public bool ParameterValue { get; }
     }
 }
-
-#endif

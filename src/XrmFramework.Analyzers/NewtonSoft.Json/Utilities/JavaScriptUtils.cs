@@ -289,7 +289,6 @@ namespace Newtonsoft.Json.Utilities
                         }
                         else
                         {
-                            MiscellaneousUtils.Assert(writeBuffer != null);
                             writer.Write(writeBuffer, 0, UnicodeTextLength);
                         }
                     }
@@ -387,7 +386,7 @@ namespace Newtonsoft.Json.Utilities
             bool[] charEscapeFlags, StringEscapeHandling stringEscapeHandling, JsonTextWriter client, char[] writeBuffer, CancellationToken cancellationToken)
         {
             Task task = writer.WriteAsync(delimiter, cancellationToken);
-            if (!task.IsCompletedSuccessfully())
+            if (!task.IsCompletedSucessfully())
             {
                 return WriteEscapedJavaScriptStringWithDelimitersAsync(task, writer, s, delimiter, charEscapeFlags, stringEscapeHandling, client, writeBuffer, cancellationToken);
             }
@@ -395,7 +394,7 @@ namespace Newtonsoft.Json.Utilities
             if (!StringUtils.IsNullOrEmpty(s))
             {
                 task = WriteEscapedJavaScriptStringWithoutDelimitersAsync(writer, s, charEscapeFlags, stringEscapeHandling, client, writeBuffer, cancellationToken);
-                if (task.IsCompletedSuccessfully())
+                if (task.IsCompletedSucessfully())
                 {
                     return writer.WriteAsync(delimiter, cancellationToken);
                 }

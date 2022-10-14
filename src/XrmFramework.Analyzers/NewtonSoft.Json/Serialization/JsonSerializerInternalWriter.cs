@@ -396,23 +396,10 @@ namespace Newtonsoft.Json.Serialization
 
         internal static bool TryConvertToString(object value, Type type, [NotNullWhen(true)]out string? s)
         {
-#if HAVE_DATE_ONLY
-            if (value is DateOnly dateOnly)
-            {
-                s = dateOnly.ToString("yyyy'-'MM'-'dd", CultureInfo.InvariantCulture);
-                return true;
-            }
-            if (value is TimeOnly timeOnly)
-            {
-                s = timeOnly.ToString("HH':'mm':'ss.FFFFFFF", CultureInfo.InvariantCulture);
-                return true;
-            }
-#endif
-
 #if HAVE_TYPE_DESCRIPTOR
             if (JsonTypeReflector.CanTypeDescriptorConvertString(type, out TypeConverter converter))
             {
-                s = converter.ConvertToInvariantString(value)!;
+                s = converter.ConvertToInvariantString(value);
                 return true;
             }
 #endif
@@ -427,7 +414,7 @@ namespace Newtonsoft.Json.Serialization
 
             if (value is Type t)
             {
-                s = t.AssemblyQualifiedName!;
+                s = t.AssemblyQualifiedName;
                 return true;
             }
 
@@ -791,7 +778,7 @@ namespace Newtonsoft.Json.Serialization
 
                 if (isTopLevel)
                 {
-                    object value = values.GetValue(newIndices)!;
+                    object value = values.GetValue(newIndices);
 
                     try
                     {
@@ -892,7 +879,7 @@ namespace Newtonsoft.Json.Serialization
                 if (ShouldWriteReference(serializationEntry.Value, null, valueContract, contract, member))
                 {
                     writer.WritePropertyName(serializationEntry.Name);
-                    WriteReference(writer, serializationEntry.Value!);
+                    WriteReference(writer, serializationEntry.Value);
                 }
                 else if (CheckForCircularReference(writer, serializationEntry.Value, null, valueContract, contract, member))
                 {
@@ -1189,7 +1176,7 @@ namespace Newtonsoft.Json.Serialization
                             return enumName;
                         }
 
-                        return Convert.ToString(name, CultureInfo.InvariantCulture)!;
+                        return Convert.ToString(name, CultureInfo.InvariantCulture);
                     }
                 }
             }
@@ -1201,7 +1188,7 @@ namespace Newtonsoft.Json.Serialization
             else
             {
                 escape = true;
-                return name.ToString()!;
+                return name.ToString();
             }
         }
 

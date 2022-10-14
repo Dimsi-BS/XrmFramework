@@ -127,7 +127,7 @@ namespace Newtonsoft.Json.Serialization
             Type? tempCollectionType;
             if (IsArray)
             {
-                CollectionItemType = ReflectionUtils.GetCollectionItemType(UnderlyingType)!;
+                CollectionItemType = ReflectionUtils.GetCollectionItemType(UnderlyingType);
                 IsReadOnlyOrFixedSize = true;
                 _genericCollectionDefinitionType = typeof(List<>).MakeGenericType(CollectionItemType);
 
@@ -274,7 +274,6 @@ namespace Newtonsoft.Json.Serialization
             if (_genericWrapperCreator == null)
             {
                 MiscellaneousUtils.Assert(_genericCollectionDefinitionType != null);
-                MiscellaneousUtils.Assert(CollectionItemType != null);
 
                 _genericWrapperType = typeof(CollectionWrapper<>).MakeGenericType(CollectionItemType);
 
@@ -290,7 +289,7 @@ namespace Newtonsoft.Json.Serialization
                     constructorArgument = _genericCollectionDefinitionType;
                 }
 
-                ConstructorInfo genericWrapperConstructor = _genericWrapperType.GetConstructor(new[] { constructorArgument })!;
+                ConstructorInfo genericWrapperConstructor = _genericWrapperType.GetConstructor(new[] { constructorArgument });
                 _genericWrapperCreator = JsonTypeReflector.ReflectionDelegateFactory.CreateParameterizedConstructor(genericWrapperConstructor);
             }
 

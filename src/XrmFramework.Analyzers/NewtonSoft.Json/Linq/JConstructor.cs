@@ -202,13 +202,7 @@ namespace Newtonsoft.Json.Linq
 
         internal override int GetDeepHashCode()
         {
-            int hash;
-#if HAVE_GETHASHCODE_STRING_COMPARISON
-            hash = _name?.GetHashCode(StringComparison.Ordinal) ?? 0;
-#else
-            hash = _name?.GetHashCode() ?? 0;
-#endif
-            return hash ^ ContentsHashCode();
+            return (_name?.GetHashCode() ?? 0) ^ ContentsHashCode();
         }
 
         /// <summary>

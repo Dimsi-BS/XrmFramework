@@ -107,7 +107,7 @@ namespace Newtonsoft.Json.Utilities
 
         public string ToString(int start, int length)
         {
-            MiscellaneousUtils.Assert(_buffer != null);
+            // TODO: validation
             return new string(_buffer, start, length);
         }
 
