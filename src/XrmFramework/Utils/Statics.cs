@@ -24,7 +24,6 @@ namespace XrmFramework
         RealTime = 1
     }
 
-    [EnumGeneration]
     // ReSharper disable once PartialTypeWithSinglePart
     public partial class InputParameters
     {
@@ -59,7 +58,6 @@ namespace XrmFramework
         public static InputParameters UpdateContent { get; } = new InputParameters("UpdateContent");
     }
 
-    [EnumGeneration]
     // ReSharper disable once PartialTypeWithSinglePart
     public partial class OutputParameters
     {
@@ -80,7 +78,6 @@ namespace XrmFramework
         public static OutputParameters ValidationResult { get; } = new OutputParameters("ValidationResult");
     }
 
-    [EnumGeneration]
     // ReSharper disable once PartialTypeWithSinglePart
     public partial class Messages
     {

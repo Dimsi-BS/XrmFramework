@@ -11,6 +11,7 @@
         <RootNamespace>XrmFramework.XrmToolbox</RootNamespace>
         <AssemblyName>XrmFramework.XrmToolbox.Plugin</AssemblyName>
         <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+        <RuntimeIdentifier>win</RuntimeIdentifier>
         <FileAlignment>512</FileAlignment>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -301,7 +302,7 @@
         <Exec Command="$(ILMergeConsolePath) /out:bin\$(Configuration)\XrmFramework.XrmToolboxPlugin.dll bin\$(Configuration)\XrmFramework.XrmToolbox.Plugin.dll bin\$(Configuration)\XrmFramework.DeployUtils.dll /allowDup"/>
     </Target>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
-         Other similar extension points exist, see Microsoft.Common.targets.  
+         Other similar extension points exist, see Microsoft.Common.targets.
     <Target Name="BeforeBuild">
     </Target>
     <Target Name="AfterBuild">
