@@ -29,9 +29,6 @@
         <Compile Include="..\XrmFramework\Attributes\PrimaryAttributeAttribute.cs"
                  Link="Model\Attributes\PrimaryAttributeAttribute.cs"/>
 
-        <Compile Include="..\XrmFramework.Plugin\NewtonSoft.Json\**\*.cs"
-                 Link="NewtonSoft.Json\%(RecursiveDir)%(Filename)%(Extension)"/>
-
         <Compile Include="..\XrmFramework.Core\**\*.cs"
                  Link="_Imports/XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)"
                  Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**"/>
