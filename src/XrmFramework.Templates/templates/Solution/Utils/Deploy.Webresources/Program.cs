@@ -11,7 +11,7 @@ namespace Deploy.WebResources
         [STAThread]
         static void Main(string[] args)
         {
-            WebResourceHelper.SyncWebResources(@"..\..\..\..\..\Webresources\", "Webresources");
+            WebResourceHelper.SyncWebResources("Webresources", args);
         }
     }
 }

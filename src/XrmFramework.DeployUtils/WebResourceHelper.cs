@@ -17,7 +17,7 @@ namespace XrmFramework.DeployUtils
 {
     public static class WebResourceHelper
     {
-        public static void SyncWebResources(string webresourcesPath, string projectName, params string[] args)
+        public static void SyncWebResources(string projectName, params string[] args)
         {
             var nbWebresources = 0;
 
@@ -81,6 +81,20 @@ namespace XrmFramework.DeployUtils
             }
             var prefix = publisher.GetAttributeValue<string>("customizationprefix");
             Console.WriteLine(@" ==> Prefix : {0}", prefix);
+
+            var currentDirectory = new DirectoryInfo(".");
+
+            while (currentDirectory != null && currentDirectory.GetDirectories().All(d => d.Name != projectName))
+            {
+                currentDirectory = currentDirectory.Parent;
+            }
+
+            if (currentDirectory == null)
+            {
+                throw new DirectoryNotFoundException($"The {projectName} folder cannot be found");
+            }
+
+            var webresourcesPath = currentDirectory.GetDirectories(projectName).Single().FullName;
 
             DirectoryInfo root = new DirectoryInfo(webresourcesPath);
             var resourcesToPublish = string.Empty;
