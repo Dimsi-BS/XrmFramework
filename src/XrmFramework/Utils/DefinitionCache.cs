@@ -60,6 +60,7 @@ namespace XrmFramework
                 var definitionTypes = typeof(DefinitionCache)
                     .Assembly
                     .GetTypes()
+                    .Where(t => t.GetCustomAttribute<EntityDefinitionAttribute>() != null)
                     .Where(t => t.GetField("EntityName") != null)
                     .Where(t =>
                         t.GetField("EntityName").FieldType == typeof(string)

@@ -1,3 +1,4 @@
 **/nupkg/**
+.sonarqube
 
 **/Generated/**
