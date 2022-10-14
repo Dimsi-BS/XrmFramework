@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xrm.Sdk;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,7 +8,7 @@ namespace XrmFramework
 {
     public abstract class CustomApi : Plugin
     {
-        public readonly List<CustomApiArgument> Arguments = new List<CustomApiArgument>();
+        public ICollection<CustomApiArgument> Arguments { get; } = new List<CustomApiArgument>();
 
         private string _customApiMethodName;
         private string _customApiEntityName;

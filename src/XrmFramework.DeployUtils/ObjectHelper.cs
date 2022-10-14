@@ -52,14 +52,7 @@ namespace XrmFramework.DeployUtils
 
             if (hasError)
             {
-                if (failOnError)
-                {
-                    throw new Exception(sb.ToString());
-                }
-                else
-                {
-                    throw new Exception(sb.ToString());
-                }
+                throw new Exception(sb.ToString());
             }
         }
     }

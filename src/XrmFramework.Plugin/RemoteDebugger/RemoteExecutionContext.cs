@@ -1,12 +1,12 @@
-﻿using System;
-using Microsoft.Xrm.Sdk;
+﻿using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
 using Newtonsoft.Json;
+using System;
 
 namespace XrmFramework.RemoteDebugger
 {
-    [Serializable]
-    public class RemoteDebugExecutionContext : IExecutionContext, IPluginExecutionContext, IWorkflowContext
+    [JsonObject(MemberSerialization.OptOut)]
+    public class RemoteDebugExecutionContext : IPluginExecutionContext, IWorkflowContext
     {
         // Execution context to replicate the CrmContext
         public RemoteDebugExecutionContext() { }
@@ -139,6 +139,7 @@ namespace XrmFramework.RemoteDebugger
         public string TypeAssemblyQualifiedName { get; set; }
 
         public string UnsecureConfig { get; set; }
+
         public string SecureConfig { get; set; }
     }
 }
