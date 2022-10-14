@@ -192,7 +192,7 @@ namespace XrmFramework.BindingModel
                             {
                                 var targetEntityDefinition = DefinitionCache.GetEntityDefinition(crmLookupAttribute.TargetEntityName);
 
-                                var fieldName = string.Format("{0}.{1}", attributeName, crmLookupAttribute.AttributeName);
+                                var fieldName = $"{attributeName}.{crmLookupAttribute.AttributeName}";
                                 if (entity.Contains(fieldName))
                                 {
                                     var relatedAttributeType = targetEntityDefinition.GetAttributeType(crmLookupAttribute.AttributeName);
@@ -280,7 +280,7 @@ namespace XrmFramework.BindingModel
                                     var entityTemp = new Entity(entityReference.LogicalName);
                                     entityTemp.Id = entityReference.Id;
 
-                                    var prefix = string.Format("{0}", attributeName);
+                                    var prefix = $"{attributeName}";
 
                                     var isEmbed = false;
 
@@ -1099,7 +1099,7 @@ namespace XrmFramework.BindingModel
                                 }
                                 else
                                 {
-                                    throw new Exception(string.Format("Field {0} should contain a Guid value.", property.Name));
+                                    throw new Exception($"Field {property.Name} should contain a Guid value.");
                                 }
                                 break;
                             default:
@@ -1412,7 +1412,7 @@ namespace XrmFramework.BindingModel
 
             if (bindingType == null)
             {
-                throw new Exception(string.Format("No BindingModel associated with type {0}", dtoType.Name));
+                throw new Exception($"No BindingModel associated with type {dtoType.Name}");
             }
 
             var bindingModel = bindingType.GetConstructor(new Type[] { }).Invoke(new object[] { });
@@ -1428,7 +1428,8 @@ namespace XrmFramework.BindingModel
                 var dtoProperty = dtoType.GetProperty(mappingAttribute.RelativePath);
                 if (dtoProperty == null)
                 {
-                    throw new Exception(string.Format("The Property {0} does not exist on type {1}, modify BindingModel accordingly", mappingAttribute.RelativePath, dtoType.Name));
+                    throw new Exception(
+                        $"The Property {mappingAttribute.RelativePath} does not exist on type {dtoType.Name}, modify BindingModel accordingly");
                 }
 
                 var value = dtoProperty.GetValue(dto);
@@ -1654,7 +1655,8 @@ namespace XrmFramework.BindingModel
                 var dtoProperty = dtoType.GetProperty(mappingAttribute.RelativePath);
                 if (dtoProperty == null)
                 {
-                    throw new Exception(string.Format("The Property {0} does not exist on type {1}, modify BindingModel accordingly", mappingAttribute.RelativePath, dtoType.Name));
+                    throw new Exception(
+                        $"The Property {mappingAttribute.RelativePath} does not exist on type {dtoType.Name}, modify BindingModel accordingly");
                 }
 
                 var tempValue = bindingProperty.GetValue(model);
@@ -1701,7 +1703,8 @@ namespace XrmFramework.BindingModel
                 var dtoProperty = dtoType.GetProperty(mappingAttribute.RelativePath);
                 if (dtoProperty == null)
                 {
-                    throw new Exception(string.Format("The Property {0} does not exist on type {1}, modify BindingModel accordingly", mappingAttribute.RelativePath, dtoType.Name));
+                    throw new Exception(
+                        $"The Property {mappingAttribute.RelativePath} does not exist on type {dtoType.Name}, modify BindingModel accordingly");
                 }
 
                 var tempValue = dtoProperty.GetValue(dto);

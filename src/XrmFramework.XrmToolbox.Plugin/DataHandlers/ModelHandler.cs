@@ -3,12 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using XrmFramework.Core;
 using XrmFramework.XrmToolbox.Forms;
-using Model = XrmFramework.Core.Model;
 
 
 namespace XrmFramework.XrmToolbox.DataHandlers
@@ -16,17 +13,17 @@ namespace XrmFramework.XrmToolbox.DataHandlers
 {
     public static class ModelHandler
     {
-       public static Dictionary<string, ModelData> ModelAndPath = new Dictionary<string, ModelData>();
+        public static Dictionary<string, ModelData> ModelAndPath = new Dictionary<string, ModelData>();
         public static List<string> PreexistingModelPaths = new List<string>();
         public static XrmFrameworkPluginControl PluginControl;
         public static string PathToRegisterModel;
-        private static SortedSet<string> existingNamespaces = new SortedSet<string>();   
+        private static SortedSet<string> existingNamespaces = new SortedSet<string>();
         public static void LoadModelsFromProject(string projectPath)
         {
             foreach (var fileName in Directory.GetFiles($"{projectPath}", "*.model", SearchOption.AllDirectories))
             {
                 PreexistingModelPaths.Add(fileName);
-                
+
                 //MessageBox.Show(fileName);
                 var fileInfo = new FileInfo(fileName);
                 var text = File.ReadAllText(fileInfo.FullName);
@@ -39,8 +36,8 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                 //var splitRootPath = rootPath.Split('\\').ToList();
                 //splitRootPath.Remove(splitRootPath.ElementAt(splitRootPath.Count - 1));
                 //rootPath = String.Join("\\", splitRootPath);
-                ModelAndPath[model.Name] = new ModelData(model,path);
-                if(!string.IsNullOrEmpty(model.ModelNamespace))
+                ModelAndPath[model.Name] = new ModelData(model, path);
+                if (!string.IsNullOrEmpty(model.ModelNamespace))
                 {
                     existingNamespaces.Add(model.ModelNamespace);
                 }
@@ -57,14 +54,15 @@ namespace XrmFramework.XrmToolbox.DataHandlers
             var createModelForm = new CreateModelForm();
             createModelForm.PluginControl = PluginControl;
             TableCollection tables = new TableCollection();
-            foreach(var key in TableHandler.TableAndPath.Keys)
+            foreach (var key in TableHandler.TableAndPath.Keys)
             {
                 tables.Add(TableHandler.TableAndPath[key].table);
             }
             createModelForm.SetTableBindingSource(tables);
             createModelForm.SetExistingNamespaces(existingNamespaces.ToList());
-            createModelForm.FormClosing += (s, e) =>{
-                if(!createModelForm.CreateModel)
+            createModelForm.FormClosing += (s, e) =>
+            {
+                if (!createModelForm.CreateModel)
                 {
                     return;
                 }
@@ -72,7 +70,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                 var model = new XrmFramework.Core.Model()
                 {
                     TableLogicalName = createModelForm.tableLogicalName,
-                    ModelNamespace =    createModelForm.modelNamespace,
+                    ModelNamespace = createModelForm.modelNamespace,
                     Name = createModelForm.modelName,
                 };
                 var table = TableHandler.TableAndPath[model.TableLogicalName].table;
@@ -86,7 +84,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                 idProperty.LogicalName = idCol.LogicalName;
                 idProperty.TypeFullName = "Guid";
 
-                var nameCol = table.Columns.FirstOrDefault(c=>c.PrimaryType == PrimaryType.Name);
+                var nameCol = table.Columns.FirstOrDefault(c => c.PrimaryType == PrimaryType.Name);
                 //idProperty.JsonPropertyName = 
                 var nameProperty = new ModelProperty();
 
@@ -120,7 +118,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
 
         public static void SaveModels()
         {
-            if(string.IsNullOrEmpty(PathToRegisterModel))
+            if (string.IsNullOrEmpty(PathToRegisterModel))
             {
 
                 return;
@@ -186,51 +184,48 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                 {
                     return possibleTypes;
                 }
-                else
+
+                var possibleModelAdded = false;
+                // Find a corresponding model and return
+                foreach (var key in ModelAndPath.Keys)
                 {
-                    var possibleModelAdded = false;
-                    // Find a corresponding model and return
-                    foreach(var key in ModelAndPath.Keys)
+                    var possibleModel = ModelAndPath[key].model;
+                    if (possibleModel.TableLogicalName == relation.EntityName)
                     {
-                        var possibleModel = ModelAndPath[key].model;
-                        if(possibleModel.TableLogicalName == relation.EntityName)
-                        {
-                            //possibleTypes.Add($"{CoreProjectName}.{possibleModel.ModelNamespace}.{possibleModel.Name}");
-                            //Todo : Find a way to use the full typename of the model
-                            possibleTypes.Add(possibleModel.ModelNamespace+"."+possibleModel.Name);
-                            possibleModelAdded = true;
+                        //possibleTypes.Add($"{CoreProjectName}.{possibleModel.ModelNamespace}.{possibleModel.Name}");
+                        //Todo : Find a way to use the full typename of the model
+                        possibleTypes.Add(possibleModel.ModelNamespace + "." + possibleModel.Name);
+                        possibleModelAdded = true;
 
 
-                        }
                     }
-                    if(!possibleModelAdded)
-                    {
-                        // Find corresponding table, and get its name
-                        // Find corresponding table, and get its name
-                        if (!TableHandler.TableAndPath.ContainsKey(relation.EntityName))
-                        {
-                            MessageBox.Show($"can't find table {relation.EntityName}");
-                        }
-                        else
-                        {
-                            var correspondingTable = TableHandler.TableAndPath[relation.EntityName].table;
-                            possibleTypes.Add(correspondingTable.Name + "Model");
-                        }
-                    }
-                    //foreach (var possibleModel in Models)
-                    //{
-                    //    if (possibleModel.TableLogicalName == relation.EntityName)
-                    //    {
-                    //          
-                    //    }
-                    //}
-
-                    possibleTypes.Add("System.Guid");
-                    possibleTypes.Add("Microsoft.Xrm.Sdk.EntityReference");
-
-                    return possibleTypes;
-
                 }
+                if (!possibleModelAdded)
+                {
+                    // Find corresponding table, and get its name
+                    // Find corresponding table, and get its name
+                    if (!TableHandler.TableAndPath.ContainsKey(relation.EntityName))
+                    {
+                        MessageBox.Show($"can't find table {relation.EntityName}");
+                    }
+                    else
+                    {
+                        var correspondingTable = TableHandler.TableAndPath[relation.EntityName].table;
+                        possibleTypes.Add(correspondingTable.Name + "Model");
+                    }
+                }
+                //foreach (var possibleModel in Models)
+                //{
+                //    if (possibleModel.TableLogicalName == relation.EntityName)
+                //    {
+                //          
+                //    }
+                //}
+
+                possibleTypes.Add("System.Guid");
+                possibleTypes.Add("Microsoft.Xrm.Sdk.EntityReference");
+
+                return possibleTypes;
             }
 
             switch (column.Type)
@@ -272,11 +267,11 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                         throw new Exception();
                     }
                     var possibleModelAdded = false;
-                    foreach(var key in ModelAndPath.Keys)
+                    foreach (var key in ModelAndPath.Keys)
                     {
                         var possibleModel = ModelAndPath[key].model;
                         //TODO : find a way to use the typefullname
-                        if(possibleModel.TableLogicalName == re.EntityName)
+                        if (possibleModel.TableLogicalName == re.EntityName)
                         {
                             possibleTypes.Add(possibleModel.ModelNamespace + "." + possibleModel.Name);
                             possibleModelAdded = true;
@@ -284,7 +279,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
 
 
                     }
-                    if(!possibleModelAdded)
+                    if (!possibleModelAdded)
                     {
                         // Find corresponding table, and get its name
                         if (!TableHandler.TableAndPath.ContainsKey(re.EntityName))
@@ -433,11 +428,11 @@ namespace XrmFramework.XrmToolbox.DataHandlers
             return possibleTypes;
         }
 
-        public static bool IsPropertyNameUsed(string name,XrmFramework.Core.Model model)
+        public static bool IsPropertyNameUsed(string name, XrmFramework.Core.Model model)
         {
-            foreach(var prop in model.Properties)
+            foreach (var prop in model.Properties)
             {
-                if(prop.Name == name)
+                if (prop.Name == name)
                 {
                     return true;
                 }
@@ -447,7 +442,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
         }
         public static bool IsModelNameUsed(string name)
         {
-            if(ModelAndPath.ContainsKey(name))
+            if (ModelAndPath.ContainsKey(name))
             {
                 return true;
             }

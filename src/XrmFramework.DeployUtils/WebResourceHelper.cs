@@ -111,7 +111,7 @@ namespace XrmFramework.DeployUtils
 
                 if (publish)
                 {
-                    resourcesToPublish += string.Format("<webresource>{0}</webresource>", webResourceId);
+                    resourcesToPublish += $"<webresource>{webResourceId}</webresource>";
                     nbWebresources++;
                 }
             }
@@ -123,7 +123,8 @@ namespace XrmFramework.DeployUtils
 
                 var request = new PublishXmlRequest
                 {
-                    ParameterXml = string.Format("<importexportxml><webresources>{0}</webresources></importexportxml>", resourcesToPublish)
+                    ParameterXml =
+                        $"<importexportxml><webresources>{resourcesToPublish}</webresources></importexportxml>"
                 };
 
                 service.Execute(request);
@@ -170,7 +171,7 @@ namespace XrmFramework.DeployUtils
 
             if (string.IsNullOrEmpty(fi.Extension))
             {
-                throw new Exception(string.Format("No extension found for the file '{0}'!", fi.FullName));
+                throw new Exception($"No extension found for the file '{fi.FullName}'!");
             }
 
             string extension = fi.Extension.Remove(0, 1).ToLower();

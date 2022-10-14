@@ -25,7 +25,7 @@ namespace XrmFramework
     }
 
     // ReSharper disable once PartialTypeWithSinglePart
-    public partial class InputParameters
+    public partial class InputParameters : IEquatable<InputParameters>
     {
         protected string ParameterName { get; }
 
@@ -35,10 +35,6 @@ namespace XrmFramework
         }
 
         public override string ToString() => ParameterName;
-
-        public override int GetHashCode() => ParameterName.GetHashCode();
-
-        public override bool Equals(object obj) => obj is InputParameters message && message.ParameterName == ParameterName;
 
         public static InputParameters Assignee { get; } = new InputParameters("Assignee");
         public static InputParameters EntityMoniker { get; } = new InputParameters("EntityMoniker");
@@ -56,10 +52,33 @@ namespace XrmFramework
         public static InputParameters FetchXml { get; } = new InputParameters("FetchXml");
         public static InputParameters SubordinateId { get; } = new InputParameters("SubordinateId");
         public static InputParameters UpdateContent { get; } = new InputParameters("UpdateContent");
+
+        /// <inheritdoc />
+        public bool Equals(InputParameters other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return string.Equals(ParameterName, other.ParameterName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((InputParameters)obj);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return (ParameterName != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(ParameterName) : 0);
+        }
     }
 
     // ReSharper disable once PartialTypeWithSinglePart
-    public partial class OutputParameters
+    public partial class OutputParameters : IEquatable<OutputParameters>
     {
         protected string ParameterName { get; }
 
@@ -70,16 +89,33 @@ namespace XrmFramework
 
         public override string ToString() => ParameterName;
 
-        public override int GetHashCode() => ParameterName.GetHashCode();
+        public override int GetHashCode()
+        {
+            return (ParameterName != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(ParameterName) : 0);
+        }
 
-        public override bool Equals(object obj) => obj is OutputParameters message && message.ParameterName == ParameterName;
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((OutputParameters)obj);
+        }
 
         public static OutputParameters BusinessEntityCollection { get; } = new OutputParameters("BusinessEntityCollection");
         public static OutputParameters ValidationResult { get; } = new OutputParameters("ValidationResult");
+
+        /// <inheritdoc />
+        public bool Equals(OutputParameters other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return string.Equals(ParameterName, other.ParameterName, StringComparison.OrdinalIgnoreCase);
+        }
     }
 
     // ReSharper disable once PartialTypeWithSinglePart
-    public partial class Messages
+    public partial class Messages : IEquatable<Messages>
     {
         public static Messages AddItem { get; } = new Messages("AddItem");
         public static Messages AddListMembers { get; } = new Messages("AddListMembers");
@@ -178,15 +214,7 @@ namespace XrmFramework
             MessageName = messageName;
         }
 
-        public static bool operator ==(Messages x, Messages y) => x?.MessageName == y?.MessageName;
-
-        public static bool operator !=(Messages x, Messages y) => !(x == y);
-
         public override string ToString() => MessageName;
-
-        public override int GetHashCode() => MessageName.GetHashCode();
-
-        public override bool Equals(object obj) => obj is Messages message && message.MessageName == MessageName;
 
         public static Messages GetMessage(string messageName)
         {
@@ -196,6 +224,29 @@ namespace XrmFramework
             }
 
             return new Messages(messageName);
+        }
+
+        /// <inheritdoc />
+        public bool Equals(Messages other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return string.Equals(MessageName, other.MessageName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Messages)obj);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return (MessageName != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(MessageName) : 0);
         }
     }
 }

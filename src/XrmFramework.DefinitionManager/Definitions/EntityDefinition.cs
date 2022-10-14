@@ -92,7 +92,7 @@ namespace DefinitionManager
         {
             if (!name.EndsWith("Definition"))
             {
-                name = string.Format("{0}Definition", name);
+                name = $"{name}Definition";
             }
             return true;
         }

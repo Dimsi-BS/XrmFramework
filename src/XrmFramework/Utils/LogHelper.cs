@@ -246,7 +246,8 @@ namespace XrmFramework
 
                         if (argType.Name != "String" && typeof(IEnumerable).IsAssignableFrom(argType) && argType.GetMethod("Count") != null)
                         {
-                            formattedArg = string.Format("Count({0})", argType.GetMethod("Count").Invoke(formattedArg, new object[] { }));
+                            formattedArg =
+                                $"Count({argType.GetMethod("Count").Invoke(formattedArg, new object[] { })})";
                         }
 
                     }

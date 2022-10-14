@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
@@ -34,12 +34,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <returns> The lambda. </returns>
         string Lambda([NotNull] IReadOnlyList<string> properties);
 
-        /// <summary>
-        ///     Generates a multidimensional array literal.
-        /// </summary>
-        /// <param name="values"> The multidimensional array. </param>
-        /// <returns> The literal. </returns>
-        string Literal([NotNull] object[,] values);
+        // <summary>
+        //     Generates a multidimensional array literal.
+        // </summary>
+        // <param name="values"> The multidimensional array. </param>
+        // <returns> The literal. </returns>
+        // string Literal([NotNull] object[,] values);
 
         /// <summary>
         ///     Generates a nullable literal.

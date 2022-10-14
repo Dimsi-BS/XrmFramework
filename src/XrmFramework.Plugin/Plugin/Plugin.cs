@@ -74,7 +74,8 @@ namespace XrmFramework
             {
                 throw new InvalidPluginExecutionException($"The method {ChildClassName}.{actionName} used during {messageName} message does not exist or is private");
             }
-            else if (!step.Method.IsPublic || step.Method.IsStatic)
+
+            if (!step.Method.IsPublic || step.Method.IsStatic)
             {
                 throw new InvalidPluginExecutionException($"The method {ChildClassName}.{actionName} used during {messageName} message should be public and not static");
             }

@@ -32,7 +32,7 @@ namespace XrmFramework.DeployUtils.Utils
             var version = fullNameSplit[1].Substring(fullNameSplit[1].IndexOf('=') + 1);
             var culture = fullNameSplit[2].Substring(fullNameSplit[2].IndexOf('=') + 1);
             var publicKeyToken = fullNameSplit[3].Substring(fullNameSplit[3].IndexOf('=') + 1);
-            var description = string.Format("{0} plugin assembly", name);
+            var description = $"{name} plugin assembly";
 
             var t = new AssemblyInfo()
             {
