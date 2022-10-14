@@ -9,6 +9,7 @@ using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
+using PluginPackage = XrmFramework.DeployUtils.Model.PluginPackage;
 
 namespace XrmFramework.DeployUtils.Utils;
 
@@ -68,6 +69,12 @@ public partial class AssemblyExporter : IAssemblyExporter
 
 	public void AddComponentToSolution(ICrmComponent component)
 	{
+		if (component is PluginPackage package)
+		{
+			var assembly = _registrationService.GetAssemblyInfoByName(package.AssemblyName);
+			AddComponentToSolution(assembly);
+		}
+
 		if (!component.DoAddToSolution) return;
 
 		int? entityTypeCode = component.DoFetchTypeCode
@@ -102,14 +109,14 @@ public partial class AssemblyExporter : IAssemblyExporter
 		};
 	}
 
-    /// <summary>
-    ///     Creates a request to add a component in the form of an <see cref="EntityReference" />
-    ///     to the current Solution
-    /// </summary>
-    /// <param name="objectRef"></param>
-    /// <param name="objectTypeCode"></param>
-    /// <returns></returns>
-    public AddSolutionComponentRequest CreateAddSolutionComponentRequest(EntityReference objectRef,
+	/// <summary>
+	///     Creates a request to add a component in the form of an <see cref="EntityReference" />
+	///     to the current Solution
+	/// </summary>
+	/// <param name="objectRef"></param>
+	/// <param name="objectTypeCode"></param>
+	/// <returns></returns>
+	public AddSolutionComponentRequest CreateAddSolutionComponentRequest(EntityReference objectRef,
 		int? objectTypeCode = null)
 	{
 		AddSolutionComponentRequest res = null;

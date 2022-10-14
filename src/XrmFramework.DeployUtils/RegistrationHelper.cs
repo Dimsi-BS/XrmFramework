@@ -67,8 +67,6 @@ public partial class RegistrationHelper
 	/// <param name="localDll">The local Assembly, should appear in <c>xrmFramework.config</c></param>
 	protected void Register(Assembly localDll)
 	{
-		Console.WriteLine("\tRegistering Package/Dll...");
-
 		RegisterAssembly(localDll);
 
 		Console.WriteLine("\tFetching Local Assembly...");
@@ -130,25 +128,24 @@ public partial class RegistrationHelper
 	///     Creates the Assembly, deleting all obsolete components in the process by calling
 	///     <see cref="CreateDeleteRequests" />
 	/// </summary>
-	private void RegisterAssembly(Assembly assemblyContext)
+	private void RegisterAssembly(Assembly localAssembly)
 	{
-		Console.WriteLine("Creating assembly");
+		var localInfo = _assemblyFactory.GetLocalAssemblyInfo(localAssembly);
+		var remoteInfo = _assemblyFactory.GetRemoteAssemblyInfo(_registrationService, localInfo.Name);
 
-		// var localAssembly = _assemblyFactory.
-		// if (assemblyContext.AssemblyInfo.Package is {RegistrationState: RegistrationState.ToCreate})
-		// {
-		// 	assemblyContext.AssemblyInfo.Package.Id =
-		// 		_assemblyExporter.CreateComponent(assemblyContext.AssemblyInfo.Package);
-		// 	assemblyContext.AssemblyInfo.Package.RegistrationState = RegistrationState.Computed;
-		// 	assemblyContext.Id = _registrationService.GetAssemblyInfoByName(assemblyContext.UniqueName).Id;
-		// 	_assemblyExporter.AddComponentToSolution(assemblyContext);
-		// }
-		//
-		// else
-		// {
-		// 	_assemblyExporter.CreateComponent(assemblyContext);
-		// 	assemblyContext.RegistrationState = RegistrationState.Computed;
-		// }
+		var operation = _assemblyDiffFactory.ComputeAssemblyOperation(localInfo, remoteInfo);
+
+		if (operation.RegistrationState == RegistrationState.ToCreate)
+		{
+			Console.WriteLine($"\tCreating {operation.HumanName}...");
+			_assemblyExporter.CreateComponent(operation);
+		}
+
+		else if (operation.RegistrationState == RegistrationState.ToUpdate)
+		{
+			Console.WriteLine($"\tUpdating {operation.HumanName}");
+			_assemblyExporter.UpdateComponent(operation);
+		}
 	}
 
 	private IEnumerable<OrganizationRequest> CreateDeleteRequests(IReadOnlyCollection<ICrmComponent> strategyPool)

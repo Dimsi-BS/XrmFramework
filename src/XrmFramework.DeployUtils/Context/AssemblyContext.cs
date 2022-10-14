@@ -10,6 +10,18 @@ namespace XrmFramework.DeployUtils.Context;
 /// </summary>
 public class AssemblyContext : IAssemblyContext
 {
+	public IEnumerable<ICrmComponent> Children
+	{
+		get
+		{
+			var children = new List<ICrmComponent>();
+			children.AddRange(Plugins);
+			children.AddRange(Workflows);
+			children.AddRange(CustomApis);
+			return children;
+		}
+	}
+
 	public AssemblyInfo AssemblyInfo { get; set; } = new();
 
 	public IReadOnlyCollection<ICrmComponent> ComponentsOrderedPool
@@ -18,42 +30,10 @@ public class AssemblyContext : IAssemblyContext
 		{
 			List<ICrmComponent> pool = new();
 
-			CreateSolutionComponentPoolRecursive(pool, this);
+			foreach (var crmComponent in Children) CreateSolutionComponentPoolRecursive(pool, crmComponent);
 
 			pool.Sort((x, y) => x.Rank.CompareTo(y.Rank));
 			return pool;
-		}
-	}
-
-	public bool NeedsRegister()
-	{
-		return AssemblyInfo.RegistrationState is RegistrationState.ToCreate
-		       || AssemblyInfo.Package?.RegistrationState is RegistrationState.ToCreate;
-	}
-
-	public Guid Id
-	{
-		get => AssemblyInfo.Id;
-		set
-		{
-			foreach (var child in Plugins) child.ParentId = value;
-			foreach (var child in Workflows) child.ParentId = value;
-			foreach (var child in CustomApis) child.AssemblyId = value;
-
-			AssemblyInfo.Id = value;
-		}
-	}
-
-	public IEnumerable<ICrmComponent> Children
-	{
-		get
-		{
-			var children = new List<ICrmComponent>();
-			children.AddRange(AssemblyInfo.Children);
-			children.AddRange(Plugins);
-			children.AddRange(Workflows);
-			children.AddRange(CustomApis);
-			return children;
 		}
 	}
 
@@ -62,17 +42,13 @@ public class AssemblyContext : IAssemblyContext
 		switch (child)
 		{
 			case Plugin plugin:
-				plugin.ParentId = Id;
+				plugin.ParentId = AssemblyInfo.Id;
 				if (plugin.IsWorkflow) _workflows.Add(plugin);
 				else _plugins.Add(plugin);
 				break;
 			case CustomApi api:
-				api.AssemblyId = Id;
+				api.AssemblyId = AssemblyInfo.Id;
 				_customApis.Add(api);
-				break;
-			case PluginPackage package:
-				package.ParentId = Id;
-				AssemblyInfo.AddChild(package);
 				break;
 			default:
 				throw new ArgumentException("AssemblyContext doesn't take this type of children");
@@ -116,9 +92,6 @@ public class AssemblyContext : IAssemblyContext
 			case CustomApi api:
 				_customApis.Remove(api);
 				break;
-			case PluginPackage package:
-				AssemblyInfo.Package = null;
-				break;
 			default:
 				throw new ArgumentException("AssemblyContext doesn't have this type of children");
 		}
@@ -137,24 +110,6 @@ public class AssemblyContext : IAssemblyContext
 	public ICollection<Plugin> Plugins => _plugins;
 	public ICollection<CustomApi> CustomApis => _customApis;
 	public ICollection<Plugin> Workflows => _workflows;
-
-	#endregion
-
-	#region AssemblyInfo ProxyProperties
-
-	public string UniqueName => AssemblyInfo.UniqueName;
-	public int Rank => AssemblyInfo.Rank;
-	public bool DoAddToSolution => AssemblyInfo.DoAddToSolution;
-	public bool DoFetchTypeCode => AssemblyInfo.DoFetchTypeCode;
-
-	public RegistrationState RegistrationState
-	{
-		get => AssemblyInfo.RegistrationState;
-		set => AssemblyInfo.RegistrationState = value;
-	}
-
-	public Guid ParentId { get; set; }
-	public string EntityTypeName => AssemblyInfo.EntityTypeName;
 
 	#endregion
 }

@@ -3,10 +3,10 @@ using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Context;
 
-public interface IAssemblyContext : ICrmComponent
+public interface IAssemblyContext : IDeployContext
 {
 	/// <summary>
-	///     <inheritdoc cref="Model.AssemblyInfo" />
+	///     AssemblyInfo of the registered Assembly
 	/// </summary>
 	AssemblyInfo AssemblyInfo { get; }
 
@@ -27,10 +27,4 @@ public interface IAssemblyContext : ICrmComponent
 	///     This way each component is guaranteed to appear before its children an so forth
 	/// </remarks>
 	IReadOnlyCollection<ICrmComponent> ComponentsOrderedPool { get; }
-
-	/// <summary>
-	///     Indicates if the assembly needs to be registered on the CRM first, through the package or the assembly
-	/// </summary>
-	/// <returns></returns>
-	bool NeedsRegister();
 }

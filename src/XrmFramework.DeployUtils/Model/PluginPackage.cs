@@ -10,7 +10,7 @@ namespace XrmFramework.DeployUtils.Model;
 ///     Metadata of a Nuget Package
 /// </summary>
 [CrmEntity(PluginpackageDefinition.EntityName)]
-public class PluginPackage : BaseCrmComponent, IBindingModel
+public class PluginPackage : BaseCrmComponent, IBindingModel, IAssemblyComponent
 {
 	[CrmMapping(PluginpackageDefinition.Columns.Name)]
 	public string Name { get; set; }
@@ -25,6 +25,9 @@ public class PluginPackage : BaseCrmComponent, IBindingModel
 		get => Name;
 		set => Name = value;
 	}
+
+	public string HumanName => "Package";
+	public string AssemblyName => Name.Split('_')[1];
 
 	#region CrmComponents Implementation
 

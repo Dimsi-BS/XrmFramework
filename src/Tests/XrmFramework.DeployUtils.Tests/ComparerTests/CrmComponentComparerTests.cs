@@ -2,866 +2,867 @@
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Utils;
-using AssemblyInfo = XrmFramework.DeployUtils.Model.AssemblyInfo;
 
-namespace XrmFramework.DeployUtils.Tests
+namespace XrmFramework.DeployUtils.Tests;
+
+[TestClass]
+public class CrmComponentComparerTests
 {
-    [TestClass]
-    public class CrmComponentComparerTests
-    {
-        private readonly CrmComponentComparer _comparer;
+	private readonly CrmComponentComparer _comparer;
+
+	public CrmComponentComparerTests()
+	{
+		_comparer = new CrmComponentComparer();
+	}
+
+	#region Equals Tests
+
+	[TestMethod]
+	public void Equals_SameComponent_AssemblyInfo()
+	{
+		// Arrange
+		var thisComponent = new AssemblyInfo()
+		{
+			Name = "thisAssembly"
+		};
+
+		var otherComponent = new AssemblyInfo()
+		{
+			Name = "thisAssembly"
+		};
+
+		// Act
+
+		var result = _comparer.Equals(thisComponent, otherComponent);
+
+		// Assert
+
+		Assert.IsTrue(result);
+	}
+
+
+	[TestMethod]
+	public void Equals_DifferentComponent_AssemblyInfo()
+	{
+		// Arrange
+		var thisComponent = new AssemblyInfo()
+		{
+			Name = "thisAssembly"
+		};
+
+		var otherComponent = new AssemblyInfo()
+		{
+			Name = "otherAssembly"
+		};
+
+		// Act
 
-        public CrmComponentComparerTests()
-        {
-            _comparer = new();
-        }
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-        #region Equals Tests
-        [TestMethod]
-        public void Equals_SameComponent_AssemblyInfo()
-        {
-            // Arrange
-            var thisComponent = new AssemblyInfo()
-            {
-                Name = "thisAssembly",
-            };
+		// Assert
 
-            var otherComponent = new AssemblyInfo()
-            {
-                Name = "thisAssembly"
-            };
+		Assert.IsFalse(result);
+	}
 
-            // Act
+	// This test should now be irrelevant given the fact that assembly infos are treated seperately
+	// [TestMethod]
+	// public void Equals_SameComponent_AssemblyContext()
+	// {
+	//     // Arrange
+	//     var thisComponent = new AssemblyContext()
+	//     {
+	//         AssemblyInfo = new AssemblyInfo(),
+	//     };
+	//
+	//     var otherComponent = new AssemblyContext()
+	//     {
+	//         AssemblyInfo = new AssemblyInfo()
+	//     };
+	//
+	//     // Act
+	//
+	//     var result = _comparer.Equals(thisComponent, otherComponent);
+	//
+	//     // Assert
+	//
+	//     Assert.IsTrue(result);
+	// }
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+	[TestMethod]
+	public void Equals_DifferentComponent_AssemblyContext()
+	{
+		// Arrange
+		var thisComponent = new AssemblyContext()
+		{
+			AssemblyInfo = new AssemblyInfo()
+				{Name = "thisAssembly"}
+		};
 
-            // Assert
+		var otherComponent = new AssemblyContext()
+		{
+			AssemblyInfo = new AssemblyInfo()
+				{Name = "otherAssembly"}
+		};
 
-            Assert.IsTrue(result);
-        }
+		// Act
 
+		var result = Equals(thisComponent, otherComponent);
 
-        [TestMethod]
-        public void Equals_DifferentComponent_AssemblyInfo()
-        {
-            // Arrange
-            var thisComponent = new AssemblyInfo()
-            {
-                Name = "thisAssembly",
-            };
+		// Assert
 
-            var otherComponent = new AssemblyInfo()
-            {
-                Name = "otherAssembly"
-            };
+		Assert.IsFalse(result);
+	}
 
-            // Act
+	[TestMethod]
+	public void Equals_SameComponent_Plugin()
+	{
+		// Arrange
+		var thisComponent = new Plugin("thisPlugin");
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		var otherComponent = new Plugin("thisPlugin");
 
-            // Assert
+		// Act
 
-            Assert.IsFalse(result);
-        }
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-        [TestMethod]
-        public void Equals_SameComponent_AssemblyContext()
-        {
-            // Arrange
-            var thisComponent = new AssemblyContext()
-            {
-                AssemblyInfo = new AssemblyInfo(),
-            };
+		// Assert
 
-            var otherComponent = new AssemblyContext()
-            {
-                AssemblyInfo = new AssemblyInfo()
-            };
+		Assert.IsTrue(result);
+	}
 
-            // Act
+	[TestMethod]
+	public void Equals_DifferentComponent_Plugin()
+	{
+		// Arrange
+		var thisComponent = new Plugin("thisPlugin");
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		var otherComponent = new Plugin("otherPlugin");
 
-            // Assert
+		// Act
 
-            Assert.IsTrue(result);
-        }
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-        [TestMethod]
-        public void Equals_DifferentComponent_AssemblyContext()
-        {
-            // Arrange
-            var thisComponent = new AssemblyContext()
-            {
-                AssemblyInfo = new AssemblyInfo()
-                { Name = "thisAssembly" }
-            };
+		// Assert
 
-            var otherComponent = new AssemblyContext()
-            {
-                AssemblyInfo = new AssemblyInfo()
-                { Name = "otherAssembly" }
+		Assert.IsFalse(result);
+	}
 
-            };
+	[TestMethod]
+	public void Equals_SameComponent_Step()
+	{
+		// Arrange
+		var thisComponent = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity");
 
-            // Act
+		var otherComponent = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity");
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		// Act
 
-            // Assert
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-            Assert.IsFalse(result);
-        }
+		// Assert
 
-        [TestMethod]
-        public void Equals_SameComponent_Plugin()
-        {
-            // Arrange
-            var thisComponent = new Plugin("thisPlugin");
+		Assert.IsTrue(result);
+	}
 
-            var otherComponent = new Plugin("thisPlugin");
+	[TestMethod]
+	public void Equals_DifferentComponent_Step()
+	{
+		// Arrange
+		var thisComponent = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity");
 
-            // Act
+		var otherComponent =
+			new Step("otherPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity");
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		// Act
 
-            // Assert
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-            Assert.IsTrue(result);
-        }
+		// Assert
 
-        [TestMethod]
-        public void Equals_DifferentComponent_Plugin()
-        {
-            // Arrange
-            var thisComponent = new Plugin("thisPlugin");
+		Assert.IsFalse(result);
+	}
 
-            var otherComponent = new Plugin("otherPlugin");
+	[TestMethod]
+	public void Equals_SameComponent_StepImage()
+	{
+		// Arrange
+		var thisComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
+		{
+			FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
+		};
 
-            // Act
+		var otherComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
+		{
+			FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
+		};
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		// Act
 
-            // Assert
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-            Assert.IsFalse(result);
-        }
+		// Assert
 
-        [TestMethod]
-        public void Equals_SameComponent_Step()
-        {
-            // Arrange
-            var thisComponent = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity");
+		Assert.IsTrue(result);
+	}
 
-            var otherComponent = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity");
+	[TestMethod]
+	public void Equals_DifferentComponent_StepImage()
+	{
+		// Arrange
+		var thisComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
+		{
+			FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
+		};
 
-            // Act
+		var otherComponent = new StepImage(Messages.Default, false, Stages.PostOperation)
+		{
+			FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
+		};
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		// Act
 
-            // Assert
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-            Assert.IsTrue(result);
-        }
+		// Assert
 
-        [TestMethod]
-        public void Equals_DifferentComponent_Step()
-        {
-            // Arrange
-            var thisComponent = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity");
+		Assert.IsFalse(result);
+	}
 
-            var otherComponent = new Step("otherPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity");
+	[TestMethod]
+	public void Equals_SameComponent_CustomApi()
+	{
+		// Arrange
+		var thisComponent = new CustomApi()
+		{
+			Name = "thisCustomApi"
+		};
 
-            // Act
+		var otherComponent = new CustomApi()
+		{
+			Name = "thisCustomApi"
+		};
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		// Act
 
-            // Assert
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-            Assert.IsFalse(result);
-        }
+		// Assert
 
-        [TestMethod]
-        public void Equals_SameComponent_StepImage()
-        {
-            // Arrange
-            var thisComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
-            {
-                FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
-            };
+		Assert.IsTrue(result);
+	}
 
-            var otherComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
-            {
-                FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
-            };
+	[TestMethod]
+	public void Equals_DifferentComponent_CustomApi()
+	{
+		// Arrange
+		var thisComponent = new CustomApi()
+		{
+			Name = "thisCustomApi"
+		};
 
-            // Act
+		var otherComponent = new CustomApi()
+		{
+			Name = "otherCustomApi"
+		};
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		// Act
 
-            // Assert
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-            Assert.IsTrue(result);
-        }
+		// Assert
 
-        [TestMethod]
-        public void Equals_DifferentComponent_StepImage()
-        {
-            // Arrange
-            var thisComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
-            {
-                FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
-            };
+		Assert.IsFalse(result);
+	}
 
-            var otherComponent = new StepImage(Messages.Default, false, Stages.PostOperation)
-            {
-                FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
-            };
+	[TestMethod]
+	public void Equals_SameComponent_CustomApiRequestParameter()
+	{
+		// Arrange
+		var thisComponent = new CustomApiRequestParameter()
+		{
+			UniqueName = "thisCustomApiRequestParameter",
+			Type = new OptionSetValue(2)
+		};
 
-            // Act
+		var otherComponent = new CustomApiRequestParameter()
+		{
+			UniqueName = "thisCustomApiRequestParameter",
+			Type = new OptionSetValue(2)
+		};
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		// Act
 
-            // Assert
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-            Assert.IsFalse(result);
-        }
+		// Assert
 
-        [TestMethod]
-        public void Equals_SameComponent_CustomApi()
-        {
-            // Arrange
-            var thisComponent = new CustomApi()
-            {
-                Name = "thisCustomApi",
-            };
+		Assert.IsTrue(result);
+	}
 
-            var otherComponent = new CustomApi()
-            {
-                Name = "thisCustomApi"
-            };
+	[TestMethod]
+	public void Equals_DifferentComponent_CustomApiRequestParameter()
+	{
+		// Arrange
+		var thisComponent = new CustomApiRequestParameter()
+		{
+			UniqueName = "thisCustomApiRequestParameter"
+		};
 
-            // Act
+		var otherComponent = new CustomApiRequestParameter()
+		{
+			UniqueName = "otherCustomApiRequestParameter"
+		};
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		// Act
 
-            // Assert
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-            Assert.IsTrue(result);
-        }
+		// Assert
 
-        [TestMethod]
-        public void Equals_DifferentComponent_CustomApi()
-        {
-            // Arrange
-            var thisComponent = new CustomApi()
-            {
-                Name = "thisCustomApi",
-            };
+		Assert.IsFalse(result);
+	}
 
-            var otherComponent = new CustomApi()
-            {
-                Name = "otherCustomApi"
-            };
+	[TestMethod]
+	public void Equals_SameComponent_CustomApiResponseProperty()
+	{
+		// Arrange
+		var thisComponent = new CustomApiResponseProperty()
+		{
+			UniqueName = "thisCustomApiResponseProperty",
+			Type = new OptionSetValue(2)
+		};
 
-            // Act
+		var otherComponent = new CustomApiResponseProperty()
+		{
+			UniqueName = "thisCustomApiResponseProperty",
+			Type = new OptionSetValue(2)
+		};
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		// Act
 
-            // Assert
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-            Assert.IsFalse(result);
-        }
+		// Assert
 
-        [TestMethod]
-        public void Equals_SameComponent_CustomApiRequestParameter()
-        {
-            // Arrange
-            var thisComponent = new CustomApiRequestParameter()
-            {
-                UniqueName = "thisCustomApiRequestParameter",
-                Type = new OptionSetValue(2)
-            };
+		Assert.IsTrue(result);
+	}
 
-            var otherComponent = new CustomApiRequestParameter()
-            {
-                UniqueName = "thisCustomApiRequestParameter",
-                Type = new OptionSetValue(2)
-            };
+	[TestMethod]
+	public void Equals_DifferentComponent_CustomApiResponseProperty()
+	{
+		// Arrange
+		var thisComponent = new CustomApiResponseProperty()
+		{
+			UniqueName = "thisCustomApiResponseProperty"
+		};
 
-            // Act
+		var otherComponent = new CustomApiResponseProperty()
+		{
+			UniqueName = "otherCustomApiResponseProperty"
+		};
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		// Act
 
-            // Assert
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-            Assert.IsTrue(result);
-        }
+		// Assert
 
-        [TestMethod]
-        public void Equals_DifferentComponent_CustomApiRequestParameter()
-        {
-            // Arrange
-            var thisComponent = new CustomApiRequestParameter()
-            {
-                UniqueName = "thisCustomApiRequestParameter",
-            };
+		Assert.IsFalse(result);
+	}
 
-            var otherComponent = new CustomApiRequestParameter()
-            {
-                UniqueName = "otherCustomApiRequestParameter"
-            };
+	[TestMethod]
+	public void Equals_SameComponent_Workflow()
+	{
+		// Arrange
+		var thisComponent = new Plugin("thisWorkflow", "workflow");
 
-            // Act
+		var otherComponent = new Plugin("thisWorkflow", "workflow");
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		// Act
 
-            // Assert
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-            Assert.IsFalse(result);
-        }
+		// Assert
 
-        [TestMethod]
-        public void Equals_SameComponent_CustomApiResponseProperty()
-        {
-            // Arrange
-            var thisComponent = new CustomApiResponseProperty()
-            {
-                UniqueName = "thisCustomApiResponseProperty",
-                Type = new OptionSetValue(2)
-            };
+		Assert.IsTrue(result);
+	}
 
-            var otherComponent = new CustomApiResponseProperty()
-            {
-                UniqueName = "thisCustomApiResponseProperty",
-                Type = new OptionSetValue(2)
-            };
+	[TestMethod]
+	public void Equals_DifferentComponent_Workflow()
+	{
+		// Arrange
+		var thisComponent = new Plugin("thisWorkflow", "workflow");
 
-            // Act
+		var otherComponent = new Plugin("otherWorkflow", "workflow");
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		// Act
 
-            // Assert
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-            Assert.IsTrue(result);
-        }
+		// Assert
 
-        [TestMethod]
-        public void Equals_DifferentComponent_CustomApiResponseProperty()
-        {
-            // Arrange
-            var thisComponent = new CustomApiResponseProperty()
-            {
-                UniqueName = "thisCustomApiResponseProperty",
-            };
+		Assert.IsFalse(result);
+	}
 
-            var otherComponent = new CustomApiResponseProperty()
-            {
-                UniqueName = "otherCustomApiResponseProperty"
-            };
+	[TestMethod]
+	public void Equals_DifferentTypes()
+	{
+		// Arrange
+		var thisComponent = new Plugin("thisPlugin");
 
-            // Act
+		var otherComponent = new CustomApi();
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		// Act
+		var result = _comparer.Equals(thisComponent, otherComponent);
 
-            // Assert
+		// Assert
+		Assert.IsFalse(result);
+	}
 
-            Assert.IsFalse(result);
-        }
+	#endregion
 
-        [TestMethod]
-        public void Equals_SameComponent_Workflow()
-        {
-            // Arrange
-            var thisComponent = new Plugin("thisWorkflow", "workflow");
+	#region NeedsUpdate Tests
 
-            var otherComponent = new Plugin("thisWorkflow", "workflow");
+	[TestMethod]
+	public void NeedsUpdate_SameComponent_AssemblyInfo()
+	{
+		// Arrange
+		var thisComponent = new AssemblyInfo()
+		{
+			Name = "thisAssembly"
+		};
 
-            // Act
+		var otherComponent = new AssemblyInfo()
+		{
+			Name = "thisAssembly"
+		};
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		// Act
 
-            // Assert
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
 
-            Assert.IsTrue(result);
-        }
+		// Assert
 
-        [TestMethod]
-        public void Equals_DifferentComponent_Workflow()
-        {
-            // Arrange
-            var thisComponent = new Plugin("thisWorkflow", "workflow");
+		Assert.IsTrue(result);
+	}
 
-            var otherComponent = new Plugin("otherWorkflow", "workflow");
+	// [TestMethod]
+	// public void NeedsUpdate_SameComponent_AssemblyContext()
+	// {
+	// 	// Arrange
+	// 	var thisComponent = new AssemblyContext()
+	// 	{
+	// 		AssemblyInfo = new AssemblyInfo()
+	// 	};
+	//
+	// 	var otherComponent = new AssemblyContext()
+	// 	{
+	// 		AssemblyInfo = new AssemblyInfo()
+	// 	};
+	//
+	// 	// Act
+	//
+	// 	var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
+	//
+	// 	// Assert
+	//
+	// 	Assert.IsTrue(result);
+	// }
 
-            // Act
+	[TestMethod]
+	public void NeedsUpdate_SameComponent_Plugin()
+	{
+		// Arrange
+		var thisComponent = new Plugin("thisPlugin");
 
-            var result = _comparer.Equals(thisComponent, otherComponent);
+		var otherComponent = new Plugin("thisPlugin");
 
-            // Assert
+		// Act
 
-            Assert.IsFalse(result);
-        }
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
 
-        [TestMethod]
-        public void Equals_DifferentTypes()
-        {
-            // Arrange
-            var thisComponent = new Plugin("thisPlugin");
+		// Assert
 
-            var otherComponent = new CustomApi();
+		Assert.IsFalse(result);
+	}
 
-            // Act
-            var result = _comparer.Equals(thisComponent, otherComponent);
+	[TestMethod]
+	public void NeedsUpdate_SameComponent_Step()
+	{
+		// Arrange
+		var thisComponent = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
+		{
+			PluginTypeFullName = "assembly.thisPlugin",
+			FilteringAttributes = {"thisAttribute"},
+			ImpersonationUsername = "thisUser",
+			Order = 1
+		};
+		var otherComponent = new Step("otherPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
+		{
+			PluginTypeFullName = "assembly.otherPlugin",
+			FilteringAttributes = {"thisAttribute"},
+			ImpersonationUsername = "thisUser",
+			Order = 1
+		};
 
-            // Assert
-            Assert.IsFalse(result);
-        }
-        #endregion
+		// Act
 
-        #region NeedsUpdate Tests
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
 
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_AssemblyInfo()
-        {
-            // Arrange
-            var thisComponent = new AssemblyInfo()
-            {
-                Name = "thisAssembly",
-            };
+		// Assert
 
-            var otherComponent = new AssemblyInfo()
-            {
-                Name = "thisAssembly"
-            };
+		Assert.IsFalse(result);
+	}
 
-            // Act
+	[TestMethod]
+	public void NeedsUpdate_SameComponent_StepImage()
+	{
+		// Arrange
+		var thisComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
+		{
+			FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
+		};
 
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
+		var otherComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
+		{
+			FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
+		};
 
-            // Assert
+		// Act
 
-            Assert.IsTrue(result);
-        }
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
 
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_AssemblyContext()
-        {
-            // Arrange
-            var thisComponent = new AssemblyContext()
-            {
-                AssemblyInfo = new AssemblyInfo(),
-            };
+		// Assert
 
-            var otherComponent = new AssemblyContext()
-            {
-                AssemblyInfo = new AssemblyInfo()
-            };
+		Assert.IsFalse(result);
+	}
 
-            // Act
+	[TestMethod]
+	public void NeedsUpdate_SameComponent_StepImage_DifferentAllAttributes()
+	{
+		// Arrange
+		var thisComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
+		{
+			FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity"),
+			AllAttributes = true
+		};
 
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
+		var otherComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
+		{
+			FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity"),
+			AllAttributes = false
+		};
 
-            // Assert
+		// Act
 
-            Assert.IsTrue(result);
-        }
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
 
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_Plugin()
-        {
-            // Arrange
-            var thisComponent = new Plugin("thisPlugin");
+		// Assert
 
-            var otherComponent = new Plugin("thisPlugin");
+		Assert.IsTrue(result);
+	}
 
-            // Act
+	[TestMethod]
+	public void NeedsUpdate_SameComponent_StepImage_DifferentAttributes()
+	{
+		// Arrange
+		var thisComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
+		{
+			FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity"),
+			Attributes = {"thisAttribute"}
+		};
 
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
+		var otherComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
+		{
+			FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity"),
+			Attributes = {"otherAttribute", "otherAttribute2"}
+		};
+
+		// Act
 
-            // Assert
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
 
-            Assert.IsFalse(result);
-        }
+		// Assert
 
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_Step()
-        {
-            // Arrange
-            var thisComponent = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
-            {
-                PluginTypeFullName = "assembly.thisPlugin",
-                FilteringAttributes = { "thisAttribute" },
-                ImpersonationUsername = "thisUser",
-                Order = 1
-            };
-            var otherComponent = new Step("otherPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
-            {
-                PluginTypeFullName = "assembly.otherPlugin",
-                FilteringAttributes = { "thisAttribute" },
-                ImpersonationUsername = "thisUser",
-                Order = 1
-            };
+		Assert.IsTrue(result);
+	}
 
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsFalse(result);
-        }
-
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_StepImage()
-        {
-            // Arrange
-            var thisComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
-            {
-                FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
-            };
-
-            var otherComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
-            {
-                FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
-            };
-
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsFalse(result);
-        }
-
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_StepImage_DifferentAllAttributes()
-        {
-            // Arrange
-            var thisComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
-            {
-                FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity"),
-                AllAttributes = true
-            };
-
-            var otherComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
-            {
-                FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity"),
-                AllAttributes = false
-            };
-
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_StepImage_DifferentAttributes()
-        {
-            // Arrange
-            var thisComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
-            {
-                FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity"),
-                Attributes = { "thisAttribute" }
-            };
-
-            var otherComponent = new StepImage(Messages.RetrieveMultiple, true, Stages.PostOperation)
-            {
-                FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity"),
-                Attributes = { "otherAttribute", "otherAttribute2" }
-            };
-
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_CustomApi()
-        {
-            // Arrange
-            var thisComponent = new CustomApi()
-            {
-                Name = "thisCustomApi",
-                BindingType = new OptionSetValue(0),
-                BoundEntityLogicalName = "thisEntity",
-                IsFunction = true,
-                WorkflowSdkStepEnabled = true,
-                AllowedCustomProcessingStepType = new OptionSetValue(1)
-            };
-
-            var otherComponent = new CustomApi()
-            {
-                Name = "thisCustomApi",
-                BindingType = new OptionSetValue(0),
-                BoundEntityLogicalName = "thisEntity",
-                IsFunction = true,
-                WorkflowSdkStepEnabled = true,
-                AllowedCustomProcessingStepType = new OptionSetValue(1)
-            };
-
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsFalse(result);
-        }
-
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_CustomApi_DifferentBindingType()
-        {
-            // Arrange
-            var thisComponent = new CustomApi()
-            {
-                Name = "thisCustomApi",
-                BindingType = new OptionSetValue(0),
-                BoundEntityLogicalName = "thisEntity",
-                IsFunction = true,
-                WorkflowSdkStepEnabled = true,
-                AllowedCustomProcessingStepType = new OptionSetValue(1)
-            };
-
-            var otherComponent = new CustomApi()
-            {
-                Name = "thisCustomApi",
-                BindingType = new OptionSetValue(10),
-                BoundEntityLogicalName = "thisEntity",
-                IsFunction = true,
-                WorkflowSdkStepEnabled = true,
-                AllowedCustomProcessingStepType = new OptionSetValue(1)
-            };
-
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_CustomApi_Different_BoundEntity()
-        {
-            // Arrange
-            var thisComponent = new CustomApi()
-            {
-                Name = "thisCustomApi",
-                BindingType = new OptionSetValue(0),
-                BoundEntityLogicalName = "thisEntity",
-                IsFunction = true,
-                WorkflowSdkStepEnabled = true,
-                AllowedCustomProcessingStepType = new OptionSetValue(1)
-            };
-
-            var otherComponent = new CustomApi()
-            {
-                Name = "thisCustomApi",
-                BindingType = new OptionSetValue(0),
-                BoundEntityLogicalName = "otherEntity",
-                IsFunction = true,
-                WorkflowSdkStepEnabled = true,
-                AllowedCustomProcessingStepType = new OptionSetValue(1)
-            };
-
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_CustomApi_DifferentIsFunction()
-        {
-            // Arrange
-            var thisComponent = new CustomApi()
-            {
-                Name = "thisCustomApi",
-                BindingType = new OptionSetValue(0),
-                BoundEntityLogicalName = "thisEntity",
-                IsFunction = true,
-                WorkflowSdkStepEnabled = true,
-                AllowedCustomProcessingStepType = new OptionSetValue(1)
-            };
-
-            var otherComponent = new CustomApi()
-            {
-                Name = "thisCustomApi",
-                BindingType = new OptionSetValue(0),
-                BoundEntityLogicalName = "thisEntity",
-                IsFunction = false,
-                WorkflowSdkStepEnabled = true,
-                AllowedCustomProcessingStepType = new OptionSetValue(1)
-            };
-
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_CustomApi_Different_Workflow()
-        {
-            // Arrange
-            var thisComponent = new CustomApi()
-            {
-                Name = "thisCustomApi",
-                BindingType = new OptionSetValue(0),
-                BoundEntityLogicalName = "thisEntity",
-                IsFunction = true,
-                WorkflowSdkStepEnabled = true,
-                AllowedCustomProcessingStepType = new OptionSetValue(1)
-            };
-
-            var otherComponent = new CustomApi()
-            {
-                Name = "thisCustomApi",
-                BindingType = new OptionSetValue(0),
-                BoundEntityLogicalName = "thisEntity",
-                IsFunction = true,
-                WorkflowSdkStepEnabled = false,
-                AllowedCustomProcessingStepType = new OptionSetValue(1)
-            };
-
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_CustomApi_DifferentAllowedCustom()
-        {
-            // Arrange
-            var thisComponent = new CustomApi()
-            {
-                Name = "thisCustomApi",
-                BindingType = new OptionSetValue(0),
-                BoundEntityLogicalName = "thisEntity",
-                IsFunction = true,
-                WorkflowSdkStepEnabled = true,
-                AllowedCustomProcessingStepType = new OptionSetValue(1)
-            };
-
-            var otherComponent = new CustomApi()
-            {
-                Name = "thisCustomApi",
-                BindingType = new OptionSetValue(0),
-                BoundEntityLogicalName = "thisEntity",
-                IsFunction = true,
-                WorkflowSdkStepEnabled = true,
-                AllowedCustomProcessingStepType = new OptionSetValue(3)
-            };
-
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_CustomApiRequestParameter()
-        {
-            // Arrange
-            var thisComponent = new CustomApiRequestParameter()
-            {
-                UniqueName = "thisCustomApiRequestParameter",
-                IsOptional = true,
-                Type = new OptionSetValue(42)
-            };
-
-            var otherComponent = new CustomApiRequestParameter()
-            {
-                UniqueName = "thisCustomApiRequestParameter",
-                IsOptional = true,
-                Type = new OptionSetValue(42)
-            };
-
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsFalse(result);
-        }
-
-        [TestMethod]
-        public void NeedsUpdate_SameComponent_CustomApiRequestParameter_DifferentIsOptional()
-        {
-            // Arrange
-            var thisComponent = new CustomApiRequestParameter()
-            {
-                UniqueName = "thisCustomApiRequestParameter",
-                IsOptional = true,
-                Type = new OptionSetValue(42)
-            };
-
-            var otherComponent = new CustomApiRequestParameter()
-            {
-                UniqueName = "thisCustomApiRequestParameter",
-                IsOptional = false,
-                Type = new OptionSetValue(42)
-            };
-
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public void NeedsUpdate_CustomApiResponseProperty_Same()
-        {
-            // Arrange
-            var thisComponent = new CustomApiResponseProperty()
-            {
-                UniqueName = "thisCustomApiRequestParameter",
-                Type = new OptionSetValue(42)
-            };
-
-            var otherComponent = new CustomApiResponseProperty()
-            {
-                UniqueName = "otherCustomApiRequestParameter",
-                Type = new OptionSetValue(42)
-            };
-
-            // Act
-
-            var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
-
-            // Assert
-
-            Assert.IsFalse(result);
-        }
-
-        #endregion
-    }
+	[TestMethod]
+	public void NeedsUpdate_SameComponent_CustomApi()
+	{
+		// Arrange
+		var thisComponent = new CustomApi()
+		{
+			Name = "thisCustomApi",
+			BindingType = new OptionSetValue(0),
+			BoundEntityLogicalName = "thisEntity",
+			IsFunction = true,
+			WorkflowSdkStepEnabled = true,
+			AllowedCustomProcessingStepType = new OptionSetValue(1)
+		};
+
+		var otherComponent = new CustomApi()
+		{
+			Name = "thisCustomApi",
+			BindingType = new OptionSetValue(0),
+			BoundEntityLogicalName = "thisEntity",
+			IsFunction = true,
+			WorkflowSdkStepEnabled = true,
+			AllowedCustomProcessingStepType = new OptionSetValue(1)
+		};
+
+		// Act
+
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
+
+		// Assert
+
+		Assert.IsFalse(result);
+	}
+
+	[TestMethod]
+	public void NeedsUpdate_SameComponent_CustomApi_DifferentBindingType()
+	{
+		// Arrange
+		var thisComponent = new CustomApi()
+		{
+			Name = "thisCustomApi",
+			BindingType = new OptionSetValue(0),
+			BoundEntityLogicalName = "thisEntity",
+			IsFunction = true,
+			WorkflowSdkStepEnabled = true,
+			AllowedCustomProcessingStepType = new OptionSetValue(1)
+		};
+
+		var otherComponent = new CustomApi()
+		{
+			Name = "thisCustomApi",
+			BindingType = new OptionSetValue(10),
+			BoundEntityLogicalName = "thisEntity",
+			IsFunction = true,
+			WorkflowSdkStepEnabled = true,
+			AllowedCustomProcessingStepType = new OptionSetValue(1)
+		};
+
+		// Act
+
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
+
+		// Assert
+
+		Assert.IsTrue(result);
+	}
+
+	[TestMethod]
+	public void NeedsUpdate_SameComponent_CustomApi_Different_BoundEntity()
+	{
+		// Arrange
+		var thisComponent = new CustomApi()
+		{
+			Name = "thisCustomApi",
+			BindingType = new OptionSetValue(0),
+			BoundEntityLogicalName = "thisEntity",
+			IsFunction = true,
+			WorkflowSdkStepEnabled = true,
+			AllowedCustomProcessingStepType = new OptionSetValue(1)
+		};
+
+		var otherComponent = new CustomApi()
+		{
+			Name = "thisCustomApi",
+			BindingType = new OptionSetValue(0),
+			BoundEntityLogicalName = "otherEntity",
+			IsFunction = true,
+			WorkflowSdkStepEnabled = true,
+			AllowedCustomProcessingStepType = new OptionSetValue(1)
+		};
+
+		// Act
+
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
+
+		// Assert
+
+		Assert.IsTrue(result);
+	}
+
+	[TestMethod]
+	public void NeedsUpdate_SameComponent_CustomApi_DifferentIsFunction()
+	{
+		// Arrange
+		var thisComponent = new CustomApi()
+		{
+			Name = "thisCustomApi",
+			BindingType = new OptionSetValue(0),
+			BoundEntityLogicalName = "thisEntity",
+			IsFunction = true,
+			WorkflowSdkStepEnabled = true,
+			AllowedCustomProcessingStepType = new OptionSetValue(1)
+		};
+
+		var otherComponent = new CustomApi()
+		{
+			Name = "thisCustomApi",
+			BindingType = new OptionSetValue(0),
+			BoundEntityLogicalName = "thisEntity",
+			IsFunction = false,
+			WorkflowSdkStepEnabled = true,
+			AllowedCustomProcessingStepType = new OptionSetValue(1)
+		};
+
+		// Act
+
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
+
+		// Assert
+
+		Assert.IsTrue(result);
+	}
+
+	[TestMethod]
+	public void NeedsUpdate_SameComponent_CustomApi_Different_Workflow()
+	{
+		// Arrange
+		var thisComponent = new CustomApi()
+		{
+			Name = "thisCustomApi",
+			BindingType = new OptionSetValue(0),
+			BoundEntityLogicalName = "thisEntity",
+			IsFunction = true,
+			WorkflowSdkStepEnabled = true,
+			AllowedCustomProcessingStepType = new OptionSetValue(1)
+		};
+
+		var otherComponent = new CustomApi()
+		{
+			Name = "thisCustomApi",
+			BindingType = new OptionSetValue(0),
+			BoundEntityLogicalName = "thisEntity",
+			IsFunction = true,
+			WorkflowSdkStepEnabled = false,
+			AllowedCustomProcessingStepType = new OptionSetValue(1)
+		};
+
+		// Act
+
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
+
+		// Assert
+
+		Assert.IsTrue(result);
+	}
+
+	[TestMethod]
+	public void NeedsUpdate_SameComponent_CustomApi_DifferentAllowedCustom()
+	{
+		// Arrange
+		var thisComponent = new CustomApi()
+		{
+			Name = "thisCustomApi",
+			BindingType = new OptionSetValue(0),
+			BoundEntityLogicalName = "thisEntity",
+			IsFunction = true,
+			WorkflowSdkStepEnabled = true,
+			AllowedCustomProcessingStepType = new OptionSetValue(1)
+		};
+
+		var otherComponent = new CustomApi()
+		{
+			Name = "thisCustomApi",
+			BindingType = new OptionSetValue(0),
+			BoundEntityLogicalName = "thisEntity",
+			IsFunction = true,
+			WorkflowSdkStepEnabled = true,
+			AllowedCustomProcessingStepType = new OptionSetValue(3)
+		};
+
+		// Act
+
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
+
+		// Assert
+
+		Assert.IsTrue(result);
+	}
+
+	[TestMethod]
+	public void NeedsUpdate_SameComponent_CustomApiRequestParameter()
+	{
+		// Arrange
+		var thisComponent = new CustomApiRequestParameter()
+		{
+			UniqueName = "thisCustomApiRequestParameter",
+			IsOptional = true,
+			Type = new OptionSetValue(42)
+		};
+
+		var otherComponent = new CustomApiRequestParameter()
+		{
+			UniqueName = "thisCustomApiRequestParameter",
+			IsOptional = true,
+			Type = new OptionSetValue(42)
+		};
+
+		// Act
+
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
+
+		// Assert
+
+		Assert.IsFalse(result);
+	}
+
+	[TestMethod]
+	public void NeedsUpdate_SameComponent_CustomApiRequestParameter_DifferentIsOptional()
+	{
+		// Arrange
+		var thisComponent = new CustomApiRequestParameter()
+		{
+			UniqueName = "thisCustomApiRequestParameter",
+			IsOptional = true,
+			Type = new OptionSetValue(42)
+		};
+
+		var otherComponent = new CustomApiRequestParameter()
+		{
+			UniqueName = "thisCustomApiRequestParameter",
+			IsOptional = false,
+			Type = new OptionSetValue(42)
+		};
+
+		// Act
+
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
+
+		// Assert
+
+		Assert.IsTrue(result);
+	}
+
+	[TestMethod]
+	public void NeedsUpdate_CustomApiResponseProperty_Same()
+	{
+		// Arrange
+		var thisComponent = new CustomApiResponseProperty()
+		{
+			UniqueName = "thisCustomApiRequestParameter",
+			Type = new OptionSetValue(42)
+		};
+
+		var otherComponent = new CustomApiResponseProperty()
+		{
+			UniqueName = "otherCustomApiRequestParameter",
+			Type = new OptionSetValue(42)
+		};
+
+		// Act
+
+		var result = _comparer.NeedsUpdate(thisComponent, otherComponent);
+
+		// Assert
+
+		Assert.IsFalse(result);
+	}
+
+	#endregion
 }

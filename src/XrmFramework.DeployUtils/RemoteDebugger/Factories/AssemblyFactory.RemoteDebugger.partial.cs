@@ -33,7 +33,7 @@ internal partial class AssemblyFactory
 
 		var debugAssembly = _importer.CreateAssemblyFromRemote(assembly);
 
-		var pluginTypes = service.GetRegisteredPluginTypes(debugAssembly.Id);
+		var pluginTypes = service.GetRegisteredPluginTypes(debugAssembly.AssemblyInfo.Id);
 
 		var pluginRaw = pluginTypes.Single(p => p.Name == DebugAssemblySettings.DebugPluginName);
 		var customApiRaw = pluginTypes.Single(p => p.Name == DebugAssemblySettings.DebugCustomApiName);
@@ -44,7 +44,7 @@ internal partial class AssemblyFactory
 		debugSettings.PluginId = pluginRaw.Id;
 		debugSettings.CustomApiId = customApiRaw.Id;
 
-		var stepsRaw = GetParsedSteps(service, debugAssembly.Id);
+		var stepsRaw = GetParsedSteps(service, debugAssembly.AssemblyInfo.Id);
 
 		var pluginsParsed = stepsRaw
 			.Select(s => (s, s.StepConfiguration))
@@ -70,7 +70,7 @@ internal partial class AssemblyFactory
 
 		pluginsParsed.ForEach(debugAssembly.AddChild);
 
-		var customApisRaw = GetParsedCustomApis(service, debugAssembly.Id);
+		var customApisRaw = GetParsedCustomApis(service, debugAssembly.AssemblyInfo.Id);
 
 		var customApiParsed = customApisRaw
 			.Where(c => debugSettings.HasCurrentCustomPrefix(c.Prefix))
@@ -124,9 +124,6 @@ internal partial class AssemblyFactory
 		debugPlugin.ParentId = debugSettings.AssemblyId;
 		debugPlugin.Id = debugSettings.PluginId;
 		debugAssembly.AddChild(debugPlugin);
-		debugAssembly.RegistrationState = RegistrationState.Computed;
-		if (debugAssembly.AssemblyInfo.Package != null)
-			debugAssembly.AssemblyInfo.Package.RegistrationState = RegistrationState.Computed;
 
 		foreach (var customApi in from.CustomApis)
 		{

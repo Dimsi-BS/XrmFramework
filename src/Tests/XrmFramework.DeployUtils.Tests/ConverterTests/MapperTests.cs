@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.Xrm.Sdk;
 using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Configuration;
+using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Tests.ConverterTests;
@@ -19,6 +20,56 @@ public class MapperTests
 		var configuration = new MapperConfiguration(cfg =>
 			cfg.AddProfile<AutoMapperLocalToLocalProfile>());
 		_mapper = configuration.CreateMapper();
+	}
+
+	[TestMethod]
+	public void AssemblyInfoToAssemblyContextMapTest()
+	{
+		// Arrange
+		var Name = "thisAssembly";
+		var Culture = "culture";
+		var PublicKeyToken = "token";
+		var Version = "version";
+		var Description = "description";
+
+		var EntityTypeName = "pluginassembly";
+		var Content = Encoding.UTF8.GetBytes("content");
+		var IsolationMode = ModeDIsolation.BacASableSandbox;
+		var SourceType = TypeDeSource.BaseDeDonnees;
+
+		var assemblyInfo = new AssemblyInfo
+		{
+			Name = Name,
+			Version = Version,
+			SourceType = SourceType,
+			IsolationMode = IsolationMode,
+			Culture = Culture,
+			PublicKeyToken = PublicKeyToken,
+			Description = Description,
+			Content = Content
+		};
+
+		// Act
+
+		var assemblyCopy = _mapper.Map<IAssemblyContext>(assemblyInfo);
+
+		// Assert
+
+		Assert.IsNotNull(assemblyCopy.AssemblyInfo);
+		Assert.AreEqual(assemblyCopy.AssemblyInfo.Name, Name);
+		Assert.AreEqual(assemblyCopy.AssemblyInfo.Version, Version);
+		Assert.AreEqual(assemblyCopy.AssemblyInfo.SourceType, SourceType);
+		Assert.AreEqual(assemblyCopy.AssemblyInfo.IsolationMode, IsolationMode);
+		Assert.AreEqual(assemblyCopy.AssemblyInfo.Culture, Culture);
+		Assert.AreEqual(assemblyCopy.AssemblyInfo.PublicKeyToken, PublicKeyToken);
+		Assert.AreEqual(assemblyCopy.AssemblyInfo.Description, Description);
+		Assert.IsTrue(assemblyCopy.AssemblyInfo.Content.SequenceEqual(Content));
+
+		Assert.AreEqual(assemblyCopy.AssemblyInfo.EntityTypeName, EntityTypeName);
+		Assert.AreEqual(assemblyCopy.AssemblyInfo.UniqueName, Name);
+		Assert.AreEqual(assemblyCopy.AssemblyInfo.Rank, 0);
+		Assert.AreEqual(assemblyCopy.AssemblyInfo.DoAddToSolution, true);
+		Assert.AreEqual(assemblyCopy.AssemblyInfo.DoFetchTypeCode, false);
 	}
 
 	[TestMethod]

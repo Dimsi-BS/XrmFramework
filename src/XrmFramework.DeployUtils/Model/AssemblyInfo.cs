@@ -10,7 +10,7 @@ namespace XrmFramework.DeployUtils.Model;
 ///     Metadata of the Assembly
 /// </summary>
 [CrmEntity(PluginAssemblyDefinition.EntityName)]
-public class AssemblyInfo : BaseCrmComponent, IBindingModel
+public class AssemblyInfo : BaseCrmComponent, IBindingModel, IAssemblyComponent
 {
 	/// <summary>Common Name of the Assembly</summary>
 	[CrmMapping(PluginAssemblyDefinition.Columns.Name)]
@@ -88,6 +88,8 @@ public class AssemblyInfo : BaseCrmComponent, IBindingModel
 		Package = null;
 	}
 
+	public string HumanName => "Assembly";
+	public string AssemblyName => Name;
 	public override int Rank => 0;
 	public override bool DoAddToSolution => true;
 	public override bool DoFetchTypeCode => false;

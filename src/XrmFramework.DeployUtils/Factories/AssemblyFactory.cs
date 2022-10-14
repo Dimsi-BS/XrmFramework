@@ -48,7 +48,10 @@ internal partial class AssemblyFactory : IAssemblyFactory
 			.Select(t => _importer.CreateCustomApiFromType(t))
 			.ToList();
 
-		var localAssembly = new AssemblyContext();
+		var localAssembly = new AssemblyContext()
+		{
+			AssemblyInfo = GetLocalAssemblyInfo(assembly)
+		};
 
 		plugins.ForEach(localAssembly.AddChild);
 		customApis.ForEach(localAssembly.AddChild);
@@ -90,15 +93,15 @@ internal partial class AssemblyFactory : IAssemblyFactory
 	private void FillRemoteAssemblyContext(IRegistrationService service,
 		IAssemblyContext registeredAssembly)
 	{
-		var customApis = GetParsedCustomApis(service, registeredAssembly.Id);
+		var customApis = GetParsedCustomApis(service, registeredAssembly.AssemblyInfo.Id);
 
-		var registeredPluginTypes = service.GetRegisteredPluginTypes(registeredAssembly.Id);
+		var registeredPluginTypes = service.GetRegisteredPluginTypes(registeredAssembly.AssemblyInfo.Id);
 
 		// This filters PluginTypes that are not CustomApis
 		registeredPluginTypes = registeredPluginTypes.Where(p => customApis.All(c => c.ParentId != p.Id))
 			.ToList();
 
-		var steps = GetParsedSteps(service, registeredAssembly.Id);
+		var steps = GetParsedSteps(service, registeredAssembly.AssemblyInfo.Id);
 
 		var pluginsAndWorkflows = registeredPluginTypes
 			.Select(p => _importer.CreatePluginFromRemote(p, steps))

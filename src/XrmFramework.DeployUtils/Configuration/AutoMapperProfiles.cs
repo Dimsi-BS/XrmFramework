@@ -55,7 +55,7 @@ public class AutoMapperLocalToLocalProfile : Profile
 		CreateMap<StepCollection, StepCollection>();
 
 		CreateMap<AssemblyInfo, IAssemblyContext>()
-			.ConstructUsing(src => new AssemblyContext())
+			.ConstructUsing(_ => new AssemblyContext())
 			.ForMember(dest => dest.AssemblyInfo,
 				opt => opt.MapFrom(src => src));
 

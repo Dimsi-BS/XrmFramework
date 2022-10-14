@@ -15,25 +15,25 @@ namespace XrmFramework.DeployUtils;
 
 public partial class RegistrationHelper
 {
-    private readonly DebugSession _debugSession;
-    private readonly DebugAssemblySettings _debugSettings;
-    private readonly IMapper _mapper;
+	private readonly DebugSession _debugSession;
+	private readonly DebugAssemblySettings _debugSettings;
+	private readonly IMapper _mapper;
 
-    public RegistrationHelper(IRegistrationService service,
-        IAssemblyExporter exporter,
-        IAssemblyFactory assemblyFactory,
-        AssemblyDiffFactory diffFactory,
-        IMapper mapper,
-        IOptions<DebugSession> settings)
-    {
-        _assemblyExporter = exporter;
-        _assemblyFactory = assemblyFactory;
-        _registrationService = service;
-        _assemblyDiffFactory = diffFactory;
-        _mapper = mapper;
-        _debugSession = settings.Value;
-        _debugSettings = new DebugAssemblySettings(_debugSession.Id);
-    }
+	public RegistrationHelper(IRegistrationService service,
+		IAssemblyExporter exporter,
+		IAssemblyFactory assemblyFactory,
+		AssemblyDiffFactory diffFactory,
+		IMapper mapper,
+		IOptions<DebugSession> settings)
+	{
+		_assemblyExporter = exporter;
+		_assemblyFactory = assemblyFactory;
+		_registrationService = service;
+		_assemblyDiffFactory = diffFactory;
+		_mapper = mapper;
+		_debugSession = settings.Value;
+		_debugSettings = new DebugAssemblySettings(_debugSession.Id);
+	}
 
     /// <summary>
     ///     Compares the following three <c>Assemblies</c> :
@@ -51,46 +51,46 @@ public partial class RegistrationHelper
     /// </remarks>
     /// <param name="assembly">The local Assembly to Debug</param>
     public void UpdateDebugger(Assembly assembly)
-    {
-        Console.WriteLine($"\nAssembly {assembly.GetName().Name}");
-        Console.WriteLine("\tFetching Local Assembly...");
+	{
+		Console.WriteLine($"\nAssembly {assembly.GetName().Name}");
+		Console.WriteLine("\tFetching Local Assembly...");
 
-        var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(assembly);
+		var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(assembly);
 
-        localAssembly.Workflows.Clear();
+		localAssembly.Workflows.Clear();
 
-        Console.WriteLine("\tFetching Remote Assembly...");
+		Console.WriteLine("\tFetching Remote Assembly...");
 
-        var registeredAssembly =
-            _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, assembly.GetName().Name);
+		var registeredAssembly =
+			_assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, assembly.GetName().Name);
 
-        registeredAssembly?.Workflows.Clear();
+		registeredAssembly?.Workflows.Clear();
 
-        Console.WriteLine("\tComputing Difference With Local Assembly...");
+		Console.WriteLine("\tComputing Difference With Local Assembly...");
 
-        var deployAssemblyDiff = _assemblyDiffFactory.ComputeDiffPatch(localAssembly, registeredAssembly);
+		var deployAssemblyDiff = _assemblyDiffFactory.ComputeDiffPatch(localAssembly, registeredAssembly);
 
-        var assemblyToDebug = _assemblyFactory.WrapDiffAssemblyForDebugDiff(deployAssemblyDiff);
+		var assemblyToDebug = _assemblyFactory.WrapDiffAssemblyForDebugDiff(deployAssemblyDiff);
 
-        Console.WriteLine("\tFetching Debug Assembly...");
+		Console.WriteLine("\tFetching Debug Assembly...");
 
-        _debugSettings.TargetAssemblyUniqueName = localAssembly.UniqueName;
-        var debugAssembly = _assemblyFactory.CreateFromDebugAssembly(_registrationService, _debugSettings);
+		_debugSettings.TargetAssemblyUniqueName = localAssembly.AssemblyInfo.Name;
+		var debugAssembly = _assemblyFactory.CreateFromDebugAssembly(_registrationService, _debugSettings);
 
-        Console.WriteLine("\tComputing Difference With Debug Assembly...");
+		Console.WriteLine("\tComputing Difference With Debug Assembly...");
 
-        var remoteDebugDiff = _assemblyDiffFactory.ComputeDiffPatch(assemblyToDebug, debugAssembly);
+		var remoteDebugDiff = _assemblyDiffFactory.ComputeDiffPatch(assemblyToDebug, debugAssembly);
 
-        var debugStrategy = _assemblyFactory.WrapDebugDiffForDebugStrategy(remoteDebugDiff, _debugSettings, assembly);
+		var debugStrategy = _assemblyFactory.WrapDebugDiffForDebugStrategy(remoteDebugDiff, _debugSettings, assembly);
 
-        Console.WriteLine("\tExecuting Registration Strategy...");
+		Console.WriteLine("\tExecuting Registration Strategy...");
 
-        ExecuteStrategy(debugStrategy);
+		ExecuteStrategy(debugStrategy);
 
-        Console.WriteLine("\tUpdating the Debug Session...");
+		Console.WriteLine("\tUpdating the Debug Session...");
 
-        RegisterStepsToDebugSession(deployAssemblyDiff);
-    }
+		RegisterStepsToDebugSession(deployAssemblyDiff);
+	}
 
     /// <summary>
     ///     Pushes a patch of the current debug context on the Target Debug Session
@@ -103,20 +103,20 @@ public partial class RegistrationHelper
     ///     should be the diff between the <c>Local</c> and <c>Remote Assemblies</c>
     /// </param>
     private void RegisterStepsToDebugSession(IAssemblyContext deployDiff)
-    {
-        deployDiff.CleanChildrenWithState(RegistrationState.Ignore);
+	{
+		deployDiff.CleanChildrenWithState(RegistrationState.Ignore);
 
-        var patchInfo = _mapper.Map<AssemblyContextInfo>(deployDiff);
+		var patchInfo = _mapper.Map<AssemblyContextInfo>(deployDiff);
 
-        var patches = _debugSession.AssemblyContexts;
+		var patches = _debugSession.AssemblyContexts;
 
-        var index = patches.FindIndex(p => p.AssemblyName == patchInfo.AssemblyName);
-        if (index == -1)
-            patches.Add(patchInfo);
-        else
-            patches[index] = patchInfo;
+		var index = patches.FindIndex(p => p.AssemblyName == patchInfo.AssemblyName);
+		if (index == -1)
+			patches.Add(patchInfo);
+		else
+			patches[index] = patchInfo;
 
-        var updatedDebugSession = _debugSession.ToEntity(_registrationService);
-        _registrationService.Update(updatedDebugSession);
-    }
+		var updatedDebugSession = _debugSession.ToEntity(_registrationService);
+		_registrationService.Update(updatedDebugSession);
+	}
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
 using XrmFramework.Definitions;
-using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils;
@@ -44,7 +43,7 @@ public partial class AssemblyExporter
 	{
 		if (component is CustomApi customApi) CreateCustomApiPluginType(customApi);
 
-		component.Id = component is IAssemblyContext or PluginPackage
+		component.Id = component is IAssemblyComponent
 			? Guid.NewGuid()
 			: Guid.Empty;
 
