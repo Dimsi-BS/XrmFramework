@@ -19,13 +19,14 @@
         <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.45" />
         <dependency id="Microsoft.CrmSdk.Deployment" version="9.0.2.34" />
         <dependency id="Microsoft.CrmSdk.XrmTooling.CoreAssembly" version="9.1.0.92" />
+        <dependency id="CommandLineParser" version="2.9.1" />
       </group>
     </dependencies>
   </metadata>
 
   <files>
     <file src="bin\$config$\net462\XrmFramework.DeployUtils.*" target="lib\$XrmFramework_FullFramework_Runtime_TFM$" />
-    
+
     <file src="build\**\*" target="build/" />
 
     <file src="$SolutionDir$\*.txt" target="" />
