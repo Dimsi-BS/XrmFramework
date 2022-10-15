@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using CommandLine;
 using Deploy;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
@@ -10,6 +11,7 @@ using System;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using XrmFramework.DeployUtils.CommandOptions;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
 
@@ -19,6 +21,25 @@ namespace XrmFramework.DeployUtils
     {
         public static void SyncWebResources(string projectName, params string[] args)
         {
+            var options = new WebresourceCommandOptions();
+
+            Parser.Default.ParseArguments<WebresourceCommandOptions>(args)
+                .WithParsed(o =>
+                {
+                    options = o;
+                    if (o.DisablePrompt)
+                    {
+                        Console.WriteLine($"Disabled connection prompt. Current Arguments: -n {o.DisablePrompt}");
+                        Console.WriteLine("Quick Start Example! App is in Verbose mode!");
+                    }
+
+                    if (!string.IsNullOrEmpty(o.Path))
+                    {
+                        Console.WriteLine($"Forced path");
+                        Console.WriteLine($"Path : -p {o.Path}");
+                    }
+                });
+
             var nbWebresources = 0;
 
             var xrmFrameworkConfigSection = ConfigHelper.GetSection();
@@ -27,13 +48,12 @@ namespace XrmFramework.DeployUtils
 
             var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
 
-            if (args == null || !args.Select(a => a.ToLowerInvariant()).Contains("-noprompt"))
+            if (!options.DisablePrompt)
             {
                 Console.WriteLine($@"You are about to deploy on {connectionString} organization. If ok press any key.");
                 Console.ReadKey();
             }
-
-            if (args != null && args.Select(a => a.ToLowerInvariant()).Contains("-debug"))
+            else
             {
                 Console.WriteLine($"ConnectionString : {connectionString}");
             }
@@ -82,19 +102,25 @@ namespace XrmFramework.DeployUtils
             var prefix = publisher.GetAttributeValue<string>("customizationprefix");
             Console.WriteLine(@" ==> Prefix : {0}", prefix);
 
-            var currentDirectory = new DirectoryInfo(".");
+            var webresourcesPath = options.Path;
 
-            while (currentDirectory != null && currentDirectory.GetDirectories().All(d => d.Name != projectName))
+            if (string.IsNullOrWhiteSpace(webresourcesPath))
             {
-                currentDirectory = currentDirectory.Parent;
-            }
+                var currentDirectory = new DirectoryInfo(".");
 
-            if (currentDirectory == null)
-            {
-                throw new DirectoryNotFoundException($"The {projectName} folder cannot be found");
-            }
+                while (currentDirectory != null && currentDirectory.GetDirectories().All(d => d.Name != projectName))
+                {
+                    Console.WriteLine($"currentPath = {currentDirectory.FullName}");
+                    currentDirectory = currentDirectory.Parent;
+                }
 
-            var webresourcesPath = currentDirectory.GetDirectories(projectName).Single().FullName;
+                if (currentDirectory == null)
+                {
+                    throw new DirectoryNotFoundException($"The {projectName} folder cannot be found");
+                }
+
+                webresourcesPath = currentDirectory.GetDirectories(projectName).Single().FullName;
+            }
 
             DirectoryInfo root = new DirectoryInfo(webresourcesPath);
             var resourcesToPublish = string.Empty;
@@ -108,11 +134,6 @@ namespace XrmFramework.DeployUtils
 
             foreach (var fi in files)
             {
-                //if (fi.Directory.Name == root.Name)
-                //{
-                //    continue;
-                //}
-
                 var publish = false;
 
                 string webResourceUniqueName = fi.FullName;
