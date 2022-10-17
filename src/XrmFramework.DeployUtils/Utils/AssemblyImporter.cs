@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -9,6 +8,7 @@ using Deploy;
 using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
 using XrmFramework.Definitions;
+using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using CustomApi = XrmFramework.DeployUtils.Model.CustomApi;
@@ -23,7 +23,6 @@ namespace XrmFramework.DeployUtils.Utils;
 /// </summary>
 public class AssemblyImporter : IAssemblyImporter
 {
-	private const string PackageRootDirectory = "../../../../../GeneratedNuGetPackages";
 	private readonly IMapper _mapper;
 	private readonly ISolutionContext _solutionContext;
 
@@ -177,8 +176,10 @@ public class AssemblyImporter : IAssemblyImporter
 
 	public PluginPackage CreatePackageFromLocal(AssemblyInfo assemblyInfo)
 	{
-		var packagesFolderName = ConfigurationManager.AppSettings["PackagesFolder"];
-		var directoryInfos = new DirectoryInfo($"../../../../../{packagesFolderName}");
+		var packagesFolderName = Assembly.GetEntryAssembly()
+			.GetCustomAttribute<DeployFolderAttribute>()
+			.Path;
+		var directoryInfos = new DirectoryInfo(packagesFolderName);
 
 		var files = directoryInfos.GetFiles($"{assemblyInfo.Name}.*.nupkg");
 

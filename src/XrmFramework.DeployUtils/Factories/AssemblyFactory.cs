@@ -113,10 +113,6 @@ internal partial class AssemblyFactory : IAssemblyFactory
 		plugins.ForEach(registeredAssembly.AddChild);
 		workflows.ForEach(registeredAssembly.AddChild);
 		customApis.ForEach(registeredAssembly.AddChild);
-
-		// var package = service.GetRegisteredPackage(registeredAssembly);
-		//
-		// registeredAssembly.AssemblyInfo.AddChild(_importer.CreatePackageFromRemote(package));
 	}
 
 

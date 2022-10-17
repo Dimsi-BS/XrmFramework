@@ -38,6 +38,6 @@
             <GeneratedNupkgs Include="$(PackageOutputAbsolutePath)\*.nupkg"/>
             <GeneratedNupkgs Include="$(PackageOutputAbsolutePath)\*.snupkg"/>
         </ItemGroup>
-        <Copy SourceFiles="@(GeneratedNupkgs)" DestinationFolder="$(RootFolder)GeneratedNuGetPackages"/>
+        <Copy SourceFiles="@(GeneratedNupkgs)" DestinationFolder="$(RootFolder).deploy"/>
     </Target>
 </Project>
