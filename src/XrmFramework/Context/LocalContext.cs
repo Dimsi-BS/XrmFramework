@@ -198,10 +198,8 @@ namespace XrmFramework
                 var value = (OptionSetValue)ExecutionContext.InputParameters[parameterName.ToString()];
                 return (T)Enum.ToObject(typeof(T), value.Value);
             }
-            else
-            {
-                return (T)ExecutionContext.InputParameters[parameterName.ToString()];
-            }
+
+            return (T)ExecutionContext.InputParameters[parameterName.ToString()];
         }
 
         public void SetInputParameter<T>(InputParameters parameterName, T parameterValue)
@@ -275,7 +273,7 @@ namespace XrmFramework
             {
                 if (!Enum.IsDefined(typeof(Modes), ExecutionContext.Mode))
                 {
-                    throw new InvalidPluginExecutionException(string.Format("Mode {0} is not part of modes enum", ExecutionContext.Mode));
+                    throw new InvalidPluginExecutionException($"Mode {ExecutionContext.Mode} is not part of modes enum");
                 }
                 return (Modes)ExecutionContext.Mode;
 

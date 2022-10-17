@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using DefinitionManager;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
-using DefinitionManager;
 
 namespace XrmFramework.DefinitionManager
 {
@@ -111,7 +111,8 @@ namespace XrmFramework.DefinitionManager
             this.listView.Items.AddRange(items4);
 
             sw.Stop();
-            Console.WriteLine(string.Format("Sort : {0}, Filter : {1}, Select : {2}, ToArray : {3}", sortTime, filterTime, selectTime, toArrayTime));
+            Console.WriteLine(
+                $"Sort : {sortTime}, Filter : {filterTime}, Select : {selectTime}, ToArray : {toArrayTime}");
             //listView.ResumeLayout(true);
         }
 
@@ -169,7 +170,7 @@ namespace XrmFramework.DefinitionManager
                 e.CancelEdit = true;
                 return;
             }
-            
+
             item.Definition.Name = label;
         }
 

@@ -304,7 +304,7 @@ namespace XrmFramework
         {
             if (!_keys.ContainsKey(keyName))
             {
-                throw new Exception(string.Format("No Key exists with the name {0}", keyName));
+                throw new Exception($"No Key exists with the name {keyName}");
             }
 
             return _keys[keyName].Select(k => k.Name).ToList();

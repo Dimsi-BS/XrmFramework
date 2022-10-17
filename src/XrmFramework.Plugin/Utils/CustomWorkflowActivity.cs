@@ -117,7 +117,8 @@ namespace XrmFramework.Workflow
             {
                 throw new InvalidPluginExecutionException($"The method {ChildClassName}.{actionName} does not exist or is private");
             }
-            else if (!method.IsPublic || method.IsStatic)
+
+            if (!method.IsPublic || method.IsStatic)
             {
                 throw new InvalidPluginExecutionException($"The method {ChildClassName}.{actionName} should be public and not static");
             }

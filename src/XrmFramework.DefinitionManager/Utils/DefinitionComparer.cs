@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using DefinitionManager;
+using System.Collections.Generic;
 
 namespace XrmFramework.DefinitionManager
 {
@@ -40,11 +40,12 @@ namespace XrmFramework.DefinitionManager
             {
                 return 0;
             }
-            else if (string.IsNullOrEmpty(valueX))
+
+            if (string.IsNullOrEmpty(valueX))
             {
                 return AscendingOrder ? 1 : -1;
             }
-            else if (string.IsNullOrEmpty(valueY))
+            if (string.IsNullOrEmpty(valueY))
             {
                 return AscendingOrder ? -1 : 1;
             }

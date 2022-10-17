@@ -568,7 +568,7 @@ namespace DefinitionManager
             return list;
             var i = item as EntityDefinition;
 
-            SendStepChange(string.Format("Retrieving '{0}' attributes...", i.LogicalName));
+            SendStepChange($"Retrieving '{i.LogicalName}' attributes...");
 
             var request = new RetrieveEntityRequest
             {

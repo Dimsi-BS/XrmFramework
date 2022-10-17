@@ -1,15 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Xrm.Sdk.Metadata;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using XrmFramework.Core;
 using System.Windows.Forms;
-using XrmToolBox.Extensibility;
-using Microsoft.Xrm.Sdk.Messages;
-using Microsoft.Xrm.Sdk.Metadata;
+using XrmFramework.Core;
 
 namespace XrmFramework.XrmToolbox.DataHandlers
 {
@@ -54,7 +50,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                     splitRootPath.Remove(splitRootPath.ElementAt(splitRootPath.Count - 1));
                     rootPath = String.Join("\\", splitRootPath);
                     //var path = RemoveCurrentProjectPathFromTablePath(string.Join("\\", splitFilename), projectPath);
-                    var path = RemoveCurrentProjectPathFromTablePath(string.Join("\\",splitFilename), projectPath);
+                    var path = RemoveCurrentProjectPathFromTablePath(string.Join("\\", splitFilename), projectPath);
 
                     //MessageBox.Show(fileName);
                     //foreach(var txt in splitFilename)
@@ -71,7 +67,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
 
             }
 
-            if(globalEnumsTable == null)
+            if (globalEnumsTable == null)
             {
                 globalEnumsTable = new Table()
                 {
@@ -113,14 +109,11 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                     MessageBox.Show("This name is already in use");
                     return;
                 }
-                else
-                {
-                    // If not, then modify the name 
-                    //MessageBox.Show("You modified this Name");
-                    var finalName = RemovePrefix(newForm.Name).StrongFormat();
-                    en.Name = finalName;
 
-                }
+                // If not, then modify the name 
+                //MessageBox.Show("You modified this Name");
+                var finalName = RemovePrefix(newForm.Name).StrongFormat();
+                en.Name = finalName;
             };
 
             newForm.ShowDialog();
@@ -128,7 +121,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
 
         private static bool IsEnumNameUsed(OptionSetEnum en, string name)
         {
-            if(TableHandler.globalEnumsTable == null)
+            if (TableHandler.globalEnumsTable == null)
             {
                 return false;
             }
@@ -138,15 +131,13 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                 return true;
             }
             // Is enum name used in a table enum
-            else
+
+            foreach (var key in TableHandler.TableAndPath.Keys)
             {
-                foreach (var key in TableHandler.TableAndPath.Keys)
+                var currentTable = TableHandler.TableAndPath[key].table;
+                if (currentTable.Enums.Any(e => e.Name == name && e.LogicalName != en.LogicalName))
                 {
-                    var currentTable = TableHandler.TableAndPath[key].table;
-                    if (currentTable.Enums.Any(e => e.Name == name && e.LogicalName != en.LogicalName))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 
@@ -219,13 +210,11 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                     MessageBox.Show("This name is already in use");
                     return;
                 }
-                else
-                {
-                    // If not, then modify the name 
-                    //MessageBox.Show("You modified this Name");
-                    var finalName = RemovePrefix(newForm.Name).StrongFormat();
-                    enumValue.Name = finalName;
-                }
+
+                // If not, then modify the name 
+                //MessageBox.Show("You modified this Name");
+                var finalName = RemovePrefix(newForm.Name).StrongFormat();
+                enumValue.Name = finalName;
             };
 
             newForm.ShowDialog();
@@ -249,13 +238,11 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                     MessageBox.Show("This name is already in use");
                     return;
                 }
-                else
-                {
-                    // If not, then modify the name 
-                    //MessageBox.Show("You modified this Name");
-                    var finalName = RemovePrefix(newForm.Name).StrongFormat();
-                    table.Name = finalName;
-                }
+
+                // If not, then modify the name 
+                //MessageBox.Show("You modified this Name");
+                var finalName = RemovePrefix(newForm.Name).StrongFormat();
+                table.Name = finalName;
             };
 
             newForm.ShowDialog();
@@ -429,7 +416,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                             {
                                 ModifyEnumName(newEnum.Name, newEnum, newEnum.Name);
                             }
-                            
+
 
                             table.Enums.Add(newEnum);
 
@@ -438,7 +425,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                     }
                     else if (TableHandler.globalEnumsTable == null)
                     {
-                        if(TableHandler.globalEnumsTable.Enums.All(e => e.LogicalName != newEnum.LogicalName))
+                        if (TableHandler.globalEnumsTable.Enums.All(e => e.LogicalName != newEnum.LogicalName))
                         {
                             var sameEnum = TableHandler.globalEnumsTable.Enums.FirstOrDefault(e => e.LogicalName == newEnum.LogicalName);
                             if (sameEnum != null)
@@ -457,7 +444,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
 
                             }
                         }
-                        
+
                     }
 
 
@@ -616,7 +603,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
             }
 
 
-            
+
 
 
 
@@ -633,7 +620,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
             // Iterate through each preexisting tableFile 
             foreach (var path in TableHandler.PreexistingTablePaths)
             {
-                if(!File.Exists(path))
+                if (!File.Exists(path))
                 {
                     return;
                 }
@@ -651,7 +638,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
 
         public static void SaveTables()
         {
-            if(string.IsNullOrEmpty(PathToRegisterTables))
+            if (string.IsNullOrEmpty(PathToRegisterTables))
             {
                 return;
             }
@@ -680,7 +667,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                     MessageBox.Show("Could not save tables");
                     return;
                 }
-                
+
                 var projectPath = String.Join("\\", splitPath);
                 var txt = JsonConvert.SerializeObject(table, Formatting.Indented, new JsonSerializerSettings
                 {
@@ -690,7 +677,7 @@ namespace XrmFramework.XrmToolbox.DataHandlers
                 //MessageBox.Show(registrationPath);
 
 
-                var finalPath = projectPath +path +"\\"+ $"{table.Name}.table";
+                var finalPath = projectPath + path + "\\" + $"{table.Name}.table";
                 CheckForDuplicateTableFile(finalPath, table);
                 var fileInfo = new FileInfo(finalPath);
                 File.WriteAllText(fileInfo.FullName, txt);
@@ -728,8 +715,8 @@ namespace XrmFramework.XrmToolbox.DataHandlers
 
 
 
-        
-        
+
+
 
 
     }

@@ -809,7 +809,7 @@ namespace XrmFramework.DeployUtils.Generators
 
         private static string GetResponderListName(string methodName)
         {
-            return string.Format("_{0}{1}Responders", methodName.Substring(0, 1).ToLowerInvariant(), methodName.Substring(1));
+            return $"_{methodName.Substring(0, 1).ToLowerInvariant()}{methodName.Substring(1)}Responders";
         }
 
         private static string GetGenericParameters(MethodInfo method, bool isTest = false)
@@ -903,7 +903,7 @@ namespace XrmFramework.DeployUtils.Generators
 
         private static string GetStubName(string serviceName)
         {
-            return string.Format("Mock{0}", serviceName.Substring(1));
+            return $"Mock{serviceName.Substring(1)}";
         }
     }
 }

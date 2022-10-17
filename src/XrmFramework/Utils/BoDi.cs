@@ -91,7 +91,8 @@ namespace BoDi
             if (resolutionPath == null || resolutionPath.Length == 0)
                 return message;
 
-            return string.Format("{0} (resolution path: {1})", message, string.Join("->", resolutionPath.Select(t => t.FullName).ToArray()));
+            return
+                $"{message} (resolution path: {string.Join("->", resolutionPath.Select(t => t.FullName).ToArray())})";
         }
     }
 
@@ -287,7 +288,7 @@ namespace BoDi
 
             public override string ToString()
             {
-                return string.Join(",", GetReverseEnumerable().Select(n => string.Format("{0}:{1}", n.Key, n.Value)));
+                return string.Join(",", GetReverseEnumerable().Select(n => $"{n.Key}:{n.Value}"));
             }
         }
 
@@ -320,7 +321,7 @@ namespace BoDi
                 if (Name == null)
                     return Type.FullName;
 
-                return string.Format("{0}('{1}')", Type.FullName, Name);
+                return $"{Type.FullName}('{Name}')";
             }
 
             bool Equals(RegistrationKey other)
@@ -995,7 +996,8 @@ namespace BoDi
             return string.Join(Environment.NewLine,
                 registrations
                     .Where(r => !(r.Value is NamedInstanceDictionaryRegistration))
-                    .Select(r => string.Format("{0} -> {1}", r.Key, (r.Key.Type == typeof(IObjectContainer) && r.Key.Name == null) ? "<self>" : r.Value.ToString())));
+                    .Select(r =>
+                        $"{r.Key} -> {((r.Key.Type == typeof(IObjectContainer) && r.Key.Name == null) ? "<self>" : r.Value.ToString())}"));
         }
 
         private void AssertNotDisposed()

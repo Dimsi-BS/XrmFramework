@@ -4,7 +4,6 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -21,9 +20,9 @@ namespace XrmFramework.XrmToolbox
 {
     public partial class XrmFrameworkPluginControl : PluginControlBase
     {
-        
+
         public Settings Settings;
-        
+
         //private List<string> PublisherPrefixes { get; } = new();
         public Project CurrentProject;
         string RedCircleIcon = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAABmJLR0QA/wD/AP+gvaeTAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDIxLTA0LTI3VDE4OjMxOjMxKzAwOjAwQs1UEQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyMS0wNC0yN1QxODozMTozMSswMDowMDOQ7K0AAAGnSURBVDhPnZO/S0JRFMe/9z6fLy1JCavBCIpoCFxaAzcF/4tC2hqShpZAKJAgiIZaXPoHWoOC2oKWlghqaXCwMCVI/NnzeTvn+gitIe0zXHjn3O95997zPUIR6MF5K6N6dIjW7RWclzyElDBm5mGtxBFIb0H4R9ydXfoKvK+ton52Cs+cH/BaEIZHx5XThmo24Tw3ENjYxng2q+PMd4HichSd+iNkKEQKneKlBwpSyCmWYC7GET6/0FHJC/9Zi4MsZuFPMUMxyhlTYdhPl6js7nWj7WJJvS6EYS6FXfEACAX7voRIVcFIe81Mp3wH4bHc7GAIX5vONAFj0/zMKOcDQhhuahDopLRd1SSkbpX72kMhPbrNVEK/4/+QguqQSbjPQ0Ma1kp2GMgkus8Do+j+DVixBESn1lCFSR/M6DBt7MB+KCNSUXQL8jbbkx3G/f0T2tPOlxE8yLmfrpVLyYR2mDHNJ9EpXnpgK3fF/mQKodyPAgzbs7K/A2OWBslPxqJWaXiY6M5OwdZ/HltPdePEr3FmqscnaN1c6z5zq/i1rVgcozQz/QBfkF6s4ueHnhgAAAAASUVORK5CYII=";
@@ -75,7 +74,7 @@ namespace XrmFramework.XrmToolbox
             ShowInfoNotification("This is a notification that can lead to XrmToolBox repository", new Uri("https://github.com/MscrmTools/XrmToolBox"));
 
             // Loads or creates the settings for the plugin
-            if(Settings == null)
+            if (Settings == null)
 
             {
                 if (!SettingsManager.Instance.TryLoad(GetType(), out Settings))
@@ -96,16 +95,16 @@ namespace XrmFramework.XrmToolbox
             SettingsManager.Instance.Save(GetType(), Settings);
             //var currentPair = mySettings.RootFolders.FirstOrDefault(p => p.OrganizationName == mySettings.CurrentOrganizationName);
             CurrentProject = null;
-            if(Settings.RootFolders.Count != 0)
+            if (Settings.RootFolders.Count != 0)
             {
                 CurrentProject = Settings.RootFolders.ElementAt(Settings.RootFolders.Count - 1);
-                
+
             }
             //CurrentProject = mySettings.RootFolders.FirstOrDefault(p => p.OrganizationName == mySettings.CurrentOrganizationName);
-            
+
             if (CurrentProject != null)
             {
-                if(Directory.Exists(CurrentProject.FolderPath))
+                if (Directory.Exists(CurrentProject.FolderPath))
                 {
                     TableHandler.LoadTablesFromProject(CurrentProject.FolderPath);
                     RefreshTreeDisplay();
@@ -134,13 +133,13 @@ namespace XrmFramework.XrmToolbox
 
         private void tsbClose_Click(object sender, EventArgs e)
         {
-            
+
             CloseTool();
         }
 
-       
 
-        
+
+
 
         /// <summary>
         /// This event occurs when the plugin is closed
@@ -168,7 +167,7 @@ namespace XrmFramework.XrmToolbox
                 Settings.CurrentOrganizationName = detail.OrganizationFriendlyName;
                 SettingsManager.Instance.Save(GetType(), Settings);
             }
-            
+
         }
 
         private void toolStripMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -176,17 +175,17 @@ namespace XrmFramework.XrmToolbox
 
         }
 
-        
+
 
         private void button1_Click(object sender, EventArgs e)
         {
-           
+
             ProjectChoiceDialog.ShowDialog();
             //mySettings.RootFolders[]
             SetCurrentProject(ProjectChoiceDialog.SelectedPath);
-            
 
-            
+
+
 
         }
 
@@ -224,16 +223,16 @@ namespace XrmFramework.XrmToolbox
             TableHandler.PathToRegisterTables = CurrentProject.FolderPath + "\\Definitions\\";
             ModelHandler.PathToRegisterModel = CurrentProject.FolderPath + "\\Models\\";
             //MessageBox.Show($"TableHandler.PathToRegisterTables is {TableHandler.PathToRegisterTables}");
- 
+
 
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            
+
         }
 
-        
+
 
         private bool ContainsSlnFile(string projectPath)
         {
@@ -245,46 +244,42 @@ namespace XrmFramework.XrmToolbox
             TableTreeView.Nodes.Clear();
             TableTreeView.ImageList = imageList1;
             AddTableTreeNodes();
-            if(TableTreeView.Nodes.Count!=0)
+            if (TableTreeView.Nodes.Count != 0)
             {
                 TableTreeView.Nodes[0].ExpandAll();
 
             }
         }
-        
-        
 
-        public void AddTreeNode(TreeView tree,TreeNode? currentNode,string[] path, int index, string name,string identifier)
+
+
+        public void AddTreeNode(TreeView tree, TreeNode? currentNode, string[] path, int index, string name, string identifier)
         {
-            if(index < path.Length)
+            if (index < path.Length)
             {
 
                 if (path[index] == "")
                 {
-                    AddTreeNode(tree,currentNode, path, index + 1, name,identifier);
+                    AddTreeNode(tree, currentNode, path, index + 1, name, identifier);
                     return;
                 }
                 var newNode = new TreeNode(path[index]);
                 newNode.Name = path[index];
-                if(currentNode != null)
+                if (currentNode != null)
                 {
                     // We are inside the tree
                     var sameNodes = currentNode.Nodes.Find(newNode.Name, false);
-                    if(sameNodes.Count() >0)
+                    if (sameNodes.Count() > 0)
                     {
                         AddTreeNode(tree, sameNodes[0], path, index + 1, name, identifier);
                         return;
 
                     }
-                    else
-                    {
-                        currentNode.Nodes.Add(newNode);
-                        var nextCurrentNode = currentNode.Nodes.Find(newNode.Name, false)[0];
-                        AddTreeNode(tree, nextCurrentNode, path, index + 1, name, identifier);
-                        return;
 
-
-                    }
+                    currentNode.Nodes.Add(newNode);
+                    var nextCurrentNode = currentNode.Nodes.Find(newNode.Name, false)[0];
+                    AddTreeNode(tree, nextCurrentNode, path, index + 1, name, identifier);
+                    return;
                 }
                 else
                 {
@@ -306,10 +301,11 @@ namespace XrmFramework.XrmToolbox
                 }
 
             }
-            else if(index == path.Length)
+
+            if (index == path.Length)
             {
                 // we are at the end of the branch and have to add the actual element
-                if(currentNode == null)
+                if (currentNode == null)
                 {
                     throw new Exception("Error, tried to add an element while no project root was added");
 
@@ -322,31 +318,28 @@ namespace XrmFramework.XrmToolbox
                 return;
 
             }
-            else
-            {
-                return;
-            }
+            return;
         }
         private void AddTableTreeNodes()
         {
 
-            
+
             foreach (var key in TableHandler.TableAndPath.Keys)
             {
                 var table = TableHandler.TableAndPath[key].table;
                 var path = TableHandler.TableAndPath[key].path.Split('\\');
                 //AddPathTreeNode(null, path, 0,TableHandler.TableAndPath[key].table.LogicalName);
-                AddTreeNode(TableTreeView, null, path,0,table.Name,table.LogicalName);
-                
+                AddTreeNode(TableTreeView, null, path, 0, table.Name, table.LogicalName);
+
             }
         }
 
         private void AddModelTreeNodes()
         {
             ModelsTreeView.Nodes.Clear();
-            foreach(var key in ModelHandler.ModelAndPath.Keys)
+            foreach (var key in ModelHandler.ModelAndPath.Keys)
             {
-                
+
                 var model = ModelHandler.ModelAndPath[key].model;
                 var path = ModelHandler.ModelAndPath[key].path.Split('\\');
                 //MessageBox.Show(ModelHandler.ModelAndPath[key].path);
@@ -356,53 +349,53 @@ namespace XrmFramework.XrmToolbox
             ModelsTreeView.ExpandAll();
         }
 
-        
 
-        private void AddPathTreeNode(TreeNode? currentNode,string[] path,int index,string tableLogicalName)
+
+        private void AddPathTreeNode(TreeNode? currentNode, string[] path, int index, string tableLogicalName)
         {
 
-            if(index>=path.Length)
+            if (index >= path.Length)
             {
-                if(index>path.Length)
+                if (index > path.Length)
                 {
                     return;
 
                 }
             }
-            else if(path[index] == "")
+            else if (path[index] == "")
             {
-                AddPathTreeNode(currentNode, path, index + 1,tableLogicalName);
+                AddPathTreeNode(currentNode, path, index + 1, tableLogicalName);
                 return;
             }
 
-            TreeNode newNode =  null;
-            if(index <path.Length)
+            TreeNode newNode = null;
+            if (index < path.Length)
             {
-                 newNode = new TreeNode(path[index]);
+                newNode = new TreeNode(path[index]);
                 newNode.Name = path[index];
             }
             else
             {
                 var table = TableHandler.TableAndPath[tableLogicalName].table;
-                 newNode = new TreeNode(table.Name+".table");
+                newNode = new TreeNode(table.Name + ".table");
                 //newNode.Name = path[index];
             }
-            
-            
+
+
             if (currentNode == null)
             {
-                if(TableTreeView.Nodes.Count >0)
+                if (TableTreeView.Nodes.Count > 0)
                 {
-                    AddPathTreeNode(TableTreeView.Nodes[0], path, index + 1,tableLogicalName);
+                    AddPathTreeNode(TableTreeView.Nodes[0], path, index + 1, tableLogicalName);
                 }
                 else
                 {
                     if (path[index].Contains(".table"))
                     {
-                        newNode.Name = tableLogicalName; 
+                        newNode.Name = tableLogicalName;
                     }
                     TableTreeView.Nodes.Add(newNode);
-                    AddPathTreeNode(newNode, path, index + 1,tableLogicalName);
+                    AddPathTreeNode(newNode, path, index + 1, tableLogicalName);
 
                 }
 
@@ -410,20 +403,20 @@ namespace XrmFramework.XrmToolbox
                 return;
 
             }
-            var existingNode = currentNode.Nodes.Find(newNode.Name,false);
-            if(existingNode.Length ==0)
+            var existingNode = currentNode.Nodes.Find(newNode.Name, false);
+            if (existingNode.Length == 0)
             {
                 if (newNode.Text.Contains(".table"))
                 {
                     newNode.Name = tableLogicalName;
                 }
                 currentNode.Nodes.Add(newNode);
-                AddPathTreeNode(newNode, path, index + 1,tableLogicalName);
+                AddPathTreeNode(newNode, path, index + 1, tableLogicalName);
 
             }
             else
             {
-                AddPathTreeNode(existingNode[0], path, index + 1,tableLogicalName);
+                AddPathTreeNode(existingNode[0], path, index + 1, tableLogicalName);
             }
 
         }
@@ -432,23 +425,23 @@ namespace XrmFramework.XrmToolbox
         {
             //MessageBox.Show(e.Node.Name);
             var name = e.Node.Name;
-            
-            if(!TableHandler.TableAndPath.ContainsKey(name))
+
+            if (!TableHandler.TableAndPath.ContainsKey(name))
             {
                 return;
             }
             var selectedTable = TableHandler.TableAndPath[name].table;
-            if(selectedTable != null)
+            if (selectedTable != null)
             {
                 //MessageBox.Show($"You selected a table file of name {selectedTable.Name}");
                 tableBindingSource.DataSource = selectedTable;
                 columnBindingSource.DataSource = selectedTable.Columns;
                 TableHandler.CurrentTable = selectedTable.LogicalName;
                 TableHandler.CurrentEnum = null;
-                
-               
+
+
             }
-            
+
         }
 
 
@@ -459,26 +452,26 @@ namespace XrmFramework.XrmToolbox
 
         private void dataGridView1_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
         {
-            if(e.RowIndex<0)
+            if (e.RowIndex < 0)
             {
                 return;
             }
             //Clicked an enum thing
-            if(dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString() == "Picklist")
+            if (dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString() == "Picklist")
             {
                 //var correspondingEnum
-                if(TableHandler.CurrentTable == null)
+                if (TableHandler.CurrentTable == null)
                 {
                     return;
                 }
                 var selectedTable = TableHandler.TableAndPath[TableHandler.CurrentTable].table;
-                var column = selectedTable.Columns.FirstOrDefault(c=>c.LogicalName == dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString());
+                var column = selectedTable.Columns.FirstOrDefault(c => c.LogicalName == dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString());
                 var correspondingEnum = selectedTable.Enums.FirstOrDefault(e => e.LogicalName == column.EnumName);
-                if(correspondingEnum == null)
+                if (correspondingEnum == null)
                 {
                     correspondingEnum = TableHandler.globalEnumsTable.Enums.FirstOrDefault(e => e.LogicalName == column.EnumName);
                 }
-                if(correspondingEnum == null)
+                if (correspondingEnum == null)
                 {
                     return;
                 }
@@ -489,15 +482,15 @@ namespace XrmFramework.XrmToolbox
                 //EnumNameText.Text = correspondingEnum.Name;
 
             }
-            else if(e.ColumnIndex == 1)
+            else if (e.ColumnIndex == 1)
             {
-                if(TableHandler.CurrentTable == null)
+                if (TableHandler.CurrentTable == null)
                 {
                     return;
                 }
                 var currentTable = TableHandler.TableAndPath[TableHandler.CurrentTable].table;
-                var currentColumn = currentTable.Columns.FirstOrDefault(c=>c.LogicalName == dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString());
-                if(currentColumn == null)
+                var currentColumn = currentTable.Columns.FirstOrDefault(c => c.LogicalName == dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString());
+                if (currentColumn == null)
                 {
                     throw new Exception("Could not find corresponding column");
                 }
@@ -512,29 +505,25 @@ namespace XrmFramework.XrmToolbox
                      }
                      // Check if a table is already using this name 
 
-                     if (currentTable.Columns.Any(c=>c.Name == newForm.Name))
+                     if (currentTable.Columns.Any(c => c.Name == newForm.Name))
                      {
                          // If already used, don't modify table name and notify user
                          MessageBox.Show("This name is already in use");
                          return;
                      }
-                     else
-                     {
-                         // If not, then modify the name 
-                         //MessageBox.Show("You modified this Name");
-                        
+                     // If not, then modify the name 
+                     //MessageBox.Show("You modified this Name");
 
-                         var finalName = newForm.Name.StrongFormat();
-                         currentColumn.Name = finalName;
-                         // Now refresh the whole property
-                         //RefreshTabme();
 
-                     }
+                     var finalName = newForm.Name.StrongFormat();
+                     currentColumn.Name = finalName;
+                     // Now refresh the whole property
+                     //RefreshTabme();
                  };
                 newForm.ShowDialog();
             }
 
-           
+
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -543,7 +532,7 @@ namespace XrmFramework.XrmToolbox
         }
 
 
-        private void EnumNameText_Click(object sender,EventArgs e)
+        private void EnumNameText_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(EnumNameText.Text) || TableHandler.CurrentTable == null)
             {
@@ -554,11 +543,11 @@ namespace XrmFramework.XrmToolbox
             var text = EnumNameText.Text;
             var currentTable = TableHandler.TableAndPath[TableHandler.CurrentTable].table;
             //Get the current table
-            var currentEnum = TableHandler.TableAndPath[TableHandler.CurrentTable].table.Enums.FirstOrDefault(en=>en.LogicalName == TableHandler.CurrentEnum);
-            if(currentEnum == null)
+            var currentEnum = TableHandler.TableAndPath[TableHandler.CurrentTable].table.Enums.FirstOrDefault(en => en.LogicalName == TableHandler.CurrentEnum);
+            if (currentEnum == null)
             {
                 currentEnum = TableHandler.globalEnumsTable.Enums.FirstOrDefault(en => en.LogicalName == TableHandler.CurrentEnum);
-                if(currentEnum == null)
+                if (currentEnum == null)
                 {
                     return;
                 }
@@ -568,9 +557,9 @@ namespace XrmFramework.XrmToolbox
             EnumNameText.Text = currentEnum.Name;
         }
 
-        
 
-        
+
+
 
         private void RetrieveEntitiesButton_Click(object sender, EventArgs e)
         {
@@ -612,7 +601,7 @@ namespace XrmFramework.XrmToolbox
                 }
 
             });
-            
+
         }
 
 
@@ -640,7 +629,7 @@ namespace XrmFramework.XrmToolbox
                 {
                     // Create the corresponding base tables while also processing the names
                     Solution[] solutions = (Solution[])args.Result;
-                    
+
                     TableHandler.PublisherPrefixes.AddRange(solutions.Select(s => s.GetAttributeValue<AliasedValue>("publisher.customizationprefix").Value as string).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct());
 
                 }
@@ -655,15 +644,15 @@ namespace XrmFramework.XrmToolbox
 
         private void AddBasicTablesToProject()
         {
-            foreach(var table in TableHandler.BasicTables.Where(t=>t.Selected))
+            foreach (var table in TableHandler.BasicTables.Where(t => t.Selected))
             {
-               
-                if(TableHandler.TableAndPath.ContainsKey(table.LogicalName))
+
+                if (TableHandler.TableAndPath.ContainsKey(table.LogicalName))
                 {
                     //MessageBox.Show("This is a message for when a table is already in a project, it should be replaced with a dialog box asking wether you want to overwrite it");
                     return;
                 }
-                TableHandler.TableAndPath[table.LogicalName] = new TableData(table, RemoveCurrentProjectPathFromTablePath(TableHandler.PathToRegisterTables+$"{table.Name}.table"));
+                TableHandler.TableAndPath[table.LogicalName] = new TableData(table, RemoveCurrentProjectPathFromTablePath(TableHandler.PathToRegisterTables + $"{table.Name}.table"));
 
 
                 RefreshTreeDisplay();
@@ -678,21 +667,21 @@ namespace XrmFramework.XrmToolbox
             }
         }
 
-       public void RefreshModelsDisplay()
+        public void RefreshModelsDisplay()
         {
-            
+
             AddModelTreeNodes();
         }
 
         private void SearchColumnTextBox_TextChanged(object sender, EventArgs e)
         {
-            if(TableHandler.CurrentTable != null)
+            if (TableHandler.CurrentTable != null)
             {
-                if(TableHandler.TableAndPath.ContainsKey(TableHandler.CurrentTable))
+                if (TableHandler.TableAndPath.ContainsKey(TableHandler.CurrentTable))
                 {
                     var search = SearchColumnTextBox.Text.Split(' ');
-                    
-                    if(search.Length == 1)
+
+                    if (search.Length == 1)
                     {
                         var lowerSearch = SearchColumnTextBox.Text.ToLower();
 
@@ -705,15 +694,15 @@ namespace XrmFramework.XrmToolbox
                         var selectedTable = TableHandler.TableAndPath[TableHandler.CurrentTable].table;
 
                         var columnsToShow = new ColumnCollection();
-                        foreach(var searchWord in search)
+                        foreach (var searchWord in search)
                         {
-                            if(searchWord == " " || searchWord =="")
+                            if (searchWord == " " || searchWord == "")
                             {
                                 continue;
                             }
                             var lowerSearch = searchWord.ToLower();
                             var correspondingColumns = selectedTable.Columns.Where(t => t.Name.ToLower().Contains(lowerSearch) || t.Type.ToString().ToLower().Contains(lowerSearch) || t.LogicalName.Contains(lowerSearch));
-                            foreach(var column in correspondingColumns)
+                            foreach (var column in correspondingColumns)
                             {
                                 columnsToShow.Add(column);
                             }
@@ -740,7 +729,7 @@ namespace XrmFramework.XrmToolbox
 
         private void RetrieveAttributesButton_Click(object sender, EventArgs e)
         {
-            if(CurrentProject == null)
+            if (CurrentProject == null)
             {
                 MessageBox.Show("Select or create a project first.");
                 return;
@@ -749,23 +738,23 @@ namespace XrmFramework.XrmToolbox
             var form2 = new AddTableForm();
             form2.PublisherPrefixes = TableHandler.PublisherPrefixes;
             form2.PluginControl = this;
-            form2.RetrieveEntities();            
+            form2.RetrieveEntities();
             form2.ShowDialog();
         }
 
 
         public void AddTablesToProject(List<Table> tables)
         {
-            foreach(Table table in tables)
+            foreach (Table table in tables)
             {
-                if(TableHandler.TableAndPath.ContainsKey(table.LogicalName))
+                if (TableHandler.TableAndPath.ContainsKey(table.LogicalName))
                 {
 
                     continue;
                 }
-                while(TableHandler.IsTableNameUsed(table,table.Name))
+                while (TableHandler.IsTableNameUsed(table, table.Name))
                 {
-                    TableHandler.ModifyTableName(table.Name,table, table.Name);
+                    TableHandler.ModifyTableName(table.Name, table, table.Name);
                 }
                 //MessageBox.Show($"adding table {table.LogicalName} at {TableHandler.PathToRegisterTables}");
                 RefreshTableAttributes(table);
@@ -778,14 +767,14 @@ namespace XrmFramework.XrmToolbox
             TableHandler.SaveTables();
         }
 
-        
+
 
         private void RefreshGlobalEnum()
         {
             //optionSetEnumBindingSource.DataSource = TableHandler.globalEnumsTable.Enums;
-            
+
         }
-        
+
 
         private void TableLogicalNameText_TextChanged(object sender, EventArgs e)
         {
@@ -805,16 +794,16 @@ namespace XrmFramework.XrmToolbox
 
         private void dataGridView3_CellContentClick_1(object sender, DataGridViewCellEventArgs e)
         {
-            if(e.ColumnIndex == 0)
+            if (e.ColumnIndex == 0)
             {
                 //MessageBox.Show(e.ColumnIndex.ToString());
                 //MessageBox.Show(dataGridView3.Rows[e.RowIndex].Cells[0].Value.ToString());
                 var name = dataGridView3.Rows[e.RowIndex].Cells[0].Value;
                 var currentEnum = TableHandler.TableAndPath[TableHandler.CurrentTable].table.Enums.FirstOrDefault(en => en.LogicalName == TableHandler.CurrentEnum);
-                if(currentEnum == null)
+                if (currentEnum == null)
                 {
                     currentEnum = TableHandler.globalEnumsTable.Enums.FirstOrDefault(en => en.LogicalName == TableHandler.CurrentEnum);
-                    if(currentEnum == null)
+                    if (currentEnum == null)
                     {
                         return;
                     }
@@ -822,16 +811,16 @@ namespace XrmFramework.XrmToolbox
                 //MessageBox.Show(value.ToString());
                 var enumValue = currentEnum.Values.ElementAt(e.RowIndex);
                 //MessageBox.Show(enumValue.Name);
-                TableHandler.ModifyEnumeValueName(enumValue,currentEnum,enumValue.Name);
+                TableHandler.ModifyEnumeValueName(enumValue, currentEnum, enumValue.Name);
                 dataGridView3.Rows[e.RowIndex].Cells[0].Value = enumValue.Name;
                 //enumValue.Name = 
                 //MessageBox.Show(currentEnum.LogicalName);
-                
-               
+
+
             }
         }
 
-        
+
 
         private void splitContainer3_Panel2_Paint(object sender, PaintEventArgs e)
         {
@@ -850,19 +839,19 @@ namespace XrmFramework.XrmToolbox
 
         private void RefreshAttributesButton_Click(object sender, EventArgs e)
         {
-            if(String.IsNullOrEmpty(TableHandler.CurrentTable))
+            if (String.IsNullOrEmpty(TableHandler.CurrentTable))
             {
                 return;
             }
             var selectedTable = TableHandler.TableAndPath[TableHandler.CurrentTable].table;
-            if(selectedTable == null)
+            if (selectedTable == null)
             {
                 return;
             }
 
             // Call the function to refresh attributes
             RefreshTableAttributes(selectedTable);
-            
+
 
 
         }
@@ -876,7 +865,7 @@ namespace XrmFramework.XrmToolbox
                 Work = (worker, args) =>
                 {
 
-                    
+
 
                     RetrieveEntityRequest req = new RetrieveEntityRequest()
                     {
@@ -907,15 +896,15 @@ namespace XrmFramework.XrmToolbox
 
 
 
-        
+
         private void TableNameText_TextChanged(object sender, EventArgs e)
         {
 
         }
 
-        private void TableNameText_Click(object sender, EventArgs e)    
+        private void TableNameText_Click(object sender, EventArgs e)
         {
-            if(string.IsNullOrEmpty(TableNameText.Text))
+            if (string.IsNullOrEmpty(TableNameText.Text))
             {
                 return;
 
@@ -924,7 +913,7 @@ namespace XrmFramework.XrmToolbox
             var text = TableNameText.Text;
             //Get the current table
             var currentTable = TableHandler.TableAndPath[TableLogicalNameText.Text].table;
-            TableHandler.ModifyTableName(TableNameText.Text,currentTable, text);
+            TableHandler.ModifyTableName(TableNameText.Text, currentTable, text);
             TableNameText.Text = currentTable.Name;
 
 
@@ -963,7 +952,7 @@ namespace XrmFramework.XrmToolbox
             newProjectForm.PluginControl = this;
 
             newProjectForm.ShowDialog();
-            
+
         }
 
         public void ReloadProject()
@@ -983,7 +972,7 @@ namespace XrmFramework.XrmToolbox
 
         private void AddModelButton_Click(object sender, EventArgs e)
         {
-            if(CurrentProject == null)
+            if (CurrentProject == null)
             {
                 MessageBox.Show("Select or create a project first.");
                 return;
@@ -1006,16 +995,16 @@ namespace XrmFramework.XrmToolbox
             {
                 return;
             }
-           // MessageBox.Show(name);
-           var model = ModelHandler.ModelAndPath[name].model;
-           if (model == null)
-           {
+            // MessageBox.Show(name);
+            var model = ModelHandler.ModelAndPath[name].model;
+            if (model == null)
+            {
                 return;
-           }
+            }
 
             RefreshModelDetails(model, ModelDetailTree);
 
-            
+
         }
         private void AddPropertyNode(TreeNode node, XrmFramework.Core.Model model, ModelProperty property)
         {
@@ -1023,7 +1012,7 @@ namespace XrmFramework.XrmToolbox
             var nameNode = new TreeNode("Name : " + property.Name);
             nameNode.Name = model.Name + ";" + property.Name + ";" + "name";
             nameNode.ImageIndex = 4;
-            
+
             node.Nodes.Add(nameNode);
             // Add type
             var typeNode = new TreeNode("Type : " + property.TypeFullName);
@@ -1033,11 +1022,11 @@ namespace XrmFramework.XrmToolbox
             // Add JsonName
             var jsonNameNode = new TreeNode("Json Name : " + property.JsonPropertyName);
             jsonNameNode.Name = model.Name + ";" + property.Name + ";" + "JsonPropertyName";
-            jsonNameNode.ImageIndex= 4;
+            jsonNameNode.ImageIndex = 4;
             node.Nodes.Add(jsonNameNode);
             var isValidForUpdateNode = new TreeNode("Is Valid For Update : " + property.IsValidForUpdate);
             isValidForUpdateNode.Name = model.Name + ";" + property.Name + ";" + "isValidForUpdate";
-            if(property.IsValidForUpdate)
+            if (property.IsValidForUpdate)
             {
                 isValidForUpdateNode.ImageIndex = 3;
                 //isValidForUpdateNode.SelectedImageIndex = 1;
@@ -1055,8 +1044,8 @@ namespace XrmFramework.XrmToolbox
         {
             var nodeName = e.Node.Name.Split(';');
             var node = e.Node;
-            
-            if(nodeName.Length == 2)
+
+            if (nodeName.Length == 2)
             {
                 // Modifying one of the main model characteristic
                 var model = ModelHandler.ModelAndPath[nodeName[0]].model;
@@ -1083,38 +1072,35 @@ namespace XrmFramework.XrmToolbox
                             MessageBox.Show("This name is already in use");
                             return;
                         }
-                        else
-                        {
-                            // If not, then modify the name 
-                            //MessageBox.Show("You modified this Name");
-                            var modelData = ModelHandler.ModelAndPath[model.Name];
-                            ModelHandler.ModelAndPath.Remove(model.Name);
 
-                            var finalName = newForm.Name.StrongFormat();
-                            modelData.model.Name = finalName;
-                            ModelHandler.ModelAndPath[finalName] = modelData;
-                            // Now refresh the whole property
-                            RefreshModelsDisplay();
-                            RefreshModelDetails(ModelHandler.ModelAndPath[finalName].model, ModelDetailTree);
+                        // If not, then modify the name 
+                        //MessageBox.Show("You modified this Name");
+                        var modelData = ModelHandler.ModelAndPath[model.Name];
+                        ModelHandler.ModelAndPath.Remove(model.Name);
 
-                        }
+                        var finalName = newForm.Name.StrongFormat();
+                        modelData.model.Name = finalName;
+                        ModelHandler.ModelAndPath[finalName] = modelData;
+                        // Now refresh the whole property
+                        RefreshModelsDisplay();
+                        RefreshModelDetails(ModelHandler.ModelAndPath[finalName].model, ModelDetailTree);
                     };
 
                     newForm.ShowDialog();
 
                 }
-                if(nodeName[1] == "properties")
+                if (nodeName[1] == "properties")
                 {
                     var newForm = new AddModelPropertyForm();
                     newForm.model = model;
                     newForm.LoadPossibleColumns();
                     newForm.FormClosing += (o, e) =>
                       {
-                          if(newForm.CreateProperty)
+                          if (newForm.CreateProperty)
                           {
                               Table correspondingTable = null;
                               correspondingTable = TableHandler.TableAndPath.FirstOrDefault(tp => tp.Value.table.Name == newForm.typeFullName.Replace("Model", "")).Value.table;
-                              if(correspondingTable == null)
+                              if (correspondingTable == null)
                               {
                                   throw new Exception("This table should not be null");
                               }
@@ -1122,13 +1108,13 @@ namespace XrmFramework.XrmToolbox
                               newProp.IsValidForUpdate = newForm.isValidForUpdate;
                               newProp.Name = newForm.propertyName;
                               newProp.JsonPropertyName = newForm.JsonPropertyName;
-                              if(newForm.typeFullName.Contains("Model"))
+                              if (newForm.typeFullName.Contains("Model"))
                               {
                                   // Check if this model exists
-                                  if(!ModelHandler.ModelAndPath.ContainsKey(newForm.typeFullName))
+                                  if (!ModelHandler.ModelAndPath.ContainsKey(newForm.typeFullName))
                                   {
                                       // If not create it
-                                     
+
                                       var newModel = new XrmFramework.Core.Model()
                                       {
                                           TableLogicalName = correspondingTable.LogicalName,
@@ -1160,7 +1146,7 @@ namespace XrmFramework.XrmToolbox
                                       newModel.Properties.Add(nameProperty);
                                       newModel.Properties.Add(idProperty);
 
-                                      
+
                                       ModelHandler.ModelAndPath[newModel.Name] = new ModelData(newModel, ModelHandler.RemoveCurrentProjectPathFromModelPath(ModelHandler.PathToRegisterModel, CurrentProject.FolderPath));
 
                                       newProp.TypeFullName = newModel.ModelNamespace + "." + newModel.Name;
@@ -1182,14 +1168,14 @@ namespace XrmFramework.XrmToolbox
                               {
                                   //MessageBox.Show("the newly added property is valid for update");
                                   var sameProp = model.Properties.FirstOrDefault(p => p.LogicalName == newProp.LogicalName && p.IsValidForUpdate);
-                                  if(sameProp != null)
+                                  if (sameProp != null)
                                   {
                                       sameProp.IsValidForUpdate = false;
                                       MessageBox.Show($"The value of IsValidForUpdate has been set to false for {sameProp.Name} because it shares the same column mapping as {newProp.Name}");
                                   }
                               }
-                              
-                              
+
+
                               model.Properties.Add(newProp);
                               RefreshModelDetails(model, ModelDetailTree);
 
@@ -1200,7 +1186,7 @@ namespace XrmFramework.XrmToolbox
                 }
 
             }
-            if(nodeName.Length == 3)
+            if (nodeName.Length == 3)
             {
                 var model = ModelHandler.ModelAndPath[nodeName[0]].model;
                 var property = model.Properties.FirstOrDefault(p => p.Name == nodeName[1]);
@@ -1225,15 +1211,13 @@ namespace XrmFramework.XrmToolbox
                             MessageBox.Show("This name is already in use");
                             return;
                         }
-                        else
-                        {
-                            // If not, then modify the name 
-                            //MessageBox.Show("You modified this Name");
-                            var finalName = newForm.Name.StrongFormat();
-                            property.Name = finalName;
-                            // Now refresh the whole property
-                            RefreshModelDetails(model, ModelDetailTree);
-                        }
+
+                        // If not, then modify the name 
+                        //MessageBox.Show("You modified this Name");
+                        var finalName = newForm.Name.StrongFormat();
+                        property.Name = finalName;
+                        // Now refresh the whole property
+                        RefreshModelDetails(model, ModelDetailTree);
                     };
 
                     newForm.ShowDialog();
@@ -1250,7 +1234,7 @@ namespace XrmFramework.XrmToolbox
                         if (!newForm.ModifyName || newForm.Name == property.JsonPropertyName)
                         {
 
-                            
+
                             return;
                         }
                         // Check if a table is already using this name 
@@ -1261,34 +1245,32 @@ namespace XrmFramework.XrmToolbox
                             MessageBox.Show("This json property name is already in use");
                             return;
                         }
-                        else
-                        {
-                            // If not, then modify the name 
-                            //MessageBox.Show("You modified this Name");
-                            var finalName = newForm.Name.StrongFormat();
-                            property.JsonPropertyName = finalName;
-                            // Now refresh the whole property
-                            RefreshModelDetails(model, ModelDetailTree);
-                        }
+
+                        // If not, then modify the name 
+                        //MessageBox.Show("You modified this Name");
+                        var finalName = newForm.Name.StrongFormat();
+                        property.JsonPropertyName = finalName;
+                        // Now refresh the whole property
+                        RefreshModelDetails(model, ModelDetailTree);
                     };
 
                     newForm.ShowDialog();
                 }
 
-                if(nodeName[2] == "type")
+                if (nodeName[2] == "type")
                 {
-                  //  MessageBox.Show("wuuuu");
-                  //  ChoicePickList.Location = e.Node.Bounds.Location;
-                  //  ChoicePickList.Enabled = true;
-                  //  ChoicePickList.DropDownStyle = ComboBoxStyle.DropDownList;
-                  //  
-                  //
-                  //  ChoicePickList.Visible = true;
-                  // // ChoicePickList.BringToFront();
-                  // if (!ChoicePickList.Focus())
-                  // {
-                  //     MessageBox.Show("wut ?");
-                  // }
+                    //  MessageBox.Show("wuuuu");
+                    //  ChoicePickList.Location = e.Node.Bounds.Location;
+                    //  ChoicePickList.Enabled = true;
+                    //  ChoicePickList.DropDownStyle = ComboBoxStyle.DropDownList;
+                    //  
+                    //
+                    //  ChoicePickList.Visible = true;
+                    // // ChoicePickList.BringToFront();
+                    // if (!ChoicePickList.Focus())
+                    // {
+                    //     MessageBox.Show("wut ?");
+                    // }
                     //  ChoicePickList.BringToFront();
 
 
@@ -1296,11 +1278,11 @@ namespace XrmFramework.XrmToolbox
                     //ChoicePickList.
                     var newForm = new PickListChoiceForm(true);
                     newForm.SetPossibleChoices(ModelHandler.GetPossiblePropertyTypes(model, property.LogicalName));
-                    
+
                     newForm.FormClosing += (o, e) =>
                     {
                         MessageBox.Show(newForm.Value);
-                        if(!newForm.ChangeValue || newForm.Value == property.TypeFullName || newForm.Value == "")
+                        if (!newForm.ChangeValue || newForm.Value == property.TypeFullName || newForm.Value == "")
                         {
                             return;
                         }
@@ -1313,13 +1295,13 @@ namespace XrmFramework.XrmToolbox
 
                 if (nodeName[2] == "isValidForUpdate")
                 {
-                    if(!property.IsValidForUpdate)
+                    if (!property.IsValidForUpdate)
                     {
                         node.ImageIndex = 3;
                         //node.S
                         // Find any property with the same mapping and set their value for IsValidForUpdate to false
-                        var sameProp = model.Properties.FirstOrDefault(p=>p.LogicalName == property.LogicalName && p.IsValidForUpdate);
-                        if(sameProp != null)
+                        var sameProp = model.Properties.FirstOrDefault(p => p.LogicalName == property.LogicalName && p.IsValidForUpdate);
+                        if (sameProp != null)
                         {
                             sameProp.IsValidForUpdate = false;
                             MessageBox.Show($"The value of IsValidForUpdate for {sameProp.Name} was set to false as it has the same mapping as {property.Name}.");
@@ -1332,11 +1314,11 @@ namespace XrmFramework.XrmToolbox
                     }
                     property.IsValidForUpdate = !property.IsValidForUpdate;
                     node.Text = "Is Valid For Update : " + property.IsValidForUpdate;
-                    
 
 
-                    RefreshModelDetails(model,ModelDetailTree);
-                    
+
+                    RefreshModelDetails(model, ModelDetailTree);
+
                 }
 
             }
@@ -1345,14 +1327,14 @@ namespace XrmFramework.XrmToolbox
 
         private void ReloadProjectButton_Click(object sender, EventArgs e)
         {
-            if(CurrentProject == null)
+            if (CurrentProject == null)
             {
                 MessageBox.Show("Create or select a project first");
                 return;
             }
             TableHandler.TableAndPath.Clear();
             ModelHandler.ModelAndPath.Clear();
-            
+
             ModelHandler.LoadModelsFromProject(CurrentProject.FolderPath);
             TableHandler.LoadTablesFromProject(CurrentProject.FolderPath);
             RefreshTreeDisplay();

@@ -32,7 +32,66 @@ public abstract partial class Plugin : IPlugin
 
 	public bool StepsInitialized { get; private set; }
 
-	public ReadOnlyCollection<Step> Steps => new(_newRegisteredEvents);
+        #region .ctor
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Plugin" /> class.
+        /// </summary>
+        protected Plugin(string unsecuredConfig, string securedConfig) : this(unsecuredConfig, securedConfig, false)
+        {
+        }
+
+        protected Plugin(string unsecuredConfig, string securedConfig, bool delayStepRegistration)
+        {
+            SecuredConfig = securedConfig;
+            UnSecuredConfig = unsecuredConfig;
+            InitializeSteps(delayStepRegistration);
+        }
+        #endregion
+
+        protected void InitializeSteps(bool delayStepRegistration = false)
+        {
+            if (delayStepRegistration)
+            {
+                return;
+            }
+            AddSteps();
+            StepsInitialized = true;
+        }
+
+
+        protected abstract void AddSteps();
+
+        public ReadOnlyCollection<Step> Steps => new ReadOnlyCollection<Step>(_newRegisteredEvents);
+
+        protected void AddStep(Stages stage, Messages messageName, Modes mode, string entityName, string actionName, params string[] columns)
+        {
+            var list = _newRegisteredEvents;
+            // Create a new step with the input parameters 
+            var step = new Step(this, messageName, stage, mode, entityName, actionName, columns);
+            // Invoked method must exist, be public and non static
+            if (step.Method == null)
+            {
+                throw new InvalidPluginExecutionException($"The method {ChildClassName}.{actionName} used during {messageName} message does not exist or is private");
+            }
+
+            if (!step.Method.IsPublic || step.Method.IsStatic)
+            {
+                throw new InvalidPluginExecutionException($"The method {ChildClassName}.{actionName} used during {messageName} message should be public and not static");
+            }
+
+            foreach (var param in step.Method.GetParameters())
+            {
+                //Parameters for the step method must be an interface like IPluginContext and IService
+                if (!param.ParameterType.IsInterface || (!typeof(IPluginContext).IsAssignableFrom(param.ParameterType)
+                                                          && !typeof(IService).IsAssignableFrom(param.ParameterType)))
+                {
+                    throw new InvalidPluginExecutionException($"{ChildClassName}.{actionName} parameter : {param.Name}. Only IPluginContext and IService interfaces are allowed as parameters");
+                }
+            }
+
+            list.Add(step);
+        }
 
     /// <summary>
     ///     Gets or sets the name of the child class.
@@ -90,42 +149,7 @@ public abstract partial class Plugin : IPlugin
 		localContext.LogExit();
 	}
 
-	protected void InitializeSteps(bool delayStepRegistration = false)
-	{
-		if (delayStepRegistration) return;
-		AddSteps();
-		StepsInitialized = true;
-	}
-
-
-	protected abstract void AddSteps();
-
-	protected void AddStep(Stages stage, Messages messageName, Modes mode, string entityName, string actionName,
-		params string[] columns)
-	{
-		var list = _newRegisteredEvents;
-		// Create a new step with the input parameters 
-		var step = new Step(this, messageName, stage, mode, entityName, actionName, columns);
-		// Invoked method must exist, be public and non static
-		if (step.Method == null)
-			throw new InvalidPluginExecutionException(
-				$"The method {ChildClassName}.{actionName} used during {messageName} message does not exist or is private");
-		else if (!step.Method.IsPublic || step.Method.IsStatic)
-			throw new InvalidPluginExecutionException(
-				$"The method {ChildClassName}.{actionName} used during {messageName} message should be public and not static");
-
-		foreach (var param in step.Method.GetParameters())
-			//Parameters for the step method must be an interface like IPluginContext and IService
-			if (!param.ParameterType.IsInterface || (!typeof(IPluginContext).IsAssignableFrom(param.ParameterType)
-			                                         && !typeof(IService).IsAssignableFrom(param.ParameterType)))
-				throw new InvalidPluginExecutionException(
-					$"{ChildClassName}.{actionName} parameter : {param.Name}. Only IPluginContext and IService interfaces are allowed as parameters");
-
-		list.Add(step);
-	}
-
-
-	private void InvokeSteps(LocalPluginContext localContext, IEnumerable<Step> steps)
+    private void InvokeSteps(LocalPluginContext localContext, IEnumerable<Step> steps)
 	{
 		var methodsToAvoid = string.IsNullOrEmpty(UnSecuredConfig)
 			? new List<string>()
@@ -215,22 +239,4 @@ public abstract partial class Plugin : IPlugin
 			default: throw exception;
 		}
 	}
-
-	#region .ctor
-
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="Plugin" /> class.
-    /// </summary>
-    protected Plugin(string unsecuredConfig, string securedConfig) : this(unsecuredConfig, securedConfig, false)
-	{
-	}
-
-	protected Plugin(string unsecuredConfig, string securedConfig, bool delayStepRegistration)
-	{
-		SecuredConfig = securedConfig;
-		UnSecuredConfig = unsecuredConfig;
-		InitializeSteps(delayStepRegistration);
-	}
-
-	#endregion
 }
