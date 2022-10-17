@@ -44,23 +44,22 @@ namespace XrmFramework.BindingModel
             return bRet;
         }
 
-        private static void addBinding<T>(Dictionary<string, Dictionary<Guid, object>> cache, string typeName, Guid idEntity, object binding)
+        private static void AddBinding(Dictionary<string, Dictionary<Guid, object>> cache, string typeName, Guid idEntity, object binding)
         {
-            if (!string.IsNullOrEmpty(typeName) && !idEntity.Equals(Guid.Empty))
+            if (!string.IsNullOrEmpty(typeName)
+                && !idEntity.Equals(Guid.Empty)
+                && !BindingExists(cache, typeName, idEntity))
             {
-                if (!BindingExists(cache, typeName, idEntity))
+                cache.TryGetValue(typeName, out var cachedEntities);
+                if (cachedEntities != null)
                 {
-                    cache.TryGetValue(typeName, out var cachedEntities);
-                    if (cachedEntities != null)
-                    {
-                        cachedEntities[idEntity] = binding;
-                    }
-                    else
-                    {
-                        cachedEntities = new Dictionary<Guid, object>();
-                        cachedEntities.Add(idEntity, binding);
-                        cache.Add(typeName, cachedEntities);
-                    }
+                    cachedEntities[idEntity] = binding;
+                }
+                else
+                {
+                    cachedEntities = new Dictionary<Guid, object>();
+                    cachedEntities.Add(idEntity, binding);
+                    cache.Add(typeName, cachedEntities);
                 }
             }
         }
@@ -396,7 +395,7 @@ namespace XrmFramework.BindingModel
 
             if (cache != null)
             {
-                addBinding<object>(cache, type.FullName, entity.Id, bindingModel);
+                AddBinding(cache, type.FullName, entity.Id, bindingModel);
             }
 
             return (IBindingModel)bindingModel;
@@ -630,7 +629,7 @@ namespace XrmFramework.BindingModel
                             else
                             {
                                 var dateValue = (DateTime)value;
-                                SetValue(entity, crmAttribute.AttributeName, dateValue == DateTime.MinValue ? (DateTime?)null : dateValue, keyInfos, isKey);
+                                SetValue(entity, crmAttribute.AttributeName, dateValue == DateTime.MinValue ? null : dateValue, keyInfos, isKey);
                             }
                             break;
                         default:
@@ -743,18 +742,18 @@ namespace XrmFramework.BindingModel
             return GetRetrieveAllQuery(typeof(T));
         }
 
-        public static QueryExpression GetQueryToFilter(Type bindingModelType, Func<Relationship, LinkEntity, JoinOperator> Filter)
+        public static QueryExpression GetQueryToFilter(Type bindingModelType, Func<Relationship, LinkEntity, JoinOperator> filter)
         {
             var entityDefinition = DefinitionCache.GetEntityDefinitionFromModelType(bindingModelType);
 
             var query = new QueryExpression(entityDefinition.EntityName);
 
-            AddQueryFilter(bindingModelType, Filter, query.ColumnSet, query.LinkEntities);
+            AddQueryFilter(bindingModelType, filter, query.ColumnSet, query.LinkEntities);
 
             return query;
         }
 
-        private static void AddQueryFilter(Type bindingModelType, Func<Relationship, LinkEntity, JoinOperator> Filter, ColumnSet columnSet, DataCollection<LinkEntity> links, int depth = 1, string linkAlias = "")
+        private static void AddQueryFilter(Type bindingModelType, Func<Relationship, LinkEntity, JoinOperator> filter, ColumnSet columnSet, DataCollection<LinkEntity> links, int depth = 1, string linkAlias = "")
         {
             var modelDefinition = DefinitionCache.GetModelDefinition(bindingModelType);
             var entityDefinition = modelDefinition.MainDefinition;
@@ -824,9 +823,9 @@ namespace XrmFramework.BindingModel
                             link.JoinOperator = JoinOperator.LeftOuter;
                             link.EntityAlias = linkAliasName;
 
-                            if (Filter != null)
+                            if (filter != null)
                             {
-                                link.JoinOperator = Filter(relationship, link);
+                                link.JoinOperator = filter(relationship, link);
                             }
                         }
 
@@ -836,7 +835,7 @@ namespace XrmFramework.BindingModel
                         }
                         else if (typeof(IBindingModel).IsAssignableFrom(property.PropertyType))
                         {
-                            AddQueryFilter(property.PropertyType, Filter, link.Columns, link.LinkEntities, depth + 1, linkAliasName);
+                            AddQueryFilter(property.PropertyType, filter, link.Columns, link.LinkEntities, depth + 1, linkAliasName);
                         }
                     }
                 }
@@ -844,7 +843,7 @@ namespace XrmFramework.BindingModel
 
             foreach (var property in bindingModelType.GetProperties().Where(p => p.GetCustomAttributes(typeof(ExtendBindingModelAttribute), false).Any()))
             {
-                AddQueryFilter(property.PropertyType, Filter, columnSet, links, depth, linkAlias);
+                AddQueryFilter(property.PropertyType, filter, columnSet, links, depth, linkAlias);
             }
         }
 
@@ -981,7 +980,7 @@ namespace XrmFramework.BindingModel
                             foreach (XElement el in propElement.Elements())
                             {
 
-                                list.GetType().GetMethod("Add").Invoke(list, new[] { el.Value });
+                                list.GetType().GetMethod("Add").Invoke(list, new object[] { el.Value });
                             }
                         }
                         else
@@ -997,7 +996,7 @@ namespace XrmFramework.BindingModel
                             {
                                 var b = el.ToBindingModel(bindingType);
 
-                                foreach (var prop in bindingType.GetProperties().Where(p => p.GetCustomAttributes<CopyFromParentAttribute>() != null && p.GetCustomAttributes<CopyFromParentAttribute>().Any()))
+                                foreach (var prop in bindingType.GetProperties().Where(p => p.GetCustomAttributes<CopyFromParentAttribute>().Any()))
                                 {
                                     var copyFromParentAttributes = prop.GetCustomAttributes<CopyFromParentAttribute>();
                                     foreach (var copyFromParentAttribute in copyFromParentAttributes)
@@ -1037,7 +1036,6 @@ namespace XrmFramework.BindingModel
                                 }
                                 break;
                             case "Decimal":
-                                value = default(decimal);
                                 if (string.IsNullOrEmpty(propElement.Value))
                                 {
                                     if (property.IsNullable)
@@ -1091,8 +1089,7 @@ namespace XrmFramework.BindingModel
                                 }
                                 break;
                             case "Guid":
-                                var guidValue = Guid.Empty;
-                                if (Guid.TryParse(propElement.Value, out guidValue))
+                                if (Guid.TryParse(propElement.Value, out Guid guidValue))
                                 {
                                     value = guidValue;
                                 }

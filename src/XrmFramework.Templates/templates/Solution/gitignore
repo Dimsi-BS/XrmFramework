@@ -334,3 +334,6 @@ ASALocalRun/
 
 **/**/connectionStrings.config
 **/initXrm.ps1
+
+# Deploy folder
+.deploy/

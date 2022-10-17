@@ -1,0 +1,13 @@
+﻿<Project>
+    <Target Name="BeforeBuild">
+        <ItemGroup>
+            <AssemblyAttributes Include="XrmFramework.DeployUtils.Configuration.DeployFolderAttribute">
+                <_Parameter1>$(RootFolder).deploy</_Parameter1>
+            </AssemblyAttributes>
+        </ItemGroup>
+        <WriteCodeFragment AssemblyAttributes="@(AssemblyAttributes)" Language="C#" OutputDirectory="$(IntermediateOutputPath)" OutputFile="SolutionInfo.cs">
+            <Output TaskParameter="OutputFile" ItemName="Compile"/>
+            <Output TaskParameter="OutputFile" ItemName="FileWrites"/>
+        </WriteCodeFragment>
+    </Target>
+</Project>

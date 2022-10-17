@@ -34,6 +34,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.45"/>
         <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.45"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
         <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0"/>
     </ItemGroup>
 
@@ -41,9 +42,9 @@
         <Compile Include="..\XrmFramework\**\*.cs"
                  Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)"
                  Exclude="..\XrmFramework\Generated\**;
-                      ..\XrmFramework\bin\**;
-                      ..\XrmFramework\obj\**;
-                      ..\XrmFramework\**\*.table"/>
+                          ..\XrmFramework\bin\**;
+                          ..\XrmFramework\obj\**;
+                          ..\XrmFramework\**\*.table"/>
 
         <AdditionalFiles Include="..\XrmFramework\**\*.table"
                          Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)"

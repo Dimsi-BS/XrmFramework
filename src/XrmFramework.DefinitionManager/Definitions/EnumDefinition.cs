@@ -11,9 +11,9 @@ namespace DefinitionManager
     {
         private DefinitionCollection<EnumValueDefinition> _values = new();
 
-        private HashSet<AttributeDefinition> _referencingAttributes = new(new DefinitionComparer<AttributeDefinition>());
+        private readonly HashSet<AttributeDefinition> _referencingAttributes = new(new DefinitionComparer<AttributeDefinition>());
 
-        public IReadOnlyCollection<AttributeDefinition> ReferencedBy { get { return _referencingAttributes.ToList(); } }
+        public IReadOnlyCollection<AttributeDefinition> ReferencedBy => _referencingAttributes.ToList();
 
         public void Register(AttributeDefinition definition)
         {
@@ -37,18 +37,9 @@ namespace DefinitionManager
         [Mergeable]
         public bool HasNullValue { get; set; }
 
-        public override bool IsSelected
-        {
-            get
-            {
-                return _referencingAttributes.Any();
-            }
-            set
-            {
-            }
-        }
+        public override bool IsSelected => _referencingAttributes.Any();
 
-        public DefinitionCollection<EnumValueDefinition> Values { get { return _values; } }
+        public DefinitionCollection<EnumValueDefinition> Values => _values;
 
         public bool IsGlobal { get; set; }
 

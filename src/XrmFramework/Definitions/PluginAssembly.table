@@ -1,0 +1,611 @@
+{
+  "LogName": "pluginassembly",
+  "Name": "PluginAssembly",
+  "CollName": "pluginassemblies",
+  "Cols": [
+    {
+      "LogName": "authtype",
+      "Name": "AuthType",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Spécifie le mode d'authentification avec les sources Web",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "pluginassembly|authtype"
+    },
+    {
+      "LogName": "componentstate",
+      "Name": "ComponentState",
+      "Type": "Picklist",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "État du composant",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "componentstate"
+    },
+    {
+      "LogName": "content",
+      "Name": "Content",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [],
+      "StrLen": 1073741823,
+      "Select": true
+    },
+    {
+      "LogName": "createdby",
+      "Name": "CreatedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "createdonbehalfby",
+      "Name": "CreatedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "culture",
+      "Name": "Culture",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Culture",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 32,
+      "Select": true
+    },
+    {
+      "LogName": "customizationlevel",
+      "Name": "CustomizationLevel",
+      "Type": "Integer",
+      "Capa": 1,
+      "Labels": [],
+      "MinRange": -255.0,
+      "MaxRange": 255.0,
+      "Select": true
+    },
+    {
+      "LogName": "description",
+      "Name": "Description",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Description",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256,
+      "Select": true
+    },
+    {
+      "LogName": "introducedversion",
+      "Name": "IntroducedVersion",
+      "Type": "String",
+      "Capa": 5,
+      "Labels": [
+        {
+          "Label": "Version présentée",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 48
+    },
+    {
+      "LogName": "iscustomizable",
+      "Name": "IsCustomizable",
+      "Type": "ManagedProperty",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Personnalisable",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ishidden",
+      "Name": "IsHidden",
+      "Type": "ManagedProperty",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Masqué",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ismanaged",
+      "Name": "IsManaged",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "État",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "isolationmode",
+      "Name": "IsolationMode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Mode d’isolation",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "pluginassembly|isolationmode",
+      "Select": true
+    },
+    {
+      "LogName": "ispasswordset",
+      "Name": "IsPasswordSet",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "major",
+      "Name": "Major",
+      "Type": "Integer",
+      "Capa": 1,
+      "Labels": [],
+      "MinRange": 0.0,
+      "MaxRange": 65534.0
+    },
+    {
+      "LogName": "managedidentityid",
+      "Name": "ManagedIdentityId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "ManagedIdentityId",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "minor",
+      "Name": "Minor",
+      "Type": "Integer",
+      "Capa": 1,
+      "Labels": [],
+      "MinRange": 0.0,
+      "MaxRange": 65534.0
+    },
+    {
+      "LogName": "modifiedby",
+      "Name": "ModifiedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedon",
+      "Name": "ModifiedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "modifiedonbehalfby",
+      "Name": "ModifiedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256,
+      "Select": true
+    },
+    {
+      "LogName": "organizationid",
+      "Name": "OrganizationId",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "overwritetime",
+      "Name": "OverwriteTime",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Heure de remplacement de l’enregistrement",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "packageid",
+      "Name": "PackageId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Package",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "password",
+      "Name": "Password",
+      "Type": "String",
+      "Capa": 6,
+      "Labels": [
+        {
+          "Label": "Mot de passe utilisateur",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "path",
+      "Name": "Path",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Chemin",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "pluginassemblyid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 5,
+      "Labels": [],
+      "Select": true
+    },
+    {
+      "LogName": "pluginassemblyidunique",
+      "Name": "PluginAssemblyIdUnique",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [],
+      "Select": true
+    },
+    {
+      "LogName": "publickeytoken",
+      "Name": "PublicKeyToken",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Jeton de clé publique",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 32,
+      "Select": true
+    },
+    {
+      "LogName": "solutionid",
+      "Name": "SolutionId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Solution",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "sourcehash",
+      "Name": "SourceHash",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [],
+      "StrLen": 256
+    },
+    {
+      "LogName": "sourcetype",
+      "Name": "SourceType",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Type de source",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "pluginassembly|sourcetype",
+      "Select": true
+    },
+    {
+      "LogName": "url",
+      "Name": "Url",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Url du site Web",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 2000
+    },
+    {
+      "LogName": "username",
+      "Name": "UserName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom d’utilisateur",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256
+    },
+    {
+      "LogName": "version",
+      "Name": "Version",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Version",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 48,
+      "Select": true
+    },
+    {
+      "LogName": "versionnumber",
+      "Name": "VersionNumber",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": []
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "pluginassembly_plugintype",
+      "Etn": "plugintype",
+      "Role": "Referenced",
+      "NavPropName": "pluginassembly_plugintype",
+      "LookName": "pluginassemblyid"
+    },
+    {
+      "Name": "userentityinstancedata_pluginassembly",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_pluginassembly",
+      "LookName": "objectid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "modifiedby_pluginassembly",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "createdby_pluginassembly",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "organization_pluginassembly",
+      "Etn": "organization",
+      "NavPropName": "organizationid",
+      "LookName": "organizationid"
+    },
+    {
+      "Name": "lk_pluginassembly_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "lk_pluginassembly_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "pluginpackage_pluginassembly",
+      "Etn": "pluginpackage",
+      "NavPropName": "PackageId",
+      "LookName": "packageid"
+    },
+    {
+      "Name": "managedidentity_PluginAssembly",
+      "Etn": "managedidentity",
+      "NavPropName": "managedidentityid",
+      "LookName": "managedidentityid"
+    }
+  ],
+  "Keys": [],
+  "Enums": [
+    {
+      "LogName": "pluginassembly|authtype",
+      "Name": "TypeDAuthentification",
+      "Values": [
+        {
+          "Name": "Basicauth",
+          "Labels": [
+            {
+              "Label": "BasicAuth",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "pluginassembly|isolationmode",
+      "Name": "ModeDIsolation",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "AucunE",
+          "Labels": [
+            {
+              "Label": "Aucun(e)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "BacASableSandbox",
+          "Labels": [
+            {
+              "Label": "Bac à sable (sandbox)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Externe",
+          "Labels": [
+            {
+              "Label": "Externe",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "pluginassembly|sourcetype",
+      "Name": "TypeDeSource",
+      "Values": [
+        {
+          "Name": "BaseDeDonnees",
+          "Labels": [
+            {
+              "Label": "Base de données",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Disque",
+          "Labels": [
+            {
+              "Label": "Disque",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Normal",
+          "Labels": [
+            {
+              "Label": "Normal",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Azurewebapp",
+          "Labels": [
+            {
+              "Label": "AzureWebApp",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "MagasinDeFichiers",
+          "Labels": [
+            {
+              "Label": "Magasin de fichiers",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

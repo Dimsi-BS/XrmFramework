@@ -1,151 +1,149 @@
-﻿using AutoMapper;
-using Microsoft.Extensions.Options;
-using System;
+﻿using System;
 using System.Linq;
 using System.Reflection;
+using AutoMapper;
+using Microsoft.Extensions.Options;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.RemoteDebugger;
 using XrmFramework.RemoteDebugger.Client.Configuration;
 
+namespace XrmFramework.DeployUtils.Utils;
 
-namespace XrmFramework.DeployUtils.Utils
+internal partial class AssemblyFactory
 {
-    internal partial class AssemblyFactory
-    {
-        private readonly DebugSession _debugSession;
-        private readonly IMapper _mapper;
+	private readonly DebugSession _debugSession;
+	private readonly IMapper _mapper;
 
-        public AssemblyFactory(IOptions<DebugSession> debugSession,
-                                IAssemblyImporter importer,
-                                IMapper mapper)
-        {
-            _debugSession = debugSession.Value;
-            _importer = importer;
-            _mapper = mapper;
-        }
+	public AssemblyFactory(IOptions<DebugSession> debugSession,
+		IAssemblyImporter importer,
+		IMapper mapper)
+	{
+		_debugSession = debugSession.Value;
+		_importer = importer;
+		_mapper = mapper;
+	}
 
-        public IAssemblyContext CreateFromDebugAssembly(IRegistrationService service, DebugAssemblySettings debugSettings)
-        {
-            var assembly = service.GetAssemblyByName(DebugAssemblySettings.DebugAssemblyName);
+	public IAssemblyContext CreateFromDebugAssembly(IRegistrationService service, DebugAssemblySettings debugSettings)
+	{
+		var assembly = service.GetAssemblyByName(DebugAssemblySettings.DebugAssemblyName);
 
-            if (assembly == null)
-            {
-                throw new ArgumentException("The DebugAssembly is not deployed on this Solution");
-            }
+		if (assembly == null) throw new ArgumentException("The DebugAssembly is not deployed on this Solution");
 
-            var debugAssembly = _importer.CreateAssemblyFromRemote(assembly);
+		var debugAssembly = _importer.CreateAssemblyFromRemote(assembly);
 
-            var pluginTypes = service.GetRegisteredPluginTypes(debugAssembly.Id);
+		var pluginTypes = service.GetRegisteredPluginTypes(debugAssembly.AssemblyInfo.Id);
 
-            var pluginRaw = pluginTypes.Single(p => p.Name == DebugAssemblySettings.DebugPluginName);
-            var customApiRaw = pluginTypes.Single(p => p.Name == DebugAssemblySettings.DebugCustomApiName);
+		var pluginRaw = pluginTypes.Single(p => p.Name == DebugAssemblySettings.DebugPluginName);
+		var customApiRaw = pluginTypes.Single(p => p.Name == DebugAssemblySettings.DebugCustomApiName);
 
-            debugAssembly.AssemblyInfo.Name = debugSettings.TargetAssemblyUniqueName;
+		debugAssembly.AssemblyInfo.Name = debugSettings.TargetAssemblyUniqueName;
 
-            debugSettings.AssemblyId = assembly.Id;
-            debugSettings.PluginId = pluginRaw.Id;
-            debugSettings.CustomApiId = customApiRaw.Id;
+		debugSettings.AssemblyId = assembly.Id;
+		debugSettings.PluginId = pluginRaw.Id;
+		debugSettings.CustomApiId = customApiRaw.Id;
 
-            var stepsRaw = GetParsedSteps(service, debugAssembly.Id);
+		var stepsRaw = GetParsedSteps(service, debugAssembly.AssemblyInfo.Id);
 
-            var pluginsParsed = stepsRaw
-                .Select(s => (s, s.StepConfiguration))
-                .Where(su => su.StepConfiguration.DebugSessionId == _debugSession.Id
-                                            && su.StepConfiguration.AssemblyName == debugSettings.TargetAssemblyUniqueName) // Only look at the current debug session
-                .GroupBy(su => su.StepConfiguration.PluginName) // Regroup the steps by plugin
-                .Select(stepGroup =>
-                {
-                    var pluginParsed = new Plugin(stepGroup.Key);
-                    foreach (var (s, stepConfiguration) in stepGroup)
-                    {
-                        s.PluginTypeFullName = stepConfiguration.PluginName;
-                        s.PluginTypeName = stepConfiguration.PluginName.Split('.').Last();
-                        pluginParsed.Steps.Add(s);
-                    }
-                    pluginParsed.Id = pluginRaw.Id;
+		var pluginsParsed = stepsRaw
+			.Select(s => (s, s.StepConfiguration))
+			.Where(su => su.StepConfiguration.DebugSessionId == _debugSession.Id
+			             && su.StepConfiguration.AssemblyName ==
+			             debugSettings.TargetAssemblyUniqueName) // Only look at the current debug session
+			.GroupBy(su => su.StepConfiguration.PluginName) // Regroup the steps by plugin
+			.Select(stepGroup =>
+			{
+				var pluginParsed = new Plugin(stepGroup.Key);
+				foreach (var (s, stepConfiguration) in stepGroup)
+				{
+					s.PluginTypeFullName = stepConfiguration.PluginName;
+					s.PluginTypeName = stepConfiguration.PluginName.Split('.').Last();
+					pluginParsed.Steps.Add(s);
+				}
 
-                    return pluginParsed;
-                }) // Recreate the plugin and place its children in it
-                .ToList();
+				pluginParsed.Id = pluginRaw.Id;
 
-            pluginsParsed.ForEach(debugAssembly.AddChild);
+				return pluginParsed;
+			}) // Recreate the plugin and place its children in it
+			.ToList();
 
-            var customApisRaw = GetParsedCustomApis(service, debugAssembly.Id);
+		pluginsParsed.ForEach(debugAssembly.AddChild);
 
-            var customApiParsed = customApisRaw
-                .Where(c => debugSettings.HasCurrentCustomPrefix(c.Prefix))
-                .Select(c =>
-                {
-                    c.Prefix = DebugAssemblySettings.RemoveCustomPrefix(c.Prefix);
-                    return c;
-                })
-                .Where(c =>
-                {
-                    var assemblyName = _debugSession.GetCorrespondingAssemblyInfo(c.UniqueName)?.AssemblyName;
-                    return assemblyName != null &&
-                           assemblyName.Equals(debugSettings.TargetAssemblyUniqueName);
-                })
-                .ToList();
+		var customApisRaw = GetParsedCustomApis(service, debugAssembly.AssemblyInfo.Id);
 
-            customApiParsed.ForEach(debugAssembly.AddChild);
+		var customApiParsed = customApisRaw
+			.Where(c => debugSettings.HasCurrentCustomPrefix(c.Prefix))
+			.Select(c =>
+			{
+				c.Prefix = DebugAssemblySettings.RemoveCustomPrefix(c.Prefix);
+				return c;
+			})
+			.Where(c =>
+			{
+				var assemblyName = _debugSession.GetCorrespondingAssemblyInfo(c.UniqueName)?.AssemblyName;
+				return assemblyName != null &&
+				       assemblyName.Equals(debugSettings.TargetAssemblyUniqueName);
+			})
+			.ToList();
 
-            return debugAssembly;
-        }
+		customApiParsed.ForEach(debugAssembly.AddChild);
+
+		return debugAssembly;
+	}
 
 
-        public IAssemblyContext WrapDebugDiffForDebugStrategy(IAssemblyContext from, DebugAssemblySettings debugSettings, Assembly Assembly)
-        {
-            var debugAssembly = _mapper.Map<IAssemblyContext>(from.AssemblyInfo);
+	public IAssemblyContext WrapDebugDiffForDebugStrategy(IAssemblyContext from, DebugAssemblySettings debugSettings,
+		Assembly Assembly)
+	{
+		var debugAssembly = _mapper.Map<IAssemblyContext>(from.AssemblyInfo);
 
-            var localPlugins = Assembly.GetTypes();
+		var localPlugins = Assembly.GetTypes();
 
-            var debugPlugin = new Plugin("Father")
-            {
-                RegistrationState = RegistrationState.Computed
-            };
-            var assemblyName = Assembly.GetName().Name;
-            foreach (var plugin in from.Plugins)
-            {
-                var assemblyQualifiedName = localPlugins.FirstOrDefault(p => p.FullName == plugin.FullName)?.AssemblyQualifiedName;
+		var debugPlugin = new Plugin("Father")
+		{
+			RegistrationState = RegistrationState.Computed
+		};
+		var assemblyName = Assembly.GetName().Name;
+		foreach (var plugin in from.Plugins)
+		{
+			var assemblyQualifiedName =
+				localPlugins.FirstOrDefault(p => p.FullName == plugin.FullName)?.AssemblyQualifiedName;
 
-                foreach (var step in plugin.Steps)
-                {
-                    step.StepConfiguration.PluginName = step.PluginTypeFullName;
-                    step.StepConfiguration.AssemblyQualifiedName = assemblyQualifiedName;
-                    step.StepConfiguration.DebugSessionId = _debugSession.Id;
-                    step.StepConfiguration.AssemblyName = assemblyName;
+			foreach (var step in plugin.Steps)
+			{
+				step.StepConfiguration.PluginName = step.PluginTypeFullName;
+				step.StepConfiguration.AssemblyQualifiedName = assemblyQualifiedName;
+				step.StepConfiguration.DebugSessionId = _debugSession.Id;
+				step.StepConfiguration.AssemblyName = assemblyName;
 
-                    debugPlugin.AddChild(step);
-                }
-            }
+				debugPlugin.AddChild(step);
+			}
+		}
 
-            debugPlugin.ParentId = debugSettings.AssemblyId;
-            debugPlugin.Id = debugSettings.PluginId;
-            debugAssembly.AddChild(debugPlugin);
-            debugAssembly.RegistrationState = RegistrationState.Computed;
+		debugPlugin.ParentId = debugSettings.AssemblyId;
+		debugPlugin.Id = debugSettings.PluginId;
+		debugAssembly.AddChild(debugPlugin);
 
-            foreach (var customApi in from.CustomApis)
-            {
-                customApi.ParentId = debugSettings.CustomApiId;
-                //Insert seemingly random value to make the customApi unique
-                customApi.Prefix = debugSettings.AddCustomPrefix(customApi.Prefix);
-                debugAssembly.AddChild(customApi);
-            }
+		foreach (var customApi in from.CustomApis)
+		{
+			customApi.ParentId = debugSettings.CustomApiId;
+			//Insert seemingly random value to make the customApi unique
+			customApi.Prefix = debugSettings.AddCustomPrefix(customApi.Prefix);
+			debugAssembly.AddChild(customApi);
+		}
 
-            return debugAssembly;
-        }
+		return debugAssembly;
+	}
 
-        public IAssemblyContext WrapDiffAssemblyForDebugDiff(IAssemblyContext deployAssemblyDiff)
-        {
-            var assemblyToDebug = _mapper.Map<IAssemblyContext>(deployAssemblyDiff);
-            // We can remove now the diff components that are Ignore and whose children are too (recursively)
-            // They would only get in the way otherwise
-            assemblyToDebug.CleanChildrenWithState(RegistrationState.Ignore);
-            assemblyToDebug.CleanChildrenWithState(RegistrationState.ToDelete);
+	public IAssemblyContext WrapDiffAssemblyForDebugDiff(IAssemblyContext deployAssemblyDiff)
+	{
+		var assemblyToDebug = _mapper.Map<IAssemblyContext>(deployAssemblyDiff);
+		// We can remove now the diff components that are Ignore and whose children are too (recursively)
+		// They would only get in the way otherwise
+		assemblyToDebug.CleanChildrenWithState(RegistrationState.Ignore);
+		assemblyToDebug.CleanChildrenWithState(RegistrationState.ToDelete);
 
-            return assemblyToDebug;
-        }
-    }
+		return assemblyToDebug;
+	}
 }

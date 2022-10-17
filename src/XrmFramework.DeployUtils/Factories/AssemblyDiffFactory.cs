@@ -1,120 +1,139 @@
-﻿using AutoMapper;
+﻿using System;
 using System.Linq;
+using AutoMapper;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 
-namespace XrmFramework.DeployUtils.Utils
+namespace XrmFramework.DeployUtils.Utils;
+
+public class AssemblyDiffFactory
 {
-    public class AssemblyDiffFactory
-    {
-        private readonly ICrmComponentComparer _comparer;
-        private readonly IMapper _mapper;
-        public AssemblyDiffFactory(ICrmComponentComparer comparer, IMapper mapper)
-        {
-            _comparer = comparer;
-            _mapper = mapper;
-        }
+	private readonly ICrmComponentComparer _comparer;
+	private readonly IMapper _mapper;
 
-        /// <summary>
-        /// Computes the difference between two <see cref="IAssemblyContext"/> 
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="target"></param>
-        /// <returns>A copy of the <paramref name="from"/> AssemblyContext
-        /// with computed <see cref="RegistrationState"/> properties according to the other <paramref name="target"/> AssemblyContext</returns>
-        public IAssemblyContext ComputeDiffPatch(IAssemblyContext from, IAssemblyContext target)
-        {
-            //Clone the from AssemblyContext
-            var fromCopy = _mapper.Map<IAssemblyContext>(from);
+	public AssemblyDiffFactory(ICrmComponentComparer comparer, IMapper mapper)
+	{
+		_comparer = comparer;
+		_mapper = mapper;
+	}
 
-            if (target == null)
-            {
-                FlagAllFromComponent(fromCopy, RegistrationState.ToCreate);
-                return fromCopy;
-            }
+	/// <summary>
+	///     Computes the difference between two <see cref="IAssemblyContext" />
+	/// </summary>
+	/// <param name="from"></param>
+	/// <param name="target"></param>
+	/// <returns>
+	///     A copy of the <paramref name="from" /> AssemblyContext
+	///     with computed <see cref="RegistrationState" /> properties according to the other <paramref name="target" />
+	///     AssemblyContext
+	/// </returns>
+	public IAssemblyContext ComputeDiffPatch(IAssemblyContext from, IAssemblyContext target)
+	{
+		//Clone the from AssemblyContext
+		var fromCopy = _mapper.Map<IAssemblyContext>(from);
 
-            /*
-             * Reset registration states
-             */
+		if (target == null)
+		{
+			FlagAllAssemblyContext(fromCopy, RegistrationState.ToCreate);
+			return fromCopy;
+		}
 
-            FlagAllFromComponent(fromCopy, RegistrationState.NotComputed);
-            FlagAllFromComponent(target, RegistrationState.NotComputed);
+		/*
+		 * Reset registration states
+		 */
 
-            var fromPool = fromCopy.ComponentsOrderedPool;
-            var targetPool = target.ComponentsOrderedPool;
+		FlagAllAssemblyContext(fromCopy, RegistrationState.NotComputed);
+		FlagAllAssemblyContext(target, RegistrationState.NotComputed);
 
-            /*
-             * Some explanation here :
-             * Collections are ordered such as a component's parent is always before it.
-             * This way, once we encounter a parent whose all children can be computed fast (FlagAllFromComponent),
-             * We can compute them ahead of time and they won't be computed a second time when encountered later on.
-             * This is done because CorrespondingComponent is a costly function.
-             */
+		var fromPool = fromCopy.ComponentsOrderedPool;
+		var targetPool = target.ComponentsOrderedPool;
 
-            foreach (var fromComponent in fromPool)
-            {
-                // If already computed, don't do it again
-                if (fromComponent.RegistrationState != RegistrationState.NotComputed)
-                {
-                    continue;
-                }
+		/*
+		 * Some explanation here :
+		 * Collections are ordered such as a component's parent is always before it.
+		 * This way, once we encounter a parent whose all children can be computed fast (FlagAllFromComponent),
+		 * We can compute them ahead of time and they won't be computed a second time when encountered later on.
+		 * This is done because CorrespondingComponent is a costly function.
+		 */
 
-                // See if this component is present in the other pool
-                var targetComponent = _comparer.CorrespondingComponent(fromComponent, targetPool);
+		foreach (var fromComponent in fromPool)
+		{
+			// If already computed, don't do it again
+			if (fromComponent.RegistrationState != RegistrationState.NotComputed) continue;
 
-                // If not, mark it and all its children as ToCreate
-                if (targetComponent == null)
-                {
-                    FlagAllFromComponent(fromComponent, RegistrationState.ToCreate);
-                    continue;
-                }
+			// See if this component is present in the other pool
+			var targetComponent = _comparer.CorrespondingComponent(fromComponent, targetPool);
 
-                // If there, transfer the ids and see if the component is up to date
-                fromComponent.Id = targetComponent.Id;
-                fromComponent.ParentId = targetComponent.ParentId;
-                if (fromComponent is CustomApi fromApi)
-                {
-                    fromApi.AssemblyId = ((CustomApi)targetComponent).AssemblyId;
-                }
+			// If not, mark it and all its children as ToCreate
+			if (targetComponent == null)
+			{
+				FlagAllFromComponent(fromComponent, RegistrationState.ToCreate);
+				continue;
+			}
 
-                fromComponent.RegistrationState = _comparer.NeedsUpdate(fromComponent, targetComponent)
-                    ? RegistrationState.ToUpdate
-                    : RegistrationState.Ignore;
-                targetComponent.RegistrationState = RegistrationState.Computed;
-            }
+			// If there, transfer the ids and see if the component is up to date
+			fromComponent.Id = targetComponent.Id;
+			fromComponent.ParentId = targetComponent.ParentId;
+			if (fromComponent is CustomApi fromApi) fromApi.AssemblyId = ((CustomApi) targetComponent).AssemblyId;
 
-            // Go through every component of target that have not yet been computed
-            // This means there were no corresponding component in from, so they all have to be deleted
-            foreach (var targetComponent in targetPool)
-            {
-                if (targetComponent.RegistrationState != RegistrationState.NotComputed)
-                {
-                    continue;
-                }
+			fromComponent.RegistrationState = _comparer.NeedsUpdate(fromComponent, targetComponent)
+				? RegistrationState.ToUpdate
+				: RegistrationState.Ignore;
+			targetComponent.RegistrationState = RegistrationState.Computed;
+		}
 
-                FlagAllFromComponent(targetComponent, RegistrationState.ToDelete);
-                var componentFather = targetComponent is CustomApi api
-                ? fromPool.First(c => c.Id == api.AssemblyId)
-                : fromPool.First(c => c.Id == targetComponent.ParentId);
-                componentFather.AddChild(targetComponent);
-            }
+		// Go through every component of target that have not yet been computed
+		// This means there were no corresponding component in from, so they all have to be deleted
+		foreach (var targetComponent in targetPool)
+		{
+			if (targetComponent.RegistrationState != RegistrationState.NotComputed) continue;
 
-            return fromCopy;
-        }
+			FlagAllFromComponent(targetComponent, RegistrationState.ToDelete);
+			var componentFather = targetComponent is CustomApi api
+				? fromPool.First(c => c.Id == api.AssemblyId)
+				: fromPool.First(c => c.Id == targetComponent.ParentId);
+			componentFather.AddChild(targetComponent);
+		}
 
-        /// <summary>
-        /// Flags a <paramref name="target"/> <see cref="ICrmComponent"/> and all its children recursively
-        /// with the given <see cref="RegistrationState"/> <paramref name="state"/>
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="state"></param>
-        private static void FlagAllFromComponent(ICrmComponent target, RegistrationState state)
-        {
-            target.RegistrationState = state;
-            foreach (var child in target.Children)
-            {
-                FlagAllFromComponent(child, state);
-            }
-        }
-    }
+		return fromCopy;
+	}
+
+	public IAssemblyComponent ComputeAssemblyOperation(AssemblyInfo from, AssemblyInfo target)
+	{
+		var result = _mapper.Map<AssemblyInfo>(from);
+
+		if (from.Package != null)
+		{
+			result.Package.RegistrationState = target?.Package == null
+				? RegistrationState.ToCreate
+				: RegistrationState.ToUpdate;
+
+			result.Package.Id = target?.Package?.Id ?? Guid.NewGuid();
+			return result.Package;
+		}
+
+		result.RegistrationState = target == null
+			? RegistrationState.ToCreate
+			: RegistrationState.ToUpdate;
+		result.Id = target?.Id ?? Guid.NewGuid();
+
+		return result;
+	}
+
+	/// <summary>
+	///     Flags a <paramref name="target" /> <see cref="ICrmComponent" /> and all its children recursively
+	///     with the given <see cref="RegistrationState" /> <paramref name="state" />
+	/// </summary>
+	/// <param name="target"></param>
+	/// <param name="state"></param>
+	private static void FlagAllFromComponent(ICrmComponent target, RegistrationState state)
+	{
+		target.RegistrationState = state;
+		foreach (var child in target.Children) FlagAllFromComponent(child, state);
+	}
+
+	private static void FlagAllAssemblyContext(IAssemblyContext context, RegistrationState state)
+	{
+		foreach (var child in context.Children) FlagAllFromComponent(child, state);
+	}
 }
