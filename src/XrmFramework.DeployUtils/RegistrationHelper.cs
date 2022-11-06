@@ -151,11 +151,8 @@ namespace XrmFramework.DeployUtils
             {
                 Console.WriteLine("Updating plugin assembly");
 
-                var updatedAssembly = new Entity("pluginassembly")
-                {
-                    Id = assembly.Id,
-                    ["content"] = Convert.ToBase64String(File.ReadAllBytes(assemblyPath))
-                };
+                var updatedAssembly = GetAssemblyToRegister(pluginAssembly, assemblyPath);
+                updatedAssembly.Id = assembly.Id;
 
                 registeredPluginTypes = GetRegisteredPluginTypes(service, assembly.Id).ToList();
                 registeredCustomApis = GetRegisteredCustomApis(service, assembly.Id).ToList();
