@@ -1,5 +1,6 @@
-﻿using Newtonsoft.Json;
-using Microsoft.Xrm.Sdk;
+﻿using Microsoft.Xrm.Sdk;
+using Newtonsoft.Json;
+using System;
 
 // ReSharper disable once CheckNamespace
 namespace XrmFramework
@@ -7,14 +8,14 @@ namespace XrmFramework
     partial class LocalPluginContext : ICustomApiContext
     {
         public EntityReference ObjectRef => new(PluginExecutionContext.PrimaryEntityName, PluginExecutionContext.PrimaryEntityId);
-               
+
         public T GetArgumentValue<T>(CustomApiInArgument<T> argument)
         {
             if (!PluginExecutionContext.InputParameters.TryGetValue(argument.ArgumentName, out var argumentValue) || argumentValue == null)
             {
                 return default;
             }
-            
+
             switch (argument.ArgumentType)
             {
 
@@ -27,6 +28,13 @@ namespace XrmFramework
                     {
                         return (T)argumentValue;
                     }
+                case CustomApiArgumentType.DateTime:
+                    if (argumentValue is string stringValue)
+                    {
+                        return (T)(object)DateTime.Parse(stringValue);
+                    }
+
+                    return (T)argumentValue;
                 default:
                     return (T)argumentValue;
             }

@@ -153,8 +153,6 @@ namespace XrmFramework.DeployUtils
 
                     registeredPluginTypes = GetRegisteredPluginTypes(service, assembly.Id).ToList();
                     registeredCustomApis = GetRegisteredCustomApis(service, assembly.Id).ToList();
-                    registeredCustomApiRequestParameters = GetRegisteredCustomApiRequestParameters(service, assembly.Id).ToList();
-                    registeredCustomApiResponseProperties = GetRegisteredCustomApiResponseProperties(service, assembly.Id).ToList();
 
                     registeredSteps = GetRegisteredSteps(service, assembly.Id);
 
@@ -600,7 +598,7 @@ namespace XrmFramework.DeployUtils
             if (_list.Count == 0)
             {
                 var query = new QueryExpression("pluginassembly");
-                query.ColumnSet.AllColumns = true;
+                query.ColumnSet.AddColumns("name", "major", "minor");
                 query.Distinct = true;
                 query.Criteria.FilterOperator = LogicalOperator.And;
                 query.Criteria.AddCondition("name", ConditionOperator.NotLike, "CompiledWorkflow%");
