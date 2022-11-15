@@ -40,14 +40,17 @@ namespace XrmFramework
             {
                 MethodNames.Add(Method.Name);
 
-                var filteringAttributes = Method.GetCustomAttribute<FilteringAttributesAttribute>();
-                if (filteringAttributes != null)
+                if (message == Messages.Update)
                 {
-                    _filteringAttributes.AddRange(filteringAttributes.Attributes);
-                }
-                else if (columns != null)
-                {
-                    _filteringAttributes.AddRange(columns);
+                    var filteringAttributes = Method.GetCustomAttribute<FilteringAttributesAttribute>();
+                    if (filteringAttributes != null)
+                    {
+                        _filteringAttributes.AddRange(filteringAttributes.Attributes);
+                    }
+                    else if (columns != null)
+                    {
+                        _filteringAttributes.AddRange(columns);
+                    }
                 }
 
                 var preImageAttribute = Method.GetCustomAttribute<PreImageAttribute>();
