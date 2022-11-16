@@ -598,7 +598,7 @@ namespace XrmFramework.DeployUtils
             if (_list.Count == 0)
             {
                 var query = new QueryExpression("pluginassembly");
-                query.ColumnSet.AddColumns("name", "major", "minor");
+                query.ColumnSet.AddColumns("name", "major", "minor", "pluginassemblyid");
                 query.Distinct = true;
                 query.Criteria.FilterOperator = LogicalOperator.And;
                 query.Criteria.AddCondition("name", ConditionOperator.NotLike, "CompiledWorkflow%");
