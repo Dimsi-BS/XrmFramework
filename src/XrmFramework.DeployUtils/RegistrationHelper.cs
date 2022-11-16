@@ -144,50 +144,42 @@ namespace XrmFramework.DeployUtils
 
             var newAssembly = GetAssemblyToRegister(pluginAssembly, assemblyPath);
 
-            if (assembly == null || newAssembly.Major != major || newAssembly.Minor != minor)
+            var updateAssembly = assembly != null && newAssembly.Major == major && newAssembly.Minor == minor;
+
+            if (!updateAssembly)
             {
+                newAssembly.Id = service.Create(newAssembly);
+
                 if (assembly != null)
                 {
                     Console.WriteLine($"Version increase: from {major}.{minor} to {newAssembly.Major}.{newAssembly.Minor}");
                     Console.WriteLine("Registering a new assembly and removing steps and plugin types from previous version");
 
                     registeredPluginTypes = GetRegisteredPluginTypes(service, assembly.Id).ToList();
-                    registeredCustomApis = GetRegisteredCustomApis(service, assembly.Id).ToList();
-
-                    registeredSteps = GetRegisteredSteps(service, assembly.Id);
 
                     foreach (var registeredType in registeredPluginTypes.Where(r => r.IsWorkflowActivity != true))
                     {
-                        var registeredStepsForPluginType = registeredSteps.Where(s => s.EventHandler.Id == registeredType.Id).ToList();
-                        foreach (var step in registeredStepsForPluginType)
-                        {
-                            service.Delete(SdkMessageProcessingStep.EntityLogicalName, step.Id);
-                            registeredSteps.Remove(step);
-                        }
+                        registeredType.PluginAssemblyId = new EntityReference(PluginAssembly.EntityLogicalName, newAssembly.Id);
 
-                        foreach (var customApi in registeredCustomApis.Where(c => c.PluginTypeId?.Id == registeredType.Id))
-                        {
-                            service.Delete(customApi.LogicalName, customApi.Id);
-                        }
-
-                        service.Delete(PluginType.EntityLogicalName, registeredType.Id);
+                        service.Update(registeredType);
+                        registeredPluginTypes.Remove(registeredType);
                     }
 
-                    registeredPluginTypes = new List<PluginType>();
-                    registeredCustomApis = new List<CustomApi>();
-                    registeredCustomApiRequestParameters = new List<CustomApiRequestParameter>();
-                    registeredCustomApiResponseProperties = new List<CustomApiResponseProperty>();
-                    profiledSteps = new List<SdkMessageProcessingStep>();
-                    registeredSteps = Enumerable.Empty<SdkMessageProcessingStep>().ToList();
+                    if (!registeredPluginTypes.Any())
+                    {
+                        service.Delete(PluginAssembly.EntityLogicalName, assembly.Id);
+                    }
+
+                    updateAssembly = true;
                 }
 
                 Console.WriteLine("Registering assembly");
 
                 assembly = newAssembly;
-
-                assembly.Id = service.Create(assembly);
             }
-            else
+
+
+            if (updateAssembly)
             {
                 Console.WriteLine("Updating plugin assembly");
 
@@ -598,7 +590,7 @@ namespace XrmFramework.DeployUtils
             if (_list.Count == 0)
             {
                 var query = new QueryExpression("pluginassembly");
-                query.ColumnSet.AddColumns("name", "major", "minor", "pluginassemblyid");
+                query.ColumnSet.AddColumns("pluginassemblyid", "name", "major", "minor");
                 query.Distinct = true;
                 query.Criteria.FilterOperator = LogicalOperator.And;
                 query.Criteria.AddCondition("name", ConditionOperator.NotLike, "CompiledWorkflow%");
@@ -606,6 +598,9 @@ namespace XrmFramework.DeployUtils
                 filter.AddCondition("customizationlevel", ConditionOperator.Null);
                 filter.AddCondition("customizationlevel", ConditionOperator.NotEqual, 0);
                 filter.AddCondition("name", ConditionOperator.In, "Microsoft.Crm.ObjectModel", "Microsoft.Crm.ServiceBus");
+
+                query.AddOrder("major", OrderType.Descending);
+                query.AddOrder("minor", OrderType.Descending);
 
                 var result = RetrieveAll(service, query);
                 foreach (var assembly in result)
