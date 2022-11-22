@@ -157,7 +157,9 @@ namespace XrmFramework.DeployUtils
 
                     registeredPluginTypes = GetRegisteredPluginTypes(service, assembly.Id).ToList();
 
-                    foreach (var registeredType in registeredPluginTypes.Where(r => r.IsWorkflowActivity != true))
+                    var notWorkflowPluginTypes = registeredPluginTypes.Where(r => r.IsWorkflowActivity != true).ToList();
+
+                    foreach (var registeredType in notWorkflowPluginTypes)
                     {
                         registeredType.PluginAssemblyId = new EntityReference(PluginAssembly.EntityLogicalName, newAssembly.Id);
 
