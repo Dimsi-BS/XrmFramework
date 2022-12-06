@@ -88,6 +88,7 @@ public class AssemblyDiffFactory
 		{
 			if (targetComponent.RegistrationState != RegistrationState.NotComputed) continue;
 
+			// TODO : Map these components to make the resulting Assembly truly distinct
 			FlagAllFromComponent(targetComponent, RegistrationState.ToDelete);
 			var componentFather = targetComponent is CustomApi api
 				? fromPool.First(c => c.Id == api.AssemblyId)
