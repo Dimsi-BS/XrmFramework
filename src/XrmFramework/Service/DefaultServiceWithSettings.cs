@@ -14,12 +14,17 @@ namespace XrmFramework
 
         protected virtual IEnumerable<(string settingName, object settingValue)> InitSettings(IEnumerable<(string settingName, Type settingType)> settingDefinitions)
         {
-            foreach (var settingDefinition in settingDefinitions)
+            var settings = settingDefinitions.ToList();
+
+            var results = GetEnvironmentVariables(settings.Select(s => s.settingName).ToArray());
+
+            return settings.Join(results, p => p.settingName, p => p.SchemaName, (property, parameter) =>
             {
-                yield return (settingDefinition.settingName,
-                    GetEnvironmentVariable(settingDefinition.settingType, settingDefinition.settingName)
-                );
-            }
+                var settingValue = GetEnvironmentVariableValue(property.settingType, parameter);
+
+                (string settingName, object settingValue) p = new(parameter.SchemaName, settingValue);
+                return p;
+            }).ToList();
         }
 
         protected DefaultServiceWithSettings(IServiceContext context) : base(context)

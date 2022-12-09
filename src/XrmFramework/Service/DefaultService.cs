@@ -691,17 +691,8 @@ namespace XrmFramework
             return (TVariable)variableObject;
         }
 
-        protected object GetEnvironmentVariable(Type objectType, string schemaName)
+        protected object GetEnvironmentVariableValue(Type objectType, EnvironmentVariable variable)
         {
-            var queryVariable = BindingModelHelper.GetRetrieveAllQuery<EnvironmentVariable>();
-            queryVariable.Criteria.AddCondition(EnvironmentVariableDefinition.Columns.SchemaName, ConditionOperator.Equal, schemaName);
-
-            var linkValue = queryVariable.AddLink(EnvironmentVariableValueDefinition.EntityName, EnvironmentVariableDefinition.Columns.Id, EnvironmentVariableValueDefinition.Columns.EnvironmentVariableDefinitionId, JoinOperator.LeftOuter);
-            linkValue.EntityAlias = EnvironmentVariableValueDefinition.EntityName;
-            linkValue.Columns.AddColumn(EnvironmentVariableValueDefinition.Columns.Value);
-
-            var variable = AdminOrganizationService.RetrieveAll<EnvironmentVariable>(queryVariable).FirstOrDefault();
-
             if (variable == null)
             {
                 return null;
@@ -735,6 +726,35 @@ namespace XrmFramework
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        protected ICollection<EnvironmentVariable> GetEnvironmentVariables(params string[] schemaNames)
+        {
+            if (schemaNames == null || schemaNames.Length == 0)
+            {
+                return new List<EnvironmentVariable>();
+            }
+
+            var queryVariable = BindingModelHelper.GetRetrieveAllQuery<EnvironmentVariable>();
+
+            queryVariable.Criteria.FilterOperator = LogicalOperator.Or;
+
+            foreach (var schemaName in schemaNames) {
+                queryVariable.Criteria.AddCondition(EnvironmentVariableDefinition.Columns.SchemaName, ConditionOperator.Equal, schemaName);
+            }
+
+            var linkValue = queryVariable.AddLink(EnvironmentVariableValueDefinition.EntityName, EnvironmentVariableDefinition.Columns.Id, EnvironmentVariableValueDefinition.Columns.EnvironmentVariableDefinitionId, JoinOperator.LeftOuter);
+            linkValue.EntityAlias = EnvironmentVariableValueDefinition.EntityName;
+            linkValue.Columns.AddColumn(EnvironmentVariableValueDefinition.Columns.Value);
+
+            return AdminOrganizationService.RetrieveAll<EnvironmentVariable>(queryVariable);
+        }
+
+        protected object GetEnvironmentVariable(Type objectType, string schemaName)
+        {
+            var variable = GetEnvironmentVariables(schemaName).FirstOrDefault();
+
+            return GetEnvironmentVariableValue(objectType, variable);
         }
 
         private TResponse Execute<TRequest, TResponse>(IOrganizationService service, TRequest request,
