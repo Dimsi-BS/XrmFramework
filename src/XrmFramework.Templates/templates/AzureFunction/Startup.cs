@@ -1,5 +1,6 @@
-﻿Commands;
+﻿using $safeprojectname$.Commands;
 using $safeprojectname$.Extensions;
+using AzureFromTheTrenches.Commanding.Abstractions;
 using FunctionMonkey.Abstractions;
 using FunctionMonkey.Abstractions.Builders;
 using FunctionMonkey.FluentValidation;
