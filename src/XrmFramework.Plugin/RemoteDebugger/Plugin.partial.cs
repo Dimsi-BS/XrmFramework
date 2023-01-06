@@ -17,7 +17,7 @@ namespace XrmFramework
             if (!localContext.IsDebugContext)
             {
                 localContext.Log("The context is genuine");
-                localContext.Log($"UnSecuredConfig : {UnSecuredConfig}");
+                localContext.Log($"UnSecuredConfig : {UnSecuredConfigFull}");
 
                 //if (!string.IsNullOrEmpty(UnSecuredConfig) && UnSecuredConfig.Contains("debugSessions"))
                 //{
@@ -47,7 +47,7 @@ namespace XrmFramework
                             var remoteContext = localContext.RemoteContext;
                             remoteContext.Id = Guid.NewGuid();
                             remoteContext.TypeAssemblyQualifiedName = GetType().AssemblyQualifiedName;
-                            remoteContext.UnsecureConfig = UnSecuredConfig;
+                            remoteContext.UnsecureConfig = UnSecuredConfigFull;
                             remoteContext.SecureConfig = SecuredConfig;
 
                             var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");

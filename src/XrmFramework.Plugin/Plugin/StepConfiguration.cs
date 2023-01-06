@@ -7,5 +7,8 @@ namespace XrmFramework
     {
         [JsonProperty("relName")]
         public string RelationshipName { get; set; }
+
+        [JsonProperty("configuration")]
+        public string Configuration { get; set; }
     }
 }

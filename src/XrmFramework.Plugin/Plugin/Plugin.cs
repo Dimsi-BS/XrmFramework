@@ -25,9 +25,11 @@ namespace XrmFramework
 
         protected const string PostImageName = "PostImage";
 
-        private string SecuredConfig { get; set; }
+        private string SecuredConfig { get; }
 
-        private string UnSecuredConfig { get; set; }
+        private string UnSecuredConfigFull { get; }
+
+        protected string UnsecuredConfig { get; }
 
         public bool StepsInitialized { get; private set; }
 
@@ -43,7 +45,20 @@ namespace XrmFramework
         protected Plugin(string unsecuredConfig, string securedConfig, bool delayStepRegistration)
         {
             SecuredConfig = securedConfig;
-            UnSecuredConfig = unsecuredConfig;
+            UnSecuredConfigFull = unsecuredConfig;
+
+            try 
+            {
+                var stepConfiguration = JsonConvert.DeserializeObject<StepConfiguration>(unsecuredConfig);
+
+                UnsecuredConfig = stepConfiguration.Configuration;
+            }
+            catch (Exception) 
+            {
+                // Problème de désérialization de la config
+                UnsecuredConfig = unsecuredConfig;
+            }
+
             InitializeSteps(delayStepRegistration);
         }
         #endregion
@@ -129,7 +144,7 @@ namespace XrmFramework
             }
 
             // Construct the Local plug-in context.
-            var localContext = new LocalPluginContext(serviceProvider, UnSecuredConfig, SecuredConfig);
+            var localContext = new LocalPluginContext(serviceProvider, UnSecuredConfigFull, SecuredConfig);
 
             localContext.Log($"Entity: {localContext.PrimaryEntityName}, Message: {localContext.MessageName}, Stage: {Enum.ToObject(typeof(Stages), localContext.Stage)}, Mode: {localContext.Mode}");
 

@@ -98,6 +98,21 @@ namespace XrmFramework.DeployUtils.Model
                 PostImageAttributes.AddRange(step.PostImageAttributes);
             }
 
+            if (!string.IsNullOrWhiteSpace(step.UnsecureConfig) && step.UnsecureConfig != UnsecureConfig)
+            {
+                var existingConfig = string.IsNullOrWhiteSpace(UnsecureConfig) ? new StepConfiguration() : JsonConvert.DeserializeObject<StepConfiguration>(UnsecureConfig);
+
+                var newConfig = JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig);
+
+                if (string.IsNullOrWhiteSpace(existingConfig.Configuration) &&
+                    !string.IsNullOrWhiteSpace(newConfig.Configuration))
+                {
+                    existingConfig.Configuration = newConfig.Configuration;
+                }
+
+                UnsecureConfig = JsonConvert.SerializeObject(existingConfig);
+            }
+
             MethodNames.AddRange(step.MethodNames);
         }
 
@@ -113,15 +128,22 @@ namespace XrmFramework.DeployUtils.Model
             step.PreImageAllAttributes = s.PreImageAllAttributes;
             step.PreImageAttributes.AddRange(s.PreImageAttributes);
 
-            if (!string.IsNullOrWhiteSpace(s.UnsecureConfig) && !string.IsNullOrWhiteSpace(step.UnsecureConfig))
+            if (!string.IsNullOrWhiteSpace(s.UnsecureConfig) || !string.IsNullOrWhiteSpace(step.UnsecureConfig))
             {
-                var stepConfigIncoming = JsonConvert.DeserializeObject<StepConfiguration>(s.UnsecureConfig);
+                var stepConfiguration = new StepConfiguration
+                {
+                    Configuration = s.UnsecureConfig
+                };
 
-                var stepConfig = JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig);
+                if (!string.IsNullOrWhiteSpace(step.UnsecureConfig))
+                {
+                    var stepConfig = JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig);
 
-                stepConfigIncoming.RelationshipName = stepConfig.RelationshipName;
+                    stepConfiguration.RelationshipName = stepConfig.RelationshipName;
+                }
 
-                step.UnsecureConfig = JsonConvert.SerializeObject(stepConfigIncoming);
+                step.UnsecureConfig = JsonConvert.SerializeObject(stepConfiguration);
+
             }
 
             step.MethodNames.AddRange(s.MethodNames);
