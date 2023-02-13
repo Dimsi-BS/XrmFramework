@@ -62,17 +62,16 @@ namespace XrmFramework.RemoteDebugger.Client
             {
                 MessageReceiveCache.TryAdd(message.PluginExecutionId, message);
 
-                RemoteDebuggerMessage response;
-                while (!MessageSendCache.TryRemove(message.PluginExecutionId, out response))
-                {
-                    // Waiting for the response to come
-                    Thread.Sleep(50);
-                }
-
-                //Console.WriteLine("{0}", response);
-
-                SendMessage(response);
             }
+
+            RemoteDebuggerMessage response;
+            while (!MessageSendCache.TryRemove(message.PluginExecutionId, out response))
+            {
+                // Waiting for the response to come
+                Thread.Sleep(50);
+            }
+            
+            SendMessage(response);
         }
 
         public Task SendMessage(RemoteDebuggerMessage message)
