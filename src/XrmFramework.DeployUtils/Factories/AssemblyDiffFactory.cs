@@ -41,12 +41,14 @@ public class AssemblyDiffFactory
 		/*
 		 * Reset registration states
 		 */
+		
+		var targetCopy = _mapper.Map<IAssemblyContext>(target);
 
 		FlagAllAssemblyContext(fromCopy, RegistrationState.NotComputed);
-		FlagAllAssemblyContext(target, RegistrationState.NotComputed);
+		FlagAllAssemblyContext(targetCopy, RegistrationState.NotComputed);
 
 		var fromPool = fromCopy.ComponentsOrderedPool;
-		var targetPool = target.ComponentsOrderedPool;
+		var targetPool = targetCopy.ComponentsOrderedPool;
 
 		/*
 		 * Some explanation here :
@@ -59,7 +61,8 @@ public class AssemblyDiffFactory
 		foreach (var fromComponent in fromPool)
 		{
 			// If already computed, don't do it again
-			if (fromComponent.RegistrationState != RegistrationState.NotComputed) continue;
+			if (fromComponent.RegistrationState != RegistrationState.NotComputed) 
+				continue;
 
 			// See if this component is present in the other pool
 			var targetComponent = _comparer.CorrespondingComponent(fromComponent, targetPool);
@@ -74,8 +77,11 @@ public class AssemblyDiffFactory
 			// If there, transfer the ids and see if the component is up to date
 			fromComponent.Id = targetComponent.Id;
 			fromComponent.ParentId = targetComponent.ParentId;
-			if (fromComponent is CustomApi fromApi) fromApi.AssemblyId = ((CustomApi) targetComponent).AssemblyId;
-
+			if (fromComponent is CustomApi fromApi)
+			{
+				fromApi.AssemblyId = ((CustomApi) targetComponent).AssemblyId;
+			}
+			
 			fromComponent.RegistrationState = _comparer.NeedsUpdate(fromComponent, targetComponent)
 				? RegistrationState.ToUpdate
 				: RegistrationState.Ignore;
@@ -86,9 +92,9 @@ public class AssemblyDiffFactory
 		// This means there were no corresponding component in from, so they all have to be deleted
 		foreach (var targetComponent in targetPool)
 		{
-			if (targetComponent.RegistrationState != RegistrationState.NotComputed) continue;
-
-			// TODO : Map these components to make the resulting Assembly truly distinct
+			if (targetComponent.RegistrationState != RegistrationState.NotComputed)
+				continue;
+			
 			FlagAllFromComponent(targetComponent, RegistrationState.ToDelete);
 			var componentFather = targetComponent is CustomApi api
 				? fromPool.First(c => c.Id == api.AssemblyId)
@@ -130,11 +136,17 @@ public class AssemblyDiffFactory
 	private static void FlagAllFromComponent(ICrmComponent target, RegistrationState state)
 	{
 		target.RegistrationState = state;
-		foreach (var child in target.Children) FlagAllFromComponent(child, state);
+		foreach (var child in target.Children)
+		{
+			FlagAllFromComponent(child, state);
+		}
 	}
 
 	private static void FlagAllAssemblyContext(IAssemblyContext context, RegistrationState state)
 	{
-		foreach (var child in context.Children) FlagAllFromComponent(child, state);
+		foreach (var child in context.Children)
+		{
+			FlagAllFromComponent(child, state);
+		}
 	}
 }
