@@ -15,5 +15,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
+  
+  <ItemGroup>
+    <AssemblyAttribute Include="DefinitionManager.CoreProjectAttribute">
+      <_Parameter1>$(RootFolder)/$(XrmFrameworkCoreProjectName)</_Parameter1>
+      <_Parameter2>$(XrmFrameworkCoreProjectName)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
 </Project>

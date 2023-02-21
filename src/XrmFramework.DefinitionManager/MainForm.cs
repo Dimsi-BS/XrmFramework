@@ -24,14 +24,15 @@ namespace XrmFramework.DefinitionManager
         private readonly List<OptionSetEnum> _enums = new();
 
         private readonly Type _iServiceType;
-
-        public string CoreProjectName { get; }
-
-        public MainForm(Type iServiceType, string coreProjectName)
+        private readonly CoreProjectAttribute _coreProject;
+        
+        public MainForm(Type iServiceType, string coreProjectName = "")
         {
             _iServiceType = iServiceType;
-            CoreProjectName = coreProjectName;
             CustomProvider.Instance = this;
+
+            _coreProject = Assembly.GetCallingAssembly().GetCustomAttribute<CoreProjectAttribute>();
+            
             InitializeComponent();
 
             DataAccessManager.Instance.StepChanged += StepChangedHandler;
@@ -360,7 +361,7 @@ namespace XrmFramework.DefinitionManager
                 sb.AppendLine("using System.Diagnostics.CodeAnalysis;");
                 sb.AppendLine("using XrmFramework;");
                 sb.AppendLine();
-                sb.AppendLine($"namespace {CoreProjectName}");
+                sb.AppendLine($"namespace {_coreProject.Name}");
                 sb.AppendLine("{");
 
                 using (sb.Indent())
@@ -590,9 +591,9 @@ namespace XrmFramework.DefinitionManager
 
                 sb.AppendLine("}");
 
-                var fileInfo = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{item.Name}.cs");
+                var fileInfo = new FileInfo($"{_coreProject.RootFolder}/Definitions/{item.Name}.cs");
 
-                var definitionFolder = new DirectoryInfo($"../../../../../{CoreProjectName}/Definitions");
+                var definitionFolder = new DirectoryInfo($"{_coreProject.RootFolder}/Definitions");
                 if (definitionFolder.Exists == false)
                 {
                     definitionFolder.Create();
@@ -600,7 +601,7 @@ namespace XrmFramework.DefinitionManager
 
                 File.WriteAllText(fileInfo.FullName, sb.ToString());
 
-                var fileInfo2 = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{item.Name.Replace("Definition", string.Empty)}.table");
+                var fileInfo2 = new FileInfo($"{_coreProject.RootFolder}/Definitions/{item.Name.Replace("Definition", string.Empty)}.table");
 
                 File.WriteAllText(fileInfo2.FullName, entityTxt);
             }
@@ -622,7 +623,7 @@ namespace XrmFramework.DefinitionManager
                 DefaultValueHandling = DefaultValueHandling.Ignore
             });
 
-            var fileInfoOptionSets = new FileInfo($"../../../../../{CoreProjectName}/Definitions/{globalOptionSets.Name}.table");
+            var fileInfoOptionSets = new FileInfo($"{_coreProject.RootFolder}/Definitions/{globalOptionSets.Name}.table");
 
             File.WriteAllText(fileInfoOptionSets.FullName, optionSetsTxt);
 
@@ -630,7 +631,7 @@ namespace XrmFramework.DefinitionManager
             fc.AppendLine("using System.ComponentModel;");
             fc.AppendLine("using XrmFramework;");
             fc.AppendLine();
-            fc.AppendLine($"namespace {CoreProjectName}");
+            fc.AppendLine($"namespace {_coreProject.Name}");
             fc.AppendLine("{");
 
             using (fc.Indent())
@@ -684,7 +685,7 @@ namespace XrmFramework.DefinitionManager
             }
 
             fc.AppendLine("}");
-            File.WriteAllText($"../../../../../{CoreProjectName}/Definitions/OptionSetDefinitions.cs", fc.ToString());
+            File.WriteAllText($"{_coreProject.RootFolder}/Definitions/OptionSetDefinitions.cs", fc.ToString());
 
             MessageBox.Show(@"Definition files generation succeeded");
         }
