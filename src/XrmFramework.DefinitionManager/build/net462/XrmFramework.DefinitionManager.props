@@ -7,11 +7,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)/$(XrmFrameworkCoreProjectName)/$(XrmFrameworkCoreProjectName).csproj" />
+    <ProjectReference Include="$(RootFolder)/$(XrmFrameworkCoreProjectName)/$(XrmFrameworkCoreProjectName).csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="$(SolutionDir)/$(XrmFrameworkCoreProjectName)/**/*.table" >
+    <Content Include="$(RootFolder)/$(XrmFrameworkCoreProjectName)/**/*.table" >
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
