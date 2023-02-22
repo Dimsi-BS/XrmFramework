@@ -154,18 +154,18 @@ public class AssemblyImporter : IAssemblyImporter
 
 
 	public CustomApi CreateCustomApiFromRemote(Deploy.CustomApi customApi,
-		IEnumerable<CustomApiRequestParameter> registeredRequestParameters,
-		IEnumerable<CustomApiResponseProperty> registeredResponseProperties)
+		IEnumerable<CustomApiRequestParameter> requestParameters,
+		IEnumerable<CustomApiResponseProperty> responseProperties)
 	{
 		var parsedCustomApi = _mapper.Map<CustomApi>(customApi);
 
-		registeredRequestParameters
+		requestParameters
 			.Where(r => r.CustomApiId.Id == customApi.Id)
 			.Select(_mapper.Map<Model.CustomApiRequestParameter>)
 			.ToList()
 			.ForEach(parsedCustomApi.AddChild);
 
-		registeredResponseProperties
+		responseProperties
 			.Where(r => r.CustomApiId.Id == customApi.Id)
 			.Select(_mapper.Map<Model.CustomApiResponseProperty>)
 			.ToList()
@@ -174,14 +174,14 @@ public class AssemblyImporter : IAssemblyImporter
 		return parsedCustomApi;
 	}
 
-	public PluginPackage CreatePackageFromLocal(AssemblyInfo assemblyInfo)
+	public PluginPackage CreatePackageFromLocal(AssemblyInfo assembly)
 	{
 		var packagesFolderName = Assembly.GetEntryAssembly()
 			.GetCustomAttribute<DeployFolderAttribute>()
 			.Path;
 		var directoryInfos = new DirectoryInfo(packagesFolderName);
 
-		var files = directoryInfos.GetFiles($"{assemblyInfo.Name}.*.nupkg");
+		var files = directoryInfos.GetFiles($"{assembly.Name}.*.nupkg");
 
 		var fileInfo = files.FirstOrDefault();
 
@@ -189,9 +189,9 @@ public class AssemblyImporter : IAssemblyImporter
 			? null
 			: new PluginPackage
 			{
-				Name = $"{_solutionContext.Publisher.CustomizationPrefix}_{assemblyInfo.Name}",
-				UniqueName = $"{_solutionContext.Publisher.CustomizationPrefix}_{assemblyInfo.Name}",
-				Version = assemblyInfo.Version,
+				Name = $"{_solutionContext.Publisher.CustomizationPrefix}_{assembly.Name}",
+				UniqueName = $"{_solutionContext.Publisher.CustomizationPrefix}_{assembly.Name}",
+				Version = assembly.Version,
 				Content = File.ReadAllBytes(fileInfo.FullName)
 			};
 	}
@@ -258,7 +258,7 @@ public class AssemblyImporter : IAssemblyImporter
 			.FirstOrDefault(a => a.GetType().FullName == "XrmFramework.CustomApiAttribute");
 
 		if (customApiAttribute == null)
-			throw new Exception($"The custom api type {type.FullName} must have a CustomApiAttribute defined");
+			throw new ArgumentException($"The custom api type {type.FullName} must have a CustomApiAttribute defined");
 
 		var name = string.IsNullOrWhiteSpace(customApiAttribute.Name) ? type.Name : customApiAttribute.Name;
 

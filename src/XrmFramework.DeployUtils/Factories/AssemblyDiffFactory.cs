@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using XrmFramework.DeployUtils.Context;
@@ -60,32 +61,7 @@ public class AssemblyDiffFactory
 
 		foreach (var fromComponent in fromPool)
 		{
-			// If already computed, don't do it again
-			if (fromComponent.RegistrationState != RegistrationState.NotComputed) 
-				continue;
-
-			// See if this component is present in the other pool
-			var targetComponent = _comparer.CorrespondingComponent(fromComponent, targetPool);
-
-			// If not, mark it and all its children as ToCreate
-			if (targetComponent == null)
-			{
-				FlagAllFromComponent(fromComponent, RegistrationState.ToCreate);
-				continue;
-			}
-
-			// If there, transfer the ids and see if the component is up to date
-			fromComponent.Id = targetComponent.Id;
-			fromComponent.ParentId = targetComponent.ParentId;
-			if (fromComponent is CustomApi fromApi)
-			{
-				fromApi.AssemblyId = ((CustomApi) targetComponent).AssemblyId;
-			}
-			
-			fromComponent.RegistrationState = _comparer.NeedsUpdate(fromComponent, targetComponent)
-				? RegistrationState.ToUpdate
-				: RegistrationState.Ignore;
-			targetComponent.RegistrationState = RegistrationState.Computed;
+			ComputeRegistrationForFromComponent(fromComponent, targetPool);
 		}
 
 		// Go through every component of target that have not yet been computed
@@ -96,13 +72,44 @@ public class AssemblyDiffFactory
 				continue;
 			
 			FlagAllFromComponent(targetComponent, RegistrationState.ToDelete);
-			var componentFather = targetComponent is CustomApi api
-				? fromPool.First(c => c.Id == api.AssemblyId)
+			
+			IDeployContext componentFather = targetComponent is CustomApi or Plugin 
+				? fromCopy
 				: fromPool.First(c => c.Id == targetComponent.ParentId);
 			componentFather.AddChild(targetComponent);
 		}
 
 		return fromCopy;
+	}
+
+	private void ComputeRegistrationForFromComponent(ICrmComponent fromComponent, IReadOnlyCollection<ICrmComponent> targetPool)
+	{ 
+		// If already computed, don't do it again
+		if (fromComponent.RegistrationState != RegistrationState.NotComputed)
+			return;
+
+		// See if this component is present in the other pool
+		var targetComponent = _comparer.CorrespondingComponent(fromComponent, targetPool);
+
+		// If not, mark it and all its children as ToCreate
+		if (targetComponent == null)
+		{
+			FlagAllFromComponent(fromComponent, RegistrationState.ToCreate);
+			return;
+		}
+
+		// If there, transfer the ids and see if the component is up to date
+		fromComponent.Id = targetComponent.Id;
+		fromComponent.ParentId = targetComponent.ParentId;
+		if (fromComponent is CustomApi fromApi)
+		{
+			fromApi.AssemblyId = ((CustomApi) targetComponent).AssemblyId;
+		}
+
+		fromComponent.RegistrationState = _comparer.NeedsUpdate(fromComponent, targetComponent)
+			? RegistrationState.ToUpdate
+			: RegistrationState.Ignore;
+		targetComponent.RegistrationState = RegistrationState.Computed;
 	}
 
 	public IAssemblyComponent ComputeAssemblyOperation(AssemblyInfo from, AssemblyInfo target)
