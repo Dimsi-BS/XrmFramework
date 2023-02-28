@@ -40,14 +40,13 @@ public class CrmSettingsFactory<TSettings> where TSettings : CrmSettings, new()
 
 			var returnSettings = new TSettings();
 
-			IEnumerable<(string settingName, object settingValue)> settingsValues;
 			
 			var splitPropertySettings = propertySettings.Select(p => (p.Name, p.Property.PropertyType)).ToList();
 			
-			try
-			{
-				settingsValues = initSettings(splitPropertySettings);
-			} catch (NotImplementedException _)
+			
+			var	settingsValues = initSettings(splitPropertySettings);
+			
+			if(!settingsValues.Any())
 			{
 				settingsValues = DefaultInitSettings(splitPropertySettings);
 			}
