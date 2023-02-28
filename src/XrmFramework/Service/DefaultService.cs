@@ -678,67 +678,9 @@ namespace XrmFramework
             Execute<AssociateRequest, AssociateResponse>(AdminOrganizationService, request,
                 bypassCustomPluginExecution);
         }
-
-        public TVariable GetEnvironmentVariable<TVariable>(string schemaName)
-        {
-            var variableObject = GetEnvironmentVariable(typeof(TVariable), schemaName);
-
-            if (variableObject == null)
-            {
-                return default(TVariable);
-            }
-
-            return (TVariable)variableObject;
-        }
-
-        protected object GetEnvironmentVariable(Type objectType, string schemaName)
-        {
-            var queryVariable = BindingModelHelper.GetRetrieveAllQuery<EnvironmentVariable>();
-            queryVariable.Criteria.AddCondition(EnvironmentVariableDefinition.Columns.SchemaName, ConditionOperator.Equal, schemaName);
-
-            var linkValue = queryVariable.AddLink(EnvironmentVariableValueDefinition.EntityName, EnvironmentVariableDefinition.Columns.Id, EnvironmentVariableValueDefinition.Columns.EnvironmentVariableDefinitionId, JoinOperator.LeftOuter);
-            linkValue.EntityAlias = EnvironmentVariableValueDefinition.EntityName;
-            linkValue.Columns.AddColumn(EnvironmentVariableValueDefinition.Columns.Value);
-
-            var variable = AdminOrganizationService.RetrieveAll<EnvironmentVariable>(queryVariable).FirstOrDefault();
-
-            if (variable == null)
-            {
-                return null;
-            }
-
-            switch (variable.Type)
-            {
-                case EnvironmentVariableType.String:
-                    if (objectType != typeof(string))
-                    {
-                        throw new ArgumentException($"The environment variable is of type String GetEnvironmentVariable must be called with a string Type argument");
-                    }
-
-                    return variable.Value;
-                case EnvironmentVariableType.Number:
-                    if (objectType != typeof(int))
-                    {
-                        throw new ArgumentException($"The environment variable is of type Integer GetEnvironmentVariable must be called with a int Type argument");
-                    }
-
-                    return int.Parse(variable.Value);
-                case EnvironmentVariableType.Boolean:
-                    if (objectType != typeof(bool))
-                    {
-                        throw new ArgumentException($"The environment variable is of type Boolean GetEnvironmentVariable must be called with a bool Type argument");
-                    }
-
-                    return bool.Parse(variable.Value);
-                case EnvironmentVariableType.JSON:
-                    return JsonConvert.DeserializeObject(variable.Value, objectType);
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
+       
         private TResponse Execute<TRequest, TResponse>(IOrganizationService service, TRequest request,
-            bool bypassCustomPluginExecution)
+                                                       bool bypassCustomPluginExecution)
             where TRequest : OrganizationRequest
             where TResponse : OrganizationResponse
         {
