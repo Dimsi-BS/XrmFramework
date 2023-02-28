@@ -86,9 +86,7 @@ namespace XrmFramework
         void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, params EntityReference[] entityReferences);
 
         void AssociateRecords(EntityReference objectRef, Microsoft.Xrm.Sdk.Relationship relationName, bool bypassCustomPluginExecution, params EntityReference[] entityReferences);
-
-        TVariable GetEnvironmentVariable<TVariable>(string schemaName);
-
+        
         void AddRoleToUserOrTeam(EntityReference userOrTeamRef, string parentRootRoleIdOrTemplateId, bool bypassCustomPluginExecution = false);
     }
 }
