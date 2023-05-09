@@ -600,7 +600,7 @@ namespace XrmFramework.BindingModel
                                     var tempLookupAttribute = entityDefinition.GetCrmLookupAttributes(crmAttribute.AttributeName).FirstOrDefault();
                                     if (tempLookupAttribute != null)
                                     {
-                                        Guid tempGuidValue = value as Guid? ?? ((Guid?)value).Value;
+                                        Guid tempGuidValue = value as Guid? ?? Guid.Empty;
 
                                         refValue = tempGuidValue == Guid.Empty ? null : new EntityReference(tempLookupAttribute.TargetEntityName, tempGuidValue);
                                     }
