@@ -44,6 +44,7 @@ public class AssemblyDiffFactory
 		 */
 		
 		var targetCopy = _mapper.Map<IAssemblyContext>(target);
+		fromCopy.SetAssemblyId(targetCopy.AssemblyInfo.Id);
 
 		FlagAllAssemblyContext(fromCopy, RegistrationState.NotComputed);
 		FlagAllAssemblyContext(targetCopy, RegistrationState.NotComputed);
@@ -116,15 +117,15 @@ public class AssemblyDiffFactory
 	{
 		var result = _mapper.Map<AssemblyInfo>(from);
 
-		if (from.Package != null)
-		{
-			result.Package.RegistrationState = target?.Package == null
-				? RegistrationState.ToCreate
-				: RegistrationState.ToUpdate;
-
-			result.Package.Id = target?.Package?.Id ?? Guid.NewGuid();
-			return result.Package;
-		}
+		// if (from.Package != null)
+		// {
+		// 	result.Package.RegistrationState = target?.Package == null
+		// 		? RegistrationState.ToCreate
+		// 		: RegistrationState.ToUpdate;
+		//
+		// 	result.Package.Id = target?.Package?.Id ?? Guid.NewGuid();
+		// 	return result.Package;
+		// }
 
 		result.RegistrationState = target == null
 			? RegistrationState.ToCreate

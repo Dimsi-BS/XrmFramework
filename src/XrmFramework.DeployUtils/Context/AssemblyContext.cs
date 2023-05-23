@@ -37,6 +37,15 @@ public class AssemblyContext : IAssemblyContext
 		}
 	}
 
+	public void SetAssemblyId(Guid id)
+	{
+		AssemblyInfo.Id = id;
+		foreach (var child in Children)
+		{
+			child.ParentId = id;
+		}
+	}
+
 	public void AddChild(ICrmComponent child)
 	{
 		switch (child)

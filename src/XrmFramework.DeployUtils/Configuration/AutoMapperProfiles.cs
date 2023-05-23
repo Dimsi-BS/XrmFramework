@@ -118,7 +118,8 @@ public class AutoMapperLocalToRemoteProfile : Profile
 			.ForMember(dest => dest.Content,
 				opt => opt.MapFrom(src => Convert.ToBase64String(src.Content)))
 			.ForMember(dest => dest.PackageId,
-				opt => opt.MapFrom(src => new EntityReference(PluginpackageDefinition.EntityName, src.Package.Id)))
+			           opt => opt.Ignore())
+			// 	opt => opt.MapFrom(src => new EntityReference(PluginpackageDefinition.EntityName, src.Package.Id)))
 			.ForMember(dest => dest.IsolationMode,
 				opt => opt.MapFrom(src => new OptionSetValue((int) src.IsolationMode)))
 			.ForMember(dest => dest.SourceType,

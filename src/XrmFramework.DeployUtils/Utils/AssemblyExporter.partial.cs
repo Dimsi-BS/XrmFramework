@@ -43,9 +43,9 @@ public partial class AssemblyExporter
 	{
 		if (component is CustomApi customApi) CreateCustomApiPluginType(customApi);
 
-		component.Id = component is IAssemblyComponent
-			? Guid.NewGuid()
-			: Guid.Empty;
+		// component.Id = component is IAssemblyComponent
+		// 	? Guid.NewGuid()
+		// 	: Guid.Empty;
 
 		var registeringComponent = _converter.ToRegisterComponent(component);
 		var result = _registrationService.Create(registeringComponent);

@@ -60,9 +60,10 @@ public class AssemblyInfo : BaseCrmComponent, IBindingModel, IAssemblyComponent
 	public new RegistrationState RegistrationState
 	{
 		// If the package exists, it will be manipulated and I shouldn't touch the assembly
-		get => Package == null
-			? base.RegistrationState
-			: RegistrationState.Computed;
+		// get => Package == null
+		// 	? base.RegistrationState
+		// 	: RegistrationState.Computed;
+		get => base.RegistrationState;
 		set => base.RegistrationState = value;
 	}
 

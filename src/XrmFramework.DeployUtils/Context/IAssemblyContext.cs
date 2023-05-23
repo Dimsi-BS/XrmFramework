@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Context;
@@ -27,4 +28,6 @@ public interface IAssemblyContext : IDeployContext
 	///     This way each component is guaranteed to appear before its children an so forth
 	/// </remarks>
 	IReadOnlyCollection<ICrmComponent> ComponentsOrderedPool { get; }
+
+	void SetAssemblyId(Guid id);
 }
