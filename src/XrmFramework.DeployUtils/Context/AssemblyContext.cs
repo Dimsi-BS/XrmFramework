@@ -40,10 +40,10 @@ public class AssemblyContext : IAssemblyContext
 	public void SetAssemblyId(Guid id)
 	{
 		AssemblyInfo.Id = id;
-		foreach (var child in Children)
-		{
-			child.ParentId = id;
-		}
+		
+		_plugins.ForEach(p => p.ParentId = id);
+		_workflows.ForEach(w => w.ParentId = id);
+		_customApis.ForEach(c => c.AssemblyId = id);
 	}
 
 	public void AddChild(ICrmComponent child)
