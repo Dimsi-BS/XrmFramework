@@ -65,7 +65,7 @@ public class CrmComponentComparer : ICrmComponentComparer
     private static bool NeedsUpdate(CustomApi x, CustomApi y)
 	{
 		return !x.BindingType.Equals(y.BindingType)
-		       || !x.BoundEntityLogicalName.Equals(y.BoundEntityLogicalName)
+		       || !string.Equals(x.BoundEntityLogicalName, y.BoundEntityLogicalName)
 		       || x.IsFunction ^ y.IsFunction
 		       || x.WorkflowSdkStepEnabled ^ y.WorkflowSdkStepEnabled
 		       || !x.AllowedCustomProcessingStepType.Equals(y.AllowedCustomProcessingStepType);
