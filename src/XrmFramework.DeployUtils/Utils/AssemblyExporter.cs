@@ -35,7 +35,11 @@ public partial class AssemblyExporter : IAssemblyExporter
 		var sortedList = componentsToCreate.ToList();
 		sortedList.Sort((x, y) => x.Rank.CompareTo(y.Rank));
 
-		foreach (var component in sortedList) CreateComponent(component);
+		foreach (var component in sortedList)
+		{
+			component.Id = Guid.Empty;
+			CreateComponent(component);
+		}
 	}
 
 	public IEnumerable<OrganizationRequest> ToUpdateRequestCollection(IEnumerable<ICrmComponent> componentsToUpdate)

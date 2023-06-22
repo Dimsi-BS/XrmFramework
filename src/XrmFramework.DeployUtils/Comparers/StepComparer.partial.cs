@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using JetBrains.Annotations;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
@@ -12,11 +13,10 @@ namespace XrmFramework.DeployUtils.Utils
         ///
         /// This method is in a partial file because it is implemented differently in the RemoteDebugger.Client project
 
-        public bool NeedsUpdate(Step x, Step y) =>
+        public bool NeedsUpdate([NotNull] Step x, [NotNull] Step y) =>
             x?.DoNotFilterAttributes != y?.DoNotFilterAttributes
-            || x.FilteringAttributes.Any() != x.FilteringAttributes.Any()
+            || x.FilteringAttributes.Any() != y.FilteringAttributes.Any()
             || string.Join(",", x.FilteringAttributes) != string.Join(",", y.FilteringAttributes)
-            || x?.UnsecureConfig != y?.UnsecureConfig
             || x?.Order != y?.Order
             || x.ImpersonationUsername != y.ImpersonationUsername;
     }

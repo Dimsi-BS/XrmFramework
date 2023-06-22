@@ -76,7 +76,7 @@ internal partial class AssemblyFactory : IAssemblyFactory
 	public AssemblyInfo GetLocalAssemblyInfo(Assembly assembly)
 	{
 		var result = _importer.CreateAssemblyFromLocal(assembly);
-		result.Package = _importer.CreatePackageFromLocal(result);
+		// result.Package = _importer.CreatePackageFromLocal(result);
 		return result;
 	}
 
@@ -98,7 +98,7 @@ internal partial class AssemblyFactory : IAssemblyFactory
 		var registeredPluginTypes = service.GetRegisteredPluginTypes(registeredAssembly.AssemblyInfo.Id);
 
 		// This filters PluginTypes that are not CustomApis
-		registeredPluginTypes = registeredPluginTypes.Where(p => customApis.All(c => c.ParentId != p.Id))
+		registeredPluginTypes = registeredPluginTypes.Where(p => customApis.TrueForAll(c => c.ParentId != p.Id))
 			.ToList();
 
 		var steps = GetParsedSteps(service, registeredAssembly.AssemblyInfo.Id);

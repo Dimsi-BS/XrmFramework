@@ -79,15 +79,15 @@ public class AssemblyImporter : IAssemblyImporter
 	{
 		dynamic instance;
 		if (type.GetConstructor(new[] {typeof(string), typeof(string)}) != null)
-			instance = Activator.CreateInstance(type, new object[] {null, null});
+			instance = Activator.CreateInstance(type, null, null);
 		else
-			instance = Activator.CreateInstance(type, new object[] { });
+			instance = Activator.CreateInstance(type);
 		return FromXrmFrameworkPlugin(instance);
 	}
 
 	public Plugin CreateWorkflowFromType(Type type)
 	{
-		dynamic instance = Activator.CreateInstance(type, new object[] { });
+		dynamic instance = Activator.CreateInstance(type);
 		return FromXrmFrameworkPlugin(instance, true);
 	}
 
@@ -95,9 +95,9 @@ public class AssemblyImporter : IAssemblyImporter
 	{
 		dynamic instance;
 		if (type.GetConstructor(new[] {typeof(string), typeof(string)}) != null)
-			instance = Activator.CreateInstance(type, new object[] {null, null});
+			instance = Activator.CreateInstance(type);
 		else
-			instance = Activator.CreateInstance(type, new object[] { });
+			instance = Activator.CreateInstance(type);
 		return FromXrmFrameworkCustomApi(instance);
 	}
 
@@ -106,7 +106,7 @@ public class AssemblyImporter : IAssemblyImporter
 	{
 		var entityName = sdkStep.EntityName;
 		var pluginFullName = sdkStep.EventHandler.Name;
-		var pluginName = pluginFullName.Split('.').Last();
+		var pluginName = pluginFullName.Split('.')[-1];
 
 #pragma warning disable CS0612 // Type or member is obsolete
 		var step = new Step(pluginName,
@@ -120,7 +120,10 @@ public class AssemblyImporter : IAssemblyImporter
 		step.PluginTypeFullName = pluginFullName;
 		step.ParentId = sdkStep.EventHandler.Id;
 
-		step.FilteringAttributes.Add(sdkStep.FilteringAttributes);
+		if(!string.IsNullOrWhiteSpace(sdkStep.FilteringAttributes))
+		{
+			step.FilteringAttributes.Add(sdkStep.FilteringAttributes);
+		}	
 		step.ImpersonationUsername = sdkStep.ImpersonatingUserId?.Name ?? "";
 		step.Order = (int) sdkStep.Rank;
 		if (!string.IsNullOrWhiteSpace(sdkStep.Configuration))
