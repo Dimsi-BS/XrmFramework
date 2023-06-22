@@ -79,7 +79,7 @@ public class AssemblyImporter : IAssemblyImporter
 	{
 		dynamic instance;
 		if (type.GetConstructor(new[] {typeof(string), typeof(string)}) != null)
-			instance = Activator.CreateInstance(type, null, null);
+			instance = Activator.CreateInstance(type, new object[] {null, null});
 		else
 			instance = Activator.CreateInstance(type);
 		return FromXrmFrameworkPlugin(instance);
@@ -95,7 +95,7 @@ public class AssemblyImporter : IAssemblyImporter
 	{
 		dynamic instance;
 		if (type.GetConstructor(new[] {typeof(string), typeof(string)}) != null)
-			instance = Activator.CreateInstance(type, null, null);
+			instance = Activator.CreateInstance(type, new object[] {null, null});
 		else
 			instance = Activator.CreateInstance(type);
 		return FromXrmFrameworkCustomApi(instance);
