@@ -322,7 +322,7 @@ public class StepComparerTests
         var otherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
         {
             PluginTypeFullName = "assembly.thisPlugin",
-            FilteringAttributes = { "thisAttribute" },
+            FilteringAttributes = { "thisAttribute", "otherAttribute" },
             ImpersonationUsername = "thisUser",
             Order = 1,
             StepConfiguration = new StepConfiguration()

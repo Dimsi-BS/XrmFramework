@@ -23,293 +23,292 @@ namespace XrmFramework.DeployUtils.Utils;
 /// </summary>
 public class AssemblyImporter : IAssemblyImporter
 {
-	private readonly IMapper _mapper;
-	private readonly ISolutionContext _solutionContext;
+    private readonly IMapper _mapper;
+    private readonly ISolutionContext _solutionContext;
 
-	public AssemblyImporter(ISolutionContext solutionContext, IMapper mapper)
-	{
-		_solutionContext = solutionContext;
-		_mapper = mapper;
-	}
+    public AssemblyImporter(ISolutionContext solutionContext, IMapper mapper)
+    {
+        _solutionContext = solutionContext;
+        _mapper = mapper;
+    }
 
-	public AssemblyInfo CreateAssemblyFromLocal(Assembly assembly)
-	{
-		var fullNameSplit = assembly.FullName.Split(',');
+    public AssemblyInfo CreateAssemblyFromLocal(Assembly assembly)
+    {
+        var fullNameSplit = assembly.FullName.Split(',');
 
-		var name = fullNameSplit[0];
-		var version = fullNameSplit[1].Substring(fullNameSplit[1].IndexOf('=') + 1);
-		var culture = fullNameSplit[2].Substring(fullNameSplit[2].IndexOf('=') + 1);
-		var publicKeyToken = fullNameSplit[3].Substring(fullNameSplit[3].IndexOf('=') + 1);
-		var description = $"{name} plugin assembly";
+        var name = fullNameSplit[0];
+        var version = fullNameSplit[1].Substring(fullNameSplit[1].IndexOf('=') + 1);
+        var culture = fullNameSplit[2].Substring(fullNameSplit[2].IndexOf('=') + 1);
+        var publicKeyToken = fullNameSplit[3].Substring(fullNameSplit[3].IndexOf('=') + 1);
+        var description = $"{name} plugin assembly";
 
-		var t = new AssemblyInfo()
-		{
-			Name = name,
-			SourceType = TypeDeSource.BaseDeDonnees,
-			// SourceType = new OptionSetValue((int) pluginassembly_sourcetype.Database),
-			IsolationMode = ModeDIsolation.BacASableSandbox,
-			// IsolationMode = new OptionSetValue((int) pluginassembly_isolationmode.Sandbox),
-			Culture = culture,
-			PublicKeyToken = publicKeyToken,
-			Version = version,
-			Description = description,
-			Content = File.ReadAllBytes(assembly.Location)
-		};
+        var t = new AssemblyInfo()
+        {
+            Name = name,
+            SourceType = TypeDeSource.BaseDeDonnees,
+            // SourceType = new OptionSetValue((int) pluginassembly_sourcetype.Database),
+            IsolationMode = ModeDIsolation.BacASableSandbox,
+            // IsolationMode = new OptionSetValue((int) pluginassembly_isolationmode.Sandbox),
+            Culture = culture,
+            PublicKeyToken = publicKeyToken,
+            Version = version,
+            Description = description,
+            Content = File.ReadAllBytes(assembly.Location)
+        };
 
-		return t;
-	}
+        return t;
+    }
 
-	public PluginPackage CreatePackageFromRemote(Deploy.PluginPackage package)
-	{
-		return _mapper.Map<PluginPackage>(package);
-	}
+    public PluginPackage CreatePackageFromRemote(Deploy.PluginPackage package)
+    {
+        return _mapper.Map<PluginPackage>(package);
+    }
 
-	public IAssemblyContext CreateAssemblyFromRemote(PluginAssembly assembly)
-	{
-		var info = assembly != null ? _mapper.Map<AssemblyInfo>(assembly) : null;
-		return _mapper.Map<IAssemblyContext>(info);
-	}
+    public IAssemblyContext CreateAssemblyFromRemote(PluginAssembly assembly)
+    {
+        var info = assembly != null ? _mapper.Map<AssemblyInfo>(assembly) : null;
+        return _mapper.Map<IAssemblyContext>(info);
+    }
 
-	public IAssemblyContext CreateAssemblyFromRemote(AssemblyInfo assemblyInfo)
-	{
-		return _mapper.Map<IAssemblyContext>(assemblyInfo);
-	}
+    public IAssemblyContext CreateAssemblyFromRemote(AssemblyInfo assemblyInfo)
+    {
+        return _mapper.Map<IAssemblyContext>(assemblyInfo);
+    }
 
-	public Plugin CreatePluginFromType(Type type)
-	{
-		dynamic instance;
-		if (type.GetConstructor(new[] {typeof(string), typeof(string)}) != null)
-			instance = Activator.CreateInstance(type, new object[] {null, null});
-		else
-			instance = Activator.CreateInstance(type);
-		return FromXrmFrameworkPlugin(instance);
-	}
+    public Plugin CreatePluginFromType(Type type)
+    {
+        dynamic instance;
+        if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
+            instance = Activator.CreateInstance(type, new object[] { null, null });
+        else
+            instance = Activator.CreateInstance(type);
+        return FromXrmFrameworkPlugin(instance);
+    }
 
-	public Plugin CreateWorkflowFromType(Type type)
-	{
-		dynamic instance = Activator.CreateInstance(type);
-		return FromXrmFrameworkPlugin(instance, true);
-	}
+    public Plugin CreateWorkflowFromType(Type type)
+    {
+        dynamic instance = Activator.CreateInstance(type);
+        return FromXrmFrameworkPlugin(instance, true);
+    }
 
-	public CustomApi CreateCustomApiFromType(Type type)
-	{
-		dynamic instance;
-		if (type.GetConstructor(new[] {typeof(string), typeof(string)}) != null)
-			instance = Activator.CreateInstance(type, new object[] {null, null});
-		else
-			instance = Activator.CreateInstance(type);
-		return FromXrmFrameworkCustomApi(instance);
-	}
+    public CustomApi CreateCustomApiFromType(Type type)
+    {
+        dynamic instance;
+        if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
+            instance = Activator.CreateInstance(type, new object[] { null, null });
+        else
+            instance = Activator.CreateInstance(type);
+        return FromXrmFrameworkCustomApi(instance);
+    }
 
-	public Step CreateStepFromRemote(SdkMessageProcessingStep sdkStep,
-		IEnumerable<SdkMessageProcessingStepImage> sdkImages)
-	{
-		var entityName = sdkStep.EntityName;
-		var pluginFullName = sdkStep.EventHandler.Name;
-		var pluginName = pluginFullName.Split('.')[-1];
+    public Step CreateStepFromRemote(SdkMessageProcessingStep sdkStep,
+      IEnumerable<SdkMessageProcessingStepImage> sdkImages)
+    {
+        var entityName = sdkStep.EntityName;
+        var pluginFullName = sdkStep.EventHandler.Name;
+        var pluginName = pluginFullName.Split('.').Last();
 
-#pragma warning disable CS0612 // Type or member is obsolete
-		var step = new Step(pluginName,
-			Messages.GetMessage(sdkStep.SdkMessageId.Name),
-			(Stages) (int) sdkStep.StageEnum,
-			(Modes) (int) sdkStep.ModeEnum,
-			entityName);
-#pragma warning restore CS0612 // Type or member is obsolete
-		step.Id = sdkStep.Id;
+        var step = new Step(pluginName,
+          Messages.GetMessage(sdkStep.SdkMessageId.Name),
+          (Stages)(int)sdkStep.StageEnum,
+          (Modes)(int)sdkStep.ModeEnum,
+          entityName);
 
-		step.PluginTypeFullName = pluginFullName;
-		step.ParentId = sdkStep.EventHandler.Id;
+        step.Id = sdkStep.Id;
 
-		if(!string.IsNullOrWhiteSpace(sdkStep.FilteringAttributes))
-		{
-			step.FilteringAttributes.Add(sdkStep.FilteringAttributes);
-		}	
-		step.ImpersonationUsername = sdkStep.ImpersonatingUserId?.Name ?? "";
-		step.Order = (int) sdkStep.Rank;
-		if (!string.IsNullOrWhiteSpace(sdkStep.Configuration))
-			step.StepConfiguration = JsonConvert.DeserializeObject<StepConfiguration>(sdkStep.Configuration);
+        step.PluginTypeFullName = pluginFullName;
+        step.ParentId = sdkStep.EventHandler.Id;
 
-
-		CreateStepImageFromRemote(step, true, sdkImages);
-		CreateStepImageFromRemote(step, false, sdkImages);
-
-		return step;
-	}
-
-	public Plugin CreatePluginFromRemote(PluginType pluginType, IEnumerable<Step> steps)
-	{
-		if (pluginType.WorkflowActivityGroupName != null)
-			return new Plugin(pluginType.TypeName, pluginType.Name)
-			{
-				Id = pluginType.Id,
-				ParentId = pluginType.PluginAssemblyId.Id
-			};
-
-		var plugin = new Plugin(pluginType.TypeName)
-		{
-			Id = pluginType.Id,
-			ParentId = pluginType.PluginAssemblyId.Id
-		};
-
-		foreach (var s in steps.Where(s => s.ParentId == plugin.Id)) plugin.Steps.Add(s);
-		return plugin;
-	}
+        if (!string.IsNullOrWhiteSpace(sdkStep.FilteringAttributes))
+        {
+            step.FilteringAttributes.Add(sdkStep.FilteringAttributes);
+        }
+        step.ImpersonationUsername = sdkStep.ImpersonatingUserId?.Name ?? "";
+        step.Order = (int)sdkStep.Rank;
+        if (!string.IsNullOrWhiteSpace(sdkStep.Configuration))
+            step.StepConfiguration = JsonConvert.DeserializeObject<StepConfiguration>(sdkStep.Configuration);
 
 
-	public CustomApi CreateCustomApiFromRemote(Deploy.CustomApi customApi,
-		IEnumerable<CustomApiRequestParameter> requestParameters,
-		IEnumerable<CustomApiResponseProperty> responseProperties)
-	{
-		var parsedCustomApi = _mapper.Map<CustomApi>(customApi);
+        CreateStepImageFromRemote(step, true, sdkImages);
+        CreateStepImageFromRemote(step, false, sdkImages);
 
-		requestParameters
-			.Where(r => r.CustomApiId.Id == customApi.Id)
-			.Select(_mapper.Map<Model.CustomApiRequestParameter>)
-			.ToList()
-			.ForEach(parsedCustomApi.AddChild);
+        return step;
+    }
 
-		responseProperties
-			.Where(r => r.CustomApiId.Id == customApi.Id)
-			.Select(_mapper.Map<Model.CustomApiResponseProperty>)
-			.ToList()
-			.ForEach(parsedCustomApi.AddChild);
+    public Plugin CreatePluginFromRemote(PluginType pluginType, IEnumerable<Step> steps)
+    {
+        if (pluginType.WorkflowActivityGroupName != null)
+            return new Plugin(pluginType.TypeName, pluginType.Name)
+            {
+                Id = pluginType.Id,
+                ParentId = pluginType.PluginAssemblyId.Id
+            };
 
-		return parsedCustomApi;
-	}
+        var plugin = new Plugin(pluginType.TypeName)
+        {
+            Id = pluginType.Id,
+            ParentId = pluginType.PluginAssemblyId.Id
+        };
 
-	public PluginPackage CreatePackageFromLocal(AssemblyInfo assembly)
-	{
-		var packagesFolderName = Assembly.GetEntryAssembly()
-			.GetCustomAttribute<DeployFolderAttribute>()
-			.Path;
-		var directoryInfos = new DirectoryInfo(packagesFolderName);
-
-		var files = directoryInfos.GetFiles($"{assembly.Name}.*.nupkg");
-
-		var fileInfo = files.FirstOrDefault();
-
-		return fileInfo == null
-			? null
-			: new PluginPackage
-			{
-				Name = $"{_solutionContext.Publisher.CustomizationPrefix}_{assembly.Name}",
-				UniqueName = $"{_solutionContext.Publisher.CustomizationPrefix}_{assembly.Name}",
-				Version = assembly.Version,
-				Content = File.ReadAllBytes(fileInfo.FullName)
-			};
-	}
+        foreach (var s in steps.Where(s => s.ParentId == plugin.Id)) plugin.Steps.Add(s);
+        return plugin;
+    }
 
 
-	public void CreateStepImageFromRemote(Step step, bool isPreImage,
-		IEnumerable<SdkMessageProcessingStepImage> stepImages)
-	{
-		var imageType = isPreImage
-			? sdkmessageprocessingstepimage_imagetype.PreImage
-			: sdkmessageprocessingstepimage_imagetype.PostImage;
-		var existingImage = stepImages.FirstOrDefault(i => i.ImageTypeEnum == imageType
-		                                                   && i.SdkMessageProcessingStepId.Id == step.Id);
+    public CustomApi CreateCustomApiFromRemote(Deploy.CustomApi customApi,
+      IEnumerable<CustomApiRequestParameter> requestParameters,
+      IEnumerable<CustomApiResponseProperty> responseProperties)
+    {
+        var parsedCustomApi = _mapper.Map<CustomApi>(customApi);
 
-		if (existingImage != null)
-		{
-			step.PreImage.Id = existingImage.Id;
-			step.PreImage.ParentId = step.Id;
-			step.PreImage.AllAttributes = existingImage.Attributes1 == null;
-			step.PreImage.Attributes.Add(existingImage.Attributes1);
-		}
-	}
+        requestParameters
+          .Where(r => r.CustomApiId.Id == customApi.Id)
+          .Select(_mapper.Map<Model.CustomApiRequestParameter>)
+          .ToList()
+          .ForEach(parsedCustomApi.AddChild);
 
-	private Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false)
-	{
-		var pluginTemp = !isWorkflow
-			? new Plugin(plugin.GetType().FullName)
-			: new Plugin(plugin.GetType().FullName, plugin.DisplayName);
-		if (!isWorkflow)
-			foreach (var step in plugin.Steps)
-				pluginTemp.Steps.Add(FromXrmFrameworkStep(step));
+        responseProperties
+          .Where(r => r.CustomApiId.Id == customApi.Id)
+          .Select(_mapper.Map<Model.CustomApiResponseProperty>)
+          .ToList()
+          .ForEach(parsedCustomApi.AddChild);
 
-		return pluginTemp;
-	}
+        return parsedCustomApi;
+    }
 
-	private Step FromXrmFrameworkStep(dynamic s)
-	{
-		var step = new Step(s.Plugin.GetType().Name, Messages.GetMessage(s.Message.ToString()), (Stages) (int) s.Stage,
-			(Modes) (int) s.Mode, s.EntityName);
+    public PluginPackage CreatePackageFromLocal(AssemblyInfo assembly)
+    {
+        var packagesFolderName = Assembly.GetEntryAssembly()
+          .GetCustomAttribute<DeployFolderAttribute>()
+          .Path;
+        var directoryInfos = new DirectoryInfo(packagesFolderName);
 
-		step.PluginTypeFullName = s.Plugin.GetType().FullName;
-		step.FilteringAttributes.UnionWith(s.FilteringAttributes);
-		step.ImpersonationUsername = s.ImpersonationUsername ?? "";
-		step.Order = s.Order;
+        var files = directoryInfos.GetFiles($"{assembly.Name}.*.nupkg");
 
-		step.PreImage.AllAttributes = s.PreImageAllAttributes;
-		step.PreImage.Attributes.UnionWith(s.PreImageAttributes);
+        var fileInfo = files.FirstOrDefault();
 
-		step.PostImage.AllAttributes = s.PostImageAllAttributes;
-		step.PostImage.Attributes.UnionWith(s.PostImageAttributes);
+        return fileInfo == null
+          ? null
+          : new PluginPackage
+          {
+              Name = $"{_solutionContext.Publisher.CustomizationPrefix}_{assembly.Name}",
+              UniqueName = $"{_solutionContext.Publisher.CustomizationPrefix}_{assembly.Name}",
+              Version = assembly.Version,
+              Content = File.ReadAllBytes(fileInfo.FullName)
+          };
+    }
 
-		if (!string.IsNullOrWhiteSpace(s.UnsecureConfig))
-			step.StepConfiguration = JsonConvert.DeserializeObject<StepConfiguration>(s.UnsecureConfig);
 
-		step.MethodNames.UnionWith(s.MethodNames);
-		return step;
-	}
+    public void CreateStepImageFromRemote(Step step, bool isPreImage,
+      IEnumerable<SdkMessageProcessingStepImage> stepImages)
+    {
+        var imageType = isPreImage
+          ? sdkmessageprocessingstepimage_imagetype.PreImage
+          : sdkmessageprocessingstepimage_imagetype.PostImage;
+        var existingImage = stepImages.FirstOrDefault(i => i.ImageTypeEnum == imageType
+                                                           && i.SdkMessageProcessingStepId.Id == step.Id);
 
-	private CustomApi FromXrmFrameworkCustomApi(dynamic record)
-	{
-		var type = (Type) record.GetType();
+        if (existingImage != null)
+        {
+            step.PreImage.Id = existingImage.Id;
+            step.PreImage.ParentId = step.Id;
+            step.PreImage.AllAttributes = existingImage.Attributes1 == null;
+            step.PreImage.Attributes.Add(existingImage.Attributes1);
+        }
+    }
 
-		dynamic customApiAttribute = type.GetCustomAttributes()
-			.FirstOrDefault(a => a.GetType().FullName == "XrmFramework.CustomApiAttribute");
+    private Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false)
+    {
+        var pluginTemp = !isWorkflow
+          ? new Plugin(plugin.GetType().FullName)
+          : new Plugin(plugin.GetType().FullName, plugin.DisplayName);
+        if (!isWorkflow)
+            foreach (var step in plugin.Steps)
+                pluginTemp.Steps.Add(FromXrmFrameworkStep(step));
 
-		if (customApiAttribute == null)
-			throw new ArgumentException($"The custom api type {type.FullName} must have a CustomApiAttribute defined");
+        return pluginTemp;
+    }
 
-		var name = string.IsNullOrWhiteSpace(customApiAttribute.Name) ? type.Name : customApiAttribute.Name;
+    private Step FromXrmFrameworkStep(dynamic s)
+    {
+        var step = new Step(s.Plugin.GetType().Name, Messages.GetMessage(s.Message.ToString()), (Stages)(int)s.Stage,
+          (Modes)(int)s.Mode, s.EntityName);
 
-		var customApi = new CustomApi
-		{
-			DisplayName = string.IsNullOrWhiteSpace(customApiAttribute.DisplayName)
-				? name
-				: customApiAttribute.DisplayName,
-			Name = name,
-			AllowedCustomProcessingStepType = new OptionSetValue((int) customApiAttribute.AllowedCustomProcessing),
-			BindingType = new OptionSetValue((int) customApiAttribute.BindingType),
-			BoundEntityLogicalName = customApiAttribute.BoundEntityLogicalName,
-			Description = string.IsNullOrWhiteSpace(customApiAttribute.Description)
-				? name
-				: customApiAttribute.Description,
-			ExecutePrivilegeName = customApiAttribute.ExecutePrivilegeName,
-			IsFunction = customApiAttribute.IsFunction,
-			IsPrivate = customApiAttribute.IsPrivate,
-			Prefix = _solutionContext.Publisher.CustomizationPrefix,
-			WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled,
-			FullName = type.FullName
-		};
+        step.PluginTypeFullName = s.Plugin.GetType().FullName;
+        step.FilteringAttributes.UnionWith(s.FilteringAttributes);
+        step.ImpersonationUsername = s.ImpersonationUsername ?? "";
+        step.Order = s.Order;
 
-		foreach (var argument in record.Arguments)
-			if (argument.IsInArgument)
-				customApi.AddChild(FromXrmFrameworkArgument<Model.CustomApiRequestParameter>(customApi.Name, argument));
-			else
-				customApi.AddChild(FromXrmFrameworkArgument<Model.CustomApiResponseProperty>(customApi.Name, argument));
+        step.PreImage.AllAttributes = s.PreImageAllAttributes;
+        step.PreImage.Attributes.UnionWith(s.PreImageAttributes);
 
-		return customApi;
-	}
+        step.PostImage.AllAttributes = s.PostImageAllAttributes;
+        step.PostImage.Attributes.UnionWith(s.PostImageAttributes);
 
-	private T FromXrmFrameworkArgument<T>(string customApiName, dynamic argument) where T : ICustomApiComponent, new()
-	{
-		var res = new T()
-		{
-			Description = string.IsNullOrWhiteSpace(argument.Description)
-				? $"{customApiName}.{argument.ArgumentName}"
-				: argument.Description,
-			UniqueName = $"{customApiName}.{argument.ArgumentName}",
-			DisplayName = string.IsNullOrWhiteSpace(argument.DisplayName)
-				? $"{customApiName}.{argument.ArgumentName}"
-				: argument.DisplayName,
-			Type = new OptionSetValue((int) argument.ArgumentType),
-			Name = argument.ArgumentName
-		};
+        if (!string.IsNullOrWhiteSpace(s.UnsecureConfig))
+            step.StepConfiguration = JsonConvert.DeserializeObject<StepConfiguration>(s.UnsecureConfig);
 
-		if (res is Model.CustomApiRequestParameter) res.IsOptional = argument.IsOptional;
-		return res;
-	}
+        step.MethodNames.UnionWith(s.MethodNames);
+        return step;
+    }
+
+    private CustomApi FromXrmFrameworkCustomApi(dynamic record)
+    {
+        var type = (Type)record.GetType();
+
+        dynamic customApiAttribute = type.GetCustomAttributes()
+          .FirstOrDefault(a => a.GetType().FullName == "XrmFramework.CustomApiAttribute");
+
+        if (customApiAttribute == null)
+            throw new ArgumentException($"The custom api type {type.FullName} must have a CustomApiAttribute defined");
+
+        var name = string.IsNullOrWhiteSpace(customApiAttribute.Name) ? type.Name : customApiAttribute.Name;
+
+        var customApi = new CustomApi
+        {
+            DisplayName = string.IsNullOrWhiteSpace(customApiAttribute.DisplayName)
+            ? name
+            : customApiAttribute.DisplayName,
+            Name = name,
+            AllowedCustomProcessingStepType = new OptionSetValue((int)customApiAttribute.AllowedCustomProcessing),
+            BindingType = new OptionSetValue((int)customApiAttribute.BindingType),
+            BoundEntityLogicalName = customApiAttribute.BoundEntityLogicalName,
+            Description = string.IsNullOrWhiteSpace(customApiAttribute.Description)
+            ? name
+            : customApiAttribute.Description,
+            ExecutePrivilegeName = customApiAttribute.ExecutePrivilegeName,
+            IsFunction = customApiAttribute.IsFunction,
+            IsPrivate = customApiAttribute.IsPrivate,
+            Prefix = _solutionContext.Publisher.CustomizationPrefix,
+            WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled,
+            FullName = type.FullName
+        };
+
+        foreach (var argument in record.Arguments)
+            if (argument.IsInArgument)
+                customApi.AddChild(FromXrmFrameworkArgument<Model.CustomApiRequestParameter>(customApi.Name, argument));
+            else
+                customApi.AddChild(FromXrmFrameworkArgument<Model.CustomApiResponseProperty>(customApi.Name, argument));
+
+        return customApi;
+    }
+
+    private T FromXrmFrameworkArgument<T>(string customApiName, dynamic argument) where T : ICustomApiComponent, new()
+    {
+        var res = new T()
+        {
+            Description = string.IsNullOrWhiteSpace(argument.Description)
+            ? $"{customApiName}.{argument.ArgumentName}"
+            : argument.Description,
+            UniqueName = $"{customApiName}.{argument.ArgumentName}",
+            DisplayName = string.IsNullOrWhiteSpace(argument.DisplayName)
+            ? $"{customApiName}.{argument.ArgumentName}"
+            : argument.DisplayName,
+            Type = new OptionSetValue((int)argument.ArgumentType),
+            Name = argument.ArgumentName
+        };
+
+        if (res is Model.CustomApiRequestParameter) res.IsOptional = argument.IsOptional;
+        return res;
+    }
 }
