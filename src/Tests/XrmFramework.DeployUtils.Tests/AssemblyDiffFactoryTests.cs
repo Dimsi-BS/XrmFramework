@@ -1,275 +1,191 @@
-﻿using AutoMapper;
-using Moq;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using AutoMapper;
+using Moq;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Utils;
 
-namespace XrmFramework.DeployUtils.Tests
+namespace XrmFramework.DeployUtils.Tests;
+
+[TestClass]
+public class AssemblyDiffFactoryTests
 {
-    [TestClass]
-    public class AssemblyDiffFactoryTests
+    private readonly AssemblyDiffFactory _diffFactory;
+
+    private readonly Mock<ICrmComponentComparer> _mockComparer;
+    private readonly Mock<IMapper> _mockMapper;
+    private readonly Mock<IAssemblyContext> _from;
+
+    private Mock<IAssemblyContext> _target = new Mock<IAssemblyContext>();
+    
+    private Guid _targetId;
+    private Guid _targetParentId;
+    private Guid _targetAssemblyId;
+
+    public AssemblyDiffFactoryTests()
+    {
+        _mockComparer = new Mock<ICrmComponentComparer>();
+        _mockMapper = new Mock<IMapper>();
+
+        // Arrange
+        _from = new Mock<IAssemblyContext>();
+
+        _diffFactory = new AssemblyDiffFactory(_mockComparer.Object, _mockMapper.Object);
+    }
+
+    [TestInitialize]
+    private void TestInitialize()
+    {
+        _mockComparer.Reset();
+        _mockMapper.Reset();
+
+        _targetId = Guid.NewGuid();
+        _targetParentId = Guid.NewGuid();
+        _targetAssemblyId = Guid.NewGuid();
+    }
+
+    [TestMethod]
+    public void OneComponent_Vs_Null()
     {
 
-        private readonly AssemblyDiffFactory _diffFactory;
+        _mockMapper.Setup(x => x.Map<IAssemblyContext>(It.IsAny<IAssemblyContext>()))
+          .Returns(_from.Object);
 
-        private readonly Mock<ICrmComponentComparer> _mockComparer;
-        private readonly Mock<IMapper> _mockMapper;
+        _from.Setup(f => f.Children)
+          .Returns(new List<ICrmComponent>());
 
+        // Act
+        _diffFactory.ComputeDiffPatch(_from.Object, null);
 
-        public AssemblyDiffFactoryTests()
+        // Assert
+        _from.VerifyGet(from => from.Children, Times.Once);
+    }
+
+    [TestMethod]
+    public void TwoComponents_Vs_Null()
+    {
+
+        var child = new Mock<ICrmComponent>();
+
+        _mockMapper.Setup(x => x.Map<IAssemblyContext>(It.IsAny<IAssemblyContext>()))
+          .Returns(_from.Object);
+
+        _from.Setup(f => f.Children)
+          .Returns(new List<ICrmComponent>() { child.Object });
+
+        child.Setup(c => c.Children)
+          .Returns(new List<ICrmComponent>());
+
+        // Act
+        _diffFactory.ComputeDiffPatch(_from.Object, null);
+
+        // Assert
+        _from.VerifyGet(from => from.Children, Times.Once);
+
+        child.VerifySet(from => from.RegistrationState = RegistrationState.ToCreate, Times.Once);
+        child.VerifyGet(from => from.Children, Times.Once);
+    }
+
+    [TestMethod]
+    public void DiffTest_TwoCustomApis()
+    {
+
+        var fromCustomApi = new CustomApi()
         {
-            _mockComparer = new();
-            _mockMapper = new();
+            Id = Guid.NewGuid(),
+            ParentId = Guid.NewGuid(),
+            AssemblyId = Guid.NewGuid()
+        };
 
-            _diffFactory = new(_mockComparer.Object, _mockMapper.Object);
-        }
-
-        [TestMethod]
-        public void OneComponent_Vs_Null()
+        var _targetCustomApi = new CustomApi()
         {
-            // Arrange
-            var from = new Mock<IAssemblyContext>();
+            Id = _targetId,
+            ParentId = _targetParentId,
+            AssemblyId = _targetAssemblyId
+        };
 
-            _mockMapper.Setup(x => x.Map<IAssemblyContext>(It.IsAny<IAssemblyContext>()))
-                .Returns(from.Object);
+        _mockMapper.Setup(x => x.Map<IAssemblyContext>(It.IsAny<IAssemblyContext>()))
+          .Returns(_from.Object);
 
-            from.Setup(f => f.Children)
-                .Returns(new List<ICrmComponent>());
+        _from.Setup(m => m.ComponentsOrderedPool)
+          .Returns(new List<ICrmComponent>() { fromCustomApi });
 
-            // Act
-            var result = _diffFactory.ComputeDiffPatch(from.Object, null);
+        _target.Setup(m => m.ComponentsOrderedPool)
+          .Returns(new List<ICrmComponent>() { _targetCustomApi });
 
-            // Assert
-            from.VerifySet(from => from.RegistrationState = RegistrationState.ToCreate, Times.Once);
-            from.VerifyGet(from => from.Children, Times.Once);
-        }
+        _mockComparer.Setup(m =>
+            m.CorrespondingComponent(It.IsAny<ICrmComponent>(), It.IsAny<IReadOnlyCollection<ICrmComponent>>()))
+          .Returns(_targetCustomApi);
 
-        [TestMethod]
-        public void TwoComponents_Vs_Null()
+        _mockComparer.Setup(m => m.NeedsUpdate(It.IsAny<ICrmComponent>(), It.IsAny<ICrmComponent>()))
+          .Returns(true);
+
+        // Act
+        _diffFactory.ComputeDiffPatch(_from.Object, _target.Object);
+
+        // Assert
+        Assert.AreEqual(RegistrationState.ToUpdate, fromCustomApi.RegistrationState);
+        Assert.AreEqual(RegistrationState.Computed, _targetCustomApi.RegistrationState);
+
+        Assert.AreEqual(_targetId, fromCustomApi.Id);
+        Assert.AreEqual(_targetParentId, fromCustomApi.ParentId);
+
+        Assert.AreEqual(_targetId, _targetCustomApi.Id);
+        Assert.AreEqual(_targetParentId, _targetCustomApi.ParentId);
+    }
+
+    [TestMethod]
+    public void DiffTest_CustomApiToDelete()
+    {
+        // Arrange
+
+        var assemblyInfo = new AssemblyInfo()
         {
-            // Arrange
-            var from = new Mock<IAssemblyContext>();
+            Id = _targetAssemblyId,
+            RegistrationState = RegistrationState.NotComputed
+        };
 
-            var child = new Mock<ICrmComponent>();
-
-            _mockMapper.Setup(x => x.Map<IAssemblyContext>(It.IsAny<IAssemblyContext>()))
-                .Returns(from.Object);
-
-            from.Setup(f => f.Children)
-                .Returns(new List<ICrmComponent>() { child.Object });
-
-            child.Setup(c => c.Children)
-                .Returns(new List<ICrmComponent>());
-
-            // Act
-            var result = _diffFactory.ComputeDiffPatch(from.Object, null);
-
-            // Assert
-            from.VerifySet(from => from.RegistrationState = RegistrationState.ToCreate, Times.Once);
-            from.VerifyGet(from => from.Children, Times.Once);
-
-            child.VerifySet(from => from.RegistrationState = RegistrationState.ToCreate, Times.Once);
-            child.VerifyGet(from => from.Children, Times.Once);
-
-        }
-
-
-        [TestMethod]
-        public void TwoEmptyAssemblies()
+        var _targetCustomApi = new CustomApi()
         {
-            // Arrange
-            var from = new Mock<IAssemblyContext>();
-            var target = new Mock<IAssemblyContext>();
+            Id = _targetId,
+            ParentId = _targetParentId,
+            AssemblyId = _targetAssemblyId,
+            RegistrationState = RegistrationState.NotComputed
+        };
 
-            var targetId = Guid.NewGuid();
-            var targetParentId = Guid.NewGuid();
+        _mockMapper.Setup(x => x.Map<IAssemblyContext>(_from.Object))
+          .Returns(_from.Object);
 
-            from.SetupProperty(m => m.RegistrationState);
-            target.SetupProperty(m => m.RegistrationState);
+        _mockMapper.Setup(x => x.Map<IAssemblyContext>(_target.Object))
+          .Returns(_target.Object);
 
-            target.SetupProperty(m => m.Id, targetId);
-            target.SetupProperty(m => m.ParentId, targetParentId);
-
-            from.SetupProperty(m => m.Id, Guid.NewGuid());
-            from.SetupProperty(m => m.ParentId, Guid.NewGuid());
-
-            _mockMapper.Setup(x => x.Map<IAssemblyContext>(It.IsAny<IAssemblyContext>()))
-                .Returns(from.Object);
-
-            from.Setup(f => f.Children)
-                .Returns(new List<ICrmComponent>());
-
-            target.Setup(f => f.Children)
-                .Returns(new List<ICrmComponent>());
-
-            from.Setup(f => f.ComponentsOrderedPool)
-                .Returns(new List<ICrmComponent>() { from.Object });
-
-            target.Setup(f => f.ComponentsOrderedPool)
-                .Returns(new List<ICrmComponent>() { target.Object });
-
-            _mockComparer.Setup(m =>
-                    m.CorrespondingComponent(It.IsAny<ICrmComponent>(), It.IsAny<IReadOnlyCollection<ICrmComponent>>()))
-                .Returns(target.Object);
-
-            _mockComparer.Setup(m => m.NeedsUpdate(It.IsAny<ICrmComponent>(), It.IsAny<ICrmComponent>()))
-                .Returns(false);
-
-            // Act
-            var result = _diffFactory.ComputeDiffPatch(from.Object, target.Object);
-
-            // Assert
-            from.VerifySet(f => f.RegistrationState = RegistrationState.NotComputed, Times.Once);
-
-            target.VerifySet(t => t.RegistrationState = RegistrationState.NotComputed, Times.Once);
-
-            from.VerifyGet(f => f.Children, Times.Once);
-            target.VerifyGet(t => t.Children, Times.Once);
-
-            from.VerifyGet(m => m.ComponentsOrderedPool, Times.Once);
-            target.VerifyGet(m => m.ComponentsOrderedPool, Times.Once);
-
-            _mockComparer.Verify(m =>
-                m.CorrespondingComponent(It.IsAny<ICrmComponent>(), It.IsAny<IReadOnlyCollection<ICrmComponent>>()), Times.Once);
-
-            _mockComparer.Verify(m =>
-                m.NeedsUpdate(It.IsAny<ICrmComponent>(), It.IsAny<ICrmComponent>()), Times.Once);
-
-            Assert.AreEqual(RegistrationState.Ignore, from.Object.RegistrationState);
-            Assert.AreEqual(RegistrationState.Computed, target.Object.RegistrationState);
-
-            Assert.AreEqual(targetId, result.Id);
-            Assert.AreEqual(targetParentId, result.ParentId);
-
-            Assert.AreEqual(targetId, target.Object.Id);
-            Assert.AreEqual(targetParentId, target.Object.ParentId);
-        }
-
-        [TestMethod]
-        public void DiffTest_TwoCustomApis()
-        {
-            // Arrange
-            var from = new Mock<IAssemblyContext>();
-            var target = new Mock<IAssemblyContext>();
-
-            var targetId = Guid.NewGuid();
-            var targetParentId = Guid.NewGuid();
-            var targetAssemblyId = Guid.NewGuid();
-
-            var fromCustomApi = new CustomApi()
-            {
-                Id = Guid.NewGuid(),
-                ParentId = Guid.NewGuid(),
-                AssemblyId = Guid.NewGuid(),
-            };
-
-            var targetCustomApi = new CustomApi()
-            {
-                Id = targetId,
-                ParentId = targetParentId,
-                AssemblyId = targetAssemblyId,
-            };
-
-            _mockMapper.Setup(x => x.Map<IAssemblyContext>(It.IsAny<IAssemblyContext>()))
-                .Returns(from.Object);
-
-            from.Setup(m => m.ComponentsOrderedPool)
-                .Returns(new List<ICrmComponent>() { fromCustomApi });
-
-            target.Setup(m => m.ComponentsOrderedPool)
-                .Returns(new List<ICrmComponent>() { targetCustomApi });
-
-            _mockComparer.Setup(m =>
-                    m.CorrespondingComponent(It.IsAny<ICrmComponent>(), It.IsAny<IReadOnlyCollection<ICrmComponent>>()))
-                .Returns(targetCustomApi);
-
-            _mockComparer.Setup(m => m.NeedsUpdate(It.IsAny<ICrmComponent>(), It.IsAny<ICrmComponent>()))
-                .Returns(true);
-
-            // Act
-            _diffFactory.ComputeDiffPatch(from.Object, target.Object);
-
-            // Assert
-            Assert.AreEqual(RegistrationState.ToUpdate, fromCustomApi.RegistrationState);
-            Assert.AreEqual(RegistrationState.Computed, targetCustomApi.RegistrationState);
-
-            Assert.AreEqual(targetId, fromCustomApi.Id);
-            Assert.AreEqual(targetParentId, fromCustomApi.ParentId);
-
-            Assert.AreEqual(targetId, targetCustomApi.Id);
-            Assert.AreEqual(targetParentId, targetCustomApi.ParentId);
-        }
-
-        [TestMethod]
-        public void DiffTest_CustomApiToDelete()
-        {
-            // Arrange
-            var from = new Mock<IAssemblyContext>();
-            var target = new Mock<IAssemblyContext>();
-
-            var targetId = Guid.NewGuid();
-            var targetParentId = Guid.NewGuid();
-            var targetAssemblyId = Guid.NewGuid();
-
-            var targetCustomApi = new CustomApi()
-            {
-                Id = targetId,
-                ParentId = targetParentId,
-                AssemblyId = targetAssemblyId,
-                RegistrationState = RegistrationState.NotComputed
-            };
-
-            _mockMapper.Setup(x => x.Map<IAssemblyContext>(It.IsAny<IAssemblyContext>()))
-                .Returns(from.Object);
-
-            from.Setup(m => m.ComponentsOrderedPool)
-                .Returns(new List<ICrmComponent>() { from.Object });
-
-            from.SetupProperty(f => f.RegistrationState,
-                RegistrationState.NotComputed);
-
-            from.SetupProperty(f => f.Id,
-                Guid.NewGuid());
-
-            from.SetupProperty(f => f.ParentId,
-                Guid.NewGuid());
-
-            target.Setup(m => m.ComponentsOrderedPool)
-                .Returns(new List<ICrmComponent>() { target.Object, targetCustomApi });
+        _from.Setup(m => m.ComponentsOrderedPool)
+          .Returns(new List<ICrmComponent>() { assemblyInfo });
 
 
-            target.SetupProperty(f => f.RegistrationState,
-                RegistrationState.NotComputed);
+        _target.Setup(m => m.ComponentsOrderedPool)
+          .Returns(new List<ICrmComponent>() { assemblyInfo, _targetCustomApi });
 
-            target.SetupProperty(f => f.Id,
-                targetAssemblyId);
+        _target.Setup(m => m.AssemblyInfo)
+                .Returns(assemblyInfo);
 
-            target.SetupProperty(f => f.ParentId,
-                Guid.NewGuid());
+        _mockComparer.Setup(m =>
+            m.CorrespondingComponent(It.IsAny<ICrmComponent>(), It.IsAny<IReadOnlyCollection<ICrmComponent>>()))
+          .Returns((ICrmComponent)null);
 
-            _mockComparer.Setup(m =>
-                    m.CorrespondingComponent(It.IsAny<ICrmComponent>(), It.IsAny<IReadOnlyCollection<ICrmComponent>>()))
-                .Returns(target.Object);
+        _mockComparer.Setup(m => m.NeedsUpdate(It.IsAny<ICrmComponent>(), It.IsAny<ICrmComponent>()))
+          .Returns(true);
 
-            _mockComparer.Setup(m => m.NeedsUpdate(It.IsAny<ICrmComponent>(), It.IsAny<ICrmComponent>()))
-                .Returns(true);
+        // Act
+        _diffFactory.ComputeDiffPatch(_from.Object, _target.Object);
 
-            // Act
-            _diffFactory.ComputeDiffPatch(from.Object, target.Object);
+        // Assert
+        Assert.AreEqual(RegistrationState.ToDelete, _targetCustomApi.RegistrationState);
 
-            // Assert
-            Assert.AreEqual(RegistrationState.ToDelete, targetCustomApi.RegistrationState);
+        Assert.AreEqual(_targetId, _targetCustomApi.Id);
+        Assert.AreEqual(_targetParentId, _targetCustomApi.ParentId);
 
-            Assert.AreEqual(targetId, targetCustomApi.Id);
-            Assert.AreEqual(targetParentId, targetCustomApi.ParentId);
-
-            from.VerifySet(m => m.RegistrationState = RegistrationState.ToUpdate, Times.Once);
-            from.VerifySet(m => m.Id = targetAssemblyId, Times.Once);
-
-            from.Verify(m => m.AddChild(It.IsAny<CustomApi>()), Times.Once);
-
-        }
+        _from.Verify(m => m.AddChild(It.IsAny<CustomApi>()), Times.Once);
     }
 }

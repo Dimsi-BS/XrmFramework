@@ -13,13 +13,13 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 	{
 		var tableFiles =
 			context.AdditionalTextsProvider
-				.Where(a => a.Path.EndsWith(".table"));
+			   .Where(a => a.Path.EndsWith(".table"));
 
 		// read their contents and save their name
 		var namesAndContents =
 			tableFiles.Select((text, cancellationToken) => (name: Path.GetFileNameWithoutExtension(text.Path),
-					content: text.GetText(cancellationToken)!.ToString()))
-				.Collect();
+				                  content: text.GetText(cancellationToken)!.ToString()))
+			   .Collect();
 
 		var compilationAndTables = context.CompilationProvider.Combine(namesAndContents);
 
@@ -64,7 +64,7 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 			sb.AppendLine("using System.ComponentModel;");
 			sb.AppendLine("using XrmFramework;");
 			sb.AppendLine();
-			sb.AppendLine($"namespace XrmFramework.Definitions");
+			sb.AppendLine("namespace XrmFramework.Definitions");
 			sb.AppendLine("{");
 
 			using (sb.Indent())
@@ -104,13 +104,13 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 								{
 									var relation =
 										table.ManyToOneRelationships.FirstOrDefault(r =>
-											r.LookupFieldName == col.LogicalName);
+											                                            r.LookupFieldName == col.LogicalName);
 									if (relation != null)
 									{
 										var tb = tables.FirstOrDefault(t => t.LogicalName == relation.EntityName);
 										//var eC = this._entityCollection[relationship.ReferencedEntity];
 										var rcol = tb?.Columns.FirstOrDefault(colTemp =>
-											colTemp.PrimaryType == PrimaryType.Id);
+											                                      colTemp.PrimaryType == PrimaryType.Id);
 
 										if (tb != null)
 										{
@@ -192,7 +192,7 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 					foreach (var ose in table.Enums)
 					{
 						if (ose.IsGlobal && tables.All(t => t.Columns.All(c =>
-							    c.EnumName != ose.LogicalName || (c.EnumName == ose.LogicalName && !c.Selected))))
+							                                                  c.EnumName != ose.LogicalName || (c.EnumName == ose.LogicalName && !c.Selected))))
 							continue;
 
 						sb.AppendLine();
@@ -208,8 +208,8 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 							if (referencedColumn == null || !referencedColumn.Selected) continue;
 
 							sb.AppendLine(string.Format(
-								"[OptionSetDefinition({0}Definition.EntityName, {0}Definition.Columns.{1})]",
-								table.Name, referencedColumn.Name));
+								              "[OptionSetDefinition({0}Definition.EntityName, {0}Definition.Columns.{1})]",
+								              table.Name, referencedColumn.Name));
 						}
 
 						sb.AppendLine($"public enum {ose.Name}");
@@ -288,7 +288,7 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 	}
 
 	private void AddRelations(IndentedStringBuilder sb, TableCollection tables, Table table, List<Relation> relations,
-		string relationType)
+	                          string relationType)
 	{
 		if (relations.Any())
 		{

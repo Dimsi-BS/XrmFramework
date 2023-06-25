@@ -164,8 +164,8 @@ namespace XrmFramework.DeployUtils
         {
             var wr = new Entity(WebResourceDefinition.EntityName);
             wr[WebResourceDefinition.Columns.Name] = webResourceName;
-            wr[WebResourceDefinition.Columns.DisplayName] = fi.Base64Content;
-            wr[WebResourceDefinition.Columns.Content] = Convert.ToBase64String(File.ReadAllBytes(fi.FullName));
+            wr[WebResourceDefinition.Columns.DisplayName] = webResourceName;
+            wr[WebResourceDefinition.Columns.Content] = fi.Base64Content;
             wr[WebResourceDefinition.Columns.DependencyXml] = fi.GetDependenciesXml();
 
 

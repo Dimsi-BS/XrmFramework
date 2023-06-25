@@ -33,7 +33,6 @@
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-        <!--        <ProjectReference Include="..\XrmFramework\XrmFramework.csproj"/>-->
         <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj">
             <Project>{C6444169-E29C-4B5B-B5EE-94E5CA4FF836}</Project>
             <Name>XrmFramework.DeployUtils</Name>
@@ -44,14 +43,13 @@
         <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
         <XrmFramework_EnableStrongNameSigning>false</XrmFramework_EnableStrongNameSigning>
     </PropertyGroup>
+
     <ItemGroup>
-        <!--        <Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\Generated\**;..\XrmFramework\bin\**;..\XrmFramework\obj\**"/>-->
-        <!--        <Compile Include="..\XrmFramework.Core\**\*.cs" Link="_Imports\XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**"/>-->
-        <!--        <AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**"/>-->
         <Compile Include="..\XrmFramework\**\InternalDependencyProvider.cs"
                  Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)"
                  Exclude="..\XrmFramework\Generated\**;..\XrmFramework\bin\**;..\XrmFramework\obj\**"/>
     </ItemGroup>
+    
     <ItemGroup>
         <Compile Remove="Generated\**"/>
         <None Include="Generated\**"/>

@@ -3,166 +3,122 @@ using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.DeployUtils.Model;
 
-namespace XrmFramework.DeployUtils.Context
+namespace XrmFramework.DeployUtils.Context;
+
+/// <summary>
+///     Implementation of <see cref="IAssemblyContext" />
+/// </summary>
+public class AssemblyContext : IAssemblyContext
 {
-    public partial class AssemblyContext : IAssemblyContext
-    {
-        public AssemblyInfo AssemblyInfo { get; set; } = new();
+	public IEnumerable<ICrmComponent> Children
+	{
+		get
+		{
+			var children = new List<ICrmComponent>();
+			children.AddRange(Plugins);
+			children.AddRange(Workflows);
+			children.AddRange(CustomApis);
+			return children;
+		}
+	}
 
-        #region Private IAssemblyContext fields implementation
-        private readonly List<Plugin> _plugins = new();
-        private readonly List<CustomApi> _customApis = new();
-        private readonly List<Plugin> _workflows = new();
-        #endregion
+	public AssemblyInfo AssemblyInfo { get; set; } = new();
 
-        #region Public IAssemblyContext Properties get implementation
-        public ICollection<Plugin> Plugins => _plugins;
-        public ICollection<CustomApi> CustomApis => _customApis;
-        public ICollection<Plugin> Workflows => _workflows;
-        #endregion
+	public IReadOnlyCollection<ICrmComponent> ComponentsOrderedPool
+	{
+		get
+		{
+			List<ICrmComponent> pool = new();
 
-        public IReadOnlyCollection<ICrmComponent> ComponentsOrderedPool
-        {
-            get
-            {
-                List<ICrmComponent> pool = new() { this };
-                foreach (var plugin in _plugins)
-                {
-                    CreateSolutionComponentPoolRecursive(pool, plugin);
-                }
+			foreach (var crmComponent in Children) CreateSolutionComponentPoolRecursive(pool, crmComponent);
 
-                foreach (var customApi in _customApis)
-                {
-                    CreateSolutionComponentPoolRecursive(pool, customApi);
-                }
+			pool.Sort((x, y) => x.Rank.CompareTo(y.Rank));
+			return pool;
+		}
+	}
 
-                foreach (var workflow in _workflows)
-                {
-                    CreateSolutionComponentPoolRecursive(pool, workflow);
-                }
+	public void SetAssemblyId(Guid id)
+	{
+		AssemblyInfo.Id = id;
+		
+		_plugins.ForEach(p => p.ParentId = id);
+		_workflows.ForEach(w => w.ParentId = id);
+		_customApis.ForEach(c => c.AssemblyId = id);
+	}
 
-                pool.Sort((x, y) => x.Rank.CompareTo(y.Rank));
-                return pool;
-            }
-        }
+	public void AddChild(ICrmComponent child)
+	{
+		switch (child)
+		{
+			case Plugin plugin:
+				plugin.ParentId = AssemblyInfo.Id;
+				if (plugin.IsWorkflow) _workflows.Add(plugin);
+				else _plugins.Add(plugin);
+				break;
+			case CustomApi api:
+				api.AssemblyId = AssemblyInfo.Id;
+				_customApis.Add(api);
+				break;
+			default:
+				throw new ArgumentException("AssemblyContext doesn't take this type of children");
+		}
+	}
 
-        /// <summary>
-        /// Recursively add to the <paramref name="terminalStack"/> the <paramref name="component"/> and its <c>Children</c>
-        /// </summary>
-        /// <param name="terminalStack">The pool that will eventually contain every <c>Component</c> of the <c>Assembly</c></param>
-        /// <param name="component">The current <c>Component</c></param>
-        private static void CreateSolutionComponentPoolRecursive(ICollection<ICrmComponent> terminalStack,
-            ICrmComponent component)
-        {
-            terminalStack.Add(component);
-            foreach (var child in component.Children)
-            {
-                CreateSolutionComponentPoolRecursive(terminalStack, child);
-            }
-        }
-        public Guid Id
-        {
-            get => AssemblyInfo.Id;
-            set
-            {
-                foreach (var child in Plugins)
-                {
-                    child.ParentId = value;
-                }
-                foreach (var child in Workflows)
-                {
-                    child.ParentId = value;
-                }
-                foreach (var child in CustomApis)
-                {
-                    child.AssemblyId = value;
-                }
+	public void CleanChildrenWithState(RegistrationState state)
+	{
+		var childrenWithStateSafe = Children
+			.Where(c => c.RegistrationState == state)
+			.ToList();
+		foreach (var child in childrenWithStateSafe)
 
-                AssemblyInfo.Id = value;
-            }
-        }
+		{
+			child.CleanChildrenWithState(state);
+			if (!child.Children.Any()) RemoveChild(child);
+		}
+	}
 
-        public IEnumerable<ICrmComponent> Children
-        {
-            get
-            {
-                var children = new List<ICrmComponent>();
-                children.AddRange(Plugins);
-                children.AddRange(Workflows);
-                children.AddRange(CustomApis);
-                return children;
-            }
-        }
+	/// <summary>
+	///     Recursively add to the <paramref name="terminalStack" /> the <paramref name="component" /> and its <c>Children</c>
+	/// </summary>
+	/// <param name="terminalStack">The pool that will eventually contain every <c>Component</c> of the <c>Assembly</c></param>
+	/// <param name="component">The current <c>Component</c></param>
+	private static void CreateSolutionComponentPoolRecursive(ICollection<ICrmComponent> terminalStack,
+		ICrmComponent component)
+	{
+		terminalStack.Add(component);
+		foreach (var child in component.Children) CreateSolutionComponentPoolRecursive(terminalStack, child);
+	}
 
-        public void AddChild(ICrmComponent child)
-        {
-            switch (child)
-            {
-                case Plugin plugin:
-                    plugin.ParentId = Id;
-                    if (plugin.IsWorkflow) _workflows.Add(plugin);
-                    else _plugins.Add(plugin);
-                    break;
-                case CustomApi api:
-                    api.AssemblyId = Id;
-                    _customApis.Add(api);
-                    break;
-                default:
-                    throw new ArgumentException("AssemblyContext doesn't take this type of children");
-            }
-        }
+	private void RemoveChild(ICrmComponent child)
+	{
+		switch (child)
+		{
+			case Plugin plugin:
+				if (plugin.IsWorkflow)
+					_workflows.Remove(plugin);
+				else _plugins.Remove(plugin);
+				break;
+			case CustomApi api:
+				_customApis.Remove(api);
+				break;
+			default:
+				throw new ArgumentException("AssemblyContext doesn't have this type of children");
+		}
+	}
 
-        private void RemoveChild(ICrmComponent child)
-        {
-            switch (child)
-            {
-                case Plugin plugin:
-                    if (plugin.IsWorkflow)
-                    {
-                        _workflows.Remove(plugin);
-                    }
-                    else _plugins.Remove(plugin);
-                    break;
-                case CustomApi api:
-                    _customApis.Remove(api);
-                    break;
-                default:
-                    throw new ArgumentException("AssemblyContext doesn't have this type of children");
-            }
-        }
+	#region Private IAssemblyContext fields implementation
 
-        public void CleanChildrenWithState(RegistrationState state)
-        {
-            var childrenWithStateSafe = Children
-                .Where(c => c.RegistrationState == state)
-                .ToList();
-            foreach (var child in childrenWithStateSafe)
+	private readonly List<Plugin> _plugins = new();
+	private readonly List<CustomApi> _customApis = new();
+	private readonly List<Plugin> _workflows = new();
 
-            {
-                child.CleanChildrenWithState(state);
-                if (!child.Children.Any())
-                {
-                    RemoveChild(child);
-                }
-            }
-        }
+	#endregion
 
-        #region AssemblyInfo ProxyProperties
+	#region Public IAssemblyContext Properties get implementation
 
-        public string UniqueName => AssemblyInfo.UniqueName;
-        public int Rank => AssemblyInfo.Rank;
-        public bool DoAddToSolution => AssemblyInfo.DoAddToSolution;
-        public bool DoFetchTypeCode => AssemblyInfo.DoFetchTypeCode;
+	public ICollection<Plugin> Plugins => _plugins;
+	public ICollection<CustomApi> CustomApis => _customApis;
+	public ICollection<Plugin> Workflows => _workflows;
 
-        public RegistrationState RegistrationState
-        {
-            get => AssemblyInfo.RegistrationState;
-            set => AssemblyInfo.RegistrationState = value;
-        }
-
-        public Guid ParentId { get; set; }
-        public string EntityTypeName => AssemblyInfo.EntityTypeName;
-        #endregion
-
-    }
+	#endregion
 }

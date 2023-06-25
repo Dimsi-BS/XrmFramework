@@ -67,6 +67,8 @@ public partial class RegistrationHelper
 	/// <param name="localDll">The local Assembly, should appear in <c>xrmFramework.config</c></param>
 	protected void Register(Assembly localDll)
 	{
+		RegisterAssembly(localDll);
+
 		Console.WriteLine("\tFetching Local Assembly...");
 
 		var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(localDll);
@@ -98,8 +100,6 @@ public partial class RegistrationHelper
 
 		_assemblyExporter.InitExportMetadata(stepsForMetadata);
 
-		if (strategy.RegistrationState == RegistrationState.ToCreate) RegisterAssembly(strategy);
-
 		var allRequests = CreateDeleteRequests(strategyPool).ToList();
 
 		allRequests.AddRange(CreateUpdateRequests(strategyPool));
@@ -119,8 +119,8 @@ public partial class RegistrationHelper
 			crmRequests.Requests.AddRange(allRequests.Take(1000));
 			allRequests.RemoveRange(0, Math.Min(allRequests.Count, 1000));
 			var results = (ExecuteMultipleResponse) _registrationService.Execute(crmRequests);
-			crmRequests.Requests.Clear();
 			if (results.IsFaulted) throw new Exception(results.Responses.Last().Fault.Message);
+			crmRequests.Requests.Clear();
 		}
 	}
 
@@ -128,12 +128,24 @@ public partial class RegistrationHelper
 	///     Creates the Assembly, deleting all obsolete components in the process by calling
 	///     <see cref="CreateDeleteRequests" />
 	/// </summary>
-	private void RegisterAssembly(IAssemblyContext strategy)
+	private void RegisterAssembly(Assembly localAssembly)
 	{
-		Console.WriteLine("Creating assembly");
+		var localInfo = _assemblyFactory.GetLocalAssemblyInfo(localAssembly);
+		var remoteInfo = _assemblyFactory.GetRemoteAssemblyInfo(_registrationService, localInfo.Name);
 
-		_assemblyExporter.CreateComponent(strategy);
-		strategy.RegistrationState = RegistrationState.Computed;
+		var operation = _assemblyDiffFactory.ComputeAssemblyOperation(localInfo, remoteInfo);
+
+		if (operation.RegistrationState == RegistrationState.ToCreate)
+		{
+			Console.WriteLine($"\tCreating {operation.HumanName}...");
+			_assemblyExporter.CreateComponent(operation);
+		}
+
+		else if (operation.RegistrationState == RegistrationState.ToUpdate)
+		{
+			Console.WriteLine($"\tUpdating {operation.HumanName}");
+			_assemblyExporter.UpdateComponent(operation);
+		}
 	}
 
 	private IEnumerable<OrganizationRequest> CreateDeleteRequests(IReadOnlyCollection<ICrmComponent> strategyPool)
