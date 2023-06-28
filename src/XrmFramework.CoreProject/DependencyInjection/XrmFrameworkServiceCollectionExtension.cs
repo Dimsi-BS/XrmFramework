@@ -79,11 +79,13 @@ namespace Microsoft.Extensions.DependencyInjection
 
             RegisterServices(serviceCollection);
 
+            RegisterCustomService(serviceCollection);
             return serviceCollection;
         }
 
         static partial void RegisterServices(IServiceCollection serviceCollection);
-
+        static partial void RegisterCustomService(IServiceCollection serviceCollection);
+        
         private static void RegisterService<TIService>(IServiceCollection serviceCollection)
             where TIService : IService
         {
