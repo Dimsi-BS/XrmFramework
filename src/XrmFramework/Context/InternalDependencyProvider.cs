@@ -8,10 +8,13 @@ namespace XrmFramework
     public static partial class InternalDependencyProvider
     {
         static partial void RegisterServices(IObjectContainer container);
+        static partial void RegisterCustomService(IObjectContainer container);
+
 
         public static void RegisterDefaults(IObjectContainer container)
         {
             RegisterServices(container);
+            RegisterCustomService(container);
         }
 
         // ReSharper disable once UnusedMember.Local
