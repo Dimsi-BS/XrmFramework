@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using XrmFramework;
+using XrmFramework.Definitions;
 
 namespace XrmFramework
 {
