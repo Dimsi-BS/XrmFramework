@@ -24,7 +24,7 @@
                 <dependency id="Newtonsoft.Json" version="13.0.3"/>
                 <dependency id="XrmFramework.Analyzers" version="[$version$]"/>
             </group>
-            <group targetFramework="netcoreapp3.1">
+            <group targetFramework="net6.0">
                 <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="1.1.12" exclude="Build,Analyzers"/>
                 <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="1.1.12"
                             exclude="Build,Analyzers"/>
