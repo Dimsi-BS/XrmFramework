@@ -15,19 +15,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.45"/>
-        <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.46"/>
-        <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.110"/>
-        <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0"/>
-        <PackageReference Include="System.Net.Http" Version="4.3.4"/>
-        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0"/>
-        <Reference Include="System.Configuration"/>
+        <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.49" />
+        <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.49" />
+        <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.41" />
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+        <PackageReference Include="System.Net.Http" Version="4.3.4" />
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+        <Reference Include="System.Configuration" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Azure.Relay" Version="2.0.15596"/>
+        <PackageReference Include="Microsoft.Azure.Relay" Version="3.0.1" />
     </ItemGroup>
 
     <PropertyGroup>
@@ -36,26 +36,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="..\XrmFramework\**\*.cs"
-                 Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)"
-                 Exclude="..\XrmFramework\bin\**;
-				 		  ..\XrmFramework\obj\**;
-				 		  ..\XrmFramework\Generated\**"/>
+        <Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;&#xD;&#xA;&#x9;&#x9;&#x9;&#x9; &#x9;&#x9;  ..\XrmFramework\obj\**;&#xD;&#xA;&#x9;&#x9;&#x9;&#x9; &#x9;&#x9;  ..\XrmFramework\Generated\**" />
 
-        <Compile Include="..\XrmFramework.Plugin\**\*.cs"
-                 Link="_Imports\XrmFramework.Plugin\%(RecursiveDir)%(Filename)%(Extension)"
-                 Exclude="..\XrmFramework.Plugin\bin\**;
-                          ..\XrmFramework.Plugin\obj\**;
-                          ..\XrmFramework.Plugin\Generated\**"/>
+        <Compile Include="..\XrmFramework.Plugin\**\*.cs" Link="_Imports\XrmFramework.Plugin\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\bin\**;&#xD;&#xA;                          ..\XrmFramework.Plugin\obj\**;&#xD;&#xA;                          ..\XrmFramework.Plugin\Generated\**" />
 
-        <Compile Include="..\XrmFramework.DeployUtils/RemoteDebugger/Configuration/DebugAssemblySettings.cs"
-                 Link="_Imports\XrmFramework.DeployUtils/RemoteDebugger/Configuration/%(RecursiveDir)%(Filename)%(Extension)"
-                 Exclude="..\XrmFramework.Plugin\bin\**;
-                          ..\XrmFramework.Plugin\obj\**"/>
+        <Compile Include="..\XrmFramework.DeployUtils/RemoteDebugger/Configuration/DebugAssemblySettings.cs" Link="_Imports\XrmFramework.DeployUtils\RemoteDebugger\Configuration\DebugAssemblySettings.cs" Exclude="..\XrmFramework.Plugin\bin\**;&#xD;&#xA;                          ..\XrmFramework.Plugin\obj\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
     <PropertyGroup>
@@ -66,17 +55,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Remove="Generated\**"/>
-        <None Include="Generated\**"/>
+        <Compile Remove="Generated\**" />
+        <None Include="Generated\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="**\*.table"/>
-        <AdditionalFiles Include="..\XrmFramework\**\*.table"
-                         Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**"/>
-        <AdditionalFiles Include="..\XrmFramework.DeployUtils\**\*.table"
-                         Exclude="..\XrmFramework.DeployUtils\bin/**;..\XrmFramework.DeployUtils\obj/**"/>
-        <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**"/>
+        <None Remove="**\*.table" />
+        <AdditionalFiles Include="..\XrmFramework\**\*.table" Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**" />
+        <AdditionalFiles Include="..\XrmFramework.DeployUtils\**\*.table" Exclude="..\XrmFramework.DeployUtils\bin/**;..\XrmFramework.DeployUtils\obj/**" />
+        <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
     </ItemGroup>
 
 

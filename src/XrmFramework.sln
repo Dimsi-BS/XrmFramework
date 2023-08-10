@@ -18,21 +18,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{77073001
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.Plugin", "XrmFramework.Plugin\XrmFramework.Plugin.csproj", "{E473F628-9BFD-400B-8A7A-596A3A1F806B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework", "XrmFramework\XrmFramework.csproj", "{835202F0-C8A3-4E79-A9A5-D69A3080F1AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmFramework", "XrmFramework\XrmFramework.csproj", "{835202F0-C8A3-4E79-A9A5-D69A3080F1AB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.Templates", "XrmFramework.Templates\XrmFramework.Templates.csproj", "{E2AFAA90-1BA2-4DB3-A99D-A6004282C267}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmFramework.Templates", "XrmFramework.Templates\XrmFramework.Templates.csproj", "{E2AFAA90-1BA2-4DB3-A99D-A6004282C267}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.DeployUtils", "XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj", "{C6444169-E29C-4B5B-B5EE-94E5CA4FF836}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmFramework.DeployUtils", "XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj", "{C6444169-E29C-4B5B-B5EE-94E5CA4FF836}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.DefinitionManager", "XrmFramework.DefinitionManager\XrmFramework.DefinitionManager.csproj", "{1946BA1F-AFA5-44AB-81F2-A843EF24572B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.RemoteDebugger.Client", "XrmFramework.RemoteDebugger.Client\XrmFramework.RemoteDebugger.Client.csproj", "{64594CF9-A94D-4188-8FBE-70DA696CDE4B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmFramework.RemoteDebugger.Client", "XrmFramework.RemoteDebugger.Client\XrmFramework.RemoteDebugger.Client.csproj", "{64594CF9-A94D-4188-8FBE-70DA696CDE4B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.Analyzers", "XrmFramework.Analyzers\XrmFramework.Analyzers.csproj", "{2D75777D-C56B-407E-BC22-0F9DEB2C5B17}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.Utils", "XrmFramework.Utils\XrmFramework.Utils.csproj", "{C2CCCD60-A95A-4B16-A348-0536D9B22F15}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmFramework.Utils", "XrmFramework.Utils\XrmFramework.Utils.csproj", "{C2CCCD60-A95A-4B16-A348-0536D9B22F15}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.Core", "XrmFramework.Core\XrmFramework.Core.csproj", "{77A9EA08-FFA3-4EC5-8CE6-7A9C91DD8691}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmFramework.Core", "XrmFramework.Core\XrmFramework.Core.csproj", "{77A9EA08-FFA3-4EC5-8CE6-7A9C91DD8691}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B88F9CEB-5647-49D0-BD31-27E658C52654}"
 EndProject
@@ -49,8 +49,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XrmFramework.Analyzers.Contracts", "XrmFramework.Analyzers.Contracts\XrmFramework.Analyzers.Contracts.csproj", "{8337C924-18B7-4C97-B3D2-150021057BBA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenerateTableFilesFromLocalCode", "GenerateTableFilesFromLocalCode\GenerateTableFilesFromLocalCode.csproj", "{9C53B650-6A44-463F-9380-73EFAF6D3B06}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmFramework.XrmToolbox.Plugin", "XrmFramework.XrmToolbox.Plugin\XrmFramework.XrmToolbox.Plugin.csproj", "{7DD9F376-F6BA-426E-A559-28B8216EDCD7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XrmFramework.Plugin.tests", "Tests\XrmFramework.Plugin.tests\XrmFramework.Plugin.tests.csproj", "{AF8361C8-D9CD-45FD-B711-8087BD8DC478}"
 EndProject
@@ -132,10 +130,6 @@ Global
 		{AF8361C8-D9CD-45FD-B711-8087BD8DC478}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF8361C8-D9CD-45FD-B711-8087BD8DC478}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF8361C8-D9CD-45FD-B711-8087BD8DC478}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7DD9F376-F6BA-426E-A559-28B8216EDCD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7DD9F376-F6BA-426E-A559-28B8216EDCD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7DD9F376-F6BA-426E-A559-28B8216EDCD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7DD9F376-F6BA-426E-A559-28B8216EDCD7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1C445C4D-84F1-4A9F-815F-054BDD2ACB3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1C445C4D-84F1-4A9F-815F-054BDD2ACB3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C445C4D-84F1-4A9F-815F-054BDD2ACB3B}.Release|Any CPU.ActiveCfg = Release|Any CPU

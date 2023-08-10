@@ -35,13 +35,18 @@ namespace XrmFramework.Analyzers.Utils
 
             var attributes = attributeSymbol.GetAttributes();
 
-            var metadata = attributes.Single(a => a.AttributeClass.Name == "AttributeMetadataAttribute").ConstructorArguments.Single();
+            var metadata = attributes.Single(a => a.AttributeClass?.Name == "AttributeMetadataAttribute").ConstructorArguments.Single();
             Type = (AttributeTypeCode) Enum.ToObject(typeof(AttributeTypeCode), metadata.Value);
 
-            if (attributes.Any(a => a.AttributeClass.Name == "PrimaryAttributeAttribute"))
+            if (attributes.Any(a => a.AttributeClass?.Name == "PrimaryAttributeAttribute"))
             {
-                metadata = attributes.FirstOrDefault(a => a.AttributeClass.Name == "PrimaryAttributeAttribute").ConstructorArguments.Single();
-                _primaryType = metadata.IsNull ? null : (PrimaryAttributeType?) Enum.ToObject(typeof(PrimaryAttributeType), metadata.Value);
+                var attribute = attributes.FirstOrDefault(a => a.AttributeClass?.Name == "PrimaryAttributeAttribute");
+
+                if (attribute != null)
+                {
+                    metadata = attribute.ConstructorArguments.Single();
+                    _primaryType = metadata.IsNull ? null : (PrimaryAttributeType?)Enum.ToObject(typeof(PrimaryAttributeType), metadata.Value);
+                }
             }
 
             foreach (var relationMetadata in attributes.Where(a => a.AttributeClass.Name == "CrmLookupAttribute"))

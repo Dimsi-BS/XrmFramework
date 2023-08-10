@@ -17,7 +17,7 @@
         <ProjectReference Update="@(ProjectReference)" Exclude="">
             <Aliases>$([System.String]::Copy("%(FileName)").Replace(".",""))</Aliases>
         </ProjectReference>
-        <ProjectReference Update="../../Framework/XrmFramework.RemoteDebugger.Client\XrmFramework.RemoteDebugger.Client.csproj">
+        <ProjectReference Update="../../Framework/XrmFramework.RemoteDebugger.Client/XrmFramework.RemoteDebugger.Client.csproj">
             <Aliases></Aliases>
         </ProjectReference>
     </ItemGroup>
