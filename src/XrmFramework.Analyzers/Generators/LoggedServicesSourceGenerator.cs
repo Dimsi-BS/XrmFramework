@@ -28,7 +28,7 @@ namespace XrmFramework.Analyzers.Generators
             context.RegisterSourceOutput(interfacesAndImplementations, (spc, source) => Execute(source.Left, source.Right, spc));
         }
 
-        private void Execute(ImmutableArray<INamedTypeSymbol?> implementations, ImmutableArray<INamedTypeSymbol?> services, SourceProductionContext context)
+        private static void Execute(ImmutableArray<INamedTypeSymbol?> implementations, ImmutableArray<INamedTypeSymbol?> services, SourceProductionContext context)
         {
             var distinctServices = services.Distinct(SymbolEqualityComparer.Default).Cast<INamedTypeSymbol>().ToList();
 
@@ -44,7 +44,6 @@ namespace XrmFramework.Analyzers.Generators
 
                 context.AddSource($"{typeNamespace}{service.Name}.logged.cs", code);
             }
-
 
             var content = new InternalDependencyGenerator().GetInternalDependencyFileContent(services, implementations);
             context.AddSource("DependencyInjection.cs", SourceText.From(content, Encoding.UTF8));
