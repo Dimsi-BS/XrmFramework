@@ -8,20 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3">
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.0.1" />
-    <PackageReference Include="Verify.SourceGenerators" Version="1.4.0" />
-    <PackageReference Include="Verify.Xunit" Version="16.8.1" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.0" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.12" />
+    <PackageReference Include="Verify.SourceGenerators" Version="2.1.0" />
+    <PackageReference Include="Verify.Xunit" Version="20.6.0" />
+    <PackageReference Include="xunit" Version="2.5.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="3.1.0">
+    <PackageReference Include="coverlet.collector" Version="6.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -54,4 +54,61 @@
     <None Remove="TestData\LoggedServicesTests.LoggedServiceGenerator.06.verified.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestData\TableSourceFileGeneratorTests.CalculateTableFiles#Account.table.verified.cs">
+      <ParentExtension></ParentExtension>
+      <ParentFile>TableSourceFileGeneratorTests</ParentFile>
+      <DependentUpon></DependentUpon>
+    </None>
+    <None Update="TestData\TableSourceFileGeneratorTests.CalculateTableFiles#Contratdelocation.table.verified.cs">
+      <ParentExtension></ParentExtension>
+      <ParentFile>TableSourceFileGeneratorTests</ParentFile>
+      <DependentUpon></DependentUpon>
+    </None>
+    <None Update="TestData\TableSourceFileGeneratorTests.CalculateTableFiles#OptionSets.table.verified.cs">
+      <ParentExtension></ParentExtension>
+      <ParentFile>TableSourceFileGeneratorTests</ParentFile>
+      <DependentUpon></DependentUpon>
+    </None>
+    <None Update="TestData\TableSourceFileGeneratorTests.CalculateTableFiles#Particulier.table.verified.cs">
+      <ParentExtension></ParentExtension>
+      <ParentFile>TableSourceFileGeneratorTests</ParentFile>
+      <DependentUpon></DependentUpon>
+    </None>
+    <None Update="TestData\EnumGeneratorTests.EnumGenerator#XrmFramework.Messages.g.verified.cs">
+      <ParentExtension></ParentExtension>
+      <ParentFile>EnumGeneratorTests</ParentFile>
+      <DependentUpon></DependentUpon>
+    </None>
+    <None Update="TestData\LoggedServicesTests.LoggedServiceGenerator#ClientNamespace.Core.IAccountService.logged.verified.cs">
+      <ParentExtension></ParentExtension>
+      <ParentFile>LoggedServicesTests</ParentFile>
+      <DependentUpon></DependentUpon>
+    </None>
+    <None Update="TestData\LoggedServicesTests.LoggedServiceGenerator#ClientNamespace.Core.ISub2Service.logged.verified.cs">
+      <ParentExtension></ParentExtension>
+      <ParentFile>LoggedServicesTests</ParentFile>
+      <DependentUpon></DependentUpon>
+    </None>
+    <None Update="TestData\LoggedServicesTests.LoggedServiceGenerator#ClientNamespace.Core.ISub3Service.logged.verified.cs">
+      <ParentExtension></ParentExtension>
+      <ParentFile>LoggedServicesTests</ParentFile>
+      <DependentUpon></DependentUpon>
+    </None>
+    <None Update="TestData\LoggedServicesTests.LoggedServiceGenerator#ClientNamespace.Core.ISubService.logged.verified.cs">
+      <ParentExtension></ParentExtension>
+      <ParentFile>LoggedServicesTests</ParentFile>
+      <DependentUpon></DependentUpon>
+    </None>
+    <None Update="TestData\LoggedServicesTests.LoggedServiceGenerator#DependencyInjection.verified.cs">
+      <ParentExtension></ParentExtension>
+      <ParentFile>LoggedServicesTests</ParentFile>
+      <DependentUpon></DependentUpon>
+    </None>
+    <None Update="TestData\LoggedServicesTests.LoggedServiceGenerator#XrmFramework.IService.logged.verified.cs">
+      <ParentExtension></ParentExtension>
+      <ParentFile>LoggedServicesTests</ParentFile>
+      <DependentUpon></DependentUpon>
+    </None>
+  </ItemGroup>
 </Project>

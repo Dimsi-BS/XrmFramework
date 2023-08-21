@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(RootFolder)\$(XrmFrameworkCoreProjectName)\$(XrmFrameworkCoreProjectName).csproj" />
+    <ProjectReference Include="$(RootFolder)/$(XrmFrameworkCoreProjectName)/$(XrmFrameworkCoreProjectName).csproj" />
   </ItemGroup>
 
 </Project>

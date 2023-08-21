@@ -24,19 +24,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="..\XrmFramework.DeployUtils\Check.cs"
-                 Link="Helpers\Check.cs"/>
-        <Compile Include="..\XrmFramework\Attributes\PrimaryAttributeAttribute.cs"
-                 Link="Model\Attributes\PrimaryAttributeAttribute.cs"/>
+        <Compile Include="..\XrmFramework.DeployUtils\Check.cs" Link="Helpers\Check.cs" />
+        <Compile Include="..\XrmFramework\Attributes\PrimaryAttributeAttribute.cs" Link="Model\Attributes\PrimaryAttributeAttribute.cs" />
 
-        <Compile Include="..\XrmFramework.Core\**\*.cs"
-                 Link="_Imports/XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)"
-                 Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**"/>
+        <Compile Include="..\XrmFramework.Core\**\*.cs" Link="_Imports/XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />
 
-        <Compile Include="..\XrmFramework\Utils\SdkEnums.cs"
-                 Link="XrmFramework.Core\SdkEnums.cs"/>
-        <Compile Include="..\XrmFramework\Utils\BoDi.cs"
-                 Link="XrmFramework.Core\BoDi.cs"/>
+        <Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="XrmFramework.Core\SdkEnums.cs" />
+        <Compile Include="..\XrmFramework\Utils\BoDi.cs" Link="XrmFramework.Core\BoDi.cs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -44,13 +38,13 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.0.1"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.0.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Update="Resources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Resources.resx"/>
-        <EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs"/>
+        <Compile Update="Resources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Resources.resx" />
+        <EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" />
     </ItemGroup>
 
 </Project>

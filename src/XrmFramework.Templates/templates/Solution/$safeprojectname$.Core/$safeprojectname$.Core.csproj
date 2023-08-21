@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net462</TargetFrameworks>
+    <TargetFrameworks>net6.0;net462</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,9 +9,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Definitions\" />
-    <Folder Include="Model\" />
-    <Folder Include="Services\" />
+    <Folder Include="Definitions/" />
+    <Folder Include="Model/" />
+    <Folder Include="Services/" />
   </ItemGroup>
 
 

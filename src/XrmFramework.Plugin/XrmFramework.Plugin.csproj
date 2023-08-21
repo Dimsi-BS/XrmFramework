@@ -26,34 +26,27 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Reference Include="Microsoft.CSharp"/>
-        <Reference Include="System.Configuration"/>
-        <Reference Include="System.Net.Http"/>
+        <Reference Include="Microsoft.CSharp" />
+        <Reference Include="System.Configuration" />
+        <Reference Include="System.Net.Http" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.45"/>
-        <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.45"/>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
-        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0"/>
+        <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.49" />
+        <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.49" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Include="..\XrmFramework\**\*.cs"
-                 Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)"
-                 Exclude="..\XrmFramework\Generated\**;
-                          ..\XrmFramework\bin\**;
-                          ..\XrmFramework\obj\**;
-                          ..\XrmFramework\**\*.table"/>
+        <Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\Generated\**;&#xD;&#xA;                          ..\XrmFramework\bin\**;&#xD;&#xA;                          ..\XrmFramework\obj\**;&#xD;&#xA;                          ..\XrmFramework\**\*.table" />
 
-        <AdditionalFiles Include="..\XrmFramework\**\*.table"
-                         Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)"
-                         Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**"/>
+        <AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
     </ItemGroup>
 
 
     <ItemGroup>
-        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
 
@@ -63,10 +56,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Remove="Generated\**"/>
-        <None Include="Generated\**"/>
-        <None Remove="**\*.table"/>
-        <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**"/>
+        <Compile Remove="Generated\**" />
+        <None Include="Generated\**" />
+        <None Remove="**\*.table" />
+        <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
     </ItemGroup>
 
 </Project>

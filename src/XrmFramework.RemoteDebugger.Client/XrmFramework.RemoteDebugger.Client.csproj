@@ -25,21 +25,18 @@
         </DefineConstants>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj"/>
+        <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AutoMapper" Version="10.1.1"/>
-        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1"/>
-        <PackageReference Include="Microsoft.Azure.Relay" Version="2.0.15596"/>
-        <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.0.110"/>
-        <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0"/>
+        <PackageReference Include="Microsoft.Azure.Relay" Version="3.0.1" />
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
     <PropertyGroup>
@@ -50,26 +47,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Remove="Generated\**"/>
-        <None Include="Generated\**"/>
+        <Compile Remove="Generated\**" />
+        <None Include="Generated\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="**\*.table"/>
-        <AdditionalFiles Include="..\XrmFramework\**\*.table"
-                         Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**"/>
+        <None Remove="**\*.table" />
+        <AdditionalFiles Include="..\XrmFramework\**\*.table" Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**" />
 
-        <AdditionalFiles Include="..\XrmFramework.DeployUtils\**\*.table"
-                         Exclude="..\XrmFramework.DeployUtils\bin/**;..\XrmFramework.DeployUtils\obj/**"/>
+        <AdditionalFiles Include="..\XrmFramework.DeployUtils\**\*.table" Exclude="..\XrmFramework.DeployUtils\bin/**;..\XrmFramework.DeployUtils\obj/**" />
 
-        <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**"/>
+        <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-        <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.45"/>
-        <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.46"/>
-        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0"/>
-        <Reference Include="System.Configuration"/>
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+        <Reference Include="System.Configuration" />
     </ItemGroup>
     <!--
     <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
