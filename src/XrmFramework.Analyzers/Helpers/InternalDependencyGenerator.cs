@@ -6,87 +6,121 @@ using XrmFramework.Analyzers.Extensions;
 
 namespace XrmFramework.Analyzers.Generators
 {
-    public class InternalDependencyGenerator
-    {
-        public string GetInternalDependencyFileContent(ImmutableArray<INamedTypeSymbol?> services, ImmutableArray<INamedTypeSymbol?> implementations)
-        {
-            var namespaceSet = new HashSet<string> { "BoDi" };
+	public class InternalDependencyGenerator
+	{
+		public string GetInternalDependencyFileContent(ImmutableArray<INamedTypeSymbol?> services, ImmutableArray<INamedTypeSymbol?> implementations)
+		{
+			var namespaceSet = new HashSet<string> {"BoDi"};
 
-            var sb = new IndentedStringBuilder();
+			var internalDependencySb = new IndentedStringBuilder();
+			var serviceCollectionSb = new IndentedStringBuilder();
 
-            List<(ITypeSymbol serviceType, ITypeSymbol implementationType)> listServices = new();
+			var listServices = ListAllServices(services, implementations, namespaceSet);
 
-            foreach (var t in services.Distinct(SymbolEqualityComparer.Default).Cast<INamedTypeSymbol?>())
-            {
-                if (t == null) continue;
+			internalDependencySb.AppendLine("#if !DISABLE_SERVICES && (PLUGIN || CORE_PROJECT)");
+			serviceCollectionSb.AppendLine("#if !DISABLE_SERVICES && CORE_PROJECT");
 
-                foreach (var type in implementations)
-                {
-                    if (type == null) continue;
+			foreach (var ns in namespaceSet.OrderBy(n => n))
+			{
+				internalDependencySb
+				   .Append("using ")
+				   .Append(ns)
+				   .AppendLine(";");
+			}
+			
+			internalDependencySb
+			   .AppendLine()
+			   .AppendLine("namespace XrmFramework")
+			   .AppendLine("{");
 
-                    if (t.IsAssignableFrom(type) && (t.IsIService() && type.IsDefaultService() || !t.IsIService()))
-                    {
-                        namespaceSet.Add(t.ContainingNamespace.GetFullMetadataName());
-                        namespaceSet.Add(type.ContainingNamespace.GetFullMetadataName());
-                        listServices.Add((t, type));
-                    }
-                }
-            }
+			serviceCollectionSb
+			   .AppendLine()
+			   .AppendLine("namespace Microsoft.Extensions.DependencyInjection")
+			   .AppendLine("{");
 
-            sb.AppendLine("#if !DISABLE_SERVICES");
+			using (internalDependencySb.Indent())
+			using (serviceCollectionSb.Indent())
+			{
+				internalDependencySb
+				   .AppendLine("partial class InternalDependencyProvider")
+				   .AppendLine("{");
 
-            foreach (var ns in namespaceSet.OrderBy(n => n))
-            {
-                sb
-                    .Append("using ")
-                    .Append(ns)
-                    .AppendLine(";");
-            }
+				serviceCollectionSb
+				   .AppendLine("partial class XrmFrameworkServiceCollectionExtension")
+				   .AppendLine("{");
 
-            sb
-                .AppendLine()
-                .AppendLine("namespace XrmFramework")
-                .AppendLine("{");
+				using (internalDependencySb.Indent())
+				using (serviceCollectionSb.Indent())
+				{
+					internalDependencySb
+					   .AppendLine("static partial void RegisterServices(IObjectContainer container)")
+					   .AppendLine("{");
+					serviceCollectionSb
+					   .AppendLine("static partial void RegisterServices(IServiceCollection serviceCollection)")
+					   .AppendLine("{");
 
-            using (sb.Indent())
-            {
-                sb
-                    .AppendLine("partial class InternalDependencyProvider")
-                    .AppendLine("{");
+					using (internalDependencySb.Indent())
+					using (serviceCollectionSb.Indent())
+					{
+						foreach (var service in listServices)
+						{
+							internalDependencySb
+							   .Append("RegisterService<")
+							   .Append(service.serviceType.Name)
+							   .Append(", ")
+							   .Append(service.implementationType.Name)
+							   .Append(", ")
+							   .Append($"Logged{service.serviceType.Name}")
+							   .AppendLine(">(container);")
+							   .AppendLine();
+							
+							serviceCollectionSb
+							   .Append("RegisterService<")
+							   .Append(service.serviceType.Name)
+							   .AppendLine(">(serviceCollection);")
+							   .AppendLine();
+						}
+					}
+					
+					internalDependencySb.AppendLine("}");
+					serviceCollectionSb.AppendLine("}");
+				}
+				
+				internalDependencySb.AppendLine("}");
+				serviceCollectionSb.AppendLine("}");
+			}
 
-                using (sb.Indent())
-                {
-                    sb
-                        .AppendLine("static partial void RegisterServices(IObjectContainer container)")
-                        .AppendLine("{");
+			internalDependencySb.AppendLine("}");
+			serviceCollectionSb.AppendLine("}");
 
-                    using (sb.Indent())
-                    {
-                        foreach (var service in listServices)
-                        {
-                            sb
-                                .Append("RegisterService<")
-                                .Append(service.serviceType.Name)
-                                .Append(", ")
-                                .Append(service.implementationType.Name)
-                                .Append(", ")
-                                .Append($"Logged{service.serviceType.Name}")
-                                .AppendLine(">(container);")
-                                .AppendLine();
-                        }
-                    }
+			internalDependencySb.AppendLine("#endif");
+			serviceCollectionSb.AppendLine("#endif");
 
-                    sb.AppendLine("}");
-                }
+			return $"{internalDependencySb}\n{serviceCollectionSb}";
+		}
 
-                sb.AppendLine("}");
-            }
+		private static List<(ITypeSymbol serviceType, ITypeSymbol implementationType)> ListAllServices(ImmutableArray<INamedTypeSymbol?> services, ImmutableArray<INamedTypeSymbol?> implementations, HashSet<string> namespaceSet)
+		{
+			List<(ITypeSymbol serviceType, ITypeSymbol implementationType)> listServices = new();
 
-            sb.AppendLine("}");
+			foreach (var t in services.Distinct(SymbolEqualityComparer.Default).Cast<INamedTypeSymbol?>())
+			{
+				if (t == null) continue;
 
-            sb.AppendLine("#endif");
+				foreach (var type in implementations)
+				{
+					if (type == null || !t.IsAssignableFrom(type) || ((!t.IsIService() || !type.IsDefaultService()) && t.IsIService()))
+					{
+						continue;
+					}
 
-            return sb.ToString();
-        }
-    }
+					namespaceSet.Add(t.ContainingNamespace.GetFullMetadataName());
+					namespaceSet.Add(type.ContainingNamespace.GetFullMetadataName());
+					listServices.Add((t, type));
+				}
+			}
+
+			return listServices;
+		}
+	}
 }

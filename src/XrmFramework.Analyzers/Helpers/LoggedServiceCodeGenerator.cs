@@ -10,7 +10,7 @@ public class LoggedServiceCodeGenerator : CodeGeneratorBase
 {
 	public string Generate(ITypeSymbol serviceType)
 	{
-		var namespaces = new List<string> {"System.Diagnostics", "System", "System.Runtime.CompilerServices"};
+		var namespaces = new List<string> {"System.Diagnostics", "System", "System.Runtime.CompilerServices", "XrmFramework.Definitions"};
 
 		namespaces.AddRange(serviceType.GetNamespaces());
 
