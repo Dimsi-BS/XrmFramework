@@ -15,14 +15,14 @@
     <copyright>$copyrigth$</copyright>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="Microsoft.CrmSdk.XrmTooling.CoreAssembly" version="9.1.0.110" />
-        <dependency id="Newtonsoft.Json" version="12.0.3" />
-        <dependency id="Microsoft.Extensions.DependencyInjection" version="5.0.2" />
+        <dependency id="Microsoft.CrmSdk.XrmTooling.CoreAssembly" version="9.1.1.41" />
+        <dependency id="Newtonsoft.Json" version="13.0.3" />
+        <dependency id="Microsoft.Extensions.DependencyInjection" version="7.0.0" />
         <dependency id="XrmFramework" version="$version$" />
       </group>
 
-      <group targetFramework="netcoreapp3.1">
-        <dependency id="Newtonsoft.Json" version="12.0.3" />
+      <group targetFramework="net6.0">
+        <dependency id="Newtonsoft.Json" version="13.0.3" />
         <dependency id="XrmFramework" version="$version$" />
       </group>
     </dependencies>

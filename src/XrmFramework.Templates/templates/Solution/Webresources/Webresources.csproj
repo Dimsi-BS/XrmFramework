@@ -27,21 +27,21 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="**\*.css" />
-    <Content Include="**\*.js" />
-    <Content Include="**\*.eot" />
-    <Content Include="**\*.ttf" />
-    <Content Include="**\*.woff" />
-    <Content Include="**\*.json" />
-    <Content Include="**\*.xml" />
-    <Content Include="**\*.html;**\*.htm" />
-    <Content Include="**\*.png;**\*.jpg;**\*.jpeg;**\*.svg;**\*.resx;**\*.ico;**\*.xsl;**\*.xap;**\*.gif" />
+    <Content Include="**/*.css" />
+    <Content Include="**/*.js" />
+    <Content Include="**/*.eot" />
+    <Content Include="**/*.ttf" />
+    <Content Include="**/*.woff" />
+    <Content Include="**/*.json" />
+    <Content Include="**/*.xml" />
+    <Content Include="**/*.html;**/*.htm" />
+    <Content Include="**/*.png;**/*.jpg;**/*.jpeg;**/*.svg;**/*.resx;**/*.ico;**/*.xsl;**/*.xap;**/*.gif" />
   </ItemGroup>
   
   <Target Name="Build" />
   <Target Name="Rebuild" />
   <Target Name="Clean" />
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v16.0\WebApplications\Microsoft.WebApplication.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)/Microsoft/VisualStudio/v16.0/WebApplications/Microsoft.WebApplication.targets" />
   <ProjectExtensions>
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">

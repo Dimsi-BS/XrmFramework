@@ -38,6 +38,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Globalization;
 using Newtonsoft.Json.Serialization;
+using System.Diagnostics;
 
 namespace Newtonsoft.Json.Utilities
 {
@@ -53,17 +54,17 @@ namespace Newtonsoft.Json.Utilities
             private const string CSharpArgumentInfoFlagsTypeName = "Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfoFlags, " + CSharpAssemblyName;
             private const string CSharpBinderFlagsTypeName = "Microsoft.CSharp.RuntimeBinder.CSharpBinderFlags, " + CSharpAssemblyName;
 
-            private static object _getCSharpArgumentInfoArray;
-            private static object _setCSharpArgumentInfoArray;
-            private static MethodCall<object, object> _getMemberCall;
-            private static MethodCall<object, object> _setMemberCall;
+            private static object? _getCSharpArgumentInfoArray;
+            private static object? _setCSharpArgumentInfoArray;
+            private static MethodCall<object?, object?>? _getMemberCall;
+            private static MethodCall<object?, object?>? _setMemberCall;
             private static bool _init;
 
             private static void Init()
             {
                 if (!_init)
                 {
-                    Type binderType = Type.GetType(BinderTypeName, false);
+                    Type? binderType = Type.GetType(BinderTypeName, false);
                     if (binderType == null)
                     {
                         throw new InvalidOperationException("Could not resolve type '{0}'. You may need to add a reference to Microsoft.CSharp.dll to work with dynamic types.".FormatWith(CultureInfo.InvariantCulture, BinderTypeName));
@@ -81,15 +82,15 @@ namespace Newtonsoft.Json.Utilities
 
             private static object CreateSharpArgumentInfoArray(params int[] values)
             {
-                Type csharpArgumentInfoType = Type.GetType(CSharpArgumentInfoTypeName);
-                Type csharpArgumentInfoFlags = Type.GetType(CSharpArgumentInfoFlagsTypeName);
+                Type csharpArgumentInfoType = Type.GetType(CSharpArgumentInfoTypeName, true)!;
+                Type csharpArgumentInfoFlags = Type.GetType(CSharpArgumentInfoFlagsTypeName, true)!;
 
                 Array a = Array.CreateInstance(csharpArgumentInfoType, values.Length);
 
                 for (int i = 0; i < values.Length; i++)
                 {
-                    MethodInfo createArgumentInfoMethod = csharpArgumentInfoType.GetMethod("Create", new[] { csharpArgumentInfoFlags, typeof(string) });
-                    object arg = createArgumentInfoMethod.Invoke(null, new object[] { 0, null });
+                    MethodInfo createArgumentInfoMethod = csharpArgumentInfoType.GetMethod("Create", new[] { csharpArgumentInfoFlags, typeof(string) })!;
+                    object arg = createArgumentInfoMethod.Invoke(null, new object?[] { 0, null })!;
                     a.SetValue(arg, i);
                 }
 
@@ -98,17 +99,17 @@ namespace Newtonsoft.Json.Utilities
 
             private static void CreateMemberCalls()
             {
-                Type csharpArgumentInfoType = Type.GetType(CSharpArgumentInfoTypeName, true);
-                Type csharpBinderFlagsType = Type.GetType(CSharpBinderFlagsTypeName, true);
-                Type binderType = Type.GetType(BinderTypeName, true);
+                Type csharpArgumentInfoType = Type.GetType(CSharpArgumentInfoTypeName, true)!;
+                Type csharpBinderFlagsType = Type.GetType(CSharpBinderFlagsTypeName, true)!;
+                Type binderType = Type.GetType(BinderTypeName, true)!;
 
                 Type csharpArgumentInfoTypeEnumerableType = typeof(IEnumerable<>).MakeGenericType(csharpArgumentInfoType);
 
-                MethodInfo getMemberMethod = binderType.GetMethod("GetMember", new[] { csharpBinderFlagsType, typeof(string), typeof(Type), csharpArgumentInfoTypeEnumerableType });
-                _getMemberCall = JsonTypeReflector.ReflectionDelegateFactory.CreateMethodCall<object>(getMemberMethod);
+                MethodInfo getMemberMethod = binderType.GetMethod("GetMember", new[] { csharpBinderFlagsType, typeof(string), typeof(Type), csharpArgumentInfoTypeEnumerableType })!;
+                _getMemberCall = JsonTypeReflector.ReflectionDelegateFactory.CreateMethodCall<object?>(getMemberMethod);
 
-                MethodInfo setMemberMethod = binderType.GetMethod("SetMember", new[] { csharpBinderFlagsType, typeof(string), typeof(Type), csharpArgumentInfoTypeEnumerableType });
-                _setMemberCall = JsonTypeReflector.ReflectionDelegateFactory.CreateMethodCall<object>(setMemberMethod);
+                MethodInfo setMemberMethod = binderType.GetMethod("SetMember", new[] { csharpBinderFlagsType, typeof(string), typeof(Type), csharpArgumentInfoTypeEnumerableType })!;
+                _setMemberCall = JsonTypeReflector.ReflectionDelegateFactory.CreateMethodCall<object?>(setMemberMethod);
             }
 #endif
 
@@ -116,7 +117,9 @@ namespace Newtonsoft.Json.Utilities
             {
 #if !HAVE_REFLECTION_BINDER
                 Init();
-                return (CallSiteBinder)_getMemberCall(null, 0, name, context, _getCSharpArgumentInfoArray);
+                MiscellaneousUtils.Assert(_getMemberCall != null);
+                MiscellaneousUtils.Assert(_getCSharpArgumentInfoArray != null);
+                return (CallSiteBinder)_getMemberCall(null, 0, name, context, _getCSharpArgumentInfoArray)!;
 #else
                 return Binder.GetMember(
                     CSharpBinderFlags.None, name, context, new[] {CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null)});
@@ -127,7 +130,9 @@ namespace Newtonsoft.Json.Utilities
             {
 #if !HAVE_REFLECTION_BINDER
                 Init();
-                return (CallSiteBinder)_setMemberCall(null, 0, name, context, _setCSharpArgumentInfoArray);
+                MiscellaneousUtils.Assert(_setMemberCall != null);
+                MiscellaneousUtils.Assert(_setCSharpArgumentInfoArray != null);
+                return (CallSiteBinder)_setMemberCall(null, 0, name, context, _setCSharpArgumentInfoArray)!;
 #else
                 return Binder.SetMember(
                     CSharpBinderFlags.None, name, context, new[]
@@ -156,7 +161,7 @@ namespace Newtonsoft.Json.Utilities
             _innerBinder = innerBinder;
         }
 
-        public override DynamicMetaObject FallbackGetMember(DynamicMetaObject target, DynamicMetaObject errorSuggestion)
+        public override DynamicMetaObject FallbackGetMember(DynamicMetaObject target, DynamicMetaObject? errorSuggestion)
         {
             DynamicMetaObject retMetaObject = _innerBinder.Bind(target, CollectionUtils.ArrayEmpty<DynamicMetaObject>());
 
@@ -178,7 +183,7 @@ namespace Newtonsoft.Json.Utilities
             _innerBinder = innerBinder;
         }
 
-        public override DynamicMetaObject FallbackSetMember(DynamicMetaObject target, DynamicMetaObject value, DynamicMetaObject errorSuggestion)
+        public override DynamicMetaObject FallbackSetMember(DynamicMetaObject target, DynamicMetaObject value, DynamicMetaObject? errorSuggestion)
         {
             DynamicMetaObject retMetaObject = _innerBinder.Bind(target, new DynamicMetaObject[] { value });
 

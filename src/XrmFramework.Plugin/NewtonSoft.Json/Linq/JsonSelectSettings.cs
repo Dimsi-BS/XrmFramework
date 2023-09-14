@@ -28,19 +28,26 @@ using System;
 namespace Newtonsoft.Json.Linq
 {
     /// <summary>
-    /// Specifies how null value properties are merged.
+    /// Specifies the settings used when selecting JSON.
     /// </summary>
-    [Flags]
-    public enum MergeNullValueHandling
+    public class JsonSelectSettings
     {
+#if HAVE_REGEX_TIMEOUTS
         /// <summary>
-        /// The content's null value properties will be ignored during merging.
+        /// Gets or sets a timeout that will be used when executing regular expressions.
         /// </summary>
-        Ignore = 0,
+        /// <value>The timeout that will be used when executing regular expressions.</value>
+        public TimeSpan? RegexMatchTimeout { get; set; }
+#endif
 
         /// <summary>
-        /// The content's null value properties will be merged.
+        /// Gets or sets a flag that indicates whether an error should be thrown if
+        /// no tokens are found when evaluating part of the expression.
         /// </summary>
-        Merge = 1
+        /// <value>
+        /// A flag that indicates whether an error should be thrown if
+        /// no tokens are found when evaluating part of the expression.
+        /// </value>
+        public bool ErrorWhenNoMatch { get; set; }
     }
 }

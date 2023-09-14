@@ -25,12 +25,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 #if !HAVE_LINQ
 using Newtonsoft.Json.Utilities.LinqBridge;
 #else
 using System.Linq;
 #endif
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Newtonsoft.Json.Serialization;
 
@@ -88,7 +90,7 @@ namespace Newtonsoft.Json.Utilities
             new ImmutableCollectionTypeInfo(ImmutableQueueGenericTypeName, ImmutableQueueGenericTypeName, ImmutableQueueTypeName),
             new ImmutableCollectionTypeInfo(ImmutableStackGenericInterfaceTypeName, ImmutableStackGenericTypeName, ImmutableStackTypeName),
             new ImmutableCollectionTypeInfo(ImmutableStackGenericTypeName, ImmutableStackGenericTypeName, ImmutableStackTypeName),
-            new ImmutableCollectionTypeInfo(ImmutableSetGenericInterfaceTypeName, ImmutableSortedSetGenericTypeName, ImmutableSortedSetTypeName),
+            new ImmutableCollectionTypeInfo(ImmutableSetGenericInterfaceTypeName, ImmutableHashSetGenericTypeName, ImmutableHashSetTypeName),
             new ImmutableCollectionTypeInfo(ImmutableSortedSetGenericTypeName, ImmutableSortedSetGenericTypeName, ImmutableSortedSetTypeName),
             new ImmutableCollectionTypeInfo(ImmutableHashSetGenericTypeName, ImmutableHashSetGenericTypeName, ImmutableHashSetTypeName),
             new ImmutableCollectionTypeInfo(ImmutableArrayGenericTypeName, ImmutableArrayGenericTypeName, ImmutableArrayTypeName)
@@ -104,27 +106,27 @@ namespace Newtonsoft.Json.Utilities
 
         private static readonly IList<ImmutableCollectionTypeInfo> DictionaryContractImmutableCollectionDefinitions = new List<ImmutableCollectionTypeInfo>
         {
-            new ImmutableCollectionTypeInfo(ImmutableDictionaryGenericInterfaceTypeName, ImmutableSortedDictionaryGenericTypeName, ImmutableSortedDictionaryTypeName),
+            new ImmutableCollectionTypeInfo(ImmutableDictionaryGenericInterfaceTypeName, ImmutableDictionaryGenericTypeName, ImmutableDictionaryTypeName),
             new ImmutableCollectionTypeInfo(ImmutableSortedDictionaryGenericTypeName, ImmutableSortedDictionaryGenericTypeName, ImmutableSortedDictionaryTypeName),
             new ImmutableCollectionTypeInfo(ImmutableDictionaryGenericTypeName, ImmutableDictionaryGenericTypeName, ImmutableDictionaryTypeName)
         };
 
-        internal static bool TryBuildImmutableForArrayContract(Type underlyingType, Type collectionItemType, out Type createdType, out ObjectConstructor<object> parameterizedCreator)
+        internal static bool TryBuildImmutableForArrayContract(Type underlyingType, Type collectionItemType, [NotNullWhen(true)]out Type? createdType, [NotNullWhen(true)]out ObjectConstructor<object>? parameterizedCreator)
         {
             if (underlyingType.IsGenericType())
             {
                 Type underlyingTypeDefinition = underlyingType.GetGenericTypeDefinition();
-                string name = underlyingTypeDefinition.FullName;
+                string name = underlyingTypeDefinition.FullName!;
 
-                ImmutableCollectionTypeInfo definition = ArrayContractImmutableCollectionDefinitions.FirstOrDefault(d => d.ContractTypeName == name);
+                ImmutableCollectionTypeInfo? definition = ArrayContractImmutableCollectionDefinitions.FirstOrDefault(d => d.ContractTypeName == name);
                 if (definition != null)
                 {
-                    Type createdTypeDefinition = underlyingTypeDefinition.Assembly().GetType(definition.CreatedTypeName);
-                    Type builderTypeDefinition = underlyingTypeDefinition.Assembly().GetType(definition.BuilderTypeName);
+                    Type? createdTypeDefinition = underlyingTypeDefinition.Assembly().GetType(definition.CreatedTypeName);
+                    Type? builderTypeDefinition = underlyingTypeDefinition.Assembly().GetType(definition.BuilderTypeName);
 
                     if (createdTypeDefinition != null && builderTypeDefinition != null)
                     {
-                        MethodInfo mb = builderTypeDefinition.GetMethods().FirstOrDefault(m => m.Name == "CreateRange" && m.GetParameters().Length == 1);
+                        MethodInfo? mb = builderTypeDefinition.GetMethods().FirstOrDefault(m => m.Name == "CreateRange" && m.GetParameters().Length == 1);
                         if (mb != null)
                         {
                             createdType = createdTypeDefinition.MakeGenericType(collectionItemType);
@@ -141,22 +143,22 @@ namespace Newtonsoft.Json.Utilities
             return false;
         }
 
-        internal static bool TryBuildImmutableForDictionaryContract(Type underlyingType, Type keyItemType, Type valueItemType, out Type createdType, out ObjectConstructor<object> parameterizedCreator)
+        internal static bool TryBuildImmutableForDictionaryContract(Type underlyingType, Type keyItemType, Type valueItemType, [NotNullWhen(true)]out Type? createdType, [NotNullWhen(true)]out ObjectConstructor<object>? parameterizedCreator)
         {
             if (underlyingType.IsGenericType())
             {
                 Type underlyingTypeDefinition = underlyingType.GetGenericTypeDefinition();
-                string name = underlyingTypeDefinition.FullName;
+                string name = underlyingTypeDefinition.FullName!;
 
-                ImmutableCollectionTypeInfo definition = DictionaryContractImmutableCollectionDefinitions.FirstOrDefault(d => d.ContractTypeName == name);
+                ImmutableCollectionTypeInfo? definition = DictionaryContractImmutableCollectionDefinitions.FirstOrDefault(d => d.ContractTypeName == name);
                 if (definition != null)
                 {
-                    Type createdTypeDefinition = underlyingTypeDefinition.Assembly().GetType(definition.CreatedTypeName);
-                    Type builderTypeDefinition = underlyingTypeDefinition.Assembly().GetType(definition.BuilderTypeName);
+                    Type? createdTypeDefinition = underlyingTypeDefinition.Assembly().GetType(definition.CreatedTypeName);
+                    Type? builderTypeDefinition = underlyingTypeDefinition.Assembly().GetType(definition.BuilderTypeName);
 
                     if (createdTypeDefinition != null && builderTypeDefinition != null)
                     {
-                        MethodInfo mb = builderTypeDefinition.GetMethods().FirstOrDefault(m =>
+                        MethodInfo? mb = builderTypeDefinition.GetMethods().FirstOrDefault(m =>
                         {
                             ParameterInfo[] parameters = m.GetParameters();
 
