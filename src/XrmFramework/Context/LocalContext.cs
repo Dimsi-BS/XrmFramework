@@ -305,6 +305,16 @@ namespace XrmFramework
             return InitiatingUserId;
         }
 
+        public Guid GetRootUserId()
+        {
+            if (ParentLocalContext != null)
+            {
+                return ParentLocalContext.GetRootUserId();
+            }
+
+            return UserId;
+        }
+
         public void InvokeMethod(object obj, MethodInfo method)
         {
             var listParamValues = new List<object>();

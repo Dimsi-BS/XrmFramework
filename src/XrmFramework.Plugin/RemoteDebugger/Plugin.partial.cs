@@ -26,11 +26,12 @@ namespace XrmFramework
                 //    localContext.Log($"Debug session ids : {string.Join(",", debuggerUnsecuredConfig.DebugSessionIds)}");
 
                     var initiatingUserId = localContext.GetInitiatingUserId();
+                    var rootUserId = localContext.GetRootUserId();
 
-                    localContext.Log($"Initiating user Id : {initiatingUserId}");
+                    localContext.Log($"Initiating user Id : {initiatingUserId}, root user Id : {rootUserId}");
 
                     var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
-                    queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.DebugeeId, ConditionOperator.Equal, initiatingUserId);
+                    queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.DebugeeId, ConditionOperator.In, initiatingUserId, rootUserId);
                     queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
 
                     //queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Id, ConditionOperator.In, debuggerUnsecuredConfig.DebugSessionIds.Cast<object>().ToArray());
