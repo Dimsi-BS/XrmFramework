@@ -10,9 +10,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Definitions\" />
-    <Folder Include="Model\" />
-    <Folder Include="Services\" />
+    <Folder Include="Definitions/" />
+    <Folder Include="Model/" />
+    <Folder Include="Services/" />
   </ItemGroup>
 
 
