@@ -2,7 +2,7 @@
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
     <RootFolder>$(MSBuildThisFileDirectory)</RootFolder>
-    <AssemblyOriginatorKeyFile>$(RootFolder)\$safeprojectname$.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(RootFolder)/$safeprojectname$.snk</AssemblyOriginatorKeyFile>
 
     <LangVersion>latest</LangVersion>
 

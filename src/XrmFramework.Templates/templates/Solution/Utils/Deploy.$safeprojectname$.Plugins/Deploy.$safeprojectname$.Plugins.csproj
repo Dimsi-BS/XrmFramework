@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\$safeprojectname$.Plugins\$safeprojectname$.Plugins.csproj" />
+    <ProjectReference Include="$(RootFolder)/$safeprojectname$.Plugins/$safeprojectname$.Plugins.csproj" />
   </ItemGroup>
 
   <ItemGroup>
