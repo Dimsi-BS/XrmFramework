@@ -16,24 +16,6 @@ public class RemoteDebuggerMessage
 		ContractResolver = new RemoteDebuggerContractResolver()
 	};
 
-	private static readonly ICollection<JsonConverter> Converters = new List<JsonConverter>
-	{
-		new ParameterCollectionConverter(),
-		new KeyAttributeCollectionConverter(),
-		new FormattedValueCollectionConverter(),
-		new EntityImageCollectionConverter(),
-		new AttributeCollectionConverter(),
-		new RelatedEntityCollectionConverter(),
-		new RelationshipQueryCollectionConverter(),
-		new OrganizationRequestCollectionConverter(),
-		new OrganizationResponseCollectionConverter(),
-		new ArgumentsCollectionConverter(),
-		new EntityConverter(),
-		new ObjectSerializationConverter(),
-		new ConditionExpressionConverter(),
-		new AliasedValueConverter()
-	};
-
 	public RemoteDebuggerMessage()
 	{
 	}
@@ -91,26 +73,4 @@ public class RemoteDebuggerMessage
 		return JsonConvert.DeserializeObject<T>(stringContent, SerializerSettings);
 	}
 
-	private class RemoteDebuggerContractResolver : DefaultContractResolver
-	{
-		/// <inheritdoc />
-		protected override JsonConverter ResolveContractConverter(Type objectType)
-		{
-			var converter = Converters.FirstOrDefault(c =>
-				typeof(JsonConverter<>).MakeGenericType(objectType).IsInstanceOfType(c));
-
-			if (converter != null) return converter;
-
-			if (objectType.IsGenericType && objectType.GenericTypeArguments.Length == 2 &&
-				typeof(KeyValuePair<,>).MakeGenericType(objectType.GenericTypeArguments).IsAssignableFrom(objectType))
-			{
-				var converterType =
-					typeof(CustomKeyValuePairConverter<,>).MakeGenericType(objectType.GenericTypeArguments);
-
-				return (JsonConverter)Activator.CreateInstance(converterType);
-			}
-
-			return base.ResolveContractConverter(objectType);
-		}
-	}
 }
