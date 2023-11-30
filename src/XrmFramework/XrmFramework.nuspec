@@ -41,8 +41,7 @@
     </metadata>
 
     <files>
-        <file src="**\*.cs" target="contentFiles\cs\any\__Imports\XrmFramework"
-              exclude="bin\**;obj\**;**\AssemblyInfo.cs;Generated\**"/>
+        <file src="**\*.cs" target="contentFiles\cs\any\__Imports\XrmFramework" exclude="bin\**;obj\**;**\AssemblyInfo.cs;Generated\**"/>
         <file src="**\*.table" target="content\tables\" exclude="bin\**;obj\**"/>
         <file src="build\**\*" target="build"/>
 

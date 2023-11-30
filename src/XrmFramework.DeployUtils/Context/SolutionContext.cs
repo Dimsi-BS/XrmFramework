@@ -101,7 +101,7 @@ namespace XrmFramework.DeployUtils.Context
 
             if (_solution == null)
             {
-                Console.WriteLine("The solution {0} does not exist in the CRM, modify App.config to point to an existing solution.", SolutionName);
+                Console.WriteLine("The solution {0} does not exist in the CRM, modify xrmFramework.config to point to an existing solution.", SolutionName);
                 Console.WriteLine("\r\nAppuyez sur une touche pour arrêter.");
                 Console.ReadKey();
                 System.Environment.Exit(1);

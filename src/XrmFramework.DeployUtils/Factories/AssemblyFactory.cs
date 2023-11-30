@@ -35,7 +35,7 @@ internal partial class AssemblyFactory : IAssemblyFactory
 			.ToList();
 
 		var workflows = assembly.GetTypes()
-			.Where(t => workflowType.IsAssignableFrom(t)
+			.Where(t => workflowType != null && workflowType.IsAssignableFrom(t)
 			            && !t.IsAbstract
 			            && t.IsPublic)
 			.Select(t => _importer.CreateWorkflowFromType(t))

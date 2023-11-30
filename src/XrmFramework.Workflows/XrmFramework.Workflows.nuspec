@@ -21,7 +21,7 @@
             <group targetFramework="net462">
                 <dependency id="XrmFramework" version="[$version$]"/>
                 <dependency id="XrmFramework.Plugin" version="[$version$]"/>
-                <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.46"/>
+                <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.51"/>
             </group>
         </dependencies>
         <frameworkAssemblies>
@@ -30,7 +30,7 @@
     </metadata>
 
     <files>
-        <file src="**\*.cs" target="contentFiles/cs/any/__Imports/XrmFramework.Plugin"
+        <file src="**\*.cs" target="contentFiles/cs/any/__Imports/XrmFramework.Workflows"
               exclude="Generated\**;bin\**;obj\**;**\AssemblyInfo.cs"/>
         <file src="build\**\*" target="build/"/>
 

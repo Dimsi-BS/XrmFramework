@@ -21,9 +21,8 @@
             <group targetFramework="net462">
                 <dependency id="AutoMapper" version="10.1.1"/>
                 <dependency id="AutoMapper.Extensions.Microsoft.DependencyInjection" version="8.1.1"/>
-                <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.49"/>
-                <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.46"/>
-                <dependency id="Microsoft.CrmSdk.Deployment" version="9.0.2.34"/>
+                <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.51"/>
+                <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.51"/>
                 <dependency id="Microsoft.CrmSdk.XrmTooling.CoreAssembly" version="9.1.1.41"/>
                 <dependency id="Microsoft.Extensions.DependencyInjection" version="6.0.1"/>
                 <dependency id="Microsoft.Extensions.Options" version="6.0.0"/>

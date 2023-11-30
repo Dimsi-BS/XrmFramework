@@ -75,6 +75,7 @@
         <None Include="Generated\**" />
         <None Remove="**\*.table" />
         <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
+        <None Remove="XrmFramework.Plugin.csproj.DotSettings" />
     </ItemGroup>
 
 </Project>

@@ -29,9 +29,9 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Azure.Relay" Version="3.0.1" />
-        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+        <Reference Include="Microsoft.CSharp" />
     </ItemGroup>
 
     <ItemGroup>
@@ -52,7 +52,6 @@
 
     <ItemGroup>
         <None Remove="**\*.table" />
-        <AdditionalFiles Include="..\XrmFramework\**\*.table" Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**" />
 
         <AdditionalFiles Include="..\XrmFramework.DeployUtils\**\*.table" Exclude="..\XrmFramework.DeployUtils\bin/**;..\XrmFramework.DeployUtils\obj/**" />
 

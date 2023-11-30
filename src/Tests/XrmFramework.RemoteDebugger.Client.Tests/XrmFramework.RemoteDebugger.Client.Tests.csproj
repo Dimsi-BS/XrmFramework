@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net4.6.2</TargetFrameworks>
+		<TargetFramework>net462</TargetFramework>
 		<Nullable>disable</Nullable>
 
 		<IsPackable>false</IsPackable>

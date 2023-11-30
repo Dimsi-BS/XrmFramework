@@ -1,10 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
+        <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
+        <AssemblyName>XrmFramework.Workflows</AssemblyName>
+        <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
+        <PackageId>XrmFramework.Workflows</PackageId>
+
+        <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.Workflows.nuspec</NuspecFile>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
         <Nullable>enable</Nullable>
-        <DefineConstants>$(DefinConstants);DISABLE_DI</DefineConstants>
+        <ImplicitUsings>enable</ImplicitUsings>
+
+        <NoWarn>$(NoWarn);1591</NoWarn>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <DefineConstants>$(DefineConstants);DISABLE_DI</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
