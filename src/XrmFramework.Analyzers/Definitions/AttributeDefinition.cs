@@ -8,6 +8,7 @@ using Model.Sdk.Metadata;
 
 namespace XrmFramework.Analyzers.Utils
 {
+    [CLSCompliant(false)]
     public class AttributeDefinition : Definition<IFieldSymbol>
     {
         public EntityDefinition ContainingDefinition { get; }

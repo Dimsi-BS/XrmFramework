@@ -39,7 +39,7 @@ namespace XrmFramework.RemoteDebugger
                 throw new ArgumentNullException(nameof(serviceProvider));
             }
 
-            var localContext = new LocalPluginContext(serviceProvider);
+            var localContext = new LocalPluginContext(serviceProvider, UnsecuredConfig, SecuredConfig);
 
             if (localContext.IsDebugContext)
             {

@@ -12,6 +12,7 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
+        <ImplicitUsings>enable</ImplicitUsings>
 
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -24,10 +25,9 @@
     <ItemGroup>
         <PackageReference Include="AutoMapper" Version="10.1.1" />
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
-        <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.49" />
-        <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.49" />
-        <PackageReference Include="Microsoft.CrmSdk.Deployment" Version="9.0.2.34" />
-        <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.41" />
+        <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.51" />
+        <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.51" />
+        <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.45" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
     </ItemGroup>
@@ -35,23 +35,23 @@
     <ItemGroup>
         <Reference Include="System.Configuration" />
         <Reference Include="Microsoft.CSharp" />
+        <Reference Include="System.ComponentModel.DataAnnotations" />
     </ItemGroup>
 
     <ItemGroup>
         <Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**;..\XrmFramework\Generated\**;" />
 
-        <Compile Include="..\XrmFramework.Core\**\*.cs" Link="XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />
-    </ItemGroup>
-
-    <ItemGroup>
+        <Compile Include="..\XrmFramework.Core\**\*.cs" Link="_Imports\XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />
+        
         <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Definitions\Generated\DebugSessionDefinition.cs" Link="_Imports\XrmFramework.Plugin\RemoteDebugger\Definitions\Generated\DebugSessionDefinition.cs" />
 
         <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\**\*.cs" Link="_Imports\XrmFramework.Plugin\RemoteDebugger\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\**\*partial*.cs;..\XrmFramework.Plugin\RemoteDebugger\RemoteDebugger.Remote\*.cs" />
 
+        <Compile Include="..\XrmFramework.Workflows\**\*.cs" Link="_Imports\XrmFramework.Workflows\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Workflows\EnableRuleProvider\**\*.cs;..\XrmFramework.Workflows\**\CustomWorkflowActivity*.cs;..\XrmFramework.Workflows\obj\**\*.cs;..\XrmFramework.Workflows\RemoteDebugger\RemoteDebugger.Remote\*.cs" />
+
         <Compile Include="..\XrmFramework.Plugin\**\StepConfiguration*.cs" Link="Model\StepConfigurations\%(RecursiveDir)%(Filename)%(Extension)" />
 
 
-        <Reference Include="System.ComponentModel.DataAnnotations" />
     </ItemGroup>
 
     <ItemGroup>
@@ -75,10 +75,6 @@
         <AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**" />
 
         <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Generated\" />
     </ItemGroup>
 
 </Project>

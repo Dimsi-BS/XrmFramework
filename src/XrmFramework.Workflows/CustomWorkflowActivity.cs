@@ -12,7 +12,6 @@ namespace XrmFramework.Workflow
 {
     public abstract partial class CustomWorkflowActivity : CodeActivity
     {
-
         protected override void Execute(CodeActivityContext context)
         {
             if (context == null)

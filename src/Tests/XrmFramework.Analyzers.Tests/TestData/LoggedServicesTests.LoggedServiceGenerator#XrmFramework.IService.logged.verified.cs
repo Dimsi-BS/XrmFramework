@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using XrmFramework;
+using XrmFramework.BindingModel;
 using XrmFramework.Definitions;
 
 namespace XrmFramework
@@ -131,6 +132,27 @@ namespace XrmFramework
             Log(nameof(TestEnum), "End : duration = {0}", sw.Elapsed);
         }
         #pragma warning restore CS0612
+
+        public T Upsert<T>(T model, bool isAdmin = false, bool bypassCustomPluginExecution = false) where T : global::XrmFramework.BindingModel.IBindingModel, new()
+        {
+            #region Parameters check
+            if (Equals(model, default(T)))
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+            #endregion
+
+            var sw = new Stopwatch();
+            sw.Start();
+
+            Log(nameof(Upsert), "Start: model = {0}, isAdmin = {1}, bypassCustomPluginExecution = {2}", model, isAdmin, bypassCustomPluginExecution);
+
+            var returnValue = Service.Upsert<T>(model, isAdmin, bypassCustomPluginExecution);
+
+            Log(nameof(Upsert), "End : duration = {0}, returnValue = {1}", sw.Elapsed, returnValue);
+
+            return returnValue;
+        }
 
         public void Update(global::Microsoft.Xrm.Sdk.Entity entity)
         {

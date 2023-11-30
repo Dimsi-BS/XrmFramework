@@ -25,14 +25,14 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Net.Http" />
 
-    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.49" />
-    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.41" />
+    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.51" />
+    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.45" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' Or '$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.12" />
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.1.12" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.16" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.1.16" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,7 +46,7 @@
 
 
 	<PropertyGroup>
-		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
 		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
 	</PropertyGroup>
 
@@ -58,8 +58,6 @@
     <None Include="**/Generated/**/*.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Generated\XrmFramework.Analyzers\XrmFramework.Analyzers.Generators.TableSourceFileGenerator\" />
-  </ItemGroup>
+
 
 </Project>

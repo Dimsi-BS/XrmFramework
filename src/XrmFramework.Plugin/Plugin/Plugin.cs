@@ -115,7 +115,7 @@ public abstract partial class Plugin : IPlugin
 		if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
 
 		// Construct the Local plug-in context.
-		var localContext = new LocalPluginContext(serviceProvider);
+		var localContext = new LocalPluginContext(serviceProvider, UnSecuredConfig, SecuredConfig);
 
 		localContext.Log($"\r\nClass {ChildClassName}");
 		localContext.LogStart();

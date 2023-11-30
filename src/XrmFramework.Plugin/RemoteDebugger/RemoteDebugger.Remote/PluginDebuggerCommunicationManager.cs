@@ -18,12 +18,6 @@ internal class PluginDebuggerCommunicationManager : DebuggerCommunicationManager
         _unSecuredConfig = unsecuredConfig;
         _securedConfig = securedConfig;
     }
-    public override DebugSession GetDebugSession()
-    {
-        var query = CreateBaseDebugSessionQuery(Context.GetInitiatingUserId().ToString());
-
-        return Context.AdminOrganizationService.RetrieveAll<DebugSession>(query).FirstOrDefault();
-    }
 
     protected override RemoteDebugExecutionContext InitRemoteContext()
     {

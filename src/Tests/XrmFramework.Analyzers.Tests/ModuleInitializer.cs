@@ -8,7 +8,7 @@ namespace XrmFramework.Analyzers.Tests
         [ModuleInitializer]
         public static void Init()
         {
-            VerifySourceGenerators.Enable();
+            VerifySourceGenerators.Initialize();
         }
     }
 }

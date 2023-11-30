@@ -11,13 +11,10 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 	/// <inheritdoc />
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
-		var tableFiles =
-			context.AdditionalTextsProvider
-			   .Where(a => a.Path.EndsWith(".table"));
-
-		// read their contents and save their name
 		var namesAndContents =
-			tableFiles.Select((text, cancellationToken) => (name: Path.GetFileNameWithoutExtension(text.Path),
+			context.AdditionalTextsProvider
+			   .Where(a => a.Path.EndsWith(".table"))
+			   .Select((text, cancellationToken) => (name: Path.GetFileNameWithoutExtension(text.Path),
 				                  content: text.GetText(cancellationToken)!.ToString()))
 			   .Collect();
 
@@ -25,9 +22,7 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 
 		context.RegisterSourceOutput(compilationAndTables, (productionContext, compilationTables) =>
 		{
-			var tablesValues = compilationTables.Right;
-
-			var coreProjectName = compilationTables.Left.AssemblyName;
+			var (_, tablesValues) = compilationTables;
 
 			var tables = new TableCollection();
 

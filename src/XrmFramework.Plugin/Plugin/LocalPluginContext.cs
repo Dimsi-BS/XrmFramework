@@ -7,11 +7,18 @@ using System;
 
 namespace XrmFramework
 {
-    internal partial class LocalPluginContext : LocalContext, IPluginContext
+    internal partial class LocalPluginContext : LocalContext, IPluginContext, IServiceProvider
     {
-        public LocalPluginContext(IServiceProvider serviceProvider)
+        protected string UnsecuredConfig { get; }
+        
+        protected string SecuredConfig { get; }
+
+        public LocalPluginContext(IServiceProvider serviceProvider, string unsecuredConfig, string securedConfig)
             : base(serviceProvider)
         {
+            UnsecuredConfig = unsecuredConfig;
+            SecuredConfig = securedConfig;
+            
             if (PluginExecutionContext.ParentContext != null)
             {
                 ParentLocalContext = new LocalPluginContext(this, PluginExecutionContext.ParentContext);
@@ -152,6 +159,9 @@ namespace XrmFramework
                 stage,
                 Mode, methodName);
         }
+
+        public object? GetService(Type serviceType)
+            => ObjectContainer.Resolve(serviceType);
     }
 
 }

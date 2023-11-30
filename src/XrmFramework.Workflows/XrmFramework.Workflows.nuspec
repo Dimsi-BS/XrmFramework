@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>XrmFramework.Workflows</id>
+        <version>$version$</version>
+        <title>XrmFramework.Workflows</title>
+        <authors>$author$</authors>
+        <owners>$owner$</owners>
+        <description>XrmFramework aims at simplifying Microsoft Dynamics 365 and Dataverse plugin, workflows
+            development, deployment and testing
+        </description>
+        <summary>XrmFramework aims at simplifying Microsoft Dynamics 365 and Dataverse plugin, workflows development,
+            deployment and testing
+        </summary>
+        <language>en-US</language>
+        <projectUrl>https://aka.ms/XrmFramework</projectUrl>
+        <license type="expression">MIT</license>
+        <tags>Dynamics365 CRM DynamicsCrm Dataverse PowerApps</tags>
+        <copyright>$copyrigth$</copyright>
+        <dependencies>
+            <group targetFramework="net462">
+                <dependency id="XrmFramework" version="[$version$]"/>
+                <dependency id="XrmFramework.Plugin" version="[$version$]"/>
+                <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.46"/>
+            </group>
+        </dependencies>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System.Activities" targetFramework="net462"/>
+        </frameworkAssemblies>
+    </metadata>
+
+    <files>
+        <file src="**\*.cs" target="contentFiles/cs/any/__Imports/XrmFramework.Plugin"
+              exclude="Generated\**;bin\**;obj\**;**\AssemblyInfo.cs"/>
+        <file src="build\**\*" target="build/"/>
+
+        <file src="lib\**" target="lib"/>
+
+    </files>
+</package>

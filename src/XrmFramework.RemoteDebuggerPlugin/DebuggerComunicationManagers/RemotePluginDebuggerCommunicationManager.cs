@@ -1,10 +1,7 @@
 ﻿using Microsoft.Xrm.Sdk.Query;
 using Newtonsoft.Json;
 using System;
-using System.Linq;
-using XrmFramework.BindingModel;
 using XrmFramework.Definitions;
-using XrmFramework.RemoteDebugger;
 
 namespace XrmFramework.Remote
 {
@@ -22,15 +19,9 @@ namespace XrmFramework.Remote
             AssemblyQualifiedName = assemblyQualifiedName;
         }
 
-        public override DebugSession GetDebugSession()
+        protected override void ModifyDebugSessionQuery(QueryExpression query)
         {
-            var queryDebugSessions = CreateBaseDebugSessionQuery(Context.GetInitiatingUserId().ToString());
-
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Id, ConditionOperator.Equal, _debugSessionId);
-
-            var debugSession = Context.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
-
-            return debugSession;
+            query.Criteria.AddCondition(DebugSessionDefinition.Columns.Id, ConditionOperator.Equal, _debugSessionId);
         }
     }
 }

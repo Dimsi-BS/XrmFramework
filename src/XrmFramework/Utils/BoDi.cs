@@ -91,8 +91,7 @@ namespace BoDi
             if (resolutionPath == null || resolutionPath.Length == 0)
                 return message;
 
-            return
-                $"{message} (resolution path: {string.Join("->", resolutionPath.Select(t => t.FullName).ToArray())})";
+            return string.Format("{0} (resolution path: {1})", message, string.Join("->", resolutionPath.Select(t => t.FullName).ToArray()));
         }
     }
 
@@ -288,7 +287,7 @@ namespace BoDi
 
             public override string ToString()
             {
-                return string.Join(",", GetReverseEnumerable().Select(n => $"{n.Key}:{n.Value}"));
+                return string.Join(",", GetReverseEnumerable().Select(n => string.Format("{0}:{1}", n.Key, n.Value)));
             }
         }
 
@@ -321,7 +320,7 @@ namespace BoDi
                 if (Name == null)
                     return Type.FullName;
 
-                return $"{Type.FullName}('{Name}')";
+                return string.Format("{0}('{1}')", Type.FullName, Name);
             }
 
             bool Equals(RegistrationKey other)
@@ -585,8 +584,7 @@ namespace BoDi
 
         static ObjectContainer()
         {
-            DisableThreadSafeResolution =
-                !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(DISABLE_THREAD_SAFE_RESOLUTION));
+            DisableThreadSafeResolution = false;
         }
 
         public event Action<object> ObjectCreated;
@@ -993,11 +991,10 @@ namespace BoDi
 
         public override string ToString()
         {
-            return string.Join(Environment.NewLine,
+            return string.Join("\n",
                 registrations
                     .Where(r => !(r.Value is NamedInstanceDictionaryRegistration))
-                    .Select(r =>
-                        $"{r.Key} -> {((r.Key.Type == typeof(IObjectContainer) && r.Key.Name == null) ? "<self>" : r.Value.ToString())}"));
+                    .Select(r => string.Format("{0} -> {1}", r.Key, (r.Key.Type == typeof(IObjectContainer) && r.Key.Name == null) ? "<self>" : r.Value.ToString())));
         }
 
         private void AssertNotDisposed()

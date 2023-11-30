@@ -302,7 +302,11 @@ public class LoggedServiceCodeGenerator : CodeGeneratorBase
 			}
 			else
 			{
-				var isGenericParam = param.Type.IsDefinition && param.Type.TypeKind == TypeKind.TypeParameter;
+				if (param.Name == "model")
+				{
+				}
+
+				var isGenericParam = param.Type is { TypeKind: TypeKind.TypeParameter };
 				builder.Append("if (");
 				if (isGenericParam)
 					builder

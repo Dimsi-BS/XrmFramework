@@ -51,7 +51,7 @@ namespace XrmFramework.Workflow
         }
 
 
-        public object GetService(Type serviceType)
+        public object? GetService(Type serviceType)
             => ObjectContainer.Resolve(serviceType);
 
         public TService GetService<TService>() where TService : IService

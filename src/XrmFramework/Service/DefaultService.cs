@@ -304,7 +304,7 @@ namespace XrmFramework
                 return GetService(true);
             }
 
-            return _context.GetService(callerId);
+            return _context.GetOrganizationService(callerId);
         }
 
         protected IOrganizationService GetService(bool useAdmin)

@@ -18,12 +18,6 @@ namespace XrmFramework
         Asynchronous = 1
     }
 
-    public enum WorkflowModes
-    {
-        Asynchronous = 0,
-        RealTime = 1
-    }
-
     // ReSharper disable once PartialTypeWithSinglePart
     public partial class InputParameters : IEquatable<InputParameters>
     {

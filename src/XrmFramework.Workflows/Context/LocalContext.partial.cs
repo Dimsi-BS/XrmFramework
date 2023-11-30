@@ -15,8 +15,6 @@ namespace XrmFramework
                 throw new ArgumentNullException(nameof(context));
             }
 
-
-
             // Obtain the execution context service from the service provider.
             ExecutionContext = context.GetExtension<IWorkflowContext>();
 
@@ -32,16 +30,6 @@ namespace XrmFramework
             _businessUnitRef = new EntityReference("businessunit", ExecutionContext.BusinessUnitId);
 
             Logger = LoggerFactory.GetLogger(this, TracingService.Trace);
-        }
-
-        protected LocalContext(LocalContext context, IPluginExecutionContext parentContext) : this()
-        {
-            ExecutionContext = parentContext;
-            TracingService = context.TracingService;
-            Factory = context.Factory;
-            OrganizationService = context.OrganizationService;
-            _businessUnitRef = context._businessUnitRef;
-            Logger = context.Logger;
         }
     }
 }

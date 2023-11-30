@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace XrmFramework.DeployUtils.Generators
 {
+    [CLSCompliant(false)]
     public abstract class CodeGeneratorBase
     {
         /// <summary>

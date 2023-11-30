@@ -8,7 +8,7 @@ namespace XrmFramework.Core
     {
         internal readonly SortedList<string, Column> Columns = new();
 
-        public void Add(Column? item)
+        public void Add(Column item)
         {
             if (item == null)
             {

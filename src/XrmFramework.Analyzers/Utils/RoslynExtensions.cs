@@ -7,11 +7,12 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace XrmFramework.Analyzers.Utils
 {
+    [CLSCompliant(false)]
     public static class RoslynExtensions
     {
         public static AttributeSyntax Update(this AttributeSyntax originalAttribute,
-          NameSyntax name = null,
-          AttributeArgumentListSyntax argumentList = null)
+          NameSyntax? name = null,
+          AttributeArgumentListSyntax? argumentList = null)
         {
             return originalAttribute.Update(
               name ?? originalAttribute.Name,
@@ -61,7 +62,7 @@ namespace XrmFramework.Analyzers.Utils
             return newSyntax;
         }
 
-        public static MethodDeclarationSyntax AddParameter(this MethodDeclarationSyntax method, string parameterName, string typeName, string defaultValue = null)
+        public static MethodDeclarationSyntax AddParameter(this MethodDeclarationSyntax method, string parameterName, string typeName, string? defaultValue = null)
         {
             var parameterSyntax = SyntaxFactory.Parameter(SyntaxFactory.Identifier(parameterName)).WithType(SyntaxFactory.ParseTypeName(typeName));
 
@@ -73,7 +74,7 @@ namespace XrmFramework.Analyzers.Utils
             return method.AddParameterListParameters(parameterSyntax);
         }
 
-        public static ClassDeclarationSyntax AddAttribute(this ClassDeclarationSyntax classSyntax, string attributeClassName, string arguments = null)
+        public static ClassDeclarationSyntax AddAttribute(this ClassDeclarationSyntax classSyntax, string attributeClassName, string? arguments = null)
         {
             var attributeSyntax = SyntaxFactory.Attribute(SyntaxFactory.IdentifierName(attributeClassName));
 

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xrm.Sdk.Query;
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using XrmFramework.BindingModel;
 using XrmFramework.Definitions;
 using XrmFramework.RemoteDebugger;
@@ -14,8 +16,6 @@ namespace XrmFramework.Remote
         {
             Context = context;
         }
-
-        public abstract DebugSession GetDebugSession();
 
         protected abstract RemoteDebugExecutionContext InitRemoteContext();
 
@@ -33,6 +33,7 @@ namespace XrmFramework.Remote
                 {
                     throw response.GetException();
                 }
+
                 var updatedContext = response.GetContext<RemoteDebugExecutionContext>();
                 Context.UpdateContext(updatedContext);
             }
@@ -43,10 +44,8 @@ namespace XrmFramework.Remote
             }
         }
 
-
-
-
-        private RemoteDebuggerMessage ExchangeWithRemoteDebugger(HybridConnection hybridConnection, RemoteDebugExecutionContext remoteContext)
+        private RemoteDebuggerMessage ExchangeWithRemoteDebugger(HybridConnection hybridConnection,
+            RemoteDebugExecutionContext remoteContext)
         {
             var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
             RemoteDebuggerMessage response;
@@ -65,24 +64,26 @@ namespace XrmFramework.Remote
 
                 var request = response.GetOrganizationRequest();
 
-                var service = response.UserId.HasValue ? Context.GetService(response.UserId.Value) : Context.AdminOrganizationService;
+                var service = Context.GetOrganizationService(response.UserId);
 
                 Context.Log("Executing local machine request");
                 var organizationResponse = service.Execute(request);
 
-                message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Response, organizationResponse, remoteContext.Id);
+                message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Response, organizationResponse,
+                    remoteContext.Id);
                 Context.Log("Transferring response to local machine");
             }
 
             return response;
         }
-        protected static QueryExpression CreateBaseDebugSessionQuery(string initiatingUserId)
+
+        protected static QueryExpression CreateBaseDebugSessionQuery([Required] params Guid[] initiatingUserId)
         {
             var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
             queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal,
                 DebugSessionState.Active.ToInt());
             queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal,
-                initiatingUserId);
+                initiatingUserId.Cast<object>().ToArray());
             return queryDebugSessions;
         }
 
@@ -93,14 +94,17 @@ namespace XrmFramework.Remote
             return new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri);
         }
 
-        DebugSession IDebuggerCommunicationManager.GetDebugSession()
+        public DebugSession GetDebugSession()
         {
-            return GetDebugSession();
+            var query = CreateBaseDebugSessionQuery(Context.GetInitiatingUserId(), Context.GetRootUserId());
+            
+            ModifyDebugSessionQuery(query);
+
+            return Context.AdminOrganizationService.RetrieveAll<DebugSession>(query).FirstOrDefault();
         }
 
-        void IDebuggerCommunicationManager.SendLocalContextToDebugSession(DebugSession debugSession)
+        protected virtual void ModifyDebugSessionQuery(QueryExpression query)
         {
-            SendLocalContextToDebugSession(debugSession);
         }
     }
 }

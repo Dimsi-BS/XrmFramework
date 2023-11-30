@@ -48,11 +48,14 @@ public class RegistrationService : IRegistrationService
 			"Microsoft.Crm.ServiceBus");
 
 		var result = RetrieveAll(query);
-		var _list = new List<PluginAssembly>();
-		foreach (var assembly in result) _list.Add(assembly.ToEntity<PluginAssembly>());
-
-
-		return _list;
+		
+		var list = new List<PluginAssembly>();
+		foreach (var assembly in result)
+		{
+			list.Add(assembly.ToEntity<PluginAssembly>());
+		}
+		
+		return list;
 	}
 
 	public PluginAssembly GetAssemblyByName(string assemblyName)
@@ -206,12 +209,7 @@ public class RegistrationService : IRegistrationService
 	}
 
 	public PluginPackage GetRegisteredPackage(Guid assemblyId)
-	{
-		var query = this.GetById<PluginPackage>(assemblyId);
-
-		// query.Criteria.AddCondition();
-		throw new NotImplementedException();
-	}
+		=> this.GetById<PluginPackage>(assemblyId);
 
 	public IList<Entity> RetrieveAll(QueryExpression query, bool cleanLinks = true)
 	{

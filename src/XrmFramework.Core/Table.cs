@@ -39,7 +39,7 @@ namespace XrmFramework.Core
         [JsonIgnore]
         public bool Selected { get; set; }
 
-        public void MergeTo(Table? existingEntity)
+        public void MergeTo(Table existingEntity)
         {
             if (existingEntity != null)
             {
@@ -47,7 +47,7 @@ namespace XrmFramework.Core
             }
         }
 
-        public int CompareTo(Table? other)
+        public int CompareTo(Table other)
         {
             if (ReferenceEquals(this, other)) return 0;
             if (ReferenceEquals(null, other)) return 1;

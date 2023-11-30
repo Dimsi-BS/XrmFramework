@@ -40,16 +40,7 @@ namespace XrmFramework
 
                 var isSerialized = !CustomApiArgumentTypeMapper.TryMap(objectType, out var argumentType);
 
-                var propertyValue = (CustomApiArgument)Activator.CreateInstance(property.PropertyType,
-                    new object[] {
-                        argumentName,
-                        argumentType,
-                        isSerialized,
-                        argumentAttribute.Description,
-                        argumentAttribute.DisplayName,
-                        argumentAttribute.LogicalEntityName,
-                        argumentAttribute.IsOptional
-                        });
+                var propertyValue = (CustomApiArgument)Activator.CreateInstance(property.PropertyType, argumentName, argumentType, isSerialized, argumentAttribute.Description, argumentAttribute.DisplayName, argumentAttribute.LogicalEntityName, argumentAttribute.IsOptional);
                 // Add the newly created argument to the list
                 Arguments.Add(propertyValue);
                 // Set the property valye to the newly created argument ??? Pourquoi ?

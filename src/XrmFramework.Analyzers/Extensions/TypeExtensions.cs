@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [CLSCompliant(false)]
     public static class TypeExtensions
     {
         private static readonly Dictionary<SpecialType, string> _primitiveTypes = new Dictionary<SpecialType, string>

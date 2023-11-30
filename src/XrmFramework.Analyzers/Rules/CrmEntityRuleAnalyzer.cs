@@ -10,6 +10,7 @@ using System.Linq;
 namespace XrmFramework.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
+    [CLSCompliant(false)]
     public class CrmEntityRuleAnalyzer : DiagnosticAnalyzer
     {
         private const string Category = "Syntax";

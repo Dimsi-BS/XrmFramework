@@ -64,7 +64,7 @@ namespace XrmFramework.Workflow
 
                                     var request = response.GetOrganizationRequest();
 
-                                    var service = response.UserId.HasValue ? localContext.GetService(response.UserId.Value) : localContext.AdminOrganizationService;
+                                    var service = response.UserId.HasValue ? localContext.GetOrganizationService(response.UserId.Value) : localContext.AdminOrganizationService;
 
                                     var organizationResponse = service.Execute(request);
 

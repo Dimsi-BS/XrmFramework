@@ -14,17 +14,6 @@ namespace XrmFramework.Remote
         public RemoteCustomApiDebuggerCommunicationManager(LocalPluginContext localContext)
             : base(localContext) { }
 
-        public override DebugSession GetDebugSession()
-        {
-            var queryDebugSessions = CreateBaseDebugSessionQuery(Context.GetInitiatingUserId().ToString());
-
-            var debugSession = Context.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
-
-            _debugSession = debugSession;
-
-            return debugSession;
-        }
-
         protected override RemoteDebugExecutionContext InitRemoteContext()
         {
             if (_debugSession == null)

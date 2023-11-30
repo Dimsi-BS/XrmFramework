@@ -5,6 +5,7 @@ using XrmFramework.Analyzers.Utils;
 namespace Model.Sdk.Metadata
 {
     [DataContract]
+    [CLSCompliant(false)]
     public class RelationshipMetadata
     {
         [DataMember(Name = "n")]

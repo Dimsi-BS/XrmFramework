@@ -5,8 +5,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using XrmFramework.RemoteDebugger.Converters;
 
+namespace XrmFramework.RemoteDebugger;
 
-public class RemoteDebuggerContractResolver : DefaultContractResolver
+public partial class RemoteDebuggerContractResolver : DefaultContractResolver
 {
     private static readonly ICollection<JsonConverter> Converters = new List<JsonConverter>
     {
@@ -19,16 +20,19 @@ public class RemoteDebuggerContractResolver : DefaultContractResolver
         new RelationshipQueryCollectionConverter(),
         new OrganizationRequestCollectionConverter(),
         new OrganizationResponseCollectionConverter(),
-        new ArgumentsCollectionConverter(),
         new EntityConverter(),
         new ObjectSerializationConverter(),
         new ConditionExpressionConverter(),
         new AliasedValueConverter()
     };
+
+    partial void AddArgumentConverter(ICollection<JsonConverter> converters);
     
     /// <inheritdoc />
     protected override JsonConverter ResolveContractConverter(Type objectType)
     {
+        AddArgumentConverter(Converters);
+        
         var converter = Converters.FirstOrDefault(c =>
             typeof(JsonConverter<>).MakeGenericType(objectType).IsInstanceOfType(c));
 

@@ -88,9 +88,7 @@ namespace XrmFramework
         }
 
 
-        public IOrganizationService GetService(Guid userId)
-        {
-            return OrganizationService;
-        }
+        public IOrganizationService GetOrganizationService(Guid? userId)
+            => OrganizationService;
     }
 }

@@ -31,14 +31,14 @@ namespace XrmFramework
 
             if (debugSession == null)
             {
-                localContext.Log("Debug session is null");
+                localContext.Log("No debug session found");
                 return false;
             }
 
             localContext.Log($"A DebugSession exists for this User : \n\tHybridConnectionName : {debugSession.HybridConnectionName}");
 
 
-            var isInRemoteDebugger = StepIsInRemoteDebugger(localContext, debugSession);
+            var isInRemoteDebugger = StepIsInRemoteDebuggerPlugin(localContext, debugSession);
             var listenerIsOnline = HybridConnection.TryPingDebugSession(debugSession);
 
             if (!listenerIsOnline)
@@ -65,7 +65,7 @@ namespace XrmFramework
         }
 
 
-        private bool StepIsInRemoteDebugger(LocalPluginContext localContext, DebugSession debugSession)
+        private bool StepIsInRemoteDebuggerPlugin(LocalPluginContext localContext, DebugSession debugSession)
         {
             var debugAssemblyInfo =
                 JsonConvert.DeserializeObject<List<AssemblyContextInfo>>(debugSession.AssembliesDebugInfo);
@@ -78,9 +78,9 @@ namespace XrmFramework
             var mode = localContext.Mode.ToString();
             var entityName = localContext.PrimaryEntityName;
 
-            var assemblyInfo = debugAssemblyInfo.FirstOrDefault(a => a.AssemblyName == assemblyName);
+            var assemblyInfo = debugAssemblyInfo.Find(a => a.AssemblyName == assemblyName);
 
-            var pluginInfo = assemblyInfo?.Plugins.FirstOrDefault(p => p.Name == pluginName);
+            var pluginInfo = assemblyInfo?.Plugins.Find(p => p.Name == pluginName);
             if (pluginInfo == null) return false;
 
             return pluginInfo.Steps.Exists(s =>

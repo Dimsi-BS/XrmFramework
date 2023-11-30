@@ -7,13 +7,19 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Xrm.Sdk.Extensions;
 using XrmFramework.Definitions;
+using IApplicationInsightsLogger = Microsoft.Xrm.Sdk.PluginTelemetry.ILogger;
 
 namespace XrmFramework
 {
     public partial class LocalContext : IContext, IServiceContext
     {
+        private IServiceProvider ServiceProvider { get; }
         private IOrganizationService _adminService;
+
+        public IServiceEndpointNotificationService NotificationService =>
+            ServiceProvider.Get<IServiceEndpointNotificationService>();
 
         private readonly EntityReference _businessUnitRef;
 
@@ -42,26 +48,21 @@ namespace XrmFramework
 
         public string OrganizationName => ExecutionContext.OrganizationName;
 
-        //public Guid CorrelationId => ExecutionContext.CorrelationId;
-
         public LocalContext(IServiceProvider serviceProvider) : this()
         {
-            if (serviceProvider == null)
-            {
-                throw new ArgumentNullException(nameof(serviceProvider));
-            }
+            ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
             // Obtain the execution context service from the service provider.
-            ExecutionContext = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            ExecutionContext = serviceProvider.Get<IPluginExecutionContext>();
 
             // Obtain the tracing service from the service provider.
-            TracingService = (ITracingService)serviceProvider.GetService(typeof(ITracingService));
+            TracingService = serviceProvider.Get<ITracingService>();
 
             // Obtain the Organization Service factory service from the service provider
-            Factory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            Factory = serviceProvider.Get<IOrganizationServiceFactory>();
 
             // Use the factory to generate the Organization Service.
-            OrganizationService = Factory.CreateOrganizationService(ExecutionContext.UserId);
+            OrganizationService = GetOrganizationService(ExecutionContext.UserId);
 
             _businessUnitRef = new EntityReference("businessunit", ExecutionContext.BusinessUnitId);
 
@@ -78,13 +79,13 @@ namespace XrmFramework
 
         public ITracingService TracingService { get; protected set; }
 
-        public IOrganizationService AdminOrganizationService => _adminService ??= Factory.CreateOrganizationService(null);
+        public IOrganizationService AdminOrganizationService => _adminService ??= GetOrganizationService(null);
 
         public Messages MessageName => Messages.GetMessage(ExecutionContext.MessageName);
 
-        public void Log(string message, params object[] args)
+        public void Log(string message, params object[] formatArgs)
         {
-            Logger.Log(message, args);
+            Logger.Log(message, formatArgs);
         }
 
         public void LogError(Exception e)
@@ -94,55 +95,8 @@ namespace XrmFramework
 
         public void DumpLog() => Logger.DumpLog();
 
-        #region Image Helpers
-        public bool HasPreImage(string imageName)
-        {
-            return ExecutionContext.PreEntityImages.ContainsKey(imageName);
-        }
-        public virtual Entity GetPreImage(string imageName)
-        {
-            VerifyPreImage(imageName);
-            return ExecutionContext.PreEntityImages[imageName];
-        }
-        public virtual Entity GetPreImageOrDefault(string imageName)
-        {
-            if (!ExecutionContext.PreEntityImages.ContainsKey(imageName))
-            {
-                return null;
-            }
-
-            return ExecutionContext.PreEntityImages[imageName];
-        }
-        public bool HasPostImage(string imageName)
-        {
-            return ExecutionContext.PostEntityImages.ContainsKey(imageName);
-        }
-        public virtual Entity GetPostImage(string imageName)
-        {
-            VerifyPostImage(imageName);
-            return ExecutionContext.PostEntityImages[imageName];
-        }
-        protected void VerifyPreImage(string imageName)
-        {
-            VerifyImage(ExecutionContext.PreEntityImages, imageName, true);
-        }
-
-        protected void VerifyPostImage(string imageName)
-        {
-            VerifyImage(ExecutionContext.PostEntityImages, imageName, false);
-        }
-
-        private void VerifyImage(EntityImageCollection collection, string imageName, bool isPreImage)
-        {
-            if (!collection.Contains(imageName)
-                || collection[imageName] == null)
-            {
-                throw new ArgumentNullException(imageName, $"{(isPreImage ? "PreImage" : "PostImage")} {imageName} does not exist in this context");
-            }
-        }
-        #endregion
-
         #region Message/Stage/Mode Helpers
+
         public virtual bool IsCreate()
         {
             return IsMessage(Messages.Create);
@@ -172,9 +126,11 @@ namespace XrmFramework
         {
             return Mode == mode;
         }
+
         #endregion
 
         #region Entitys
+
         public virtual void DumpSharedVariables()
         {
             Logger.LogCollection(ExecutionContext.SharedVariables);
@@ -183,12 +139,14 @@ namespace XrmFramework
 
         public virtual void DumpInputParameters()
         {
-            Logger.LogCollection(ExecutionContext.InputParameters, false, "ExtensionData", "Parameters", "RequestId", "RequestName");
+            Logger.LogCollection(ExecutionContext.InputParameters, false, "ExtensionData", "Parameters", "RequestId",
+                "RequestName");
         }
 
         #endregion
 
         #region Parameters Helpers
+
         public virtual T GetInputParameter<T>(InputParameters parameterName)
         {
             VerifyInputParameter(parameterName);
@@ -222,7 +180,8 @@ namespace XrmFramework
             if (!ExecutionContext.InputParameters.Contains(parameterName.ToString())
                 || ExecutionContext.InputParameters[parameterName.ToString()] == null)
             {
-                throw new ArgumentNullException(nameof(parameterName), $"InputParameter {parameterName} does not exist in this context");
+                throw new ArgumentNullException(nameof(parameterName),
+                    $@"InputParameter {parameterName} does not exist in this context");
             }
         }
 
@@ -267,29 +226,16 @@ namespace XrmFramework
         #endregion
 
 
-        public Modes Mode
-        {
-            get
-            {
-                if (!Enum.IsDefined(typeof(Modes), ExecutionContext.Mode))
-                {
-                    throw new InvalidPluginExecutionException($"Mode {ExecutionContext.Mode} is not part of modes enum");
-                }
-                return (Modes)ExecutionContext.Mode;
+        public Modes Mode => (Modes)ExecutionContext.Mode;
 
-            }
-        }
+        public T GetService<T>()
+            => ObjectContainer.Resolve<T>();
 
+        public IOrganizationService GetOrganizationService(Guid? userId) 
+            => Factory.CreateOrganizationService(userId);
 
-        public IOrganizationService GetService(Guid userId)
-        {
-            return Factory.CreateOrganizationService(userId);
-        }
-
-        public void LogFields(Entity entity, params string[] fieldNames)
-        {
-            Logger.LogCollection(entity.Attributes, true, fieldNames);
-        }
+        public void LogFields(Entity entity, params string[] fieldNames) 
+            => Logger.LogCollection(entity.Attributes, true, fieldNames);
 
         public LocalContext ParentLocalContext { get; protected set; }
 
@@ -303,13 +249,31 @@ namespace XrmFramework
             return InitiatingUserId;
         }
 
+        public Guid GetRootUserId()
+        {
+            if (ParentLocalContext != null)
+            {
+                return ParentLocalContext.GetRootUserId();
+            }
+
+            return UserId;
+        }
+
         public void InvokeMethod(object obj, MethodInfo method)
         {
-            var listParamValues = new List<object>();
+            var listParamValues = new List<object?>();
 
             foreach (var param in method.GetParameters())
             {
-                listParamValues.Add(ObjectContainer.Resolve(param.ParameterType));
+                var parameter = ObjectContainer.Resolve(param.ParameterType);
+
+                if (parameter is IApplicationInsightsLogger logger)
+                {
+                    logger.AddCustomProperty("PluginName", GetType().Name);
+                    logger.AddCustomProperty("MethodName", method.Name);
+                }
+                
+                listParamValues.Add(parameter);
             }
 
             var result = method.Invoke(obj, listParamValues.ToArray());

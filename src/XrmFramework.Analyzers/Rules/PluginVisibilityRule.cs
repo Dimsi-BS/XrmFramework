@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 namespace XrmFramework.Analyzers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
+    [CLSCompliant(false)]
     public class PluginVisibilityRuleAnalyzer : DiagnosticAnalyzer // CodeFixProvider
     {
         private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.PluginVisibilityTitle), Resources.ResourceManager, typeof(Resources));
@@ -70,6 +71,7 @@ namespace XrmFramework.Analyzers
     }
 
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(PluginVisibilityRuleCodeFixProvider)), Shared]
+    [CLSCompliant(false)]
     public class PluginVisibilityRuleCodeFixProvider : CodeFixProvider
     {
         public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(DiagnosticIds.Xrm0003Id);
