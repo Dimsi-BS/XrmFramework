@@ -53,8 +53,7 @@ namespace XrmFramework.Core.Tests
             Assert.AreEqual(AttributeTypeCode.Boolean, column.Type);
             column.Type = AttributeTypeCode.Double;
             Assert.AreEqual(AttributeTypeCode.Double, column.Type);
-            Assert.AreEqual(column.DateTimeBehavior, null);
-            //Assert.IsNull(column.DateTimeBehavior);
+            
             column.DateTimeBehavior = DateTimeBehavior.DateOnly;
             Assert.AreEqual(DateTimeBehavior.DateOnly, column.DateTimeBehavior);
 

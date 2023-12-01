@@ -33,8 +33,21 @@ namespace XrmFramework.Core
 
         public double? MaxRange { get; set; }
 
+        [JsonIgnore]
+        public DateTimeBehavior DateTimeBehavior { get; set; }
+        
         [JsonProperty("DatBehav")]
-        public DateTimeBehavior? DateTimeBehavior { get; set; }
+        public int? DateBehav
+        {
+            get => DateTimeBehavior == DateTimeBehavior.UserLocal ? null : (int)DateTimeBehavior;
+            set
+            {
+                if (value.HasValue)
+                {
+                    DateTimeBehavior = (DateTimeBehavior)value.Value;
+                }
+            }
+        }
 
         public bool IsMultiSelect { get; set; }
 

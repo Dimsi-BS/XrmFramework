@@ -183,171 +183,6 @@ public partial class MainForm : Form, ICustomListProvider
         return _iServiceType.Assembly.GetType(name);
     }
 
-
-    private IEnumerable<EntityDefinition> GetCodedEntityDefinitions()
-    {
-        var definitionList = new List<EntityDefinition>();
-        return definitionList;
-        //Console.WriteLine(_tables.Count);
-        /*
-        var entityDefinitionAttributeType = GetExternalType("XrmFramework.EntityDefinitionAttribute");
-        var definitionTypes = _iServiceType.Assembly.GetTypes().Where(t => t.GetCustomAttributes(entityDefinitionAttributeType, false).Any());
-        var relationshipAttributeType = GetExternalType("XrmFramework.RelationshipAttribute");
-        var definitionManagerIgnoreAttributeType = GetExternalType("XrmFramework.Definitions.Internal.DefinitionManagerIgnoreAttribute");
-
-
-
-        foreach (var t in definitionTypes)
-        {
-            if (t.GetCustomAttributes(definitionManagerIgnoreAttributeType).Any())
-            {
-                continue;
-            }
-
-            var definition = new EntityDefinition
-            {
-                Name = t.Name
-                ,
-                LogicalName = t.GetField("EntityName").GetValue(null) as string
-                ,
-                LogicalCollectionName = t.GetField("EntityCollectionName")?.GetValue(null) as string
-                ,
-                IsSelected = true
-            };
-
-
-
-            foreach (var field in t.GetNestedType("Columns").GetFields())
-            {
-                definition.Add(new AttributeDefinition
-                {
-                    LogicalName = field.GetValue(null) as string
-                    ,
-                    Name = field.Name
-                    ,
-                    IsSelected = true
-                    ,
-                    ParentEntity = definition
-                });
-
-
-
-            }
-
-            foreach (var field in t.GetFields())
-            {
-                if (field.Name == "EntityName" || field.Name == "EntityCollectionName")
-                {
-                    continue;
-                }
-
-                var typeName = field.FieldType.Name;
-
-                definition.AdditionalInfoCollection.Add(new AttributeDefinition
-                {
-                    Type = typeName
-                    ,
-                    Name = field.Name
-                    ,
-                    LogicalName = field.Name
-                    ,
-                    Value = field.GetValue(null).ToString()
-                    ,
-                    IsSelected = true
-                });
-            }
-
-            foreach (var nestedType in t.GetNestedTypes())
-            {
-                if (nestedType.Name == "Columns")
-                {
-                    continue;
-                }
-
-                var classDefinition = new ClassDefinition
-                {
-                    LogicalName = nestedType.Name
-                    ,
-                    Name = nestedType.Name
-                    ,
-                    IsEnum = nestedType.IsEnum
-                };
-
-                if (nestedType.IsEnum)
-                {
-                    var names = Enum.GetNames(nestedType);
-                    var values = Enum.GetValues(nestedType);
-
-                    for (var i = 0; i < names.Length; i++)
-                    {
-                        classDefinition.Attributes.Add(new AttributeDefinition
-                        {
-                            LogicalName = Name = names[i]
-                            ,
-                            Name = names[i]
-                            ,
-                            Value = (int)values.GetValue(i)
-                            ,
-                            IsSelected = true
-                        });
-                    }
-                }
-                else
-                {
-                    foreach (var field in nestedType.GetFields())
-                    {
-
-                        if (nestedType.Name == "ManyToOneRelationships" || nestedType.Name == "OneToManyRelationships" || nestedType.Name == "ManyToManyRelationships")
-                        {
-                            dynamic relationshipAttribute = field.GetCustomAttribute(relationshipAttributeType);
-
-                            classDefinition.Attributes.Add(new RelationshipAttributeDefinition
-                            {
-                                LogicalName = field.GetValue(null).ToString()
-                                ,
-                                Name = field.Name
-                                ,
-                                Type = field.FieldType.Name
-                                ,
-                                Value = field.GetValue(null).ToString()
-                                ,
-                                IsSelected = true
-                                ,
-                                NavigationPropertyName = relationshipAttribute?.NavigationPropertyName
-                                ,
-                                Role = relationshipAttribute?.Role.ToString() ?? "Referenced"
-                                ,
-                                TargetEntityName = relationshipAttribute?.TargetEntityName
-                            });
-                        }
-                        else
-                        {
-                            classDefinition.Attributes.Add(new AttributeDefinition
-                            {
-                                LogicalName = field.GetValue(null).ToString()
-                                ,
-                                Name = field.Name
-                                ,
-                                Type = field.FieldType.Name
-                                ,
-                                Value = field.GetValue(null).ToString()
-                                ,
-                                IsSelected = true
-                            });
-                        }
-                    }
-                }
-
-                definition.AdditionalClassesCollection.Add(classDefinition);
-            }
-
-            definitionList.Add(definition);
-        }
-
-        return definitionList;
-        */
-    }
-
     private void generateDefinitionsToolStripMenuItem_Click(object sender, EventArgs e)
     {
         foreach (var item in _entityCollection.SelectedDefinitions)
@@ -500,6 +335,11 @@ public partial class MainForm : Form, ICustomListProvider
                 DisplayName = col.Name,
                 LogicalName = col.LogicalName,
                 Name = col.Name,
+                Type = col.Type.ToString(),
+                IsValidForCreate = (col.Capabilities & AttributeCapabilities.Create) != 0,
+                IsValidForUpdate = (col.Capabilities & AttributeCapabilities.Update) != 0,
+                IsValidForAdvancedFind = (col.Capabilities & AttributeCapabilities.AdvancedFind) != 0,
+                IsValidForRead = (col.Capabilities & AttributeCapabilities.Read) != 0,
                 IsSelected = col.Selected
             };
 

@@ -1,63 +1,61 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>$(XrmFramework_Runtime_TFM)</TargetFrameworks>
-    <AssemblyName>XrmFramework</AssemblyName>
-    <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
-    <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
-    <PackageId>XrmFramework</PackageId>
+    <PropertyGroup>
+        <TargetFrameworks>$(XrmFramework_Runtime_TFM)</TargetFrameworks>
+        <AssemblyName>XrmFramework</AssemblyName>
+        <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
+        <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
+        <PackageId>XrmFramework</PackageId>
 
 
-    <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.nuspec</NuspecFile>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.nuspec</NuspecFile>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
 
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
 
-    <NoWarn>$(NoWarn);1591</NoWarn>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-
-
-  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Net.Http" />
-
-    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.51" />
-    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.45" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' Or '$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.16" />
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.1.16" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
-  </ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-	</ItemGroup>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
 
 
-	<PropertyGroup>
-		<EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
-		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-	</PropertyGroup>
+    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+        <Reference Include="Microsoft.CSharp"/>
+        <Reference Include="System.Configuration"/>
+        <Reference Include="System.Net.Http"/>
 
-  <ItemGroup>
-    <None Remove="**\*.table" />
-    <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
+        <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.51"/>
+        <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.45"/>
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0"/>
+    </ItemGroup>
 
-    <Compile Remove="**/Generated/**/*.cs" />
-    <None Include="**/Generated/**/*.cs" />
-  </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' Or '$(TargetFramework)' == 'net6.0'">
+        <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.16"/>
+        <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.1.16"/>
+    </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
+    <PropertyGroup>
+        <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="**\*.table"/>
+        <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**"/>
+
+        <Compile Remove="**/Generated/**/*.cs"/>
+        <None Include="**/Generated/**/*.cs"/>
+    </ItemGroup>
 
 
 </Project>

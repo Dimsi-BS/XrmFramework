@@ -141,16 +141,16 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 								if (col.StringLength.HasValue)
 									sb.AppendLine($"[StringLength({col.StringLength.Value})]");
 
-								if (col.MinRange.HasValue && col.MaxRange.HasValue)
+								if (col is { MinRange: not null, MaxRange: not null })
 									sb.AppendLine($"[Range({col.MinRange.Value}, {col.MaxRange.Value})]");
 
 								if (table.Keys != null)
 									foreach (var key in table.Keys)
-										if (key.FieldNames.FirstOrDefault(n => n == col.LogicalName) != null)
+										if (key.FieldNames.Find(n => n == col.LogicalName) != null)
 											// Write a corresponding line
 											sb.AppendLine($"[AlternateKey(AlternateKeyNames.{key.Name})]");
 
-								if (col.DateTimeBehavior != null)
+								if (col.Type == AttributeTypeCode.DateTime)
 									sb.AppendLine($"[DateTimeBehavior(DateTimeBehavior.{col.DateTimeBehavior})]");
 
 								sb.AppendLine($"public const string {col.Name} = \"{col.LogicalName}\";\r\n");
