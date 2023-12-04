@@ -117,7 +117,7 @@ namespace XrmFramework
         }
         #pragma warning disable CS0612
 
-        public void TestEnum(global::XrmFramework.EnumTest value = Null)
+        public void TestEnum(global::XrmFramework.EnumTest value = XrmFramework.EnumTest.Null)
         {
             #region Parameters check
             #endregion

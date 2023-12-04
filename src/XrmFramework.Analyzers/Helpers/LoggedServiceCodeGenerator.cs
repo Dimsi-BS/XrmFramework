@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using XrmFramework.Analyzers.Extensions;
@@ -186,14 +187,29 @@ public class LoggedServiceCodeGenerator : CodeGeneratorBase
 			                      SymbolDisplayParameterOptions.IncludeType |
 			                      SymbolDisplayParameterOptions.IncludeParamsRefOut |
 			                      SymbolDisplayParameterOptions.IncludeExtensionThis);
-
+			
 		if (!displayTypes)
 			formatFull = formatFull
 				.RemoveMemberOptions(SymbolDisplayMemberOptions.IncludeType)
 				.RemoveMemberOptions(SymbolDisplayMemberOptions.IncludeParameters)
 				.RemoveGenericsOptions(SymbolDisplayGenericsOptions.IncludeTypeConstraints);
+		
+		var signature = m.ToDisplayString(formatFull);
 
-		builder.Append(m.ToDisplayString(formatFull));
+		foreach (var parameter in m.Parameters)
+		{
+			if (parameter.Type.TypeKind == TypeKind.Enum)
+			{
+				var regex = new Regex(@$"{parameter.Name} = ([a-zA-Z][a-zA-Z0-9_]*)");
+				
+				if (regex.Match(signature).Success)
+				{
+					signature = regex.Replace(signature, $"{parameter.Name} = {parameter.Type.GetFullMetadataName()}.$1");
+				}
+			}
+		}
+		
+		builder.Append(signature);
 
 		if (!displayTypes)
 		{

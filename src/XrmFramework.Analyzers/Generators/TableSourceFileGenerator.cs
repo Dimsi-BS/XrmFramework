@@ -46,6 +46,8 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 
 	private void WriteTables(SourceProductionContext productionContext, TableCollection tables)
 	{
+		var alreadyCreatedEnums = new HashSet<string>();
+		
 		foreach (var table in tables)
 		{
 			var sb = new IndentedStringBuilder();
@@ -186,9 +188,16 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 				if (table.Enums.Any())
 					foreach (var ose in table.Enums)
 					{
-						if (ose.IsGlobal && tables.All(t => t.Columns.All(c =>
-							                                                  c.EnumName != ose.LogicalName || (c.EnumName == ose.LogicalName && !c.Selected))))
+						if (!alreadyCreatedEnums.Add(ose.Name))
+						{
 							continue;
+						}
+
+						if (ose.IsGlobal && tables.All(t => t.Columns.All(c =>
+							    c.EnumName != ose.LogicalName || (c.EnumName == ose.LogicalName && !c.Selected))))
+						{
+							continue;
+						}
 
 						sb.AppendLine();
 						if (ose.IsGlobal)

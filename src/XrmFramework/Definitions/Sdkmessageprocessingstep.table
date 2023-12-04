@@ -453,7 +453,8 @@
           "LangId": 1036
         }
       ],
-      "EnumName": "sdkmessageprocessingstep|statecode"
+      "EnumName": "sdkmessageprocessingstep|statecode",
+      "Select": true
     },
     {
       "LogName": "statuscode",
