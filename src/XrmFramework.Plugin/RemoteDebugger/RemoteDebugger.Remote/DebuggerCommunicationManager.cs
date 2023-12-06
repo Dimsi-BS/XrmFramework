@@ -83,7 +83,7 @@ namespace XrmFramework.Remote
             queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal,
                 DebugSessionState.Active.ToInt());
             queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.In,
-                initiatingUserIds.Cast<object>().ToArray());
+                initiatingUserIds.Select(i => i.ToString()).Cast<object>().ToArray());
             return queryDebugSessions;
         }
 
