@@ -5,6 +5,7 @@ using XrmFramework.Definitions;
 
 namespace XrmFramework.Model
 {
+    [CrmEntity(EnvironmentVariableDefinition.EntityName)]
     public partial class EnvironmentVariable: IBindingModel, IEntityModel
     {
         [CrmMapping(EnvironmentVariableDefinition.Columns.SchemaName)]
