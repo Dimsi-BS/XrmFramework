@@ -18,6 +18,10 @@
     <Content Include="$(RootFolder)/$(XrmFrameworkCoreProjectName)/**/*.table" >
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <AssemblyAttribute Include="DefinitionManager.CoreProjectAttribute">
+      <_Parameter1>$(RootFolder)</_Parameter1>
+      <_Parameter2>$(XrmFrameworkCoreProjectName)</_Parameter2>
+    </AssemblyAttribute>
   </ItemGroup>
 
 </Project>
