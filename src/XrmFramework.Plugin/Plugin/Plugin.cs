@@ -121,6 +121,9 @@ public abstract partial class Plugin : IPlugin
 		localContext.LogStart();
 		localContext.Log("The context is genuine");
 
+		try
+		{
+			
 #if !DISABLE_REMOTE_DEBUG
 		// If currently remote debugging, no need to go on
 		if (IsBeingDebugged(localContext)) return;
@@ -130,8 +133,7 @@ public abstract partial class Plugin : IPlugin
 
 		//This is a virtual method, it is overriden in the CustomApi derived class
 		var steps = InitStepsToExecute(localContext);
-		try
-		{
+		
 			InvokeSteps(localContext, steps);
 		}
 		catch (FaultException<OrganizationServiceFault> e)
