@@ -77,13 +77,13 @@ namespace XrmFramework.Remote
             return response;
         }
 
-        protected static QueryExpression CreateBaseDebugSessionQuery([Required] params Guid[] initiatingUserId)
+        protected static QueryExpression CreateBaseDebugSessionQuery([Required] params Guid[] initiatingUserIds)
         {
             var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
             queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal,
                 DebugSessionState.Active.ToInt());
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal,
-                initiatingUserId.Cast<object>().ToArray());
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.In,
+                initiatingUserIds.Cast<object>().ToArray());
             return queryDebugSessions;
         }
 
