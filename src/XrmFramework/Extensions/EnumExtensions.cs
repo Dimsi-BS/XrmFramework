@@ -17,6 +17,11 @@ namespace XrmFramework
             return (T)Enum.ToObject(typeof(T), value);
         }
 
+        public static T ToEnum<T>(this OptionSetValue value)
+        {
+            return value == null ? default : value.Value.ToEnum<T>();
+        }
+
         public static T ParseDescription<T>(this string value)
         {
             if (string.IsNullOrEmpty(value))
