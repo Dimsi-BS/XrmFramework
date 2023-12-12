@@ -1,7 +1,5 @@
 ﻿using Microsoft.Xrm.Sdk.Query;
 using Newtonsoft.Json;
-using System;
-using XrmFramework.Definitions;
 
 namespace XrmFramework.Remote
 {

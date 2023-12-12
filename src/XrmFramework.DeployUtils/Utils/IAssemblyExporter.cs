@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xrm.Sdk;
+﻿using Microsoft.Xrm.Sdk;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 

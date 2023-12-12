@@ -6,7 +6,7 @@ using Deploy;
 using Microsoft.Xrm.Sdk;
 using Moq;
 using Newtonsoft.Json;
-using XrmFramework.Definitions;
+using XrmFramework;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Utils;

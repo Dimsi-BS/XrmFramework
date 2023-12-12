@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
 using XrmFramework.RemoteDebugger.Model.CrmComponentInfos;
 
 namespace XrmFramework.RemoteDebugger

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using AutoMapper;
 using Microsoft.Extensions.Options;
 using XrmFramework.BindingModel;

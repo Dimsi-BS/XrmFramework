@@ -15,8 +15,9 @@ using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using XrmFramework.Core;
 using XrmFramework.DefinitionManager;
-using XrmFramework.Definitions;
+using XrmFramework;
 using XrmFramework.DeployUtils.Configuration;
+using AttributeTypeCode = Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode;
 using EntityRole = XrmFramework.EntityRole;
 using LocalizedLabel = XrmFramework.Core.LocalizedLabel;
 
@@ -727,14 +728,14 @@ internal class DataAccessManager : AsyncManager
 
 public static class DateTimeBehaviorExtensions
 {
-	public static XrmFramework.DateTimeBehavior ToDateTimeBehavior(this DateTimeBehavior behav)
+	public static XrmFramework.DateTimeBehavior ToDateTimeBehavior(this Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior behav)
 	{
-		if (behav == DateTimeBehavior.DateOnly)
+		if (behav == Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.DateOnly)
 		{
 			return XrmFramework.DateTimeBehavior.DateOnly;
 		}
 
-		if (behav == DateTimeBehavior.TimeZoneIndependent)
+		if (behav == Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.TimeZoneIndependent)
 		{
 			return XrmFramework.DateTimeBehavior.TimeZoneIndependent;
 		}

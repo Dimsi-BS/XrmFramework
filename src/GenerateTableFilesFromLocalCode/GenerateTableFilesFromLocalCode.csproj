@@ -11,7 +11,7 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\XrmFramework.Core\XrmFramework.Core.csproj" />
+    <Compile Include="..\XrmFramework.Core\**\*.cs" Link="Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\obj\**" />
     <ProjectReference Include="..\XrmFramework\XrmFramework.csproj" />
   </ItemGroup>
 

@@ -106,7 +106,6 @@ namespace XrmFramework.Analyzers.Generators
                     sb.AppendLine("using XrmFramework;");
                     sb.AppendLine("using Newtonsoft.Json;");
                     sb.AppendLine("using XrmFramework.BindingModel;");
-                    sb.AppendLine("using XrmFramework.Definitions;");
 
                     sb.AppendLine();
 

@@ -1,5 +1,4 @@
-﻿using System;
-using XrmFramework.DeployUtils.Context;
+﻿using XrmFramework.DeployUtils.Context;
 
 namespace XrmFramework.DeployUtils.Model;
 

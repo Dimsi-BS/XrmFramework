@@ -51,64 +51,10 @@
   </ItemGroup>
   
   <ItemGroup>
-    <None Remove="TestData\LoggedServicesTests.LoggedServiceGenerator.06.verified.cs" />
+    <Compile Remove="**/*.verified.*" />
+    <Compile Remove="**/*.received.*" />
+    <None Include="**/*.verified.*" />
+    <None Include="**/*.received.*" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Update="TestData\TableSourceFileGeneratorTests.CalculateTableFiles#Account.table.verified.cs">
-      <ParentExtension></ParentExtension>
-      <ParentFile>TableSourceFileGeneratorTests</ParentFile>
-      <DependentUpon></DependentUpon>
-    </None>
-    <None Update="TestData\TableSourceFileGeneratorTests.CalculateTableFiles#Contratdelocation.table.verified.cs">
-      <ParentExtension></ParentExtension>
-      <ParentFile>TableSourceFileGeneratorTests</ParentFile>
-      <DependentUpon></DependentUpon>
-    </None>
-    <None Update="TestData\TableSourceFileGeneratorTests.CalculateTableFiles#OptionSets.table.verified.cs">
-      <ParentExtension></ParentExtension>
-      <ParentFile>TableSourceFileGeneratorTests</ParentFile>
-      <DependentUpon></DependentUpon>
-    </None>
-    <None Update="TestData\TableSourceFileGeneratorTests.CalculateTableFiles#Particulier.table.verified.cs">
-      <ParentExtension></ParentExtension>
-      <ParentFile>TableSourceFileGeneratorTests</ParentFile>
-      <DependentUpon></DependentUpon>
-    </None>
-    <None Update="TestData\EnumGeneratorTests.EnumGenerator#XrmFramework.Messages.g.verified.cs">
-      <ParentExtension></ParentExtension>
-      <ParentFile>EnumGeneratorTests</ParentFile>
-      <DependentUpon></DependentUpon>
-    </None>
-    <None Update="TestData\LoggedServicesTests.LoggedServiceGenerator#ClientNamespace.Core.IAccountService.logged.verified.cs">
-      <ParentExtension></ParentExtension>
-      <ParentFile>LoggedServicesTests</ParentFile>
-      <DependentUpon></DependentUpon>
-    </None>
-    <None Update="TestData\LoggedServicesTests.LoggedServiceGenerator#ClientNamespace.Core.ISub2Service.logged.verified.cs">
-      <ParentExtension></ParentExtension>
-      <ParentFile>LoggedServicesTests</ParentFile>
-      <DependentUpon></DependentUpon>
-    </None>
-    <None Update="TestData\LoggedServicesTests.LoggedServiceGenerator#ClientNamespace.Core.ISub3Service.logged.verified.cs">
-      <ParentExtension></ParentExtension>
-      <ParentFile>LoggedServicesTests</ParentFile>
-      <DependentUpon></DependentUpon>
-    </None>
-    <None Update="TestData\LoggedServicesTests.LoggedServiceGenerator#ClientNamespace.Core.ISubService.logged.verified.cs">
-      <ParentExtension></ParentExtension>
-      <ParentFile>LoggedServicesTests</ParentFile>
-      <DependentUpon></DependentUpon>
-    </None>
-    <None Update="TestData\LoggedServicesTests.LoggedServiceGenerator#DependencyInjection.verified.cs">
-      <ParentExtension></ParentExtension>
-      <ParentFile>LoggedServicesTests</ParentFile>
-      <DependentUpon></DependentUpon>
-    </None>
-    <None Update="TestData\LoggedServicesTests.LoggedServiceGenerator#XrmFramework.IService.logged.verified.cs">
-      <ParentExtension></ParentExtension>
-      <ParentFile>LoggedServicesTests</ParentFile>
-      <DependentUpon></DependentUpon>
-    </None>
-  </ItemGroup>
+  
 </Project>

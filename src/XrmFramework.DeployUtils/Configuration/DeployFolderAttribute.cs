@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace XrmFramework.DeployUtils.Configuration;
+﻿namespace XrmFramework.DeployUtils.Configuration;
 
 [AttributeUsage(AttributeTargets.Assembly)]
 public class DeployFolderAttribute : Attribute

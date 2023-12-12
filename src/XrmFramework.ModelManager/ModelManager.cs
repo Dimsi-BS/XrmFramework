@@ -113,7 +113,7 @@ namespace XrmFramework.ModelManager
                 sb.AppendLine("using System.Collections.Generic;");
                 sb.AppendLine("using XrmFramework;");
                 sb.AppendLine("using Newtonsoft.Json;");
-                sb.AppendLine("using XrmFramework.Definitions;");
+                sb.AppendLine("using XrmFramework;");
                 sb.AppendLine("using XrmFramework.BindingModel;");
                 sb.AppendLine($"using {CoreProjectName};");
                 sb.AppendLine();
@@ -564,7 +564,7 @@ namespace XrmFramework.ModelManager
                     var enumType = Tables.SelectMany(t => t.Enums).FirstOrDefault(e => e.LogicalName == column.EnumName);
                     if (enumType != null)
                     {
-                        possibleTypes.Add($"XrmFramework.Definitions.{enumType.Name}");
+                        possibleTypes.Add($"XrmFramework.{enumType.Name}");
                     }
 
                     possibleTypes.Add("int");

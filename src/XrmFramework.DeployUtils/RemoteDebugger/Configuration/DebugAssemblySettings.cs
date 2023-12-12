@@ -1,5 +1,4 @@
-﻿using System;
-using XrmFramework.DeployUtils;
+﻿using XrmFramework.DeployUtils;
 
 namespace XrmFramework.RemoteDebugger.Client.Configuration
 {

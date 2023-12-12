@@ -20,17 +20,14 @@ public partial class MainForm : Form, ICustomListProvider
     private readonly DefinitionCollection<EntityDefinition> _entityCollection;
     private readonly List<OptionSetEnum> _enums = new();
 
-    private readonly Type _iServiceType;
-
     private readonly TableCollection _localTables;
     private readonly TableCollection _selectedTables;
     private readonly TableCollection _tables;
 
     private readonly CoreProjectAttribute _coreProject;
 
-    public MainForm(Type iServiceType)
+    public MainForm()
     {
-        _iServiceType = iServiceType;
         CustomProvider.Instance = this;
 
         _coreProject = Assembly.GetCallingAssembly().GetCustomAttribute<CoreProjectAttribute>();
@@ -64,6 +61,27 @@ public partial class MainForm : Form, ICustomListProvider
             _enums.AddRange(table.Enums);
         }
 
+        foreach (var @enum in _enums)
+        {
+            var enumDefinition = new EnumDefinition
+            {
+                LogicalName = @enum.LogicalName,
+                Name = @enum.Name,
+                IsGlobal = @enum.IsGlobal
+            };
+
+            foreach (var value in @enum.Values)
+            {
+                enumDefinition.Values.Add(new EnumValueDefinition
+                {
+                    Name = value.Name,
+                    LogicalName = value.ToString(),
+                    Value = value.ToString()
+                });
+            }
+
+            EnumDefinitionCollection.Instance.Add(enumDefinition);
+        }
 
         generateDefinitionsToolStripMenuItem.Enabled = true;
         entityListView.Enabled = true;
@@ -129,69 +147,7 @@ public partial class MainForm : Form, ICustomListProvider
 
     private void DefinitionManager_Load(object sender, EventArgs e)
     {
-        InitEnumDefinitions();
         _entityCollection.AttachListView(entityListView);
-    }
-
-    private void InitEnumDefinitions()
-    {
-        var optionSetDefinitionAttributeType = GetExternalType("XrmFramework.OptionSetDefinitionAttribute");
-        var definitionManagerIgnoreAttributeType =
-            GetExternalType("XrmFramework.Definitions.Internal.DefinitionManagerIgnoreAttribute");
-
-        var definitionTypes = _iServiceType.Assembly.GetTypes()
-            .Where(t => t.GetCustomAttributes(optionSetDefinitionAttributeType, false).Any());
-
-        foreach (var type in definitionTypes)
-        {
-            if (type.GetCustomAttributes(definitionManagerIgnoreAttributeType).Any()) continue;
-
-            dynamic attribute = type.GetCustomAttribute(optionSetDefinitionAttributeType);
-
-            var enumDefinition = new EnumDefinition
-            {
-                LogicalName = (string.IsNullOrEmpty(attribute.EntityName) ? string.Empty : attribute.EntityName + "|") +
-                              attribute.LogicalName,
-                Name = type.Name,
-                IsGlobal = string.IsNullOrEmpty(attribute.EntityName)
-            };
-
-            if (type.IsEnum)
-                foreach (var name in Enum.GetNames(type))
-                {
-                    if (name == "Null") continue;
-
-                    var value = (int)Enum.Parse(type, name);
-
-                    enumDefinition.Values.Add(new EnumValueDefinition
-                    {
-                        Name = name,
-                        LogicalName = value.ToString(),
-                        Value = value.ToString()
-                    });
-                }
-            else
-                foreach (var field in type.GetFields())
-                {
-                    var value = (int)field.GetValue(null);
-
-                    if (value == 0) continue;
-
-                    enumDefinition.Values.Add(new EnumValueDefinition
-                    {
-                        Name = field.Name,
-                        LogicalName = value.ToString(),
-                        Value = value.ToString()
-                    });
-                }
-
-            EnumDefinitionCollection.Instance.Add(enumDefinition);
-        }
-    }
-
-    private Type GetExternalType(string name)
-    {
-        return _iServiceType.Assembly.GetType(name);
     }
 
     private void generateDefinitionsToolStripMenuItem_Click(object sender, EventArgs e)

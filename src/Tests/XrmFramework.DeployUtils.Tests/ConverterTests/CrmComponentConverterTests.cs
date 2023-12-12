@@ -4,7 +4,7 @@ using Microsoft.Xrm.Sdk;
 using Moq;
 using Newtonsoft.Json;
 using System;
-using XrmFramework.Definitions;
+using XrmFramework;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Utils;
@@ -46,12 +46,12 @@ namespace XrmFramework.DeployUtils.Tests.ConverterTests
 
             // Assert
 
-            Assert.AreEqual(result.PluginAssemblyId.Id, assemblyId);
-            Assert.AreEqual(result.PluginAssemblyId.LogicalName, PluginAssemblyDefinition.EntityName);
-            Assert.AreEqual(result.TypeName, pluginName);
-            Assert.AreEqual(result.FriendlyName, pluginName);
-            Assert.AreEqual(result.Name, pluginName);
-            Assert.AreEqual(result.Description, pluginName);
+            Assert.AreEqual(assemblyId, result.PluginAssemblyId.Id);
+            Assert.AreEqual(PluginAssemblyDefinition.EntityName, result.PluginAssemblyId.LogicalName);
+            Assert.AreEqual(pluginName, result.TypeName);
+            Assert.AreEqual(pluginName, result.FriendlyName);
+            Assert.AreEqual(pluginName, result.Name);
+            Assert.AreEqual(pluginName, result.Description);
         }
 
         [TestMethod]
@@ -74,11 +74,11 @@ namespace XrmFramework.DeployUtils.Tests.ConverterTests
 
             // Assert
 
-            Assert.AreEqual(result.PluginAssemblyId.Id, assemblyId);
-            Assert.AreEqual(result.PluginAssemblyId.LogicalName, PluginAssemblyDefinition.EntityName);
-            Assert.AreEqual(result.TypeName, workflowName);
-            Assert.AreEqual(result.FriendlyName, workflowName);
-            Assert.AreEqual(result.Name, workflowDisplayName);
+            Assert.AreEqual(assemblyId, result.PluginAssemblyId.Id);
+            Assert.AreEqual(PluginAssemblyDefinition.EntityName, result.PluginAssemblyId.LogicalName);
+            Assert.AreEqual(workflowName, result.TypeName);
+            Assert.AreEqual(workflowName, result.FriendlyName);
+            Assert.AreEqual(workflowDisplayName, result.Name);
         }
 
         [TestMethod]
@@ -139,22 +139,21 @@ namespace XrmFramework.DeployUtils.Tests.ConverterTests
             var result = (Deploy.SdkMessageProcessingStep)_converter.ToRegisterComponent(step);
 
             // Assert
-            Assert.AreEqual(result.Name, step.Description);
-            Assert.AreEqual(result.Id, stepId);
-            Assert.AreEqual(result.FilteringAttributes, filteringAttribute);
-            Assert.AreEqual(result.AsyncAutoDelete, true);
-            Assert.AreEqual(result.EventHandler.Id, pluginId);
-            Assert.AreEqual(result.ImpersonatingUserId.Id, userId);
-            Assert.AreEqual(result.IsCustomizable.Value, true);
-            Assert.AreEqual(result.IsHidden.Value, false);
-            Assert.AreEqual(result.Mode.Value, (int)mode);
-            Assert.AreEqual(result.Rank, order);
-            Assert.AreEqual(result.SdkMessageId.Id, messageId);
-            Assert.AreEqual(result.SdkMessageFilterId.Id, messageFilterId);
-            Assert.AreEqual(result.Stage.Value, (int)stage);
-            Assert.AreEqual(result.SupportedDeployment.Value,
-                (int)Deploy.sdkmessageprocessingstep_supporteddeployment.ServerOnly);
-            Assert.AreEqual(result.Configuration, JsonConvert.SerializeObject(stepConfig));
+            Assert.AreEqual(step.Description, result.Name);
+            Assert.AreEqual(stepId, result.Id);
+            Assert.AreEqual(filteringAttribute, result.FilteringAttributes);
+            Assert.AreEqual(true, result.AsyncAutoDelete);
+            Assert.AreEqual(pluginId, result.EventHandler.Id);
+            Assert.AreEqual(userId, result.ImpersonatingUserId.Id);
+            Assert.AreEqual(true, result.IsCustomizable.Value);
+            Assert.AreEqual(false, result.IsHidden.Value);
+            Assert.AreEqual((int)mode, result.Mode.Value);
+            Assert.AreEqual(order, result.Rank);
+            Assert.AreEqual(messageId, result.SdkMessageId.Id);
+            Assert.AreEqual(messageFilterId, result.SdkMessageFilterId.Id);
+            Assert.AreEqual((int)stage, result.Stage.Value);
+            Assert.AreEqual((int)Deploy.sdkmessageprocessingstep_supporteddeployment.ServerOnly, result.SupportedDeployment.Value);
+            Assert.AreEqual(JsonConvert.SerializeObject(stepConfig), result.Configuration);
 
         }
 
@@ -183,13 +182,13 @@ namespace XrmFramework.DeployUtils.Tests.ConverterTests
             var result = (SdkMessageProcessingStepImage)_converter.ToRegisterComponent(stepImage);
 
             // Assert
-            Assert.AreEqual(result.Name, "PreImage");
-            Assert.AreEqual(result.Id, stepImageId);
-            Assert.AreEqual(result.Attributes1, attribute);
-            Assert.AreEqual(result.EntityAlias, "PreImage");
-            Assert.AreEqual(result.ImageType.Value, (int)Deploy.sdkmessageprocessingstepimage_imagetype.PreImage);
-            Assert.AreEqual(result.IsCustomizable.Value, true);
-            Assert.AreEqual(result.SdkMessageProcessingStepId.Id, stepId);
+            Assert.AreEqual("PreImage", result.Name);
+            Assert.AreEqual(stepImageId, result.Id);
+            Assert.AreEqual(attribute, result.Attributes1);
+            Assert.AreEqual("PreImage", result.EntityAlias);
+            Assert.AreEqual((int)Deploy.sdkmessageprocessingstepimage_imagetype.PreImage, result.ImageType.Value);
+            Assert.AreEqual(true, result.IsCustomizable.Value);
+            Assert.AreEqual(stepId, result.SdkMessageProcessingStepId.Id);
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿using Deploy;
 using Microsoft.Xrm.Sdk;
-using System;
-using System.Collections.Generic;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Context

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xrm.Sdk;
-using XrmFramework.Definitions;
+﻿using Microsoft.Xrm.Sdk;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils;
@@ -42,10 +38,6 @@ public partial class AssemblyExporter
 	public Guid CreateComponent(ICrmComponent component)
 	{
 		if (component is CustomApi customApi) CreateCustomApiPluginType(customApi);
-
-		// component.Id = component is IAssemblyComponent
-		// 	? Guid.NewGuid()
-		// 	: Guid.Empty;
 
 		var registeringComponent = _converter.ToRegisterComponent(component);
 		var result = _registrationService.Create(registeringComponent);

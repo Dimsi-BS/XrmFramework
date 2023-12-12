@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Deploy;
+﻿using Deploy;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Model;
 using CustomApi = Deploy.CustomApi;
 using CustomApiRequestParameter = Deploy.CustomApiRequestParameter;

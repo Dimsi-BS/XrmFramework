@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
@@ -76,7 +73,6 @@ internal partial class AssemblyFactory : IAssemblyFactory
 	public AssemblyInfo GetLocalAssemblyInfo(Assembly assembly)
 	{
 		var result = _importer.CreateAssemblyFromLocal(assembly);
-		// result.Package = _importer.CreatePackageFromLocal(result);
 		return result;
 	}
 

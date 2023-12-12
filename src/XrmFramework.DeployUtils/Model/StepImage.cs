@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using XrmFramework.Definitions;
-
-namespace XrmFramework.DeployUtils.Model
+﻿namespace XrmFramework.DeployUtils.Model
 {
     /// <summary>
     /// Metadata of a StepImage, allows the user to ask for more data concerning the context when triggered

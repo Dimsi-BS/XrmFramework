@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using XrmFramework.DeployUtils.Model;
+﻿using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Utils
 {

@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text;
 using AutoMapper;
 using Microsoft.Xrm.Sdk;
-using XrmFramework.Definitions;
+using XrmFramework;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;

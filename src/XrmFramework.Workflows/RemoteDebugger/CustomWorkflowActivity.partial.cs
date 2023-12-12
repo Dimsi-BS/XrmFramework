@@ -1,10 +1,6 @@
 ﻿using Microsoft.Xrm.Sdk.Query;
-using System;
 using System.Activities;
-using System.Linq;
-using System.Net.Http;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
 using XrmFramework.RemoteDebugger;
 
 // ReSharper disable once CheckNamespace

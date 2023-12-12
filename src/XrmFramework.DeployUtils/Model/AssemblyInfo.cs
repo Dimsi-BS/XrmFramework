@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
+﻿using XrmFramework.BindingModel;
 
 namespace XrmFramework.DeployUtils.Model;
 

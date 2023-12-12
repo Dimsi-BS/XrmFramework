@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace XrmFramework.Definitions
+namespace XrmFramework
 {
 
     public static partial class DebugSessionDefinition

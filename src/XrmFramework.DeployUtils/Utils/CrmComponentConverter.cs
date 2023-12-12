@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
-using AutoMapper;
+﻿using AutoMapper;
 using Deploy;
 using Microsoft.Xrm.Sdk;
-using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using CustomApi = XrmFramework.DeployUtils.Model.CustomApi;

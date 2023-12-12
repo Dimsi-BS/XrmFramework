@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Windows;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Newtonsoft.Json;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
 using XrmFramework.Model;
 
 namespace XrmFramework;

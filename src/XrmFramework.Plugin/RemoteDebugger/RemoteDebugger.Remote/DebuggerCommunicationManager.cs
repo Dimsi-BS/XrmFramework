@@ -1,9 +1,6 @@
 ﻿using Microsoft.Xrm.Sdk.Query;
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
 using XrmFramework.RemoteDebugger;
 
 namespace XrmFramework.Remote

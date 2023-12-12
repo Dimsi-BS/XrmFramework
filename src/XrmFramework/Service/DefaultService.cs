@@ -1,18 +1,15 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
+using System.Linq;
+using System.Collections.Generic;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
-using XrmFramework.Model;
 
 namespace XrmFramework
 {
@@ -104,6 +101,13 @@ namespace XrmFramework
             var request = new UpsertRequest { Target = entity };
 
             return Execute<UpsertRequest, UpsertResponse>(service, request, bypassCustomPluginExecution);
+        }
+
+        public T Upsert<T>(T model, bool isAdmin = false, bool bypassCustomPluginExecution = false) where T : IBindingModel, new()
+        {
+            var service = isAdmin ? AdminOrganizationService : OrganizationService;
+
+            return service.Upsert(model, new UpsertSettings { DisablePluginsExecution = bypassCustomPluginExecution });
         }
 
         public void Update(Entity entity, bool useAdmin = false, bool bypassCustomPluginExecution = false)
@@ -221,7 +225,7 @@ namespace XrmFramework
 
             Execute<AssignRequest, AssignResponse>(AdminOrganizationService, new AssignRequest
             {
-                Assignee = ownerRef ?? new EntityReference("systemuser", InitiatingUserId),
+                Assignee = ownerRef ?? new EntityReference(SystemUserDefinition.EntityName, InitiatingUserId),
                 Target = objectReference
             }, bypassCustomPluginExecution);
         }
@@ -247,16 +251,16 @@ namespace XrmFramework
             Execute<SetStateRequest, SetStateResponse>(service, request, bypassCustomPluginExecution);
         }
 
-        public void Share(EntityReference objectRef, EntityReference assigneeRef, AccessRights accessRights, bool bypassCustomPluginExecution = false)
+        public void Share(EntityReference objectRef, EntityReference assignee, AccessRights accessRights, bool bypassCustomPluginExecution = false)
         {
             #region Parameters check
             if (objectRef == null)
             {
                 throw new ArgumentNullException(nameof(objectRef));
             }
-            if (assigneeRef == null)
+            if (assignee == null)
             {
-                throw new ArgumentNullException(nameof(assigneeRef));
+                throw new ArgumentNullException(nameof(assignee));
             }
             #endregion
 
@@ -266,23 +270,23 @@ namespace XrmFramework
                 PrincipalAccess = new PrincipalAccess
                 {
                     AccessMask = accessRights,
-                    Principal = assigneeRef
+                    Principal = assignee
                 }
             };
 
             Execute<GrantAccessRequest, GrantAccessResponse>(AdminOrganizationService, request, bypassCustomPluginExecution);
         }
 
-        public void UnShare(EntityReference objectRef, EntityReference revokeeRef, EntityReference callerRef = null, bool bypassCustomPluginExecution = false)
+        public void UnShare(EntityReference objectRef, EntityReference revokee, EntityReference callerRef = null, bool bypassCustomPluginExecution = false)
         {
             #region Parameters check
             if (objectRef == null)
             {
                 throw new ArgumentNullException(nameof(objectRef));
             }
-            if (revokeeRef == null)
+            if (revokee == null)
             {
-                throw new ArgumentNullException(nameof(revokeeRef));
+                throw new ArgumentNullException(nameof(revokee));
             }
             #endregion
 
@@ -291,10 +295,10 @@ namespace XrmFramework
             var request = new RevokeAccessRequest
             {
                 Target = objectRef,
-                Revokee = revokeeRef
+                Revokee = revokee
             };
 
-            Execute<RevokeAccessRequest, RevokeAccessResponse>(AdminOrganizationService, request, bypassCustomPluginExecution);
+            Execute<RevokeAccessRequest, RevokeAccessResponse>(service, request, bypassCustomPluginExecution);
         }
 
         protected IOrganizationService GetService(Guid callerId)
@@ -476,13 +480,6 @@ namespace XrmFramework
             return AdminOrganizationService.GetById<T>(entityReference);
         }
 
-        public T Upsert<T>(T model, bool isAdmin = false, bool bypassCustomPluginExecution = false) where T : IBindingModel, new()
-        {
-            var service = isAdmin ? AdminOrganizationService : OrganizationService;
-
-            return service.Upsert(model, new UpsertSettings { DisablePluginsExecution = bypassCustomPluginExecution });
-        }
-
 
         public void AddUsersToTeam(EntityReference teamRef, params EntityReference[] userRefs)
         {
@@ -554,10 +551,10 @@ namespace XrmFramework
 
         }
 
-        public bool UserHasOneRoleOf(Guid userId, params string[] roleIdTxts) =>
-            UserHasOneRoleOf(userId, roleIdTxts?.Select(t => new Guid(t)).ToArray());
+        public bool UserHasOneRoleOf(Guid userId, params string[] parentRoleIds) =>
+            UserHasOneRoleOf(userId, parentRoleIds?.Select(t => new Guid(t)).ToArray());
 
-        public bool UserHasOneRoleOf(Guid userId, params Guid[] roleIds)
+        public bool UserHasOneRoleOf(Guid userId, params Guid[] parentRoleIds)
         {
             var query = new QueryExpression(SystemUserDefinition.EntityName);
             query.ColumnSet.AddColumn(SystemUserDefinition.Columns.Id);
@@ -567,7 +564,7 @@ namespace XrmFramework
             var roleLink = userRoleLink.AddLink(RoleDefinition.EntityName, SystemUserRolesDefinition.Columns.RoleId, RoleDefinition.Columns.Id);
             roleLink.LinkCriteria.FilterOperator = LogicalOperator.Or;
 
-            foreach (var roleId in roleIds)
+            foreach (var roleId in parentRoleIds)
             {
                 roleLink.LinkCriteria.AddCondition(RoleDefinition.Columns.ParentRootRoleId, ConditionOperator.Equal, roleId);
                 roleLink.LinkCriteria.AddCondition(RoleDefinition.Columns.RoleTemplateId, ConditionOperator.Equal, roleId);

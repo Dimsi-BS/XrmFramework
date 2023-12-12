@@ -1,5 +1,4 @@
-﻿using Microsoft.Xrm.Sdk.Workflow;
-using XrmFramework.RemoteDebugger;
+﻿using XrmFramework.RemoteDebugger;
 
 // ReSharper disable once CheckNamespace
 namespace XrmFramework.Workflow

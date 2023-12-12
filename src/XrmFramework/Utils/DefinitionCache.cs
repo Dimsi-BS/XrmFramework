@@ -66,7 +66,7 @@ namespace XrmFramework
                         t.GetField("EntityName").FieldType == typeof(string)
                         && (string)t.GetField("EntityName").GetValue(null) == name);
 
-                var definitionType = definitionTypes.OrderBy(t => t.Namespace?.Contains("XrmFramework.Definitions") ?? false).FirstOrDefault();
+                var definitionType = definitionTypes.OrderBy(t => t.Namespace?.Contains("XrmFramework") ?? false).FirstOrDefault();
 
                 if (definitionType == default)
                 {

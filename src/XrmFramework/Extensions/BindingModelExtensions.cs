@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using XrmFramework.BindingModel;
-using XrmFramework.Model;
 
 namespace XrmFramework
 {

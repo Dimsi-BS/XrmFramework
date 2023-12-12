@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using AutoMapper;
 using Microsoft.Extensions.Options;
 using XrmFramework.DeployUtils.Context;
@@ -57,8 +55,10 @@ internal partial class AssemblyFactory
 				var pluginParsed = new Plugin(stepGroup.Key);
 				foreach (var (s, stepConfiguration) in stepGroup)
 				{
+					var pluginNameSplit = stepConfiguration.PluginName.Split('.');
+					
 					s.PluginTypeFullName = stepConfiguration.PluginName;
-					s.PluginTypeName = stepConfiguration.PluginName.Split('.').Last();
+					s.PluginTypeName = pluginNameSplit[pluginNameSplit.Length - 1];
 					pluginParsed.Steps.Add(s);
 				}
 
@@ -93,7 +93,7 @@ internal partial class AssemblyFactory
 	}
 
 
-	public IAssemblyContext WrapDebugDiffForDebugStrategy(IAssemblyContext from, DebugAssemblySettings debugSettings,
+	public IAssemblyContext WrapDebugDiffForDebugStrategy(IAssemblyContext from, DebugAssemblySettings debugAssemblySettings,
 		Assembly Assembly)
 	{
 		var debugAssembly = _mapper.Map<IAssemblyContext>(from.AssemblyInfo);
@@ -121,15 +121,15 @@ internal partial class AssemblyFactory
 			}
 		}
 
-		debugPlugin.ParentId = debugSettings.AssemblyId;
-		debugPlugin.Id = debugSettings.PluginId;
+		debugPlugin.ParentId = debugAssemblySettings.AssemblyId;
+		debugPlugin.Id = debugAssemblySettings.PluginId;
 		debugAssembly.AddChild(debugPlugin);
 
 		foreach (var customApi in from.CustomApis)
 		{
-			customApi.ParentId = debugSettings.CustomApiId;
+			customApi.ParentId = debugAssemblySettings.CustomApiId;
 			//Insert seemingly random value to make the customApi unique
-			customApi.Prefix = debugSettings.AddCustomPrefix(customApi.Prefix);
+			customApi.Prefix = debugAssemblySettings.AddCustomPrefix(customApi.Prefix);
 			debugAssembly.AddChild(customApi);
 		}
 

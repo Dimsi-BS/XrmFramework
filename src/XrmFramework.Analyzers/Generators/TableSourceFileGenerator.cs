@@ -59,9 +59,8 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 			sb.AppendLine("using System.ComponentModel.DataAnnotations;");
 			sb.AppendLine("using System.Diagnostics.CodeAnalysis;");
 			sb.AppendLine("using System.ComponentModel;");
-			sb.AppendLine("using XrmFramework;");
 			sb.AppendLine();
-			sb.AppendLine("namespace XrmFramework.Definitions");
+			sb.AppendLine("namespace XrmFramework");
 			sb.AppendLine("{");
 
 			using (sb.Indent())

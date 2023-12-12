@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutoMapper;
+﻿using AutoMapper;
 using Deploy;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;

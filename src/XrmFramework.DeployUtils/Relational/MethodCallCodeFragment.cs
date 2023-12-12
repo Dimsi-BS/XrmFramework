@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-using System.Collections.Generic;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {

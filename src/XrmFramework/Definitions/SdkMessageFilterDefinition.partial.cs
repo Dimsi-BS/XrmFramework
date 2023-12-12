@@ -1,4 +1,4 @@
-﻿namespace XrmFramework.Definitions;
+﻿namespace XrmFramework;
 
 public static partial class SdkMessageFilterDefinition
 {

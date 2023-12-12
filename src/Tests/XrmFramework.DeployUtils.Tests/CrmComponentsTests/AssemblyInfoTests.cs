@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 using Moq;
-using XrmFramework.Definitions;
+using XrmFramework;
 using XrmFramework.DeployUtils.Model;
 
 namespace XrmFramework.DeployUtils.Tests.CrmComponentsTests;

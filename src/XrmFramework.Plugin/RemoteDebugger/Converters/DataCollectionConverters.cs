@@ -2,8 +2,6 @@
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 
 namespace XrmFramework.RemoteDebugger.Converters
 {

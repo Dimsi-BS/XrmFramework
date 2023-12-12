@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace XrmFramework.DeployUtils.Model
+﻿namespace XrmFramework.DeployUtils.Model
 {
     public abstract class BaseCrmComponent : ICrmComponent
     {

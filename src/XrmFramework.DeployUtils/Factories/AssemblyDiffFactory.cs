@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutoMapper;
+﻿using AutoMapper;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 
@@ -116,16 +113,6 @@ public class AssemblyDiffFactory
 	public IAssemblyComponent ComputeAssemblyOperation(AssemblyInfo from, AssemblyInfo target)
 	{
 		var result = _mapper.Map<AssemblyInfo>(from);
-
-		// if (from.Package != null)
-		// {
-		// 	result.Package.RegistrationState = target?.Package == null
-		// 		? RegistrationState.ToCreate
-		// 		: RegistrationState.ToUpdate;
-		//
-		// 	result.Package.Id = target?.Package?.Id ?? Guid.NewGuid();
-		// 	return result.Package;
-		// }
 
 		result.RegistrationState = target == null
 			? RegistrationState.ToCreate

@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using XrmFramework;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
 
 namespace XrmFramework
 {

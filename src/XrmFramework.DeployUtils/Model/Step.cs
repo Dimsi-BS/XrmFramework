@@ -2,9 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using XrmFramework.Definitions;
 
 namespace XrmFramework.DeployUtils.Model
 {
