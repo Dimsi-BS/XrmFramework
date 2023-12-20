@@ -6,8 +6,7 @@ trigger:
   branches:
     include:
       - master
-      - v2.*
-      - v3.*
+      - v*
   paths:
     include:
       - src
@@ -17,6 +16,8 @@ pool:
   vmImage: windows-latest
 
 steps:
+  - checkout: self
+    fetchDepth: 0
 
   - task: NuGetToolInstaller@1
     inputs:
@@ -32,13 +33,7 @@ steps:
       solution: '**/XrmFramework.sln'
       configuration: '$(buildConfiguration)'
       msbuildArguments: '/p:PublicRelease=true'
-  #- task: DotNetCoreCLI@2
-  #  displayName: Build
-  #  inputs:
-  #    command: 'build'
-  #    projects: '**/XrmFramework.sln'
-  #    arguments: '--configuration $(buildConfiguration) /p:PublicRelease=true'
-  #    workingDirectory: 'src'
+      
   - task: DotNetCoreCLI@2
     displayName: Test
     inputs:
