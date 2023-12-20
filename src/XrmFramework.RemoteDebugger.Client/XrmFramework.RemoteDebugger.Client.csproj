@@ -30,6 +30,7 @@
 
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\Converters\**\*.cs" Link="Converters\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\DebuggerUnsecureConfig.cs" Link="DebuggerUnsecureConfig.cs" />
+    <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\TokenProviders\**\*.cs" Link="TokenProviders\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\HybridConnection.cs" Link="HybridConnection.cs" />
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\IDebuggerCommunicationManager.cs" Link="IDebuggerCommunicationManager.cs" />
     <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\RemoteDebuggerMessage.cs" Link="RemoteDebuggerMessage.cs" />
@@ -46,6 +47,10 @@
     <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.45" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="TokenProviders\" />
   </ItemGroup>
   <!--
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
