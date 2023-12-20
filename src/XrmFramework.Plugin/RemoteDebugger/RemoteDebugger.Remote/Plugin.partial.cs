@@ -1,7 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using XrmFramework.Remote;
 using XrmFramework.RemoteDebugger;
 using XrmFramework.RemoteDebugger.Model.CrmComponentInfos;
@@ -13,12 +10,14 @@ namespace XrmFramework
     {
         private bool IsBeingDebugged(LocalPluginContext localContext)
         {
-            if (localContext.IsDebugContext) return false;
-
-
+            if (localContext.IsDebugContext)
+            {
+                return false;
+            }
+            
             var debuggerManager = new PluginDebuggerCommunicationManager(localContext, GetType().AssemblyQualifiedName, SecuredConfig, UnSecuredConfig);
 
-            DebugSession debugSession;
+            DebugSession? debugSession;
             try
             {
                 debugSession = debuggerManager.GetDebugSession();

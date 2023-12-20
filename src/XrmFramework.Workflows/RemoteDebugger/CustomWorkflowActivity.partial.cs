@@ -10,85 +10,87 @@ namespace XrmFramework.Workflow
     {
         private bool SendToRemoteDebugger(LocalWorkflowContext localContext, CodeActivityContext context)
         {
-            if (!localContext.IsDebugContext)
+            if (localContext.IsDebugContext)
             {
-                localContext.Log("The context is genuine");
+                return false;
+            }
 
-                var initiatingUserId = localContext.GetInitiatingUserId();
+            localContext.Log("The context is genuine");
 
-                var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
-                queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal, initiatingUserId.ToString());
-                queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
+            var initiatingUserId = localContext.GetInitiatingUserId();
 
-                var debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
+            var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal, initiatingUserId.ToString());
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
 
-                localContext.Log($"Debug session : {debugSession}");
+            var debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
 
-                if (debugSession != null)
+            localContext.Log($"Debug session : {debugSession}");
+
+            if (debugSession == null || debugSession.SessionEnd < DateTime.Today)
+            {
+                return false;
+            }
+
+            var remoteContext = localContext.RemoteContext;
+
+            remoteContext.TypeAssemblyQualifiedName = GetType().AssemblyQualifiedName;
+            remoteContext.Id = Guid.NewGuid();
+
+            SetArgumentsInRemoteContext(context, remoteContext);
+
+            var uri = new Uri($"{debugSession.RelayUrl.TrimEnd('/')}/{debugSession.HybridConnectionName}");
+
+            try
+            {
+                using var hybridConnection = new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri);
+                var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
+
+                RemoteDebuggerMessage? response;
+                while (true)
                 {
-                    if (debugSession.SessionEnd >= DateTime.Today)
+                    localContext.Log("Sending context to local machine : {0}", message);
+
+                    response = hybridConnection.SendMessage(message).GetAwaiter().GetResult();
+
+                    localContext.Log("Received response : {0}", response);
+
+                    if (response == null || response.MessageType is RemoteDebuggerMessageType.Context or RemoteDebuggerMessageType.Exception)
                     {
-
-                        var remoteContext = localContext.RemoteContext;
-
-                        remoteContext.TypeAssemblyQualifiedName = GetType().AssemblyQualifiedName;
-                        remoteContext.Id = Guid.NewGuid();
-
-                        SetArgumentsInRemoteContext(context, remoteContext);
-
-                        var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
-
-                        try
-                        {
-                            using (var hybridConnection = new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri))
-                            {
-                                var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
-
-                                RemoteDebuggerMessage? response;
-                                while (true)
-                                {
-                                    localContext.Log("Sending context to local machine : {0}", message);
-
-                                    response = hybridConnection.SendMessage(message).GetAwaiter().GetResult();
-
-                                    localContext.Log("Received response : {0}", response);
-
-                                    if (response.MessageType == RemoteDebuggerMessageType.Context || response.MessageType == RemoteDebuggerMessageType.Exception)
-                                    {
-                                        break;
-                                    }
-
-                                    var request = response.GetOrganizationRequest();
-
-                                    var service = response.UserId.HasValue ? localContext.GetOrganizationService(response.UserId.Value) : localContext.AdminOrganizationService;
-
-                                    var organizationResponse = service.Execute(request);
-
-                                    message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Response, organizationResponse, remoteContext.Id);
-                                }
-
-                                if (response.MessageType == RemoteDebuggerMessageType.Exception)
-                                {
-                                    throw response.GetException();
-                                }
-
-                                var updatedContext = response.GetContext<RemoteDebugExecutionContext>();
-
-                                localContext.UpdateContext(updatedContext);
-
-                                ExtractArgumentsFromRemoteContext(context, updatedContext, localContext.LogServiceMethod);
-                            }
-
-
-                            return true;
-                        }
-                        catch (HttpRequestException e)
-                        {
-                            // Run the plugin as deploy if the remote debugger is not connected
-                            localContext.Log($"Error while sending context : {e}");
-                        }
+                        break;
                     }
+
+                    var request = response.GetOrganizationRequest();
+
+                    var service = response.UserId.HasValue ? localContext.GetOrganizationService(response.UserId.Value) : localContext.AdminOrganizationService;
+
+                    var organizationResponse = service.Execute(request);
+
+                    message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Response, organizationResponse, remoteContext.Id);
                 }
+                
+                if (response == null)
+                {
+                    return false;
+                }
+
+                if (response.MessageType == RemoteDebuggerMessageType.Exception)
+                {
+                    throw response.GetException();
+                }
+
+                var updatedContext = response.GetContext<RemoteDebugExecutionContext>();
+
+                localContext.UpdateContext(updatedContext);
+
+                ExtractArgumentsFromRemoteContext(context, updatedContext, localContext.LogServiceMethod);
+
+                return true;
+            }
+            catch (HttpRequestException e)
+            {
+                // Run the plugin as deploy if the remote debugger is not connected
+                localContext.Log($"Error while sending context : {e}");
             }
 
             return false;

@@ -35,6 +35,12 @@ namespace XrmFramework.Remote
                 return;
             }
             
+            if (response == null)
+            {
+                Context.Log("No response received");
+                return;
+            }
+            
             if (response.MessageType == RemoteDebuggerMessageType.Exception)
             {
                 throw response.GetException();
@@ -55,9 +61,9 @@ namespace XrmFramework.Remote
             {
                 response = hybridConnection.SendMessage(message).GetAwaiter().GetResult();
 
-                Context.Log($"Received response : {response.MessageType}\n");
+                Context.Log($"Received response : {response?.MessageType}\n");
 
-                if (response.MessageType is RemoteDebuggerMessageType.Context or RemoteDebuggerMessageType.Exception)
+                if (response == null || response.MessageType is RemoteDebuggerMessageType.Context or RemoteDebuggerMessageType.Exception)
                 {
                     break;
                 }
@@ -77,7 +83,7 @@ namespace XrmFramework.Remote
             return response;
         }
 
-        protected static QueryExpression CreateBaseDebugSessionQuery([Required] params Guid[] initiatingUserIds)
+        private static QueryExpression CreateBaseDebugSessionQuery([Required] params Guid[] initiatingUserIds)
         {
             var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
             queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal,
@@ -89,12 +95,12 @@ namespace XrmFramework.Remote
 
         private static HybridConnection InitConnection(DebugSession debugSession)
         {
-            var uri = new Uri($"{debugSession.RelayUrl}/{debugSession.HybridConnectionName}");
+            var uri = new Uri($"{debugSession.RelayUrl.TrimEnd('/')}/{debugSession.HybridConnectionName}");
 
             return new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri);
         }
 
-        public DebugSession GetDebugSession()
+        public DebugSession? GetDebugSession()
         {
             var query = CreateBaseDebugSessionQuery(Context.GetInitiatingUserId(), Context.GetRootUserId());
             

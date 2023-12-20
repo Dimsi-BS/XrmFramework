@@ -2,7 +2,7 @@
 {
     public interface IDebuggerCommunicationManager
     {
-        internal DebugSession GetDebugSession();
+        internal DebugSession? GetDebugSession();
         internal void SendLocalContextToDebugSession(DebugSession debugSession);
 
     }
