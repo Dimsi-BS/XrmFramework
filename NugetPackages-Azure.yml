@@ -20,6 +20,8 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
+- checkout: self
+  fetchDepth: 0
 
 - script: dotnet build XrmFramework.sln --configuration $(buildConfiguration) /p:PublicRelease=true
   displayName: Build
