@@ -1,7 +1,7 @@
 ﻿using Moq;
-using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Factories;
+using XrmFramework.DeployUtils.Model.Interfaces;
 using XrmFramework.DeployUtils.Tests.Mocks;
-using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Tests
 {

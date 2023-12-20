@@ -1,7 +1,8 @@
 ﻿using Microsoft.Xrm.Sdk;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
-namespace XrmFramework.DeployUtils.Utils
+namespace XrmFramework.DeployUtils.Converters
 {
     /// <summary>
     /// Handles the conversion from a <see cref="ICrmComponent"/> to an <see cref="Entity"/> to be deployed on the Crm 

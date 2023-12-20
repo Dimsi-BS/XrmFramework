@@ -126,8 +126,10 @@ namespace XrmFramework
 
             Log(nameof(TestEnum), "Start: value = {0}", value);
 
+            #pragma warning disable CS0612 // The type or member is obsolete
             Service.TestEnum(value);
 
+            #pragma warning restore CS0612 // The type or member is obsolete
             Log(nameof(TestEnum), "End : duration = {0}", sw.Elapsed);
         }
         #pragma warning restore CS0612

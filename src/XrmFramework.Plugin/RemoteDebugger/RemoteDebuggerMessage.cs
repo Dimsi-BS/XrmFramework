@@ -15,7 +15,7 @@ public class RemoteDebuggerMessage
 	{
 	}
 
-	public RemoteDebuggerMessage(RemoteDebuggerMessageType type, object content, Guid pluginExecutionId)
+	public RemoteDebuggerMessage(RemoteDebuggerMessageType type, object? content, Guid pluginExecutionId)
 	{
 		MessageType = type;
 		PluginExecutionId = pluginExecutionId;
@@ -30,7 +30,7 @@ public class RemoteDebuggerMessage
 	public Guid PluginExecutionId { get; set; }
 
 	[JsonProperty("content")]
-	public string Content { get; set; }
+	public string Content { get; set; } = null!;
 
 	[JsonProperty("userId")]
 	public Guid? UserId { get; set; }
@@ -52,7 +52,7 @@ public class RemoteDebuggerMessage
 	private T Deserialize<T>(RemoteDebuggerMessageType messageType)
 	{
 		if (MessageType != messageType)
-			throw new Exception($"The message is not an {messageType} message");
+			throw new TypeMismatchException($"The message is not an {messageType} message");
 
 		var stringContent = Content;
 
@@ -68,4 +68,9 @@ public class RemoteDebuggerMessage
 		return JsonConvert.DeserializeObject<T>(stringContent, SerializerSettings);
 	}
 
+}
+
+public class TypeMismatchException : Exception
+{
+	public TypeMismatchException(string message) : base(message) { }
 }

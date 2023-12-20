@@ -1,5 +1,4 @@
-﻿using Microsoft.Xrm.Sdk;
-using System;
+﻿using System;
 using XrmFramework.Core;
 using System.Reflection;
 using System.IO;
@@ -13,10 +12,10 @@ namespace GenerateTableFilesFromLocalCode
 {
     internal class Program
     {
-        static TableCollection tables = new TableCollection();
-        EntityCollection entities;
-        private readonly string definitionDirectory;
-        private readonly Assembly assembly;
+        static readonly TableCollection Tables = new TableCollection();
+        
+        private readonly string _definitionDirectory;
+        private readonly Assembly _assembly;
         private readonly Table _optionSetTable = new Table { LogicalName = "globalEnums", Name = "OptionSets" };
 
         static void Main(string[] args)
@@ -32,9 +31,8 @@ namespace GenerateTableFilesFromLocalCode
 
                 return;
             }
-            string userInput = "";
-            Assembly assembly = null;
-            string definitionDirectory;
+
+            Assembly assembly;
             try
             {
                 assembly = Assembly.UnsafeLoadFrom(args[0]);
@@ -64,266 +62,195 @@ namespace GenerateTableFilesFromLocalCode
             program.Run();
         }
 
-        public Program(string definitionDirectory, Assembly assembly)
+        private Program(string definitionDirectory, Assembly assembly)
         {
-            this.definitionDirectory = definitionDirectory;
-            this.assembly = assembly;
+            this._definitionDirectory = definitionDirectory;
+            this._assembly = assembly;
         }
 
         private void Run()
         {
-            var codedTables = GetCodedTables(assembly);
+            var codedTables = GetCodedTables(_assembly);
 
-            string txt;
             foreach (var table in codedTables)
             {
-                txt = JsonConvert.SerializeObject(table, new JsonSerializerSettings()
+                var txt = JsonConvert.SerializeObject(table, new JsonSerializerSettings()
                 {
                     Formatting = Formatting.Indented,
                     DefaultValueHandling = DefaultValueHandling.Ignore
                 });
 
-                var fileInfo = new FileInfo($"{definitionDirectory}/{table.Name}.table");
+                var fileInfo = new FileInfo($"{_definitionDirectory}/{table.Name}.table");
                 File.WriteAllText(fileInfo.FullName, txt);
                 Console.WriteLine(table.Name);
             }
         }
 
-        public IEnumerable<Table> GetCodedTables(Assembly definitionAssembly)
+        private IEnumerable<Table> GetCodedTables(Assembly definitionAssembly)
         {
             var entityDefinitionAttributeType = definitionAssembly.GetType("XrmFramework.EntityDefinitionAttribute");
             var definitionTypes = definitionAssembly.GetTypes().Where(t => t.GetCustomAttributes(entityDefinitionAttributeType, false).Any());
-            var relationshipAttributeType = definitionAssembly.GetType("XrmFramework.RelationshipAttribute");
-            var definitionManagerIgnoreAttributeType = definitionAssembly.GetType("XrmFramework.Internal.DefinitionManagerIgnoreAttribute");
-            if (definitionManagerIgnoreAttributeType == null)
-            {
-                definitionManagerIgnoreAttributeType = definitionAssembly.GetType("Model.DefinitionManagerIgnoreAttribute");
+            
+            var definitionManagerIgnoreAttributeType = (definitionAssembly.GetType("XrmFramework.Definitions.Internal.DefinitionManagerIgnoreAttribute") ??
+                                                        definitionAssembly.GetType("XrmFramework.Internal.DefinitionManagerIgnoreAttribute")) ??
+                                                       definitionAssembly.GetType("Model.DefinitionManagerIgnoreAttribute");
 
+            Tables.Add(_optionSetTable);
+
+            var types = definitionTypes.ToList();
+            Console.WriteLine($"{types.Count} definitions were found.");
+
+            foreach (var table in types.Select(t => MapToTable(t, definitionManagerIgnoreAttributeType)))
+            {
+                Tables.Add(table);
             }
 
-            tables.Add(_optionSetTable);
-
-            Console.WriteLine($"F{definitionTypes.Count()} definitions were found.");
-
-            foreach (var t in definitionTypes)
-            {
-                Console.WriteLine($"Adding {t.Name} to tables.");
-                if (t.GetCustomAttributes(definitionManagerIgnoreAttributeType).Any())
-                {
-                    continue;
-                }
-
-                var table = new Table
-                {
-                    Name = t.Name.Replace("Definition", "")
-                    ,
-                    LogicalName = t.GetField("EntityName").GetValue(null) as string
-                    ,
-                    CollectionName = t.GetField("EntityCollectionName")?.GetValue(null) as string
-                    ,
-                    Selected = true
-                };
-
-
-
-                foreach (var field in t.GetNestedType("Columns").GetFields())
-                {
-                    var column = new Column
-                    {
-                        LogicalName = field.GetValue(null) as string,
-                        Name = field.Name,
-                        Selected = true
-
-                    };
-
-                    foreach (var customAttribute in field.CustomAttributes)
-                    {
-                        switch (customAttribute.AttributeType.FullName)
-                        {
-                            case "XrmFramework.AttributeMetadataAttribute":
-                                column.Type = (AttributeTypeCode)customAttribute.ConstructorArguments.Single().Value;
-                                break;
-                            case "XrmFramework.PrimaryAttributeAttribute":
-                                column.PrimaryType = ((PrimaryAttributeType)customAttribute.ConstructorArguments.Single().Value) switch
-                                {
-                                    PrimaryAttributeType.Id => PrimaryType.Id,
-                                    PrimaryAttributeType.Name => PrimaryType.Name,
-                                    PrimaryAttributeType.Image => PrimaryType.Image,
-                                    _ => throw new ArgumentOutOfRangeException()
-                                };
-                                break;
-                            case "XrmFramework.OptionSetAttribute":
-                                var enumType = (Type)customAttribute.ConstructorArguments.Single().Value;
-
-                                var enu = GetEnumFromType(enumType);
-
-                                column.EnumName = enu.LogicalName;
-
-                                if (!enu.IsGlobal)
-                                    table.Enums.Add(enu);
-                                else
-                                {
-                                    if (_optionSetTable.Enums.All(e => e.LogicalName != enu.LogicalName))
-                                        _optionSetTable.Enums.Add(enu);
-                                }
-                                break;
-                        }
-                    }
-
-
-                    table.Columns.Add(column);
-                }
-
-
-                Action<string, ICollection<Relation>> workOnRelationship = (relationshipName, list) =>
-                {
-                    if (t.GetNestedType(relationshipName) != null)
-                    {
-                        foreach (var field in t.GetNestedType(relationshipName).GetFields())
-                        {
-                            var attribute = field.CustomAttributes.Single();
-
-                            list.Add(new Relation
-                            {
-                                Name = field.Name,
-                                EntityName = (string)attribute.ConstructorArguments.First().Value,
-                                Role = (EntityRole)(int)attribute.ConstructorArguments.Skip(1).First().Value,
-                                NavigationPropertyName = (string)attribute.ConstructorArguments.Skip(2).First().Value,
-                                LookupFieldName = (string)attribute.ConstructorArguments.Last().Value
-                            });
-                        }
-                    }
-                };
-
-                workOnRelationship("ManyToManyRelationships", table.ManyToManyRelationships);
-                workOnRelationship("ManyToOneRelationships", table.ManyToOneRelationships);
-                workOnRelationship("OneToManyRelationships", table.OneToManyRelationships);
-
-                foreach (var field in t.GetFields())
-                {
-                    if (field.Name == "EntityName" || field.Name == "EntityCollectionName")
-                    {
-                        continue;
-                    }
-
-                    var typeName = field.FieldType.Name;
-
-                    //definition.AdditionalInfoCollection.Add(new AttributeDefinition
-                    //{
-                    //    Type = typeName
-                    //    ,
-                    //    Name = field.Name
-                    //    ,
-                    //    LogicalName = field.Name
-                    //    ,
-                    //    Value = field.GetValue(null).ToString()
-                    //    ,
-                    //    IsSelected = true
-                    //});
-                }
-
-                foreach (var nestedType in t.GetNestedTypes())
-                {
-                    if (nestedType.Name == "Columns")
-                    {
-                        continue;
-                    }
-
-                    //var classDefinition = new ClassDefinition
-                    //{
-                    //    LogicalName = nestedType.Name
-                    //    ,
-                    //    Name = nestedType.Name
-                    //    ,
-                    //    IsEnum = nestedType.IsEnum
-                    //};
-
-                    //if (nestedType.IsEnum)
-                    //{
-                    //    var names = Enum.GetNames(nestedType);
-                    //    var values = Enum.GetValues(nestedType);
-                    //
-                    //    for (var i = 0; i < names.Length; i++)
-                    //    {
-                    //        classDefinition.Attributes.Add(new AttributeDefinition
-                    //        {
-                    //            LogicalName = Name = names[i]
-                    //            ,
-                    //            Name = names[i]
-                    //            ,
-                    //            Value = (int)values.GetValue(i)
-                    //            ,
-                    //            IsSelected = true
-                    //        });
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    foreach (var field in nestedType.GetFields())
-                    //    {
-                    //
-                    //        if (nestedType.Name == "ManyToOneRelationships" || nestedType.Name == "OneToManyRelationships" || nestedType.Name == "ManyToManyRelationships")
-                    //        {
-                    //            dynamic relationshipAttribute = field.GetCustomAttribute(relationshipAttributeType);
-                    //
-                    //            classDefinition.Attributes.Add(new RelationshipAttributeDefinition
-                    //            {
-                    //                LogicalName = field.GetValue(null).ToString()
-                    //                ,
-                    //                Name = field.Name
-                    //                ,
-                    //                Type = field.FieldType.Name
-                    //                ,
-                    //                Value = field.GetValue(null).ToString()
-                    //                ,
-                    //                IsSelected = true
-                    //                ,
-                    //                NavigationPropertyName = relationshipAttribute?.NavigationPropertyName
-                    //                ,
-                    //                Role = relationshipAttribute?.Role.ToString() ?? "Referenced"
-                    //                ,
-                    //                TargetEntityName = relationshipAttribute?.TargetEntityName
-                    //            });
-                    //        }
-                    //        else
-                    //        {
-                    //            classDefinition.Attributes.Add(new AttributeDefinition
-                    //            {
-                    //                LogicalName = field.GetValue(null).ToString()
-                    //                ,
-                    //                Name = field.Name
-                    //                ,
-                    //                Type = field.FieldType.Name
-                    //                ,
-                    //                Value = field.GetValue(null).ToString()
-                    //                ,
-                    //                IsSelected = true
-                    //            });
-                    //        }
-                    //    }
-                    //}
-
-                    //definition.AdditionalClassesCollection.Add(classDefinition);
-                }
-
-                tables.Add(table);
-            }
-
-            return tables;
+            return Tables;
 
         }
 
+        private Table MapToTable(Type type, Type definitionManagerIgnoreAttributeType)
+        {
+            Console.WriteLine($"Adding {type.Name} to tables.");
+            if (type.GetCustomAttributes(definitionManagerIgnoreAttributeType).Any())
+            {
+                return null;
+            }
+
+            var table = InitTable(type);
+
+            foreach (var field in type.GetNestedType("Columns").GetFields())
+            {
+                var column = 
+                    MapToColumn(field, table.Enums.Add);
+                
+                table.Columns.Add(column);
+            }
+
+            table.ManyToManyRelationships
+                .AddRange(
+                    WorkOnRelationship("ManyToManyRelationships", type)
+                    );
+            table.ManyToOneRelationships
+                .AddRange(
+                    WorkOnRelationship("ManyToOneRelationships", type)
+                );
+            table.OneToManyRelationships
+                .AddRange(
+                    WorkOnRelationship("OneToManyRelationships", type)
+                );
+
+            return table;
+        }
+
+        private IEnumerable<Relation> WorkOnRelationship(string relationshipName, Type type)
+        {
+            if (type.GetNestedType(relationshipName) == null)
+            {
+                foreach (var relation in Enumerable.Empty<Relation>())
+                {
+                    yield return relation;
+                }
+            }
+
+            foreach (var field in type.GetNestedType(relationshipName).GetFields())
+            {
+                yield return MapToRelation(field);
+            }
+        }
+
+        private static Relation MapToRelation(FieldInfo field)
+        {
+            var attribute = field.CustomAttributes.Single();
+            var constructorArguments = attribute.ConstructorArguments;
+
+            var relation = new Relation
+            {
+                Name = field.Name,
+                EntityName = (string)constructorArguments[0].Value,
+                Role = (EntityRole)(int)constructorArguments.Skip(1).First().Value,
+                NavigationPropertyName = (string)constructorArguments.Skip(2).First().Value,
+                LookupFieldName = (string)constructorArguments[constructorArguments.Count - 1].Value
+            };
+
+            return relation;
+        }
+
+        private Column MapToColumn(FieldInfo field, Action<OptionSetEnum> addEnum)
+        {
+            var column = new Column
+            {
+                LogicalName = field.GetValue(null) as string,
+                Name = field.Name,
+                Selected = true
+            };
+
+            foreach (var customAttribute in field.CustomAttributes)
+            {
+                switch (customAttribute.AttributeType.FullName)
+                {
+                    case "XrmFramework.AttributeMetadataAttribute":
+                        column.Type = (AttributeTypeCode)customAttribute.ConstructorArguments.Single().Value;
+                        break;
+                    case "XrmFramework.PrimaryAttributeAttribute":
+                        column.PrimaryType =
+                            (PrimaryAttributeType)customAttribute.ConstructorArguments.Single().Value switch
+                            {
+                                PrimaryAttributeType.Id => PrimaryType.Id,
+                                PrimaryAttributeType.Name => PrimaryType.Name,
+                                PrimaryAttributeType.Image => PrimaryType.Image,
+                                _ => PrimaryType.None
+                            };
+                        break;
+                    case "XrmFramework.OptionSetAttribute":
+                        var enumType = (Type)customAttribute.ConstructorArguments.Single().Value;
+
+                        var enu = GetEnumFromType(enumType);
+
+                        column.EnumName = enu.LogicalName;
+
+                        if (!enu.IsGlobal)
+                            addEnum(enu);
+                        else
+                        {
+                            if (_optionSetTable.Enums.TrueForAll(e => e.LogicalName != enu.LogicalName))
+                                _optionSetTable.Enums.Add(enu);
+                        }
+
+                        break;
+                }
+            }
+
+            return column;
+        }
+
+        private static Table InitTable(Type type)
+        {
+            return new Table
+            {
+                Name = type.Name.Replace("Definition", ""),
+                LogicalName = type.GetField("EntityName").GetValue(null) as string,
+                CollectionName = type.GetField("EntityCollectionName")?.GetValue(null) as string,
+                Selected = true
+            };
+        }
+
+
         private OptionSetEnum GetEnumFromType(Type enumType)
         {
-            var enumAttribute = enumType.CustomAttributes.First();
+            var constructorArguments = enumType.CustomAttributes.First().ConstructorArguments;
 
-            var enumName = enumAttribute.ConstructorArguments.Count == 1 ? (string)enumAttribute.ConstructorArguments.Single().Value : $"{enumAttribute.ConstructorArguments.First().Value}|{enumAttribute.ConstructorArguments.Last().Value}";
+            var enumName = constructorArguments.Count switch
+            {
+                1 => (string)constructorArguments.Single().Value,
+                _ => $"{constructorArguments[0].Value}|{constructorArguments[constructorArguments.Count - 1].Value}"
+            };
 
             var e = new OptionSetEnum
             {
                 Name = enumType.Name,
                 LogicalName = enumName,
-                IsGlobal = enumAttribute.ConstructorArguments.Count == 1,
+                IsGlobal = constructorArguments.Count == 1,
             };
 
             foreach (var field in enumType.GetFields())

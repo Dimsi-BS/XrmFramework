@@ -1,8 +1,7 @@
 ﻿using System.Reflection;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using XrmFramework.DeployUtils.Internal;
 
 namespace XrmFramework.DeployUtils.Generators
 {
@@ -118,14 +117,10 @@ namespace XrmFramework.DeployUtils.Generators
                 .AppendLine()
                 .Append("public ");
 
-            if (m.ReturnType == typeof(void))
-            {
-                builder.Append("void");
-            }
-            else
-            {
-                builder.Append(_code.Reference(m.ReturnType));
-            }
+            builder.Append(
+                m.ReturnType == typeof(void) 
+                    ? "void" 
+                    : _code.Reference(m.ReturnType));
 
             builder
                 .Append(" ");
@@ -270,10 +265,10 @@ namespace XrmFramework.DeployUtils.Generators
             var sb2 = new StringBuilder();
             if (!start)
             {
-                sb2.AppendFormat("sw.Elapsed");
+                sb2.Append("sw.Elapsed");
             }
 
-            if (parameters.Any(p => (start && !p.IsOut) || (!start && p.IsOut)))
+            if (Array.Exists(parameters, p => (start && !p.IsOut) || (!start && p.IsOut)))
             {
                 builder.Append(": ");
                 foreach (var param in parameters)
@@ -304,7 +299,7 @@ namespace XrmFramework.DeployUtils.Generators
                     sb2.Append(", ");
                 }
                 builder.Append("returnValue = {").Append(i).Append("}");
-                sb2.AppendFormat("returnValue");
+                sb2.Append("returnValue");
             }
             builder.Append("\"");
             if (sb2.Length > 0)

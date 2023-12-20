@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     /// </summary>
     public static class TypeExtensions
     {
-        private static readonly Dictionary<Type, string> _builtInTypeNames = new Dictionary<Type, string>
+        private static readonly Dictionary<Type, string> BuiltInTypeNames = new Dictionary<Type, string>
         {
             { typeof(bool), "bool" },
             { typeof(byte), "byte" },
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 ProcessArrayType(builder, type, fullName);
             }
-            else if (_builtInTypeNames.TryGetValue(type, out var builtInName))
+            else if (BuiltInTypeNames.TryGetValue(type, out var builtInName))
             {
                 builder.Append(builtInName);
             }
@@ -86,14 +86,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private static void ProcessArrayType(StringBuilder builder, Type type, bool fullName)
         {
             var innerType = type;
-            while (innerType.IsArray)
+            while (innerType is { IsArray: true })
             {
                 innerType = innerType.GetElementType();
             }
 
             ProcessType(builder, innerType, fullName);
 
-            while (type.IsArray)
+            while (type is { IsArray: true })
             {
                 builder.Append('[');
                 builder.Append(',', type.GetArrayRank() - 1);
@@ -104,13 +104,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private static void ProcessGenericType(StringBuilder builder, Type type, Type[] genericArguments, int length, bool fullName)
         {
-            var offset = type.IsNested ? type.DeclaringType.GetGenericArguments().Length : 0;
+            var offset = type.IsNested ? type.DeclaringType?.GetGenericArguments().Length ?? 0 : 0;
 
             if (fullName)
             {
                 if (type.IsNested)
                 {
-                    ProcessGenericType(builder, type.DeclaringType, genericArguments, offset, fullName);
+                    ProcessGenericType(builder, type.DeclaringType, genericArguments, offset, true);
                     builder.Append('+');
                 }
                 else
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static IEnumerable<string> GetNamespaces([NotNull] this Type type)
         {
-            if (_builtInTypeNames.ContainsKey(type))
+            if (BuiltInTypeNames.ContainsKey(type))
             {
                 yield break;
             }
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 return true;
             }
 
-            return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryable<>));
+            return Array.Exists(type.GetInterfaces(), i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryable<>));
         }
     }
 }

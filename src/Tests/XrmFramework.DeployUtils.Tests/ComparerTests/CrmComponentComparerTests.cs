@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xrm.Sdk;
+using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
-using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Tests;
 

@@ -521,7 +521,7 @@
       "Values": [
         {
           "Value": 1,
-          "Name": "AucunE",
+          "Name": "None",
           "Labels": [
             {
               "Label": "Aucun(e)",
@@ -531,7 +531,7 @@
         },
         {
           "Value": 2,
-          "Name": "BacASableSandbox",
+          "Name": "Sandbox",
           "Labels": [
             {
               "Label": "Bac à sable (sandbox)",
@@ -541,7 +541,7 @@
         },
         {
           "Value": 3,
-          "Name": "Externe",
+          "Name": "External",
           "Labels": [
             {
               "Label": "Externe",
@@ -557,7 +557,7 @@
       "Name": "TypeDeSource",
       "Values": [
         {
-          "Name": "BaseDeDonnees",
+          "Name": "Database",
           "Labels": [
             {
               "Label": "Base de données",
@@ -567,7 +567,7 @@
         },
         {
           "Value": 1,
-          "Name": "Disque",
+          "Name": "Disc",
           "Labels": [
             {
               "Label": "Disque",
@@ -597,7 +597,7 @@
         },
         {
           "Value": 4,
-          "Name": "MagasinDeFichiers",
+          "Name": "FileStorage",
           "Labels": [
             {
               "Label": "Magasin de fichiers",

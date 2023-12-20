@@ -33,7 +33,7 @@ namespace XrmFramework
         bool IsUpdate();
         bool IsMessage(Messages message);
 
-        void Log(string message, params object[] formatArgs);
+        void Log(string message, params object?[] formatArgs);
 
         void LogFields(Entity entity, params string[] fieldNames);
     }

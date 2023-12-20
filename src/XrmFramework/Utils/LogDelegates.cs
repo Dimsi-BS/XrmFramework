@@ -5,5 +5,5 @@ namespace XrmFramework
 {
     public delegate void LogServiceMethod(string methodName, string message, params object[] args);
 
-    public delegate void LogMethod(string message, params object[] args);
+    public delegate void LogMethod(string message, params object?[] args);
 }

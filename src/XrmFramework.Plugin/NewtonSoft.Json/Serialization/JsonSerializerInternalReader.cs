@@ -2187,9 +2187,9 @@ namespace Newtonsoft.Json.Serialization
                 TraceWriter.Trace(TraceLevel.Info, JsonPosition.FormatMessage(reader as IJsonLineInfo, reader.Path, "Started deserializing {0} with converter {1}.".FormatWith(CultureInfo.InvariantCulture, objectType, converter.GetType())), null);
             }
 
-            object? value = converter.ReadJson(reader, objectType, existingValue, GetInternalSerializer());
+            var value = converter.ReadJson(reader, objectType, existingValue, GetInternalSerializer());
 
-            if (TraceWriter != null && TraceWriter.LevelFilter >= TraceLevel.Info)
+            if (TraceWriter is { LevelFilter: >= TraceLevel.Info })
             {
                 TraceWriter.Trace(TraceLevel.Info, JsonPosition.FormatMessage(reader as IJsonLineInfo, reader.Path, "Finished deserializing {0} with converter {1}.".FormatWith(CultureInfo.InvariantCulture, objectType, converter.GetType())), null);
             }

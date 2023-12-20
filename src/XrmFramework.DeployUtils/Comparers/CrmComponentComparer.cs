@@ -1,7 +1,7 @@
-﻿using XrmFramework.DeployUtils.Context;
-using XrmFramework.DeployUtils.Model;
+﻿using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
-namespace XrmFramework.DeployUtils.Utils;
+namespace XrmFramework.DeployUtils.Comparers;
 
 /// <summary>
 ///     Base implementation of <see cref="ICrmComponentComparer" />
@@ -10,9 +10,9 @@ public class CrmComponentComparer : ICrmComponentComparer
 {
 	private readonly StepComparer _stepComparer = new();
 
-	public ICrmComponent CorrespondingComponent(ICrmComponent from, IReadOnlyCollection<ICrmComponent> target)
+	public ICrmComponent CorrespondingComponent(ICrmComponent component, IReadOnlyCollection<ICrmComponent> target)
 	{
-		return target.FirstOrDefault(x => Equals(from, x));
+		return target.FirstOrDefault(x => Equals(component, x));
 	}
 
 	public bool Equals(ICrmComponent x, ICrmComponent y)
@@ -40,12 +40,11 @@ public class CrmComponentComparer : ICrmComponentComparer
 			StepImage image => image.JoinedAttributes != ((StepImage) y).JoinedAttributes ||
 			                   image.AllAttributes ^ ((StepImage) y).AllAttributes,
 			CustomApiRequestParameter request => NeedsUpdate(request, (CustomApiRequestParameter) y),
-			CustomApiResponseProperty response => false,
+			CustomApiResponseProperty => false,
 			Plugin => false,
 			CustomApi api => NeedsUpdate(api, (CustomApi) y),
 			AssemblyInfo => true,
 			PluginPackage => true,
-			IAssemblyContext => true,
 			_ => throw new ArgumentException("SolutionComponent not recognized")
 		};
 	}

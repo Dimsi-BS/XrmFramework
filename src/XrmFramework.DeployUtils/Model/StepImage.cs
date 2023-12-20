@@ -1,9 +1,12 @@
-﻿namespace XrmFramework.DeployUtils.Model
+﻿using XrmFramework.DeployUtils.Comparers;
+using XrmFramework.DeployUtils.Model.Interfaces;
+
+namespace XrmFramework.DeployUtils.Model
 {
     /// <summary>
     /// Metadata of a StepImage, allows the user to ask for more data concerning the context when triggered
     /// </summary>
-    /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
+    /// <seealso cref="ICrmComponent" />
     public class StepImage : BaseCrmComponent
     {
         public StepImage(Messages message, bool isPreImage, Stages stage)
@@ -75,7 +78,7 @@
         /// <summary><see cref="Step"/> this StepImage is attached to</summary>
         /// <remarks>
         /// This is used mainly to be able to differentiate two StepImages on the fly.<br/>
-        /// See an implementation of <see cref="Utils.ICrmComponentComparer"/> for better understanding
+        /// See an implementation of <see cref="ICrmComponentComparer"/> for better understanding
         /// </remarks>
         public Step FatherStep { get; set; }
 

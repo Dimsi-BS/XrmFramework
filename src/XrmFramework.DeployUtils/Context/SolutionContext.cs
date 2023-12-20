@@ -55,7 +55,7 @@ namespace XrmFramework.DeployUtils.Context
         {
             var userId = _users[userName];
 
-            if (userId == default)
+            if (userId == Guid.Empty)
                 throw new Exception($"User with full name {userName} was requested but not found on the CRM");
 
             return userId;
@@ -63,7 +63,7 @@ namespace XrmFramework.DeployUtils.Context
 
         public void InitMetadata()
         {
-            Console.WriteLine("Metadata initialization");
+            Console.WriteLine(@"Metadata initialization");
 
             InitSolution();
 
@@ -80,32 +80,43 @@ namespace XrmFramework.DeployUtils.Context
 
         public void InitExportMetadata(IEnumerable<Step> steps)
         {
-            if (!steps.Any()) return;
-            ImportUsersForSteps(steps);
-            ImportMessagesForSteps(steps);
-            ImportFiltersForSteps(steps);
+            var stepList = steps.ToList();
+            
+            if (!stepList.Any())
+            {
+                return;
+            }
+
+            ImportUsersForSteps(stepList);
+            ImportMessagesForSteps(stepList);
+            ImportFiltersForSteps(stepList);
         }
 
         /// <summary>Retrieves and store the <see cref="Solution"/> field</summary>
         private void InitSolution()
         {
-            var query = new QueryExpression(SolutionDefinition.EntityName);
-            query.ColumnSet.AllColumns = true;
+            var query = new QueryExpression(SolutionDefinition.EntityName)
+            {
+                ColumnSet =
+                {
+                    AllColumns = true
+                }
+            };
             query.Criteria.AddCondition(SolutionDefinition.Columns.UniqueName, ConditionOperator.Equal, SolutionName);
 
             _solution = _service.RetrieveAll(query).Select(s => s.ToEntity<Solution>()).FirstOrDefault();
 
             if (_solution == null)
             {
-                Console.WriteLine("The solution {0} does not exist in the CRM, modify xrmFramework.config to point to an existing solution.", SolutionName);
-                Console.WriteLine("\r\nAppuyez sur une touche pour arrêter.");
+                Console.WriteLine(@"The solution {0} does not exist in the CRM, modify xrmFramework.config to point to an existing solution.", SolutionName);
+                Console.WriteLine(@"\r\nPress any key to exit.");
                 Console.ReadKey();
-                System.Environment.Exit(1);
+                Environment.Exit(1);
             }
             else if (_solution.GetAttributeValue<bool>(SolutionDefinition.Columns.IsManaged))
             {
-                Console.WriteLine("The solution {0} is managed in the CRM, modify App.config to point to a development environment.", SolutionName);
-                System.Environment.Exit(1);
+                Console.WriteLine(@"The solution {0} is managed in the CRM, modify App.config to point to a development environment.", SolutionName);
+                Environment.Exit(1);
             }
         }
 
@@ -115,11 +126,16 @@ namespace XrmFramework.DeployUtils.Context
             _publisher = _service.Retrieve(PublisherDefinition.EntityName, Solution.PublisherId.Id, new ColumnSet(true)).ToEntity<Publisher>();
         }
 
-        /// <summary>Retrieves and store the <see cref="Components"/> field</summary>
+        /// <summary>Retrieves and store the Components field</summary>
         private void InitComponents()
         {
-            var query = new QueryExpression(SolutionComponentDefinition.EntityName);
-            query.ColumnSet.AllColumns = true;
+            var query = new QueryExpression(SolutionComponentDefinition.EntityName)
+            {
+                ColumnSet =
+                {
+                    AllColumns = true
+                }
+            };
             query.Criteria.AddCondition(SolutionComponentDefinition.Columns.SolutionId, ConditionOperator.Equal, Solution.Id);
 
             var components = _service.RetrieveAll(query).Select(s => s.ToEntity<SolutionComponent>());
@@ -127,7 +143,7 @@ namespace XrmFramework.DeployUtils.Context
             _components.AddRange(components);
         }
 
-        /// <summary>Retrieves and store the <see cref="Users"/> field related to at least one of the given <paramref name="steps"/></summary>
+        /// <summary>Retrieves and store the Users field related to at least one of the given <paramref name="steps"/></summary>
         private void ImportUsersForSteps(IEnumerable<Step> steps)
         {
             var interestingUsers = steps
@@ -150,14 +166,16 @@ namespace XrmFramework.DeployUtils.Context
             }
         }
 
-        /// <summary>Retrieves and store the <see cref="Filters"/> field related to at least one of the given <paramref name="steps"/></summary>
+        /// <summary>Retrieves and store the Filters field related to at least one of the given <paramref name="steps"/></summary>
         private void ImportFiltersForSteps(IEnumerable<Step> steps)
         {
-            var interestingMessages = steps
+            var stepList = steps.ToList();
+            
+            var interestingMessages = stepList
                 .GroupBy(m => m.Message)
                 .Select(g => g.Key.ToString());
 
-            var iterestingEntityNames = steps
+            var interestingEntityNames = stepList
                 .GroupBy(s => s.EntityName)
                 .Select(g => g.Key);
 
@@ -169,7 +187,7 @@ namespace XrmFramework.DeployUtils.Context
             query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsCustomProcessingStepAllowed, ConditionOperator.Equal, true);
             query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsVisible, ConditionOperator.Equal, true);
 
-            query.Criteria.AddCondition(SdkMessageFilterDefinition.PrimaryObjectTypeCode, ConditionOperator.In, iterestingEntityNames.ToArray<object>());
+            query.Criteria.AddCondition(SdkMessageFilterDefinition.PrimaryObjectTypeCode, ConditionOperator.In, interestingEntityNames.ToArray<object>());
 
             var messageLink = query.AddLink(SdkMessageDefinition.EntityName,
                 SdkMessageFilterDefinition.Columns.SdkMessageId, SdkMessageDefinition.Columns.Id);
@@ -202,7 +220,7 @@ namespace XrmFramework.DeployUtils.Context
             }
         }
 
-        /// <summary>Retrieves and store the <see cref="Users"/> field</summary>
+        /// <summary>Retrieves and store the Users field</summary>
         private void InitUsers()
         {
             var query = new QueryExpression(SystemUserDefinition.EntityName);
@@ -227,11 +245,11 @@ namespace XrmFramework.DeployUtils.Context
             _messages.Clear();
             foreach (SdkMessage e in messages)
             {
-                _messages.Add(XrmFramework.Messages.GetMessage(e.Name), e.ToEntityReference());
+                _messages.Add(Messages.GetMessage(e.Name), e.ToEntityReference());
             }
         }
 
-        /// <summary>Retrieves and store the <see cref="Filters"/> field</summary>
+        /// <summary>Retrieves and store the Filters field</summary>
         private void InitFilters()
         {
             var query = new QueryExpression(SdkMessageFilterDefinition.EntityName);
@@ -249,7 +267,7 @@ namespace XrmFramework.DeployUtils.Context
 
         public SolutionComponent GetComponentByObjectRef(EntityReference objectRef)
         {
-            return _components.FirstOrDefault(c => c.ObjectId.Equals(objectRef.Id));
+            return _components.Find(c => c.ObjectId.Equals(objectRef.Id));
         }
 
         public EntityReference GetMessage(Messages message)
@@ -259,7 +277,7 @@ namespace XrmFramework.DeployUtils.Context
 
         public EntityReference GetMessageFilter(Messages message, string entityName)
         {
-            return _filters.FirstOrDefault(f =>
+            return _filters.Find(f =>
                 f.SdkMessageId.Name == message.ToString()
                 && f.PrimaryObjectTypeCode == entityName)
                 ?.ToEntityReference();

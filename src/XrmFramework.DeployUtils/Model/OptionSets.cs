@@ -7893,37 +7893,37 @@ namespace Deploy
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		FinalPostoperationForinternaluseonly = 55,
+		FinalPostOperationForInternalUseOnly = 55,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		InitialPreoperationForinternaluseonly = 5,
+		InitialPreOperationForInternalUseOnly = 5,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		InternalPostoperationAfterExternalPluginsForinternaluseonly = 45,
+		InternalPostOperationAfterExternalPluginsForInternalUseOnly = 45,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		InternalPostoperationBeforeExternalPluginsForinternaluseonly = 35,
+		InternalPostOperationBeforeExternalPluginsForInternalUseOnly = 35,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		InternalPreoperationAfterExternalPluginsForinternaluseonly = 25,
+		InternalPreOperationAfterExternalPluginsForInternalUseOnly = 25,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		InternalPreoperationBeforeExternalPluginsForinternaluseonly = 15,
+		InternalPreOperationBeforeExternalPluginsForInternalUseOnly = 15,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		MainOperationForinternaluseonly = 30,
+		MainOperationForInternalUseOnly = 30,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Postoperation = 40,
+		PostOperation = 40,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		PostoperationDeprecated = 50,
+		PostOperationDeprecated = 50,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Preoperation = 20,
+		PreOperation = 20,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Prevalidation = 10,
+		PreValidation = 10,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]

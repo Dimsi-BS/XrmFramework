@@ -1,6 +1,7 @@
 ﻿using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
-namespace XrmFramework.DeployUtils.Utils;
+namespace XrmFramework.DeployUtils.Comparers;
 
 /// <summary>Compares ICrmComponents to determine equality or update status</summary>
 public interface ICrmComponentComparer : IEqualityComparer<ICrmComponent>

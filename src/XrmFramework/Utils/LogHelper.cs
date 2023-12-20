@@ -25,12 +25,12 @@ namespace XrmFramework
             LogMethod = logMethod;
         }
 
-        public void Log(string message, params object[] args)
+        public void Log(string message, params object?[] args)
         {
             LogInternal(message, FormatArgs(args));
         }
 
-        public void LogCollection(IEnumerable<KeyValuePair<string, object>> collection, bool verifyIncluded = false, params string[] excludedIncludedKeys)
+        public void LogCollection(IEnumerable<KeyValuePair<string?, object>> collection, bool verifyIncluded = false, params string[] excludedIncludedKeys)
         {
             if (collection == null)
             {
@@ -127,7 +127,7 @@ namespace XrmFramework
             return sb.ToString();
         }
 
-        public virtual string LogEntity(Entity entity)
+        public virtual string? LogEntity(Entity entity)
         {
             var sb = new StringBuilder();
             sb.AppendFormat("LogicalName={0}, Id={1}", entity.LogicalName, entity.Id);
@@ -195,12 +195,12 @@ namespace XrmFramework
             }
         }
 
-        protected virtual void LogInternal(string message, params object[] args)
+        protected virtual void LogInternal(string message, params object?[] args)
             => LogMethod(message, args);
 
-        private object[] FormatArgs(params object[] formatArgs)
+        private object?[] FormatArgs(params object?[] formatArgs)
         {
-            object[] args = null;
+            object?[] args = null;
 
             if (formatArgs != null)
             {
@@ -208,7 +208,7 @@ namespace XrmFramework
 
                 for (var i = 0; i < formatArgs.Length; i++)
                 {
-                    object formattedArg = "null";
+                    object? formattedArg = "null";
                     if (formatArgs[i] != null)
                     {
                         formattedArg = formatArgs[i];
@@ -258,9 +258,9 @@ namespace XrmFramework
             return args;
         }
 
-        public void LogWithMethodName(string methodName, string message, params object[] args) => LogInternal($"{methodName} : {message}", FormatArgs(args));
+        public void LogWithMethodName(string methodName, string message, params object?[] args) => LogInternal($"{methodName} : {message}", FormatArgs(args));
 
-        public virtual void LogError(Exception e, string message = null, params object[] args) => LogInternal("ERROR : {0}\r\n{1}", message == null ? string.Empty : string.Format(message, FormatArgs(args)), e);
+        public virtual void LogError(Exception e, string message = null, params object?[] args) => LogInternal("ERROR : {0}\r\n{1}", message == null ? string.Empty : string.Format(message, FormatArgs(args)), e);
 
         public virtual void DumpLog()
         {
@@ -269,13 +269,13 @@ namespace XrmFramework
 
     public interface ILogger
     {
-        void LogWithMethodName(string methodName, string message, params object[] formatArgs);
+        void LogWithMethodName(string methodName, string message, params object?[] formatArgs);
 
-        void Log(string message, params object[] args);
+        void Log(string message, params object?[] args);
 
-        void LogError(Exception e, string message = null, params object[] args);
+        void LogError(Exception e, string message = null, params object?[] args);
 
-        void LogCollection(IEnumerable<KeyValuePair<string, object>> collection, bool verifyIncluded = false, params string[] excludedIncludedKeys);
+        void LogCollection(IEnumerable<KeyValuePair<string?, object>> collection, bool verifyIncluded = false, params string[] excludedIncludedKeys);
 
         void DumpLog();
     }

@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using XrmFramework.DeployUtils.Utils;
+using XrmFramework.DeployUtils.Comparers;
 
 namespace XrmFramework.DeployUtils.Model
 {

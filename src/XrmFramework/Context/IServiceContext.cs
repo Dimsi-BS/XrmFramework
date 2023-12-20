@@ -14,7 +14,7 @@ namespace XrmFramework
 
         EntityReference BusinessUnitRef { get; }
 
-        void Log(string message, params object[] paramsObject);
+        void Log(string message, params object?[] paramsObject);
 
         IOrganizationService GetOrganizationService(Guid? userId);
 

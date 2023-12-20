@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xrm.Sdk;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
 namespace XrmFramework.DeployUtils.Model
 {
@@ -6,8 +7,8 @@ namespace XrmFramework.DeployUtils.Model
     /// <summary>
     /// Component of a <see cref="CustomApi"/>, defines an output
     /// </summary>
-    /// <seealso cref="XrmFramework.DeployUtils.Model.ICustomApiComponent" />
-    /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
+    /// <seealso cref="ICustomApiComponent" />
+    /// <seealso cref="ICrmComponent" />
     public class CustomApiResponseProperty : BaseCrmComponent, ICustomApiComponent
     {
 

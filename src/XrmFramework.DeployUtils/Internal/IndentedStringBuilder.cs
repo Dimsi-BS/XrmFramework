@@ -4,7 +4,7 @@
 using System.Text;
 using JetBrains.Annotations;
 
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace XrmFramework.DeployUtils.Internal
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class IndentedStringBuilder
+    public sealed class IndentedStringBuilder
     {
         private const byte IndentSize = 4;
         private byte _indent;
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int Length => _stringBuilder.Length;
+        public int Length => _stringBuilder.Length;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IndentedStringBuilder Append([NotNull] object o)
+        public IndentedStringBuilder Append([NotNull] object o)
         {
             DoIndent();
 
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IndentedStringBuilder AppendLine()
+        public IndentedStringBuilder AppendLine()
         {
             AppendLine(string.Empty);
 
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IndentedStringBuilder AppendLine([NotNull] object o)
+        public IndentedStringBuilder AppendLine([NotNull] object o)
         {
             var value = o.ToString();
 
@@ -105,13 +105,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IndentedStringBuilder AppendLines([NotNull] object o, bool skipFinalNewline = false)
+        public IndentedStringBuilder AppendLines([NotNull] object o, bool skipFinalNewline = false)
         {
             using (var reader = new StringReader(o.ToString()))
             {
                 var first = true;
-                string line;
-                while ((line = reader.ReadLine()) != null)
+                while (reader.ReadLine() is { } line)
                 {
                     if (first)
                     {
@@ -143,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IndentedStringBuilder Clear()
+        public IndentedStringBuilder Clear()
         {
             _stringBuilder.Clear();
 
@@ -156,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IndentedStringBuilder IncrementIndent()
+        public IndentedStringBuilder IncrementIndent()
         {
             _indent++;
 
@@ -169,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IndentedStringBuilder DecrementIndent()
+        public IndentedStringBuilder DecrementIndent()
         {
             if (_indent > 0)
             {
@@ -185,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDisposable Indent() => new Indenter(this);
+        public IDisposable Indent() => new Indenter(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

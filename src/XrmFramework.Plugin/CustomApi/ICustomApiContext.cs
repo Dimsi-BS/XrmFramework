@@ -18,6 +18,6 @@ namespace XrmFramework
         bool HasArgument<T>(CustomApiInArgument<T> argument);
         bool HasArgument<T>(CustomApiOutArgument<T> argument);
 
-        void Log(string message, params object[] paramsObject);
+        void Log(string message, params object?[] paramsObject);
     }
 }

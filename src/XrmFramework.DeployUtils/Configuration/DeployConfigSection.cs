@@ -11,30 +11,29 @@ namespace XrmFramework.DeployUtils.Configuration
         [ConfigurationProperty("pluginSolutionUniqueName", IsRequired = true)]
         public string PluginSolutionUniqueName
         {
-            get { return (string)this["pluginSolutionUniqueName"]; }
-            set { this["pluginSolutionUniqueName"] = value; }
+            get => (string)this["pluginSolutionUniqueName"];
+            set => this["pluginSolutionUniqueName"] = value;
         }
 
         [ConfigurationProperty("entitiesSolutionUniqueName", IsRequired = true)]
         public string EntitiesSolutionUniqueName
         {
-            get { return (string)this["entitiesSolutionUniqueName"]; }
-            set { this["entitiesSolutionUniqueName"] = value; }
+            get => (string)this["entitiesSolutionUniqueName"];
+            set => this["entitiesSolutionUniqueName"] = value;
         }
 
         [ConfigurationProperty("webResourcesSolutionUniqueName", IsRequired = true)]
         public string WebResourcesSolutionUniqueName
         {
-            get { return (string)this["webResourcesSolutionUniqueName"]; }
-            set { this["webResourcesSolutionUniqueName"] = value; }
+            get => (string)this["webResourcesSolutionUniqueName"];
+            set => this["webResourcesSolutionUniqueName"] = value;
         }
 
         public List<string> SolutionList
         {
             get
             {
-                var list = new List<string>();
-                list.Add(PluginSolutionUniqueName);
+                var list = new List<string> { PluginSolutionUniqueName };
 
                 if (!list.Contains(EntitiesSolutionUniqueName))
                 {

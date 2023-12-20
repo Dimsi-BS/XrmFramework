@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
-namespace XrmFramework.DeployUtils.Utils;
+namespace XrmFramework.DeployUtils.Factories;
 
 public class AssemblyDiffFactory
 {

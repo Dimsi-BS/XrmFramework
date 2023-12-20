@@ -82,7 +82,7 @@ namespace XrmFramework
 
         public Messages MessageName => Messages.GetMessage(ExecutionContext.MessageName);
 
-        public void Log(string message, params object[] formatArgs)
+        public void Log(string message, params object?[] formatArgs)
         {
             Logger.Log(message, formatArgs);
         }

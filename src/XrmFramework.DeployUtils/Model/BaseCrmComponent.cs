@@ -1,4 +1,6 @@
-﻿namespace XrmFramework.DeployUtils.Model
+﻿using XrmFramework.DeployUtils.Model.Interfaces;
+
+namespace XrmFramework.DeployUtils.Model
 {
     public abstract class BaseCrmComponent : ICrmComponent
     {
@@ -12,6 +14,7 @@
         protected abstract void RemoveChild(ICrmComponent child);
 
         public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
+        
         private Guid _id = Guid.NewGuid();
         public Guid ParentId { get; set; } = Guid.NewGuid();
 

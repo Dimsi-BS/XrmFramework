@@ -351,7 +351,7 @@
           "Labels": [
             {
               "Label": "PreImage",
-              "LangId": 1036
+              "LangId": 1033
             }
           ]
         },
@@ -361,17 +361,17 @@
           "Labels": [
             {
               "Label": "PostImage",
-              "LangId": 1036
+              "LangId": 1033
             }
           ]
         },
         {
           "Value": 2,
-          "Name": "Toutes",
+          "Name": "Both",
           "Labels": [
             {
-              "Label": "Toutes",
-              "LangId": 1036
+              "Label": "Both",
+              "LangId": 1033
             }
           ]
         }

@@ -2,13 +2,14 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Newtonsoft.Json;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
 namespace XrmFramework.DeployUtils.Model
 {
     /// <summary>
     /// Component of a <see cref="Plugin"/> that defines on which particular input said plugin should be executed
     /// </summary>
-    /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
+    /// <seealso cref="ICrmComponent" />
     public class Step : BaseCrmComponent
     {
         public Step(string pluginTypeName, Messages message, Stages stage, Modes mode, string entityName)

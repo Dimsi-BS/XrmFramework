@@ -6,10 +6,9 @@ using Deploy;
 using Microsoft.Xrm.Sdk;
 using Moq;
 using Newtonsoft.Json;
-using XrmFramework;
 using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Importers;
 using XrmFramework.DeployUtils.Model;
-using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Tests.ConverterTests;
 
@@ -17,14 +16,13 @@ namespace XrmFramework.DeployUtils.Tests.ConverterTests;
 public class AssemblyImporterTests
 {
     private readonly AssemblyImporter _importer;
-    private readonly Mock<IMapper> _mockMapper;
 
     public AssemblyImporterTests()
     {
-        _mockMapper = new Mock<IMapper>();
+        var mockMapper = new Mock<IMapper>();
         Mock<ISolutionContext> mockContext = new();
 
-        _importer = new AssemblyImporter(mockContext.Object, _mockMapper.Object);
+        _importer = new AssemblyImporter(mockContext.Object, mockMapper.Object);
     }
 
     [TestMethod]
@@ -57,9 +55,9 @@ public class AssemblyImporterTests
         _importer.CreateStepImageFromRemote(step, isPreImage, sdkStepImageList);
 
         // Arrange
-        Assert.AreEqual(step.PreImage.Id, stepImageId);
-        Assert.AreEqual(step.PreImage.ParentId, stepId);
-        Assert.AreEqual(step.PreImage.AllAttributes, false);
+        Assert.AreEqual(stepImageId, step.PreImage.Id);
+        Assert.AreEqual(stepId, step.PreImage.ParentId);
+        Assert.AreEqual(false, step.PreImage.AllAttributes);
         Assert.IsTrue(step.PreImage.Attributes.Count == 1);
         Assert.IsTrue(step.PreImage.Attributes.Contains(attribute));
     }
@@ -106,7 +104,7 @@ public class AssemblyImporterTests
                 Name = pluginTypeFullName
             },
             SdkMessageId = new EntityReference("someMessage", message.ToString(), "blabla"),
-            StageEnum = sdkmessageprocessingstep_stage.Preoperation,
+            StageEnum = sdkmessageprocessingstep_stage.PreOperation,
             ModeEnum = sdkmessageprocessingstep_mode.Asynchronous,
             FilteringAttributes = filteringAttribute,
             ImpersonatingUserId = new EntityReference("blabla", "", null) {Name = impersonationUserName},
@@ -115,25 +113,25 @@ public class AssemblyImporterTests
         };
 
         // Act
-        var step = _importer.CreateStepFromRemote(sdkStep, new List<SdkMessageProcessingStepImage>());
+        _importer.TryCreateStepFromRemote(sdkStep, new List<SdkMessageProcessingStepImage>(), out var step);
 
         // Arrange
-        Assert.AreEqual(step.Id, stepId);
-        Assert.AreEqual(step.ParentId, pluginId);
-        Assert.AreEqual(step.PluginTypeName, pluginTypeName);
-        Assert.AreEqual(step.PluginTypeFullName, pluginTypeFullName);
-        Assert.AreEqual(step.ImpersonationUsername, impersonationUserName);
-        Assert.AreEqual(step.Stage, stage);
-        Assert.AreEqual(step.Mode, mode);
-        Assert.AreEqual(step.FilteringAttributes.Count, 1);
+        Assert.AreEqual(stepId, step.Id);
+        Assert.AreEqual(pluginId, step.ParentId);
+        Assert.AreEqual(pluginTypeName, step.PluginTypeName);
+        Assert.AreEqual(pluginTypeFullName, step.PluginTypeFullName);
+        Assert.AreEqual(impersonationUserName, step.ImpersonationUsername);
+        Assert.AreEqual(stage, step.Stage);
+        Assert.AreEqual(mode, step.Mode);
+        Assert.AreEqual(1, step.FilteringAttributes.Count);
         Assert.IsTrue(step.FilteringAttributes.Contains(filteringAttribute));
-        Assert.AreEqual(step.Order, order);
-        Assert.AreEqual(step.StepConfiguration.AssemblyName, stepConfig.AssemblyName);
-        Assert.AreEqual(step.StepConfiguration.AssemblyQualifiedName, stepConfig.AssemblyQualifiedName);
+        Assert.AreEqual(order, step.Order);
+        Assert.AreEqual(stepConfig.AssemblyName, step.StepConfiguration.AssemblyName);
+        Assert.AreEqual(stepConfig.AssemblyQualifiedName, step.StepConfiguration.AssemblyQualifiedName);
         Assert.IsTrue(step.StepConfiguration.BannedMethods.SequenceEqual(stepConfig.BannedMethods));
-        Assert.AreEqual(step.StepConfiguration.DebugSessionId, stepConfig.DebugSessionId);
-        Assert.AreEqual(step.StepConfiguration.PluginName, stepConfig.PluginName);
-        Assert.AreEqual(step.StepConfiguration.RelationshipName, stepConfig.RelationshipName);
+        Assert.AreEqual(stepConfig.DebugSessionId, step.StepConfiguration.DebugSessionId);
+        Assert.AreEqual(stepConfig.PluginName, step.StepConfiguration.PluginName);
+        Assert.AreEqual(stepConfig.RelationshipName, step.StepConfiguration.RelationshipName);
 
         Assert.IsTrue(step.StepConfiguration.RegisteredMethods.SetEquals(stepConfig.RegisteredMethods));
     }

@@ -1,4 +1,5 @@
 ﻿using XrmFramework.BindingModel;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
 namespace XrmFramework.DeployUtils.Model;
 

@@ -8,9 +8,12 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Exporters;
+using XrmFramework.DeployUtils.Factories;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 using XrmFramework.DeployUtils.Service;
-using XrmFramework.DeployUtils.Utils;
+using IAssemblyFactory = XrmFramework.DeployUtils.Factories.IAssemblyFactory;
 
 namespace XrmFramework.DeployUtils;
 
@@ -44,11 +47,11 @@ public partial class RegistrationHelper
 
 		var solutionSettings = serviceProvider.GetRequiredService<IOptions<DeploySettings>>();
 
-		Console.WriteLine($"Assembly {localDll.GetName().Name}\n");
+		Console.WriteLine($@"Assembly {localDll.GetName().Name}");
 		Console.WriteLine(
-			$"You are about to deploy on organization:\nUrl : {solutionSettings.Value.Url}\nClientId : {solutionSettings.Value.ClientId}\nIf ok press any key.");
+			$@"You are about to deploy on organization:\nUrl : {solutionSettings.Value.Url}\nClientId : {solutionSettings.Value.ClientId}\nIf ok press any key.");
 		Console.ReadKey();
-		Console.WriteLine("Connecting to CRM...");
+		Console.WriteLine(@"Connecting to CRM...");
 
 		var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
 		solutionContext.InitSolutionContext();
@@ -66,20 +69,20 @@ public partial class RegistrationHelper
 	{
 		RegisterAssembly(localDll);
 
-		Console.WriteLine("\tFetching Local Assembly...");
+		Console.WriteLine(@"	Fetching Local Assembly...");
 
 		var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(localDll);
 
-		Console.WriteLine("\tFetching Remote Assembly...");
+		Console.WriteLine(@"	Fetching Remote Assembly...");
 
 		var registeredAssembly =
 			_assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, localDll.GetName().Name);
 
-		Console.WriteLine("\tComputing Difference...");
+		Console.WriteLine(@"	Computing Difference...");
 
 		var registrationStrategy = _assemblyDiffFactory.ComputeDiffPatch(localAssembly, registeredAssembly);
 
-		Console.WriteLine($"\tExecuting Registration Strategy...");
+		Console.WriteLine(@"	Executing Registration Strategy...");
 
 		ExecuteStrategy(registrationStrategy);
 	}
@@ -115,8 +118,13 @@ public partial class RegistrationHelper
 		{
 			crmRequests.Requests.AddRange(allRequests.Take(1000));
 			allRequests.RemoveRange(0, Math.Min(allRequests.Count, 1000));
+			
 			var results = (ExecuteMultipleResponse) _registrationService.Execute(crmRequests);
-			if (results.IsFaulted) throw new Exception(results.Responses.Last().Fault.Message);
+			if (results.IsFaulted)
+			{
+				throw new Exception(results.Responses[results.Responses.Count - 1].Fault.Message);
+			}
+
 			crmRequests.Requests.Clear();
 		}
 	}

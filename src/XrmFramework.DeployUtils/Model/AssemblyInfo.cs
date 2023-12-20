@@ -1,4 +1,5 @@
 ﻿using XrmFramework.BindingModel;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
 namespace XrmFramework.DeployUtils.Model;
 
@@ -35,13 +36,6 @@ public class AssemblyInfo : BaseCrmComponent, IBindingModel, IAssemblyComponent
 
 	[CrmMapping(PluginAssemblyDefinition.Columns.PackageId)]
 	public PluginPackage Package { get; set; }
-
-	[CrmMapping(PluginAssemblyDefinition.Columns.Id)]
-	public new Guid Id
-	{
-		get => base.Id;
-		set => base.Id = value;
-	}
 
 	#region ICrmComponents
 

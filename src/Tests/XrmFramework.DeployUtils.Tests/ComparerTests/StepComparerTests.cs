@@ -1,6 +1,6 @@
 ﻿using System;
+using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Model;
-using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Tests;
 

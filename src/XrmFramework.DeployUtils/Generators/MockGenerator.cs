@@ -4,16 +4,12 @@
 using System.Reflection;
 using System.Text;
 using System.Xml;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Design.Internal;
 using XrmFramework.DeployUtils.Properties;
 
 namespace XrmFramework.DeployUtils.Generators
 {
     public class MockGenerator
     {
-        private readonly ICSharpHelper Code = new CSharpHelper();
-
         public static void GenerateMocks(string serviceUtilsProjFileName, IEnumerable<Type> types, Type nullableAttributeType)
         {
             string logServicePath = Path.GetDirectoryName(serviceUtilsProjFileName);

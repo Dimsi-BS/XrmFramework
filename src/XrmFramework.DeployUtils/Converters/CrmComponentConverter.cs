@@ -3,12 +3,13 @@ using Deploy;
 using Microsoft.Xrm.Sdk;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 using CustomApi = XrmFramework.DeployUtils.Model.CustomApi;
 using CustomApiRequestParameter = XrmFramework.DeployUtils.Model.CustomApiRequestParameter;
 using CustomApiResponseProperty = XrmFramework.DeployUtils.Model.CustomApiResponseProperty;
 using PluginPackage = XrmFramework.DeployUtils.Model.PluginPackage;
 
-namespace XrmFramework.DeployUtils.Utils;
+namespace XrmFramework.DeployUtils.Converters;
 
 /// <summary>
 ///     Base implementation of <see cref="ICrmComponentConverter" />

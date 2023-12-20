@@ -4033,7 +4033,7 @@
       "Values": [
         {
           "Value": 1,
-          "Name": "ValeurParDefaut",
+          "Name": "DefaultValue",
           "Labels": [
             {
               "Label": "Valeur par défaut",
@@ -4051,7 +4051,7 @@
       "Values": [
         {
           "Value": 1,
-          "Name": "ValeurParDefaut",
+          "Name": "DefaultValue",
           "Labels": [
             {
               "Label": "Valeur par défaut",
@@ -4069,7 +4069,7 @@
       "Values": [
         {
           "Value": 1,
-          "Name": "ValeurParDefaut",
+          "Name": "DefaultValue",
           "Labels": [
             {
               "Label": "Valeur par défaut",
@@ -4087,7 +4087,7 @@
       "Values": [
         {
           "Value": 1,
-          "Name": "ValeurParDefaut",
+          "Name": "DefaultValue",
           "Labels": [
             {
               "Label": "Valeur par défaut",

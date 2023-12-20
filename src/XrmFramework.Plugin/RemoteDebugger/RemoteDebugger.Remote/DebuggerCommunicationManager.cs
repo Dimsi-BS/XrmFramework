@@ -23,7 +23,7 @@ namespace XrmFramework.Remote
             var remoteContext = InitRemoteContext();
 
             Context.Log("Sending context to local machine : {0}", debugSession.HybridConnectionName);
-            RemoteDebuggerMessage response;
+            RemoteDebuggerMessage? response;
             try
             { 
                 response = ExchangeWithRemoteDebugger(hybridConnection, remoteContext);
@@ -44,11 +44,11 @@ namespace XrmFramework.Remote
             Context.UpdateContext(updatedContext);
         }
 
-        private RemoteDebuggerMessage ExchangeWithRemoteDebugger(HybridConnection hybridConnection,
+        private RemoteDebuggerMessage? ExchangeWithRemoteDebugger(HybridConnection hybridConnection,
             RemoteDebugExecutionContext remoteContext)
         {
             var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
-            RemoteDebuggerMessage response;
+            RemoteDebuggerMessage? response;
             Context.LogContextEntry();
 
             while (true)

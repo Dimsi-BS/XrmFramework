@@ -14,9 +14,9 @@ namespace XrmFramework.BindingModel
             Role = role;
         }
 
-        private string RelationshipName { get; set; }
+        protected internal string RelationshipName { get; set; }
 
-        private EntityRole Role { get; set; }
+        protected internal EntityRole Role { get; set; }
 
         public bool IsValidForUpdate { get; set; } = true;
 

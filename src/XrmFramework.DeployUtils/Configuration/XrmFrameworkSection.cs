@@ -8,16 +8,20 @@ namespace XrmFramework.DeployUtils.Configuration
     [Serializable]
     public class XrmFrameworkSection : ConfigurationSection
     {
-        private static readonly ConfigurationPropertyCollection _properties;
-        private static readonly ConfigurationProperty _propProjects;
-        private static readonly ConfigurationProperty _entityProperty;
-        private static readonly ConfigurationProperty _selectedConnectionProperty;
+        private static readonly ConfigurationProperty PropProjects = new("projects", typeof(ProjectCollection), null, ConfigurationPropertyOptions.IsDefaultCollection | ConfigurationPropertyOptions.IsRequired);
+        private static readonly ConfigurationProperty EntityProperty = new("entitySolution", typeof(EntitySolutionElement), null, ConfigurationPropertyOptions.IsRequired);
+        private static readonly ConfigurationProperty SelectedConnectionProperty = new("selectedConnection", typeof(string), null, ConfigurationPropertyOptions.IsRequired);
 
+        private static readonly ConfigurationPropertyCollection InnerProperties = new()
+        {
+            PropProjects, EntityProperty, SelectedConnectionProperty
+        };
+        
         [ConfigurationProperty("entitySolution", IsRequired = true)]
         public EntitySolutionElement EntitySolution
         {
-            get => (EntitySolutionElement)base[_entityProperty];
-            set => base[_entityProperty] = value;
+            get => (EntitySolutionElement)base[EntityProperty];
+            set => base[EntityProperty] = value;
         }
 
         [ConfigurationProperty("selectedConnection", IsRequired = true)]
@@ -32,49 +36,30 @@ namespace XrmFramework.DeployUtils.Configuration
             AddItemName = "add",
             ClearItemsName = "clear",
             RemoveItemName = "remove")]
-        public ProjectCollection Projects => (ProjectCollection)base[_propProjects];
+        public ProjectCollection Projects => (ProjectCollection)base[PropProjects];
 
-        static XrmFrameworkSection()
-        {
-            _propProjects = new ConfigurationProperty("projects", typeof(ProjectCollection), null, ConfigurationPropertyOptions.IsDefaultCollection | ConfigurationPropertyOptions.IsRequired);
-            _entityProperty = new ConfigurationProperty("entitySolution", typeof(EntitySolutionElement), null, ConfigurationPropertyOptions.IsRequired);
-            _selectedConnectionProperty = new ConfigurationProperty("selectedConnection", typeof(string), null, ConfigurationPropertyOptions.IsRequired);
-            _properties = new ConfigurationPropertyCollection
-            {
-                _propProjects, _entityProperty, _selectedConnectionProperty
-            };
-        }
-
-        protected override ConfigurationPropertyCollection Properties => _properties;
+        protected override ConfigurationPropertyCollection Properties => InnerProperties;
     }
 
     [Serializable]
     public class EntitySolutionElement : ConfigurationElement
     {
-        private static readonly ConfigurationPropertyCollection _properties;
-        private static readonly ConfigurationProperty _nameProperty;
-
+        private static readonly ConfigurationProperty NameProperty = new ConfigurationProperty("name", typeof(string), null, ConfigurationPropertyOptions.IsRequired);
+        private static readonly ConfigurationPropertyCollection InnerProperties = new () { NameProperty };
+        
         [ConfigurationProperty("name", IsRequired = true)]
         public string Name
         {
-            get => (string)this[_nameProperty];
-            set => this[_nameProperty] = value;
+            get => (string)this[NameProperty];
+            set => this[NameProperty] = value;
         }
 
-        static EntitySolutionElement()
-        {
-            _nameProperty = new ConfigurationProperty("name", typeof(string), null, ConfigurationPropertyOptions.IsRequired);
-            _properties = new ConfigurationPropertyCollection { _nameProperty };
-        }
-
-        protected override ConfigurationPropertyCollection Properties => _properties;
+        protected override ConfigurationPropertyCollection Properties => InnerProperties;
     }
 
     [Serializable]
     public class ProjectCollection : ConfigurationElementCollection
     {
-        private static readonly ConfigurationProperty ProjectProperty;
-
         protected override ConfigurationElement CreateNewElement()
         {
             return new ProjectElement();
@@ -91,13 +76,6 @@ namespace XrmFramework.DeployUtils.Configuration
         {
             BaseAdd(project);
         }
-
-        static ProjectCollection()
-        {
-            ProjectProperty = new ConfigurationProperty("project", typeof(ProjectElement), null, ConfigurationPropertyOptions.IsRequired);
-        }
-
-        //protected override ConfigurationPropertyCollection Properties => _properties;
     }
 
     [Serializable]

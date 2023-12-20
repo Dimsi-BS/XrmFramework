@@ -6,8 +6,8 @@ using Newtonsoft.Json;
 using System;
 using XrmFramework;
 using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Converters;
 using XrmFramework.DeployUtils.Model;
-using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Tests.ConverterTests
 {

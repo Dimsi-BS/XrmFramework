@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-[assembly: InternalsVisibleTo("XrmFramework.Analyzers.Test, PublicKey=0024000004800000940000000602000000240000525341310004000001000100514e5b42bacdbe31124ad199574b4550d639d4cc44e09b91d0e8f83c5034466dcfa5b9fcbce542367076648a2ad93a23e8d6c0c4634dc74847b83836afce964610cb2a0d45d65c5a642413688378f86a247acdd3a3f0ee60ed4a1ff45d8341adb7d6ce65f074a692faf58f27014cf4a51f205c9613b4b3460e676f2b98692bcc")]
-
+﻿
 namespace XrmFramework.Analyzers
 {
     public static class DiagnosticIds

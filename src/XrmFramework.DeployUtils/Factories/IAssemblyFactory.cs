@@ -3,7 +3,7 @@ using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
 
-namespace XrmFramework.DeployUtils.Utils;
+namespace XrmFramework.DeployUtils.Factories;
 
 /// <summary>
 ///     Factory in charge of creating the <see cref="IAssemblyContext" /> from various scenarios

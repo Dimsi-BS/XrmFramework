@@ -1,10 +1,11 @@
 ﻿using System.Reflection;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.RemoteDebugger.Client.Configuration;
 
-namespace XrmFramework.DeployUtils.Utils
+namespace XrmFramework.DeployUtils.Factories
 {
     public partial interface IAssemblyFactory
     {
@@ -21,11 +22,11 @@ namespace XrmFramework.DeployUtils.Utils
         /// ready to be differentiated with the <c>Remote Debugger Assembly</c>
         /// </summary>
         /// <remarks>
-        /// This removes the <see cref="Model.ICrmComponent"/>s with <see cref="RegistrationState"/> <c>ToDelete</c> or <c>Ignore</c><br/>
-        /// using <see cref="Model.ICrmComponent.CleanChildrenWithState"/> because they shouldn't appear on the <c>RemoteDebugger Assembly</c>
+        /// This removes the <see cref="ICrmComponent"/>s with <see cref="RegistrationState"/> <c>ToDelete</c> or <c>Ignore</c><br/>
+        /// using <see cref="ICrmComponent.CleanChildrenWithState"/> because they shouldn't appear on the <c>RemoteDebugger Assembly</c>
         /// </remarks>
         /// <param name="deployAssemblyDiff">An Assembly returned by <see cref="AssemblyDiffFactory.ComputeDiffPatch"/></param>
-        /// <returns>A clone of the <paramref name="deployAssemblyDiff"/> with the unnecessary <see cref="Model.ICrmComponent"/>s removed</returns>
+        /// <returns>A clone of the <paramref name="deployAssemblyDiff"/> with the unnecessary <see cref="ICrmComponent"/>s removed</returns>
         IAssemblyContext WrapDiffAssemblyForDebugDiff(IAssemblyContext deployAssemblyDiff);
 
         /// <summary>

@@ -1,6 +1,6 @@
 ﻿using XrmFramework.DeployUtils.Context;
 
-namespace XrmFramework.DeployUtils.Model;
+namespace XrmFramework.DeployUtils.Model.Interfaces;
 
 /// <summary>
 ///     A Component of an Assembly to be deployed on the Crm,

@@ -78,7 +78,7 @@ namespace XrmFramework
 
         public ILogger Logger { get; }
 
-        public void Log(string message, params object[] paramsObject)
+        public void Log(string message, params object?[] paramsObject)
         {
             Logger.Log(message, paramsObject);
         }

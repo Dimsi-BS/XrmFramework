@@ -4,7 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Infrastructure
+namespace XrmFramework.DeployUtils.Infrastructure
 {
     /// <summary>
     ///     <para>

@@ -21,7 +21,7 @@ namespace XrmFramework.RemoteDebugger
         public string RelayUrl { get; set; }
 
         [CrmMapping(DebugSessionDefinition.Columns.HybridConnectionName)]
-        public string HybridConnectionName { get; set; }
+        public string? HybridConnectionName { get; set; }
 
         [CrmMapping(DebugSessionDefinition.Columns.SasKeyName)]
         public string SasKeyName { get; set; }

@@ -1,16 +1,17 @@
 ﻿using Microsoft.Xrm.Sdk;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
 namespace XrmFramework.DeployUtils.Model
 {
     /// <summary>
     /// Metadata of CustomApi
     /// </summary>
-    /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
+    /// <seealso cref="ICrmComponent" />
     public class CustomApi : BaseCrmComponent
     {
         // Don't put these fields in readonly, AutoMapper wouldn't be able to map them
         // but if you know a way enjoy :D
-        private List<ICustomApiComponent> _arguments = new();
+        private readonly List<ICustomApiComponent> _arguments = new();
 
         /// <summary>Id of the Assembly the PluginType is attached to</summary>
         public Guid AssemblyId { get; set; } = Guid.NewGuid();

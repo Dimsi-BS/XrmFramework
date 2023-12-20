@@ -44,7 +44,7 @@ namespace XrmFramework.Workflow
                             {
                                 var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
 
-                                RemoteDebuggerMessage response;
+                                RemoteDebuggerMessage? response;
                                 while (true)
                                 {
                                     localContext.Log("Sending context to local machine : {0}", message);

@@ -26,7 +26,7 @@ namespace XrmFramework.Workflow
 
         WorkflowModes WorkflowMode { get; }
 
-        void Log(string message, params object[] paramsObject);
+        void Log(string message, params object?[] paramsObject);
 
         TService GetService<TService>() where TService : IService;
     }

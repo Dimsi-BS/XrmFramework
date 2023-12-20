@@ -1,17 +1,19 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 using System.Collections;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
+using XrmFramework.DeployUtils.Infrastructure;
+using XrmFramework.DeployUtils.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Design.Internal
+namespace XrmFramework.DeployUtils.Generators
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     /// </summary>
     public class CSharpHelper : ICSharpHelper
     {
-        private static readonly IReadOnlyDictionary<Type, string> _builtInTypes = new Dictionary<Type, string>
+        private static readonly IReadOnlyDictionary<Type, string> BuiltInTypes = new Dictionary<Type, string>
         {
             { typeof(bool), "bool" },
             { typeof(byte), "byte" },
@@ -40,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             { typeof(object), "object" }
         };
 
-        private static readonly IReadOnlyCollection<string> _keywords = new[]
+        private static readonly IReadOnlyCollection<string> Keywords = new[]
         {
             "__arglist",
             "__makeref",
@@ -125,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             "while"
         };
 
-        private static readonly IReadOnlyDictionary<Type, Func<CSharpHelper, object, string>> _literalFuncs =
+        private static readonly IReadOnlyDictionary<Type, Func<CSharpHelper, object, string>> LiteralFuncs =
             new Dictionary<Type, Func<CSharpHelper, object, string>>
             {
                 { typeof(bool), (c, v) => c.Literal((bool)v) },
@@ -195,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             Check.NotNull(type, nameof(type));
 
-            if (_builtInTypes.TryGetValue(type, out var builtInType))
+            if (BuiltInTypes.TryGetValue(type, out var builtInType))
             {
                 return builtInType;
             }
@@ -292,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 identifier = uniqueIdentifier;
             }
 
-            return _keywords.Contains(identifier) ? "@" + identifier : identifier;
+            return Keywords.Contains(identifier) ? "@" + identifier : identifier;
         }
 
         /// <summary>
@@ -769,7 +771,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var literalType = value.GetType();
 
-            if (_literalFuncs.TryGetValue(literalType.UnwrapNullableType(), out var literalFunc))
+            if (LiteralFuncs.TryGetValue(literalType.UnwrapNullableType(), out var literalFunc))
             {
                 return literalFunc(this, value);
             }
@@ -846,7 +848,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                         builder
                             .Append(
                                 simple
-                                && value?.GetType()?.IsNumeric() == true
+                                && value?.GetType().IsNumeric() == true
                                     ? value
                                     : UnknownLiteral(value));
                         return true;

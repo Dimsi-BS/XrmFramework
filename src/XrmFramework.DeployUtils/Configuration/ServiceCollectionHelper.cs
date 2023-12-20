@@ -3,16 +3,20 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Tooling.Connector;
+using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Converters;
+using XrmFramework.DeployUtils.Exporters;
+using XrmFramework.DeployUtils.Factories;
+using XrmFramework.DeployUtils.Importers;
 using XrmFramework.DeployUtils.Service;
-using XrmFramework.DeployUtils.Utils;
 
 namespace XrmFramework.DeployUtils.Configuration;
 
 /// <summary>
 ///     Configures the necessary services and parameters of the project
 /// </summary>
-public class ServiceCollectionHelper
+static class ServiceCollectionHelper
 {
 	/// <summary>
 	///     Configures the required objects used during Deploy, such as :
@@ -92,7 +96,7 @@ public class ServiceCollectionHelper
 			var defaultColor = Console.ForegroundColor;
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine(
-				$"No reference to the project {projectName} has been found in the xrmFramework.config file.");
+				$@"No reference to the project {projectName} has been found in the xrmFramework.config file.");
 			Console.ForegroundColor = defaultColor;
 			Environment.Exit(1);
 		}
@@ -104,7 +108,7 @@ public class ServiceCollectionHelper
 	///     Retrieves the selected connection string as defined in xrmFramework.config
 	/// </summary>
 	/// <returns></returns>
-	public static string GetSelectedConnectionString()
+	private static string GetSelectedConnectionString()
 	{
 		var xrmFrameworkConfigSection = ConfigHelper.GetSection();
 		return ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection]

@@ -1,7 +1,7 @@
 ﻿using JetBrains.Annotations;
 using XrmFramework.DeployUtils.Model;
 
-namespace XrmFramework.DeployUtils.Utils
+namespace XrmFramework.DeployUtils.Comparers
 {
     public partial class StepComparer
     {
@@ -13,10 +13,10 @@ namespace XrmFramework.DeployUtils.Utils
         /// This method is in a partial file because it is implemented differently in the RemoteDebugger.Client project
 
         public bool NeedsUpdate([NotNull] Step x, [NotNull] Step y) =>
-            x?.DoNotFilterAttributes != y?.DoNotFilterAttributes
+            x.DoNotFilterAttributes != y.DoNotFilterAttributes
             || x.FilteringAttributes.Any() != y.FilteringAttributes.Any()
             || string.Join(",", x.FilteringAttributes) != string.Join(",", y.FilteringAttributes)
-            || x?.Order != y?.Order
+            || x.Order != y.Order
             || x.ImpersonationUsername != y.ImpersonationUsername;
     }
 }

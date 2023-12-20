@@ -1,8 +1,9 @@
 ﻿using Microsoft.Xrm.Sdk;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
-namespace XrmFramework.DeployUtils.Utils;
+namespace XrmFramework.DeployUtils.Exporters;
 
 /// <summary>
 ///     Local to Crm <see cref="ICrmComponent" /> exporter

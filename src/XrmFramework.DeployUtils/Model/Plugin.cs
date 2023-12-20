@@ -1,12 +1,14 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using XrmFramework.DeployUtils.Model.Interfaces;
+
 namespace XrmFramework.DeployUtils.Model;
 
 /// <summary>
 ///     Metadata of a Plugin
 /// </summary>
-/// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
+/// <seealso cref="ICrmComponent" />
 public class Plugin : BaseCrmComponent
 {
 	public Plugin(string fullName)

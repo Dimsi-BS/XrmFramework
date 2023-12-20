@@ -2,12 +2,14 @@
 using AutoMapper;
 using Microsoft.Extensions.Options;
 using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Importers;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.RemoteDebugger;
 using XrmFramework.RemoteDebugger.Client.Configuration;
 
-namespace XrmFramework.DeployUtils.Utils;
+namespace XrmFramework.DeployUtils.Factories;
 
 internal partial class AssemblyFactory
 {

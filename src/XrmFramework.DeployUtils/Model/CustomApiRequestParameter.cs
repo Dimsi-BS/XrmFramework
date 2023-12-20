@@ -1,12 +1,13 @@
 ﻿using Microsoft.Xrm.Sdk;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
 namespace XrmFramework.DeployUtils.Model
 {
     /// <summary>
     /// Component of a <see cref="CustomApi"/>, defines an input
     /// </summary>
-    /// <seealso cref="XrmFramework.DeployUtils.Model.ICustomApiComponent" />
-    /// <seealso cref="XrmFramework.DeployUtils.Model.ICrmComponent" />
+    /// <seealso cref="ICustomApiComponent" />
+    /// <seealso cref="ICrmComponent" />
     public class CustomApiRequestParameter : BaseCrmComponent, ICustomApiComponent
     {
         public string Description { get; set; }

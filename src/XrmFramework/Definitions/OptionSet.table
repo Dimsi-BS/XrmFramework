@@ -12,7 +12,7 @@
       "Name": "UtilisateurExecutant",
       "Values": [
         {
-          "Name": "Proprietaire",
+          "Name": "Owner",
           "Labels": [
             {
               "Label": "Propriétaire",
@@ -22,7 +22,7 @@
         },
         {
           "Value": 1,
-          "Name": "UtilisateurAppelant",
+          "Name": "CallingUser",
           "Labels": [
             {
               "Label": "Utilisateur appelant",

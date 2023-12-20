@@ -38,6 +38,10 @@
     <PropertyGroup>
         <DoNotUsePackageDeployment>False</DoNotUsePackageDeployment>
     </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System.Net.Http" />
+  </ItemGroup>
     
     <Choose>
         <When Condition="'$(DoNotUsePackageDeployment)' == 'True'">

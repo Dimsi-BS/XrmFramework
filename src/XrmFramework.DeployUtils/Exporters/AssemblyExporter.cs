@@ -3,11 +3,13 @@ using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Converters;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 using XrmFramework.DeployUtils.Service;
 using PluginPackage = XrmFramework.DeployUtils.Model.PluginPackage;
 
-namespace XrmFramework.DeployUtils.Utils;
+namespace XrmFramework.DeployUtils.Exporters;
 
 /// <summary>
 ///     Base implementation of <see cref="IAssemblyExporter" />
@@ -95,15 +97,15 @@ public partial class AssemblyExporter : IAssemblyExporter
 
 	private UpdateRequest ToUpdateRequest(ICrmComponent component)
 	{
-		return new UpdateRequest()
+		return new UpdateRequest
 		{
 			Target = _converter.ToRegisterComponent(component)
 		};
 	}
 
-	public DeleteRequest ToDeleteRequest(ICrmComponent component)
+	internal DeleteRequest ToDeleteRequest(ICrmComponent component)
 	{
-		return new DeleteRequest()
+		return new DeleteRequest
 		{
 			Target = new EntityReference(component.EntityTypeName, component.Id)
 		};
@@ -119,9 +121,12 @@ public partial class AssemblyExporter : IAssemblyExporter
 	public AddSolutionComponentRequest CreateAddSolutionComponentRequest(EntityReference objectRef,
 		int? objectTypeCode = null)
 	{
-		AddSolutionComponentRequest res = null;
-		if (_solutionContext.GetComponentByObjectRef(objectRef) != null) return res;
-		res = new AddSolutionComponentRequest
+		if (_solutionContext.GetComponentByObjectRef(objectRef) != null)
+		{
+			return null;
+		}
+
+		var res = new AddSolutionComponentRequest
 		{
 			AddRequiredComponents = false,
 			ComponentId = objectRef.Id,
@@ -144,7 +149,7 @@ public partial class AssemblyExporter : IAssemblyExporter
 		return res;
 	}
 
-	public PluginType ToRegisterPluginType(Guid pluginAssemblyId, string pluginFullName)
+	private PluginType ToRegisterPluginType(Guid pluginAssemblyId, string pluginFullName)
 	{
 		var t = new PluginType
 		{

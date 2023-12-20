@@ -18,6 +18,8 @@ namespace XrmFramework
         private readonly IServiceContext _context;
 
         protected LogServiceMethod Log { get; }
+        
+        protected static object SyncRoot { get; } = new();
 
         public DefaultService(IServiceContext context)
         {

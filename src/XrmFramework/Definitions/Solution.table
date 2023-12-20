@@ -518,10 +518,10 @@
   "Enums": [
     {
       "LogName": "solution|solutiontype",
-      "Name": "TypeDeSolution",
+      "Name": "SolutionType",
       "Values": [
         {
-          "Name": "AucunE",
+          "Name": "None",
           "Labels": [
             {
               "Label": "Aucun(e)",
@@ -531,7 +531,7 @@
         },
         {
           "Value": 1,
-          "Name": "CaptureInstantanee",
+          "Name": "Snapshot",
           "Labels": [
             {
               "Label": "Capture instantanée",
@@ -541,7 +541,7 @@
         },
         {
           "Value": 2,
-          "Name": "Interne",
+          "Name": "Internal",
           "Labels": [
             {
               "Label": "Interne",

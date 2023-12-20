@@ -148,7 +148,7 @@ namespace XrmFramework
             }
         }
 
-        public void LogNotFiredForFilteringAttributes(string childClassName, string methodName)
+        public void LogNotFiredForFilteringAttributes(string? childClassName, string methodName)
         {
             var stage = Enum.ToObject(typeof(Stages), Stage);
 

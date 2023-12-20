@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xrm.Sdk;
 
-namespace XrmFramework.DeployUtils.Model
+namespace XrmFramework.DeployUtils.Model.Interfaces
 {
     /// <summary>
     /// Additional layer of <see cref="ICrmComponent"/> used for

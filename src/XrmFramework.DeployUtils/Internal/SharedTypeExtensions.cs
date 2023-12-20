@@ -264,7 +264,7 @@ namespace System
         public static IEnumerable<MemberInfo> GetMembersInHierarchy(this Type type, string name)
             => type.GetMembersInHierarchy().Where(m => m.Name == name);
 
-        private static readonly Dictionary<Type, object> _commonTypeDictionary = new Dictionary<Type, object>
+        private static readonly Dictionary<Type, object> CommonTypeDictionary = new Dictionary<Type, object>
         {
 #pragma warning disable IDE0034 // Simplify 'default' expression - default causes default(object)
             { typeof(int), default(int) },
@@ -295,7 +295,7 @@ namespace System
             // A bit of perf code to avoid calling Activator.CreateInstance for common types and
             // to avoid boxing on every call. This is about 50% faster than just calling CreateInstance
             // for all value types.
-            return _commonTypeDictionary.TryGetValue(type, out var value)
+            return CommonTypeDictionary.TryGetValue(type, out var value)
                 ? value
                 : Activator.CreateInstance(type);
         }

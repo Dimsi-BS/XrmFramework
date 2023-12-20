@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using AutoMapper;
 using Moq;
+using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Factories;
 using XrmFramework.DeployUtils.Model;
-using XrmFramework.DeployUtils.Utils;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
 namespace XrmFramework.DeployUtils.Tests;
 

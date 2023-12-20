@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
 namespace XrmFramework.DeployUtils.Tests.CrmComponentsTests
 {

@@ -3,12 +3,15 @@ using AutoMapper;
 using Microsoft.Extensions.Options;
 using XrmFramework.BindingModel;
 using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Exporters;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
-using XrmFramework.DeployUtils.Utils;
 using XrmFramework.RemoteDebugger;
+using XrmFramework.DeployUtils.Factories;
+using XrmFramework.DeployUtils.Model.Interfaces;
 using XrmFramework.RemoteDebugger.Client.Configuration;
 using XrmFramework.RemoteDebugger.Model.CrmComponentInfos;
+using IAssemblyFactory = XrmFramework.DeployUtils.Factories.IAssemblyFactory;
 
 namespace XrmFramework.DeployUtils;
 

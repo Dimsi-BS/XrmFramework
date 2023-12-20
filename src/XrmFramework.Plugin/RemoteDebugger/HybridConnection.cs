@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System.Globalization;
 using System.Net;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -26,7 +27,7 @@ namespace XrmFramework.RemoteDebugger
             _client.DefaultRequestHeaders.Add("ServiceBusAuthorization", token);
         }
 
-        public async Task<RemoteDebuggerMessage> SendMessage(RemoteDebuggerMessage message)
+        public async Task<RemoteDebuggerMessage?> SendMessage(RemoteDebuggerMessage? message)
         {
             var serializedContext = JsonConvert.SerializeObject(message);
 
@@ -70,10 +71,9 @@ namespace XrmFramework.RemoteDebugger
 
         private static string Sign(string requestString, byte[] encodedSharedAccessKey)
         {
-            using (var hmacshA256 = new HMACSHA256(encodedSharedAccessKey))
-            {
-                return Convert.ToBase64String(hmacshA256.ComputeHash(Encoding.UTF8.GetBytes(requestString)));
-            }
+            using var hmacshA256 = new HMACSHA256(encodedSharedAccessKey);
+            
+            return Convert.ToBase64String(hmacshA256.ComputeHash(Encoding.UTF8.GetBytes(requestString)));
         }
 
         private static string BuildExpiresOn(TimeSpan timeToLive)
@@ -85,7 +85,7 @@ namespace XrmFramework.RemoteDebugger
 
         public void Dispose()
         {
-            _client?.Dispose();
+            _client.Dispose();
         }
         #endregion
 

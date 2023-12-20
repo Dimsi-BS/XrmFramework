@@ -97,7 +97,7 @@ public abstract partial class Plugin : IPlugin
     ///     Gets or sets the name of the child class.
     /// </summary>
     /// <value>The name of the child class.</value>
-    protected string ChildClassName => GetType().Name;
+    protected string? ChildClassName => GetType().Name;
 
     /// <summary>
     ///     Executes the plug-in.

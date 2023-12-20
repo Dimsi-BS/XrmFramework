@@ -105,7 +105,9 @@ public class LoggedServiceCodeGenerator : CodeGeneratorBase
 
 	private void GenerateMethod(IMethodSymbol m, IndentedStringBuilder builder)
 	{
-		var isAsyncMethod = IsAssignableFrom(m.ReturnType, typeof(Task).FullName);
+		var targetTypeFullName = typeof(Task).FullName;
+		
+		var isAsyncMethod = targetTypeFullName != null && IsAssignableFrom(m.ReturnType, targetTypeFullName);
 
 		var isObsoleteMethod = m.GetAttributes()
 			.Any(a => a.AttributeClass.GetFullMetadataName() == "System.ObsoleteAttribute");
@@ -140,6 +142,10 @@ public class LoggedServiceCodeGenerator : CodeGeneratorBase
 				.AppendLine()
 				;
 
+			if (isObsoleteMethod)
+			{
+				builder.AppendLine("#pragma warning disable CS0612 // The type or member is obsolete");
+			}
 
 			if (m.ReturnType.SpecialType != SpecialType.System_Void &&
 			    m.ReturnType.GetFullMetadataName() != typeof(Task).FullName)
@@ -156,7 +162,11 @@ public class LoggedServiceCodeGenerator : CodeGeneratorBase
 			builder
 				.AppendLine(";")
 				.AppendLine();
-
+			
+			if (isObsoleteMethod)
+			{
+				builder.AppendLine("#pragma warning restore CS0612 // The type or member is obsolete");
+			}
 
 			GetMethodLog(m, false, builder);
 
@@ -198,46 +208,50 @@ public class LoggedServiceCodeGenerator : CodeGeneratorBase
 
 		foreach (var parameter in m.Parameters)
 		{
-			if (parameter.Type.TypeKind == TypeKind.Enum)
+			if (parameter.Type.TypeKind != TypeKind.Enum)
 			{
-				var regex = new Regex(@$"{parameter.Name} = ([a-zA-Z][a-zA-Z0-9_]*)");
+				continue;
+			}
+
+			var regex = new Regex(@$"{parameter.Name} = ([a-zA-Z][a-zA-Z0-9_]*)");
 				
-				if (regex.Match(signature).Success)
-				{
-					signature = regex.Replace(signature, $"{parameter.Name} = {parameter.Type.GetFullMetadataName()}.$1");
-				}
+			if (regex.Match(signature).Success)
+			{
+				signature = regex.Replace(signature, $"{parameter.Name} = {parameter.Type.GetFullMetadataName()}.$1");
 			}
 		}
 		
 		builder.Append(signature);
 
-		if (!displayTypes)
+		if (displayTypes)
 		{
-			builder
-				.Append("(");
-
-			var isFirst = true;
-
-			foreach (var parameter in m.Parameters)
-			{
-				if (isFirst) isFirst = false;
-				else
-					builder
-						.Append(", ");
-
-				if (parameter.RefKind == RefKind.Out)
-					builder
-						.Append("out ");
-				else if (parameter.RefKind == RefKind.Ref)
-					builder
-						.Append("ref ");
-
-				builder
-					.Append(parameter.Name);
-			}
-
-			builder.Append(")");
+			return;
 		}
+
+		builder
+			.Append("(");
+
+		var isFirst = true;
+
+		foreach (var parameter in m.Parameters)
+		{
+			if (isFirst) isFirst = false;
+			else
+				builder
+					.Append(", ");
+
+			if (parameter.RefKind == RefKind.Out)
+				builder
+					.Append("out ");
+			else if (parameter.RefKind == RefKind.Ref)
+				builder
+					.Append("ref ");
+
+			builder
+				.Append(parameter.Name);
+		}
+
+		builder.Append(")");
 	}
 
 	private void GetMethodLog(IMethodSymbol method, bool start, IndentedStringBuilder builder)
@@ -253,7 +267,7 @@ public class LoggedServiceCodeGenerator : CodeGeneratorBase
 		var i = start ? 0 : 1;
 
 		var sb2 = new StringBuilder();
-		if (!start) sb2.AppendFormat("sw.Elapsed");
+		if (!start) sb2.Append("sw.Elapsed");
 
 		if (parameters.Any(p => (start && p.RefKind != RefKind.Out) || (!start && p.RefKind == RefKind.Out)))
 		{
@@ -283,7 +297,7 @@ public class LoggedServiceCodeGenerator : CodeGeneratorBase
 			}
 
 			builder.Append("returnValue = {").Append(i).Append("}");
-			sb2.AppendFormat("returnValue");
+			sb2.Append("returnValue");
 		}
 
 		builder.Append("\"");
@@ -307,38 +321,38 @@ public class LoggedServiceCodeGenerator : CodeGeneratorBase
 			if (param.Type.IsPrimitive() && param.Type.SpecialType != SpecialType.System_String) continue;
 			if (param.Type.TypeKind == TypeKind.Enum) continue;
 			if (param.IsOptional) continue;
-			if (param.Type.SpecialType == SpecialType.System_Decimal) continue;
-
-			if (param.Type.SpecialType == SpecialType.System_String)
+			
+			switch (param.Type.SpecialType)
 			{
-				builder
-					.Append("if (string.IsNullOrWhiteSpace(")
-					.Append(param.Name)
-					.Append("))");
-			}
-			else
-			{
-				if (param.Name == "model")
-				{
-				}
-
-				var isGenericParam = param.Type is { TypeKind: TypeKind.TypeParameter };
-				builder.Append("if (");
-				if (isGenericParam)
+				case SpecialType.System_Decimal:
+					continue;
+				case SpecialType.System_String:
 					builder
-						.Append("Equals(");
-				builder
-					.Append(param.Name)
-					.Append(isGenericParam ? ", " : " == ")
-					.Append("default");
-
-				if (isGenericParam)
-					builder
-						.Append("(")
-						.Append(param.Type.Name)
+						.Append("if (string.IsNullOrWhiteSpace(")
+						.Append(param.Name)
 						.Append("))");
+					break;
+				default:
+				{
+					var isGenericParam = param.Type is { TypeKind: TypeKind.TypeParameter };
+					builder.Append("if (");
+					if (isGenericParam)
+						builder
+							.Append("Equals(");
+					builder
+						.Append(param.Name)
+						.Append(isGenericParam ? ", " : " == ")
+						.Append("default");
 
-				builder.Append(")");
+					if (isGenericParam)
+						builder
+							.Append("(")
+							.Append(param.Type.Name)
+							.Append("))");
+
+					builder.Append(")");
+					break;
+				}
 			}
 
 			builder

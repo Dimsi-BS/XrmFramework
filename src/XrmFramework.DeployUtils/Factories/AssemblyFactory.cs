@@ -1,9 +1,10 @@
 ﻿using System.Reflection;
 using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Importers;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
 
-namespace XrmFramework.DeployUtils.Utils;
+namespace XrmFramework.DeployUtils.Factories;
 
 /// <summary>
 ///     Base implementation of <see cref="IAssemblyFactory" />
@@ -131,7 +132,18 @@ internal partial class AssemblyFactory : IAssemblyFactory
 		var registeredSteps = service.GetRegisteredSteps(targetId);
 		var registeredStepImages = service.GetRegisteredImages(targetId);
 
-		var steps = registeredSteps.Select(s => _importer.CreateStepFromRemote(s, registeredStepImages));
+		var steps = new List<Step>();
+
+		foreach (var s in registeredSteps)
+		{
+			if (!_importer.TryCreateStepFromRemote(s, registeredStepImages, out var step))
+			{
+				continue;
+			}
+			
+			steps.Add(step);
+		}
+		
 		return steps.ToList();
 	}
 }

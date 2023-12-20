@@ -1,17 +1,19 @@
 ﻿using System.Reflection;
 using AutoMapper;
 using Deploy;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 using CustomApi = XrmFramework.DeployUtils.Model.CustomApi;
 using CustomApiRequestParameter = Deploy.CustomApiRequestParameter;
 using CustomApiResponseProperty = Deploy.CustomApiResponseProperty;
 using PluginPackage = XrmFramework.DeployUtils.Model.PluginPackage;
 
-namespace XrmFramework.DeployUtils.Utils;
+namespace XrmFramework.DeployUtils.Importers;
 
 /// <summary>
 ///     Base implementation of <see cref="IAssemblyImporter" />
@@ -37,13 +39,11 @@ public class AssemblyImporter : IAssemblyImporter
         var publicKeyToken = fullNameSplit[3].Substring(fullNameSplit[3].IndexOf('=') + 1);
         var description = $"{name} plugin assembly";
 
-        var t = new AssemblyInfo()
+        var t = new AssemblyInfo
         {
             Name = name,
-            SourceType = TypeDeSource.BaseDeDonnees,
-            // SourceType = new OptionSetValue((int) pluginassembly_sourcetype.Database),
-            IsolationMode = ModeDIsolation.BacASableSandbox,
-            // IsolationMode = new OptionSetValue((int) pluginassembly_isolationmode.Sandbox),
+            SourceType = TypeDeSource.Database,
+            IsolationMode = ModeDIsolation.Sandbox,
             Culture = culture,
             PublicKeyToken = publicKeyToken,
             Version = version,
@@ -72,11 +72,10 @@ public class AssemblyImporter : IAssemblyImporter
 
     public Plugin CreatePluginFromType(Type type)
     {
-        dynamic instance;
-        if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
-            instance = Activator.CreateInstance(type, new object[] { null, null });
-        else
-            instance = Activator.CreateInstance(type);
+        dynamic instance = type.GetConstructor(new[] { typeof(string), typeof(string) }) != null 
+            ? Activator.CreateInstance(type, null, null) 
+            : Activator.CreateInstance(type);
+
         return FromXrmFrameworkPlugin(instance);
     }
 
@@ -88,46 +87,67 @@ public class AssemblyImporter : IAssemblyImporter
 
     public CustomApi CreateCustomApiFromType(Type type)
     {
-        dynamic instance;
-        if (type.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
-            instance = Activator.CreateInstance(type, new object[] { null, null });
-        else
-            instance = Activator.CreateInstance(type);
+        dynamic instance =
+            type.GetConstructor(new[] { typeof(string), typeof(string) }) == null
+                ? Activator.CreateInstance(type)
+                : Activator.CreateInstance(type, null, null);
+
         return FromXrmFrameworkCustomApi(instance);
     }
 
-    public Step CreateStepFromRemote(SdkMessageProcessingStep sdkStep,
-      IEnumerable<SdkMessageProcessingStepImage> sdkImages)
+    public bool TryCreateStepFromRemote(SdkMessageProcessingStep sdkStep,
+      IEnumerable<SdkMessageProcessingStepImage> sdkImages, out Step step)
     {
         var entityName = sdkStep.EntityName;
         var pluginFullName = sdkStep.EventHandler.Name;
-        var pluginName = pluginFullName.Split('.').Last();
+        var pluginFullNameSplit = pluginFullName.Split('.');
+        var pluginName = pluginFullNameSplit[pluginFullNameSplit.Length - 1];
 
-        var step = new Step(pluginName,
-          Messages.GetMessage(sdkStep.SdkMessageId.Name),
-          (Stages)(int)sdkStep.StageEnum,
-          (Modes)(int)sdkStep.ModeEnum,
-          entityName);
+        if (sdkStep.StageEnum is not (sdkmessageprocessingstep_stage.PreValidation
+            or sdkmessageprocessingstep_stage.PreOperation or sdkmessageprocessingstep_stage.PostOperation))
+        {
+            step = null;
+            return false;
+        }
 
-        step.Id = sdkStep.Id;
-
-        step.PluginTypeFullName = pluginFullName;
-        step.ParentId = sdkStep.EventHandler.Id;
+        step = new Step(pluginName,
+            Messages.GetMessage(sdkStep.SdkMessageId.Name),
+#pragma warning disable CS8509 // The switch expression does not handle all possible values of its input type (it is not exhaustive).
+            sdkStep.StageEnum switch
+#pragma warning restore CS8509 // The switch expression does not handle all possible values of its input type (it is not exhaustive).
+            {
+                sdkmessageprocessingstep_stage.PreValidation => Stages.PreValidation,
+                sdkmessageprocessingstep_stage.PreOperation => Stages.PreOperation,
+                sdkmessageprocessingstep_stage.PostOperation => Stages.PostOperation
+            },
+            sdkStep.ModeEnum switch
+            {
+                sdkmessageprocessingstep_mode.Synchronous => Modes.Synchronous, 
+                _ => Modes.Asynchronous
+            },
+            entityName)
+        {
+            Id = sdkStep.Id,
+            PluginTypeFullName = pluginFullName,
+            ParentId = sdkStep.EventHandler.Id
+        };
 
         if (!string.IsNullOrWhiteSpace(sdkStep.FilteringAttributes))
         {
             step.FilteringAttributes.Add(sdkStep.FilteringAttributes);
         }
+
         step.ImpersonationUsername = sdkStep.ImpersonatingUserId?.Name ?? "";
-        step.Order = (int)sdkStep.Rank;
+        step.Order = sdkStep.Rank.GetValueOrDefault();
         if (!string.IsNullOrWhiteSpace(sdkStep.Configuration))
             step.StepConfiguration = JsonConvert.DeserializeObject<StepConfiguration>(sdkStep.Configuration);
 
 
-        CreateStepImageFromRemote(step, true, sdkImages);
-        CreateStepImageFromRemote(step, false, sdkImages);
+        var sdkMessageProcessingStepImages = sdkImages.ToList();
+        CreateStepImageFromRemote(step, true, sdkMessageProcessingStepImages);
+        CreateStepImageFromRemote(step, false, sdkMessageProcessingStepImages);
 
-        return step;
+        return true;
     }
 
     public Plugin CreatePluginFromRemote(PluginType pluginType, IEnumerable<Step> steps)
@@ -173,7 +193,11 @@ public class AssemblyImporter : IAssemblyImporter
 
     public PluginPackage CreatePackageFromLocal(AssemblyInfo assembly)
     {
-        var packagesFolderName = Assembly.GetEntryAssembly()
+        var entryAssembly = Assembly.GetEntryAssembly();
+
+        Assert.IsNotNull(entryAssembly);
+
+        var packagesFolderName = entryAssembly
           .GetCustomAttribute<DeployFolderAttribute>()
           .Path;
         var directoryInfos = new DirectoryInfo(packagesFolderName);
@@ -203,13 +227,15 @@ public class AssemblyImporter : IAssemblyImporter
         var existingImage = stepImages.FirstOrDefault(i => i.ImageTypeEnum == imageType
                                                            && i.SdkMessageProcessingStepId.Id == step.Id);
 
-        if (existingImage != null)
+        if (existingImage == null)
         {
-            step.PreImage.Id = existingImage.Id;
-            step.PreImage.ParentId = step.Id;
-            step.PreImage.AllAttributes = existingImage.Attributes1 == null;
-            step.PreImage.Attributes.Add(existingImage.Attributes1);
+            return;
         }
+
+        step.PreImage.Id = existingImage.Id;
+        step.PreImage.ParentId = step.Id;
+        step.PreImage.AllAttributes = existingImage.Attributes1 == null;
+        step.PreImage.Attributes.Add(existingImage.Attributes1);
     }
 
     private Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false)
@@ -227,9 +253,11 @@ public class AssemblyImporter : IAssemblyImporter
     private Step FromXrmFrameworkStep(dynamic s)
     {
         var step = new Step(s.Plugin.GetType().Name, Messages.GetMessage(s.Message.ToString()), (Stages)(int)s.Stage,
-          (Modes)(int)s.Mode, s.EntityName);
+          (Modes)(int)s.Mode, s.EntityName)
+        {
+            PluginTypeFullName = s.Plugin.GetType().FullName
+        };
 
-        step.PluginTypeFullName = s.Plugin.GetType().FullName;
         step.FilteringAttributes.UnionWith(s.FilteringAttributes);
         step.ImpersonationUsername = s.ImpersonationUsername ?? "";
         step.Order = s.Order;
@@ -280,10 +308,9 @@ public class AssemblyImporter : IAssemblyImporter
         };
 
         foreach (var argument in record.Arguments)
-            if (argument.IsInArgument)
-                customApi.AddChild(FromXrmFrameworkArgument<Model.CustomApiRequestParameter>(customApi.Name, argument));
-            else
-                customApi.AddChild(FromXrmFrameworkArgument<Model.CustomApiResponseProperty>(customApi.Name, argument));
+            customApi.AddChild(argument.IsInArgument
+                ? (ICrmComponent)FromXrmFrameworkArgument<Model.CustomApiRequestParameter>(customApi.Name, argument)
+                : (ICrmComponent)FromXrmFrameworkArgument<Model.CustomApiResponseProperty>(customApi.Name, argument));
 
         return customApi;
     }

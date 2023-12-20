@@ -1,4 +1,4 @@
-﻿namespace XrmFramework.DeployUtils.Model;
+﻿namespace XrmFramework.DeployUtils.Model.Interfaces;
 
 public interface IAssemblyComponent : ICrmComponent
 {

@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
 using XrmFramework.DeployUtils.Context;
+using XrmFramework.DeployUtils.Converters;
+using XrmFramework.DeployUtils.Exporters;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Utils;
@@ -13,13 +16,11 @@ public class DebuggerAssemblyExporter : IAssemblyExporter
 	private readonly ICrmComponentConverter _converter;
 	private readonly AssemblyExporter _mainExporter;
 	private readonly IRegistrationService _registrationService;
-	private readonly ISolutionContext _solutionContext;
 
 	public DebuggerAssemblyExporter(IRegistrationService registrationService, ISolutionContext solutionContext,
 		ICrmComponentConverter converter)
 	{
 		_registrationService = registrationService;
-		_solutionContext = solutionContext;
 		_converter = converter;
 		_mainExporter = new AssemblyExporter(solutionContext, registrationService, converter);
 	}

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using AutoMapper;
 using Microsoft.Xrm.Sdk;
-using XrmFramework;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
 namespace XrmFramework.DeployUtils.Tests.ConverterTests;
 
@@ -26,27 +25,27 @@ public class MapperTests
 	public void AssemblyInfoToAssemblyContextMapTest()
 	{
 		// Arrange
-		var Name = "thisAssembly";
-		var Culture = "culture";
-		var PublicKeyToken = "token";
-		var Version = "version";
-		var Description = "description";
+		var name = "thisAssembly";
+		var culture = "culture";
+		var publicKeyToken = "token";
+		var version = "version";
+		var description = "description";
 
-		var EntityTypeName = "pluginassembly";
-		var Content = Encoding.UTF8.GetBytes("content");
-		var IsolationMode = ModeDIsolation.BacASableSandbox;
-		var SourceType = TypeDeSource.BaseDeDonnees;
+		var entityTypeName = "pluginassembly";
+		var content = "content"u8.ToArray();
+		var isolationMode = ModeDIsolation.Sandbox;
+		var sourceType = TypeDeSource.Database;
 
 		var assemblyInfo = new AssemblyInfo
 		{
-			Name = Name,
-			Version = Version,
-			SourceType = SourceType,
-			IsolationMode = IsolationMode,
-			Culture = Culture,
-			PublicKeyToken = PublicKeyToken,
-			Description = Description,
-			Content = Content
+			Name = name,
+			Version = version,
+			SourceType = sourceType,
+			IsolationMode = isolationMode,
+			Culture = culture,
+			PublicKeyToken = publicKeyToken,
+			Description = description,
+			Content = content
 		};
 
 		// Act
@@ -56,47 +55,47 @@ public class MapperTests
 		// Assert
 
 		Assert.IsNotNull(assemblyCopy.AssemblyInfo);
-		Assert.AreEqual(assemblyCopy.AssemblyInfo.Name, Name);
-		Assert.AreEqual(assemblyCopy.AssemblyInfo.Version, Version);
-		Assert.AreEqual(assemblyCopy.AssemblyInfo.SourceType, SourceType);
-		Assert.AreEqual(assemblyCopy.AssemblyInfo.IsolationMode, IsolationMode);
-		Assert.AreEqual(assemblyCopy.AssemblyInfo.Culture, Culture);
-		Assert.AreEqual(assemblyCopy.AssemblyInfo.PublicKeyToken, PublicKeyToken);
-		Assert.AreEqual(assemblyCopy.AssemblyInfo.Description, Description);
-		Assert.IsTrue(assemblyCopy.AssemblyInfo.Content.SequenceEqual(Content));
+		Assert.AreEqual(name, assemblyCopy.AssemblyInfo.Name);
+		Assert.AreEqual(version, assemblyCopy.AssemblyInfo.Version);
+		Assert.AreEqual(sourceType, assemblyCopy.AssemblyInfo.SourceType);
+		Assert.AreEqual(isolationMode, assemblyCopy.AssemblyInfo.IsolationMode);
+		Assert.AreEqual(culture, assemblyCopy.AssemblyInfo.Culture);
+		Assert.AreEqual(publicKeyToken, assemblyCopy.AssemblyInfo.PublicKeyToken);
+		Assert.AreEqual(description, assemblyCopy.AssemblyInfo.Description);
+		Assert.IsTrue(assemblyCopy.AssemblyInfo.Content.SequenceEqual(content));
 
-		Assert.AreEqual(assemblyCopy.AssemblyInfo.EntityTypeName, EntityTypeName);
-		Assert.AreEqual(assemblyCopy.AssemblyInfo.UniqueName, Name);
-		Assert.AreEqual(assemblyCopy.AssemblyInfo.Rank, 0);
-		Assert.AreEqual(assemblyCopy.AssemblyInfo.DoAddToSolution, true);
-		Assert.AreEqual(assemblyCopy.AssemblyInfo.DoFetchTypeCode, false);
+		Assert.AreEqual(entityTypeName, assemblyCopy.AssemblyInfo.EntityTypeName);
+		Assert.AreEqual(name, assemblyCopy.AssemblyInfo.UniqueName);
+		Assert.AreEqual(0, assemblyCopy.AssemblyInfo.Rank);
+		Assert.IsTrue(assemblyCopy.AssemblyInfo.DoAddToSolution);
+		Assert.IsFalse(assemblyCopy.AssemblyInfo.DoFetchTypeCode);
 	}
 
 	[TestMethod]
 	public void AssemblyInfoMapTest()
 	{
 		// Arrange
-		var Name = "thisAssembly";
-		var Culture = "culture";
-		var PublicKeyToken = "token";
-		var Version = "version";
-		var Description = "description";
+		var name = "thisAssembly";
+		var culture = "culture";
+		var publicKeyToken = "token";
+		var version = "version";
+		var description = "description";
 
-		var EntityTypeName = "pluginassembly";
-		var Content = Encoding.UTF8.GetBytes("content");
-		var IsolationMode = ModeDIsolation.BacASableSandbox;
-		var SourceType = TypeDeSource.BaseDeDonnees;
+		var entityTypeName = "pluginassembly";
+		var content = "content"u8.ToArray();
+		var isolationMode = ModeDIsolation.Sandbox;
+		var sourceType = TypeDeSource.Database;
 
 		var assemblyInfo = new AssemblyInfo
 		{
-			Name = Name,
-			Version = Version,
-			SourceType = SourceType,
-			IsolationMode = IsolationMode,
-			Culture = Culture,
-			PublicKeyToken = PublicKeyToken,
-			Description = Description,
-			Content = Content
+			Name = name,
+			Version = version,
+			SourceType = sourceType,
+			IsolationMode = isolationMode,
+			Culture = culture,
+			PublicKeyToken = publicKeyToken,
+			Description = description,
+			Content = content
 		};
 
 		// Act
@@ -105,20 +104,20 @@ public class MapperTests
 
 		// Assert
 
-		Assert.AreEqual(assemblyCopy.Name, Name);
-		Assert.AreEqual(assemblyCopy.Version, Version);
-		Assert.AreEqual(assemblyCopy.SourceType, SourceType);
-		Assert.AreEqual(assemblyCopy.IsolationMode, IsolationMode);
-		Assert.AreEqual(assemblyCopy.Culture, Culture);
-		Assert.AreEqual(assemblyCopy.PublicKeyToken, PublicKeyToken);
-		Assert.AreEqual(assemblyCopy.Description, Description);
-		Assert.IsTrue(assemblyCopy.Content.SequenceEqual(Content));
+		Assert.AreEqual(name, assemblyCopy.Name);
+		Assert.AreEqual(version, assemblyCopy.Version);
+		Assert.AreEqual(sourceType, assemblyCopy.SourceType);
+		Assert.AreEqual(isolationMode, assemblyCopy.IsolationMode);
+		Assert.AreEqual(culture, assemblyCopy.Culture);
+		Assert.AreEqual(publicKeyToken, assemblyCopy.PublicKeyToken);
+		Assert.AreEqual(description, assemblyCopy.Description);
+		Assert.IsTrue(assemblyCopy.Content.SequenceEqual(content));
 
-		Assert.AreEqual(assemblyCopy.EntityTypeName, EntityTypeName);
-		Assert.AreEqual(assemblyCopy.UniqueName, Name);
-		Assert.AreEqual(assemblyCopy.Rank, 0);
-		Assert.AreEqual(assemblyCopy.DoAddToSolution, true);
-		Assert.AreEqual(assemblyCopy.DoFetchTypeCode, false);
+		Assert.AreEqual(entityTypeName, assemblyCopy.EntityTypeName);
+		Assert.AreEqual(name, assemblyCopy.UniqueName);
+		Assert.AreEqual(0, assemblyCopy.Rank);
+		Assert.IsTrue(assemblyCopy.DoAddToSolution);
+		Assert.IsFalse(assemblyCopy.DoFetchTypeCode);
 	}
 
 	[TestMethod]
@@ -269,9 +268,9 @@ public class MapperTests
 			ImpersonationUsername = "thisUser",
 			RegistrationState = RegistrationState.ToCreate,
 			UniqueName = "un",
-			PluginTypeFullName = "ptfl",
+			PluginTypeFullName = "PluginTypeFullName",
 			DoNotFilterAttributes = false,
-			PluginTypeName = "ptn",
+			PluginTypeName = "PluginTypeName",
 			MessageId = Guid.NewGuid(),
 			PreImage =
 			{

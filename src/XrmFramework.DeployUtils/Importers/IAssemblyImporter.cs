@@ -2,12 +2,13 @@
 using Deploy;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 using CustomApi = XrmFramework.DeployUtils.Model.CustomApi;
 using CustomApiRequestParameter = Deploy.CustomApiRequestParameter;
 using CustomApiResponseProperty = Deploy.CustomApiResponseProperty;
 using PluginPackage = XrmFramework.DeployUtils.Model.PluginPackage;
 
-namespace XrmFramework.DeployUtils.Utils;
+namespace XrmFramework.DeployUtils.Importers;
 
 /// <summary>
 ///     Imports Components from <see cref="System" /> or <see cref="Deploy" /> to <see cref="ICrmComponent" />
@@ -38,7 +39,7 @@ internal interface IAssemblyImporter
 	///     Creates a <see cref="IAssemblyContext" /> with only the <see cref="AssemblyInfo" /> Property computed from a
 	///     <see cref="Deploy.PluginAssembly" />
 	/// </summary>
-	/// <param name="assembly"></param>
+	/// <param name="assemblyInfo"></param>
 	/// <returns>
 	///     <see cref="IAssemblyContext" />
 	/// </returns>
@@ -85,8 +86,9 @@ internal interface IAssemblyImporter
 	/// </summary>
 	/// <param name="sdkStep"></param>
 	/// <param name="sdkImages"></param>
+	/// <param name="step"></param>
 	/// <returns></returns>
-	Step CreateStepFromRemote(SdkMessageProcessingStep sdkStep, IEnumerable<SdkMessageProcessingStepImage> sdkImages);
+	bool TryCreateStepFromRemote(SdkMessageProcessingStep sdkStep, IEnumerable<SdkMessageProcessingStepImage> sdkImages, out Step step);
 
 	/// <summary>
 	///     Creates a <see cref="Plugin" /> from a remote Assembly <see cref="Deploy.PluginType" />

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using Moq;
-using XrmFramework;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
 namespace XrmFramework.DeployUtils.Tests.CrmComponentsTests;
 
@@ -20,10 +19,10 @@ public class AssemblyInfoTests
 	private const string Description = "description";
 
 	private const string EntityTypeName = "pluginassembly";
-	private const ModeDIsolation IsolationMode = ModeDIsolation.BacASableSandbox;
-	private const TypeDeSource SourceType = TypeDeSource.BaseDeDonnees;
+	private const ModeDIsolation IsolationMode = ModeDIsolation.Sandbox;
+	private const TypeDeSource SourceType = TypeDeSource.Database;
 	private readonly AssemblyInfo _component;
-	private readonly byte[] Content = Encoding.UTF8.GetBytes("content");
+	private readonly byte[] _content = "content"u8.ToArray();
 
 	public AssemblyInfoTests()
 	{
@@ -36,31 +35,31 @@ public class AssemblyInfoTests
 			Culture = Culture,
 			PublicKeyToken = PublicKeyToken,
 			Description = Description,
-			Content = Content
+			Content = _content
 		};
 	}
 
 	[TestMethod]
 	public void UniquePropertiesTests()
 	{
-		Assert.AreEqual(_component.Name, Name);
-		Assert.AreEqual(_component.Version, Version);
-		Assert.AreEqual(_component.SourceType, SourceType);
-		Assert.AreEqual(_component.IsolationMode, IsolationMode);
-		Assert.AreEqual(_component.Culture, Culture);
-		Assert.AreEqual(_component.PublicKeyToken, PublicKeyToken);
-		Assert.AreEqual(_component.Description, Description);
-		Assert.AreEqual(_component.Content, Content);
+		Assert.AreEqual(Name, _component.Name);
+		Assert.AreEqual(Version, _component.Version);
+		Assert.AreEqual(SourceType, _component.SourceType);
+		Assert.AreEqual(IsolationMode, _component.IsolationMode);
+		Assert.AreEqual(Culture, _component.Culture);
+		Assert.AreEqual(PublicKeyToken, _component.PublicKeyToken);
+		Assert.AreEqual(Description, _component.Description);
+		Assert.AreEqual(_content, _component.Content);
 	}
 
 	[TestMethod]
 	public void CrmPropertiesTests()
 	{
-		Assert.AreEqual(_component.EntityTypeName, EntityTypeName);
-		Assert.AreEqual(_component.UniqueName, Name);
-		Assert.AreEqual(_component.Rank, 0);
-		Assert.AreEqual(_component.DoAddToSolution, true);
-		Assert.AreEqual(_component.DoFetchTypeCode, false);
+		Assert.AreEqual(EntityTypeName, _component.EntityTypeName);
+		Assert.AreEqual(Name, _component.UniqueName);
+		Assert.AreEqual(0, _component.Rank);
+		Assert.AreEqual(true, _component.DoAddToSolution);
+		Assert.AreEqual(false, _component.DoFetchTypeCode);
 	}
 
 	[TestMethod]
@@ -74,7 +73,7 @@ public class AssemblyInfoTests
 	public void AddChildTests()
 	{
 		var anyComponent = new Mock<ICrmComponent>().Object;
-		Action<ICrmComponent> addChild = _component.AddChild;
+		
 		Assert.ThrowsException<ArgumentException>(() => _component.AddChild(anyComponent),
 			"AssemblyInfo doesn't take children");
 	}

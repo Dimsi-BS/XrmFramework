@@ -6,7 +6,7 @@ namespace XrmFramework
 {
     public abstract class DefaultServiceWithSettings<T> : DefaultService where T : CrmSettings, new()
     {
-        protected CrmSettingsFactory<T> SettingsFactory { get; }
+        private CrmSettingsFactory<T> SettingsFactory { get; }
         protected T Settings => SettingsFactory.Settings;
 
         /// <summary>

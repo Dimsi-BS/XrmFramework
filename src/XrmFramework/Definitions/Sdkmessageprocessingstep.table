@@ -592,11 +592,11 @@
   "Enums": [
     {
       "LogName": "sdkmessageprocessingstep|invocationsource",
-      "Name": "SourceDInvocation",
+      "Name": "InvocationSource",
       "Values": [
         {
           "Value": -1,
-          "Name": "Interne",
+          "Name": "Internal",
           "Labels": [
             {
               "Label": "Interne",
@@ -615,7 +615,7 @@
         },
         {
           "Value": 1,
-          "Name": "Enfant",
+          "Name": "Child",
           "Labels": [
             {
               "Label": "Enfant",
@@ -630,7 +630,7 @@
       "Name": "Mode",
       "Values": [
         {
-          "Name": "Synchrone",
+          "Name": "Synchronous",
           "Labels": [
             {
               "Label": "Synchrone",
@@ -640,7 +640,7 @@
         },
         {
           "Value": 1,
-          "Name": "Asynchrone",
+          "Name": "Asynchronous",
           "Labels": [
             {
               "Label": "Asynchrone",
@@ -652,11 +652,11 @@
     },
     {
       "LogName": "sdkmessageprocessingstep|stage",
-      "Name": "Phase",
+      "Name": "Stage",
       "Values": [
         {
           "Value": 5,
-          "Name": "OperationAnterieureInitialeAUsageInterneUniquement",
+          "Name": "PreOperationInternalUseOnly",
           "Labels": [
             {
               "Label": "Opération antérieure initiale (à usage interne uniquement)",
@@ -666,7 +666,7 @@
         },
         {
           "Value": 10,
-          "Name": "ValidationPrealable",
+          "Name": "PreValidation",
           "Labels": [
             {
               "Label": "Validation préalable",
@@ -676,7 +676,7 @@
         },
         {
           "Value": 15,
-          "Name": "OperationAnterieureInterneAvantLesPlugInsExternesAUsageInterneUniquement",
+          "Name": "PreOperationBeforeExternalPluginsInternalUseOnly",
           "Labels": [
             {
               "Label": "Opération antérieure interne avant les plug-ins externes (à usage interne uniquement)",
@@ -686,7 +686,7 @@
         },
         {
           "Value": 20,
-          "Name": "OperationPrealable",
+          "Name": "PreOperation",
           "Labels": [
             {
               "Label": "Opération préalable",
@@ -696,7 +696,7 @@
         },
         {
           "Value": 25,
-          "Name": "OperationAnterieureInterneApresLesPlugInsExternesAUsageInterneUniquement",
+          "Name": "PreOperationAfterExternalPluginsInternalUseOnly",
           "Labels": [
             {
               "Label": "Opération antérieure interne après les plug-ins externes (à usage interne uniquement)",
@@ -706,7 +706,7 @@
         },
         {
           "Value": 30,
-          "Name": "OperationPrincipaleAUsageInterneUniquement",
+          "Name": "MainOperationInternalUseOnly",
           "Labels": [
             {
               "Label": "Opération principale (à usage interne uniquement)",
@@ -716,7 +716,7 @@
         },
         {
           "Value": 35,
-          "Name": "OperationPosterieureInterneAvantLesPlugInsExternesAUsageInterneUniquement",
+          "Name": "PostOperationBeforeExternalPluginsInternalUseOnly",
           "Labels": [
             {
               "Label": "Opération postérieure interne avant les plug-ins externes (à usage interne uniquement)",
@@ -726,7 +726,7 @@
         },
         {
           "Value": 40,
-          "Name": "OperationPosterieure",
+          "Name": "PostOperation",
           "Labels": [
             {
               "Label": "Opération postérieure",
@@ -736,7 +736,7 @@
         },
         {
           "Value": 45,
-          "Name": "OperationPosterieureInterneApresLesPlugInsExternesAUsageInterneUniquement",
+          "Name": "PostOperationAfterExternalPluginsInternalUseOnly",
           "Labels": [
             {
               "Label": "Opération postérieure interne après les plug-ins externes (à usage interne uniquement)",
@@ -746,7 +746,7 @@
         },
         {
           "Value": 50,
-          "Name": "OperationPosterieureDeconseille",
+          "Name": "PostOperationDeprecated",
           "Labels": [
             {
               "Label": "Opération postérieure (déconseillé)",
@@ -756,7 +756,7 @@
         },
         {
           "Value": 55,
-          "Name": "OperationPosterieureFinaleAUsageInterneUniquement",
+          "Name": "PostOperationFinalInternalUseOnly",
           "Labels": [
             {
               "Label": "Opération postérieure finale (à usage interne uniquement)",
@@ -766,7 +766,7 @@
         },
         {
           "Value": 80,
-          "Name": "PhaseDePreValidationDeclencheeAvantLaValidationDeLaTransactionUtilisationInterneUniquement",
+          "Name": "PreValidationBeforeTransactionCommitInternalUseOnly",
           "Labels": [
             {
               "Label": "Phase de pré-validation déclenchée avant la validation de la transaction (utilisation interne uniquement)",
@@ -776,7 +776,7 @@
         },
         {
           "Value": 90,
-          "Name": "PhaseDePostValidationDeclencheeApresLaValidationDeLaTransactionUtilisationInterneUniquement",
+          "Name": "PostValidationAfterTransactionCommitInternalUseOnly",
           "Labels": [
             {
               "Label": "Phase de post-validation déclenchée après la validation de la transaction (utilisation interne uniquement)",
@@ -792,21 +792,21 @@
       "Name": "SdkmessageprocessingstepState",
       "Values": [
         {
-          "Name": "Activee",
+          "Name": "Enabled",
           "Labels": [
             {
-              "Label": "Activée",
-              "LangId": 1036
+              "Label": "Enabled",
+              "LangId": 1033
             }
           ]
         },
         {
           "Value": 1,
-          "Name": "Desactive",
+          "Name": "Disabled",
           "Labels": [
             {
-              "Label": "Désactivé",
-              "LangId": 1036
+              "Label": "Disabled",
+              "LangId": 1033
             }
           ]
         }
@@ -818,21 +818,21 @@
       "Values": [
         {
           "Value": 1,
-          "Name": "Activee",
+          "Name": "Enabled",
           "Labels": [
             {
-              "Label": "Activée",
-              "LangId": 1036
+              "Label": "Enabled",
+              "LangId": 1033
             }
           ]
         },
         {
           "Value": 2,
-          "Name": "Desactive",
+          "Name": "Disabled",
           "Labels": [
             {
-              "Label": "Désactivé",
-              "LangId": 1036
+              "Label": "Disabled",
+              "LangId": 1033
             }
           ]
         }
@@ -840,34 +840,34 @@
     },
     {
       "LogName": "sdkmessageprocessingstep|supporteddeployment",
-      "Name": "DeploiementPrisEnCharge",
+      "Name": "SupportedDeployment",
       "Values": [
         {
-          "Name": "ServeurUniquement",
+          "Name": "ServerOnly",
           "Labels": [
             {
-              "Label": "Serveur uniquement",
-              "LangId": 1036
+              "Label": "Server only",
+              "LangId": 1033
             }
           ]
         },
         {
           "Value": 1,
-          "Name": "ClientMicrosoftDynamics365PourOutlookUniquement",
+          "Name": "MicrosoftDynamics365ForOutlookClientOnly",
           "Labels": [
             {
-              "Label": "Client Microsoft Dynamics 365 pour Outlook uniquement",
-              "LangId": 1036
+              "Label": "Microsoft Dynamics 365 Client for Outlook only",
+              "LangId": 1033
             }
           ]
         },
         {
           "Value": 2,
-          "Name": "Toutes",
+          "Name": "All",
           "Labels": [
             {
-              "Label": "Toutes",
-              "LangId": 1036
+              "Label": "All",
+              "LangId": 1033
             }
           ]
         }
