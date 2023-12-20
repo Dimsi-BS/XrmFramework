@@ -21,6 +21,7 @@ namespace XrmFramework.RemoteDebugger.Client
 
         public AzureRelayHybridConnectionMessageManager()
         {
+            TokenProvider.CreateSharedAccessSignatureTokenProvider()
             if (ConfigurationManager.ConnectionStrings["DebugConnectionString"] == null)
             {
                 throw new Exception("The connectionString \"DebugConnectionString\" is not defined.");
