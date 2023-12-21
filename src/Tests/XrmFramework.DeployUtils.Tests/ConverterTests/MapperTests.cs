@@ -167,7 +167,7 @@ public class MapperTests
 		Assert.AreEqual(customApi.WorkflowSdkStepEnabled, copy.WorkflowSdkStepEnabled);
 		Assert.AreEqual(customApi.RegistrationState, copy.RegistrationState);
 
-		Assert.AreEqual(2, copy.Children.Count());
+		Assert.AreEqual(2, customApi.Children.Count());
 	}
 
 	[TestMethod]
