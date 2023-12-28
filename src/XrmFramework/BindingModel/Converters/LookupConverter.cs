@@ -20,14 +20,12 @@ namespace XrmFramework.BindingModel
         }
 
         public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
-        {
-            if (value is string)
+            => value switch
             {
-                return GetReferenceFromString((string)value);
-            }
-
-            return GetStringFromEntityReference((EntityReference)value);
-        }
+                string stringValue => GetReferenceFromString(stringValue),
+                EntityReference refValue => GetStringFromEntityReference(refValue),
+                _ => throw new ArgumentException(@"The value must be a string or an EntityReference", nameof(value))
+            };
 
         private static EntityReference GetReferenceFromString(string value)
         {
@@ -47,7 +45,7 @@ namespace XrmFramework.BindingModel
 
         private static string GetStringFromEntityReference(EntityReference reference)
         {
-            string result = string.Empty;
+            var result = string.Empty;
             if (reference != null)
             {
                 result = $"{reference.LogicalName}|{reference.Id}|{reference.Name}";
