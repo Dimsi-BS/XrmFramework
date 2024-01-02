@@ -11,7 +11,9 @@ using XrmFramework.DeployUtils.Exporters;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.DeployUtils.Utils;
 using XrmFramework.RemoteDebugger;
+using XrmFramework.RemoteDebugger.Client;
 using XrmFramework.RemoteDebugger.Client.Recorder;
+using XrmFramework.RemoteDebugger.Common;
 
 namespace XrmFramework.DeployUtils.Configuration
 {
@@ -34,7 +36,7 @@ namespace XrmFramework.DeployUtils.Configuration
         /// <param name="projectName">The Name of the Local Project</param>
         /// <returns><see cref="IServiceProvider"/> the service provider used to instantiate every object needed</returns>
 
-        public static IServiceProvider ConfigureForRemoteDebug()
+        public static IServiceProvider ConfigureForRemoteDebug<T>() where T: class, IRemoteDebuggerMessageManager
         {
             if (ConfigurationManager.ConnectionStrings["DebugConnectionString"] == null)
             {
@@ -46,6 +48,8 @@ namespace XrmFramework.DeployUtils.Configuration
             serviceCollection.AddScoped<IAssemblyExporter, DebuggerAssemblyExporter>();
 
             serviceCollection.AddScoped<ISessionRecorder, SessionRecorder>();
+
+            serviceCollection.AddScoped<IRemoteDebuggerMessageManager, T>();
 
             var connectionString = ChooseConnectionString();
 

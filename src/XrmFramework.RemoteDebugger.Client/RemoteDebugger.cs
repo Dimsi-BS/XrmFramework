@@ -1,150 +1,56 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Workflow;
 using System;
-using System.Activities;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using XrmFramework.DeployUtils;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
-using XrmFramework.RemoteDebugger.Client.Recorder;
+using XrmFramework.RemoteDebugger.Client;
 
 // ReSharper disable once CheckNamespace
-namespace XrmFramework.RemoteDebugger.Common
+namespace XrmFramework.RemoteDebugger.Common;
+
+[SuppressMessage("ReSharper", "UnusedType.Global")]
+public class RemoteDebugger<T> where T : class, IRemoteDebuggerMessageManager, new()
 {
-    public class RemoteDebugger<T> where T : IRemoteDebuggerMessageManager, new()
+    /// <summary>
+    /// Entrypoint for debugging all referenced projects
+    /// </summary>
+    // ReSharper disable once UnusedMember.Global
+    public void Start()
     {
-        private T Manager { get; } = new();
+        Console.WriteLine(@"You are about to modify the debug session");
 
-        /// <summary>
-        /// Entrypoint for debugging all referenced projects
-        /// </summary>
-        public void Start()
+        var assembliesToDebug = Assembly.GetCallingAssembly().GetReferencedAssemblies()
+            .Select(Assembly.Load)
+            .Where(a => a.GetType("XrmFramework.Plugin") != null
+                        || a.GetType("XrmFramework.CustomApi") != null
+                        || a.GetType("XrmFramework.Workflow.CustomWorkflowActivity") != null
+            )
+            .ToList();
+
+        if (!assembliesToDebug.Any())
         {
-            Console.WriteLine(@"You are about to modify the debug session");
-
-            var assembliesToDebug = Assembly.GetCallingAssembly().GetReferencedAssemblies()
-                .Select(Assembly.Load)
-                .Where(a => a.GetType("XrmFramework.Plugin") != null
-                            || a.GetType("XrmFramework.CustomApi") != null
-                            || a.GetType("XrmFramework.Workflow.CustomWorkflowActivity") != null
-                )
-                .ToList();
-
-            if (!assembliesToDebug.Any())
-            {
-                throw new ArgumentException(
-                    "No project containing components to debug were found, please check that they are referenced");
-            }
-
-            var serviceProvider = DebuggerServiceCollectionHelper.ConfigureForRemoteDebug();
-
-            var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
-
-            var remoteDebuggerHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
-
-            var sessionRecorder = serviceProvider.GetRequiredService<ISessionRecorder>();
-            
-            Manager.SetSessionRecorder(sessionRecorder);
-
-            assembliesToDebug.ForEach(assembly =>
-            {
-                var targetSolutionName = ServiceCollectionHelper.GetTargetSolutionName(assembly.GetName().Name);
-                solutionContext.InitSolutionContext(targetSolutionName);
-                remoteDebuggerHelper.UpdateDebugger(assembly);
-            });
-
-            Manager.ContextReceived += OnManagerOnContextReceived;
-
-            Manager.RunAndBlock();
+            throw new ArgumentException(
+                "No project containing components to debug were found, please check that they are referenced");
         }
 
-        private void OnManagerOnContextReceived(RemoteDebugExecutionContext remoteContext)
+        var serviceProvider = DebuggerServiceCollectionHelper.ConfigureForRemoteDebug<T>();
+
+        var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
+
+        var remoteDebuggerHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
+
+        assembliesToDebug.ForEach(assembly =>
         {
-            // Create local service provider from remote context
-            var localServiceProvider = new LocalServiceProvider(remoteContext);
+            var targetSolutionName = ServiceCollectionHelper.GetTargetSolutionName(assembly.GetName().Name);
+            solutionContext.InitSolutionContext(targetSolutionName);
+            remoteDebuggerHelper.UpdateDebugger(assembly);
+        });
 
-            localServiceProvider.RequestSent += request => Manager.SendMessageWithResponse(request).GetAwaiter().GetResult();
-            var pluginExecutionTask = Task.Run(() =>
-            {
-                // Get the assembly qualified name of the plugin to be executed
-                var typeQualifiedName = remoteContext.TypeAssemblyQualifiedName.Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                // Remove the version part of the list and the public key token
-                typeQualifiedName.RemoveAll(i => i.StartsWith("Version") || i.StartsWith("PublicKeyToken"));
+        using var manager = serviceProvider.GetRequiredService<IRemoteDebuggerMessageManager>();
 
-                var typeName = string.Join(", ", typeQualifiedName);
-                // Get the pluginType from the newly constructed typeName
-                var pluginType = Type.GetType(typeName);
-
-                // If no plugin found, return
-                if (pluginType == null)
-                {
-                    return;
-                }
-
-                // The actions to be performed will be different depending on whether the context is a workflow or not
-                if (remoteContext.IsWorkflowContext)
-                {
-                    // Create an instance of the workflow
-                    var codeActivity = (CodeActivity)Activator.CreateInstance(pluginType);
-
-                    var invoker = new WorkflowInvoker(codeActivity);
-
-                    // The different service available to the service provider to the invoker ?
-                    AddExtensionToWorkflowInvoker<IWorkflowContext>(localServiceProvider, invoker);
-                    AddExtensionToWorkflowInvoker<IOrganizationServiceFactory>(localServiceProvider, invoker);
-                    AddExtensionToWorkflowInvoker<IServiceEndpointNotificationService>(localServiceProvider, invoker);
-                    AddExtensionToWorkflowInvoker<ITracingService>(localServiceProvider, invoker);
-
-                    // Get arguments from the remote context
-                    var inputs = remoteContext.Arguments.ToDictionary(k => k.Key, k => k.Value);
-                    // Invoke the corresponding action
-                    var outputs = invoker.Invoke(inputs);
-                    // Clear arguments now that they have been used
-                    remoteContext.Arguments.Clear();
-
-                    // Enter outputs in arguments
-                    foreach (var output in outputs)
-                    {
-                        remoteContext.Arguments[output.Key] = output.Value;
-                    }
-                }
-                else
-                {
-                    // If a plugin or a custom API, juste create the instance and execute it using the local service provider
-                    // Preferably, use the constructor that takes two strings as parameters, else use the default one
-                    var plugin = Array.Exists(pluginType.GetConstructors(), c =>
-                    {
-                        var parameters = c.GetParameters();
-                        return parameters.Length == 2 && parameters[0].ParameterType == typeof(string) && parameters[1].ParameterType == typeof(string);
-                    })
-                        ? (IPlugin)Activator.CreateInstance(pluginType, remoteContext.SecureConfig, remoteContext.UnsecureConfig)
-                        : (IPlugin)Activator.CreateInstance(pluginType);
-                    plugin.Execute(localServiceProvider);
-                }
-            });
-
-            try
-            {
-                pluginExecutionTask.GetAwaiter().GetResult();
-            }
-            catch (Exception e)
-            {
-                Manager.SendMessage(new RemoteDebuggerMessage(RemoteDebuggerMessageType.Exception, e, remoteContext.Id));
-            }
-        }
-
-        private static void AddExtensionToWorkflowInvoker<TService>(IServiceProvider provider, WorkflowInvoker invoker) where TService : class
-        {
-            var service = provider.GetService(typeof(TService));
-            if (service == null)
-            {
-                return;
-            }
-
-            invoker.Extensions.Add(() => (TService)service);
-        }
+        manager.RunAndBlock();
     }
 }
