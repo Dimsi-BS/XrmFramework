@@ -1,6 +1,6 @@
 ﻿<Project>
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)/../../content/tables/**/*.table" Link="__Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)/../content/tables/**/*.table" Link="__Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" />
 
     <Compile Remove="**\*.table" />
     <None Remove="**\*.table" />
