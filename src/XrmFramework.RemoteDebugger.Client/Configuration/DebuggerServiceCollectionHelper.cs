@@ -11,6 +11,7 @@ using XrmFramework.DeployUtils.Exporters;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.DeployUtils.Utils;
 using XrmFramework.RemoteDebugger;
+using XrmFramework.RemoteDebugger.Client.Recorder;
 
 namespace XrmFramework.DeployUtils.Configuration
 {
@@ -44,6 +45,8 @@ namespace XrmFramework.DeployUtils.Configuration
 
             serviceCollection.AddScoped<IAssemblyExporter, DebuggerAssemblyExporter>();
 
+            serviceCollection.AddScoped<ISessionRecorder, SessionRecorder>();
+
             var connectionString = ChooseConnectionString();
 
             var debugSession = GetDebugSession(connectionString);
@@ -55,7 +58,7 @@ namespace XrmFramework.DeployUtils.Configuration
 
             serviceCollection.AddScoped<IOrganizationService, CrmServiceClient>(_ => new CrmServiceClient(connectionString));
 
-            serviceCollection.Configure<DebugSession>((ds) =>
+            serviceCollection.Configure<DebugSession>(ds =>
             {
                 debugSession.CopyTo(ds);
             });

@@ -7,6 +7,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using XrmFramework.RemoteDebugger.Client.Recorder;
 using XrmFramework.RemoteDebugger.Common;
 
 namespace XrmFramework.RemoteDebugger.Client
@@ -18,6 +19,8 @@ namespace XrmFramework.RemoteDebugger.Client
         private static readonly ConcurrentDictionary<Guid, RemoteDebuggerMessage> MessageReceiveCache = new ConcurrentDictionary<Guid, RemoteDebuggerMessage>();
 
         public event Action<RemoteDebugExecutionContext> ContextReceived;
+        
+        private ISessionRecorder SessionRecorder { get; set; }
 
         public AzureRelayHybridConnectionMessageManager()
         {
@@ -47,8 +50,11 @@ namespace XrmFramework.RemoteDebugger.Client
 
             // Get the message object through deserialization
             var message = JsonConvert.DeserializeObject<RemoteDebuggerMessage>(requestContent);
+            
+            SessionRecorder?.AddMessage(message);
+            
             // Cache it
-            CurrentResponseCache.AddOrUpdate(message.PluginExecutionId, context.Response, (guid, response) => context.Response);
+            CurrentResponseCache.AddOrUpdate(message.PluginExecutionId, context.Response, (_, _) => context.Response);
 
 
             switch (message.MessageType)
@@ -88,19 +94,21 @@ namespace XrmFramework.RemoteDebugger.Client
 
         public Task SendMessage(RemoteDebuggerMessage message)
         {
-            if (CurrentResponseCache.TryGetValue(message.PluginExecutionId, out var currentResponse))
-            {
-                var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
+            if (!CurrentResponseCache.TryGetValue(message.PluginExecutionId, out var currentResponse))
+                return Task.CompletedTask;
+            
+            SessionRecorder?.AddMessage(message);
+            
+            var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
 
-                try
-                {
-                    currentResponse.OutputStream.Write(bytes, 0, bytes.Length);
-                    currentResponse.Close();
-                }
-                catch (Exception)
-                {
-                    // erreur ignorée
-                }
+            try
+            {
+                currentResponse.OutputStream.Write(bytes, 0, bytes.Length);
+                currentResponse.Close();
+            }
+            catch (Exception)
+            {
+                // erreur ignorée
             }
 
             return Task.CompletedTask;
@@ -119,6 +127,11 @@ namespace XrmFramework.RemoteDebugger.Client
             }
 
             return Task.FromResult(response);
+        }
+
+        public void SetSessionRecorder(ISessionRecorder sessionRecorder)
+        {
+            SessionRecorder = sessionRecorder;
         }
 
         public void RunAndBlock()

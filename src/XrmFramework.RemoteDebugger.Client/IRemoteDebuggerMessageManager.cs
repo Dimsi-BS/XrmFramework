@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using XrmFramework.RemoteDebugger.Client.Recorder;
 
 namespace XrmFramework.RemoteDebugger.Common
 {
@@ -10,6 +11,8 @@ namespace XrmFramework.RemoteDebugger.Common
         Task SendMessage(RemoteDebuggerMessage message);
 
         Task<RemoteDebuggerMessage> SendMessageWithResponse(RemoteDebuggerMessage message);
+        
+        void SetSessionRecorder(ISessionRecorder sessionRecorder);
 
         void RunAndBlock();
     }

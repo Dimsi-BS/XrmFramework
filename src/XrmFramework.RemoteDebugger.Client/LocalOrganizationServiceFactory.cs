@@ -9,7 +9,7 @@ namespace XrmFramework.RemoteDebugger.Common
     public class LocalOrganizationServiceFactory : IOrganizationServiceFactory
     {
         private readonly LocalServiceProvider.RequestHandler _onRequestSent;
-        public RemoteDebugExecutionContext Context { get; }
+        private RemoteDebugExecutionContext Context { get; }
 
         public LocalOrganizationServiceFactory(RemoteDebugExecutionContext context, LocalServiceProvider.RequestHandler onRequestSent)
         {
