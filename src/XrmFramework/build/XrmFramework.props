@@ -1,6 +1,4 @@
 ﻿<Project>
-  <Import Project="../XrmFramework.props" />
-  
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)/../../content/tables/**/*.table" Link="__Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" />
 
