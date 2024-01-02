@@ -12,7 +12,7 @@ using XrmFramework.RemoteDebugger.Client;
 namespace XrmFramework.RemoteDebugger.Common;
 
 [SuppressMessage("ReSharper", "UnusedType.Global")]
-public class RemoteDebugger<T> where T : class, IRemoteDebuggerMessageManager, new()
+public class RemoteDebugger<T> where T : class, IRemoteDebuggerMessageManager
 {
     /// <summary>
     /// Entrypoint for debugging all referenced projects
@@ -35,6 +35,7 @@ public class RemoteDebugger<T> where T : class, IRemoteDebuggerMessageManager, n
             throw new ArgumentException(
                 "No project containing components to debug were found, please check that they are referenced");
         }
+        
 
         var serviceProvider = DebuggerServiceCollectionHelper.ConfigureForRemoteDebug<T>();
 
