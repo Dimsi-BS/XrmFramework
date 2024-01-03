@@ -112,8 +112,6 @@ public class LoggedServiceCodeGenerator : CodeGeneratorBase
 		var isObsoleteMethod = m.GetAttributes()
 			.Any(a => a.AttributeClass.GetFullMetadataName() == "System.ObsoleteAttribute");
 
-		if (isObsoleteMethod) builder.AppendLine("#pragma warning disable CS0612");
-
 		builder
 			.AppendLine()
 			.Append("public ");
@@ -145,6 +143,7 @@ public class LoggedServiceCodeGenerator : CodeGeneratorBase
 			if (isObsoleteMethod)
 			{
 				builder.AppendLine("#pragma warning disable CS0612 // The type or member is obsolete");
+				builder.AppendLine("#pragma warning disable CS0618 // The type or member is obsolete");
 			}
 
 			if (m.ReturnType.SpecialType != SpecialType.System_Void &&
@@ -166,6 +165,7 @@ public class LoggedServiceCodeGenerator : CodeGeneratorBase
 			if (isObsoleteMethod)
 			{
 				builder.AppendLine("#pragma warning restore CS0612 // The type or member is obsolete");
+				builder.AppendLine("#pragma warning restore CS0618 // The type or member is obsolete");
 			}
 
 			GetMethodLog(m, false, builder);
