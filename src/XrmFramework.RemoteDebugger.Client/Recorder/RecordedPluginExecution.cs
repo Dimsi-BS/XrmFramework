@@ -10,7 +10,7 @@ public class RecordedPluginExecution : IRecordedPluginExecution
     
     public Guid Id { get; set; }
     
-    public string Name => _messages.FirstOrDefault()?.GetContext<RemoteDebugExecutionContext>()?.TypeAssemblyQualifiedName ?? "Unknown";
+    public string Name => _messages.FirstOrDefault()?.GetContext<RemoteDebugExecutionContext>()?.ToPrettyString() ?? "Unknown";
 
     public IReadOnlyCollection<RemoteDebuggerMessage> Messages => _messages.AsReadOnly();
     
