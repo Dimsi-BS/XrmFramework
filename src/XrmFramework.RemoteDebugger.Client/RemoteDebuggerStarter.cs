@@ -14,13 +14,13 @@ using XrmFramework.RemoteDebugger.Client.Recorder;
 namespace XrmFramework.RemoteDebugger.Common;
 
 [SuppressMessage("ReSharper", "UnusedType.Global")]
-public static class RemoteDebuggerStarter<T> where T : class, IRemoteDebuggerMessageManager
+public sealed class RemoteDebuggerStarter<T> where T : class, IRemoteDebuggerMessageManager
 {
     /// <summary>
     /// Entrypoint for debugging all referenced projects
     /// </summary>
     // ReSharper disable once UnusedMember.Global
-    public static async Task RunAsync()
+    public async Task RunAsync()
     {
         Console.WriteLine(@"You are about to modify the debug session");
 
