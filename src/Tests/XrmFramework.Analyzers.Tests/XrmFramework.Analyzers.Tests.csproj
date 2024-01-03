@@ -28,10 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="**\*.verified.*" />
-  </ItemGroup>
-  
-  <ItemGroup>
     <ProjectReference Include="..\..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" />
   </ItemGroup>
   
@@ -53,8 +49,6 @@
   <ItemGroup>
     <Compile Remove="**/*.verified.*" />
     <Compile Remove="**/*.received.*" />
-    <None Include="**/*.verified.*" />
-    <None Include="**/*.received.*" />
   </ItemGroup>
   
 </Project>

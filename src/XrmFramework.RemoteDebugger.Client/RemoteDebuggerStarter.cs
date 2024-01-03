@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using XrmFramework.DeployUtils;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
@@ -13,13 +14,13 @@ using XrmFramework.RemoteDebugger.Client.Recorder;
 namespace XrmFramework.RemoteDebugger.Common;
 
 [SuppressMessage("ReSharper", "UnusedType.Global")]
-public class RemoteDebuggerStarter<T> where T : class, IRemoteDebuggerMessageManager
+public static class RemoteDebuggerStarter<T> where T : class, IRemoteDebuggerMessageManager
 {
     /// <summary>
     /// Entrypoint for debugging all referenced projects
     /// </summary>
     // ReSharper disable once UnusedMember.Global
-    public ISessionRecorder Start()
+    public static async Task RunAsync()
     {
         Console.WriteLine(@"You are about to modify the debug session");
 
@@ -36,7 +37,6 @@ public class RemoteDebuggerStarter<T> where T : class, IRemoteDebuggerMessageMan
             throw new ArgumentException(
                 "No project containing components to debug were found, please check that they are referenced");
         }
-        
 
         var serviceProvider = DebuggerServiceCollectionHelper.ConfigureForRemoteDebug<T>();
 
@@ -53,8 +53,6 @@ public class RemoteDebuggerStarter<T> where T : class, IRemoteDebuggerMessageMan
 
         using var manager = serviceProvider.GetRequiredService<IRemoteDebuggerMessageManager>();
 
-        manager.RunAndBlock();
-
-        return serviceProvider.GetRequiredService<ISessionRecorder>();
+        await manager.RunAsync();
     }
 }

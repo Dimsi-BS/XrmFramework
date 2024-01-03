@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace XrmFramework.RemoteDebugger.Client
 {
     public interface IRemoteDebuggerMessageManager: IDisposable
     {
-        void RunAndBlock();
+        Task RunAsync();
     }
 }

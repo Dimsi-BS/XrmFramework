@@ -22,7 +22,7 @@ public abstract class MessageManagerBase : IRemoteDebuggerMessageManager
 
     private event Action<RemoteDebugExecutionContext> ContextReceived;
 
-    public abstract void RunAndBlock();
+    public abstract Task RunAsync();
 
     protected void RecordMessage(RemoteDebuggerMessage message)
         => _sessionRecorder.AddMessage(message);

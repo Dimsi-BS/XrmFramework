@@ -132,11 +132,11 @@ public class AzureRelayHybridConnectionMessageManager : MessageManagerBase
         return Task.FromResult(response);
     }
 
-    public override void RunAndBlock()
+    public override async Task RunAsync()
     {
-        Listener.OpenAsync().GetAwaiter().GetResult();
+        await Listener.OpenAsync();
 
-        Console.In.ReadLineAsync().GetAwaiter().GetResult();
+        await Console.In.ReadLineAsync();
     }
     
     protected override void Dispose(bool disposing)
