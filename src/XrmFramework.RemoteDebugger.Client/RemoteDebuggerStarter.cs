@@ -7,6 +7,7 @@ using XrmFramework.DeployUtils;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.RemoteDebugger.Client;
+using XrmFramework.RemoteDebugger.Client.Recorder;
 
 // ReSharper disable once CheckNamespace
 namespace XrmFramework.RemoteDebugger.Common;
@@ -18,7 +19,7 @@ public class RemoteDebuggerStarter<T> where T : class, IRemoteDebuggerMessageMan
     /// Entrypoint for debugging all referenced projects
     /// </summary>
     // ReSharper disable once UnusedMember.Global
-    public void Start()
+    public ISessionRecorder Start()
     {
         Console.WriteLine(@"You are about to modify the debug session");
 
@@ -53,5 +54,7 @@ public class RemoteDebuggerStarter<T> where T : class, IRemoteDebuggerMessageMan
         using var manager = serviceProvider.GetRequiredService<IRemoteDebuggerMessageManager>();
 
         manager.RunAndBlock();
+
+        return serviceProvider.GetRequiredService<ISessionRecorder>();
     }
 }
