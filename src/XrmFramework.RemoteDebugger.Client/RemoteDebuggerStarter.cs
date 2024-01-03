@@ -12,7 +12,7 @@ using XrmFramework.RemoteDebugger.Client;
 namespace XrmFramework.RemoteDebugger.Common;
 
 [SuppressMessage("ReSharper", "UnusedType.Global")]
-public class RemoteDebugger<T> where T : class, IRemoteDebuggerMessageManager
+public class RemoteDebuggerStarter<T> where T : class, IRemoteDebuggerMessageManager
 {
     /// <summary>
     /// Entrypoint for debugging all referenced projects
