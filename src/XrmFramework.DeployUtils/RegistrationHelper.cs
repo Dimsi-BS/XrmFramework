@@ -48,8 +48,10 @@ public partial class RegistrationHelper
 		var solutionSettings = serviceProvider.GetRequiredService<IOptions<DeploySettings>>();
 
 		Console.WriteLine($@"Assembly {localDll.GetName().Name}");
-		Console.WriteLine(
-			$@"You are about to deploy on organization:\nUrl : {solutionSettings.Value.Url}\nClientId : {solutionSettings.Value.ClientId}\nIf ok press any key.");
+		Console.WriteLine(@"You are about to deploy on organization:");
+		Console.WriteLine(@$"Url : {solutionSettings.Value.Url}");
+		Console.WriteLine(@$"ClientId : {solutionSettings.Value.ClientId}");
+		Console.WriteLine(@"If ok press any key.");
 		Console.ReadKey();
 		Console.WriteLine(@"Connecting to CRM...");
 

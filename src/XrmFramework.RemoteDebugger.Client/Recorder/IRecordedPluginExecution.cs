@@ -7,6 +7,8 @@ public interface IRecordedPluginExecution
 {
     Guid Id { get; set; }
     
+    string Name { get; }
+    
     IReadOnlyCollection<RemoteDebuggerMessage> Messages { get; }
 
     void AddMessage(RemoteDebuggerMessage message);

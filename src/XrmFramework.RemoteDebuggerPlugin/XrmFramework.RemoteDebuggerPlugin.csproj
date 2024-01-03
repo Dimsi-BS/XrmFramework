@@ -52,7 +52,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
     <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
     <DefineConstants>$(DefineConstants);DISABLE_SERVICES</DefineConstants>
 
