@@ -47,12 +47,5 @@ namespace XrmFramework.Workflow
         {
             Logger.LogCollection(list);
         }
-
-
-        public object? GetService(Type serviceType)
-            => ObjectContainer.Resolve(serviceType);
-
-        public TService GetService<TService>() where TService : IService
-            => ObjectContainer.Resolve<TService>();
     }
 }
