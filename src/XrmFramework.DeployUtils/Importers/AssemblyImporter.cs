@@ -72,8 +72,8 @@ public class AssemblyImporter : IAssemblyImporter
 
     public Plugin CreatePluginFromType(Type type)
     {
-        dynamic instance = type.GetConstructor(new[] { typeof(string), typeof(string) }) != null 
-            ? Activator.CreateInstance(type, null, null) 
+        dynamic instance = type.GetConstructor(new[] { typeof(string), typeof(string) }) != null
+            ? Activator.CreateInstance(type, (object)null, null)
             : Activator.CreateInstance(type);
 
         return FromXrmFrameworkPlugin(instance);
@@ -96,7 +96,7 @@ public class AssemblyImporter : IAssemblyImporter
     }
 
     public bool TryCreateStepFromRemote(SdkMessageProcessingStep sdkStep,
-      IEnumerable<SdkMessageProcessingStepImage> sdkImages, out Step step)
+        IEnumerable<SdkMessageProcessingStepImage> sdkImages, out Step step)
     {
         var entityName = sdkStep.EntityName;
         var pluginFullName = sdkStep.EventHandler.Name;
@@ -122,7 +122,7 @@ public class AssemblyImporter : IAssemblyImporter
             },
             sdkStep.ModeEnum switch
             {
-                sdkmessageprocessingstep_mode.Synchronous => Modes.Synchronous, 
+                sdkmessageprocessingstep_mode.Synchronous => Modes.Synchronous,
                 _ => Modes.Asynchronous
             },
             entityName)
@@ -171,22 +171,22 @@ public class AssemblyImporter : IAssemblyImporter
 
 
     public CustomApi CreateCustomApiFromRemote(Deploy.CustomApi customApi,
-      IEnumerable<CustomApiRequestParameter> requestParameters,
-      IEnumerable<CustomApiResponseProperty> responseProperties)
+        IEnumerable<CustomApiRequestParameter> requestParameters,
+        IEnumerable<CustomApiResponseProperty> responseProperties)
     {
         var parsedCustomApi = _mapper.Map<CustomApi>(customApi);
 
         requestParameters
-          .Where(r => r.CustomApiId.Id == customApi.Id)
-          .Select(_mapper.Map<Model.CustomApiRequestParameter>)
-          .ToList()
-          .ForEach(parsedCustomApi.AddChild);
+            .Where(r => r.CustomApiId.Id == customApi.Id)
+            .Select(_mapper.Map<Model.CustomApiRequestParameter>)
+            .ToList()
+            .ForEach(parsedCustomApi.AddChild);
 
         responseProperties
-          .Where(r => r.CustomApiId.Id == customApi.Id)
-          .Select(_mapper.Map<Model.CustomApiResponseProperty>)
-          .ToList()
-          .ForEach(parsedCustomApi.AddChild);
+            .Where(r => r.CustomApiId.Id == customApi.Id)
+            .Select(_mapper.Map<Model.CustomApiResponseProperty>)
+            .ToList()
+            .ForEach(parsedCustomApi.AddChild);
 
         return parsedCustomApi;
     }
@@ -198,8 +198,8 @@ public class AssemblyImporter : IAssemblyImporter
         Assert.IsNotNull(entryAssembly);
 
         var packagesFolderName = entryAssembly
-          .GetCustomAttribute<DeployFolderAttribute>()
-          .Path;
+            .GetCustomAttribute<DeployFolderAttribute>()
+            .Path;
         var directoryInfos = new DirectoryInfo(packagesFolderName);
 
         var files = directoryInfos.GetFiles($"{assembly.Name}.*.nupkg");
@@ -207,23 +207,23 @@ public class AssemblyImporter : IAssemblyImporter
         var fileInfo = files.FirstOrDefault();
 
         return fileInfo == null
-          ? null
-          : new PluginPackage
-          {
-              Name = $"{_solutionContext.Publisher.CustomizationPrefix}_{assembly.Name}",
-              UniqueName = $"{_solutionContext.Publisher.CustomizationPrefix}_{assembly.Name}",
-              Version = assembly.Version,
-              Content = File.ReadAllBytes(fileInfo.FullName)
-          };
+            ? null
+            : new PluginPackage
+            {
+                Name = $"{_solutionContext.Publisher.CustomizationPrefix}_{assembly.Name}",
+                UniqueName = $"{_solutionContext.Publisher.CustomizationPrefix}_{assembly.Name}",
+                Version = assembly.Version,
+                Content = File.ReadAllBytes(fileInfo.FullName)
+            };
     }
 
 
     public void CreateStepImageFromRemote(Step step, bool isPreImage,
-      IEnumerable<SdkMessageProcessingStepImage> stepImages)
+        IEnumerable<SdkMessageProcessingStepImage> stepImages)
     {
         var imageType = isPreImage
-          ? sdkmessageprocessingstepimage_imagetype.PreImage
-          : sdkmessageprocessingstepimage_imagetype.PostImage;
+            ? sdkmessageprocessingstepimage_imagetype.PreImage
+            : sdkmessageprocessingstepimage_imagetype.PostImage;
         var existingImage = stepImages.FirstOrDefault(i => i.ImageTypeEnum == imageType
                                                            && i.SdkMessageProcessingStepId.Id == step.Id);
 
@@ -241,8 +241,8 @@ public class AssemblyImporter : IAssemblyImporter
     private Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false)
     {
         var pluginTemp = !isWorkflow
-          ? new Plugin(plugin.GetType().FullName)
-          : new Plugin(plugin.GetType().FullName, plugin.DisplayName);
+            ? new Plugin(plugin.GetType().FullName)
+            : new Plugin(plugin.GetType().FullName, plugin.DisplayName);
         if (!isWorkflow)
             foreach (var step in plugin.Steps)
                 pluginTemp.Steps.Add(FromXrmFrameworkStep(step));
@@ -253,7 +253,7 @@ public class AssemblyImporter : IAssemblyImporter
     private Step FromXrmFrameworkStep(dynamic s)
     {
         var step = new Step(s.Plugin.GetType().Name, Messages.GetMessage(s.Message.ToString()), (Stages)(int)s.Stage,
-          (Modes)(int)s.Mode, s.EntityName)
+            (Modes)(int)s.Mode, s.EntityName)
         {
             PluginTypeFullName = s.Plugin.GetType().FullName
         };
@@ -280,7 +280,7 @@ public class AssemblyImporter : IAssemblyImporter
         var type = (Type)record.GetType();
 
         dynamic customApiAttribute = type.GetCustomAttributes()
-          .FirstOrDefault(a => a.GetType().FullName == "XrmFramework.CustomApiAttribute");
+            .FirstOrDefault(a => a.GetType().FullName == "XrmFramework.CustomApiAttribute");
 
         if (customApiAttribute == null)
             throw new ArgumentException($"The custom api type {type.FullName} must have a CustomApiAttribute defined");
@@ -290,15 +290,15 @@ public class AssemblyImporter : IAssemblyImporter
         var customApi = new CustomApi
         {
             DisplayName = string.IsNullOrWhiteSpace(customApiAttribute.DisplayName)
-            ? name
-            : customApiAttribute.DisplayName,
+                ? name
+                : customApiAttribute.DisplayName,
             Name = name,
             AllowedCustomProcessingStepType = new OptionSetValue((int)customApiAttribute.AllowedCustomProcessing),
             BindingType = new OptionSetValue((int)customApiAttribute.BindingType),
             BoundEntityLogicalName = customApiAttribute.BoundEntityLogicalName,
             Description = string.IsNullOrWhiteSpace(customApiAttribute.Description)
-            ? name
-            : customApiAttribute.Description,
+                ? name
+                : customApiAttribute.Description,
             ExecutePrivilegeName = customApiAttribute.ExecutePrivilegeName,
             IsFunction = customApiAttribute.IsFunction,
             IsPrivate = customApiAttribute.IsPrivate,
@@ -320,12 +320,12 @@ public class AssemblyImporter : IAssemblyImporter
         var res = new T()
         {
             Description = string.IsNullOrWhiteSpace(argument.Description)
-            ? $"{customApiName}.{argument.ArgumentName}"
-            : argument.Description,
+                ? $"{customApiName}.{argument.ArgumentName}"
+                : argument.Description,
             UniqueName = $"{customApiName}.{argument.ArgumentName}",
             DisplayName = string.IsNullOrWhiteSpace(argument.DisplayName)
-            ? $"{customApiName}.{argument.ArgumentName}"
-            : argument.DisplayName,
+                ? $"{customApiName}.{argument.ArgumentName}"
+                : argument.DisplayName,
             Type = new OptionSetValue((int)argument.ArgumentType),
             Name = argument.ArgumentName
         };
