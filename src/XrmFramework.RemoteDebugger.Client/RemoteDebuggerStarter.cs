@@ -15,9 +15,9 @@ using XrmFramework.RemoteDebugger.Client.Recorder;
 namespace XrmFramework.RemoteDebugger.Common;
 
 [SuppressMessage("ReSharper", "UnusedType.Global")]
-public sealed class RemoteDebuggerStarter<T> where T : class, IRemoteDebuggerMessageManager
+public sealed class RemoteDebuggerStarter<TProgram, TMessageManager> where TMessageManager : class, IRemoteDebuggerMessageManager
 {
-    private static readonly Lazy<IServiceProvider> LazyServiceProvider = new(DebuggerServiceCollectionHelper.ConfigureForRemoteDebug<T>, true);
+    private static readonly Lazy<IServiceProvider> LazyServiceProvider = new(DebuggerServiceCollectionHelper.ConfigureForRemoteDebug<TMessageManager>, true);
 
     private IServiceProvider ServiceProvider => LazyServiceProvider.Value;
 
@@ -29,7 +29,7 @@ public sealed class RemoteDebuggerStarter<T> where T : class, IRemoteDebuggerMes
     {
         Console.WriteLine(@"Welcome to XrmFramework Remote Debugger");
 
-        var assembliesToDebug = Assembly.GetCallingAssembly().GetReferencedAssemblies()
+        var assembliesToDebug = typeof(TProgram).Assembly.GetReferencedAssemblies()
             .Select(Assembly.Load)
             .Where(a => a.GetType("XrmFramework.Plugin") != null
                         || a.GetType("XrmFramework.CustomApi") != null
