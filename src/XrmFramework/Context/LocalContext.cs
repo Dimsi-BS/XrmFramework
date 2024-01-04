@@ -3,10 +3,7 @@
 
 using BoDi;
 using Microsoft.Xrm.Sdk;
-using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.Xrm.Sdk.Extensions;
 using IApplicationInsightsLogger = Microsoft.Xrm.Sdk.PluginTelemetry.ILogger;
 

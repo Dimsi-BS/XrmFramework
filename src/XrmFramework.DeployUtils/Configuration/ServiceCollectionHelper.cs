@@ -33,9 +33,9 @@ static class ServiceCollectionHelper
 	/// </summary>
 	/// <param name="projectName">Name of the target solution</param>
 	/// <returns><see cref="IServiceProvider" /> the service provider used to instantiate every object needed</returns>
-	public static IServiceProvider ConfigureForDeploy(string projectName)
+	public static IServiceProvider ConfigureForDeploy(this IServiceCollection serviceCollection, string projectName)
 	{
-		var serviceCollection = InitServiceCollection();
+		serviceCollection.InitServiceCollection();
 
 		serviceCollection.AddScoped<IAssemblyExporter, AssemblyExporter>();
 
@@ -61,23 +61,19 @@ static class ServiceCollectionHelper
 	/// <returns>
 	///     <see cref="IServiceCollection" />
 	/// </returns>
-	public static IServiceCollection InitServiceCollection()
-	{
-		var serviceCollection = new ServiceCollection();
+	public static IServiceCollection InitServiceCollection(this IServiceCollection serviceCollection)
+		=> serviceCollection
+			.AddScoped<IRegistrationService, RegistrationService>()
+			.AddScoped<ISolutionContext, SolutionContext>()
+			.AddScoped<IAssemblyImporter, AssemblyImporter>()
+			.AddScoped<ICrmComponentComparer, CrmComponentComparer>()
+			.AddScoped<ICrmComponentConverter, CrmComponentConverter>()
+			.AddScoped<AssemblyDiffFactory>()
+			.AddSingleton<IAssemblyFactory, AssemblyFactory>()
+			.AddSingleton<RegistrationHelper>()
 
-		serviceCollection.AddScoped<IRegistrationService, RegistrationService>();
-		serviceCollection.AddScoped<ISolutionContext, SolutionContext>();
-		serviceCollection.AddScoped<IAssemblyImporter, AssemblyImporter>();
-		serviceCollection.AddScoped<ICrmComponentComparer, CrmComponentComparer>();
-		serviceCollection.AddScoped<ICrmComponentConverter, CrmComponentConverter>();
-		serviceCollection.AddScoped<AssemblyDiffFactory>();
-		serviceCollection.AddSingleton<IAssemblyFactory, AssemblyFactory>();
-		serviceCollection.AddSingleton<RegistrationHelper>();
-
-		// Searches every AutoMapper Profiles declared in this Assembly and configures a mapper according to them
-		serviceCollection.AddAutoMapper(Assembly.GetExecutingAssembly());
-		return serviceCollection;
-	}
+			// Searches every AutoMapper Profiles declared in this Assembly and configures a mapper according to them
+			.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 	/// <summary>
 	///     Retrieves the config files to get the target solution name as defined in xrmFramework.config

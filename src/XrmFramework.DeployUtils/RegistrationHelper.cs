@@ -43,14 +43,15 @@ public partial class RegistrationHelper
 	public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
 	{
 		var localDll = typeof(TPlugin).Assembly;
-		var serviceProvider = ServiceCollectionHelper.ConfigureForDeploy(localDll.GetName().Name);
+		var serviceProvider = new ServiceCollection()
+			.ConfigureForDeploy(localDll.GetName().Name);
 
-		var solutionSettings = serviceProvider.GetRequiredService<IOptions<DeploySettings>>();
+		var solutionSettingsOptions = serviceProvider.GetRequiredService<IOptions<DeploySettings>>();
 
 		Console.WriteLine($@"Assembly {localDll.GetName().Name}");
 		Console.WriteLine(@"You are about to deploy on organization:");
-		Console.WriteLine(@$"Url : {solutionSettings.Value.Url}");
-		Console.WriteLine(@$"ClientId : {solutionSettings.Value.ClientId}");
+		Console.WriteLine(@$"Url : {solutionSettingsOptions.Value.Url}");
+		Console.WriteLine(@$"ClientId : {solutionSettingsOptions.Value.ClientId}");
 		Console.WriteLine(@"If ok press any key.");
 		Console.ReadKey();
 		Console.WriteLine(@"Connecting to CRM...");

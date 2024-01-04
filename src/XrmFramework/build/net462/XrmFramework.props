@@ -1,4 +1,7 @@
 ﻿<Project>
   <Import Project="../XrmFramework.props" />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.45" />
+  </ItemGroup>
 
 </Project>

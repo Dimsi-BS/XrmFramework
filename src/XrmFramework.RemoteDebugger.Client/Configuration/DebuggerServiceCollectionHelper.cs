@@ -1,21 +1,19 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Query;
-using Microsoft.Xrm.Tooling.Connector;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Tooling.Connector;
 using XrmFramework.BindingModel;
+using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Exporters;
 using XrmFramework.DeployUtils.Service;
 using XrmFramework.DeployUtils.Utils;
-using XrmFramework.RemoteDebugger;
-using XrmFramework.RemoteDebugger.Client;
 using XrmFramework.RemoteDebugger.Client.Recorder;
-using XrmFramework.RemoteDebugger.Common;
 
-namespace XrmFramework.DeployUtils.Configuration
+namespace XrmFramework.RemoteDebugger.Client.Configuration
 {
     /// <summary>
     /// Configures the necessary services and parameters of the project
@@ -29,13 +27,10 @@ namespace XrmFramework.DeployUtils.Configuration
         ///     <item><see cref="AutoMapper.IMapper"/>, used for conversion between <see cref="Deploy"/> and <see cref="Model"/> objects
         ///         as well as cloning</item>
         ///     <item><see cref="DeploySettings"/>, an object that contains information on the target <c>Solution</c></item>
-        ///     <item><see cref="DebugSettings"/>, an object that contains information on the target <c>Debug Session</c></item>
         ///     <item>The configuration of all other implemented interfaces used by <c>Dependency Injection</c></item>
         /// </list>
         /// </summary>
-        /// <param name="projectName">The Name of the Local Project</param>
         /// <returns><see cref="IServiceProvider"/> the service provider used to instantiate every object needed</returns>
-
         public static IServiceProvider ConfigureForRemoteDebug<T>() where T: class, IRemoteDebuggerMessageManager
         {
             if (ConfigurationManager.ConnectionStrings["DebugConnectionString"] == null)
@@ -43,13 +38,11 @@ namespace XrmFramework.DeployUtils.Configuration
                 throw new Exception("The connectionString \"DebugConnectionString\" is not defined.");
             }
 
-            var serviceCollection = ServiceCollectionHelper.InitServiceCollection();
-
-            serviceCollection.AddScoped<IAssemblyExporter, DebuggerAssemblyExporter>();
-
-            serviceCollection.AddScoped<ISessionRecorder, SessionRecorder>();
-
-            serviceCollection.AddScoped<IRemoteDebuggerMessageManager, T>();
+            var serviceCollection = new ServiceCollection()
+                .InitServiceCollection()
+                .AddScoped<IAssemblyExporter, DebuggerAssemblyExporter>()
+                .AddScoped<ISessionRecorder, SessionRecorder>()
+                .AddScoped<IRemoteDebuggerMessageManager, T>();
 
             var connectionString = ChooseConnectionString();
 
@@ -81,15 +74,19 @@ namespace XrmFramework.DeployUtils.Configuration
 
             var connectionStrings = (ConnectionStringsSection)ConfigurationManager.GetSection("connectionStrings");
 
-            Console.WriteLine("Which connection would you like to use ? Type Number or Name (leave blank to cancel)");
+            Console.WriteLine(@"Which connection would you like to use ? Type Number or Name (leave blank to cancel)");
 
-            int i = 0;
+            var i = 0;
             foreach (ConnectionStringSettings connection in connectionStrings.ConnectionStrings)
             {
-                if (!connection.Name.StartsWith("Xrm")) continue;
+                if (!connection.Name.StartsWith("Xrm"))
+                {
+                    continue;
+                }
+
                 connectionStringIntDic.Add(i, connection);
                 connectionStringNameDic.Add(connection.Name, connection);
-                Console.WriteLine($"\t{i} : {connection.Name}");
+                Console.WriteLine(@$"    {i} : {connection.Name}");
                 i++;
             }
 
@@ -98,8 +95,8 @@ namespace XrmFramework.DeployUtils.Configuration
 
             if (string.IsNullOrEmpty(response))
             {
-                Console.WriteLine("Debug Canceled");
-                System.Environment.Exit(0);
+                Console.WriteLine(@"Debug Canceled");
+                Environment.Exit(0);
             }
 
             var connectionString = int.TryParse(response, out int value)
@@ -130,7 +127,13 @@ namespace XrmFramework.DeployUtils.Configuration
 
             var debugSession = client.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();
 
-            if (debugSession == null) throw new ArgumentException("Debug Session not Found on the Crm");
+            if (debugSession == null)
+            {
+                debugSession = new DebugSession
+                {
+                    
+                };
+            }
 
             return debugSession;
         }

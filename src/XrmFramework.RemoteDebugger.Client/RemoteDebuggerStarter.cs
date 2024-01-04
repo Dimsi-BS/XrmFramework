@@ -8,6 +8,7 @@ using XrmFramework.DeployUtils;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.RemoteDebugger.Client;
+using XrmFramework.RemoteDebugger.Client.Configuration;
 using XrmFramework.RemoteDebugger.Client.Recorder;
 
 // ReSharper disable once CheckNamespace
@@ -16,13 +17,17 @@ namespace XrmFramework.RemoteDebugger.Common;
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 public sealed class RemoteDebuggerStarter<T> where T : class, IRemoteDebuggerMessageManager
 {
+    private static readonly Lazy<IServiceProvider> LazyServiceProvider = new(DebuggerServiceCollectionHelper.ConfigureForRemoteDebug<T>, true);
+
+    private IServiceProvider ServiceProvider => LazyServiceProvider.Value;
+
     /// <summary>
     /// Entrypoint for debugging all referenced projects
     /// </summary>
     // ReSharper disable once UnusedMember.Global
     public async Task RunAsync()
     {
-        Console.WriteLine(@"You are about to modify the debug session");
+        Console.WriteLine(@"Welcome to XrmFramework Remote Debugger");
 
         var assembliesToDebug = Assembly.GetCallingAssembly().GetReferencedAssemblies()
             .Select(Assembly.Load)
@@ -38,11 +43,9 @@ public sealed class RemoteDebuggerStarter<T> where T : class, IRemoteDebuggerMes
                 "No project containing components to debug were found, please check that they are referenced");
         }
 
-        var serviceProvider = DebuggerServiceCollectionHelper.ConfigureForRemoteDebug<T>();
+        var solutionContext = ServiceProvider.GetRequiredService<ISolutionContext>();
 
-        var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
-
-        var remoteDebuggerHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
+        var remoteDebuggerHelper = ServiceProvider.GetRequiredService<RegistrationHelper>();
 
         assembliesToDebug.ForEach(assembly =>
         {
@@ -51,7 +54,7 @@ public sealed class RemoteDebuggerStarter<T> where T : class, IRemoteDebuggerMes
             remoteDebuggerHelper.UpdateDebugger(assembly);
         });
 
-        using var manager = serviceProvider.GetRequiredService<IRemoteDebuggerMessageManager>();
+        using var manager = ServiceProvider.GetRequiredService<IRemoteDebuggerMessageManager>();
 
         await manager.RunAsync();
     }

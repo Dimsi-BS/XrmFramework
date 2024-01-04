@@ -1,9 +1,6 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace XrmFramework.BindingModel
@@ -12,7 +9,7 @@ namespace XrmFramework.BindingModel
     {
         private static readonly object SyncRoot = new object();
 
-        private static readonly Dictionary<string, EntityMetadata> MetadataCache = new Dictionary<string, EntityMetadata>();
+        private static readonly Dictionary<Type, EntityMetadata> MetadataCache = new();
 
         public EntityDefinition EntityDefinition { get; }
 
@@ -24,11 +21,11 @@ namespace XrmFramework.BindingModel
         {
             lock (SyncRoot)
             {
-                if (!MetadataCache.ContainsKey(type.FullName))
+                if (!MetadataCache.ContainsKey(type))
                 {
-                    MetadataCache.Add(type.FullName, new EntityMetadata(type));
+                    MetadataCache.Add(type, new EntityMetadata(type));
                 }
-                return MetadataCache[type.FullName];
+                return MetadataCache[type];
             }
         }
 
@@ -38,8 +35,10 @@ namespace XrmFramework.BindingModel
             EntityDefinition = DefinitionCache.GetEntityDefinitionFromModelType(type);
             TypeFullName = type.FullName;
 
-            IsValidForCreate = type.GetCustomAttribute<CrmEntityAttribute>().ValidForCreate;
-            AllowDeactivation = type.GetCustomAttribute<CrmEntityAttribute>().AllowDeactivation;
+            var crmEntityAttribute = type.GetCustomAttribute<CrmEntityAttribute>();
+            
+            IsValidForCreate = crmEntityAttribute?.ValidForCreate ?? false;
+            AllowDeactivation = crmEntityAttribute?.AllowDeactivation ?? false;
 
             IdProperty = type.GetProperty("Id");
 
