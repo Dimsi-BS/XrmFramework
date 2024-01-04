@@ -88,8 +88,8 @@ namespace XrmFramework.Remote
             var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
             queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal,
                 DebugSessionState.Active.ToInt());
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.In,
-                initiatingUserIds.Select(i => i.ToString()).Cast<object>().ToArray());
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.DebugeeId, ConditionOperator.In,
+                initiatingUserIds.Cast<object>().ToArray());
             return queryDebugSessions;
         }
 
