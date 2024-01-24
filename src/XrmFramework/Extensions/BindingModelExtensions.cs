@@ -1,4 +1,4 @@
-﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
@@ -15,38 +15,36 @@ namespace XrmFramework
     {
 
         public static T GetDiffGeneric<T>(this T source, T target) where T : IBindingModel, new()
+            => (T)GetDiff(source, target);
+
+        public static IEnumerable<T> GetDiffGeneric<T>(this IEnumerable<T> sourceList, IEnumerable<T> targetEnumerable, IEqualityComparer<IBindingModel> comparer = null) where T : IBindingModel, new()
+            => sourceList.GetDiff(targetEnumerable, comparer);
+
+        private static IEnumerable<T> GetDiff<T>(this IEnumerable<T> sourceList, IEnumerable<T> targetEnumerable, IEqualityComparer<IBindingModel> comparer = null) where T : IBindingModel
+            => GetDiff(sourceList.Cast<IBindingModel>(), targetEnumerable.Cast<IBindingModel>(), typeof(T), comparer).Cast<T>();
+
+        private static IEnumerable<IBindingModel> GetDiff(this IEnumerable<IBindingModel> sourceList, IEnumerable<IBindingModel> targetEnumerable, Type modelType, IEqualityComparer<IBindingModel> comparer = null)
         {
-            return (T)GetDiff(source, target);
+            comparer ??= new KeyEqualityComparer(modelType);
+
+            var targetList = targetEnumerable.ToList();
+
+            var sourceBindingModels = sourceList.ToList();
+            var objectsToUpsert = sourceBindingModels.Except(targetList, new DeepModelEqualityComparer(modelType));
+
+            var objectsToUpdate =
+                objectsToUpsert
+                    .Join(
+                        targetList, o => o, o => o,
+                        (obj, existingObject) =>
+                            GetDiff(obj, existingObject), comparer);
+
+            var objectsToCreate = sourceBindingModels.Except(targetList, comparer);
+
+            return objectsToUpdate.Union(objectsToCreate);
         }
 
-        public static IEnumerable<IBindingModel> GetDiff<T>(this IEnumerable<T> sourceList, IEnumerable<T> targetEnumerable, IEqualityComparer<IBindingModel> comparer = null) where T : IBindingModel
-        {
-            return GetDiff(sourceList.Cast<IBindingModel>(), targetEnumerable.Cast<IBindingModel>(), typeof(T), comparer);
-        }
-
-        public static IEnumerable<IBindingModel> GetDiff(this IEnumerable<IBindingModel> sourceList, IEnumerable<IBindingModel> targetEnumerable, Type modelType, IEqualityComparer<IBindingModel> comparer = null)
-        {
-            var metadata = EntityMetadata.GetMetadata(modelType);
-
-            comparer = comparer ?? new KeyEqualityComparer(modelType);
-
-            var targetList = targetEnumerable as IList<IBindingModel> ?? targetEnumerable.ToList();
-            var objectsToUpsert = sourceList.Except(targetList, new DeepModelEqualityComparer(modelType));
-
-            foreach (var obj in objectsToUpsert)
-            {
-                var existingObject = targetList.SingleOrDefault(o => comparer.Equals(obj, o));
-
-                if (!metadata.IsValidForCreate && existingObject == null)
-                {
-                    continue;
-                }
-
-                yield return existingObject == null ? obj : GetDiff(obj, existingObject);
-            }
-        }
-
-        public static IBindingModel GetDiff(this IBindingModel source, IBindingModel target)
+        private static IBindingModel GetDiff(this IBindingModel source, IBindingModel target)
         {
             if (target == null)
             {
@@ -68,12 +66,9 @@ namespace XrmFramework
 
             foreach (var attribute in metadata.CrmAttributes.Where(a => a.CrmMapping.IsValidForUpdate))
             {
-                if (source is BindingModelBase)
+                if (source is BindingModelBase @base && !@base.InitializedProperties.Contains(attribute.PropertyName))
                 {
-                    if (!((BindingModelBase)source).InitializedProperties.Contains(attribute.PropertyName))
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
                 var valueSource = attribute.Property.GetValue(source);
@@ -140,7 +135,7 @@ namespace XrmFramework
 
         private static void CopyFieldInternal<TInput, TOutput>(TInput input, TOutput output, PropertyInfo sourceProperty, PropertyInfo targetProperty, Type converterType) where TInput : BindingModelBase where TOutput : IBindingModel
         {
-            if (sourceProperty == null || targetProperty == null || input.InitializedProperties.Contains(sourceProperty.Name) == false)
+            if (sourceProperty == null || targetProperty == null || !input.InitializedProperties.Contains(sourceProperty.Name))
             {
                 return;
             }
@@ -166,7 +161,7 @@ namespace XrmFramework
 
                 foreach (var element in (IEnumerable)sourceValue)
                 {
-                    addMethod?.Invoke(collection, new[] { element });
+                    addMethod.Invoke(collection, new[] { element });
                 }
             }
             else
@@ -191,23 +186,23 @@ namespace XrmFramework
 
     public class KeyEqualityComparer : IEqualityComparer<IBindingModel>
     {
-        private PropertyInfo PropertyInfo { get; }
-
         private EntityMetadata Metadata { get; }
 
         private bool HasPreferedKey { get; }
+        internal IEnumerable<AttributeMetadata> Properties { get; }
 
         public KeyEqualityComparer(Type modelType)
         {
             Metadata = EntityMetadata.GetMetadata(modelType);
             HasPreferedKey = Metadata.HasPreferedKey;
+            Properties = Metadata.CrmAttributes.Where(a => (a.IsKey && !HasPreferedKey) || (HasPreferedKey && a.IsPreferedKey));
         }
 
         public bool Equals(IBindingModel x, IBindingModel y)
         {
             var equals = true;
 
-            foreach (var attributeMetada in Metadata.CrmAttributes.Where(a => (a.IsKey && !HasPreferedKey) || (HasPreferedKey && a.IsPreferedKey)))
+            foreach (var attributeMetada in Properties)
             {
                 var valueX = attributeMetada.Property.GetValue(x);
                 var valueY = attributeMetada.Property.GetValue(y);
@@ -228,9 +223,8 @@ namespace XrmFramework
         {
             int hashCode = 0;
 
-            foreach (var attributeMetada in Metadata.CrmAttributes.Where(a => (a.IsKey && !HasPreferedKey) || (HasPreferedKey && a.IsPreferedKey)))
+            foreach (var attributeMetada in Properties)
             {
-
                 hashCode ^= attributeMetada.Property.GetValue(obj)?.GetHashCode() ?? 0;
             }
             return hashCode;
@@ -302,7 +296,7 @@ namespace XrmFramework
     {
         public bool Equals(T x, T y)
         {
-            return x.Id == y.Id;
+            return x?.Id == y?.Id;
         }
 
         public int GetHashCode(T obj)
@@ -313,8 +307,6 @@ namespace XrmFramework
 
     public class DeepModelEqualityComparer : IEqualityComparer<IBindingModel>
     {
-        //private IList<PropertyInfo> Properties { get; set; }
-
         private EntityMetadata Metadata { get; }
 
         public DeepModelEqualityComparer(Type modelType)
