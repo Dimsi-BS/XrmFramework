@@ -88,6 +88,12 @@ namespace XrmFramework
                             valueSource = valueSource != null ? (DateTime?)new DateTime(((DateTime)valueSource).Ticks, DateTimeKind.Utc) : null;
                         }
                         break;
+                    case AttributeTypeCode.Lookup:
+                        if (attribute.Property.PropertyType == typeof(string) && string.Empty == valueSource as string)
+                        {
+                            valueSource = null;
+                        }
+                        break;
                     case AttributeTypeCode.String:
                     case AttributeTypeCode.Memo:
                         if (string.Empty == (valueSource as string))
