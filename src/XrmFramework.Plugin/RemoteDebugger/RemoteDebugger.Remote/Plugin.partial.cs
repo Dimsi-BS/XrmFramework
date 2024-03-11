@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 using XrmFramework.Remote;
 using XrmFramework.RemoteDebugger;
 using XrmFramework.RemoteDebugger.Model.CrmComponentInfos;

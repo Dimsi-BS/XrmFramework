@@ -1,4 +1,6 @@
+using System;
 using System.Text;
+using System.Threading.Tasks;
 
 // ReSharper disable once CheckNamespace
 namespace XrmFramework.RemoteDebugger.TokenProviders;

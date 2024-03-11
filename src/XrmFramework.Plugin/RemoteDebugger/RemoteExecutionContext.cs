@@ -1,4 +1,5 @@
-﻿using Microsoft.Xrm.Sdk;
+﻿using System;
+using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
 
 namespace XrmFramework.RemoteDebugger;
