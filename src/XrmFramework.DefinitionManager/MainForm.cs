@@ -26,7 +26,11 @@ public partial class MainForm : Form, ICustomListProvider
 
     private readonly CoreProjectAttribute _coreProject;
 
-    public MainForm()
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="coreProjectName">This parameter is not used anymore but kept for easing migrations</param>
+    public MainForm(string coreProjectName = null)
     {
         CustomProvider.Instance = this;
 
