@@ -23,10 +23,11 @@ steps:
     inputs:
       versionSpec: '>=5.0.0'
 
-  - task: NuGetRestore@1
+  - task: NuGetCommand@2
     inputs:
-      solution: '**/XrmFramework.sln'
-      selectOrConfig: 'select'
+      command: 'restore'
+      restoreSolution: '**/XrmFramework.sln'
+      feedsToUse: 'select'
 
   - task: MSBuild@1
     inputs:
