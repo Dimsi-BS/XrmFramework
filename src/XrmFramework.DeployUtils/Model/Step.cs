@@ -6,155 +6,163 @@ using XrmFramework.DeployUtils.Model.Interfaces;
 
 namespace XrmFramework.DeployUtils.Model
 {
-    /// <summary>
-    /// Component of a <see cref="Plugin"/> that defines on which particular input said plugin should be executed
-    /// </summary>
-    /// <seealso cref="ICrmComponent" />
-    public class Step : BaseCrmComponent
-    {
-        public Step(string pluginTypeName, Messages message, Stages stage, Modes mode, string entityName)
-        {
-            PluginTypeName = pluginTypeName;
-            Message = message;
-            Stage = stage;
-            Mode = mode;
-            EntityName = entityName;
-            PreImage = new StepImage(Message, true, stage)
-            {
-                FatherStep = this
-            };
-            PostImage = new StepImage(Message, false, stage)
-            {
-                FatherStep = this
-            };
+	/// <summary>
+	/// Component of a <see cref="Plugin"/> that defines on which particular input said plugin should be executed
+	/// </summary>
+	/// <seealso cref="ICrmComponent" />
+	public class Step : BaseCrmComponent
+	{
+		public Step(string pluginTypeName, Messages message, Stages stage, Modes mode, string entityName)
+		{
+			PluginTypeName = pluginTypeName;
+			Message        = message;
+			Stage          = stage;
+			Mode           = mode;
+			EntityName     = entityName;
+			PreImage = new StepImage(Message, true, stage)
+			{
+				FatherStep = this
+			};
+			PostImage = new StepImage(Message, false, stage)
+			{
+				FatherStep = this
+			};
 
-            if (string.IsNullOrWhiteSpace(EntityName) ||
-                (message != Messages.Associate && message != Messages.Disassociate)) return;
-            EntityName = string.Empty;
-            StepConfiguration.RelationshipName = entityName;
-        }
+			if (string.IsNullOrWhiteSpace(EntityName) ||
+			    (!Messages.Associate.Equals(message) && !Messages.Disassociate.Equals(message)))
+			{
+				return;
+			}
 
-        /// <summary>Full Name of the <see cref="Plugin"/></summary>
-        /// <example>Assembly.NameSpace.Plugin</example>
-        public string PluginTypeFullName { get; set; }
+			EntityName                         = string.Empty;
+			StepConfiguration.RelationshipName = entityName;
+		}
 
-        /// <summary>Simplified Name of the <see cref="Plugin"/></summary>
-        /// <example>Plugin</example>
-        public string PluginTypeName { get; set; }
+		/// <summary>Full Name of the <see cref="Plugin"/></summary>
+		/// <example>Assembly.NameSpace.Plugin</example>
+		public string PluginTypeFullName { get; set; }
 
-        /// <summary>Message on which to fire</summary>
-        public Messages Message { get; }
+		/// <summary>Simplified Name of the <see cref="Plugin"/></summary>
+		/// <example>Plugin</example>
+		public string PluginTypeName { get; set; }
 
-        /// <summary>Stage on which to fire</summary>
-        public Stages Stage { get; }
+		/// <summary>Message on which to fire</summary>
+		public Messages Message { get; }
 
-        /// <summary>Mode of the <see cref="Step"/></summary>
-        public Modes Mode { get; }
+		/// <summary>Stage on which to fire</summary>
+		public Stages Stage { get; }
 
-        /// <summary>Entity the step is bound to</summary>
-        public string EntityName { get; }
+		/// <summary>Mode of the <see cref="Step"/></summary>
+		public Modes Mode { get; }
 
-        /// <summary><inheritdoc cref="XrmFramework.StepConfiguration"/></summary>
-        public StepConfiguration StepConfiguration { get; set; } = new();
+		/// <summary>Entity the step is bound to</summary>
+		public string EntityName { get; }
 
-        public Guid MessageId { get; set; }
+		/// <summary><inheritdoc cref="XrmFramework.StepConfiguration"/></summary>
+		public StepConfiguration StepConfiguration { get; set; } = new();
 
-        /// <summary>Indicates if there are Filtering Attributes</summary>
-        public bool DoNotFilterAttributes { get; set; }
+		public Guid MessageId { get; set; }
 
-        /// <summary>List of Attributes to Filter on trigger</summary>
-        public HashSet<string> FilteringAttributes { get; } = new HashSet<string>();
+		/// <summary>Indicates if there are Filtering Attributes</summary>
+		public bool DoNotFilterAttributes { get; set; }
 
-        /// <summary>PreImage of the Step, may not be used</summary>
-        public StepImage PreImage { get; set; }
+		/// <summary>List of Attributes to Filter on trigger</summary>
+		public HashSet<string> FilteringAttributes { get; } = new HashSet<string>();
 
-        /// <summary>PostImage of the Step, may not be used</summary>
-        public StepImage PostImage { get; set; }
+		/// <summary>PreImage of the Step, may not be used</summary>
+		public StepImage PreImage { get; set; }
 
-        /// <summary>Preferred Order of execution</summary>
-        public int Order { get; set; }
+		/// <summary>PostImage of the Step, may not be used</summary>
+		public StepImage PostImage { get; set; }
 
-        /// <summary>Can execute while impersonating a specific user</summary>
-        public string ImpersonationUsername { get; set; }
+		/// <summary>Preferred Order of execution</summary>
+		public int Order { get; set; }
 
-        /// <summary><inheritdoc cref="XrmFramework.StepConfiguration.RegisteredMethods"/></summary>
-        public HashSet<string> MethodNames => StepConfiguration.RegisteredMethods;
+		/// <summary>Can execute while impersonating a specific user</summary>
+		public string ImpersonationUsername { get; set; }
 
-        /// <summary>Joined string of the <see cref="MethodNames"/></summary>
-        public string MethodsDisplayName => string.Join(",", MethodNames);
+		/// <summary><inheritdoc cref="XrmFramework.StepConfiguration.RegisteredMethods"/></summary>
+		public HashSet<string> MethodNames => StepConfiguration.RegisteredMethods;
 
-        /// <summary>Serialized string of <see cref="StepConfiguration"/></summary>
-        public string UnsecureConfig => JsonConvert.SerializeObject(StepConfiguration);
+		/// <summary>Joined string of the <see cref="MethodNames"/></summary>
+		public string MethodsDisplayName => string.Join(",", MethodNames);
 
-        /// <summary>Merge two Steps that trigger on the same event</summary>
-        /// <param name="step"></param>
-        public void Merge(Step step)
-        {
-            DoNotFilterAttributes |= step.DoNotFilterAttributes;
+		/// <summary>Serialized string of <see cref="StepConfiguration"/></summary>
+		public string UnsecureConfig => JsonConvert.SerializeObject(StepConfiguration);
 
-            if (DoNotFilterAttributes)
-            {
-                FilteringAttributes.Clear();
-            }
-            else
-            {
-                FilteringAttributes.UnionWith(step.FilteringAttributes);
-            }
+		/// <summary>Merge two Steps that trigger on the same event</summary>
+		/// <param name="step"></param>
+		public void Merge(Step step)
+		{
+			DoNotFilterAttributes |= step.DoNotFilterAttributes;
 
-            PreImage.Merge(step.PreImage);
+			if (DoNotFilterAttributes)
+			{
+				FilteringAttributes.Clear();
+			}
+			else
+			{
+				FilteringAttributes.UnionWith(step.FilteringAttributes);
+			}
 
-            PostImage.Merge(step.PostImage);
+			PreImage.Merge(step.PreImage);
 
-            MethodNames.UnionWith(step.MethodNames);
-        }
+			PostImage.Merge(step.PostImage);
 
-        /// <summary>
-        /// Description of the <see cref="Step"/><br/>
-        /// Is built like this : <br/>
-        /// <see cref="PluginTypeName"/> : <see cref="Stage"/> <see cref="Message"/> of <see cref="EntityName"/> (<see cref="MethodsDisplayName"/>)
-        /// </summary>
-        public string Description => $"{PluginTypeName} : {Stage} {Message} of {EntityName} ({MethodsDisplayName})";
+			MethodNames.UnionWith(step.MethodNames);
+		}
 
-        #region BaseCrmComponent overrides
-        public override string UniqueName
-        {
-            get => $"{PluginTypeFullName}.{Stage}.{Message}.{EntityName}.{MethodsDisplayName}";
-            set => _ = value;
-        }
+		/// <summary>
+		/// Description of the <see cref="Step"/><br/>
+		/// Is built like this : <br/>
+		/// <see cref="PluginTypeName"/> : <see cref="Stage"/> <see cref="Message"/> of <see cref="EntityName"/> (<see cref="MethodsDisplayName"/>)
+		/// </summary>
+		public string Description => $"{PluginTypeName} : {Stage} {Message} of {(string.IsNullOrEmpty(EntityName) ? StepConfiguration.RelationshipName : EntityName)} ({MethodsDisplayName})";
 
-        public override IEnumerable<ICrmComponent> Children
-        {
-            get
-            {
-                var res = new List<ICrmComponent>();
-                if (PreImage.ShouldAppearAsChild) res.Add(PreImage);
-                if (PostImage.ShouldAppearAsChild) res.Add(PostImage);
-                return res;
-            }
-        }
-        public override void AddChild(ICrmComponent child)
-        {
-            if (child is not StepImage stepChild) throw new ArgumentException("Step doesn't take this type of children");
-            if (stepChild.IsPreImage)
-            {
-                PreImage = stepChild;
-            }
-            else
-            {
-                PostImage = stepChild;
-            }
-            base.AddChild(child);
-        }
+	#region BaseCrmComponent overrides
 
-        protected override void RemoveChild(ICrmComponent child)
-        {
-            child.RegistrationState = RegistrationState.Computed;
-        }
-        
-        public override string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
-        public override int Rank => 20;
-        public override bool DoAddToSolution => true;
-        public override bool DoFetchTypeCode => false;
-        #endregion
-    }
+		public override string UniqueName
+		{
+			get => $"{PluginTypeFullName}.{Stage}.{Message}.{EntityName}.{MethodsDisplayName}";
+			set => _ = value;
+		}
+
+		public override IEnumerable<ICrmComponent> Children
+		{
+			get
+			{
+				var res = new List<ICrmComponent>();
+				if (PreImage.ShouldAppearAsChild) res.Add(PreImage);
+				if (PostImage.ShouldAppearAsChild) res.Add(PostImage);
+				return res;
+			}
+		}
+
+		public override void AddChild(ICrmComponent child)
+		{
+			if (child is not StepImage stepChild) throw new ArgumentException("Step doesn't take this type of children");
+			if (stepChild.IsPreImage)
+			{
+				PreImage = stepChild;
+			}
+			else
+			{
+				PostImage = stepChild;
+			}
+
+			base.AddChild(child);
+		}
+
+		protected override void RemoveChild(ICrmComponent child)
+		{
+			child.RegistrationState = RegistrationState.Computed;
+		}
+
+		public override string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
+		public override int Rank => 20;
+		public override bool DoAddToSolution => true;
+		public override bool DoFetchTypeCode => false;
+
+	#endregion
+	}
 }

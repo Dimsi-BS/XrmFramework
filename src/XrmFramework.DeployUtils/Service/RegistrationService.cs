@@ -33,24 +33,24 @@ public class RegistrationService : IRegistrationService
 	{
 		var query = new QueryExpression(PluginAssemblyDefinition.EntityName);
 		query.ColumnSet.AddColumns(PluginAssemblyDefinition.Columns.Id, PluginAssemblyDefinition.Columns.Name);
-		query.Distinct = true;
+		query.Distinct                = true;
 		query.Criteria.FilterOperator = LogicalOperator.And;
 		query.Criteria.AddCondition(PluginAssemblyDefinition.Columns.Name, ConditionOperator.NotLike,
-			"CompiledWorkflow%");
+		                            "CompiledWorkflow%");
 		var filter = query.Criteria.AddFilter(LogicalOperator.Or);
 		filter.AddCondition(PluginAssemblyDefinition.Columns.CustomizationLevel, ConditionOperator.Null);
 		filter.AddCondition(PluginAssemblyDefinition.Columns.CustomizationLevel, ConditionOperator.NotEqual, 0);
 		filter.AddCondition(PluginAssemblyDefinition.Columns.Name, ConditionOperator.In, "Microsoft.Crm.ObjectModel",
-			"Microsoft.Crm.ServiceBus");
+		                    "Microsoft.Crm.ServiceBus");
 
 		var result = RetrieveAll(query);
-		
+
 		var list = new List<PluginAssembly>();
 		foreach (var assembly in result)
 		{
 			list.Add(assembly.ToEntity<PluginAssembly>());
 		}
-		
+
 		return list;
 	}
 
@@ -58,7 +58,7 @@ public class RegistrationService : IRegistrationService
 	{
 		var query = new QueryExpression(PluginAssemblyDefinition.EntityName);
 		query.ColumnSet.AddColumns(PluginAssemblyDefinition.Columns.Id, PluginAssemblyDefinition.Columns.Name);
-		query.Distinct = true;
+		query.Distinct                = true;
 		query.Criteria.FilterOperator = LogicalOperator.And;
 		query.Criteria.AddCondition(PluginAssemblyDefinition.Columns.Name, ConditionOperator.Equal, assemblyName);
 
@@ -82,16 +82,16 @@ public class RegistrationService : IRegistrationService
 		var query = new QueryExpression(CustomApiRequestParameterDefinition.EntityName);
 		query.ColumnSet.AllColumns = true;
 		query.Criteria.AddCondition(CustomApiRequestParameterDefinition.Columns.IsManaged, ConditionOperator.Equal,
-			false);
+		                            false);
 
 		var linkCustomApi = query.AddLink(CustomApiDefinition.EntityName,
-			CustomApiRequestParameterDefinition.Columns.CustomAPIId,
-			CustomApiDefinition.Columns.Id);
+		                                  CustomApiRequestParameterDefinition.Columns.CustomAPIId,
+		                                  CustomApiDefinition.Columns.Id);
 		var linkPluginType = linkCustomApi.AddLink(PluginTypeDefinition.EntityName,
-			CustomApiDefinition.Columns.PluginTypeId,
-			PluginTypeDefinition.Columns.Id);
+		                                           CustomApiDefinition.Columns.PluginTypeId,
+		                                           PluginTypeDefinition.Columns.Id);
 		linkPluginType.LinkCriteria.AddCondition(PluginTypeDefinition.Columns.PluginAssemblyId, ConditionOperator.Equal,
-			assemblyId);
+		                                         assemblyId);
 
 		var result = RetrieveAll(query);
 		foreach (var type in result) list.Add(type.ToEntity<CustomApiRequestParameter>());
@@ -106,16 +106,16 @@ public class RegistrationService : IRegistrationService
 		var query = new QueryExpression(CustomApiResponsePropertyDefinition.EntityName);
 		query.ColumnSet.AllColumns = true;
 		query.Criteria.AddCondition(CustomApiResponsePropertyDefinition.Columns.IsManaged, ConditionOperator.Equal,
-			false);
+		                            false);
 
 		var linkCustomApi = query.AddLink(CustomApiDefinition.EntityName,
-			CustomApiResponsePropertyDefinition.Columns.CustomAPIId,
-			CustomApiDefinition.Columns.Id);
+		                                  CustomApiResponsePropertyDefinition.Columns.CustomAPIId,
+		                                  CustomApiDefinition.Columns.Id);
 		var linkPluginType = linkCustomApi.AddLink(PluginTypeDefinition.EntityName,
-			CustomApiDefinition.Columns.PluginTypeId,
-			PluginTypeDefinition.Columns.Id);
+		                                           CustomApiDefinition.Columns.PluginTypeId,
+		                                           PluginTypeDefinition.Columns.Id);
 		linkPluginType.LinkCriteria.AddCondition(PluginTypeDefinition.Columns.PluginAssemblyId, ConditionOperator.Equal,
-			assemblyId);
+		                                         assemblyId);
 
 		var result = RetrieveAll(query);
 		foreach (var type in result) list.Add(type.ToEntity<CustomApiResponseProperty>());
@@ -131,10 +131,10 @@ public class RegistrationService : IRegistrationService
 		query.ColumnSet.AllColumns = true;
 		query.Criteria.AddCondition(CustomApiDefinition.Columns.IsManaged, ConditionOperator.Equal, false);
 		var linkPluginType = query.AddLink(PluginTypeDefinition.EntityName,
-			CustomApiDefinition.Columns.PluginTypeId,
-			PluginTypeDefinition.Columns.Id);
+		                                   CustomApiDefinition.Columns.PluginTypeId,
+		                                   PluginTypeDefinition.Columns.Id);
 		linkPluginType.LinkCriteria.AddCondition(PluginTypeDefinition.Columns.PluginAssemblyId, ConditionOperator.Equal,
-			assemblyId);
+		                                         assemblyId);
 
 		var result = RetrieveAll(query);
 		foreach (var type in result) list.Add(type.ToEntity<CustomApi>());
@@ -149,13 +149,13 @@ public class RegistrationService : IRegistrationService
 		var query = new QueryExpression(SdkMessageProcessingStepImageDefinition.EntityName);
 		query.ColumnSet.AllColumns = true;
 		var stepLink = query.AddLink(SdkMessageProcessingStepDefinition.EntityName,
-			SdkMessageProcessingStepImageDefinition.Columns.SdkMessageProcessingStepId,
-			SdkMessageProcessingStepDefinition.Columns.Id);
+		                             SdkMessageProcessingStepImageDefinition.Columns.SdkMessageProcessingStepId,
+		                             SdkMessageProcessingStepDefinition.Columns.Id);
 		var linkPluginType = stepLink.AddLink(PluginTypeDefinition.EntityName,
-			SdkMessageProcessingStepDefinition.Columns.EventHandler,
-			PluginTypeDefinition.Columns.Id);
+		                                      SdkMessageProcessingStepDefinition.Columns.EventHandler,
+		                                      PluginTypeDefinition.Columns.Id);
 		linkPluginType.LinkCriteria.AddCondition(PluginTypeDefinition.Columns.PluginAssemblyId, ConditionOperator.Equal,
-			assemblyId);
+		                                         assemblyId);
 
 		var result = RetrieveAll(query);
 		foreach (var type in result) list.Add(type.ToEntity<SdkMessageProcessingStepImage>());
@@ -186,13 +186,15 @@ public class RegistrationService : IRegistrationService
 		query.Criteria.AddCondition(SdkMessageProcessingStepDefinition.Columns.Stage, ConditionOperator.NotEqual, 30);
 
 		var linkPluginType = query.AddLink(PluginTypeDefinition.EntityName,
-			SdkMessageProcessingStepDefinition.Columns.EventHandler,
-			PluginTypeDefinition.Columns.Id);
+		                                   SdkMessageProcessingStepDefinition.Columns.EventHandler,
+		                                   PluginTypeDefinition.Columns.Id);
 		linkPluginType.LinkCriteria.AddCondition(PluginTypeDefinition.Columns.PluginAssemblyId, ConditionOperator.Equal,
-			assemblyId);
+		                                         assemblyId);
 
 		var filterLink = query.AddLink(SdkMessageFilterDefinition.EntityName,
-			SdkMessageProcessingStepDefinition.Columns.SdkMessageFilterId, SdkMessageFilterDefinition.Columns.Id);
+		                               SdkMessageProcessingStepDefinition.Columns.SdkMessageFilterId,
+		                               SdkMessageFilterDefinition.Columns.Id,
+		                               JoinOperator.LeftOuter);
 
 		filterLink.EntityAlias = "filter";
 		filterLink.Columns.AddColumn(SdkMessageFilterDefinition.PrimaryObjectTypeCode);
@@ -240,7 +242,7 @@ public class RegistrationService : IRegistrationService
 		return entityResponse.EntityMetadata.ObjectTypeCode.GetValueOrDefault();
 	}
 
-	#region IOrganizationService proxy implementation
+#region IOrganizationService proxy implementation
 
 	public Guid Create(Entity entity)
 	{
@@ -268,13 +270,13 @@ public class RegistrationService : IRegistrationService
 	}
 
 	public void Associate(string entityName, Guid entityId, Microsoft.Xrm.Sdk.Relationship relationship,
-		EntityReferenceCollection relatedEntities)
+	                      EntityReferenceCollection relatedEntities)
 	{
 		_client.Associate(entityName, entityId, relationship, relatedEntities);
 	}
 
 	public void Disassociate(string entityName, Guid entityId, Microsoft.Xrm.Sdk.Relationship relationship,
-		EntityReferenceCollection relatedEntities)
+	                         EntityReferenceCollection relatedEntities)
 	{
 		_client.Disassociate(entityName, entityId, relationship, relatedEntities);
 	}
@@ -284,5 +286,5 @@ public class RegistrationService : IRegistrationService
 		return _client.RetrieveMultiple(query);
 	}
 
-	#endregion
+#endregion
 }

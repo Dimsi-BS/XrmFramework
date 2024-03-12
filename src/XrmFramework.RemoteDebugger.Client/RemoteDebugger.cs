@@ -117,7 +117,7 @@ namespace XrmFramework.RemoteDebugger.Common
                                            && parameters[0].ParameterType == typeof(string)
                                            && parameters[1].ParameterType == typeof(string);
                                 })
-                                ? (IPlugin)Activator.CreateInstance(pluginType, remoteContext.SecureConfig, remoteContext.UnsecureConfig)
+                                ? (IPlugin)Activator.CreateInstance(pluginType, remoteContext.UnsecureConfig, remoteContext.SecureConfig)
                                 : (IPlugin)Activator.CreateInstance(pluginType);
                             plugin.Execute(serviceProvider);
                         }

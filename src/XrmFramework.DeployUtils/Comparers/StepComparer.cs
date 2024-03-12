@@ -9,19 +9,20 @@ namespace XrmFramework.DeployUtils.Comparers
 	{
 		public bool Equals(Step x, Step y) =>
 			(x == null && y == null)
-		  || x != null && y != null
-		               && x.PluginTypeFullName == y.PluginTypeFullName
-		               && x.PluginTypeName == y.PluginTypeName
-		               && x.EntityName == y.EntityName
-		               && x.Message.Equals(y.Message)
-		               && x.Stage == y.Stage
-		               && x.Mode == y.Mode;
+			|| x != null && y                    != null
+			             && x.PluginTypeFullName == y.PluginTypeFullName
+			             && x.PluginTypeName     == y.PluginTypeName
+			             && ((string.IsNullOrWhiteSpace(x.EntityName) && string.IsNullOrWhiteSpace(x.EntityName))
+			                 || x.EntityName == y.EntityName)
+			             && x.Message.Equals(y.Message)
+			             && x.Stage == y.Stage
+			             && x.Mode  == y.Mode;
 
 		public int GetHashCode(Step obj)
 			=> obj.PluginTypeName.GetHashCode()
-			 ^ obj.EntityName.GetHashCode()
-			 ^ obj.Message.GetHashCode()
-			 ^ obj.Stage.GetHashCode()
-			 ^ obj.Mode.GetHashCode();
+			   ^ obj.EntityName.GetHashCode()
+			   ^ obj.Message.GetHashCode()
+			   ^ obj.Stage.GetHashCode()
+			   ^ obj.Mode.GetHashCode();
 	}
 }

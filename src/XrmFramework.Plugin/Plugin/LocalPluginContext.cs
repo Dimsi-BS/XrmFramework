@@ -97,12 +97,12 @@ namespace XrmFramework
             {
                 isValid = false;
 
-                if ((step.Message == Messages.Associate || step.Message == Messages.Disassociate)
-                    && !string.IsNullOrWhiteSpace(step.UnsecureConfig))
+                if ((Messages.Associate.Equals(step.Message) || Messages.Disassociate.Equals(step.Message))
+                    && !string.IsNullOrWhiteSpace(UnsecuredConfig))
                 {
                     try
                     {
-                        var stepConfig = JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig);
+                        var stepConfig = JsonConvert.DeserializeObject<StepConfiguration>(UnsecuredConfig);
                         isValid = step.EntityName == stepConfig.RelationshipName;
                     }
                     catch

@@ -67,8 +67,7 @@ public partial class RegistrationHelper
 	/// <param name="localDll">The local Assembly, should appear in <c>xrmFramework.config</c></param>
 	protected void Register(Assembly localDll)
 	{
-		RegisterAssembly(localDll);
-
+		
 		Console.WriteLine(@"	Fetching Local Assembly...");
 
 		var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(localDll);
@@ -100,11 +99,13 @@ public partial class RegistrationHelper
 
 		_assemblyExporter.InitExportMetadata(stepsForMetadata);
 
-		var allRequests = CreateDeleteRequests(strategyPool).ToList();
-
-		allRequests.AddRange(CreateUpdateRequests(strategyPool));
-
-		ExecuteAllRequests(allRequests);
+		var componentsToDelete = strategyPool.Where(c =>
+			                                            c.RegistrationState == RegistrationState.ToDelete);
+		_assemblyExporter.DeleteAllComponents(componentsToDelete);
+		
+		var componentsToUpdate = strategyPool.Where(c =>
+			                                            c.RegistrationState == RegistrationState.ToUpdate);
+		_assemblyExporter.UpdateAllComponents(componentsToUpdate);
 
 		var componentsToCreate = strategyPool.Where(c =>
 			c.RegistrationState == RegistrationState.ToCreate);
@@ -113,19 +114,9 @@ public partial class RegistrationHelper
 
 	private void ExecuteAllRequests(List<OrganizationRequest> allRequests)
 	{
-		var crmRequests = InitCrmRequest();
-		while (allRequests.Any())
+		foreach (var organizationRequest in allRequests)
 		{
-			crmRequests.Requests.AddRange(allRequests.Take(1000));
-			allRequests.RemoveRange(0, Math.Min(allRequests.Count, 1000));
-			
-			var results = (ExecuteMultipleResponse) _registrationService.Execute(crmRequests);
-			if (results.IsFaulted)
-			{
-				throw new Exception(results.Responses[results.Responses.Count - 1].Fault.Message);
-			}
-
-			crmRequests.Requests.Clear();
+			_registrationService.Execute(organizationRequest);
 		}
 	}
 
@@ -167,20 +158,5 @@ public partial class RegistrationHelper
 			.Where(d => d.RegistrationState == RegistrationState.ToUpdate);
 
 		return _assemblyExporter.ToUpdateRequestCollection(componentsToUpdate);
-	}
-
-	private static ExecuteMultipleRequest InitCrmRequest()
-	{
-		return new ExecuteMultipleRequest
-		{
-			// Assign settings that define execution behavior: continue on error, return responses.
-			Settings = new ExecuteMultipleSettings()
-			{
-				ContinueOnError = false,
-				ReturnResponses = true
-			},
-			// Create an empty organization request collection.
-			Requests = new OrganizationRequestCollection()
-		};
 	}
 }

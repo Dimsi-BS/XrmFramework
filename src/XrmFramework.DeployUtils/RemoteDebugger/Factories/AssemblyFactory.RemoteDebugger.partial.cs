@@ -100,6 +100,8 @@ internal partial class AssemblyFactory
 	{
 		var debugAssembly = _mapper.Map<IAssemblyContext>(from.AssemblyInfo);
 
+		debugAssembly.AssemblyInfo.RegistrationState = RegistrationState.Computed;
+		
 		var localPlugins = Assembly.GetTypes();
 
 		var debugPlugin = new Plugin("Father")

@@ -8,279 +8,288 @@ using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Context
 {
-    /// <summary>
-    /// Base implementation of <see cref="ISolutionContext"/>
-    /// </summary>
-    public class SolutionContext : ISolutionContext
-    {
-        public SolutionContext(IRegistrationService service, IOptions<DeploySettings> settings)
-        {
-            _service = service;
+	/// <summary>
+	/// Base implementation of <see cref="ISolutionContext"/>
+	/// </summary>
+	public class SolutionContext : ISolutionContext
+	{
+		public SolutionContext(IRegistrationService service, IOptions<DeploySettings> settings)
+		{
+			_service = service;
 
-            SolutionName = settings.Value.PluginSolutionUniqueName;
-        }
-        private readonly IRegistrationService _service;
+			SolutionName = settings.Value.PluginSolutionUniqueName;
+		}
 
-        #region Private fields implementing the interface
-        private Solution _solution;
-        private Publisher _publisher;
-        private readonly List<SolutionComponent> _components = new();
-        private readonly List<SdkMessageFilter> _filters = new();
-        private readonly Dictionary<Messages, EntityReference> _messages = new();
-        private readonly Dictionary<string, Guid> _users = new();
-        #endregion
+		private readonly IRegistrationService _service;
 
-        public string SolutionName { get; private set; }
-        public Solution Solution => _solution;
-        public Publisher Publisher => _publisher;
+	#region Private fields implementing the interface
 
-        public void InitSolutionContext(string solutionName = null)
-        {
-            if (solutionName != null)
-            {
-                SolutionName = solutionName;
-            }
+		private Solution _solution;
+		private Publisher _publisher;
+		private readonly List<SolutionComponent> _components = new();
+		private readonly List<SdkMessageFilter> _filters = new();
+		private readonly Dictionary<Messages, EntityReference> _messages = new();
+		private readonly Dictionary<string, Guid> _users = new();
 
-            _components.Clear();
-            _filters.Clear();
-            _messages.Clear();
-            _users.Clear();
+	#endregion
 
-            InitSolution();
-            InitPublisher();
-            InitComponents();
-        }
+		public string SolutionName { get; private set; }
+		public Solution Solution => _solution;
+		public Publisher Publisher => _publisher;
 
-        public Guid GetUserId(string userName)
-        {
-            var userId = _users[userName];
+		public void InitSolutionContext(string solutionName = null)
+		{
+			if (solutionName != null)
+			{
+				SolutionName = solutionName;
+			}
 
-            if (userId == Guid.Empty)
-                throw new Exception($"User with full name {userName} was requested but not found on the CRM");
+			_components.Clear();
+			_filters.Clear();
+			_messages.Clear();
+			_users.Clear();
 
-            return userId;
-        }
+			InitSolution();
+			InitPublisher();
+			InitComponents();
+		}
 
-        public void InitMetadata()
-        {
-            Console.WriteLine(@"Metadata initialization");
+		public Guid GetUserId(string userName)
+		{
+			var userId = _users[userName];
 
-            InitSolution();
+			if (userId == Guid.Empty)
+				throw new Exception($"User with full name {userName} was requested but not found on the CRM");
 
-            InitPublisher();
+			return userId;
+		}
 
-            InitComponents();
+		public void InitMetadata()
+		{
+			Console.WriteLine(@"Metadata initialization");
 
-            InitFilters();
+			InitSolution();
 
-            InitMessages();
+			InitPublisher();
 
-            InitUsers();
-        }
+			InitComponents();
 
-        public void InitExportMetadata(IEnumerable<Step> steps)
-        {
-            var stepList = steps.ToList();
-            
-            if (!stepList.Any())
-            {
-                return;
-            }
+			InitFilters();
 
-            ImportUsersForSteps(stepList);
-            ImportMessagesForSteps(stepList);
-            ImportFiltersForSteps(stepList);
-        }
+			InitMessages();
 
-        /// <summary>Retrieves and store the <see cref="Solution"/> field</summary>
-        private void InitSolution()
-        {
-            var query = new QueryExpression(SolutionDefinition.EntityName)
-            {
-                ColumnSet =
-                {
-                    AllColumns = true
-                }
-            };
-            query.Criteria.AddCondition(SolutionDefinition.Columns.UniqueName, ConditionOperator.Equal, SolutionName);
+			InitUsers();
+		}
 
-            _solution = _service.RetrieveAll(query).Select(s => s.ToEntity<Solution>()).FirstOrDefault();
+		public void InitExportMetadata(IEnumerable<Step> steps)
+		{
+			var stepList = steps.ToList();
 
-            if (_solution == null)
-            {
-                Console.WriteLine(@"The solution {0} does not exist in the CRM, modify xrmFramework.config to point to an existing solution.", SolutionName);
-                Console.WriteLine(@"\r\nPress any key to exit.");
-                Console.ReadKey();
-                Environment.Exit(1);
-            }
-            else if (_solution.GetAttributeValue<bool>(SolutionDefinition.Columns.IsManaged))
-            {
-                Console.WriteLine(@"The solution {0} is managed in the CRM, modify App.config to point to a development environment.", SolutionName);
-                Environment.Exit(1);
-            }
-        }
+			if (!stepList.Any())
+			{
+				return;
+			}
 
-        /// <summary>Retrieves and store the <see cref="Publisher"/> field</summary>
-        private void InitPublisher()
-        {
-            _publisher = _service.Retrieve(PublisherDefinition.EntityName, Solution.PublisherId.Id, new ColumnSet(true)).ToEntity<Publisher>();
-        }
+			ImportUsersForSteps(stepList);
+			ImportMessagesForSteps(stepList);
+			ImportFiltersForSteps(stepList);
+		}
 
-        /// <summary>Retrieves and store the Components field</summary>
-        private void InitComponents()
-        {
-            var query = new QueryExpression(SolutionComponentDefinition.EntityName)
-            {
-                ColumnSet =
-                {
-                    AllColumns = true
-                }
-            };
-            query.Criteria.AddCondition(SolutionComponentDefinition.Columns.SolutionId, ConditionOperator.Equal, Solution.Id);
+		/// <summary>Retrieves and store the <see cref="Solution"/> field</summary>
+		private void InitSolution()
+		{
+			var query = new QueryExpression(SolutionDefinition.EntityName)
+			{
+				ColumnSet =
+				{
+					AllColumns = true
+				}
+			};
+			query.Criteria.AddCondition(SolutionDefinition.Columns.UniqueName, ConditionOperator.Equal, SolutionName);
 
-            var components = _service.RetrieveAll(query).Select(s => s.ToEntity<SolutionComponent>());
+			_solution = _service.RetrieveAll(query).Select(s => s.ToEntity<Solution>()).FirstOrDefault();
 
-            _components.AddRange(components);
-        }
+			if (_solution == null)
+			{
+				Console.WriteLine(@"The solution {0} does not exist in the CRM, modify xrmFramework.config to point to an existing solution.", SolutionName);
+				Console.WriteLine(@"\r\nPress any key to exit.");
+				Console.ReadKey();
+				Environment.Exit(1);
+			}
+			else if (_solution.GetAttributeValue<bool>(SolutionDefinition.Columns.IsManaged))
+			{
+				Console.WriteLine(@"The solution {0} is managed in the CRM, modify App.config to point to a development environment.", SolutionName);
+				Environment.Exit(1);
+			}
+		}
 
-        /// <summary>Retrieves and store the Users field related to at least one of the given <paramref name="steps"/></summary>
-        private void ImportUsersForSteps(IEnumerable<Step> steps)
-        {
-            var interestingUsers = steps
-                .GroupBy(s => s.ImpersonationUsername)
-                .Select(g => g.Key);
+		/// <summary>Retrieves and store the <see cref="Publisher"/> field</summary>
+		private void InitPublisher()
+		{
+			_publisher = _service.Retrieve(PublisherDefinition.EntityName, Solution.PublisherId.Id, new ColumnSet(true)).ToEntity<Publisher>();
+		}
 
-            var query = new QueryExpression(SystemUserDefinition.EntityName);
-            query.ColumnSet.AddColumn(SystemUserDefinition.Columns.DomainName);
+		/// <summary>Retrieves and store the Components field</summary>
+		private void InitComponents()
+		{
+			var query = new QueryExpression(SolutionComponentDefinition.EntityName)
+			{
+				ColumnSet =
+				{
+					AllColumns = true
+				}
+			};
+			query.Criteria.AddCondition(SolutionComponentDefinition.Columns.SolutionId, ConditionOperator.Equal, Solution.Id);
 
-            query.Criteria.AddCondition(SystemUserDefinition.Columns.AccessMode, ConditionOperator.NotEqual, 3);
-            query.Criteria.AddCondition(SystemUserDefinition.Columns.IsDisabled, ConditionOperator.Equal, false);
+			var components = _service.RetrieveAll(query).Select(s => s.ToEntity<SolutionComponent>());
 
-            query.Criteria.AddCondition(SystemUserDefinition.Columns.DomainName, ConditionOperator.NotNull);
+			_components.AddRange(components);
+		}
 
-            query.Criteria.AddCondition(SystemUserDefinition.Columns.DomainName, ConditionOperator.In, interestingUsers.ToArray<object>());
+		/// <summary>Retrieves and store the Users field related to at least one of the given <paramref name="steps"/></summary>
+		private void ImportUsersForSteps(IEnumerable<Step> steps)
+		{
+			var interestingUsers = steps
+			   .GroupBy(s => s.ImpersonationUsername)
+			   .Select(g => g.Key);
 
-            foreach (var user in _service.RetrieveAll(query))
-            {
-                _users.Add(user.GetAttributeValue<string>(SystemUserDefinition.Columns.DomainName), user.Id);
-            }
-        }
+			var query = new QueryExpression(SystemUserDefinition.EntityName);
+			query.ColumnSet.AddColumn(SystemUserDefinition.Columns.DomainName);
 
-        /// <summary>Retrieves and store the Filters field related to at least one of the given <paramref name="steps"/></summary>
-        private void ImportFiltersForSteps(IEnumerable<Step> steps)
-        {
-            var stepList = steps.ToList();
-            
-            var interestingMessages = stepList
-                .GroupBy(m => m.Message)
-                .Select(g => g.Key.ToString());
+			query.Criteria.AddCondition(SystemUserDefinition.Columns.AccessMode, ConditionOperator.NotEqual, 3);
+			query.Criteria.AddCondition(SystemUserDefinition.Columns.IsDisabled, ConditionOperator.Equal,    false);
 
-            var interestingEntityNames = stepList
-                .GroupBy(s => s.EntityName)
-                .Select(g => g.Key);
+			query.Criteria.AddCondition(SystemUserDefinition.Columns.DomainName, ConditionOperator.NotNull);
 
-            var query = new QueryExpression(SdkMessageFilterDefinition.EntityName);
+			query.Criteria.AddCondition(SystemUserDefinition.Columns.DomainName, ConditionOperator.In, interestingUsers.ToArray<object>());
 
-            query.ColumnSet.AddColumns(SdkMessageFilterDefinition.Columns.Id,
-                SdkMessageFilterDefinition.Columns.SdkMessageId,
-                SdkMessageFilterDefinition.PrimaryObjectTypeCode);
-            query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsCustomProcessingStepAllowed, ConditionOperator.Equal, true);
-            query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsVisible, ConditionOperator.Equal, true);
+			foreach (var user in _service.RetrieveAll(query))
+			{
+				_users.Add(user.GetAttributeValue<string>(SystemUserDefinition.Columns.DomainName), user.Id);
+			}
+		}
 
-            query.Criteria.AddCondition(SdkMessageFilterDefinition.PrimaryObjectTypeCode, ConditionOperator.In, interestingEntityNames.ToArray<object>());
+		/// <summary>Retrieves and store the Filters field related to at least one of the given <paramref name="steps"/></summary>
+		private void ImportFiltersForSteps(IEnumerable<Step> steps)
+		{
+			var stepList = steps.ToList();
 
-            var messageLink = query.AddLink(SdkMessageDefinition.EntityName,
-                SdkMessageFilterDefinition.Columns.SdkMessageId, SdkMessageDefinition.Columns.Id);
-            messageLink.LinkCriteria.AddCondition(SdkMessageDefinition.Columns.Name, ConditionOperator.In, interestingMessages.ToArray<object>());
+			var interestingMessages = stepList
+			   .GroupBy(m => m.Message)
+			   .Select(g => g.Key.ToString());
 
-            var filters = _service.RetrieveAll(query);
+			var interestingEntityNames = stepList
+			   .GroupBy(s => s.EntityName)
+			   .Select(g => g.Key)
+			   .Where(k => !string.IsNullOrEmpty(k))
+			   .ToArray<object>();
 
-            _filters.Clear();
-            _filters.AddRange(filters.Select(f => f.ToEntity<SdkMessageFilter>()));
-        }
+			var query = new QueryExpression(SdkMessageFilterDefinition.EntityName);
 
-        /// <summary>Retrieves and store the <see cref="Messages"/> field related to at least one of the given <paramref name="steps"/></summary>
-        private void ImportMessagesForSteps(IEnumerable<Step> steps)
-        {
-            var interestingMessages = steps
-                .GroupBy(m => m.Message)
-                .Select(g => g.Key.ToString());
+			query.ColumnSet.AddColumns(SdkMessageFilterDefinition.Columns.Id,
+			                           SdkMessageFilterDefinition.Columns.SdkMessageId,
+			                           SdkMessageFilterDefinition.PrimaryObjectTypeCode);
+			query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsCustomProcessingStepAllowed, ConditionOperator.Equal, true);
+			query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsVisible,                     ConditionOperator.Equal, true);
 
-            var query = new QueryExpression(SdkMessageDefinition.EntityName);
-            query.ColumnSet.AddColumns(SdkMessageDefinition.Columns.Id, SdkMessageDefinition.Columns.Name);
+			if(interestingEntityNames.Any())
+			{
+				query.Criteria.AddCondition(SdkMessageFilterDefinition.PrimaryObjectTypeCode, ConditionOperator.In, interestingEntityNames.ToArray());
+			}
+			
+			var messageLink = query.AddLink(SdkMessageDefinition.EntityName,
+			                                SdkMessageFilterDefinition.Columns.SdkMessageId, SdkMessageDefinition.Columns.Id);
 
-            query.Criteria.AddCondition(SdkMessageDefinition.Columns.Name, ConditionOperator.In, interestingMessages.ToArray<object>());
+			messageLink.LinkCriteria.AddCondition(SdkMessageDefinition.Columns.Name, ConditionOperator.In, interestingMessages.ToArray<object>());
 
-            var messages = _service.RetrieveAll(query).Select(e => e.ToEntity<SdkMessage>());
+			var filters = _service.RetrieveAll(query);
 
-            _messages.Clear();
-            foreach (SdkMessage e in messages)
-            {
-                _messages.Add(Messages.GetMessage(e.Name), e.ToEntityReference());
-            }
-        }
+			_filters.Clear();
+			_filters.AddRange(filters.Select(f => f.ToEntity<SdkMessageFilter>()));
+		}
 
-        /// <summary>Retrieves and store the Users field</summary>
-        private void InitUsers()
-        {
-            var query = new QueryExpression(SystemUserDefinition.EntityName);
-            query.ColumnSet.AddColumn(SystemUserDefinition.Columns.DomainName);
-            query.Criteria.AddCondition(SystemUserDefinition.Columns.AccessMode, ConditionOperator.NotEqual, 3);
-            query.Criteria.AddCondition(SystemUserDefinition.Columns.IsDisabled, ConditionOperator.Equal, false);
+		/// <summary>Retrieves and store the <see cref="Messages"/> field related to at least one of the given <paramref name="steps"/></summary>
+		private void ImportMessagesForSteps(IEnumerable<Step> steps)
+		{
+			var interestingMessages = steps
+			   .GroupBy(m => m.Message)
+			   .Select(g => g.Key.ToString());
 
-            foreach (var user in _service.RetrieveAll(query))
-            {
-                _users.Add(user.GetAttributeValue<string>(SystemUserDefinition.Columns.DomainName), user.Id);
-            }
-        }
+			var query = new QueryExpression(SdkMessageDefinition.EntityName);
+			query.ColumnSet.AddColumns(SdkMessageDefinition.Columns.Id, SdkMessageDefinition.Columns.Name);
 
-        /// <summary>Retrieves and store the <see cref="Messages"/> field</summary>
-        private void InitMessages()
-        {
-            var query = new QueryExpression(SdkMessageDefinition.EntityName);
-            query.ColumnSet.AddColumns(SdkMessageDefinition.Columns.Id, SdkMessageDefinition.Columns.Name);
+			query.Criteria.AddCondition(SdkMessageDefinition.Columns.Name, ConditionOperator.In, interestingMessages.ToArray<object>());
 
-            var messages = _service.RetrieveAll(query).Select(e => e.ToEntity<SdkMessage>());
+			var messages = _service.RetrieveAll(query).Select(e => e.ToEntity<SdkMessage>());
 
-            _messages.Clear();
-            foreach (SdkMessage e in messages)
-            {
-                _messages.Add(Messages.GetMessage(e.Name), e.ToEntityReference());
-            }
-        }
+			_messages.Clear();
+			foreach (SdkMessage e in messages)
+			{
+				_messages.Add(Messages.GetMessage(e.Name), e.ToEntityReference());
+			}
+		}
 
-        /// <summary>Retrieves and store the Filters field</summary>
-        private void InitFilters()
-        {
-            var query = new QueryExpression(SdkMessageFilterDefinition.EntityName);
-            query.ColumnSet.AddColumns(SdkMessageFilterDefinition.Columns.Id,
-                                       SdkMessageFilterDefinition.Columns.SdkMessageId,
-                                       SdkMessageFilterDefinition.PrimaryObjectTypeCode);
-            query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsCustomProcessingStepAllowed, ConditionOperator.Equal, true);
-            query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsVisible, ConditionOperator.Equal, true);
+		/// <summary>Retrieves and store the Users field</summary>
+		private void InitUsers()
+		{
+			var query = new QueryExpression(SystemUserDefinition.EntityName);
+			query.ColumnSet.AddColumn(SystemUserDefinition.Columns.DomainName);
+			query.Criteria.AddCondition(SystemUserDefinition.Columns.AccessMode, ConditionOperator.NotEqual, 3);
+			query.Criteria.AddCondition(SystemUserDefinition.Columns.IsDisabled, ConditionOperator.Equal,    false);
 
-            var filters = _service.RetrieveAll(query);
+			foreach (var user in _service.RetrieveAll(query))
+			{
+				_users.Add(user.GetAttributeValue<string>(SystemUserDefinition.Columns.DomainName), user.Id);
+			}
+		}
 
-            _filters.Clear();
-            _filters.AddRange(filters.Select(f => f.ToEntity<SdkMessageFilter>()));
-        }
+		/// <summary>Retrieves and store the <see cref="Messages"/> field</summary>
+		private void InitMessages()
+		{
+			var query = new QueryExpression(SdkMessageDefinition.EntityName);
+			query.ColumnSet.AddColumns(SdkMessageDefinition.Columns.Id, SdkMessageDefinition.Columns.Name);
 
-        public SolutionComponent GetComponentByObjectRef(EntityReference objectRef)
-        {
-            return _components.Find(c => c.ObjectId.Equals(objectRef.Id));
-        }
+			var messages = _service.RetrieveAll(query).Select(e => e.ToEntity<SdkMessage>());
 
-        public EntityReference GetMessage(Messages message)
-        {
-            return _messages[message];
-        }
+			_messages.Clear();
+			foreach (SdkMessage e in messages)
+			{
+				_messages.Add(Messages.GetMessage(e.Name), e.ToEntityReference());
+			}
+		}
 
-        public EntityReference GetMessageFilter(Messages message, string entityName)
-        {
-            return _filters.Find(f =>
-                f.SdkMessageId.Name == message.ToString()
-                && f.PrimaryObjectTypeCode == entityName)
-                ?.ToEntityReference();
-        }
-    }
+		/// <summary>Retrieves and store the Filters field</summary>
+		private void InitFilters()
+		{
+			var query = new QueryExpression(SdkMessageFilterDefinition.EntityName);
+			query.ColumnSet.AddColumns(SdkMessageFilterDefinition.Columns.Id,
+			                           SdkMessageFilterDefinition.Columns.SdkMessageId,
+			                           SdkMessageFilterDefinition.PrimaryObjectTypeCode);
+			query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsCustomProcessingStepAllowed, ConditionOperator.Equal, true);
+			query.Criteria.AddCondition(SdkMessageFilterDefinition.Columns.IsVisible,                     ConditionOperator.Equal, true);
+
+			var filters = _service.RetrieveAll(query);
+
+			_filters.Clear();
+			_filters.AddRange(filters.Select(f => f.ToEntity<SdkMessageFilter>()));
+		}
+
+		public SolutionComponent GetComponentByObjectRef(EntityReference objectRef)
+		{
+			return _components.Find(c => c.ObjectId.Equals(objectRef.Id));
+		}
+
+		public EntityReference GetMessage(Messages message)
+		{
+			return _messages[message];
+		}
+
+		public EntityReference GetMessageFilter(Messages message, string entityName)
+		{
+			return _filters.Find(f =>
+				                     f.SdkMessageId.Name        == message.ToString()
+				                     && f.PrimaryObjectTypeCode == entityName)
+			  ?.ToEntityReference();
+		}
+	}
 }

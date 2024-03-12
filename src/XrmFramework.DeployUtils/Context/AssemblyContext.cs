@@ -13,6 +13,7 @@ public class AssemblyContext : IAssemblyContext
 		get
 		{
 			var children = new List<ICrmComponent>();
+			children.Add(AssemblyInfo);
 			children.AddRange(Plugins);
 			children.AddRange(Workflows);
 			children.AddRange(CustomApis);
