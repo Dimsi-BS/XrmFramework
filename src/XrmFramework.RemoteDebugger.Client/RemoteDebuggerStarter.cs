@@ -13,7 +13,7 @@ namespace XrmFramework.RemoteDebugger.Common;
 
 
 [SuppressMessage("ReSharper", "UnusedType.Global")]
-public sealed class RemoteDebuggerStarter<TProgram, TMessageManager> where TMessageManager : class, IRemoteDebuggerMessageManager
+public sealed class RemoteDebuggerStarter<TMessageManager> where TMessageManager : class, IRemoteDebuggerMessageManager
 {
     /// <summary>
     /// Entrypoint for debugging all referenced projects
@@ -21,18 +21,16 @@ public sealed class RemoteDebuggerStarter<TProgram, TMessageManager> where TMess
     // ReSharper disable once UnusedMember.Global
     public async Task RunAsync(string[] args)
     {
-        var assembly = Assembly.GetCallingAssembly();
-
         AnsiConsole.Write(new FigletText("XrmFramework").Centered().Color(Color.Blue));
         AnsiConsole.Write(new FigletText("Remote Debugger").RightJustified().Color(Color.Green));
         AnsiConsole.WriteLine();
-
+        
         var serviceCollection = new DebuggerServiceCollectionFactory().CreateServiceCollection<TMessageManager>();
 
         var registrar = new TypeRegistrar(serviceCollection);
         var commandApp = new CommandApp(registrar);
 
-        commandApp.SetDefaultCommand<RemoteDebuggerCommand<TProgram>>();
+        commandApp.SetDefaultCommand<RemoteDebuggerCommand>();
 
         await commandApp.RunAsync(args);
     }
