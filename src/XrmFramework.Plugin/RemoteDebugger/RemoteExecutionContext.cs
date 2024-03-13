@@ -127,4 +127,7 @@ public partial class RemoteDebugExecutionContext : IPluginExecutionContext
     public string UnsecureConfig { get; set; }
 
     public string SecureConfig { get; set; }
+    
+    public string ToPrettyString() 
+        => $"{TypeAssemblyQualifiedName.Split(',')[0]} - {MessageName} - {Stage.ToEnum<Stages>()} - {PrimaryEntityName}";
 }

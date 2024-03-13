@@ -1,30 +1,7 @@
 ﻿<Project>
+  <Import Project="../XrmFramework.props" />
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)/../../content/tables/**/*.table" Link="__Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" />
-
-    <Compile Remove="**\*.table" />
-    <None Remove="**\*.table" />
-    <AdditionalFiles Include="**/*.table" />
-    <Compile Remove="Generated\**" />
-
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
-
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.41" />
+    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.45" />
   </ItemGroup>
 
-
-  <PropertyGroup Condition="'$(XrmFrameworkShowGeneratedFiles)' == 'true'">
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(XrmFrameworkShowGeneratedFiles)' == 'true'">
-    <None Include="Generated\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Using Include="XrmFramework" />
-    <Using Include="XrmFramework.BindingModel" />
-  </ItemGroup>
 </Project>

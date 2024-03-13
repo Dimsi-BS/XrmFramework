@@ -18,9 +18,9 @@ namespace XrmFramework.Workflow
 
         T GetArgumentValue<T>(InArgument<T> argument);
 
-        void SetArgumentValue<T>(OutArgument<T> argument, T value);
-
         T GetArgumentValue<T>(InOutArgument<T> argument);
+
+        void SetArgumentValue<T>(OutArgument<T> argument, T value);
 
         void SetArgumentValue<T>(InOutArgument<T> argument, T value);
 
@@ -28,6 +28,6 @@ namespace XrmFramework.Workflow
 
         void Log(string message, params object?[] paramsObject);
 
-        TService GetService<TService>() where TService : IService;
+        TService GetService<TService>();
     }
 }

@@ -17,16 +17,16 @@ namespace XrmFramework.Analyzers.Generators
 
 			var listServices = ListAllServices(services, implementations, namespaceSet);
 
-			internalDependencySb.AppendLine("#if !DISABLE_SERVICES && (PLUGIN || CORE_PROJECT)");
-			serviceCollectionSb.AppendLine("#if !DISABLE_SERVICES && CORE_PROJECT");
-
 			foreach (var ns in namespaceSet.OrderBy(n => n))
 			{
 				internalDependencySb
-				   .Append("using ")
-				   .Append(ns)
-				   .AppendLine(";");
+					.Append("using ")
+					.Append(ns)
+					.AppendLine(";");
 			}
+			
+			internalDependencySb.AppendLine("#if !DISABLE_DI && PLUGIN");
+			serviceCollectionSb.AppendLine("#if !DISABLE_DI");
 			
 			internalDependencySb
 			   .AppendLine()

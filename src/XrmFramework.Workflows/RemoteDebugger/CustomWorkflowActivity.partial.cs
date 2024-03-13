@@ -18,9 +18,10 @@ namespace XrmFramework.Workflow
             localContext.Log("The context is genuine");
 
             var initiatingUserId = localContext.GetInitiatingUserId();
+            var rootUserId = localContext.GetRootUserId();
 
             var queryDebugSessions = BindingModelHelper.GetRetrieveAllQuery<DebugSession>();
-            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.Debugee, ConditionOperator.Equal, initiatingUserId.ToString());
+            queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.DebugeeId, ConditionOperator.In, initiatingUserId, rootUserId);
             queryDebugSessions.Criteria.AddCondition(DebugSessionDefinition.Columns.StateCode, ConditionOperator.Equal, DebugSessionState.Active.ToInt());
 
             var debugSession = localContext.AdminOrganizationService.RetrieveAll<DebugSession>(queryDebugSessions).FirstOrDefault();

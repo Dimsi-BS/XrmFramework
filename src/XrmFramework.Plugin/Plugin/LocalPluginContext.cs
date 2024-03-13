@@ -3,7 +3,6 @@
 
 using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
-using System;
 
 namespace XrmFramework
 {
@@ -69,7 +68,7 @@ namespace XrmFramework
 
         public int Depth => PluginExecutionContext.Depth;
 
-        public IPluginContext ParentContext => (IPluginContext)ParentLocalContext;
+        public IPluginContext? ParentContext => (IPluginContext)ParentLocalContext;
 
         public bool IsMultiplePrePostOperation
         {
@@ -120,12 +119,16 @@ namespace XrmFramework
             Log($"Entity: {PrimaryEntityName}, Message: {MessageName}, Stage: {Enum.ToObject(typeof(Stages), Stage)}, Mode: {Mode}");
 
             Log($"\r\nUserId\t\t\t{UserId}\r\nInitiatingUserId\t{InitiatingUserId}");
+#pragma warning disable XRM0300
             Log($"\r\nStart : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}");
+#pragma warning restore XRM0300
         }
 
         public void LogExit()
         {
+#pragma warning disable XRM0300
             Log($"End : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}\r\n");
+#pragma warning restore XRM0300
         }
 
         public void LogContextEntry()

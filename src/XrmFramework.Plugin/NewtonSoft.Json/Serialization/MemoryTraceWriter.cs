@@ -44,7 +44,9 @@ namespace Newtonsoft.Json.Serialization
         public void Trace(TraceLevel level, string message, Exception? ex)
         {
             StringBuilder sb = new StringBuilder();
+#pragma warning disable XRM0300
             sb.Append(DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff", CultureInfo.InvariantCulture));
+#pragma warning restore XRM0300
             sb.Append(" ");
             sb.Append(level.ToString("g"));
             sb.Append(" ");

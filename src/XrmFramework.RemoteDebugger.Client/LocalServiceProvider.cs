@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
+using XrmFramework.RemoteDebugger.Client.Recorder;
 
 namespace XrmFramework.RemoteDebugger.Common
 {

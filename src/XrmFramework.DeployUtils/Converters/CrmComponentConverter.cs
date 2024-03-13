@@ -141,13 +141,8 @@ public class CrmComponentConverter : ICrmComponentConverter
 
 		var messagePropertyName = "Target";
 
-		if (image.Message == Messages.Create && !image.IsPreImage)
+		if (image.Message.Equals(Messages.Create) && !image.IsPreImage)
 			messagePropertyName = "Id";
-#pragma warning disable 618
-		else if (image.Message == Messages.SetState ||
-		         image.Message == Messages.SetStateDynamicEntity)
-#pragma warning restore 618
-			messagePropertyName = "EntityMoniker";
 
 		var t = new SdkMessageProcessingStepImage
 		{

@@ -11,8 +11,8 @@ namespace XrmFramework.RemoteDebugger
     [CrmEntity(DebugSessionDefinition.EntityName)]
     public partial class DebugSession : IBindingModel
     {
-        [CrmMapping(DebugSessionDefinition.Columns.Debugee)]
-        public string Debugee { get; set; }
+        [CrmMapping(DebugSessionDefinition.Columns.DebugeeId)]
+        public Guid Debugee { get; set; }
 
         [CrmMapping(DebugSessionDefinition.Columns.CreatedOn)]
         public DateTime SessionStart { get; set; }
@@ -38,23 +38,17 @@ namespace XrmFramework.RemoteDebugger
         [CrmMapping(DebugSessionDefinition.Columns.DebugInfo)]
         public string AssembliesDebugInfo
         {
-            get => JsonConvert.SerializeObject(_assemblyContexts);
-            set => _assemblyContexts = JsonConvert.DeserializeObject<List<AssemblyContextInfo>>(value);
+            get => JsonConvert.SerializeObject(AssemblyContexts);
+            set => AssemblyContexts = JsonConvert.DeserializeObject<List<AssemblyContextInfo>>(value)!;
         }
 
-        public List<AssemblyContextInfo> AssemblyContexts
-        {
-            get => _assemblyContexts;
-            set => _assemblyContexts = value;
-        }
-
-        private List<AssemblyContextInfo> _assemblyContexts = new();
+        public List<AssemblyContextInfo> AssemblyContexts { get; set; } = new();
 
         public Guid Id { get; set; }
         public AssemblyContextInfo GetCorrespondingAssemblyInfo(string customApiUniqueName)
         {
-            return _assemblyContexts
-                .FirstOrDefault(a => a.CustomApis.Exists(c => c.UniqueName == customApiUniqueName));
+            return AssemblyContexts
+                .Find(a => a.CustomApis.Exists(c => c.UniqueName == customApiUniqueName));
         }
 
         public void CopyTo(DebugSession to)

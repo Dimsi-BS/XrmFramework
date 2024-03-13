@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace XrmFramework.RemoteDebugger.Common
+namespace XrmFramework.RemoteDebugger.Client
 {
-    public interface IRemoteDebuggerMessageManager
+    public interface IRemoteDebuggerMessageManager: IDisposable
     {
-        event Action<RemoteDebugExecutionContext> ContextReceived;
-
-        Task SendMessage(RemoteDebuggerMessage message);
-
-        Task<RemoteDebuggerMessage> SendMessageWithResponse(RemoteDebuggerMessage message);
-
-        void RunAndBlock();
+        Task RunAsync();
     }
 }

@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# Spectre1000: Use AnsiConsole instead of System.Console
+dotnet_diagnostic.Spectre1000.severity = error

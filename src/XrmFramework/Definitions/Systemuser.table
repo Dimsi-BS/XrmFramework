@@ -29418,34 +29418,6 @@
       "LookName": "modifiedonbehalfby"
     },
     {
-      "Name": "lk_dimsi_xrmframeworkdebugsession_createdby",
-      "Etn": "dimsi_xrmframeworkdebugsession",
-      "Role": "Referenced",
-      "NavPropName": "lk_dimsi_xrmframeworkdebugsession_createdby",
-      "LookName": "createdby"
-    },
-    {
-      "Name": "lk_dimsi_xrmframeworkdebugsession_createdonbehalfby",
-      "Etn": "dimsi_xrmframeworkdebugsession",
-      "Role": "Referenced",
-      "NavPropName": "lk_dimsi_xrmframeworkdebugsession_createdonbehalfby",
-      "LookName": "createdonbehalfby"
-    },
-    {
-      "Name": "lk_dimsi_xrmframeworkdebugsession_modifiedby",
-      "Etn": "dimsi_xrmframeworkdebugsession",
-      "Role": "Referenced",
-      "NavPropName": "lk_dimsi_xrmframeworkdebugsession_modifiedby",
-      "LookName": "modifiedby"
-    },
-    {
-      "Name": "lk_dimsi_xrmframeworkdebugsession_modifiedonbehalfby",
-      "Etn": "dimsi_xrmframeworkdebugsession",
-      "Role": "Referenced",
-      "NavPropName": "lk_dimsi_xrmframeworkdebugsession_modifiedonbehalfby",
-      "LookName": "modifiedonbehalfby"
-    },
-    {
       "Name": "lk_msdyn_pmanalysishistory_createdby",
       "Etn": "msdyn_pmanalysishistory",
       "Role": "Referenced",

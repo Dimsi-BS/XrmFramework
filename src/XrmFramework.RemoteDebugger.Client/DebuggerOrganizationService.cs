@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
@@ -11,8 +12,8 @@ namespace XrmFramework.RemoteDebugger.Common
     public class DebuggerOrganizationService : IOrganizationService
     {
         private readonly LocalServiceProvider.RequestHandler _onRequestSent;
-        public RemoteDebugExecutionContext Context { get; }
-        public Guid? UserId { get; }
+        private RemoteDebugExecutionContext Context { get; }
+        private Guid? UserId { get; }
 
         public DebuggerOrganizationService(RemoteDebugExecutionContext context, Guid? userId, LocalServiceProvider.RequestHandler onRequestSent)
         {
@@ -52,9 +53,15 @@ namespace XrmFramework.RemoteDebugger.Common
 
             var responseTemp = hybridResponse.GetOrganizationResponse();
 
-            var typeName = request.GetType().AssemblyQualifiedName.Replace("Request", "Response");
+            var assemblyQualifiedName = request.GetType().AssemblyQualifiedName;
+            
+            Debug.Assert(!string.IsNullOrWhiteSpace(assemblyQualifiedName));
+            
+            var typeName = assemblyQualifiedName.Replace("Request", "Response");
 
             var type = Type.GetType(typeName);
+            
+            Debug.Assert(type != null);
 
             var response = (OrganizationResponse)Activator.CreateInstance(type);
 

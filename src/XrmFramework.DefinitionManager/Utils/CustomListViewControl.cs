@@ -82,8 +82,6 @@ namespace XrmFramework.DefinitionManager
 
         private void Render()
         {
-            //listView.SuspendLayout();
-
             this.listView.Items.Clear();
 
             var sw = new Stopwatch();
@@ -113,7 +111,6 @@ namespace XrmFramework.DefinitionManager
             sw.Stop();
             Console.WriteLine(
                 $"Sort : {sortTime}, Filter : {filterTime}, Select : {selectTime}, ToArray : {toArrayTime}");
-            //listView.ResumeLayout(true);
         }
 
         public void Clear()
@@ -229,11 +226,6 @@ namespace XrmFramework.DefinitionManager
         public virtual string Label { get { return "Filter"; } }
 
         public new string Text { get { return this.filterTextBox.Text; } set { this.filterTextBox.Text = value; RaiseFilterTextChanged(value); } }
-
-        private void filterTextBox_KeyUp(object sender, KeyEventArgs e)
-        {
-
-        }
 
         public virtual bool ShowCheckBoxes { get { return true; } }
     }

@@ -83,7 +83,6 @@
             this.filterTextBox.Size = new System.Drawing.Size(141, 31);
             this.filterTextBox.TabIndex = 3;
             this.filterTextBox.TextChanged += new System.EventHandler(this.filterTextBox_TextChanged);
-            this.filterTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.filterTextBox_KeyUp);
             // 
             // textBoxLabel
             // 

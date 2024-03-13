@@ -1,6 +1,6 @@
 ﻿<Project>
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)/../../content/tables/**/*.table" Link="__Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)/../content/tables/**/*.table" Link="__Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" />
 
     <Compile Remove="**\*.table" />
     <None Remove="**\*.table" />
@@ -21,7 +21,13 @@
     <None Include="Generated\**" />
   </ItemGroup>
 
+  <PropertyGroup>
+      <ImplicitUsings>true</ImplicitUsings>
+  </PropertyGroup>
+  
   <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Net.Http" />
     <Using Include="XrmFramework" />
     <Using Include="XrmFramework.BindingModel" />
   </ItemGroup>

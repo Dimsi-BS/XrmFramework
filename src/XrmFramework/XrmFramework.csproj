@@ -4,7 +4,7 @@
         <TargetFrameworks>$(XrmFramework_Runtime_TFM)</TargetFrameworks>
         <AssemblyName>XrmFramework</AssemblyName>
         <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
-        <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
+        <SignAssembly>$(XrmFramework_SignAssembly)</SignAssembly>
         <PackageId>XrmFramework</PackageId>
 
 
@@ -17,41 +17,40 @@
 
         <NoWarn>$(NoWarn);1591</NoWarn>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+      <ImplicitUsings>enable</ImplicitUsings>
     
     </PropertyGroup>
 
     <ItemGroup>
-      <Using Include="System.Net.Http"/>
+      <Using Include="System.Net.Http" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-        <Reference Include="Microsoft.CSharp"/>
-        <Reference Include="System.Configuration"/>
-        <Reference Include="System.Net.Http"/>
+        <Reference Include="Microsoft.CSharp" />
+        <Reference Include="System.Configuration" />
+        <Reference Include="System.Net.Http" />
 
-        <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.51"/>
-        <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.45"/>
-        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0"/>
+        <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.52" />
+        <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.45" />
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' Or '$(TargetFramework)' == 'net6.0'">
-        <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.16"/>
-        <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.1.16"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1"/>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+      <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.17" />
+      <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.1.17" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo 
-      Include="XrmFramework.Tests"
-      Key="00240000048000009400000006020000002400005253413100040000010001000d196816c56c09f53b4235803db7e452f0c1911a84b0f48ed49fc5b6cd544869a7e74fb971f388bd335b537b22e43a63101907a395e40bc0e434dc9a98c8f2d4e61e84f274cbf9bcb2b8415f582b26d5f2bd3d152d1736440ecd978b8216bb9a6ee429c9f84e87b00ca4e8fb747292d433a4017c8fa51456e80c6f12c95f59b4"/>
+    <InternalsVisibleTo Include="XrmFramework.Tests" Key="00240000048000009400000006020000002400005253413100040000010001000d196816c56c09f53b4235803db7e452f0c1911a84b0f48ed49fc5b6cd544869a7e74fb971f388bd335b537b22e43a63101907a395e40bc0e434dc9a98c8f2d4e61e84f274cbf9bcb2b8415f582b26d5f2bd3d152d1736440ecd978b8216bb9a6ee429c9f84e87b00ca4e8fb747292d433a4017c8fa51456e80c6f12c95f59b4" />
   </ItemGroup>
 
     <PropertyGroup>
@@ -60,11 +59,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="**\*.table"/>
-        <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**"/>
+        <None Remove="**\*.table" />
+        <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
 
-        <Compile Remove="**/Generated/**/*.cs"/>
-        <None Include="**/Generated/**/*.cs"/>
+        <Compile Remove="**/Generated/**/*.cs" />
+        <None Include="**/Generated/**/*.cs" />
     </ItemGroup>
 
 

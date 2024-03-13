@@ -15,4 +15,5 @@ XRM0012  |  Syntax   | Warning | AddStepCheckRulesAnalyzer, [Documentation](XRM0
 XRM0013  |  Syntax   | Error | AddStepCheckRulesAnalyzer, [Documentation](XRM0013_Documentation_Link)
 XRM0014  |  Syntax   | Error | AddStepCheckRulesAnalyzer, [Documentation](XRM0014_Documentation_Link)
 XRM0200  |  Syntax   | Error | CrmEntityRuleAnalyzer, [Documentation](XRM0200_Documentation_Link)
+XRM0300  |  Syntax   | Warning | DateTimeNowRuleAnalyzer, [Documentation](XRM0300_Documentation_Link)
 

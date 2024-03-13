@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
-    <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
+    <SignAssembly>$(XrmFramework_SignAssembly)</SignAssembly>
     <PublicSign>$(XrmFramework_PublicSign)</PublicSign>
   </PropertyGroup>
 
