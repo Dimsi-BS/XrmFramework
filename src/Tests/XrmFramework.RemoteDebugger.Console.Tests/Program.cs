@@ -5,6 +5,6 @@ internal class Program
 {
     private static async Task Main(string[] args)
     {
-        await new RemoteDebuggerStarter<Program, AzureRelayHybridConnectionMessageManager>().RunAsync(args);
+        await new RemoteDebuggerStarter<AzureRelayHybridConnectionMessageManager>().RunAsync(args);
     }
 }

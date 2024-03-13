@@ -11,7 +11,7 @@ using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.RemoteDebugger.Client.Commands;
 
-internal class RemoteDebuggerCommand : AsyncCommand<RemoteDebuggerCommand<TProgram>.Settings>
+internal class RemoteDebuggerCommand : AsyncCommand<RemoteDebuggerCommand.Settings>
 {
 	private readonly ISolutionContext _solutionContext;
 	private readonly RegistrationHelper _registrationHelper;
