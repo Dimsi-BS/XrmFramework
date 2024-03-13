@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using AutoMapper;
 using Deploy;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
 using XrmFramework.DeployUtils.Configuration;
@@ -195,7 +194,7 @@ public class AssemblyImporter : IAssemblyImporter
     {
         var entryAssembly = Assembly.GetEntryAssembly();
 
-        Assert.IsNotNull(entryAssembly);
+        if (entryAssembly == null) throw new ArgumentNullException(nameof(assembly));
 
         var packagesFolderName = entryAssembly
             .GetCustomAttribute<DeployFolderAttribute>()
