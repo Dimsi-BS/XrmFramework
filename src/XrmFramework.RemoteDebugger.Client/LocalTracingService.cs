@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Xrm.Sdk;
+using Spectre.Console;
 
 namespace XrmFramework.RemoteDebugger.Common
 {
@@ -10,7 +11,7 @@ namespace XrmFramework.RemoteDebugger.Common
     {
         public void Trace(string format, params object[] args)
         {
-            Console.WriteLine(format, args);
+            AnsiConsole.WriteLine(format, args);
         }
     }
 }

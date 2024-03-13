@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
+using Spectre.Console;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Exporters;
@@ -13,177 +14,180 @@ using XrmFramework.DeployUtils.Factories;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Model.Interfaces;
 using XrmFramework.DeployUtils.Service;
+using XrmFramework.RemoteDebugger.Client.Recorder;
 using IAssemblyFactory = XrmFramework.DeployUtils.Factories.IAssemblyFactory;
 
 namespace XrmFramework.DeployUtils;
 
 public partial class RegistrationHelper
 {
-	private readonly AssemblyDiffFactory _assemblyDiffFactory;
-	private readonly IAssemblyExporter _assemblyExporter;
-	private readonly IAssemblyFactory _assemblyFactory;
-	private readonly IRegistrationService _registrationService;
+    private readonly AssemblyDiffFactory _assemblyDiffFactory;
+    private readonly IAssemblyExporter _assemblyExporter;
+    private readonly IAssemblyFactory _assemblyFactory;
+    private readonly IConsoleService _consoleService;
+    private readonly IRegistrationService _registrationService;
 
-	public RegistrationHelper(IRegistrationService registrationService,
-		IAssemblyExporter assemblyExporter,
-		IAssemblyFactory assemblyFactory,
-		AssemblyDiffFactory assemblyDiffFactory)
-	{
-		_registrationService = registrationService;
-		_assemblyExporter = assemblyExporter;
-		_assemblyFactory = assemblyFactory;
-		_assemblyDiffFactory = assemblyDiffFactory;
-	}
+    public RegistrationHelper(IRegistrationService registrationService,
+      IAssemblyExporter assemblyExporter,
+      IAssemblyFactory assemblyFactory,
+      IConsoleService consoleService,
+      AssemblyDiffFactory assemblyDiffFactory)
+    {
+        _registrationService = registrationService;
+        _assemblyExporter = assemblyExporter;
+        _assemblyFactory = assemblyFactory;
+        _consoleService = consoleService;
+        _assemblyDiffFactory = assemblyDiffFactory;
+    }
 
-	/// <summary>
-	///     Entrypoint for registering the <typeparamref name="TPlugin" /> in the solution <paramref name="projectName" />
-	/// </summary>
-	/// <typeparam name="TPlugin">Root type of all components to deploy, should be <c>XrmFramework.Plugin</c></typeparam>
-	/// <param name="projectName">Name of the local project as named in <c>xrmFramework.config</c></param>
-	public static void RegisterPluginsAndWorkflows<TPlugin>(string projectName)
-	{
-		var localDll = typeof(TPlugin).Assembly;
-		var serviceProvider = new ServiceCollection()
-			.ConfigureForDeploy(localDll.GetName().Name);
+    /// <summary>
+    ///     Entrypoint for registering the <typeparamref name="TPlugin" /> in the solution <paramref name="projectName" />
+    /// </summary>
+    /// <typeparam name="TPlugin">Root type of all components to deploy, should be <c>XrmFramework.Plugin</c></typeparam>
+    public static void RegisterPluginsAndWorkflows<TPlugin>()
+    {
+        var localDll = typeof(TPlugin).Assembly;
+        var serviceCollection = DeployServiceCollectionFactory.CreateServiceCollection(localDll.GetName().Name);
 
-		var solutionSettingsOptions = serviceProvider.GetRequiredService<IOptions<DeploySettings>>();
+        var serviceProvider = serviceCollection.BuildServiceProvider();
 
-		Console.WriteLine($@"Assembly {localDll.GetName().Name}");
-		Console.WriteLine(@"You are about to deploy on organization:");
-		Console.WriteLine(@$"Url : {solutionSettingsOptions.Value.Url}");
-		Console.WriteLine(@$"ClientId : {solutionSettingsOptions.Value.ClientId}");
-		Console.WriteLine(@"If ok press any key.");
-		Console.ReadKey();
-		Console.WriteLine(@"Connecting to CRM...");
+        var solutionSettingsOptions = serviceProvider.GetRequiredService<IOptions<DeploySettings>>();
 
-		var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
-		solutionContext.InitSolutionContext();
+        AnsiConsole.WriteLine($@"Assembly {localDll.GetName().Name}");
+        AnsiConsole.WriteLine(@"You are about to deploy on organization:");
+        AnsiConsole.WriteLine(@$"Url : {solutionSettingsOptions.Value.Url}");
+        AnsiConsole.WriteLine(@$"ClientId : {solutionSettingsOptions.Value.ClientId}");
+        AnsiConsole.Ask("If ok press any key.", true);
+        AnsiConsole.WriteLine(@"Connecting to CRM...");
 
-		var registrationHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
+        var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
+        solutionContext.InitSolutionContext();
 
-		registrationHelper.Register(localDll);
-	}
+        var registrationHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
 
-	/// <summary>
-	///     Main algorithm for deploying the <see cref="Assembly" /> assembly
-	/// </summary>
-	/// <param name="localDll">The local Assembly, should appear in <c>xrmFramework.config</c></param>
-	protected void Register(Assembly localDll)
-	{
-		RegisterAssembly(localDll);
+        registrationHelper.Register(localDll);
+    }
 
-		Console.WriteLine(@"	Fetching Local Assembly...");
+    /// <summary>
+    ///     Main algorithm for deploying the <see cref="Assembly" /> assembly
+    /// </summary>
+    /// <param name="localDll">The local Assembly, should appear in <c>xrmFramework.config</c></param>
+    private void Register(Assembly localDll)
+    {
+        RegisterAssembly(localDll);
 
-		var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(localDll);
+        _consoleService.SetStatus("Fetching Local Assembly...");
 
-		Console.WriteLine(@"	Fetching Remote Assembly...");
+        var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(localDll);
 
-		var registeredAssembly =
-			_assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, localDll.GetName().Name);
+        _consoleService.SetStatus("Fetching Remote Assembly...");
 
-		Console.WriteLine(@"	Computing Difference...");
+        var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, localDll.GetName().Name);
 
-		var registrationStrategy = _assemblyDiffFactory.ComputeDiffPatch(localAssembly, registeredAssembly);
+        _consoleService.SetStatus("Computing Difference...");
 
-		Console.WriteLine(@"	Executing Registration Strategy...");
+        var registrationStrategy = _assemblyDiffFactory.ComputeDiffPatch(localAssembly, registeredAssembly);
 
-		ExecuteStrategy(registrationStrategy);
-	}
+        _consoleService.SetStatus(@"Executing Registration Strategy...");
 
-	/// <summary>
-	///     Deploy the <paramref name="strategy" />'s components according to their <see cref="RegistrationState" />
-	/// </summary>
-	/// <param name="strategy"></param>
-	private void ExecuteStrategy(IAssemblyContext strategy)
-	{
-		var strategyPool = strategy.ComponentsOrderedPool;
+        ExecuteStrategy(registrationStrategy);
 
-		var stepsForMetadata = strategyPool.OfType<Step>()
-			.Where(s => s.RegistrationState is RegistrationState.ToCreate or RegistrationState.ToUpdate);
+    }
 
-		_assemblyExporter.InitExportMetadata(stepsForMetadata);
+    /// <summary>
+    ///     Deploy the <paramref name="strategy" />'s components according to their <see cref="RegistrationState" />
+    /// </summary>
+    /// <param name="strategy"></param>
+    private void ExecuteStrategy(IAssemblyContext strategy)
+    {
+        var strategyPool = strategy.ComponentsOrderedPool;
 
-		var allRequests = CreateDeleteRequests(strategyPool).ToList();
+        var stepsForMetadata = strategyPool.OfType<Step>()
+          .Where(s => s.RegistrationState is RegistrationState.ToCreate or RegistrationState.ToUpdate);
 
-		allRequests.AddRange(CreateUpdateRequests(strategyPool));
+        _assemblyExporter.InitExportMetadata(stepsForMetadata);
 
-		ExecuteAllRequests(allRequests);
+        var allRequests = CreateDeleteRequests(strategyPool).ToList();
 
-		var componentsToCreate = strategyPool.Where(c =>
-			c.RegistrationState == RegistrationState.ToCreate);
-		_assemblyExporter.CreateAllComponents(componentsToCreate);
-	}
+        allRequests.AddRange(CreateUpdateRequests(strategyPool));
 
-	private void ExecuteAllRequests(List<OrganizationRequest> allRequests)
-	{
-		var crmRequests = InitCrmRequest();
-		while (allRequests.Any())
-		{
-			crmRequests.Requests.AddRange(allRequests.Take(1000));
-			allRequests.RemoveRange(0, Math.Min(allRequests.Count, 1000));
-			
-			var results = (ExecuteMultipleResponse) _registrationService.Execute(crmRequests);
-			if (results.IsFaulted)
-			{
-				throw new Exception(results.Responses[results.Responses.Count - 1].Fault.Message);
-			}
+        ExecuteAllRequests(allRequests);
 
-			crmRequests.Requests.Clear();
-		}
-	}
+        var componentsToCreate = strategyPool.Where(c =>
+          c.RegistrationState == RegistrationState.ToCreate);
+        _assemblyExporter.CreateAllComponents(componentsToCreate);
+    }
 
-	/// <summary>
-	///     Creates the Assembly, deleting all obsolete components in the process by calling
-	///     <see cref="CreateDeleteRequests" />
-	/// </summary>
-	private void RegisterAssembly(Assembly localAssembly)
-	{
-		var localInfo = _assemblyFactory.GetLocalAssemblyInfo(localAssembly);
-		var remoteInfo = _assemblyFactory.GetRemoteAssemblyInfo(_registrationService, localInfo.Name);
+    private void ExecuteAllRequests(List<OrganizationRequest> allRequests)
+    {
+        var crmRequests = InitCrmRequest();
+        while (allRequests.Any())
+        {
+            crmRequests.Requests.AddRange(allRequests.Take(1000));
+            allRequests.RemoveRange(0, Math.Min(allRequests.Count, 1000));
 
-		var operation = _assemblyDiffFactory.ComputeAssemblyOperation(localInfo, remoteInfo);
+            var results = (ExecuteMultipleResponse)_registrationService.Execute(crmRequests);
+            if (results.IsFaulted)
+            {
+                throw new Exception(results.Responses[results.Responses.Count - 1].Fault.Message);
+            }
 
-		if (operation.RegistrationState == RegistrationState.ToCreate)
-		{
-			Console.WriteLine($"\tCreating {operation.HumanName}...");
-			_assemblyExporter.CreateComponent(operation);
-		}
+            crmRequests.Requests.Clear();
+        }
+    }
 
-		else if (operation.RegistrationState == RegistrationState.ToUpdate)
-		{
-			Console.WriteLine($"\tUpdating {operation.HumanName}");
-			_assemblyExporter.UpdateComponent(operation);
-		}
-	}
+    /// <summary>
+    ///     Creates the Assembly, deleting all obsolete components in the process by calling
+    ///     <see cref="CreateDeleteRequests" />
+    /// </summary>
+    private void RegisterAssembly(Assembly localAssembly)
+    {
+        var localInfo = _assemblyFactory.GetLocalAssemblyInfo(localAssembly);
+        var remoteInfo = _assemblyFactory.GetRemoteAssemblyInfo(_registrationService, localInfo.Name);
 
-	private IEnumerable<OrganizationRequest> CreateDeleteRequests(IReadOnlyCollection<ICrmComponent> strategyPool)
-	{
-		var componentsToDelete = strategyPool
-			.Where(d => d.RegistrationState == RegistrationState.ToDelete);
+        var operation = _assemblyDiffFactory.ComputeAssemblyOperation(localInfo, remoteInfo);
 
-		return _assemblyExporter.ToDeleteRequestCollection(componentsToDelete);
-	}
+        if (operation.RegistrationState == RegistrationState.ToCreate)
+        {
+            AnsiConsole.WriteLine($"\tCreating {operation.HumanName}...");
+            _assemblyExporter.CreateComponent(operation);
+        }
 
-	private IEnumerable<OrganizationRequest> CreateUpdateRequests(IReadOnlyCollection<ICrmComponent> strategyPool)
-	{
-		var componentsToUpdate = strategyPool
-			.Where(d => d.RegistrationState == RegistrationState.ToUpdate);
+        else if (operation.RegistrationState == RegistrationState.ToUpdate)
+        {
+            AnsiConsole.WriteLine($"\tUpdating {operation.HumanName}");
+            _assemblyExporter.UpdateComponent(operation);
+        }
+    }
 
-		return _assemblyExporter.ToUpdateRequestCollection(componentsToUpdate);
-	}
+    private IEnumerable<OrganizationRequest> CreateDeleteRequests(IReadOnlyCollection<ICrmComponent> strategyPool)
+    {
+        var componentsToDelete = strategyPool
+          .Where(d => d.RegistrationState == RegistrationState.ToDelete);
 
-	private static ExecuteMultipleRequest InitCrmRequest()
-	{
-		return new ExecuteMultipleRequest
-		{
-			// Assign settings that define execution behavior: continue on error, return responses.
-			Settings = new ExecuteMultipleSettings()
-			{
-				ContinueOnError = false,
-				ReturnResponses = true
-			},
-			// Create an empty organization request collection.
-			Requests = new OrganizationRequestCollection()
-		};
-	}
+        return _assemblyExporter.ToDeleteRequestCollection(componentsToDelete);
+    }
+
+    private IEnumerable<OrganizationRequest> CreateUpdateRequests(IReadOnlyCollection<ICrmComponent> strategyPool)
+    {
+        var componentsToUpdate = strategyPool
+          .Where(d => d.RegistrationState == RegistrationState.ToUpdate);
+
+        return _assemblyExporter.ToUpdateRequestCollection(componentsToUpdate);
+    }
+
+    private static ExecuteMultipleRequest InitCrmRequest()
+    {
+        return new ExecuteMultipleRequest
+        {
+            // Assign settings that define execution behavior: continue on error, return responses.
+            Settings = new ExecuteMultipleSettings()
+            {
+                ContinueOnError = false,
+                ReturnResponses = true
+            },
+            // Create an empty organization request collection.
+            Requests = new OrganizationRequestCollection()
+        };
+    }
 }

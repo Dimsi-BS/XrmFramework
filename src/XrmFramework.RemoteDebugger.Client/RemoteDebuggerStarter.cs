@@ -1,61 +1,42 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using XrmFramework.DeployUtils;
-using XrmFramework.DeployUtils.Configuration;
-using XrmFramework.DeployUtils.Context;
+using Spectre.Console;
 using XrmFramework.RemoteDebugger.Client;
 using XrmFramework.RemoteDebugger.Client.Configuration;
-using XrmFramework.RemoteDebugger.Client.Recorder;
+using Spectre.Console.Cli;
+using XrmFramework.RemoteDebugger.Client.Utils;
+using XrmFramework.RemoteDebugger.Client.Commands;
+using System.Reflection;
 
 // ReSharper disable once CheckNamespace
 namespace XrmFramework.RemoteDebugger.Common;
 
+
 [SuppressMessage("ReSharper", "UnusedType.Global")]
-public sealed class RemoteDebuggerStarter<TProgram, TMessageManager> where TMessageManager : class, IRemoteDebuggerMessageManager
+public sealed class RemoteDebuggerStarter<TMessageManager> where TMessageManager : class, IRemoteDebuggerMessageManager
 {
-    private static readonly Lazy<IServiceProvider> LazyServiceProvider = new(DebuggerServiceCollectionHelper.ConfigureForRemoteDebug<TMessageManager>, true);
-
-    private IServiceProvider ServiceProvider => LazyServiceProvider.Value;
-
     /// <summary>
     /// Entrypoint for debugging all referenced projects
     /// </summary>
     // ReSharper disable once UnusedMember.Global
-    public async Task RunAsync()
+    public async Task RunAsync(string[] args)
     {
-        Console.WriteLine(@"Welcome to XrmFramework Remote Debugger");
+        var assembly = Assembly.GetCallingAssembly();
 
-        var assembliesToDebug = typeof(TProgram).Assembly.GetReferencedAssemblies()
-            .Select(Assembly.Load)
-            .Where(a => a.GetType("XrmFramework.Plugin") != null
-                        || a.GetType("XrmFramework.CustomApi") != null
-                        || a.GetType("XrmFramework.Workflow.CustomWorkflowActivity") != null
-            )
-            .ToList();
+        AnsiConsole.Write(new FigletText("XrmFramework").Centered().Color(Color.Blue));
+        AnsiConsole.Write(new FigletText("Remote Debugger").RightJustified().Color(Color.Green));
+        AnsiConsole.WriteLine();
 
-        if (!assembliesToDebug.Any())
-        {
-            throw new ArgumentException(
-                "No project containing components to debug were found, please check that they are referenced");
-        }
+        await Task.Delay(1000);
+        
+        //var serviceCollection = new DebuggerServiceCollectionFactory().CreateServiceCollection<TMessageManager>();
 
-        var solutionContext = ServiceProvider.GetRequiredService<ISolutionContext>();
+        //var registrar = new TypeRegistrar(serviceCollection);
+        //var commandApp = new CommandApp(registrar);
 
-        var remoteDebuggerHelper = ServiceProvider.GetRequiredService<RegistrationHelper>();
+        //commandApp.SetDefaultCommand<RemoteDebuggerCommand<TProgram>>();
 
-        assembliesToDebug.ForEach(assembly =>
-        {
-            var targetSolutionName = ServiceCollectionHelper.GetTargetSolutionName(assembly.GetName().Name);
-            solutionContext.InitSolutionContext(targetSolutionName);
-            remoteDebuggerHelper.UpdateDebugger(assembly);
-        });
-
-        using var manager = ServiceProvider.GetRequiredService<IRemoteDebuggerMessageManager>();
-
-        await manager.RunAsync();
+        //await commandApp.RunAsync(args);
     }
+
 }

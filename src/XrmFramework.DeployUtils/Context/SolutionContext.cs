@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
+using Spectre.Console;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
@@ -63,7 +64,7 @@ namespace XrmFramework.DeployUtils.Context
 
         public void InitMetadata()
         {
-            Console.WriteLine(@"Metadata initialization");
+            AnsiConsole.WriteLine(@"Metadata initialization");
 
             InitSolution();
 
@@ -108,14 +109,14 @@ namespace XrmFramework.DeployUtils.Context
 
             if (_solution == null)
             {
-                Console.WriteLine(@"The solution {0} does not exist in the CRM, modify xrmFramework.config to point to an existing solution.", SolutionName);
-                Console.WriteLine(@"\r\nPress any key to exit.");
+                AnsiConsole.WriteLine(@"The solution {0} does not exist in the CRM, modify xrmFramework.config to point to an existing solution.", SolutionName);
+                AnsiConsole.WriteLine(@"\r\nPress any key to exit.");
                 Console.ReadKey();
                 Environment.Exit(1);
             }
             else if (_solution.GetAttributeValue<bool>(SolutionDefinition.Columns.IsManaged))
             {
-                Console.WriteLine(@"The solution {0} is managed in the CRM, modify App.config to point to a development environment.", SolutionName);
+                AnsiConsole.MarkupLine(@"The solution {0} is managed in the CRM, modify App.config to point to a development environment.", SolutionName);
                 Environment.Exit(1);
             }
         }

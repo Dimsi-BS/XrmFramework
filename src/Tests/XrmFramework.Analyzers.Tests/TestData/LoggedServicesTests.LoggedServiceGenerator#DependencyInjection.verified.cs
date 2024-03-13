@@ -1,5 +1,5 @@
 ﻿//HintName: DependencyInjection.cs
-#if !DISABLE_SERVICES && (PLUGIN || CORE_PROJECT)
+#if !DISABLE_SERVICES && PLUGIN
 using BoDi;
 using ClientNamespace.Core;
 using XrmFramework;
@@ -19,7 +19,7 @@ namespace XrmFramework
 }
 #endif
 
-#if !DISABLE_SERVICES && CORE_PROJECT
+#if !DISABLE_SERVICES
 
 namespace Microsoft.Extensions.DependencyInjection
 {

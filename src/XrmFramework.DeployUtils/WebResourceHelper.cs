@@ -4,8 +4,13 @@
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
+#if NET6_0_OR_GREATER
+using Microsoft.PowerPlatform.Dataverse.Client;
+#else
 using Microsoft.Xrm.Tooling.Connector;
+#endif
 using System.Configuration;
+using Spectre.Console;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
 
@@ -23,22 +28,22 @@ namespace XrmFramework.DeployUtils
 
             var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
 
-            Console.WriteLine($@"You are about to deploy on {connectionString} organization. If ok press any key.");
+            AnsiConsole.WriteLine($@"You are about to deploy on {connectionString} organization. If ok press any key.");
             Console.ReadKey();
-            Console.WriteLine(@"Connecting to CRM...");
+            AnsiConsole.WriteLine(@"Connecting to CRM...");
 
             var service = new CrmServiceClient(connectionString);
 
             var solution = GetSolutionByName(service, solutionName);
             if (solution == null)
             {
-                Console.WriteLine(@$"Error : Solution not found : {solutionName}");
+                AnsiConsole.WriteLine(@$"Error : Solution not found : {solutionName}");
                 return;
             }
 
             if (solution.GetAttributeValue<bool>(SolutionDefinition.Columns.IsManaged))
             {
-                Console.WriteLine(@$"Error : Solution {solutionName} is managed, no deployment possible.");
+                AnsiConsole.WriteLine(@$"Error : Solution {solutionName} is managed, no deployment possible.");
                 return;
             }
 
@@ -47,11 +52,11 @@ namespace XrmFramework.DeployUtils
             var publisher = GetPublisherById(service, publisherId);
             if (publisher == null)
             {
-                Console.WriteLine(@$"Error : Publisher not found : {solutionName}");
+                AnsiConsole.WriteLine(@$"Error : Publisher not found : {solutionName}");
                 return;
             }
             var prefix = publisher.GetAttributeValue<string>(PublisherDefinition.Columns.CustomizationPrefix);
-            Console.WriteLine($" ==> Prefix : {prefix}");
+            AnsiConsole.WriteLine($" ==> Prefix : {prefix}");
 
             DirectoryInfo root = new DirectoryInfo(webresourcesPath);
             var resourcesToPublish = string.Empty;
@@ -101,9 +106,9 @@ namespace XrmFramework.DeployUtils
                         publish = true;
                     }
                 }
-                Console.ForegroundColor = publish ? ConsoleColor.DarkGreen : ConsoleColor.White;
-                Console.WriteLine($@"{fi.FullName} => {webResourceUniqueName}");
-                Console.ForegroundColor = ConsoleColor.White;
+                
+                var color = publish ? Color.DarkGreen : Color.White;
+                AnsiConsole.MarkupLine($"{fi.FullName} => {webResourceUniqueName}", color);
 
                 if (publish)
                 {
@@ -114,8 +119,8 @@ namespace XrmFramework.DeployUtils
 
             if (!string.IsNullOrEmpty(resourcesToPublish))
             {
-                Console.WriteLine();
-                Console.WriteLine($@"Publishing {nbWebresources} Resources...");
+                AnsiConsole.WriteLine();
+                AnsiConsole.WriteLine($@"Publishing {nbWebresources} Resources...");
 
                 var request = new PublishXmlRequest
                 {

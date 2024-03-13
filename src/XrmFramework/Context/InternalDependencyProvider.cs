@@ -1,6 +1,7 @@
 ﻿
 using BoDi;
 using System;
+using XrmFramework.Utils;
 
 namespace XrmFramework
 {
@@ -13,6 +14,8 @@ namespace XrmFramework
 
         public static void RegisterDefaults(IObjectContainer container)
         {
+            container.RegisterTypeAs<DateTimeProvider, IDateTimeProvider>();
+
             RegisterServices(container);
             RegisterCustomService(container);
         }

@@ -2,7 +2,11 @@
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
+#if NET6_0_OR_GREATER
+using Microsoft.PowerPlatform.Dataverse.Client;
+#else
 using Microsoft.Xrm.Tooling.Connector;
+#endif
 using XrmFramework.BindingModel;
 using XrmFramework.DeployUtils.Model;
 using CustomApi = Deploy.CustomApi;
@@ -26,10 +30,15 @@ public class RegistrationService : IRegistrationService
 
 	public RegistrationService(string connectionString)
 	{
-		_client = new CrmServiceClient(connectionString);
-	}
 
-	public IEnumerable<PluginAssembly> GetAssemblies()
+#if NET6_0_OR_GREATER
+        _client = new ServiceClient(connectionString);
+#else
+				_client = new CrmServiceClient(connectionString);
+#endif	
+    }
+
+    public IEnumerable<PluginAssembly> GetAssemblies()
 	{
 		var query = new QueryExpression(PluginAssemblyDefinition.EntityName);
 		query.ColumnSet.AddColumns(PluginAssemblyDefinition.Columns.Id, PluginAssemblyDefinition.Columns.Name);

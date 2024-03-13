@@ -11,6 +11,8 @@
 
         /// <summary>Connection String to use to instantiate a Crm Client</summary>
         public string ConnectionString { get; set; }
+        
+        public string Name { get; set; }
 
         public string AuthType => ConnectionStringParser.GetConnectionStringField(ConnectionString, "AuthType");
         public string Url => ConnectionStringParser.GetConnectionStringField(ConnectionString, "Url");

@@ -1909,7 +1909,7 @@ namespace XrmFramework.BindingModel
             {
                 return result;
             }
-            Console.Write("Updating {0}...", message);
+            
             var request = new ExecuteMultipleRequest
             {
                 Settings = new ExecuteMultipleSettings
@@ -1999,18 +1999,16 @@ namespace XrmFramework.BindingModel
                 var errorMessage = errorCount == 0 ? string.Empty : $" ({errorCount} erreurs)";
                 var remainingTime = TimeSpan.FromMilliseconds((_sw.ElapsedMilliseconds * objects.Count / (offset + request.Requests.Count)) - _sw.ElapsedMilliseconds);
 
-                Console.Write("\rUpdated {0}/{1} {2} in {3}{4} (ETA {5})", offset + request.Requests.Count, objects.Count, message, _sw.Elapsed, errorMessage, remainingTime);
                 offset += nbRequest;
             }
 
             if (errorsMessage.Count > 0)
             {
-                Console.WriteLine("\nRejected Records reason : ");
-                foreach (string s in errorsMessage)
-                    Console.WriteLine(s);
+                //foreach (string s in errorsMessage)
+                //    Console.WriteLine(s);
             }
             _sw.Stop();
-            Console.WriteLine();
+            //Console.WriteLine();
 
             result.NbCreated = createdRecord;
             result.NbUpdated = updatedRecord;

@@ -23,8 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.51" />
-    <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.51" />
+    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.52" />
+    <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.52" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <Reference Include="System.Configuration" />
     <Reference Include="Microsoft.CSharp" />
@@ -54,7 +54,7 @@
   <PropertyGroup>
     <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
     <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-    <DefineConstants>$(DefineConstants);DISABLE_SERVICES</DefineConstants>
+    <DefineConstants>$(DefineConstants);DISABLE_DI</DefineConstants>
 
   </PropertyGroup>
 

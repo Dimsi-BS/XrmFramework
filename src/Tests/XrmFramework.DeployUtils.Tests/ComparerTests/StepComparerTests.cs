@@ -50,7 +50,7 @@ public class StepComparerTests
     {
         // Arrange
         var thisStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity");
-        var otherStep = new Step("thisPlugin", Messages.Default, Stages.PostOperation, Modes.Synchronous, "entity");
+        var otherStep = new Step("thisPlugin", Messages.Retrieve, Stages.PostOperation, Modes.Synchronous, "entity");
 
         // Act
         var result = _comparer.Equals(thisStep, otherStep);

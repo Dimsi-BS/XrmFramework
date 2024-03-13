@@ -4,6 +4,7 @@
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using Spectre.Console;
 using XrmFramework.DeployUtils.Properties;
 
 namespace XrmFramework.DeployUtils.Generators
@@ -669,12 +670,12 @@ namespace XrmFramework.DeployUtils.Generators
                         if (GenericParameterAttributes.None != (sConstraints &
                                                                 GenericParameterAttributes.ReferenceTypeConstraint))
                         {
-                            Console.WriteLine("Must be a reference type.");
+                            AnsiConsole.WriteLine("Must be a reference type.");
                         }
                         if (GenericParameterAttributes.None != (sConstraints &
                                                                 GenericParameterAttributes.NotNullableValueTypeConstraint))
                         {
-                            Console.WriteLine("Must be a non-nullable value type.");
+                            AnsiConsole.WriteLine("Must be a non-nullable value type.");
                         }
                     }
 

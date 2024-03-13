@@ -8,8 +8,10 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Spectre.Console;
 using XrmFramework.RemoteDebugger.Client.MessageManagers;
 using XrmFramework.RemoteDebugger.Client.Recorder;
+using XrmFramework.DeployUtils.Model.Record;
 
 // ReSharper disable once CheckNamespace
 namespace XrmFramework.RemoteDebugger.Client;
@@ -21,9 +23,15 @@ public class AzureRelayHybridConnectionMessageManager : MessageManagerBase
     private static readonly ConcurrentDictionary<Guid, RelayedHttpListenerResponse> CurrentResponseCache = new();
     private static readonly ConcurrentDictionary<Guid, RemoteDebuggerMessage> MessageReceiveCache = new();
 
+    private readonly IConsoleService _consoleService;
 
-    public AzureRelayHybridConnectionMessageManager(ISessionRecorder sessionRecorder) : base(sessionRecorder)
+    public AzureRelayHybridConnectionMessageManager(
+        IRecordedSession sessionRecorder,
+        IConsoleService consoleService
+    ) : base(sessionRecorder)
     {
+        _consoleService = consoleService;
+
         // Check that a debug session exists for this project
         if (ConfigurationManager.ConnectionStrings["DebugConnectionString"] == null)
         {
@@ -34,9 +42,18 @@ public class AzureRelayHybridConnectionMessageManager : MessageManagerBase
         Listener = new HybridConnectionListener(ConfigurationManager.ConnectionStrings["DebugConnectionString"]
             .ConnectionString);
 
-        Listener.Connecting += (_, _) => { Console.WriteLine(@"Listener is connecting to Azure…"); };
-        Listener.Offline += (_, _) => { Console.WriteLine(@"Listener is about to go offline…"); };
-        Listener.Online += (_, _) => { Console.WriteLine(@"Listener is online…"); };
+        Listener.Connecting += (_, _) =>
+        {
+            AnsiConsole.WriteLine(@"Listener is connecting to Azure…");
+        };
+        Listener.Offline += (_, _) =>
+        {
+            AnsiConsole.WriteLine(@"Listener is about to go offline…");
+        };
+        Listener.Online += (_, _) =>
+        {
+            _consoleService.SetStatus(@"Listener is online…", Color.Green);
+        };
 
         Listener.RequestHandler = RequestHandler;
     }
@@ -63,33 +80,33 @@ public class AzureRelayHybridConnectionMessageManager : MessageManagerBase
                 SendMessage(new RemoteDebuggerMessage(RemoteDebuggerMessageType.Ping, null, message.PluginExecutionId));
                 break;
             case RemoteDebuggerMessageType.Context:
-            {
-                // Get context info
-                var remoteContext = message.GetContext<RemoteDebugExecutionContext>();
-
-                OnContextReceived(remoteContext);
-
-                // The plugin is done executing, we can send back the Context
-                SendMessage(new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext,
-                    remoteContext.Id));
-                break;
-            }
-            case RemoteDebuggerMessageType.Response:
-            {
-                // Cache it
-                MessageReceiveCache.TryAdd(message.PluginExecutionId, message);
-
-                RemoteDebuggerMessage response;
-                // Loop while until it is possible to remove the response from cache which means it is ready to be sent
-                while (!MessageSendCache.TryRemove(message.PluginExecutionId, out response))
                 {
-                    // Waiting for the response to come
-                    Thread.Sleep(50);
-                }
+                    // Get context info
+                    var remoteContext = message.GetContext<RemoteDebugExecutionContext>();
 
-                SendMessage(response);
-                break;
-            }
+                    OnContextReceived(remoteContext);
+
+                    // The plugin is done executing, we can send back the Context
+                    SendMessage(new RemoteDebuggerMessage(RemoteDebuggerMessageType.Context, remoteContext,
+                        remoteContext.Id));
+                    break;
+                }
+            case RemoteDebuggerMessageType.Response:
+                {
+                    // Cache it
+                    MessageReceiveCache.TryAdd(message.PluginExecutionId, message);
+
+                    RemoteDebuggerMessage response;
+                    // Loop while until it is possible to remove the response from cache which means it is ready to be sent
+                    while (!MessageSendCache.TryRemove(message.PluginExecutionId, out response))
+                    {
+                        // Waiting for the response to come
+                        Thread.Sleep(50);
+                    }
+
+                    SendMessage(response);
+                    break;
+                }
             default:
                 throw new ArgumentException($@"We should not receive {message.MessageType} messages from Dataverse", nameof(context));
         }
@@ -136,9 +153,9 @@ public class AzureRelayHybridConnectionMessageManager : MessageManagerBase
     {
         await Listener.OpenAsync();
 
-        await Console.In.ReadLineAsync();
+        await _consoleService.IsRunning();
     }
-    
+
     protected override void Dispose(bool disposing)
     {
         if (disposing)

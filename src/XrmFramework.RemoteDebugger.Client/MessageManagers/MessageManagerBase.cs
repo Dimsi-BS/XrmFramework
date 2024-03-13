@@ -4,16 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
-using XrmFramework.RemoteDebugger.Client.Recorder;
+using XrmFramework.DeployUtils.Model.Record;
 using XrmFramework.RemoteDebugger.Common;
 
 namespace XrmFramework.RemoteDebugger.Client.MessageManagers;
 
 public abstract class MessageManagerBase : IRemoteDebuggerMessageManager
 {
-    private readonly ISessionRecorder _sessionRecorder;
+    private readonly IRecordedSession _sessionRecorder;
 
-    protected MessageManagerBase(ISessionRecorder sessionRecorder)
+    protected MessageManagerBase(IRecordedSession sessionRecorder)
     {
         _sessionRecorder = sessionRecorder;
 

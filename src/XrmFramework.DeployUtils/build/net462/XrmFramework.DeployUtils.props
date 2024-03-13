@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);DISABLE_SERVICES</DefineConstants>
+    <DefineConstants>$(DefineConstants);DISABLE_DI</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

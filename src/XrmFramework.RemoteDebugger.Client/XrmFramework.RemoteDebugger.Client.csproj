@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
+      <TargetFramework>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFramework>
         <AssemblyName>XrmFramework.RemoteDebugger.Client</AssemblyName>
         <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
-        <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
+        <!--<SignAssembly>$(XrmFramework_SignAssembly)</SignAssembly>-->
+      <SignAssembly>false</SignAssembly>
         <PublicSign>$(XrmFramework_PublicSign)</PublicSign>
         <PackageId>XrmFramework.RemoteDebugger.Client</PackageId>
 
@@ -28,10 +29,17 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Azure.Identity" Version="1.10.4" />
+        <PackageReference Include="MediatR" Version="12.2.0" />
         <PackageReference Include="Microsoft.Azure.Relay" Version="3.0.1" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-        <Reference Include="Microsoft.CSharp" />
+        <PackageReference Include="Spectre.Console" Version="0.48.0" />
+        <PackageReference Include="Spectre.Console.Analyzer" Version="0.48.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -41,7 +49,7 @@
     <PropertyGroup>
         <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
         <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-        <DefineConstants>$(DefineConstants);DISABLE_SERVICES</DefineConstants>
+        <DefineConstants>$(DefineConstants);DISABLE_DI</DefineConstants>
 
     </PropertyGroup>
 
@@ -61,10 +69,13 @@
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
         <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
         <Reference Include="System.Configuration" />
+      <Reference Include="Microsoft.CSharp" />
     </ItemGroup>
-    <!--
-    <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-      <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="0.4.11" />
-    </ItemGroup>-->
+
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.17" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.1.17" />
+  </ItemGroup>
 
 </Project>

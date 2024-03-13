@@ -4,7 +4,8 @@
     <TargetFramework>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFramework>
     <AssemblyName>XrmFramework.DeployUtils</AssemblyName>
     <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
-    <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
+    <!--<SignAssembly>$(XrmFramework_SignAssembly)</SignAssembly>-->
+    <SignAssembly>false</SignAssembly>
     <PackageId>XrmFramework.DeployUtils</PackageId>
 
     <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.DeployUtils.nuspec</NuspecFile>
@@ -21,28 +22,43 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="10.1.1" />
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
-    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.51" />
-    <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.51" />
-    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.45" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
-  </ItemGroup>
   
-  <ItemGroup>
-    <InternalsVisibleTo Include="XrmFramework.RemoteDebugger.Client" Key="00240000048000009400000006020000002400005253413100040000010001000d196816c56c09f53b4235803db7e452f0c1911a84b0f48ed49fc5b6cd544869a7e74fb971f388bd335b537b22e43a63101907a395e40bc0e434dc9a98c8f2d4e61e84f274cbf9bcb2b8415f582b26d5f2bd3d152d1736440ecd978b8216bb9a6ee429c9f84e87b00ca4e8fb747292d433a4017c8fa51456e80c6f12c95f59b4" />
-  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.52" />
+    <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.52" />
+    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.45" />
 
-  <ItemGroup>
     <Reference Include="System.Configuration" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Net.Http" />
   </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.17" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.1.17" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
+    <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.2.2" />
+    <PackageReference Include="Spectre.Console" Version="0.48.0" />
+    <PackageReference Include="Spectre.Console.Analyzer" Version="0.48.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <InternalsVisibleTo Include="XrmFramework.RemoteDebugger.Client" /> <!--Key="00240000048000009400000006020000002400005253413100040000010001000d196816c56c09f53b4235803db7e452f0c1911a84b0f48ed49fc5b6cd544869a7e74fb971f388bd335b537b22e43a63101907a395e40bc0e434dc9a98c8f2d4e61e84f274cbf9bcb2b8415f582b26d5f2bd3d152d1736440ecd978b8216bb9a6ee429c9f84e87b00ca4e8fb747292d433a4017c8fa51456e80c6f12c95f59b4" />-->
+  </ItemGroup>
+
 
   <ItemGroup>
     <Using Include="System.Net.Http" />
@@ -70,9 +86,9 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
     <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-    <DefineConstants>$(DefineConstants);DISABLE_SERVICES</DefineConstants>
+    <DefineConstants>$(DefineConstants);DISABLE_DI</DefineConstants>
 
   </PropertyGroup>
 

@@ -49,7 +49,14 @@ namespace XrmFramework
             ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
             // Obtain the execution context service from the service provider.
-            ExecutionContext = serviceProvider.Get<IPluginExecutionContext>();
+            try
+            {
+                ExecutionContext = serviceProvider.Get<IPluginExecutionContext5>();
+            }
+            catch (Exception)
+            {
+                ExecutionContext = serviceProvider.Get<IPluginExecutionContext>();
+            }
 
             // Obtain the tracing service from the service provider.
             TracingService = serviceProvider.Get<ITracingService>();
@@ -147,31 +154,27 @@ namespace XrmFramework
         {
             VerifyInputParameter(parameterName);
 
-            if (typeof(T).IsEnum)
+            var value = ExecutionContext.InputParameters[parameterName.ToString()];
+            
+            if (!typeof(T).IsEnum)
             {
-                var value = (OptionSetValue)ExecutionContext.InputParameters[parameterName.ToString()];
-                return (T)Enum.ToObject(typeof(T), value.Value);
+                return (T)value;
             }
 
-            return (T)ExecutionContext.InputParameters[parameterName.ToString()];
+            var optionSetValue = (OptionSetValue)value;
+            return (T)Enum.ToObject(typeof(T), optionSetValue.Value);
         }
 
-        public void SetInputParameter<T>(InputParameters parameterName, T parameterValue)
-        {
-            ExecutionContext.InputParameters[parameterName.ToString()] = parameterValue;
-        }
+        public void SetInputParameter<T>(InputParameters parameterName, T parameterValue) 
+            => ExecutionContext.InputParameters[parameterName.ToString()] = parameterValue;
 
-        public virtual T GetOutputParameter<T>(OutputParameters parameterName)
-        {
-            return (T)ExecutionContext.OutputParameters[parameterName.ToString()];
-        }
+        public virtual T GetOutputParameter<T>(OutputParameters parameterName) 
+            => (T)ExecutionContext.OutputParameters[parameterName.ToString()];
 
-        public void SetOutputParameter<T>(OutputParameters parameterName, T parameterValue)
-        {
-            ExecutionContext.OutputParameters[parameterName.ToString()] = parameterValue;
-        }
+        public void SetOutputParameter<T>(OutputParameters parameterName, T parameterValue) 
+            => ExecutionContext.OutputParameters[parameterName.ToString()] = parameterValue;
 
-        protected void VerifyInputParameter(InputParameters parameterName)
+        private void VerifyInputParameter(InputParameters parameterName)
         {
             if (!ExecutionContext.InputParameters.Contains(parameterName.ToString())
                 || ExecutionContext.InputParameters[parameterName.ToString()] == null)
@@ -227,37 +230,21 @@ namespace XrmFramework
         public T GetService<T>()
             => ObjectContainer.Resolve<T>();
 
-        public IOrganizationService GetOrganizationService(Guid? userId) 
+        public IOrganizationService GetOrganizationService(Guid? userId)
             => Factory.CreateOrganizationService(userId);
 
-        public void LogFields(Entity entity, params string[] fieldNames) 
+        public void LogFields(Entity entity, params string[] fieldNames)
             => Logger.LogCollection(entity.Attributes, true, fieldNames);
 
-        public LocalContext ParentLocalContext { get; protected set; }
+        public LocalContext? ParentLocalContext { get; protected set; }
 
-        public Guid GetInitiatingUserId()
-        {
-            if (ParentLocalContext != null)
-            {
-                return ParentLocalContext.GetInitiatingUserId();
-            }
+        public Guid GetInitiatingUserId() => ParentLocalContext?.GetInitiatingUserId() ?? InitiatingUserId;
 
-            return InitiatingUserId;
-        }
-
-        public Guid GetRootUserId()
-        {
-            if (ParentLocalContext != null)
-            {
-                return ParentLocalContext.GetRootUserId();
-            }
-
-            return UserId;
-        }
+        public Guid GetRootUserId() => ParentLocalContext?.GetRootUserId() ?? UserId;
 
         public void InvokeMethod(object obj, MethodInfo method)
         {
-            var listParamValues = new List<object?>();
+            var listParamValues = new List<object>();
 
             foreach (var param in method.GetParameters())
             {
@@ -268,7 +255,7 @@ namespace XrmFramework
                     logger.AddCustomProperty("PluginName", GetType().Name);
                     logger.AddCustomProperty("MethodName", method.Name);
                 }
-                
+
                 listParamValues.Add(parameter);
             }
 

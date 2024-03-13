@@ -5,7 +5,6 @@ using Xunit;
 
 namespace XrmFramework.Analyzers.Tests;
 
-[UsesVerify]
 public class EnumGeneratorTests
 {
     [Fact]

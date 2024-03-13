@@ -36,7 +36,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.7.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.7.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -45,23 +45,20 @@
     </ItemGroup>
     
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json"
-                          Version="13.0.3"
-                          PrivateAssets="all"
-                          GeneratePathProperty="true" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" PrivateAssets="all" GeneratePathProperty="true" />
         
-        <None Include="$(OutputPath)\$(AssemblyName).dll"
-              Pack="true"
-              PackagePath="analyzers/dotnet/cs"
-              Visible="false" />
-        <None Include="$(PkgNewtonsoft_Json)\lib\netstandard2.0\*.dll"
-              Pack="true"
-              PackagePath="analyzers/dotnet/cs"
-              Visible="false" />
+        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="$(PkgNewtonsoft_Json)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Compile Remove="bin\**" />
+      <EmbeddedResource Remove="bin\**" />
+      <None Remove="bin\**" />
     </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="XrmFramework.Analyzers.Test" Key="0024000004800000940000000602000000240000525341310004000001000100514e5b42bacdbe31124ad199574b4550d639d4cc44e09b91d0e8f83c5034466dcfa5b9fcbce542367076648a2ad93a23e8d6c0c4634dc74847b83836afce964610cb2a0d45d65c5a642413688378f86a247acdd3a3f0ee60ed4a1ff45d8341adb7d6ce65f074a692faf58f27014cf4a51f205c9613b4b3460e676f2b98692bcc"/>
+    <InternalsVisibleTo Include="XrmFramework.Analyzers.Test" Key="0024000004800000940000000602000000240000525341310004000001000100514e5b42bacdbe31124ad199574b4550d639d4cc44e09b91d0e8f83c5034466dcfa5b9fcbce542367076648a2ad93a23e8d6c0c4634dc74847b83836afce964610cb2a0d45d65c5a642413688378f86a247acdd3a3f0ee60ed4a1ff45d8341adb7d6ce65f074a692faf58f27014cf4a51f205c9613b4b3460e676f2b98692bcc" />
   </ItemGroup>
 
 
@@ -73,9 +70,7 @@
 
     <Target Name="GetDependencyTargetPaths">
         <ItemGroup>
-            <TargetPathWithTargetPlatformMoniker
-                    Include="$(PKGNewtonsoft_Json)\lib\netstandard2.0\Newtonsoft.Json.dll"
-                    IncludeRuntimeDependency="false" />
+            <TargetPathWithTargetPlatformMoniker Include="$(PKGNewtonsoft_Json)\lib\netstandard2.0\Newtonsoft.Json.dll" IncludeRuntimeDependency="false" />
         </ItemGroup>
     </Target>
 </Project>

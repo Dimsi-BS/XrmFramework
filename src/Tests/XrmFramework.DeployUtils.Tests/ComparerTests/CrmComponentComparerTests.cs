@@ -214,7 +214,7 @@ public class CrmComponentComparerTests
 			FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
 		};
 
-		var otherComponent = new StepImage(Messages.Default, false, Stages.PostOperation)
+		var otherComponent = new StepImage(Messages.Retrieve, false, Stages.PostOperation)
 		{
 			FatherStep = new Step("thisPlugin", Messages.Create, Stages.PostOperation, Modes.Synchronous, "entity")
 		};
