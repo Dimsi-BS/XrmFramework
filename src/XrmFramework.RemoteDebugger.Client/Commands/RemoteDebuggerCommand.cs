@@ -36,30 +36,30 @@ namespace XrmFramework.RemoteDebugger.Client.Commands
 
             try
             {
-                //var assembliesToDebug = typeof(TProgram).Assembly.GetReferencedAssemblies()
-                //    .Select(Assembly.Load)
-                //    .Where(a => a.GetType("XrmFramework.Plugin") != null
-                //                || a.GetType("XrmFramework.CustomApi") != null
-                //                || a.GetType("XrmFramework.Workflow.CustomWorkflowActivity") != null
-                //    )
-                //    .ToList();
+                var assembliesToDebug = Assembly.GetCallingAssembly().GetReferencedAssemblies()
+                    .Select(Assembly.Load)
+                    .Where(a => a.GetType("XrmFramework.Plugin") != null
+                                || a.GetType("XrmFramework.CustomApi") != null
+                                || a.GetType("XrmFramework.Workflow.CustomWorkflowActivity") != null
+                    )
+                    .ToList();
 
-                //if (!assembliesToDebug.Any())
-                //{
-                //    throw new ArgumentException(
-                //        "No project containing components to debug were found, please check that they are referenced");
-                //}
+                if (!assembliesToDebug.Any())
+                {
+                    throw new ArgumentException(
+                        "No project containing components to debug were found, please check that they are referenced");
+                }
                 
-                //assembliesToDebug.ForEach(assembly =>
-                //{
-                //    var targetSolutionName = new TargetSolutionProvider(assembly.GetName().Name).GetTargetSolution();
-                //    _solutionContext.InitSolutionContext(targetSolutionName);
-                //    _registrationHelper.UpdateDebugger(assembly);
-                //});
+                assembliesToDebug.ForEach(assembly =>
+                {
+                    var targetSolutionName = new TargetSolutionProvider(assembly.GetName().Name).GetTargetSolution();
+                    _solutionContext.InitSolutionContext(targetSolutionName);
+                    _registrationHelper.UpdateDebugger(assembly);
+                });
 
-                //await _messageManager.RunAsync();
+                await _messageManager.RunAsync();
 
-                //await consoleTask;
+                await consoleTask;
 
                 return 0;
             }

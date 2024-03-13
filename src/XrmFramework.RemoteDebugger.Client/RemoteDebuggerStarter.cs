@@ -21,22 +21,18 @@ public sealed class RemoteDebuggerStarter<TMessageManager> where TMessageManager
     // ReSharper disable once UnusedMember.Global
     public async Task RunAsync(string[] args)
     {
-        var assembly = Assembly.GetCallingAssembly();
-
         AnsiConsole.Write(new FigletText("XrmFramework").Centered().Color(Color.Blue));
         AnsiConsole.Write(new FigletText("Remote Debugger").RightJustified().Color(Color.Green));
         AnsiConsole.WriteLine();
-
-        await Task.Delay(1000);
         
-        //var serviceCollection = new DebuggerServiceCollectionFactory().CreateServiceCollection<TMessageManager>();
+        var serviceCollection = new DebuggerServiceCollectionFactory().CreateServiceCollection<TMessageManager>();
 
-        //var registrar = new TypeRegistrar(serviceCollection);
-        //var commandApp = new CommandApp(registrar);
+        var registrar = new TypeRegistrar(serviceCollection);
+        var commandApp = new CommandApp(registrar);
 
-        //commandApp.SetDefaultCommand<RemoteDebuggerCommand<TProgram>>();
+        commandApp.SetDefaultCommand<RemoteDebuggerCommand>();
 
-        //await commandApp.RunAsync(args);
+        await commandApp.RunAsync(args);
     }
 
 }
