@@ -38,6 +38,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>TableFiles.resx</DependentUpon>
     </Compile>
+    <Compile Remove="DateTimeNowAnalyzerTests.cs" />
   </ItemGroup>
   
   <ItemGroup>

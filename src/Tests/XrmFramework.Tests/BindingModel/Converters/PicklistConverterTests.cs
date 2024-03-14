@@ -48,7 +48,7 @@ public class PicklistConverterTests
         converter.FillXElement(element, null);
 
         // Assert
-        Assert.AreEqual("<Data>\n  <Id></Id>\n</Data>", element.ToString());
+        Assert.AreEqual("<Data>\r\n  <Id></Id>\r\n</Data>", element.ToString());
     }
 
     [TestMethod]

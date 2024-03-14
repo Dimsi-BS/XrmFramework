@@ -207,13 +207,4 @@
   <data name="Xrm0200_Title" xml:space="preserve">
     <value>Use Definition class .EntityName in CrmEntityAttribute declaration</value>
   </data>
-  <data name="Xrm0300_Description" xml:space="preserve">
-    <value>To be able to do unit tests on plugins, you need to use IDateTimeProvider interface instead of DateTime.Now or DateTime.UtcNow.</value>
-  </data>
-  <data name="Xrm0300_MessageFormat" xml:space="preserve">
-    <value>To be able to do unit tests on plugins, you need to use IDateTimeProvider interface instead of DateTime.Now or DateTime.UtcNow</value>
-  </data>
-  <data name="Xrm0300_Title" xml:space="preserve">
-    <value>Do not use DateTime.Now or DateTome.UtcNow</value>
-  </data>
 </root>
