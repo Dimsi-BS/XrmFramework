@@ -19,6 +19,7 @@ using AttributeTypeCode = Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode;
 using DateTimeAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.DateTimeAttributeMetadata;
 using DecimalAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.DecimalAttributeMetadata;
 using DoubleAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.DoubleAttributeMetadata;
+using EntityRole = XrmFramework.EntityRole;
 using IntegerAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.IntegerAttributeMetadata;
 using LocalizedLabel = XrmFramework.Core.LocalizedLabel;
 using MultiSelectPicklistAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.MultiSelectPicklistAttributeMetadata;
@@ -458,8 +459,8 @@ namespace DefinitionManager
                     {
                         LogicalName = attributeMetadata.LogicalName,
                         Name = name,
-                        Type = attributeMetadata.AttributeType.Value == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata
-                            ? AttributeTypeCode.Picklist : attributeMetadata.AttributeType.Value,
+                        Type = (XrmFramework.AttributeTypeCode) (int) (attributeMetadata.AttributeType.Value == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata
+                            ? AttributeTypeCode.Picklist : attributeMetadata.AttributeType.Value),
                         IsMultiSelect = attributeMetadata.AttributeType.Value == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata,
                         PrimaryType = attributeMetadata.LogicalName == entity.PrimaryIdAttribute ?
                             PrimaryType.Id :
@@ -508,7 +509,7 @@ namespace DefinitionManager
 
                         attributeDefinition.DateTimeBehavior = meta.DateTimeBehavior;
 
-                        attribute.DateTimeBehavior = meta.DateTimeBehavior;
+                        attribute.DateTimeBehavior = meta.DateTimeBehavior.ToDateTimeBehavior();
                     }
 
                     if (attributeMetadata.LogicalName == "ownerid")
@@ -698,4 +699,21 @@ namespace DefinitionManager
             return name;
         }
     }
+}public static class DateTimeBehaviorExtensions
+{
+    public static XrmFramework.DateTimeBehavior ToDateTimeBehavior(this Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior behav)
+    {
+        if (behav == Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.DateOnly)
+        {
+            return XrmFramework.DateTimeBehavior.DateOnly;
+        }
+
+        if (behav == Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.TimeZoneIndependent)
+        {
+            return XrmFramework.DateTimeBehavior.TimeZoneIndependent;
+        }
+
+        return XrmFramework.DateTimeBehavior.UserLocal;
+    }
 }
+

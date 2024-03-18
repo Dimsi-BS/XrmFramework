@@ -1,5 +1,4 @@
-﻿using Microsoft.Xrm.Sdk;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace XrmFramework.Core

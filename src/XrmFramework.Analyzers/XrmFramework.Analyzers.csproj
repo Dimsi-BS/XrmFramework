@@ -25,6 +25,10 @@
   <ItemGroup>
 
     <Compile Include="..\XrmFramework.DeployUtils\Check.cs" Link="Helpers\Check.cs" />
+
+    <Compile Include="..\XrmFramework.Core\**\*.cs" Link="_Imports/XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />
+    <Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="XrmFramework.Core\SdkEnums.cs" />
+
   </ItemGroup>
 
   <ItemGroup>
@@ -41,4 +45,10 @@
     <EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json"
+                      Version="13.0.3"
+                      PrivateAssets="all"
+                      GeneratePathProperty="true" />
+  </ItemGroup>
 </Project>
