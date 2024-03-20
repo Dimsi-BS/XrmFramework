@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Threading.Tasks;
 using BoDi;
@@ -41,8 +42,6 @@ namespace XrmFramework
         public Guid CorrelationId => ExecutionContext.CorrelationId;
 
         public string OrganizationName => ExecutionContext.OrganizationName;
-
-        //public Guid CorrelationId => ExecutionContext.CorrelationId;
         
         public LocalContext(IServiceProvider serviceProvider) : this()
         {
