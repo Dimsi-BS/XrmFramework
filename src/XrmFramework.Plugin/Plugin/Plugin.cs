@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
+using XrmFramework.Workflow;
 
 namespace XrmFramework
 {
@@ -270,6 +271,8 @@ namespace XrmFramework
                 localContext.Log($"Exiting {ChildClassName}.Execute()");
 
                 localContext.Log($"End : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}\r\n");
+
+                localContext.FlushLogs();
             }
         }
     }
