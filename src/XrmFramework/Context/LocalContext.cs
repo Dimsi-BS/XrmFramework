@@ -82,9 +82,9 @@ namespace XrmFramework
 
         public Messages MessageName => Messages.GetMessage(ExecutionContext.MessageName);
 
-        public void Log(string message, params object[] args)
+        public void Log(string message, params object[] formatArgs)
         {
-            Logger.Log(message, args);
+            Logger.Log(message, formatArgs);
         }
 
         public void LogError(Exception e)
@@ -93,6 +93,10 @@ namespace XrmFramework
         }
 
         public void DumpLog() => Logger.DumpLog();
+
+        public void FlushLogs() => FlushLogsInternal();
+        
+        partial void FlushLogsInternal();
 
         #region Image Helpers
         public bool HasPreImage(string imageName)
