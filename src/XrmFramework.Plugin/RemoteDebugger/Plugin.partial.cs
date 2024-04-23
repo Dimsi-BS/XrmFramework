@@ -14,6 +14,8 @@ namespace XrmFramework
     {
         private bool SendToRemoteDebugger(LocalPluginContext localContext)
         {
+            #if !DISABLE_REMOTE_DEBUG
+            
             if (!localContext.IsDebugContext)
             {
                 localContext.Log("The context is genuine");
@@ -100,6 +102,8 @@ namespace XrmFramework
                 }
             }
 
+            #endif
+            
             return false;
         }
     }
