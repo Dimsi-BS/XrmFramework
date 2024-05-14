@@ -3,7 +3,7 @@ using Microsoft.Xrm.Sdk;
 
 namespace XrmFramework
 {
-    public interface ICustomApiContext
+    public partial interface ICustomApiContext
     {
         EntityReference ObjectRef { get; }
 

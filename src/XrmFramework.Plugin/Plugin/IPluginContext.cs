@@ -5,7 +5,7 @@ using System;
 
 namespace XrmFramework
 {
-    public interface IPluginContext : IContext
+    public partial interface IPluginContext : IContext
     {
         string PrimaryEntityName { get; }
 
