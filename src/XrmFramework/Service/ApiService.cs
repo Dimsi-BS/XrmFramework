@@ -7,7 +7,8 @@ using System.Net.Http.Headers;
 
 namespace XrmFramework
 {
-    public abstract class ApiService<TSettings> : DefaultServiceWithSettings<TSettings> where TSettings : CrmSettings, new()
+    public abstract class ApiService<TSettings> : DefaultServiceWithSettings<TSettings>
+        where TSettings : CrmSettings, new()
     {
         private static readonly object SyncRoot = new object();
 
@@ -49,11 +50,36 @@ namespace XrmFramework
         {
         }
 
+        protected TResponse HttpPostData<TResponse>(string url, HttpContent requestContent, bool useAuthenticationHeaders = true)
+            => HttpSendData<TResponse>(url, requestContent, HttpMethod.Post, useAuthenticationHeaders);
+
         protected TResponse HttpPostData<TResponse>(string url, string requestContent, bool useAuthenticationHeaders = true) =>
             HttpPostData<TResponse>(url,
                 new StringContent(requestContent, System.Text.Encoding.UTF8, "application/json"), useAuthenticationHeaders);
 
-        protected TResponse HttpPostData<TResponse>(string url, HttpContent requestContent, bool useAuthenticationHeaders = true)
+        protected TResponse HttpPostData<TRequest, TResponse>(string url, TRequest request, bool useAuthenticationHeaders = true)
+        {
+            var requestContent = JsonConvert.SerializeObject(request);
+
+            return HttpPostData<TResponse>(url, requestContent, useAuthenticationHeaders);
+        }
+        
+        protected TResponse HttpPutData<TResponse>(string url, HttpContent requestContent, bool useAuthenticationHeaders = true)
+            => HttpSendData<TResponse>(url, requestContent, HttpMethod.Put, useAuthenticationHeaders);
+
+        protected TResponse HttpPutData<TResponse>(string url, string requestContent, bool useAuthenticationHeaders = true) =>
+            HttpPutData<TResponse>(url,
+                new StringContent(requestContent, System.Text.Encoding.UTF8, "application/json"), useAuthenticationHeaders);
+
+        protected TResponse HttpPutData<TRequest, TResponse>(string url, TRequest request, bool useAuthenticationHeaders = true)
+        {
+            var requestContent = JsonConvert.SerializeObject(request);
+
+            return HttpPutData<TResponse>(url, requestContent, useAuthenticationHeaders);
+        }
+        
+        protected TResponse HttpSendData<TResponse>(string url, HttpContent requestContent, HttpMethod method,
+            bool useAuthenticationHeaders = true)
         {
             CheckOrInitConnection();
 
@@ -67,7 +93,7 @@ namespace XrmFramework
 
             try
             {
-                var requestMessage = new HttpRequestMessage(HttpMethod.Post, url)
+                var requestMessage = new HttpRequestMessage(method, url)
                 {
                     Content = requestContent
                 };
@@ -81,7 +107,6 @@ namespace XrmFramework
 
                 replyContent = serviceResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 isSuccessfull = serviceResponse.IsSuccessStatusCode;
-
             }
             catch (HttpRequestException e)
             {
@@ -102,14 +127,7 @@ namespace XrmFramework
 
             throw new InvalidPluginExecutionException(replyContent);
         }
-
-        protected TResponse HttpPostData<TRequest, TResponse>(string url, TRequest request, bool useAuthenticationHeaders = true)
-        {
-            var requestContent = JsonConvert.SerializeObject(request);
-
-            return HttpPostData<TResponse>(url, requestContent);
-        }
-
+        
         protected TResponse HttpGetData<TResponse>(string url, bool useAuthenticationHeaders = true)
         {
             CheckOrInitConnection();
