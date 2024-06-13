@@ -14,9 +14,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == '$(XrmFramework_Core_Tools_TFM)'">
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.0.1" />
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.0.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.2" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.1.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>

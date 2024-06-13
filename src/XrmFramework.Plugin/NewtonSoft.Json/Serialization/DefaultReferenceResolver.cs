@@ -35,7 +35,7 @@ namespace Newtonsoft.Json.Serialization
 
         private BidirectionalDictionary<string, object> GetMappings(object context)
         {
-            if (!(context is JsonSerializerBase internalSerializer))
+            if (!(context is JsonSerializerInternalBase internalSerializer))
             {
                 if (context is JsonSerializerProxy proxy)
                 {

@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 #if HAVE_BIG_INTEGER
 using System.Numerics;
@@ -37,22 +38,22 @@ namespace Newtonsoft.Json.Linq
     /// </summary>
     public partial class JTokenWriter : JsonWriter
     {
-        private JContainer _token;
-        private JContainer _parent;
+        private JContainer? _token;
+        private JContainer? _parent;
         // used when writer is writing single value and the value has no containing parent
-        private JValue _value;
-        private JToken _current;
+        private JValue? _value;
+        private JToken? _current;
 
         /// <summary>
         /// Gets the <see cref="JToken"/> at the writer's current position.
         /// </summary>
-        public JToken CurrentToken => _current;
+        public JToken? CurrentToken => _current;
 
         /// <summary>
         /// Gets the token being written.
         /// </summary>
         /// <value>The token being written.</value>
-        public JToken Token
+        public JToken? Token
         {
             get
             {
@@ -131,7 +132,7 @@ namespace Newtonsoft.Json.Linq
         private void RemoveParent()
         {
             _current = _parent;
-            _parent = _parent.Parent;
+            _parent = _parent!.Parent;
 
             if (_parent != null && _parent.Type == JTokenType.Property)
             {
@@ -186,21 +187,26 @@ namespace Newtonsoft.Json.Linq
             base.WritePropertyName(name);
         }
 
-        private void AddValue(object value, JsonToken token)
+        private void AddValue(object? value, JsonToken token)
         {
             AddValue(new JValue(value), token);
         }
 
-        internal void AddValue(JValue value, JsonToken token)
+        internal void AddValue(JValue? value, JsonToken token)
         {
             if (_parent != null)
             {
-                _parent.Add(value);
-                _current = _parent.Last;
-
-                if (_parent.Type == JTokenType.Property)
+                // TryAdd will return false if an invalid JToken type is added.
+                // For example, a JComment can't be added to a JObject.
+                // If there is an invalid JToken type then skip it.
+                if (_parent.TryAdd(value))
                 {
-                    _parent = _parent.Parent;
+                    _current = _parent.Last;
+
+                    if (_parent.Type == JTokenType.Property)
+                    {
+                        _parent = _parent.Parent;
+                    }
                 }
             }
             else
@@ -216,7 +222,7 @@ namespace Newtonsoft.Json.Linq
         /// An error will be raised if the value cannot be written as a single JSON token.
         /// </summary>
         /// <param name="value">The <see cref="Object"/> value to write.</param>
-        public override void WriteValue(object value)
+        public override void WriteValue(object? value)
         {
 #if HAVE_BIG_INTEGER
             if (value is BigInteger)
@@ -253,7 +259,7 @@ namespace Newtonsoft.Json.Linq
         /// Writes raw JSON.
         /// </summary>
         /// <param name="json">The raw JSON to write.</param>
-        public override void WriteRaw(string json)
+        public override void WriteRaw(string? json)
         {
             base.WriteRaw(json);
             AddValue(new JRaw(json), JsonToken.Raw);
@@ -263,7 +269,7 @@ namespace Newtonsoft.Json.Linq
         /// Writes a comment <c>/*...*/</c> containing the specified text.
         /// </summary>
         /// <param name="text">Text to place inside the comment.</param>
-        public override void WriteComment(string text)
+        public override void WriteComment(string? text)
         {
             base.WriteComment(text);
             AddValue(JValue.CreateComment(text), JsonToken.Comment);
@@ -273,7 +279,7 @@ namespace Newtonsoft.Json.Linq
         /// Writes a <see cref="String"/> value.
         /// </summary>
         /// <param name="value">The <see cref="String"/> value to write.</param>
-        public override void WriteValue(string value)
+        public override void WriteValue(string? value)
         {
             base.WriteValue(value);
             AddValue(value, JsonToken.String);
@@ -293,7 +299,7 @@ namespace Newtonsoft.Json.Linq
         /// Writes a <see cref="UInt32"/> value.
         /// </summary>
         /// <param name="value">The <see cref="UInt32"/> value to write.</param>
-        
+        [CLSCompliant(false)]
         public override void WriteValue(uint value)
         {
             base.WriteValue(value);
@@ -314,7 +320,7 @@ namespace Newtonsoft.Json.Linq
         /// Writes a <see cref="UInt64"/> value.
         /// </summary>
         /// <param name="value">The <see cref="UInt64"/> value to write.</param>
-        
+        [CLSCompliant(false)]
         public override void WriteValue(ulong value)
         {
             base.WriteValue(value);
@@ -365,7 +371,7 @@ namespace Newtonsoft.Json.Linq
         /// Writes a <see cref="UInt16"/> value.
         /// </summary>
         /// <param name="value">The <see cref="UInt16"/> value to write.</param>
-        
+        [CLSCompliant(false)]
         public override void WriteValue(ushort value)
         {
             base.WriteValue(value);
@@ -402,7 +408,7 @@ namespace Newtonsoft.Json.Linq
         /// Writes a <see cref="SByte"/> value.
         /// </summary>
         /// <param name="value">The <see cref="SByte"/> value to write.</param>
-        
+        [CLSCompliant(false)]
         public override void WriteValue(sbyte value)
         {
             base.WriteValue(value);
@@ -446,7 +452,7 @@ namespace Newtonsoft.Json.Linq
         /// Writes a <see cref="Byte"/>[] value.
         /// </summary>
         /// <param name="value">The <see cref="Byte"/>[] value to write.</param>
-        public override void WriteValue(byte[] value)
+        public override void WriteValue(byte[]? value)
         {
             base.WriteValue(value);
             AddValue(value, JsonToken.Bytes);
@@ -476,7 +482,7 @@ namespace Newtonsoft.Json.Linq
         /// Writes a <see cref="Uri"/> value.
         /// </summary>
         /// <param name="value">The <see cref="Uri"/> value to write.</param>
-        public override void WriteValue(Uri value)
+        public override void WriteValue(Uri? value)
         {
             base.WriteValue(value);
             AddValue(value, JsonToken.String);
@@ -496,7 +502,7 @@ namespace Newtonsoft.Json.Linq
                     }
                 }
 
-                JToken value = tokenReader.CurrentToken.CloneToken();
+                JToken value = tokenReader.CurrentToken!.CloneToken();
 
                 if (_parent != null)
                 {

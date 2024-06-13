@@ -32,19 +32,19 @@
     <XrmFramework_Net5_TFM>net5.0</XrmFramework_Net5_TFM>
 
     <XrmFramework_FullFramework_Runtime_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Runtime_TFM>
-    <XrmFramework_Core_Runtime_TFM>netcoreapp3.1</XrmFramework_Core_Runtime_TFM>
+    <XrmFramework_Core_Runtime_TFM>net6.0</XrmFramework_Core_Runtime_TFM>
 
     <XrmFramework_FullFramework_Generator_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Generator_TFM>
     <XrmFramework_Core_Generator_TFM>netcoreapp2.1</XrmFramework_Core_Generator_TFM>
 
     <XrmFramework_FullFramework_Test_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Test_TFM>
-    <XrmFramework_Core_Test_TFM>netcoreapp2.1;netcoreapp3.1;net5.0</XrmFramework_Core_Test_TFM>
+    <XrmFramework_Core_Test_TFM>netcoreapp2.1;net6.0;net5.0</XrmFramework_Core_Test_TFM>
 
     <XrmFramework_FullFramework_Specs_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Specs_TFM>
     <XrmFramework_Net5_Specs_TFM>$(XrmFramework_Net5_TFM)</XrmFramework_Net5_Specs_TFM>
 
     <XrmFramework_FullFramework_Tools_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Tools_TFM>
-    <XrmFramework_Core_Tools_TFM>netcoreapp3.1</XrmFramework_Core_Tools_TFM>    
+    <XrmFramework_Core_Tools_TFM>net6.0</XrmFramework_Core_Tools_TFM>    
     <XrmFramework_Net5_Tools_TFM>$(XrmFramework_Net5_TFM)</XrmFramework_Net5_Tools_TFM>
 
     <XrmFramework_Runtime_TFM>$(XrmFramework_FullFramework_Runtime_TFM);$(XrmFramework_Core_Runtime_TFM)</XrmFramework_Runtime_TFM>

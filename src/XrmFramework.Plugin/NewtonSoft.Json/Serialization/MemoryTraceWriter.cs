@@ -41,10 +41,12 @@ namespace Newtonsoft.Json.Serialization
         /// <param name="level">The <see cref="TraceLevel"/> at which to write this trace.</param>
         /// <param name="message">The trace message.</param>
         /// <param name="ex">The trace exception. This parameter is optional.</param>
-        public void Trace(TraceLevel level, string message, Exception ex)
+        public void Trace(TraceLevel level, string message, Exception? ex)
         {
             StringBuilder sb = new StringBuilder();
+#pragma warning disable XRM0300
             sb.Append(DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff", CultureInfo.InvariantCulture));
+#pragma warning restore XRM0300
             sb.Append(" ");
             sb.Append(level.ToString("g"));
             sb.Append(" ");
