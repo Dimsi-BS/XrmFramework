@@ -14,7 +14,7 @@ namespace XrmFramework
 
         protected HttpClient Client { get; private set; }
 
-        private void CheckOrInitConnection()
+        protected void CheckOrInitConnection()
         {
             if (Client == null)
             {
