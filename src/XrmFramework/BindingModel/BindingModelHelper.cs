@@ -121,6 +121,11 @@ namespace XrmFramework.BindingModel
 
             var modelDefinition = DefinitionCache.GetModelDefinition(type);
 
+            if (modelDefinition.MainDefinition.EntityName != entity.LogicalName)
+            {
+                return null;
+            }
+
             var bindingModel = modelDefinition.GetInstance();
 
             modelDefinition.SetId(bindingModel, entity.Id);
@@ -267,8 +272,7 @@ namespace XrmFramework.BindingModel
                                 }
                             }
                             else if (typeof(IBindingModel).IsAssignableFrom(property.ObjectType))
-                            {
-
+                            {   
                                 if (entity.Contains(attributeName) && entity[attributeName] != null)
                                 {
                                     var entityReference = entity.GetAttributeValue<EntityReference>(attributeName);
@@ -277,6 +281,11 @@ namespace XrmFramework.BindingModel
                                     entityTemp.Id = entityReference.Id;
 
                                     var prefix = string.Format("{0}", attributeName);
+
+                                    if (modelLookupAttributes.Count() > 1) 
+                                    {
+                                        prefix += $"__{entityReference.LogicalName}";
+                                    }
 
                                     var isEmbed = false;
 
@@ -793,6 +802,10 @@ namespace XrmFramework.BindingModel
                         }
 
                         var relationship = entityDefinition.GetRelationshipByAttributeNameAndTargetEntityName(crmAttribute.AttributeName, targetEntityName);
+
+                        if (!hasOneLookupAttribute) {
+                            linkAliasName += $"__{targetEntityName}";
+                        }
 
                         LinkEntity link;
                         if (links.Any(l => l.EntityAlias == linkAliasName))
