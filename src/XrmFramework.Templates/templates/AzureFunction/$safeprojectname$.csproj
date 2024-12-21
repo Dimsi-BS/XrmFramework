@@ -1,24 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
+      <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FunctionMonkey.Cgo" Version="6.0.11" />
-    <PackageReference Include="FunctionMonkey.Compiler.Cgo" Version="6.0.11" />
-    <PackageReference Include="FunctionMonkey.FluentValidation.Cgo" Version="6.0.11" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.2.0" />
-    <PackageReference Include="Refit.HttpClientFactory" Version="6.3.2" />
-    <PackageReference Include="Refit.Newtonsoft.Json" Version="6.3.2" />
-    <PackageReference Include="System.Net.Http.WinHttpHandler" Version="6.0.1" />
+      <PackageReference Include="XrmFramework.Azure.Functions.Worker.Extensions" Version="#{GitBuildVersionSimple}#" />
   </ItemGroup>
 
   <ItemGroup>

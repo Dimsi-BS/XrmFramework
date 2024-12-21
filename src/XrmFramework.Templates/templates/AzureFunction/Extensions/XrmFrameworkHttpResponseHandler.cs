@@ -1,61 +1,55 @@
-﻿using System;
-using System.ServiceModel;
-using System.Threading.Tasks;
-using FunctionMonkey.Abstractions.Http;
-using FunctionMonkey.Commanding.Abstractions.Validation;
+﻿using System.ServiceModel;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
 
-namespace $safeprojectname$.Extensions
+namespace $safeprojectname$.Extensions;
+
+internal class XrmFrameworkHttpResponseHandler(
+    ILogger<XrmFrameworkHttpResponseHandler> logger
+) : IFunctionsWorkerMiddleware
 {
-    internal class XrmFrameworkHttpResponseHandler : IHttpResponseHandler
+
+    public Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
-        private readonly ILogger<XrmFrameworkHttpResponseHandler> _logger;
-
-        public XrmFrameworkHttpResponseHandler(ILogger<XrmFrameworkHttpResponseHandler> logger)
+        try
         {
-            _logger = logger;
+            return next(context);
         }
-
-        public Task<IActionResult> CreateResponseFromException<TCommand>(TCommand command, Exception ex)
+        catch (Exception ex)
         {
-            var exTemp = ex;
+            var innerMostException = ex;
+            
+            IActionResult response = null;
 
-            while (exTemp.InnerException != null)
+            while (innerMostException.InnerException != null)
             {
-                exTemp = exTemp.InnerException;
+                innerMostException = innerMostException.InnerException;
             }
 
-            if (exTemp is FaultException<OrganizationServiceFault> fault)
+            switch (innerMostException)
             {
-                _logger.LogError($"Erreur 400 : { fault.Detail }");
+                case FaultException<OrganizationServiceFault> fault:
+                    logger.LogError(ex, "Erreur 400 : {FaultDetail}", fault.Detail);
 
-                return Task.FromResult((IActionResult)new BadRequestObjectResult(fault.Detail));
+                    response = new BadRequestObjectResult(fault.Detail);
+                    break;
             }
 
-            _logger.LogError($"Exception : {ex.Message} ({ex.GetType().FullName}) {ex.StackTrace}");
+            logger.LogError(ex,
+                "Exception : {Message} ({RequestType}) {StackTrace}, InnerException : {InnerMessage} ({InnerRequestType}) {InnerStackTrace}",
+                ex.Message, ex.GetType().FullName, ex.StackTrace,
+                innerMostException.Message,
+                innerMostException.GetType().FullName,
+                innerMostException.StackTrace);
 
-            _logger.LogError($"Inner Exception : {exTemp.Message} ({exTemp.GetType().FullName}) {exTemp.StackTrace}");
-
-
-            return null;
-        }
-
-        public Task<IActionResult> CreateResponse<TCommand, TResult>(TCommand command, TResult result)
-            => null;
-
-        public Task<IActionResult> CreateResponse<TCommand>(TCommand command)
-            => null;
-
-        public Task<IActionResult> CreateValidationFailureResponse<TCommand>(TCommand command, ValidationResult validationResult)
-        {
-            var actionJson = JsonConvert.SerializeObject(command);
-
-            _logger.LogInformation($"Payload en erreur : {actionJson}");
-
-            return null;
+            response ??= new BadRequestObjectResult(ex.Message);
+            
+            return Task.FromResult(response);
         }
     }
 }
+
+

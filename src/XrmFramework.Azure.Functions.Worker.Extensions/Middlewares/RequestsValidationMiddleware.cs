@@ -1,0 +1,60 @@
+using System.Net;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Azure.Functions.Worker.Middleware;
+
+namespace XrmFramework.Azure.Functions.Worker.Extensions.Middlewares;
+
+public class RequestsValidationMiddleware: IFunctionsWorkerMiddleware
+{
+    public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
+    {
+        try
+        {
+            await next(context);
+        }
+        catch (FluentValidation.ValidationException ex)
+        {
+            var httpReqData = await context.GetHttpRequestDataAsync();
+
+            if (httpReqData != null)
+            {
+                // Create an instance of HttpResponseData with 400 status code.
+                var newHttpResponse = httpReqData.CreateResponse();
+                newHttpResponse.StatusCode = HttpStatusCode.BadRequest;
+                
+                await newHttpResponse.WriteAsJsonAsync(new
+                {
+                    Errors = ex.Errors.Select(x => new
+                    {
+                        x.ErrorCode,
+                        Message = x.ErrorMessage,
+                        Property = x.PropertyName
+                    }).ToArray()
+                });
+
+                var invocationResult = context.GetInvocationResult();
+
+                var httpOutputBindingFromMultipleOutputBindings = GetHttpOutputBindingFromMultipleOutputBinding(context);
+                if (httpOutputBindingFromMultipleOutputBindings is not null)
+                {
+                    httpOutputBindingFromMultipleOutputBindings.Value = newHttpResponse;
+                }
+                else
+                {
+                    invocationResult.Value = newHttpResponse;
+                }
+            }
+        }
+    }
+    
+    
+    private static OutputBindingData<HttpResponseData>? GetHttpOutputBindingFromMultipleOutputBinding(FunctionContext context)
+    {
+        // The output binding entry name will be "$return" only when the function return type is HttpResponseData
+        var httpOutputBinding = context.GetOutputBindings<HttpResponseData>()
+            .FirstOrDefault(b => b.BindingType == "http" && b.Name != "$return");
+
+        return httpOutputBinding;
+    }
+}
