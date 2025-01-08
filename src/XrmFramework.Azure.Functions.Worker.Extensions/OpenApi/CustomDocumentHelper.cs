@@ -130,7 +130,7 @@ public class CustomDocumentHelper(
                     .Where(param => param.ParameterType.GetInterfaces().Any(i => i.IsAssignableTo(typeof(IBaseRequest)) && i != typeof(IBaseRequest)))
                     .Select(param =>
                     {
-                        var parameterType = Type.GetType(param.ParameterType.FullName);
+                        var parameterType = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).FirstOrDefault(t => t.FullName == param.ParameterType.FullName);
 
                         var validator = serviceProvider.GetService(typeof(IValidator<>).MakeGenericType(parameterType));
 

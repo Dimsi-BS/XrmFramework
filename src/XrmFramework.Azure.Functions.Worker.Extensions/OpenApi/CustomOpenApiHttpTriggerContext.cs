@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
@@ -11,12 +12,25 @@ namespace XrmFramework.Azure.Functions.Worker.Extensions.OpenApi;
 
 
 // ReSharper disable once UnusedType.Global
-public class CustomOpenApiHttpTriggerContext(
-    IOpenApiConfigurationOptions? configOptions = null,
-    IOpenApiHttpTriggerAuthorization? httpTriggerAuthorization = null,
-    IOpenApiCustomUIOptions? uiOptions = null)
-    : OpenApiHttpTriggerContext(configOptions, httpTriggerAuthorization, uiOptions)
+public class CustomOpenApiHttpTriggerContext
+    : OpenApiHttpTriggerContext
 {
+    private readonly IDocument _document;
+
+    public CustomOpenApiHttpTriggerContext(
+        IDocumentHelper documentHelper,
+        IModelMetadataProvider modelMetadataProvider,
+        IOpenApiConfigurationOptions? configOptions = null,
+        IOpenApiHttpTriggerAuthorization? httpTriggerAuthorization = null,
+        IOpenApiCustomUIOptions? uiOptions = null)
+        
+        : base(configOptions, httpTriggerAuthorization, uiOptions)
+    {
+        _document = new CustomDocument(documentHelper, modelMetadataProvider);
+    }
+
+    public override IDocument Document => _document;
+
     public override VisitorCollection GetVisitorCollection()
     {
         var visitors = base.GetVisitorCollection()

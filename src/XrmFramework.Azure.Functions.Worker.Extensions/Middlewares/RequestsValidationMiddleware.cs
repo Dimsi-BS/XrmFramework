@@ -2,10 +2,12 @@ using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Middleware;
+using Newtonsoft.Json;
+using XrmFramework.Azure.Functions.Worker.Extensions.OpenApi;
 
 namespace XrmFramework.Azure.Functions.Worker.Extensions.Middlewares;
 
-public class RequestsValidationMiddleware: IFunctionsWorkerMiddleware
+public class RequestsValidationMiddleware(JsonSerializerSettings jsonSerializerSettings): IFunctionsWorkerMiddleware
 {
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
@@ -22,32 +24,41 @@ public class RequestsValidationMiddleware: IFunctionsWorkerMiddleware
                 // Create an instance of HttpResponseData with 400 status code.
                 var newHttpResponse = httpReqData.CreateResponse();
                 newHttpResponse.StatusCode = HttpStatusCode.BadRequest;
-                
-                await newHttpResponse.WriteAsJsonAsync(new
+                newHttpResponse.Headers.Add("Content-Type", "application/json");
+
+                var errorResult = new ValidationErrors
                 {
-                    Errors = ex.Errors.Select(x => new
+                    Errors = ex.Errors.Select(x => new Error()
                     {
-                        x.ErrorCode,
+                        ErrorCode = x.ErrorCode,
                         Message = x.ErrorMessage,
                         Property = x.PropertyName
                     }).ToArray()
-                });
+                };
+                
+                var errorContent = JsonConvert.SerializeObject(errorResult, jsonSerializerSettings);
 
-                var invocationResult = context.GetInvocationResult();
+                await newHttpResponse.WriteStringAsync(errorContent, context.CancellationToken);
 
-                var httpOutputBindingFromMultipleOutputBindings = GetHttpOutputBindingFromMultipleOutputBinding(context);
-                if (httpOutputBindingFromMultipleOutputBindings is not null)
-                {
-                    httpOutputBindingFromMultipleOutputBindings.Value = newHttpResponse;
-                }
-                else
-                {
-                    invocationResult.Value = newHttpResponse;
-                }
+                SetResponse(context, newHttpResponse);
             }
         }
     }
-    
+
+    private static void SetResponse(FunctionContext context, HttpResponseData newHttpResponse)
+    {
+        var invocationResult = context.GetInvocationResult();
+
+        var httpOutputBindingFromMultipleOutputBindings = GetHttpOutputBindingFromMultipleOutputBinding(context);
+        if (httpOutputBindingFromMultipleOutputBindings is not null)
+        {
+            httpOutputBindingFromMultipleOutputBindings.Value = newHttpResponse;
+        }
+        else
+        {
+            invocationResult.Value = newHttpResponse;
+        }
+    }
     
     private static OutputBindingData<HttpResponseData>? GetHttpOutputBindingFromMultipleOutputBinding(FunctionContext context)
     {
