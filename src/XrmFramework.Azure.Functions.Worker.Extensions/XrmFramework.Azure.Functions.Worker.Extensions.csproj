@@ -27,8 +27,4 @@
         <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.2.2" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="OpenApi\" />
-    </ItemGroup>
-
 </Project>
