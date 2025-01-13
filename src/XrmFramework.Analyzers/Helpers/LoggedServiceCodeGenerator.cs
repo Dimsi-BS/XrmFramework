@@ -327,7 +327,7 @@ namespace XrmFramework.Analyzers.Helpers
                 }
                 else
                 {
-                    var isGenericParam = param.Type.IsDefinition && param.Type.TypeKind == TypeKind.TypeParameter;
+                    var isGenericParam = param.Type is { IsDefinition: true, TypeKind: TypeKind.TypeParameter };
                     builder.Append("if (");
                     if (isGenericParam)
                     {
