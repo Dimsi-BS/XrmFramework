@@ -12,20 +12,8 @@ public class HttpHealthTest(
     IHttpContextAccessor httpContextAccessor)
     : HttpFunctionBase(httpContextAccessor)
 {
-    
     [Function(nameof(HttpHealthTest))]
-
-    #region OpenApi
-
     [OpenApiOperation(nameof(HttpHealthTest))]
-    [OpenApiRequestBody("application/json", typeof(HealthTestCommand))]
-    [OpenApiResponseWithoutBody(HttpStatusCode.OK)]
-    [OpenApiResponseWithBody(HttpStatusCode.BadRequest,
-        contentType: "application/json",
-        typeof(ValidationProblemDetails),
-        Description = "Bad request")]
-
-    #endregion
 
     public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Function, "get", Route = "v1/HealthTest")]
