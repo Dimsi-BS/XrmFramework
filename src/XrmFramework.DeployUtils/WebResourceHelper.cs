@@ -29,14 +29,13 @@ namespace XrmFramework.DeployUtils
                     options = o;
                     if (o.DisablePrompt)
                     {
-                        Console.WriteLine($"Disabled connection prompt. Current Arguments: -n {o.DisablePrompt}");
-                        Console.WriteLine("Quick Start Example! App is in Verbose mode!");
+                        Console.WriteLine($@"Disabled connection prompt. Current Arguments: -n {o.DisablePrompt}");
                     }
 
                     if (!string.IsNullOrEmpty(o.Path))
                     {
-                        Console.WriteLine($"Forced path");
-                        Console.WriteLine($"Path : -p {o.Path}");
+                        Console.WriteLine($@"Forced path");
+                        Console.WriteLine($@"Path : -p {o.Path}");
                     }
                 });
 
@@ -47,7 +46,7 @@ namespace XrmFramework.DeployUtils
             var solutionName = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>().Single(p => p.Name == projectName).TargetSolution;
 
             var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
-
+            
             if (!options.DisablePrompt)
             {
                 Console.WriteLine($@"You are about to deploy on {connectionString} organization. If ok press any key.");
@@ -55,7 +54,9 @@ namespace XrmFramework.DeployUtils
             }
             else
             {
-                Console.WriteLine($"ConnectionString : {connectionString}");
+                var parsedConnectionString = ConnectionStringParser.Parse(connectionString);
+                
+                Console.WriteLine($@"Connecting to the environment {parsedConnectionString.Url}");
             }
 
             Console.WriteLine(@"Connecting to CRM...");
@@ -110,7 +111,7 @@ namespace XrmFramework.DeployUtils
 
                 while (currentDirectory != null && currentDirectory.GetDirectories().All(d => d.Name != projectName))
                 {
-                    Console.WriteLine($"currentPath = {currentDirectory.FullName}");
+                    Console.WriteLine($@"currentPath = {currentDirectory.FullName}");
                     currentDirectory = currentDirectory.Parent;
                 }
 
@@ -171,7 +172,7 @@ namespace XrmFramework.DeployUtils
 
                 if (publish)
                 {
-                    resourcesToPublish += string.Format("<webresource>{0}</webresource>", webResourceId);
+                    resourcesToPublish += string.Format("<webresource>{WebResourceId}</webresource>", webResourceId);
                     nbWebresources++;
                 }
             }
@@ -183,7 +184,7 @@ namespace XrmFramework.DeployUtils
 
                 var request = new PublishXmlRequest
                 {
-                    ParameterXml = string.Format("<importexportxml><webresources>{0}</webresources></importexportxml>", resourcesToPublish)
+                    ParameterXml = string.Format("<importexportxml><webresources>{ResourcesToPublish}</webresources></importexportxml>", resourcesToPublish)
                 };
 
                 service.Execute(request);
@@ -227,7 +228,7 @@ namespace XrmFramework.DeployUtils
 
             if (string.IsNullOrEmpty(fi.Extension))
             {
-                throw new Exception(string.Format("No extension found for the file '{0}'!", fi.FullName));
+                throw new Exception(string.Format(@"No extension found for the file '{FiFullName}'!", fi.FullName));
             }
 
             string extension = fi.Extension.Remove(0, 1).ToLower();

@@ -166,6 +166,25 @@ namespace XrmFramework
             return returnValue;
         }
 
+        public void TestMethod<T>(T value)
+        {
+            #region Parameters check
+            if (Equals(value, default(T)))
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+            #endregion
+
+            var sw = new Stopwatch();
+            sw.Start();
+
+            Log(nameof(TestMethod), "Start: value = {0}", value);
+
+            Service.TestMethod<T>(value);
+
+            Log(nameof(TestMethod), "End : duration = {0}", sw.Elapsed);
+        }
+
         public void Update(global::Microsoft.Xrm.Sdk.Entity entity)
         {
             #region Parameters check

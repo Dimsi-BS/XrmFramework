@@ -41,6 +41,8 @@ namespace XrmFramework {
         byte[] GetByteContent();
 
         int[] GetIntArray(byte[] content);
+
+        void TestMethod<T>(T value);
     }
 
     public enum EnumTest

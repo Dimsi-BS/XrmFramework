@@ -1,10 +1,10 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=True",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "Xrm": "AuthType=ClientSecret; Url=https://crm.crm4.dynamics.com/; ClientId=00000000-0000-0000-0000-000000000000; ClientSecret=;"
   },
   "ConnectionStrings": {
-    "AzureWebJobsStorage": "UseDevelopmentStorage=True"
   }
 }
