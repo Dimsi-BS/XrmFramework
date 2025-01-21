@@ -11,7 +11,7 @@ namespace Deploy.Plugins
         [STAThread]
         static void Main(string[] args)
         {
-            RegistrationHelper.RegisterPluginsAndWorkflows<XrmFramework.Plugin>("$safeprojectname$");
+            RegistrationHelper.RegisterPluginsAndWorkflows<XrmFramework.Plugin>("$safeprojectname$", false, args);
         }
     }   
 }

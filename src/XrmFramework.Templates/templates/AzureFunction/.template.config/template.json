@@ -1,7 +1,7 @@
 {
   "$schema": "http://json.schemastore.org/template",
   "author": "Christophe Gondouin",
-  "classifications": [ "Common/Console", "XrmFramework" ],
+  "classifications": [ "Isolated Worker", "XrmFramework" ],
   "name": "XrmFramework Azure Function",
   "identity": "XrmFramework.AzureFunction",
   "shortName": "xrmAzureFunction",
