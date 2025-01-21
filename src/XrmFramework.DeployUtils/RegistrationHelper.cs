@@ -36,7 +36,7 @@ namespace XrmFramework.DeployUtils
             {
                 var defaultColor = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"No reference to the project {projectName} has been found in the xrmFramework.config file.");
+                Console.WriteLine($@"No reference to the project {projectName} has been found in the xrmFramework.config file.");
                 Console.ForegroundColor = defaultColor;
                 return;
             }
@@ -47,16 +47,16 @@ namespace XrmFramework.DeployUtils
 
             if (args == null || !args.Select(a => a.ToLowerInvariant()).Contains("-noprompt"))
             {
-                Console.WriteLine($"You are about to deploy on {connectionString} organization. If ok press any key.");
+                Console.WriteLine($@"You are about to deploy on {connectionString} organization. If ok press any key.");
                 Console.ReadKey();
             }
 
             if (args != null && args.Select(a => a.ToLowerInvariant()).Contains("-debug"))
             {
-                Console.WriteLine($"ConnectionString : {connectionString}");
+                Console.WriteLine($@"ConnectionString : {connectionString}");
             }
 
-            Console.WriteLine("Connecting to CRM...");
+            Console.WriteLine(@"Connecting to CRM...");
 
             CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
 

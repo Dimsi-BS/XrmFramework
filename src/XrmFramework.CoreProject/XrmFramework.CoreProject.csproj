@@ -37,10 +37,10 @@
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.0.1" />
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.0.1" />
-  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' OR '$(TargetFramework)' == 'net8.0'">
+        <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.0.1" />
+        <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.0.1" />
+    </ItemGroup>
 
 
   <ItemGroup>
