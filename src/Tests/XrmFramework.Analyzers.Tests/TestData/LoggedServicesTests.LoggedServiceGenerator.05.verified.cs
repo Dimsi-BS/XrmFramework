@@ -12,6 +12,12 @@ namespace XrmFramework
         {
             RegisterService<IService, DefaultService, LoggedIService>(container);
 
+            RegisterService<ISubService, SubService, LoggedISubService>(container);
+
+            RegisterService<ISubService, Sub2Service, LoggedISubService>(container);
+
+            RegisterService<ISub2Service, Sub2Service, LoggedISub2Service>(container);
+
             RegisterService<ISub3Service, Sub3Service, LoggedISub3Service>(container);
 
         }
@@ -27,6 +33,12 @@ namespace Microsoft.Extensions.DependencyInjection
         static partial void RegisterServices(IServiceCollection serviceCollection)
         {
             RegisterService<IService>(serviceCollection);
+
+            RegisterService<ISubService>(serviceCollection);
+
+            RegisterService<ISubService>(serviceCollection);
+
+            RegisterService<ISub2Service>(serviceCollection);
 
             RegisterService<ISub3Service>(serviceCollection);
 

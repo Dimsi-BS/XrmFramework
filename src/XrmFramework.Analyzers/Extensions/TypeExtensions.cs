@@ -3,6 +3,7 @@
 
 using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
+using XrmFramework.Analyzers.Extensions;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -34,118 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
            { SpecialType.System_UInt16, "ushort" }  ,
             { SpecialType.System_Void,  "void"   }
         };
-
-        ///// <summary>
-        /////     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        /////     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        /////     any release. You should only use it directly in your code with extreme caution and knowing that
-        /////     doing so can result in application failures when updating to a new Entity Framework Core release.
-        ///// </summary>
-        //public static string DisplayName(this ITypeSymbol type, bool fullName = true)
-        //{
-        //    var stringBuilder = new StringBuilder();
-        //    ProcessType(stringBuilder, type, fullName);
-        //    return stringBuilder.ToString();
-        //}
-
-        //private static void ProcessType(StringBuilder builder, ITypeSymbol type, bool fullName)
-        //{
-        //    if (type is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType)
-        //    {
-        //        var genericArguments = namedTypeSymbol.TypeArguments;
-        //        ProcessGenericType(builder, namedTypeSymbol, genericArguments, genericArguments.Length, fullName);
-        //    }
-        //    else if (type.IsArray)
-        //    {
-        //        ProcessArrayType(builder, type, fullName);
-        //    }
-        //    else if (_builtInTypeNames.TryGetValue(type, out var builtInName))
-        //    {
-        //        builder.Append(builtInName);
-        //    }
-        //    else if (!type.IsGenericParameter)
-        //    {
-        //        builder.Append(fullName ? type.FullName : type.Name);
-        //    }
-        //    else if (type.IsGenericParameter)
-        //    {
-        //        builder.Append(type.Name);
-        //    }
-        //}
-
-        //private static void ProcessArrayType(StringBuilder builder, Type type, bool fullName)
-        //{
-        //    var innerType = type;
-        //    while (innerType.IsArray)
-        //    {
-        //        innerType = innerType.GetElementType();
-        //    }
-
-        //    ProcessType(builder, innerType, fullName);
-
-        //    while (type.IsArray)
-        //    {
-        //        builder.Append('[');
-        //        builder.Append(',', type.GetArrayRank() - 1);
-        //        builder.Append(']');
-        //        type = type.GetElementType();
-        //    }
-        //}
-
-        //private static void ProcessGenericType(StringBuilder builder, INamedTypeSymbol type, ITypeSymbol[] genericArguments, int length, bool fullName)
-        //{
-        //    var offset = type.IsNested ? type.DeclaringType.GetGenericArguments().Length : 0;
-
-        //    if (fullName)
-        //    {
-        //        if (type.IsNested)
-        //        {
-        //            ProcessGenericType(builder, type.DeclaringType, genericArguments, offset, fullName);
-        //            builder.Append('+');
-        //        }
-        //        else
-        //        {
-        //            builder.Append(type.Namespace);
-        //            builder.Append('.');
-        //        }
-        //    }
-
-        //    var genericPartIndex = type.Name.IndexOf('`');
-        //    if (genericPartIndex <= 0)
-        //    {
-        //        builder.Append(type.Name);
-        //        return;
-        //    }
-
-        //    builder.Append(type.Name, 0, genericPartIndex);
-        //    builder.Append('<');
-
-        //    for (var i = offset; i < length; i++)
-        //    {
-        //        ProcessType(builder, genericArguments[i], fullName);
-        //        if (i + 1 == length)
-        //        {
-        //            continue;
-        //        }
-
-        //        builder.Append(',');
-        //        if (!genericArguments[i + 1].IsGenericParameter)
-        //        {
-        //            builder.Append(' ');
-        //        }
-        //    }
-
-        //    builder.Append('>');
-        //}
-
-        ///// <summary>
-        /////     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        /////     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        /////     any release. You should only use it directly in your code with extreme caution and knowing that
-        /////     doing so can result in application failures when updating to a new Entity Framework Core release.
-        ///// </summary>
-        //public static IFieldSymbol GetFieldInfo(this ITypeSymbol type, string fieldName)
-        //    => type.GetMembers().OfType<IFieldSymbol>().FirstOrDefault(f => f.Name == fieldName && !f.IsStatic);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -181,5 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         public static bool IsPrimitive(this ITypeSymbol symbol)
             => _primitiveTypes.ContainsKey(symbol.SpecialType);
+
+        public static bool ImplementsIService(this ITypeSymbol symbol) 
+            => symbol.AllInterfaces.Any(i => i.GetFullMetadataName() == "XrmFramework.IService");
     }
 }
