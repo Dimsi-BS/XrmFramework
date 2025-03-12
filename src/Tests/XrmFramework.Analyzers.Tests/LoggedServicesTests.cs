@@ -105,22 +105,26 @@ namespace ClientNamespace.Core
 
     public interface ISubService : IService
     {
+        void SubMethod1();
     }
 
-    abstract partial class SubService
+    public class SubService
     {
+        public void SubMethod1() {}
     }
 
     public partial class SubService : DefaultService, ISubService
     {
     }
 
-    public interface ISub2Service : IService
+    public interface ISub2Service : ISubService
     {
+        void SubMethod2();
     }
 
-    internal class Sub2Service : DefaultService, ISub2Service
+    public class Sub2Service : SubService, ISub2Service
     {
+        public void SubMethod2() {}
     }
 
     public interface ISub3Service : IService
@@ -144,6 +148,8 @@ namespace ClientNamespace.Core
         void StringParameter([Nullable] string parameter);
         void StringParameterDefaultValue(string parameter = null);
     }
+
+    
 }
 ";
 
