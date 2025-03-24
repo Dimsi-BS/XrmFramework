@@ -1,48 +1,22 @@
 ﻿using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace XrmFramework
 {
-    public abstract class ApiService<TSettings> : DefaultServiceWithSettings<TSettings>
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    public abstract partial class ApiService<TSettings> : DefaultServiceWithSettings<TSettings>
         where TSettings : CrmSettings, new()
     {
-        private static readonly object SyncRoot = new object();
-
-        protected HttpClient Client { get; private set; }
-
-        protected void CheckOrInitConnection()
-        {
-            if (Client == null)
-            {
-                lock (SyncRoot)
-                {
-                    if (Client == null)
-                    {
-                        var handler = new HttpClientHandler();
-
-                        var credentials = GetCredentials();
-
-                        if (credentials != null)
-                        {
-                            handler.Credentials = credentials;
-                        }
-
-                        Client = new HttpClient(handler)
-                        {
-                            Timeout = new TimeSpan(0, 2, 0)
-                        };
-                        // Add HTTP headers
-                        Client.DefaultRequestHeaders.Clear();
-                        Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                        Client.DefaultRequestHeaders.ConnectionClose = false;
-                    }
-                }
-            }
-        }
+        private readonly Lazy<HttpClient> _httpClient;
+        private const string Patch = "Patch";
+        
+        protected HttpClient Client => _httpClient.Value;
 
         protected virtual ICredentials GetCredentials() => null;
 
@@ -50,62 +24,171 @@ namespace XrmFramework
         {
         }
 
-        protected TResponse HttpPostData<TResponse>(string url, HttpContent requestContent, bool useAuthenticationHeaders = true)
-            => HttpSendData<TResponse>(url, requestContent, HttpMethod.Post, useAuthenticationHeaders);
+        protected TResponse HttpPostData<TResponse>(string url, HttpContent requestContent, bool useAuthenticationHeaders = true,
+            Action<HttpRequestHeaders> addHeaders = null)
+            => HttpPostDataAsync<TResponse>(url, requestContent, useAuthenticationHeaders, addHeaders).GetAwaiter().GetResult();
 
-        protected TResponse HttpPostData<TResponse>(string url, string requestContent, bool useAuthenticationHeaders = true) =>
-            HttpPostData<TResponse>(url,
-                new StringContent(requestContent, System.Text.Encoding.UTF8, "application/json"), useAuthenticationHeaders);
+        protected TResponse HttpPostData<TResponse>(string url, string requestContent, bool useAuthenticationHeaders = true,
+            Action<HttpRequestHeaders> addHeaders = null)
+            => HttpPostDataAsync<TResponse>(url, requestContent,
+                useAuthenticationHeaders,
+                addHeaders)
+                .GetAwaiter().GetResult();
 
-        protected TResponse HttpPostData<TRequest, TResponse>(string url, TRequest request, bool useAuthenticationHeaders = true)
-        {
-            var requestContent = JsonConvert.SerializeObject(request);
-
-            return HttpPostData<TResponse>(url, requestContent, useAuthenticationHeaders);
-        }
+        protected TResponse HttpPostData<TRequest, TResponse>(string url, TRequest request,
+            bool useAuthenticationHeaders = true,
+            Action<HttpRequestHeaders> addHeaders = null)
+            => HttpSendDataAsync<TRequest, TResponse>(
+                url,
+                request,
+                HttpMethod.Post,
+                useAuthenticationHeaders,
+                addHeaders)
+                .GetAwaiter().GetResult();
+  
+        protected Task<TResponse> HttpPostDataAsync<TRequest, TResponse>(string url, TRequest request, bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addHeaders = null)
+            => HttpSendDataAsync<TRequest, TResponse>(
+                url, 
+                request, 
+                HttpMethod.Post,
+                useAuthenticationHeaders,
+                addHeaders);
         
-        protected TResponse HttpPutData<TResponse>(string url, HttpContent requestContent, bool useAuthenticationHeaders = true)
-            => HttpSendData<TResponse>(url, requestContent, HttpMethod.Put, useAuthenticationHeaders);
+        protected Task<TResponse> HttpPostDataAsync<TResponse>(string url, HttpContent requestContent, bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpSendDataAsync<TResponse>(url, requestContent, HttpMethod.Post, useAuthenticationHeaders, addSpecificHeaders);
 
-        protected TResponse HttpPutData<TResponse>(string url, string requestContent, bool useAuthenticationHeaders = true) =>
-            HttpPutData<TResponse>(url,
-                new StringContent(requestContent, System.Text.Encoding.UTF8, "application/json"), useAuthenticationHeaders);
-
-        protected TResponse HttpPutData<TRequest, TResponse>(string url, TRequest request, bool useAuthenticationHeaders = true)
-        {
-            var requestContent = JsonConvert.SerializeObject(request);
-
-            return HttpPutData<TResponse>(url, requestContent, useAuthenticationHeaders);
-        }
+        protected Task<TResponse> HttpPostDataAsync<TResponse>(string url, string requestContent, bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpSendDataAsync<TResponse>(
+                url, 
+                requestContent, 
+                HttpMethod.Post,
+                useAuthenticationHeaders,
+                addSpecificHeaders);
         
-        protected TResponse HttpSendData<TResponse>(string url, HttpContent requestContent, HttpMethod method,
-            bool useAuthenticationHeaders = true)
+        protected TResponse HttpPatchData<TResponse>(string url, string requestContent, bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpSendDataAsync<TResponse>(
+                url, 
+                requestContent, 
+                new HttpMethod(Patch), 
+                useAuthenticationHeaders,
+                addSpecificHeaders)
+                .GetAwaiter().GetResult();
+
+        protected TResponse HttpPatchData<TResponse>(string url, HttpContent requestContent, bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpSendDataAsync<TResponse>(
+                    url, 
+                    requestContent, 
+                    new HttpMethod(Patch), 
+                    useAuthenticationHeaders,
+                    addSpecificHeaders)
+                .GetAwaiter().GetResult();
+
+        protected TResponse HttpPatchData<TRequest, TResponse>(string url, TRequest request, bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpPatchDataAsync<TRequest, TResponse>(url, request, useAuthenticationHeaders, addSpecificHeaders).GetAwaiter().GetResult();
+        
+        protected Task<TResponse> HttpPatchDataAsync<TRequest, TResponse>(string url, TRequest request, bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpSendDataAsync<TRequest, TResponse>(url, request, new HttpMethod(Patch), useAuthenticationHeaders, addSpecificHeaders);
+        
+        protected Task<TResponse> HttpPatchDataAsync<TResponse>(string url, string requestContent, bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpSendDataAsync<TResponse>(
+                    url, 
+                    requestContent, 
+                    new HttpMethod(Patch), 
+                    useAuthenticationHeaders,
+                    addSpecificHeaders);
+
+        protected Task<TResponse> HttpPatchDataAsync<TResponse>(string url, HttpContent requestContent, bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpSendDataAsync<TResponse>(
+                url, 
+                requestContent, 
+                new HttpMethod(Patch), 
+                useAuthenticationHeaders,
+                addSpecificHeaders);
+
+        protected Task<TResponse> HttpPutDataAsync<TRequest, TResponse>(string url, TRequest request, bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpSendDataAsync<TRequest, TResponse>(url, request, HttpMethod.Put, useAuthenticationHeaders, addSpecificHeaders);
+        
+        protected Task<TResponse> HttpPutDataAsync<TResponse>(string url, HttpContent requestContent, bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpSendDataAsync<TResponse>(url, requestContent, HttpMethod.Put, useAuthenticationHeaders, addSpecificHeaders);
+
+        protected Task<TResponse> HttpPutDataAsync<TResponse>(string url, string requestContent,
+            bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpSendDataAsync<TResponse>(
+                url,
+                requestContent, 
+                HttpMethod.Put,
+                useAuthenticationHeaders,
+                addSpecificHeaders);
+        
+        protected TResponse HttpPutData<TResponse>(string url, HttpContent requestContent, bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpPutDataAsync<TResponse>(url,requestContent, useAuthenticationHeaders, addSpecificHeaders).GetAwaiter().GetResult();
+
+        protected TResponse HttpPutData<TResponse>(string url, string requestContent, bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpPutDataAsync<TResponse>(url,requestContent, useAuthenticationHeaders, addSpecificHeaders).GetAwaiter().GetResult();
+
+        protected TResponse HttpPutData<TRequest, TResponse>(string url, TRequest request, bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpPutDataAsync<TRequest, TResponse>(url, request, useAuthenticationHeaders, addSpecificHeaders).GetAwaiter().GetResult();
+        
+        private TResponse HttpSendData<TResponse>(string url, HttpContent requestContent, HttpMethod method,
+            bool useAuthenticationHeaders = true, Action<HttpRequestHeaders> addSpecificHeaders = null)
+            => HttpSendDataAsync<TResponse>(
+                url, 
+                requestContent, 
+                method, 
+                useAuthenticationHeaders,
+                addSpecificHeaders
+                ).GetAwaiter().GetResult();
+
+        
+        private Task<TResponse> HttpSendDataAsync<TRequest, TResponse>(string url, TRequest request, HttpMethod method,
+            bool useDefaultAuthenticationHeaders = false, Action<HttpRequestHeaders> addHeaders = null)
+            => HttpSendDataAsync<TResponse>(
+                url,
+                JsonConvert.SerializeObject(request),
+                method,
+                useDefaultAuthenticationHeaders,
+                addHeaders
+            );
+        
+        private Task<TResponse> HttpSendDataAsync<TResponse>(string url, string requestContent, HttpMethod method,
+            bool useDefaultAuthenticationHeaders = false, Action<HttpRequestHeaders> addHeaders = null)
+            => HttpSendDataAsync<TResponse>(
+                url,
+                new StringContent(requestContent, System.Text.Encoding.UTF8, "application/json"),
+                method,
+                useDefaultAuthenticationHeaders,
+                addHeaders
+            );
+        
+        private async Task<TResponse> HttpSendDataAsync<TResponse>(string url, HttpContent requestContent, HttpMethod method,
+            bool useDefaultAuthenticationHeaders = false, Action<HttpRequestHeaders> addHeaders = null)
         {
-            CheckOrInitConnection();
+            Log(nameof(HttpSendData), "Url : {0}", url);
 
             var isSuccessfull = false;
 
             #region Log Info
 
             string replyContent;
+            var status = HttpStatusCode.Unused;
 
             #endregion
 
             try
             {
-                var requestMessage = new HttpRequestMessage(method, url)
+                var requestMessage = new HttpRequestMessage(method, url);
+                
+                if (requestContent != null)
                 {
-                    Content = requestContent
-                };
-
-                if (useAuthenticationHeaders)
-                {
-                    AddAuthenticationHeader(requestMessage.Headers);
+                    requestMessage.Content = requestContent;
                 }
 
-                var serviceResponse = Client.SendAsync(requestMessage).GetAwaiter().GetResult();
+                (useDefaultAuthenticationHeaders ? AddAuthenticationHeader : addHeaders)?.Invoke(requestMessage.Headers);
 
-                replyContent = serviceResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                var serviceResponse = await Client.SendAsync(requestMessage);
+
+                replyContent = await serviceResponse.Content.ReadAsStringAsync();
+                status = serviceResponse.StatusCode;
                 isSuccessfull = serviceResponse.IsSuccessStatusCode;
             }
             catch (HttpRequestException e)
@@ -124,58 +207,43 @@ namespace XrmFramework
 
                 return response;
             }
-
-            throw new InvalidPluginExecutionException(replyContent);
+            
+            var exceptionContent = string.IsNullOrEmpty(replyContent) ? status.ToString() : replyContent;
+            
+            throw new InvalidPluginExecutionException(exceptionContent);
         }
         
-        protected TResponse HttpGetData<TResponse>(string url, bool useAuthenticationHeaders = true)
-        {
-            CheckOrInitConnection();
-
-            var isSuccessfull = false;
-            var status = HttpStatusCode.Unused;
-
-            var apiRequest = string.Empty;
-
-            string replyContent;
-
-            try
-            {
-                var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
-
-                if (useAuthenticationHeaders)
-                {
-                    AddAuthenticationHeader(requestMessage.Headers);
-                }
-                var serviceResponse = Client.SendAsync(requestMessage).GetAwaiter().GetResult();
-                replyContent = serviceResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-
-                isSuccessfull = serviceResponse.IsSuccessStatusCode;
-
-                status = serviceResponse.StatusCode;
-            }
-            catch (HttpRequestException e)
-            {
-                replyContent = e.Message;
-            }
-
-            if (isSuccessfull)
-            {
-                if (typeof(TResponse) == typeof(string))
-                {
-                    return (TResponse)(object)replyContent;
-                }
-
-                var response = JsonConvert.DeserializeObject<TResponse>(replyContent);
-
-                return response;
-            }
-
-            throw new InvalidPluginExecutionException(replyContent);
-        }
+        protected TResponse HttpGetData<TResponse>(string url, bool useDefaultAuthenticationHeaders = true, Action<HttpRequestHeaders> addHeaders = null)
+            => HttpSendDataAsync<TResponse>(url, (HttpContent) null, HttpMethod.Get, useDefaultAuthenticationHeaders, addHeaders).GetAwaiter().GetResult();
+        
+        protected Task<TResponse> HttpGetDataAsync<TResponse>(string url, bool useDefaultAuthenticationHeaders = true, Action<HttpRequestHeaders> addHeaders = null)
+            => HttpSendDataAsync<TResponse>(url, (HttpContent) null, HttpMethod.Get, useDefaultAuthenticationHeaders, addHeaders);
 
         protected ApiService(IServiceContext context) : base(context)
         {
+            _httpClient = new Lazy<HttpClient>(() =>
+            {
+                var handler = new HttpClientHandler();
+
+                var credentials = GetCredentials();
+
+                if (credentials != null)
+                {
+                    handler.Credentials = credentials;
+                }
+
+                var client = new HttpClient(handler)
+                {
+                    Timeout = new TimeSpan(0, 2, 0)
+                };
+                // Add HTTP headers
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.ConnectionClose = false;
+
+                return client;
+            });
+            
         }
     }
 }

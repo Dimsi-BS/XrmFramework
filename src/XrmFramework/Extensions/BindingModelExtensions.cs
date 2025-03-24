@@ -1,4 +1,4 @@
-// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
@@ -118,7 +118,17 @@ namespace XrmFramework
 
                 attribute.Property.SetValue(result, valueSource);
             }
-
+            
+            foreach (var extendBindingModel in metadata.ExtendBindingProperties)
+            {
+                var sourceModel = (IBindingModel)extendBindingModel.GetValue(source);
+                var targetModel = (IBindingModel)extendBindingModel.GetValue(target);
+                if (sourceModel != null)
+                {
+                    extendBindingModel.SetMethod?.Invoke(result, [GetDiff(sourceModel, targetModel)]);
+                }
+            }
+            
             return result;
         }
 

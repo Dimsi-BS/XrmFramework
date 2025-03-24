@@ -22,6 +22,15 @@ namespace XrmFramework
             return value == null ? default : value.Value.ToEnum<T>();
         }
 
+        public static T ToEnum<T>(this string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return default(T);
+            }
+            return (T)Enum.Parse(typeof(T), value);
+        }
+
         public static T ParseDescription<T>(this string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -39,6 +48,38 @@ namespace XrmFramework
             }
 
             return default(T);
+        }
+        
+        public static ICollection<T> ParseDescriptions<T>(this string stringList, char separator = ';')
+        {
+            var list = new HashSet<T>();
+
+            if (string.IsNullOrEmpty(stringList))
+            {
+                return list;
+            }
+
+            var enumType = typeof(T);
+
+            var dicEnum = new Dictionary<string, T>();
+
+            foreach (T value in Enum.GetValues(enumType))
+            {
+                var description = enumType.GetField(value.ToString()).GetCustomAttribute<DescriptionAttribute>();
+                if (description != null)
+                {
+                    dicEnum.Add(description.Description, value);
+                }
+            }
+
+            var array = stringList.Split(separator);
+
+            foreach (var stringEnum in array.Where(dicEnum.ContainsKey))
+            {
+                list.Add(dicEnum[stringEnum]);
+            }
+
+            return list;
         }
 
         public static T ParseExternalValue<T>(this string value)
@@ -58,15 +99,6 @@ namespace XrmFramework
             }
 
             return default(T);
-        }
-
-        public static T ToEnum<T>(this string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return default(T);
-            }
-            return (T)Enum.Parse(typeof(T), value);
         }
 
         public static string GetDescription(this Enum enumValue)
@@ -111,7 +143,7 @@ namespace XrmFramework
                 }
             }
 
-            return optionSetValues.Any() ? new OptionSetValueCollection(optionSetValues) : null;
+            return optionSetValues.Any() ? new OptionSetValueCollection(optionSetValues) : new OptionSetValueCollection();
         }
 
         public static ICollection<object> ToEnumCollection(this IEnumerable<OptionSetValue> values, Type enumType)
