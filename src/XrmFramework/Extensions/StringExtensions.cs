@@ -25,6 +25,11 @@ namespace XrmFramework
             }
         }
 
+        public static bool IsNull(this string value, [CallerMemberName] string propertyName = null)
+        {
+            return string.IsNullOrEmpty(value);
+        }
+
         public static EntityReference ToEntityReference(this string idOrkeyValue, string entityLogicalName, string keyAttributeName = null)
         {
             entityLogicalName.ShouldNotBeNull();

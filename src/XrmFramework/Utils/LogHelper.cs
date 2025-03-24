@@ -189,7 +189,7 @@ namespace XrmFramework
                         sb.Append("]");
                         break;
                     default:
-                        sb.AppendFormat("{0}", attributeValue);
+                        sb.Append(TruncateForLog(attributeValue));
                         break;
                 }
             }
@@ -255,6 +255,17 @@ namespace XrmFramework
             }
 
             return args;
+        }
+        
+        private string TruncateForLog(object o)
+        {
+            var maxSize = 300;
+            var res = o?.ToString();
+            if (res?.Length > maxSize)
+            {
+                res = $"{res.Substring(0, maxSize)}-- truncated at {maxSize} --";
+            }
+            return res;
         }
 
         public void LogWithMethodName(string methodName, string message, params object[] args) => LogInternal($"{methodName} : {message}", FormatArgs(args));

@@ -97,16 +97,6 @@ namespace XrmFramework.BindingModel
             return CachedToBindingModel(entity, type, null);
         }
 
-        //public static IBindingModel ToBindingModel(this Entity entity, Type type)
-        //{
-        //    return CachedToBindingModel(entity, type);
-        //}
-
-        //private static IBindingModel CachedToBindingModel(this Entity entity, Type type)
-        //{
-        //    return CachedToBindingModel(entity, type);
-        //}
-
         private static IBindingModel CachedToBindingModel(this Entity entity, Type type, Dictionary<string, Dictionary<Guid, object>> cache)
         {
             if (entity == null)
@@ -231,41 +221,39 @@ namespace XrmFramework.BindingModel
                                 }
                                 else
                                 {
-                                    foreach (var relationship in modelLookupAttributes)
+                                    foreach (var relationship in modelLookupAttributes
+                                                 .Where(relationship => entity.RelatedEntities.Keys.Any(r => r.SchemaName == relationship.RelationshipName)))
                                     {
-                                        if (entity.RelatedEntities.Keys.Any(r => r.SchemaName == relationship.RelationshipName))
+                                        var relatedEntity = entity.RelatedEntities.First(r => r.Key.SchemaName == relationship.RelationshipName).Value?.Entities.FirstOrDefault();
+
+                                        if (relatedEntity != null)
                                         {
-                                            var relatedEntity = entity.RelatedEntities.First(r => r.Key.SchemaName == relationship.RelationshipName).Value?.Entities.FirstOrDefault();
+                                            var relatedEntityDefinition = DefinitionCache.GetEntityDefinition(relatedEntity.LogicalName);
 
-                                            if (relatedEntity != null)
+                                            var relatedAttributeType = relatedEntityDefinition.GetAttributeType(crmLookupAttribute.AttributeName);
+
+                                            switch (relatedAttributeType)
                                             {
-                                                var relatedEntityDefinition = DefinitionCache.GetEntityDefinition(relatedEntity.LogicalName);
-
-                                                var relatedAttributeType = relatedEntityDefinition.GetAttributeType(crmLookupAttribute.AttributeName);
-
-                                                switch (relatedAttributeType)
-                                                {
-                                                    case AttributeTypeCode.Picklist:
-                                                    case AttributeTypeCode.State:
-                                                    case AttributeTypeCode.Status:
-                                                        value = GetPicklist(relatedEntity, objectType, crmLookupAttribute.AttributeName);
-                                                        break;
-                                                    case AttributeTypeCode.MultiSelectPicklist:
-                                                        value = GetPicklistValues(relatedEntity, objectType, crmLookupAttribute.AttributeName);
-                                                        break;
-                                                    case AttributeTypeCode.Money:
-                                                        value = relatedEntity.GetAttributeValue<Money>(crmLookupAttribute.AttributeName)?.Value;
-                                                        break;
-                                                    case AttributeTypeCode.Lookup:
-                                                    case AttributeTypeCode.Owner:
-                                                    case AttributeTypeCode.Customer:
-                                                        isEntityReference = true;
-                                                        value = relatedEntity.GetAttributeValue<EntityReference>(crmLookupAttribute.AttributeName);
-                                                        break;
-                                                    default:
-                                                        value = relatedEntity.GetAttributeValue<object>(crmLookupAttribute.AttributeName);
-                                                        break;
-                                                }
+                                                case AttributeTypeCode.Picklist:
+                                                case AttributeTypeCode.State:
+                                                case AttributeTypeCode.Status:
+                                                    value = GetPicklist(relatedEntity, objectType, crmLookupAttribute.AttributeName);
+                                                    break;
+                                                case AttributeTypeCode.MultiSelectPicklist:
+                                                    value = GetPicklistValues(relatedEntity, objectType, crmLookupAttribute.AttributeName);
+                                                    break;
+                                                case AttributeTypeCode.Money:
+                                                    value = relatedEntity.GetAttributeValue<Money>(crmLookupAttribute.AttributeName)?.Value;
+                                                    break;
+                                                case AttributeTypeCode.Lookup:
+                                                case AttributeTypeCode.Owner:
+                                                case AttributeTypeCode.Customer:
+                                                    isEntityReference = true;
+                                                    value = relatedEntity.GetAttributeValue<EntityReference>(crmLookupAttribute.AttributeName);
+                                                    break;
+                                                default:
+                                                    value = relatedEntity.GetAttributeValue<object>(crmLookupAttribute.AttributeName);
+                                                    break;
                                             }
                                         }
                                     }
@@ -312,18 +300,16 @@ namespace XrmFramework.BindingModel
 
                                     if (!isEmbed)
                                     {
-                                        foreach (var relationship in modelLookupAttributes)
+                                        foreach (var relationship in modelLookupAttributes
+                                                     .Where(relationship => entity.RelatedEntities.Keys.Any(r => r.SchemaName == relationship.RelationshipName)))
                                         {
-                                            if (entity.RelatedEntities.Keys.Any(r => r.SchemaName == relationship.RelationshipName))
+                                            entityTemp = entity.RelatedEntities.First(r => r.Key.SchemaName == relationship.RelationshipName).Value?.Entities.FirstOrDefault();
+                                            if (
+                                                entityTemp != null 
+                                                && DefinitionCache.TryGetModelDefinition(property.ObjectType, out var modelDefinitionTemp) 
+                                                && modelDefinitionTemp.MainDefinition.EntityName == entityTemp.LogicalName)
                                             {
-                                                entityTemp = entity.RelatedEntities.First(r => r.Key.SchemaName == relationship.RelationshipName).Value?.Entities.FirstOrDefault();
-                                                if (entityTemp != null && DefinitionCache.TryGetModelDefinition(property.ObjectType, out var modelDefinitionTemp))
-                                                {
-                                                    if (modelDefinitionTemp.MainDefinition.EntityName == entityTemp.LogicalName)
-                                                    {
-                                                        break;
-                                                    }
-                                                }
+                                                break;
                                             }
                                         }
                                     }
@@ -440,7 +426,7 @@ namespace XrmFramework.BindingModel
         {
             object value = null;
 
-            var genericType = objectType.GenericTypeArguments.First();
+            var genericType = objectType.GenericTypeArguments[0];
 
             if (genericType == typeof(int))
             {
@@ -506,12 +492,12 @@ namespace XrmFramework.BindingModel
                 var crmAttribute = property.CrmMappingAttribute;
 
                 // Filtering out not initialized fields
-                if (bindingModel is BindingModelBase @base)
+                if (
+                    bindingModel is BindingModelBase @base 
+                    && !@base.InitializedProperties.Contains(property.Name) 
+                    && property.Name != "Id")
                 {
-                    if (!@base.InitializedProperties.Contains(property.Name) && property.Name != "Id")
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
                 var isKey = entityDefinition.IsKey(crmAttribute.AttributeName);
@@ -593,9 +579,9 @@ namespace XrmFramework.BindingModel
                             }
                             else if (crmLookupAttribute == null)
                             {
-                                if (value is EntityReference)
+                                if (value is EntityReference refValueTemp)
                                 {
-                                    refValue = value as EntityReference;
+                                    refValue = refValueTemp;
                                 }
                                 else if (objectType == typeof(Guid))
                                 {
@@ -655,15 +641,11 @@ namespace XrmFramework.BindingModel
                     {
                         continue;
                     }
-                    //if (relationshipAttribute is ManyToManyRelationshipAttribute)
-                    //{
-                    //    continue;
-                    //}
 
                     var entityCollection = new EntityCollection();
 
                     var values = property.GetValue(bindingModel) as IEnumerable;
-                    var bindingType = property.PropertyType.GenericTypeArguments.First();
+                    var bindingType = property.PropertyType.GenericTypeArguments[0];
 
                     foreach (var value in values)
                     {
@@ -696,12 +678,9 @@ namespace XrmFramework.BindingModel
                     }
                 }
 
-                foreach (var attributeName in keptKeyColumns)
+                foreach (var attributeName in keptKeyColumns.Where(entity.Contains))
                 {
-                    if (entity.Contains(attributeName))
-                    {
-                        entity.KeyAttributes[attributeName] = entity[attributeName];
-                    }
+                    entity.KeyAttributes[attributeName] = entity[attributeName];
                 }
             }
         }
@@ -1097,7 +1076,7 @@ namespace XrmFramework.BindingModel
                                 }
                                 else
                                 {
-                                    throw new Exception(string.Format("Field {0} should contain a Guid value.", property.Name));
+                                    throw new Exception($"Field {property.Name} should contain a Guid value.");
                                 }
                                 break;
                             default:
@@ -1447,16 +1426,18 @@ namespace XrmFramework.BindingModel
 
         public static Type GetCorrespondingBindingType(Type dtoType)
         {
-            var bindingType = typeof(IService).Assembly.GetTypes().Where(t => typeof(IXmlModel).IsAssignableFrom(t)).Where(t =>
+            var bindingType = typeof(IService).Assembly.GetTypes()
+                .Where(t => typeof(IXmlModel).IsAssignableFrom(t))
+                .FirstOrDefault(t =>
             {
                 var attr = t.GetCustomAttribute<DtoObjectMappingAttribute>();
 
                 return attr != null && attr.RelativePath == dtoType.Name;
-            }).FirstOrDefault();
+            });
             return bindingType;
         }
 
-        private static RetrieveRequest GetRetrieveRequest(Type type, EntityReference reference)
+        public static RetrieveRequest GetRetrieveRequest(Type type, EntityReference reference)
         {
             var entityDefinition = DefinitionCache.GetEntityDefinitionFromModelType(type);
 
@@ -1563,6 +1544,19 @@ namespace XrmFramework.BindingModel
             return (T)GetById(type, service, new EntityReference(definition.EntityName, id));
         }
 
+        public static T GetById<T>(this IOrganizationService service, Guid id, Entity recordImage) where T : IBindingModel
+        {
+            var type = typeof(T);
+            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
+            return (T)GetById(type, service, new EntityReference(definition.EntityName, id), recordImage);
+        }
+
+        public static T GetById<T>(this IOrganizationService service, EntityReference reference, Entity recordImage) where T : IBindingModel
+        {
+            var type = typeof(T);
+            return (T)GetById(type, service, reference, recordImage);
+        }
+
         public static T GetById<T>(this IOrganizationService service, EntityReference reference) where T : IBindingModel
         {
             var type = typeof(T);
@@ -1575,11 +1569,16 @@ namespace XrmFramework.BindingModel
             return GetById(type, service, new EntityReference(definition.EntityName, id));
         }
 
-        public static IBindingModel GetById(Type type, IOrganizationService service, EntityReference reference)
+        private static IBindingModel GetById(Type type, IOrganizationService service, EntityReference reference, Entity recordImage = null)
         {
             var request = GetRetrieveRequest(type, reference);
 
             var response = (RetrieveResponse)service.Execute(request);
+            
+            if (recordImage != null)
+            {
+                response.Entity.MergeWith(recordImage);
+            }
 
             return response.Entity.ToBindingModel(type);
         }

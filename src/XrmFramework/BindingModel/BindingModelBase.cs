@@ -54,6 +54,11 @@ namespace XrmFramework.BindingModel
             }
         }
 
+        public void ClearInitializedProperties()
+        {
+            _initializedProperties?.Clear();
+        }
+
         protected virtual void InitProperties()
         {
             var emptyObject = Activator.CreateInstance(GetType());
