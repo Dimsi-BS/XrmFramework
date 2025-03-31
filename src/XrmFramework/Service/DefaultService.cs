@@ -614,9 +614,6 @@ namespace XrmFramework
             if (userOrTeamRef.LogicalName == SystemUserDefinition.EntityName)
             {
                 AssociateRecords(userOrTeamRef, new Microsoft.Xrm.Sdk.Relationship(RoleDefinition.ManyToManyRelationships.systemuserroles_association), bypassCustomPluginExecution, roleRef);
-
-                AdminOrganizationService.Associate(SystemUserDefinition.EntityName, userOrTeamRef.Id, new Microsoft.Xrm.Sdk.Relationship(RoleDefinition.ManyToManyRelationships.systemuserroles_association),
-                    new EntityReferenceCollection { roleRef });
             }
             else
             {

@@ -30,7 +30,7 @@ namespace XrmFramework.RemoteDebugger
 
         public async Task<RemoteDebuggerMessage> SendMessage(RemoteDebuggerMessage message)
         {
-            var serializedContext = JsonConvert.SerializeObject(message);
+            var serializedContext = JsonConvert.SerializeObject(message, RemoteDebuggerSettings.JsonSerializerSettings);
 
             var request = new HttpRequestMessage(HttpMethod.Post, _uri)
             {
