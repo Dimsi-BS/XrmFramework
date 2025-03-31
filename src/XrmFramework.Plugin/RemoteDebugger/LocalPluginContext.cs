@@ -1,10 +1,9 @@
 ﻿using XrmFramework.RemoteDebugger;
 
 // ReSharper disable once CheckNamespace
-namespace XrmFramework
+namespace XrmFramework;
+
+partial class LocalPluginContext
 {
-    partial class LocalPluginContext
-    {
-                public RemoteDebugExecutionContext RemoteContext => new(PluginExecutionContext);
-    }
+    public RemoteDebugExecutionContext RemoteContext => new(PluginExecutionContext);
 }
