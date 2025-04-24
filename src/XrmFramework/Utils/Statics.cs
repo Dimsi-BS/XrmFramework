@@ -178,11 +178,16 @@ namespace XrmFramework
         public static Messages ExecuteWorkflow { get; } = new Messages("ExecuteWorkflow");
         public static Messages Default { get; } = new Messages("Default");
 
+        /// <summary>
+        /// Set to true if the message is a custom message (i.e. CustomApi)
+        /// </summary>
+        public bool IsCustomMessage { get; }
         protected string MessageName { get; }
 
-        protected Messages(string messageName)
+        protected Messages(string messageName, bool isCustomMessage = false)
         {
             MessageName = messageName;
+            IsCustomMessage = isCustomMessage;
         }
 
         public static bool operator ==(Messages x, Messages y) => x?.MessageName == y?.MessageName;
@@ -195,14 +200,14 @@ namespace XrmFramework
 
         public override bool Equals(object obj) => obj is Messages message && message.MessageName == MessageName;
 
-        public static Messages GetMessage(string messageName)
+        public static Messages GetMessage(string messageName, bool isCustomMessage = false)
         {
             if (string.IsNullOrEmpty(messageName))
             {
                 return Default;
             }
 
-            return new Messages(messageName);
+            return new Messages(messageName, isCustomMessage);
         }
     }
 }
