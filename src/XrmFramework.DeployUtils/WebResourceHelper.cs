@@ -11,6 +11,7 @@ using System;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Text;
 using XrmFramework.DeployUtils.CommandOptions;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
@@ -124,7 +125,7 @@ namespace XrmFramework.DeployUtils
             }
 
             DirectoryInfo root = new DirectoryInfo(webresourcesPath);
-            var resourcesToPublish = string.Empty;
+            var resourcesToPublish = new StringBuilder();
 
             var files = Directory
                     .GetFiles(webresourcesPath, "*.*", SearchOption.AllDirectories)
@@ -172,19 +173,19 @@ namespace XrmFramework.DeployUtils
 
                 if (publish)
                 {
-                    resourcesToPublish += string.Format("<webresource>{WebResourceId}</webresource>", webResourceId);
+                    resourcesToPublish.AppendFormat("<webresource>{0}</webresource>", webResourceId);
                     nbWebresources++;
                 }
             }
 
-            if (!string.IsNullOrEmpty(resourcesToPublish))
+            if (resourcesToPublish.Length > 0)
             {
                 Console.WriteLine();
                 Console.WriteLine($@"Publishing {nbWebresources} Resources...");
 
                 var request = new PublishXmlRequest
                 {
-                    ParameterXml = string.Format("<importexportxml><webresources>{ResourcesToPublish}</webresources></importexportxml>", resourcesToPublish)
+                    ParameterXml = $"<importexportxml><webresources>{resourcesToPublish}</webresources></importexportxml>"
                 };
 
                 service.Execute(request);
