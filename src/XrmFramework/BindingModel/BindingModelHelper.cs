@@ -1508,7 +1508,7 @@ namespace XrmFramework.BindingModel
                     if (request.RelatedEntitiesQuery.Keys.All(r => r.SchemaName != definitionLookupAttribute.RelationshipName))
                     {
                         query = new QueryExpression(targetEntityName);
-                        request.RelatedEntitiesQuery.Add(new Microsoft.Xrm.Sdk.Relationship(definitionLookupAttribute.RelationshipName), query);
+                        request.RelatedEntitiesQuery.Add(new Microsoft.Xrm.Sdk.Relationship(definitionLookupAttribute.RelationshipName) { PrimaryEntityRole = Microsoft.Xrm.Sdk.EntityRole.Referencing }, query);
                     }
                     else
                     {
@@ -1534,12 +1534,16 @@ namespace XrmFramework.BindingModel
 
             foreach (var property in modelDefinition.RelationshipAttributes)
             {
-                Type bindingType;
-                if (property.IsCollectionProperty(out bindingType))
+                if (property.IsCollectionProperty(out var bindingType))
                 {
                     var query = GetRetrieveAllQuery(bindingType);
+                    
+                    var relationship = new Microsoft.Xrm.Sdk.Relationship(property.Relationship.SchemaName)
+                    {
+                        PrimaryEntityRole = property.Relationship.PrimaryEntityRole == EntityRole.Referenced ? Microsoft.Xrm.Sdk.EntityRole.Referenced : Microsoft.Xrm.Sdk.EntityRole.Referencing
+                    };
 
-                    request.RelatedEntitiesQuery.Add(new Microsoft.Xrm.Sdk.Relationship(property.Relationship.SchemaName), query);
+                    request.RelatedEntitiesQuery.Add(relationship, query);
                 }
             }
         }
