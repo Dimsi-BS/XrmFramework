@@ -652,7 +652,14 @@ namespace XrmFramework.BindingModel
                         entityCollection.Entities.Add(ToEntity(bindingType, value, service));
                     }
 
-                    entity.RelatedEntities.Add(new Microsoft.Xrm.Sdk.Relationship(property.Relationship.SchemaName), entityCollection);
+                    var relationship = new Microsoft.Xrm.Sdk.Relationship(property.Relationship.SchemaName)
+                    {
+                        PrimaryEntityRole = property.Relationship.PrimaryEntityRole == EntityRole.Referenced
+                            ? Microsoft.Xrm.Sdk.EntityRole.Referenced
+                            : Microsoft.Xrm.Sdk.EntityRole.Referencing
+                    };
+
+                    entity.RelatedEntities.Add(relationship, entityCollection);
                 }
             }
 
