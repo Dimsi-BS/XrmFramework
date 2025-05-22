@@ -118,6 +118,11 @@ namespace XrmFramework
 
             var customApiAttribute = GetType().GetCustomAttribute<CustomApiAttribute>();
 
+            if (customApiAttribute is null)
+            {
+                throw new InvalidPluginExecutionException($"{ChildClassName} : No CustomApiAttribute found");
+            }
+
             _customApiEntityName = string.IsNullOrWhiteSpace(customApiAttribute.BoundEntityLogicalName) ? string.Empty : customApiAttribute.BoundEntityLogicalName;
         }
 
