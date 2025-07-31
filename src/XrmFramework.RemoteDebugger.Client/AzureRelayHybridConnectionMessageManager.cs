@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Configuration;
 using System.IO;
+using System.Security.Authentication;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace XrmFramework.RemoteDebugger.Client
         {
             if (ConfigurationManager.ConnectionStrings["DebugConnectionString"] == null)
             {
-                throw new Exception("The connectionString \"DebugConnectionString\" is not defined.");
+                throw new InvalidCredentialException("The connectionString \"DebugConnectionString\" is not defined.");
             }
 
             // create a connection string with the listener profile
@@ -76,21 +77,21 @@ namespace XrmFramework.RemoteDebugger.Client
 
         public Task SendMessage(RemoteDebuggerMessage message)
         {
-
-            if (CurrentResponseCache.TryGetValue(message.PluginExecutionId, out var currentResponse))
+            if (!CurrentResponseCache.TryGetValue(message.PluginExecutionId, out var currentResponse))
             {
-                var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
+                return Task.CompletedTask;
+            }
 
-                try
-                {
-                    currentResponse.OutputStream.Write(bytes, 0, bytes.Length);
-                    currentResponse.Close();
-                }
-                catch (Exception)
-                {
-                    // erreur ignorée
-                }
+            var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
 
+            try
+            {
+                currentResponse.OutputStream.Write(bytes, 0, bytes.Length);
+                currentResponse.Close();
+            }
+            catch (Exception)
+            {
+                // erreur ignorée
             }
 
             return Task.CompletedTask;

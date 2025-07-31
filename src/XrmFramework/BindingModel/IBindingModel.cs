@@ -13,3 +13,4 @@ namespace XrmFramework.BindingModel
         Guid Id { get; set; }
     }
 }
+

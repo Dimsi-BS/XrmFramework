@@ -69,7 +69,10 @@ public class RemoteDebuggerContractResolver : DefaultContractResolver
         new RelationshipQueryCollectionConverter(),
         new OrganizationRequestCollectionConverter(),
         new OrganizationResponseCollectionConverter(),
+        
+#if !NET8_0_OR_GREATER
         new ArgumentsCollectionConverter(),
+#endif
         new EntityConverter(),
         new ObjectSerializationConverter(),
         new ConditionExpressionConverter(),

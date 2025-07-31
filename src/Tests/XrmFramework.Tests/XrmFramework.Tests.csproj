@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+      <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\XrmFramework.RemoteDebugger.Client\XrmFramework.RemoteDebugger.Client.csproj" Aliases="remote" />
     <ProjectReference Include="..\..\XrmFramework\XrmFramework.csproj" />
   </ItemGroup>
 

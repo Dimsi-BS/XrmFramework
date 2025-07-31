@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.Xrm.Sdk;
+#if !NET8_0_OR_GREATER
 using Microsoft.Xrm.Sdk.Workflow;
+#endif
 
 namespace XrmFramework.RemoteDebugger.Common
 {
@@ -44,7 +46,11 @@ namespace XrmFramework.RemoteDebugger.Common
                 return OrganizationServiceFactory;
             }
 
-            if (serviceType == typeof(IPluginExecutionContext) || serviceType == typeof(IWorkflowContext))
+            if (typeof(IPluginExecutionContext7).IsAssignableFrom(serviceType) 
+#if !NET8_0_OR_GREATER
+                || typeof(IWorkflowContext).IsAssignableFrom(serviceType) 
+#endif
+                )
             {
                 return Context;
             }

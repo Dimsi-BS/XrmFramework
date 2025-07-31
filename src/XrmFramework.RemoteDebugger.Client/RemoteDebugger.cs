@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xrm.Sdk;
+#if !NET8_0_OR_GREATER
 using Microsoft.Xrm.Sdk.Workflow;
-using System;
 using System.Activities;
+#endif
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -40,6 +42,7 @@ namespace XrmFramework.RemoteDebugger.Common
                             return;
                         }
 
+#if !NET8_0_OR_GREATER
                         if (remoteContext.IsWorkflowContext)
                         {
                             var codeActivity = (CodeActivity)Activator.CreateInstance(pluginType);
@@ -64,6 +67,7 @@ namespace XrmFramework.RemoteDebugger.Common
                         }
                         else
                         {
+#endif
                             IPlugin plugin;
                             if (pluginType.GetConstructor([typeof(string), typeof(string)]) != null) {
                                 plugin = (IPlugin)Activator.CreateInstance(pluginType, remoteContext.UnsecureConfig, remoteContext.SecureConfig);
@@ -72,7 +76,9 @@ namespace XrmFramework.RemoteDebugger.Common
                             }                           
 
                             plugin.Execute(serviceProvider);
+#if !NET8_0_OR_GREATER
                         }
+#endif
                     });
 
                     try
@@ -88,6 +94,7 @@ namespace XrmFramework.RemoteDebugger.Common
             Manager.RunAndBlock();
         }
 
+#if !NET8_0_OR_GREATER
         private static void AddExtensionToWorkflowInvoker<TService>(IServiceProvider provider, WorkflowInvoker invoker) where TService : class
         {
             var service = provider.GetService(typeof(TService));
@@ -98,5 +105,6 @@ namespace XrmFramework.RemoteDebugger.Common
 
             invoker.Extensions.Add<TService>(() => (TService)service);
         }
+#endif
     }
 }

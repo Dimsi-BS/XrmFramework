@@ -1,7 +1,9 @@
 ﻿
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
+#if !NET8_0_OR_GREATER
 using Microsoft.Xrm.Sdk.Workflow;
+#endif
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -197,6 +199,7 @@ namespace XrmFramework.RemoteDebugger.Converters
         }
     }
 
+    #if !NET8_0_OR_GREATER
     public class ArgumentsCollectionConverter : JsonConverter<ArgumentsCollection>
     {
         private readonly DataCollectionConverter<string, object> _internalConverter = new DataCollectionConverter<string, object>();
@@ -211,7 +214,7 @@ namespace XrmFramework.RemoteDebugger.Converters
             return (ArgumentsCollection)_internalConverter.ReadJson(reader, objectType, existingValue, hasExistingValue, serializer);
         }
     }
-
+#endif
     [JsonObject]
     public class ObjectSerialization
     {

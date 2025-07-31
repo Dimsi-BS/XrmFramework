@@ -1,13 +1,18 @@
 ﻿using Microsoft.Xrm.Sdk;
+#if !NET8_0_OR_GREATER
 using Microsoft.Xrm.Sdk.Workflow;
+using System.Activities;
+#endif
 using Newtonsoft.Json;
 using System;
-using System.Activities;
 
 namespace XrmFramework.RemoteDebugger;
 
 [JsonObject(MemberSerialization.OptOut)]
-public class RemoteDebugExecutionContext : IPluginExecutionContext, IWorkflowContext
+public class RemoteDebugExecutionContext : IPluginExecutionContext
+#if !NET8_0_OR_GREATER
+    , IWorkflowContext
+#endif
 {
     public RemoteDebugExecutionContext() { }
 
@@ -39,6 +44,8 @@ public class RemoteDebugExecutionContext : IPluginExecutionContext, IWorkflowCon
         OperationId = context.OperationId;
         OperationCreatedOn = context.OperationCreatedOn;
 
+        
+#if !NET8_0_OR_GREATER
         if (context is IWorkflowContext workflowContext)
         {
 
@@ -53,14 +60,14 @@ public class RemoteDebugExecutionContext : IPluginExecutionContext, IWorkflowCon
                 RemoteParentContext = new RemoteDebugExecutionContext(workflowContext.ParentContext);
             }
         }
-        else if (context is IPluginExecutionContext pluginContext)
-        {
-            Stage = pluginContext.Stage;
+#endif
+        if (context is not IPluginExecutionContext pluginContext) return;
+        
+        Stage = pluginContext.Stage;
 
-            if (pluginContext.ParentContext != null)
-            {
-                RemoteParentContext = new RemoteDebugExecutionContext(pluginContext.ParentContext);
-            }
+        if (pluginContext.ParentContext != null)
+        {
+            RemoteParentContext = new RemoteDebugExecutionContext(pluginContext.ParentContext);
         }
     }
 
@@ -118,7 +125,9 @@ public class RemoteDebugExecutionContext : IPluginExecutionContext, IWorkflowCon
 
     public Guid Id { get; set; }
 
+#if !NET8_0_OR_GREATER
     public ArgumentsCollection Arguments { get; set; } = [];
+#endif
 
     public int Stage { get; set; }
 
@@ -133,8 +142,10 @@ public class RemoteDebugExecutionContext : IPluginExecutionContext, IWorkflowCon
     [JsonIgnore]
     IPluginExecutionContext IPluginExecutionContext.ParentContext => RemoteParentContext;
 
+#if !NET8_0_OR_GREATER
     [JsonIgnore]
     IWorkflowContext IWorkflowContext.ParentContext => RemoteParentContext;
+#endif
 
     public string TypeAssemblyQualifiedName { get; set; }
 

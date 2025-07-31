@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
 using System;
+using System.IO;
 
 namespace XrmFramework.RemoteDebugger;
 
@@ -49,7 +50,7 @@ public class RemoteDebuggerMessage
     private T Deserialize<T>(RemoteDebuggerMessageType messageType)
     {
         if (MessageType != messageType)
-            throw new Exception($"The message is not an {messageType} message");
+            throw new InvalidDataException($"The message is not an {messageType} message");
 
         var stringContent = Content;
 
