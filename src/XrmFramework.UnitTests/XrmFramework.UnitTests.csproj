@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net462;net8.0</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.2.2" />
+        <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.2.2" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+        <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+        <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.59" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Moq" Version="4.20.72" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\XrmFramework.Core\XrmFramework.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="..\XrmFramework\Attributes\EnumGenerationAttribute.cs">
+        <Link>Imports\EnumGenerationAttribute.cs</Link>
+      </Compile>
+      <Compile Include="..\XrmFramework\Attributes\NullableAttribute.cs">
+        <Link>Imports\NullableAttribute.cs</Link>
+      </Compile>
+      <Compile Include="..\XrmFramework\BindingModel\IBindingModel.cs">
+        <Link>Imports\IBindingModel.cs</Link>
+      </Compile>
+      <Compile Include="..\XrmFramework\BindingModel\IXmlModel.cs">
+        <Link>Imports\IXmlModel.cs</Link>
+      </Compile>
+      <Compile Include="..\XrmFramework\Context\ILoggerContext.cs">
+        <Link>Imports\ILoggerContext.cs</Link>
+      </Compile>
+      <Compile Include="..\XrmFramework\Context\IServiceContext.cs">
+        <Link>Imports\IServiceContext.cs</Link>
+      </Compile>
+      <Compile Include="..\XrmFramework\Service\IService.cs">
+        <Link>Imports\IService.cs</Link>
+      </Compile>
+      <Compile Include="..\XrmFramework\Utils\Statics.cs">
+        <Link>Imports\Statics.cs</Link>
+      </Compile>
+    </ItemGroup>
+</Project>
