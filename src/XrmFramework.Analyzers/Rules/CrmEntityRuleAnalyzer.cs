@@ -42,7 +42,7 @@ namespace XrmFramework.Analyzers
                 .FirstOrDefault(a => a.Name.ToString() == "CrmEntity" || a.Name.ToString() == "CrmEntityAttribute");
 
 
-            if (attributesSyntax == null)
+            if (attributesSyntax == null || !ReferenceEquals(attributesSyntax.ArgumentList?.Arguments.FirstOrDefault(), attributeArgumentSyntax))
             {
                 return;
             }

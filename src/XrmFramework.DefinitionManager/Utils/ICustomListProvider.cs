@@ -3,12 +3,11 @@
 
 using System;
 
-namespace XrmFramework.DefinitionManager
-{
-    interface ICustomListProvider
-    {
-        T GetCustomList<T>();
+namespace XrmFramework.DefinitionManager;
 
-        object GetCustomList(Type type);
-    }
+interface ICustomListProvider
+{
+    T GetCustomList<T>();
+
+    object GetCustomList(Type type);
 }

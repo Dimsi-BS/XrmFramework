@@ -3,65 +3,65 @@
 
 using System.Collections.Generic;
 using DefinitionManager;
+using XrmFramework.DefinitionManager.Definitions;
 
-namespace XrmFramework.DefinitionManager
+namespace XrmFramework.DefinitionManager;
+
+class DefinitionComparer<T> : IComparer<T>, IEqualityComparer<T> where T : AbstractDefinition, new()
 {
-    class DefinitionComparer<T> : IComparer<T>, IEqualityComparer<T> where T : AbstractDefinition, new()
+    public string PropertyName { get; set; }
+
+    public bool AscendingOrder { get; set; }
+
+    public DefinitionComparer()
+        : this("LogicalName", true)
     {
-        public string PropertyName { get; set; }
+    }
 
-        public bool AscendingOrder { get; set; }
+    public DefinitionComparer(string propertyName, bool ascendingOrder = true)
+    {
+        PropertyName = propertyName;
+        AscendingOrder = ascendingOrder;
+    }
 
-        public DefinitionComparer()
-            : this("LogicalName", true)
+    public int Compare(T x, T y)
+    {
+        if (x == null || y == null)
         {
+            return -1;
         }
 
-        public DefinitionComparer(string propertyName, bool ascendingOrder = true)
+        var type = typeof(T);
+        var property = type.GetProperty(PropertyName);
+
+        var valueX = property.GetValue(x) as string;
+        var valueY = property.GetValue(y) as string;
+
+        if (string.IsNullOrEmpty(valueX) && string.IsNullOrEmpty(valueY))
         {
-            PropertyName = propertyName;
-            AscendingOrder = ascendingOrder;
+            return 0;
+        }
+        else if (string.IsNullOrEmpty(valueX))
+        {
+            return AscendingOrder ? 1 : -1;
+        }
+        else if (string.IsNullOrEmpty(valueY))
+        {
+            return AscendingOrder ? -1 : 1;
         }
 
-        public int Compare(T x, T y)
-        {
-            if (x == null || y == null)
-            {
-                return -1;
-            }
+        return AscendingOrder ? valueX.CompareTo(valueY) : valueY.CompareTo(valueX);
+    }
 
-            var type = typeof(T);
-            var property = type.GetProperty(PropertyName);
+    public bool Equals(T x, T y)
+    {
+        return Compare(x, y) == 0;
+    }
 
-            var valueX = property.GetValue(x) as string;
-            var valueY = property.GetValue(y) as string;
+    public int GetHashCode(T obj)
+    {
+        var property = typeof(T).GetProperty(PropertyName);
 
-            if (string.IsNullOrEmpty(valueX) && string.IsNullOrEmpty(valueY))
-            {
-                return 0;
-            }
-            else if (string.IsNullOrEmpty(valueX))
-            {
-                return AscendingOrder ? 1 : -1;
-            }
-            else if (string.IsNullOrEmpty(valueY))
-            {
-                return AscendingOrder ? -1 : 1;
-            }
-
-            return AscendingOrder ? valueX.CompareTo(valueY) : valueY.CompareTo(valueX);
-        }
-
-        public bool Equals(T x, T y)
-        {
-            return Compare(x, y) == 0;
-        }
-
-        public int GetHashCode(T obj)
-        {
-            var property = typeof(T).GetProperty(PropertyName);
-
-            return property.GetValue(obj).GetHashCode();
-        }
+        return property.GetValue(obj).GetHashCode();
     }
 }

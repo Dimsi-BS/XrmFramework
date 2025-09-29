@@ -36,4 +36,11 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
     <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.59" />
   </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Include="..\XrmFramework\Utils\SdkEnums.cs">
+      <Link>SdkEnums.cs</Link>
+    </Compile>
+  </ItemGroup>
 </Project>
