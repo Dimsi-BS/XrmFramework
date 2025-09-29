@@ -62,6 +62,11 @@ namespace XrmFramework.DeployUtils
 
             var service = new CrmServiceClient(connectionString);
 
+            if (!service.IsReady)
+            {
+                throw new Exception($"Unable to connect to CRM : {service.LastCrmError}");
+            }
+
             service.OrganizationServiceProxy?.EnableProxyTypes();
 
             InitMetadata(service, pluginSolutionUniqueName);

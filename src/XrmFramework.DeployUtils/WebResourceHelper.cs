@@ -65,7 +65,12 @@ namespace XrmFramework.DeployUtils
             CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
 
             var service = new CrmServiceClient(connectionString);
-
+            
+            if (!service.IsReady)
+            {
+                throw new Exception($"Unable to connect to CRM : {service.LastCrmError}");
+            }
+            
             service.OrganizationServiceProxy?.EnableProxyTypes();
 
             var query = new QueryExpression(Solution.EntityLogicalName);
