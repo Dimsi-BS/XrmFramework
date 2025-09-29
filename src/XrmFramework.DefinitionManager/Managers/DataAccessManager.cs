@@ -13,6 +13,8 @@ using System.Diagnostics;
 using System.Linq;
 using XrmFramework.Core;
 using XrmFramework.DefinitionManager;
+using XrmFramework.DefinitionManager.Definitions;
+using XrmFramework.DefinitionManager.Extensions;
 using XrmFramework.DeployUtils.Configuration;
 using AttributeMetadata = Microsoft.Xrm.Sdk.Metadata.AttributeMetadata;
 using AttributeTypeCode = Microsoft.Xrm.Sdk.Metadata.AttributeTypeCode;
@@ -22,7 +24,7 @@ using DoubleAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.DoubleAttributeMetada
 using IntegerAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.IntegerAttributeMetadata;
 using LocalizedLabel = XrmFramework.Core.LocalizedLabel;
 using MultiSelectPicklistAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.MultiSelectPicklistAttributeMetadata;
-using RelationshipAttributeDefinition = DefinitionManager.Definitions.RelationshipAttributeDefinition;
+using RelationshipAttributeDefinition = XrmFramework.DefinitionManager.Definitions.RelationshipAttributeDefinition;
 using StringAttributeMetadata = Microsoft.Xrm.Sdk.Metadata.StringAttributeMetadata;
 using Table = XrmFramework.Core.Table;
 
@@ -183,7 +185,7 @@ namespace DefinitionManager
                         newEntity.OneToManyRelationships.Add(new Relation
                         {
                             Name = relationship.SchemaName,
-                            Role = EntityRole.Referenced,
+                            Role = XrmFramework.EntityRole.Referenced,
                             EntityName = relationship.ReferencingEntity,
                             NavigationPropertyName = relationship.ReferencedEntityNavigationPropertyName,
                             LookupFieldName = relationship.ReferencingAttribute
@@ -216,7 +218,7 @@ namespace DefinitionManager
                         newEntity.ManyToManyRelationships.Add(new Relation
                         {
                             Name = relationship.SchemaName,
-                            Role = EntityRole.Referencing,
+                            Role = XrmFramework.EntityRole.Referencing,
                             EntityName = relationship.Entity1LogicalName == entityDefinition.LogicalName ? relationship.Entity2LogicalName : relationship.Entity1LogicalName,
                             NavigationPropertyName = relationship.IntersectEntityName,
                             LookupFieldName = relationship.Entity1LogicalName == entityDefinition.LogicalName ? relationship.Entity2IntersectAttribute : relationship.Entity1IntersectAttribute
@@ -266,7 +268,7 @@ namespace DefinitionManager
                         newEntity.ManyToOneRelationships.Add(new Relation
                         {
                             Name = relationship.SchemaName,
-                            Role = EntityRole.Referencing,
+                            Role = XrmFramework.EntityRole.Referencing,
                             NavigationPropertyName = relationship.ReferencingEntityNavigationPropertyName,
                             EntityName = relationship.ReferencedEntity,
                             LookupFieldName = relationship.ReferencingAttribute
@@ -459,7 +461,7 @@ namespace DefinitionManager
                         LogicalName = attributeMetadata.LogicalName,
                         Name = name,
                         Type = attributeMetadata.AttributeType.Value == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata
-                            ? AttributeTypeCode.Picklist : attributeMetadata.AttributeType.Value,
+                            ? XrmFramework.AttributeTypeCode.Picklist : (XrmFramework.AttributeTypeCode)attributeMetadata.AttributeType.Value,
                         IsMultiSelect = attributeMetadata.AttributeType.Value == AttributeTypeCode.Virtual && attributeMetadata is MultiSelectPicklistAttributeMetadata,
                         PrimaryType = attributeMetadata.LogicalName == entity.PrimaryIdAttribute ?
                             PrimaryType.Id :
@@ -506,9 +508,9 @@ namespace DefinitionManager
                     {
                         var meta = (DateTimeAttributeMetadata)attributeMetadata;
 
-                        attributeDefinition.DateTimeBehavior = meta.DateTimeBehavior;
+                        attributeDefinition.DateTimeBehavior = meta.DateTimeBehavior.ToFrameworkDateTimeBehavior();
 
-                        attribute.DateTimeBehavior = meta.DateTimeBehavior;
+                        attribute.DateTimeBehavior = meta.DateTimeBehavior.ToFrameworkDateTimeBehavior();
                     }
 
                     if (attributeMetadata.LogicalName == "ownerid")

@@ -4,64 +4,64 @@
 using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.DefinitionManager;
+using XrmFramework.DefinitionManager.Attributes;
 
-namespace DefinitionManager
+namespace XrmFramework.DefinitionManager.Definitions;
+
+class EnumDefinition : AbstractDefinition
 {
-    class EnumDefinition : AbstractDefinition
+    private DefinitionCollection<EnumValueDefinition> _values = new();
+
+    private readonly HashSet<AttributeDefinition> _referencingAttributes = new(new DefinitionComparer<AttributeDefinition>());
+
+    public IReadOnlyCollection<AttributeDefinition> ReferencedBy => _referencingAttributes.ToList();
+
+    public void Register(AttributeDefinition definition)
     {
-        private DefinitionCollection<EnumValueDefinition> _values = new();
+        _referencingAttributes.Add(definition);
 
-        private readonly HashSet<AttributeDefinition> _referencingAttributes = new(new DefinitionComparer<AttributeDefinition>());
+        OnPropertyChanged("IsSelected");
+    }
 
-        public IReadOnlyCollection<AttributeDefinition> ReferencedBy => _referencingAttributes.ToList();
+    public void UnRegister(AttributeDefinition definition)
+    {
+        _referencingAttributes.Remove(definition);
 
-        public void Register(AttributeDefinition definition)
-        {
-            _referencingAttributes.Add(definition);
+        OnPropertyChanged("IsSelected");
+    }
 
-            OnPropertyChanged("IsSelected");
-        }
+    void Values_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        Name = e.Text;
+    }
 
-        public void UnRegister(AttributeDefinition definition)
-        {
-            _referencingAttributes.Remove(definition);
+    [Mergeable]
+    public bool HasNullValue { get; set; }
 
-            OnPropertyChanged("IsSelected");
-        }
+    public override bool IsSelected => _referencingAttributes.Any();
 
-        void Values_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            Name = e.Text;
-        }
+    public DefinitionCollection<EnumValueDefinition> Values => _values;
 
-        [Mergeable]
-        public bool HasNullValue { get; set; }
+    public bool IsGlobal { get; set; }
 
-        public override bool IsSelected => _referencingAttributes.Any();
+    protected override void LoadInternal(bool attach = true)
+    {
+        var listView = CustomProvider.Instance.GetCustomList<CustomListViewControl<EnumValueDefinition>>();
+        listView.Text = Name;
+        Values.AttachListView(listView);
+        Values.TextChanged += Values_TextChanged;
+    }
 
-        public DefinitionCollection<EnumValueDefinition> Values => _values;
+    protected override void UnLoadInternal()
+    {
+        Values.TextChanged -= Values_TextChanged;
+        Values.DetachListView();
+    }
 
-        public bool IsGlobal { get; set; }
+    protected override void MergeInternal(AbstractDefinition definition)
+    {
+        var def = (EnumDefinition)definition;
 
-        protected override void LoadInternal(bool attach = true)
-        {
-            var listView = CustomProvider.Instance.GetCustomList<CustomListViewControl<EnumValueDefinition>>();
-            listView.Text = Name;
-            Values.AttachListView(listView);
-            Values.TextChanged += Values_TextChanged;
-        }
-
-        protected override void UnLoadInternal()
-        {
-            Values.TextChanged -= Values_TextChanged;
-            Values.DetachListView();
-        }
-
-        protected override void MergeInternal(AbstractDefinition definition)
-        {
-            var def = (EnumDefinition)definition;
-
-            Values.Merge(def.Values);
-        }
+        Values.Merge(def.Values);
     }
 }
