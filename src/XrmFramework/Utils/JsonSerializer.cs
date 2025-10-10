@@ -97,7 +97,7 @@ using Newtonsoft.Json;
         /// <returns></returns>
         public static string Serialize<TM>(TM deserialized, string dateTimeFormat = null)
         {
-            if (deserialized == null)
+            if (Equals(deserialized, default(TM)))
             {
                 return null;
             }
