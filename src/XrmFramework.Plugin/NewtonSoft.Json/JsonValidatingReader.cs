@@ -204,7 +204,7 @@ namespace Newtonsoft.Json
                                 {
                                     foreach (KeyValuePair<string, JsonSchemaModel> patternProperty in schema.PatternProperties)
                                     {
-                                        if (Regex.IsMatch(_currentScope.CurrentPropertyName, patternProperty.Key))
+                                        if (Regex.IsMatch(_currentScope.CurrentPropertyName, patternProperty.Key, RegexOptions.None, TimeSpan.FromSeconds(5)))
                                         {
                                             schemas.Add(patternProperty.Value);
                                         }
@@ -770,7 +770,7 @@ namespace Newtonsoft.Json
             {
                 foreach (string pattern in schema.Patterns)
                 {
-                    if (!Regex.IsMatch(value, pattern))
+                    if (!Regex.IsMatch(value, pattern, RegexOptions.None, TimeSpan.FromSeconds(5)))
                     {
                         RaiseError("String '{0}' does not match regex pattern '{1}'.".FormatWith(CultureInfo.InvariantCulture, value, pattern), schema);
                     }
@@ -970,7 +970,7 @@ namespace Newtonsoft.Json
             {
                 foreach (string pattern in schema.PatternProperties.Keys)
                 {
-                    if (Regex.IsMatch(propertyName, pattern))
+                    if (Regex.IsMatch(propertyName, pattern, RegexOptions.None, TimeSpan.FromSeconds(5)))
                     {
                         return true;
                     }

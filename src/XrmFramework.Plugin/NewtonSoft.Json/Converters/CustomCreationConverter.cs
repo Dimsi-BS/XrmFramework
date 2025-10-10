@@ -62,7 +62,7 @@ namespace Newtonsoft.Json.Converters
             }
 
             T value = Create(objectType);
-            if (value == null)
+            if (Equals(value, default(T)))
             {
                 throw new JsonSerializationException("No object created.");
             }

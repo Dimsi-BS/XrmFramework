@@ -229,7 +229,7 @@ namespace XrmFramework.DeployUtils
 
             if (string.IsNullOrEmpty(fi.Extension))
             {
-                throw new Exception(string.Format(@"No extension found for the file '{FiFullName}'!", fi.FullName));
+                throw new Exception($@"No extension found for the file '{fi.FullName}'!");
             }
 
             string extension = fi.Extension.Remove(0, 1).ToLower();
