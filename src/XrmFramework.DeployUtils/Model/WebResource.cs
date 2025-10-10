@@ -13,7 +13,7 @@ namespace XrmFramework.DeployUtils.Model
     public class WebResource : IEquatable<WebResource>
     {
 
-        private readonly Regex ReferenceRegex = new Regex("///.*<reference.*path=\"(.*)\".*/>");
+        private readonly Regex ReferenceRegex = new Regex("///.*<reference.*path=\"(.*)\".*/>", RegexOptions.None, TimeSpan.FromSeconds(5));
 
         public WebResource(FileInfo fi, DirectoryInfo root, string prefix)
         {

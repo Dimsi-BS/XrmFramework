@@ -131,8 +131,8 @@ namespace Newtonsoft.Json
         /// <value></value>
         public override char QuoteChar
         {
-            get { return _reader.QuoteChar; }
-            protected internal set { }
+            get => _reader.QuoteChar;
+            protected internal set => _reader.QuoteChar = value;
         }
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace Newtonsoft.Json
                                 {
                                     foreach (KeyValuePair<string, JsonSchemaModel> patternProperty in schema.PatternProperties)
                                     {
-                                        if (Regex.IsMatch(_currentScope.CurrentPropertyName, patternProperty.Key))
+                                        if (Regex.IsMatch(_currentScope.CurrentPropertyName, patternProperty.Key, RegexOptions.None, TimeSpan.FromSeconds(5)))
                                         {
                                             schemas.Add(patternProperty.Value);
                                         }
@@ -770,7 +770,7 @@ namespace Newtonsoft.Json
             {
                 foreach (string pattern in schema.Patterns)
                 {
-                    if (!Regex.IsMatch(value, pattern))
+                    if (!Regex.IsMatch(value, pattern, RegexOptions.None, TimeSpan.FromSeconds(5)))
                     {
                         RaiseError("String '{0}' does not match regex pattern '{1}'.".FormatWith(CultureInfo.InvariantCulture, value, pattern), schema);
                     }
@@ -891,7 +891,7 @@ namespace Newtonsoft.Json
                 {
                     RaiseError("Float {0} exceeds maximum value of {1}.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.Maximum), schema);
                 }
-                if (schema.ExclusiveMaximum && value == schema.Maximum)
+                if (schema.ExclusiveMaximum && value > Math.Abs(schema.Maximum ?? double.MaxValue - double.Epsilon))
                 {
                     RaiseError("Float {0} equals maximum value of {1} and exclusive maximum is true.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.Maximum), schema);
                 }
@@ -903,7 +903,7 @@ namespace Newtonsoft.Json
                 {
                     RaiseError("Float {0} is less than minimum value of {1}.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.Minimum), schema);
                 }
-                if (schema.ExclusiveMinimum && value == schema.Minimum)
+                if (schema.ExclusiveMinimum && value < Math.Abs(schema.Minimum ?? double.MinValue + double.Epsilon))
                 {
                     RaiseError("Float {0} equals minimum value of {1} and exclusive minimum is true.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(value), schema.Minimum), schema);
                 }
@@ -970,7 +970,7 @@ namespace Newtonsoft.Json
             {
                 foreach (string pattern in schema.PatternProperties.Keys)
                 {
-                    if (Regex.IsMatch(propertyName, pattern))
+                    if (Regex.IsMatch(propertyName, pattern, RegexOptions.None, TimeSpan.FromSeconds(5)))
                     {
                         return true;
                     }

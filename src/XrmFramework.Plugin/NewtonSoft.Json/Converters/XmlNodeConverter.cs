@@ -461,20 +461,20 @@ namespace Newtonsoft.Json.Converters
         {
         }
 
-        public override List<IXmlNode> ChildNodes
+        public override List<IXmlNode> ChildNodes => GetChildNodes();
+
+        private List<IXmlNode> GetChildNodes()
         {
-            get
+            List<IXmlNode> childNodes = base.ChildNodes;
+            if (Document.Declaration != null && (childNodes.Count == 0 || childNodes[0].NodeType != XmlNodeType.XmlDeclaration))
             {
-                List<IXmlNode> childNodes = base.ChildNodes;
-                if (Document.Declaration != null && (childNodes.Count == 0 || childNodes[0].NodeType != XmlNodeType.XmlDeclaration))
-                {
-                    childNodes.Insert(0, new XDeclarationWrapper(Document.Declaration));
-                }
-
-                return childNodes;
+                childNodes.Insert(0, new XDeclarationWrapper(Document.Declaration));
             }
-        }
 
+            return childNodes;
+
+        }
+        
         protected override bool HasChildNodes
         {
             get

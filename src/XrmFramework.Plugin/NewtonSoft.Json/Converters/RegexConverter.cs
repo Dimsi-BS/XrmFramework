@@ -115,7 +115,7 @@ namespace Newtonsoft.Json.Converters
 
                     RegexOptions options = MiscellaneousUtils.GetRegexOptions(optionsText);
 
-                    return new Regex(patternText, options);
+                    return new Regex(patternText, options, TimeSpan.FromSeconds(5));
                 }
             }
 
@@ -160,7 +160,7 @@ namespace Newtonsoft.Json.Converters
                             throw JsonSerializationException.Create(reader, "Error deserializing Regex. No pattern found.");
                         }
 
-                        return new Regex(pattern, options ?? RegexOptions.None);
+                        return new Regex(pattern, options ?? RegexOptions.None, TimeSpan.FromSeconds(5));
                 }
             }
 

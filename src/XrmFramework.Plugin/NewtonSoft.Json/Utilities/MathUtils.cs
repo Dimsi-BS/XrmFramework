@@ -173,7 +173,7 @@ namespace Newtonsoft.Json.Utilities
         {
             const double epsilon = 2.2204460492503131E-16;
 
-            if (d1 == d2)
+            if ((d1 - double.Epsilon) < d2 && (d1 + double.Epsilon) > d2)
             {
                 return true;
             }

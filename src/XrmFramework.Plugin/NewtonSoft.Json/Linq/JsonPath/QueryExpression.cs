@@ -217,7 +217,7 @@ namespace Newtonsoft.Json.Linq.JsonPath
             string patternText = regexText.Substring(1, patternOptionDelimiterIndex - 1);
             string optionsText = regexText.Substring(patternOptionDelimiterIndex + 1);
 
-            return Regex.IsMatch((string)input.Value, patternText, MiscellaneousUtils.GetRegexOptions(optionsText));
+            return Regex.IsMatch((string)input.Value, patternText, MiscellaneousUtils.GetRegexOptions(optionsText), TimeSpan.FromSeconds(3));
         }
 
         internal static bool EqualsWithStringCoercion(JValue value, JValue queryValue)
