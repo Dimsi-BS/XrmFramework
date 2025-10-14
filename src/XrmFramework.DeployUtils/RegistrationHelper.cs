@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.ServiceModel;
 using Microsoft.PowerPlatform.Dataverse.Client;
 using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Configuration;
@@ -63,6 +64,14 @@ namespace XrmFramework.DeployUtils
             var service = new ServiceClient(connectionString);
 
             if (!service.IsReady)
+            {
+                throw new Exception($"Unable to connect to CRM : {service.LastError}");
+            }
+            try
+            {
+                service.Execute(new WhoAmIRequest());
+            }
+            catch (FaultException<OrganizationServiceFault>)
             {
                 throw new Exception($"Unable to connect to CRM : {service.LastError}");
             }

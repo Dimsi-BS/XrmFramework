@@ -10,6 +10,7 @@ using System;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.ServiceModel;
 using System.Text;
 using Microsoft.PowerPlatform.Dataverse.Client;
 using XrmFramework.DeployUtils.CommandOptions;
@@ -70,8 +71,15 @@ public static class WebResourceHelper
         {
             throw new Exception($"Unable to connect to CRM : {service.LastError}");
         }
-            
-        //service.OrganizationServiceProxy?.EnableProxyTypes();
+
+        try
+        {
+            service.Execute(new WhoAmIRequest());
+        }
+        catch (FaultException<OrganizationServiceFault>)
+        {
+            throw new Exception($"Unable to connect to CRM : {service.LastError}");
+        }
 
         var query = new QueryExpression(Solution.EntityLogicalName);
         query.ColumnSet.AddColumn("uniquename");
