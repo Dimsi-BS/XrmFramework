@@ -1,3 +1,0 @@
-﻿<Project>
-    <Import Project="../XrmFramework.CoreProject.props" />
-</Project>

@@ -1,25 +1,26 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-namespace DefinitionManager
+using XrmFramework.DefinitionManager.Attributes;
+
+namespace XrmFramework.DefinitionManager.Definitions;
+
+class EnumValueDefinition : AbstractDefinition
 {
-    class EnumValueDefinition : AbstractDefinition
+    [Column("Display Name", 0, 300)]
+    public string DisplayName { get; set; }
+
+    [Column("Value", 1)]
+    public string Value { get; set; }
+
+    [Column("External Value", 2)]
+    public string ExternalValue { get; set; }
+
+    public override bool IncludeLogicalNameColumn
     {
-        [Column("Display Name", 0, 300)]
-        public string DisplayName { get; set; }
-
-        [Column("Value", 1)]
-        public string Value { get; set; }
-
-        [Column("External Value", 2)]
-        public string ExternalValue { get; set; }
-
-        public override bool IncludeLogicalNameColumn
+        get
         {
-            get
-            {
-                return false;
-            }
+            return false;
         }
     }
 }

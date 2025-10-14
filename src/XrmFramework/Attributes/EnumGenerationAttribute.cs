@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace XrmFramework
+namespace XrmFramework;
+
+[AttributeUsage(AttributeTargets.Class)]
+public class EnumGenerationAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    public class EnumGenerationAttribute : Attribute
-    {
-    }
 }

@@ -3,19 +3,18 @@
 using System;
 using System.Collections.Generic;
 
-namespace DefinitionManager
+namespace XrmFramework.DefinitionManager.Definitions;
+
+internal class ClassDefinition : AbstractDefinition
 {
-    internal class ClassDefinition : AbstractDefinition
+    public bool IsEnum { get; set; }
+
+    public IList<Attribute> ClassAttributes { get; } = new List<Attribute>();
+
+    public DefinitionCollection<AttributeDefinition> Attributes { get; } = new();
+
+    protected override void MergeInternal(AbstractDefinition definition)
     {
-        public bool IsEnum { get; set; }
-
-        public IList<Attribute> ClassAttributes { get; } = new List<Attribute>();
-
-        public DefinitionCollection<AttributeDefinition> Attributes { get; } = new();
-
-        protected override void MergeInternal(AbstractDefinition definition)
-        {
-            Attributes.Merge(((ClassDefinition)definition).Attributes);
-        }
+        Attributes.Merge(((ClassDefinition)definition).Attributes);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DefinitionManager;
+namespace XrmFramework.DefinitionManager.Attributes;
 
 [AttributeUsage(AttributeTargets.Assembly, Inherited = false, AllowMultiple = false)]
 public sealed class CoreProjectAttribute : Attribute

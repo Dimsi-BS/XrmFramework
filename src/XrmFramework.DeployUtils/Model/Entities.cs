@@ -632,11 +632,11 @@ namespace Deploy
 			}
 		}
 
-		public virtual componentstate? ComponentStateEnum
+		public virtual ComponentState? ComponentStateEnum
 		{
 			get
 			{
-				return ((componentstate?)(EntityOptionSetEnum.GetEnum(this, "componentstate")));
+				return ((ComponentState?)(EntityOptionSetEnum.GetEnum(this, "componentstate")));
 			}
 		}
 
@@ -1172,11 +1172,11 @@ namespace Deploy
 			}
 		}
 		
-		public virtual componentstate? ComponentStateEnum
+		public virtual ComponentState? ComponentStateEnum
 		{
 			get
 			{
-				return ((componentstate?)(EntityOptionSetEnum.GetEnum(this, "componentstate")));
+				return ((ComponentState?)(EntityOptionSetEnum.GetEnum(this, "componentstate")));
 			}
 		}
 		
@@ -1713,11 +1713,11 @@ namespace Deploy
 			}
 		}
 		
-		public virtual componentstate? ComponentStateEnum
+		public virtual ComponentState? ComponentStateEnum
 		{
 			get
 			{
-				return ((componentstate?)(EntityOptionSetEnum.GetEnum(this, "componentstate")));
+				return ((ComponentState?)(EntityOptionSetEnum.GetEnum(this, "componentstate")));
 			}
 		}
 	}
@@ -4429,11 +4429,11 @@ namespace Deploy
 			}
 		}
 		
-		public virtual componentstate? ComponentStateEnum
+		public virtual ComponentState? ComponentStateEnum
 		{
 			get
 			{
-				return ((componentstate?)(EntityOptionSetEnum.GetEnum(this, "componentstate")));
+				return ((ComponentState?)(EntityOptionSetEnum.GetEnum(this, "componentstate")));
 			}
 		}
 		
@@ -4922,11 +4922,11 @@ namespace Deploy
 			}
 		}
 		
-		public virtual componentstate? ComponentStateEnum
+		public virtual ComponentState? ComponentStateEnum
 		{
 			get
 			{
-				return ((componentstate?)(EntityOptionSetEnum.GetEnum(this, "componentstate")));
+				return ((ComponentState?)(EntityOptionSetEnum.GetEnum(this, "componentstate")));
 			}
 		}
 		
@@ -5788,11 +5788,11 @@ namespace Deploy
 			}
 		}
 		
-		public virtual componenttype? ComponentTypeEnum
+		public virtual ComponentType? ComponentTypeEnum
 		{
 			get
 			{
-				return ((componenttype?)(EntityOptionSetEnum.GetEnum(this, "componenttype")));
+				return ((ComponentType?)(EntityOptionSetEnum.GetEnum(this, "componenttype")));
 			}
 		}
 	}

@@ -24,11 +24,9 @@
     <ItemGroup>
       <FilesToModify Remove="@(FilesToModify)" />
       <FilesToModify Include="**/templates/**/*.csproj"/>
-      <FilesToModify Include="**/ServicesProject/**" />
-      <FilesToModify Include="**/DependencyProject/**" />
     </ItemGroup>
 
-    <MSBuild Condition="@(FilesToModify->Count()) > 0" Projects="$(MSBuildProjectFile)" Properties="CurrentCsProj=%(FilesToModify.FullPath);searchedPattern=#{GitBuildVersionSimple}#;NuGetPackageVersion=$(NuGetPackageVersion)" Targets="ReplaceCspojVersion">
+    <MSBuild Condition="@(FilesToModify->Count()) > 0" Projects="$(MSBuildProjectFile)" Properties="CurrentCsProj=%(FilesToModify.FullPath);searchedPattern=#{GitBuildVersionSimple}#;NuGetPackageVersion=$(NuGetPackageVersion)" Targets="ReplaceCsprojVersion">
     </MSBuild>
   </Target>
 
@@ -46,18 +44,16 @@
     <ItemGroup>
       <FilesToModify Remove="@(FilesToModify)" />
       <FilesToModify Include="**/templates/**/*.csproj"/>
-      <FilesToModify Include="**/ServicesProject/**" />
-      <FilesToModify Include="**/DependencyProject/**" />
 
     </ItemGroup>
 
-    <MSBuild Condition="@(FilesToModify->Count()) > 0" Projects="$(MSBuildProjectFile)" Properties="CurrentCsProj=%(FilesToModify.FullPath);searchedPattern=$(NuGetPackageVersion);NuGetPackageVersion=#{GitBuildVersionSimple}#" Targets="ReplaceCspojVersion">
+    <MSBuild Condition="@(FilesToModify->Count()) > 0" Projects="$(MSBuildProjectFile)" Properties="CurrentCsProj=%(FilesToModify.FullPath);searchedPattern=$(NuGetPackageVersion);NuGetPackageVersion=#{GitBuildVersionSimple}#" Targets="ReplaceCsprojVersion">
     </MSBuild>
   </Target>
 
 
   <!-- This target checks the current analyzed file $(CurrentXmlFile) -->
-  <Target Name="ReplaceCspojVersion">
+  <Target Name="ReplaceCsprojVersion">
     <ItemGroup>
       <ItemsFromFile Include="$([System.IO.File]::ReadAllText($(CurrentCsProj)))"/>
     </ItemGroup>

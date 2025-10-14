@@ -6,22 +6,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DefinitionManager
+namespace XrmFramework.DefinitionManager.Attributes;
+
+[AttributeUsage(AttributeTargets.Property)]
+internal class ColumnAttribute : MergeableAttribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    internal class ColumnAttribute : MergeableAttribute
+    public string DisplayName { get; set; }
+
+    public int Order { get; set; }
+
+    public int Width { get; set; }
+
+    public ColumnAttribute(string displayName, int order, int width = 145)
     {
-        public string DisplayName { get; set; }
-
-        public int Order { get; set; }
-
-        public int Width { get; set; }
-
-        public ColumnAttribute(string displayName, int order, int width = 145)
-        {
-            DisplayName = displayName;
-            Order = order;
-            Width = width;
-        }
+        DisplayName = displayName;
+        Order = order;
+        Width = width;
     }
 }

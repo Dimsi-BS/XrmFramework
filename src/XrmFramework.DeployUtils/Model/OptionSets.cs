@@ -1122,7 +1122,7 @@ namespace Deploy
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
-	public enum budgetstatus
+	public enum BudgetStatus
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -1614,7 +1614,7 @@ namespace Deploy
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
-	public enum componentstate
+	public enum ComponentState
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -1632,7 +1632,7 @@ namespace Deploy
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
-	public enum componenttype
+	public enum ComponentType
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -2727,7 +2727,7 @@ namespace Deploy
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
-	public enum dependencytype
+	public enum DependencyType
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -4965,7 +4965,7 @@ namespace Deploy
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
-	public enum initialcommunication
+	public enum InitialCommunication
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -5835,7 +5835,7 @@ namespace Deploy
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
-	public enum need
+	public enum Need
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -6776,7 +6776,7 @@ namespace Deploy
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
-	public enum productsellingrelationshipdirection
+	public enum ProductSellingRelationshipDirection
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -6788,7 +6788,7 @@ namespace Deploy
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
-	public enum productsellingrelationshiptype
+	public enum ProductSellingRelationshipType
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -6806,7 +6806,7 @@ namespace Deploy
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
-	public enum productsubstitute_statuscode
+	public enum ProductSubstitute_StatusCode
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -6854,7 +6854,7 @@ namespace Deploy
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
-	public enum publisheraddress_addresstypecode
+	public enum PublisherAddress_AddressTypeCode
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -6872,7 +6872,7 @@ namespace Deploy
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
-	public enum publisheraddress_freighttermscode
+	public enum PublisherAddress_FreightTermsCode
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -6884,7 +6884,7 @@ namespace Deploy
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
-	public enum publisheraddress_shippingmethodcode
+	public enum PublisherAddress_ShippingMethodCode
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -6893,7 +6893,7 @@ namespace Deploy
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
-	public enum purchaseprocess
+	public enum PurchaseProcess
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -8102,7 +8102,7 @@ namespace Deploy
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
-	public enum servicestage
+	public enum ServiceStage
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]

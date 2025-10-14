@@ -4,9 +4,7 @@ using BoDi;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Xrm.Sdk;
 using System;
-#if NETCOREAPP
 using Microsoft.PowerPlatform.Dataverse.Client;
-#endif
 using XrmFramework;
 using XrmFramework.DependencyInjection;
 
@@ -21,7 +19,6 @@ namespace Microsoft.Extensions.DependencyInjection
             var optionsBuilder = new XrmFrameworkOptionBuilder(serviceCollection);
             optionsBuilderAction?.Invoke(optionsBuilder);
 
-#if NETCOREAPP
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IOrganizationServiceAsync), sp =>
             {
                 var serviceClient = sp.GetRequiredService<ServiceClient>();
@@ -47,15 +44,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 return service;
             }, ServiceLifetime.Scoped));
-#endif
 
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IOrganizationService), sp =>
             {
-#if NETCOREAPP
                 return sp.GetRequiredService<ServiceClient>();
-#else
-                    return new Xrm.Tooling.Connector.CrmServiceClient(optionsBuilder.ConnectionString);
-#endif
             }, ServiceLifetime.Scoped));
 
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IServiceContext), sp =>

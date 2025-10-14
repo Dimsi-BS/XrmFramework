@@ -6,10 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DefinitionManager
+namespace XrmFramework.DefinitionManager.Attributes;
+
+[AttributeUsage(AttributeTargets.Property)]
+class MergeableAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    class MergeableAttribute : Attribute
-    {
-    }
 }
