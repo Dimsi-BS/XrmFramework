@@ -2,9 +2,13 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+      <ProjectReference Include="$(RootFolder)/Webresources/Webresources.csproj" />
+  </ItemGroup>
+    
   <ItemGroup>
     <PackageReference Include="XrmFramework.DeployUtils" Version="#{GitBuildVersionSimple}#" />
   </ItemGroup>

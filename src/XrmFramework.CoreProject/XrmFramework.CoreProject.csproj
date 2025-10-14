@@ -41,6 +41,7 @@
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.2" />
         <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.2.10" />
         <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.2.10" />
+        <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     </ItemGroup>
 
 
@@ -52,10 +53,6 @@
 
   <ItemGroup>
     <Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\XrmFramework.MSBuild.Reflection\XrmFramework.MSBuild.Reflection.csproj" />
   </ItemGroup>
 
 </Project>

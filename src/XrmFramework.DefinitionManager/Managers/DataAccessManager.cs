@@ -6,11 +6,11 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
-using Microsoft.Xrm.Tooling.Connector;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.PowerPlatform.Dataverse.Client;
 using XrmFramework.Core;
 using XrmFramework.DefinitionManager;
 using XrmFramework.DefinitionManager.Definitions;
@@ -64,7 +64,7 @@ namespace DefinitionManager
         {
             SendStepChange("Connecting...");
 
-            _service = new CrmServiceClient(ConfigHelper.GetSelectedConnectionString());
+            _service = new ServiceClient(ConfigHelper.GetSelectedConnectionString());
 
             _service.Execute(new WhoAmIRequest());
             SendStepChange("Connected!");
