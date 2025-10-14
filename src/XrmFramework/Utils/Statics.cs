@@ -32,7 +32,7 @@ namespace XrmFramework
     // ReSharper disable once PartialTypeWithSinglePart
     public partial class InputParameters
     {
-        protected string ParameterName { get; }
+        private string ParameterName { get; }
 
         protected InputParameters(string inputParameterName)
         {
@@ -67,7 +67,7 @@ namespace XrmFramework
     // ReSharper disable once PartialTypeWithSinglePart
     public partial class OutputParameters
     {
-        protected string ParameterName { get; }
+        private string ParameterName { get; }
 
         protected OutputParameters(string outputParameterName)
         {
@@ -182,7 +182,8 @@ namespace XrmFramework
         /// Set to true if the message is a custom message (i.e. CustomApi)
         /// </summary>
         public bool IsCustomMessage { get; }
-        protected string MessageName { get; }
+
+        private string MessageName { get; }
 
         protected Messages(string messageName, bool isCustomMessage = false)
         {

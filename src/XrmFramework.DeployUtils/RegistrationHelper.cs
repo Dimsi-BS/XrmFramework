@@ -6,7 +6,6 @@ using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
-using Microsoft.Xrm.Tooling.Connector;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -15,6 +14,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.ServiceModel;
+using Microsoft.PowerPlatform.Dataverse.Client;
 using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
@@ -58,11 +59,22 @@ namespace XrmFramework.DeployUtils
 
             Console.WriteLine(@"Connecting to CRM...");
 
-            CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
+            ServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
 
-            var service = new CrmServiceClient(connectionString);
+            var service = new ServiceClient(connectionString);
 
-            service.OrganizationServiceProxy?.EnableProxyTypes();
+            if (!service.IsReady)
+            {
+                throw new Exception($"Unable to connect to CRM : {service.LastError}");
+            }
+            try
+            {
+                service.Execute(new WhoAmIRequest());
+            }
+            catch (FaultException<OrganizationServiceFault>)
+            {
+                throw new Exception($"Unable to connect to CRM : {service.LastError}");
+            }
 
             InitMetadata(service, pluginSolutionUniqueName);
 
@@ -454,7 +466,7 @@ namespace XrmFramework.DeployUtils
             }
         }
 
-        private static int GetEntityTypeCode(string logicalName, CrmServiceClient service)
+        private static int GetEntityTypeCode(string logicalName, IOrganizationService service)
         {
             var entityRequest = new RetrieveEntityRequest { LogicalName = logicalName };
 
@@ -809,16 +821,16 @@ namespace XrmFramework.DeployUtils
                     switch (objectRef.LogicalName)
                     {
                         case PluginAssembly.EntityLogicalName:
-                            s.ComponentType = (int)componenttype.PluginAssembly;
+                            s.ComponentType = (int)ComponentType.PluginAssembly;
                             break;
                         case PluginType.EntityLogicalName:
-                            s.ComponentType = (int)componenttype.PluginType;
+                            s.ComponentType = (int)ComponentType.PluginType;
                             break;
                         case SdkMessageProcessingStep.EntityLogicalName:
-                            s.ComponentType = (int)componenttype.SDKMessageProcessingStep;
+                            s.ComponentType = (int)ComponentType.SDKMessageProcessingStep;
                             break;
                         case SdkMessageProcessingStepImage.EntityLogicalName:
-                            s.ComponentType = (int)componenttype.SDKMessageProcessingStepImage;
+                            s.ComponentType = (int)ComponentType.SDKMessageProcessingStepImage;
                             break;
                     }
                 }

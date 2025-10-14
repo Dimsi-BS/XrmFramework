@@ -11,14 +11,16 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using XrmFramework.Core;
+using XrmFramework.DefinitionManager.Attributes;
+using XrmFramework.DefinitionManager.Definitions;
 using XrmFramework.DefinitionManager.Extensions;
-using RelationshipAttributeDefinition = DefinitionManager.Definitions.RelationshipAttributeDefinition;
+using RelationshipAttributeDefinition = XrmFramework.DefinitionManager.Definitions.RelationshipAttributeDefinition;
 
 namespace XrmFramework.DefinitionManager
 {
     public partial class MainForm : Form, ICustomListProvider
     {
-        private readonly DefinitionCollection<EntityDefinition> _entityCollection;
+        private readonly DefinitionCollection<XrmFramework.DefinitionManager.Definitions.EntityDefinition> _entityCollection;
 
         private readonly TableCollection _tables;
         private readonly List<OptionSetEnum> _enums = new();
@@ -37,13 +39,13 @@ namespace XrmFramework.DefinitionManager
 
             DataAccessManager.Instance.StepChanged += StepChangedHandler;
 
-            _entityCollection = new DefinitionCollection<EntityDefinition>();
+            _entityCollection = new DefinitionCollection<XrmFramework.DefinitionManager.Definitions.EntityDefinition>();
             _tables = new TableCollection();
 
             this.attributeListView.SelectionChanged += attributeListView_SelectionChanged;
         }
 
-        void attributeListView_SelectionChanged(object sender, CustomListViewControl<AttributeDefinition>.SelectionChangedEventArgs e)
+        void attributeListView_SelectionChanged(object sender, CustomListViewControl<XrmFramework.DefinitionManager.Definitions.AttributeDefinition>.SelectionChangedEventArgs e)
         {
             if (e.IsSelected)
             {
@@ -63,7 +65,7 @@ namespace XrmFramework.DefinitionManager
 
         void RetrieveEntitiesSucceeded(object result)
         {
-            var entities = (Tuple<List<EntityDefinition>, List<Table>, List<OptionSetEnum>>)result;
+            var entities = (Tuple<List<XrmFramework.DefinitionManager.Definitions.EntityDefinition>, List<Table>, List<OptionSetEnum>>)result;
 
             _entityCollection.AddRange(entities.Item1);
             _tables.AddRange(entities.Item2);
@@ -178,14 +180,14 @@ namespace XrmFramework.DefinitionManager
         //    }
         //}
 
-        private IEnumerable<EntityDefinition> GetCodedEntityDefinitions()
+        private IEnumerable<XrmFramework.DefinitionManager.Definitions.EntityDefinition> GetCodedEntityDefinitions()
         {
             var entityDefinitionAttributeType = GetExternalType("XrmFramework.EntityDefinitionAttribute");
             var definitionTypes = _iServiceType.Assembly.GetTypes().Where(t => t.GetCustomAttributes(entityDefinitionAttributeType, false).Any());
             var relationshipAttributeType = GetExternalType("XrmFramework.RelationshipAttribute");
             var definitionManagerIgnoreAttributeType = GetExternalType("XrmFramework.Definitions.Internal.DefinitionManagerIgnoreAttribute");
 
-            var definitionList = new List<EntityDefinition>();
+            var definitionList = new List<XrmFramework.DefinitionManager.Definitions.EntityDefinition>();
 
             foreach (var t in definitionTypes)
             {
@@ -194,7 +196,7 @@ namespace XrmFramework.DefinitionManager
                     continue;
                 }
 
-                var definition = new EntityDefinition
+                var definition = new XrmFramework.DefinitionManager.Definitions.EntityDefinition
                 {
                     Name = t.Name
                     ,
@@ -207,7 +209,7 @@ namespace XrmFramework.DefinitionManager
 
                 foreach (var field in t.GetNestedType("Columns").GetFields())
                 {
-                    definition.Add(new AttributeDefinition
+                    definition.Add(new XrmFramework.DefinitionManager.Definitions.AttributeDefinition
                     {
                         LogicalName = field.GetValue(null) as string
                         ,
@@ -228,7 +230,7 @@ namespace XrmFramework.DefinitionManager
 
                     var typeName = field.FieldType.Name;
 
-                    definition.AdditionalInfoCollection.Add(new AttributeDefinition
+                    definition.AdditionalInfoCollection.Add(new XrmFramework.DefinitionManager.Definitions.AttributeDefinition
                     {
                         Type = typeName
                         ,
@@ -265,7 +267,7 @@ namespace XrmFramework.DefinitionManager
 
                         for (var i = 0; i < names.Length; i++)
                         {
-                            classDefinition.Attributes.Add(new AttributeDefinition
+                            classDefinition.Attributes.Add(new XrmFramework.DefinitionManager.Definitions.AttributeDefinition
                             {
                                 LogicalName = Name = names[i]
                                 ,
@@ -307,7 +309,7 @@ namespace XrmFramework.DefinitionManager
                             }
                             else
                             {
-                                classDefinition.Attributes.Add(new AttributeDefinition
+                                classDefinition.Attributes.Add(new XrmFramework.DefinitionManager.Definitions.AttributeDefinition
                                 {
                                     LogicalName = field.GetValue(null).ToString()
                                     ,
@@ -439,17 +441,17 @@ namespace XrmFramework.DefinitionManager
                                 if (attr.DateTimeBehavior != null)
                                 {
                                     var behavior = string.Empty;
-                                    if (attr.DateTimeBehavior == Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.DateOnly)
+                                    if (attr.DateTimeBehavior == Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.DateOnly.ToFrameworkDateTimeBehavior())
                                     {
                                         behavior = "DateOnly";
                                     }
                                     else if (attr.DateTimeBehavior ==
-                                             Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.TimeZoneIndependent)
+                                             Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.TimeZoneIndependent.ToFrameworkDateTimeBehavior())
                                     {
                                         behavior = "TimeZoneIndependent";
                                     }
                                     else if (attr.DateTimeBehavior ==
-                                             Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.UserLocal)
+                                             Microsoft.Xrm.Sdk.Metadata.DateTimeBehavior.UserLocal.ToFrameworkDateTimeBehavior())
                                     {
                                         behavior = "UserLocal";
                                     }
@@ -690,7 +692,7 @@ namespace XrmFramework.DefinitionManager
             MessageBox.Show(@"Definition files generation succeeded");
         }
 
-        private void AddAttributeSummary(IndentedStringBuilder sb, AttributeDefinition attr)
+        private void AddAttributeSummary(IndentedStringBuilder sb, XrmFramework.DefinitionManager.Definitions.AttributeDefinition attr)
         {
             sb.AppendLine("/// <summary>");
             sb.AppendLine("/// ");

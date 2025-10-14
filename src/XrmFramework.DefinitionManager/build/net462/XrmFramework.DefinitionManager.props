@@ -17,7 +17,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <AssemblyAttribute Include="DefinitionManager.CoreProjectAttribute">
+    <AssemblyAttribute Include="XrmFramework.DefinitionManager.Attributes.CoreProjectAttribute">
       <_Parameter1>$(RootFolder)/$(XrmFrameworkCoreProjectName)</_Parameter1>
       <_Parameter2>$(XrmFrameworkCoreProjectName)</_Parameter2>
     </AssemblyAttribute>

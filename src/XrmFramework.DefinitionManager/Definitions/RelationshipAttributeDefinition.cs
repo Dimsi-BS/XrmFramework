@@ -2,26 +2,25 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 
-namespace DefinitionManager.Definitions
+namespace XrmFramework.DefinitionManager.Definitions;
+
+internal class RelationshipAttributeDefinition : AttributeDefinition
 {
-    internal class RelationshipAttributeDefinition : AttributeDefinition
+    public string Role {get; set; }
+
+    public string TargetEntityName { get; set; }
+
+    public string NavigationPropertyName { get; set; }
+
+    public string LookupFieldName { get; set; }
+
+    protected override void MergeInternal(AbstractDefinition definition)
     {
-        public string Role {get; set; }
+        var d = (RelationshipAttributeDefinition) definition;
 
-        public string TargetEntityName { get; set; }
-
-        public string NavigationPropertyName { get; set; }
-
-        public string LookupFieldName { get; set; }
-
-        protected override void MergeInternal(AbstractDefinition definition)
-        {
-            var d = (RelationshipAttributeDefinition) definition;
-
-            Role = d.Role;
-            TargetEntityName = d.TargetEntityName;
-            NavigationPropertyName = d.NavigationPropertyName;
-            LookupFieldName = d.LookupFieldName;
-        }
+        Role = d.Role;
+        TargetEntityName = d.TargetEntityName;
+        NavigationPropertyName = d.NavigationPropertyName;
+        LookupFieldName = d.LookupFieldName;
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Microsoft.Xrm.Sdk.Metadata;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 

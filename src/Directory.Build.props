@@ -19,7 +19,7 @@
     <Product />
     <PackageProjectUrl>https://aka.ms/XrmFramework</PackageProjectUrl>
     <!--<PackageIcon>images/XrmFramework-icon.png</PackageIcon>-->
-    <RepositoryUrl>https://github.com/cgoconseils/XrmFramework</RepositoryUrl>
+    <RepositoryUrl>https://github.com/dimsi-BS/XrmFramework</RepositoryUrl>
     <PackageTags>XrmFramework dynamics crm cds d365 powerapps powerplatform</PackageTags>
     <Description>XrmFramework aim at simplifying developments for Microsoft Dynamics 365 / Microsoft Dataverse</Description>
     <Copyright>$(XrmFramework_Copyright)</Copyright>
@@ -47,7 +47,7 @@
     <XrmFramework_Core_Tools_TFM>netcoreapp3.1</XrmFramework_Core_Tools_TFM>    
     <XrmFramework_Net5_Tools_TFM>$(XrmFramework_Net5_TFM)</XrmFramework_Net5_Tools_TFM>
 
-    <XrmFramework_Runtime_TFM>$(XrmFramework_FullFramework_Runtime_TFM);$(XrmFramework_Core_Runtime_TFM);net8.0</XrmFramework_Runtime_TFM>
+    <XrmFramework_Runtime_TFM>$(XrmFramework_FullFramework_Runtime_TFM);net8.0</XrmFramework_Runtime_TFM>
     <XrmFramework_Generator_TFM>$(XrmFramework_FullFramework_Generator_TFM);$(XrmFramework_Core_Generator_TFM);$(XrmFramework_Net5_TFM)</XrmFramework_Generator_TFM>
     <XrmFramework_Test_TFM>$(XrmFramework_FullFramework_Test_TFM);$(XrmFramework_Core_Test_TFM)</XrmFramework_Test_TFM>
     <XrmFramework_Specs_TFM>$(XrmFramework_Net5_Specs_TFM)</XrmFramework_Specs_TFM>
@@ -58,7 +58,7 @@
 
 
   <PropertyGroup Condition=" '$(XrmFramework_EnableStrongNameSigning)' == 'true'">
-    <XrmFramework_KeyFile>$(SolutionDir)\XrmFramework.snk</XrmFramework_KeyFile>
+    <XrmFramework_KeyFile>$(MsBuildThisFileDirectory)\XrmFramework.snk</XrmFramework_KeyFile>
     <XrmFramework_SignAssembly>true</XrmFramework_SignAssembly>
     <DefineConstants>$(DefineConstants);XrmFramework_ENABLE_STRONG_NAME_SIGNING</DefineConstants>
   </PropertyGroup>
