@@ -1147,7 +1147,7 @@ namespace XrmFramework.BindingModel
 
         public static XElement ToXElement<T>(this T bindingModel) where T : IXmlModel
         {
-            if (bindingModel == null)
+            if (Equals(bindingModel, default(T)))
             {
                 return null;
             }
