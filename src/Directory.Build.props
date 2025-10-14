@@ -19,7 +19,7 @@
     <Product />
     <PackageProjectUrl>https://aka.ms/XrmFramework</PackageProjectUrl>
     <!--<PackageIcon>images/XrmFramework-icon.png</PackageIcon>-->
-    <RepositoryUrl>https://github.com/cgoconseils/XrmFramework</RepositoryUrl>
+    <RepositoryUrl>https://github.com/dimsi-BS/XrmFramework</RepositoryUrl>
     <PackageTags>XrmFramework dynamics crm cds d365 powerapps powerplatform</PackageTags>
     <Description>XrmFramework aim at simplifying developments for Microsoft Dynamics 365 / Microsoft Dataverse</Description>
     <Copyright>$(XrmFramework_Copyright)</Copyright>
