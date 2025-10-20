@@ -11,6 +11,8 @@ namespace XrmFramework
 {
     public static class DefinitionCache
     {
+        private static readonly ConcurrentBag<Assembly> DiscoveredAssemblies = [typeof(DefinitionCache).Assembly];
+        
         private static readonly ConcurrentDictionary<string, EntityDefinition> InternalDefinitionCache = new ConcurrentDictionary<string, EntityDefinition>();
 
         private static readonly ConcurrentDictionary<Type, ModelDefinition> InternalModelDefinitionCache = new ConcurrentDictionary<Type, ModelDefinition>();
@@ -23,6 +25,11 @@ namespace XrmFramework
             }
 
             throw new KeyNotFoundException($"No definition found for entity {entityName}");
+        }
+
+        public static void RegisterDefinitionsAssembly(Assembly assembly)
+        {
+            DiscoveredAssemblies.Add(assembly);
         }
 
         public static EntityDefinition GetEntityDefinition(Type type)
@@ -41,9 +48,9 @@ namespace XrmFramework
                 throw new Exception($"Type {type.Name} does not have a proper EntityName const field defined.");
             }
 
-            if (InternalDefinitionCache.ContainsKey(entityName))
+            if (InternalDefinitionCache.TryGetValue(entityName, out var entityDefinition))
             {
-                return InternalDefinitionCache[entityName];
+                return entityDefinition;
             }
 
             var definition = new EntityDefinition(type);
@@ -52,13 +59,12 @@ namespace XrmFramework
             return definition;
         }
 
-        public static bool TryGetEntityDefinition(string entityName, out EntityDefinition definition)
+        private static bool TryGetEntityDefinition(string entityName, out EntityDefinition definition)
         {
             definition = InternalDefinitionCache.GetOrAdd(entityName, (name) =>
             {
-                var definitionTypes = typeof(DefinitionCache)
-                    .Assembly
-                    .GetTypes()
+                var definitionTypes = DiscoveredAssemblies
+                    .SelectMany(a => a.GetTypes())
                     .Where(t => t.GetCustomAttribute<EntityDefinitionAttribute>() != null)
                     .Where(t => t.GetField("EntityName") != null)
                     .Where(t =>
@@ -67,7 +73,7 @@ namespace XrmFramework
 
                 var definitionType = definitionTypes.OrderBy(t => t.Namespace?.Contains("XrmFramework.Definitions") ?? false).FirstOrDefault();
 
-                if (definitionType == default)
+                if (definitionType == null)
                 {
                     return null;
                 }
@@ -85,7 +91,7 @@ namespace XrmFramework
             if (crmEntityAttribute == null)
             {
                 var interfaceType = type.GetInterfaces()
-                    .FirstOrDefault(t => CustomAttributeExtensions.GetCustomAttribute<CrmEntityAttribute>((MemberInfo)t, true) != null);
+                    .FirstOrDefault(t => t.GetCustomAttribute<CrmEntityAttribute>(true) != null);
 
                 if (interfaceType != null)
                 {
