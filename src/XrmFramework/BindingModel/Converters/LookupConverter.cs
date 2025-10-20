@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Microsoft.Xrm.Sdk;
 using System;
 using System.ComponentModel;
-using Microsoft.Xrm.Sdk;
 
 namespace XrmFramework.BindingModel
 {
@@ -20,16 +20,12 @@ namespace XrmFramework.BindingModel
         }
 
         public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
-        {
-            if (value is string)
+            => value switch
             {
-                return GetReferenceFromString((string)value);
-            }
-            else
-            {
-                return GetStringFromEntityReference((EntityReference)value);
-            }
-        }
+                string stringValue => GetReferenceFromString(stringValue),
+                EntityReference refValue => GetStringFromEntityReference(refValue),
+                _ => throw new ArgumentException(@"The value must be a string or an EntityReference", nameof(value))
+            };
 
         private static EntityReference GetReferenceFromString(string value)
         {
@@ -37,24 +33,22 @@ namespace XrmFramework.BindingModel
             {
                 return null;
             }
-            else
+
+            var split = value.Split('|');
+            return new EntityReference
             {
-                var split = value.Split('|');
-                return new EntityReference
-                {
-                    LogicalName = split[0],
-                    Id = new Guid(split[1]),
-                    Name = split[2]
-                };
-            }
+                LogicalName = split[0],
+                Id = new Guid(split[1]),
+                Name = split[2]
+            };
         }
 
         private static string GetStringFromEntityReference(EntityReference reference)
         {
-            string result = string.Empty;
+            var result = string.Empty;
             if (reference != null)
             {
-                result = string.Format("{0}|{1}|{2}", reference.LogicalName, reference.Id, reference.Name);
+                result = $"{reference.LogicalName}|{reference.Id}|{reference.Name}";
             }
             return result;
         }
