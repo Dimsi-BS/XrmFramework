@@ -372,7 +372,7 @@ namespace XrmFramework.DefinitionManager
                     sb.AppendLine("[GeneratedCode(\"XrmFramework\", \"2.0\")]");
                     sb.AppendLine("[EntityDefinition]");
                     sb.AppendLine("[ExcludeFromCodeCoverage]");
-                    sb.AppendLine($"public static class {item.Name}");
+                    sb.AppendLine($"public static partial class {item.Name}");
                     sb.AppendLine("{");
 
                     using (sb.Indent())
