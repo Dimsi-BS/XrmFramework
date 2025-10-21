@@ -9,16 +9,7 @@
       <NuspecProperties>$(NuspecProperties);owner=$(XrmFramework_Owners)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);commit=$(GitCommitId)</NuspecProperties>
 
-      <NuspecProperties>$(NuspecProperties);XrmFramework_Net5_TFM=$(XrmFramework_Net5_TFM)</NuspecProperties>
-
       <NuspecProperties>$(NuspecProperties);XrmFramework_FullFramework_Runtime_TFM=$(XrmFramework_FullFramework_Runtime_TFM)</NuspecProperties>
-      <NuspecProperties>$(NuspecProperties);XrmFramework_Core_Runtime_TFM=$(XrmFramework_Core_Runtime_TFM)</NuspecProperties>
-
-      <NuspecProperties>$(NuspecProperties);XrmFramework_FullFramework_Generator_TFM=$(XrmFramework_FullFramework_Generator_TFM)</NuspecProperties>
-      <NuspecProperties>$(NuspecProperties);XrmFramework_Core_Generator_TFM=$(XrmFramework_Core_Generator_TFM)</NuspecProperties>
-
-      <NuspecProperties>$(NuspecProperties);XrmFramework_Core_Tools_TFM=$(XrmFramework_Core_Tools_TFM)</NuspecProperties>
-      <NuspecProperties>$(NuspecProperties);XrmFramework_Net5_Tools_TFM=$(XrmFramework_Net5_Tools_TFM)</NuspecProperties>
     </PropertyGroup>
 
     <ItemGroup>

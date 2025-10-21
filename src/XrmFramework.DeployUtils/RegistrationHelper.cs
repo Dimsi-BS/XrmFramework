@@ -44,11 +44,6 @@ namespace XrmFramework.DeployUtils
 
             var pluginSolutionUniqueName = projectConfig.TargetSolution;
 
-            if (ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection] == null)
-            {
-                throw new Exception($"No connection string named {xrmFrameworkConfigSection.SelectedConnection} found in the connectionStrings.config file.");
-            }
-            
             var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
 
             if (args == null || !args.Select(a => a.ToLowerInvariant()).Contains("-noprompt"))
