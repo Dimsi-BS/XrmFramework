@@ -90,6 +90,15 @@ namespace XrmFramework
 
         public IOrganizationService GetService(Guid userId)
         {
+#if CORE_PROJECT
+            if (OrganizationService is Microsoft.PowerPlatform.Dataverse.Client.ServiceClient client)
+            {
+                var clonedClient = client.Clone();
+                clonedClient.CallerId = userId;
+
+                return clonedClient;
+            }
+#endif
             return OrganizationService;
         }
     }

@@ -54,9 +54,5 @@
   <ItemGroup>
     <Folder Include="TokenProviders\" />
   </ItemGroup>
-  <!--
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="0.4.11" />
-  </ItemGroup>-->
 
 </Project>
