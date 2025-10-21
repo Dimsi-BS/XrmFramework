@@ -1847,7 +1847,7 @@ namespace XrmFramework.BindingModel
             return RetrieveAll(service, query, cleanLinks).ToBindingModel<T>().ToList();
         }
 
-        public static IList<Entity> RetrieveAll(this IOrganizationService service, QueryExpression query, bool cleanLinks = true)
+        public static IList<Entity> RetrieveAll(this IOrganizationService service, QueryExpression query, bool cleanLinks = false)
         {
             if (!query.TopCount.HasValue)
             {

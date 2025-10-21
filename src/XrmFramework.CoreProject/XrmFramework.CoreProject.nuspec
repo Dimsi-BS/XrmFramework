@@ -15,7 +15,7 @@
     <copyright>$copyrigth$</copyright>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="1.2.10" />
+          <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="1.2.10" />
         <dependency id="Newtonsoft.Json" version="13.0.4" />
         <dependency id="Microsoft.Extensions.DependencyInjection" version="8.0.1" />
         <dependency id="XrmFramework" version="$version$" />
