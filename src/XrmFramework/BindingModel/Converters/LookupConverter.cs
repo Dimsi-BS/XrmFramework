@@ -3,23 +3,12 @@
 
 using Microsoft.Xrm.Sdk;
 using System;
-using System.ComponentModel;
 
 namespace XrmFramework.BindingModel
 {
-    public class LookupConverter : TypeConverter
+    public class LookupConverter : ModelPropertyConverter
     {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            return sourceType == typeof(string) || sourceType == typeof(EntityReference);
-        }
-
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-        {
-            return destinationType == typeof(string) || destinationType == typeof(EntityReference);
-        }
-
-        public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
+        public override object ConvertFrom(object value)
             => value switch
             {
                 string stringValue => GetReferenceFromString(stringValue),

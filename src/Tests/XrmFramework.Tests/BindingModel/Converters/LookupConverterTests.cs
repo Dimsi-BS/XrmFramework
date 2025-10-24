@@ -9,42 +9,10 @@ namespace XrmFramework.Tests.BindingModel.Converters
     public class LookupConverterTests
     {
         [TestMethod]
-        public void CanConvertFromString()
-        {
-            var converter = new LookupConverter();
-            var result = converter.CanConvertFrom(null, typeof(string));
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public void CanConvertFromEntityReference()
-        {
-            var converter = new LookupConverter();
-            var result = converter.CanConvertFrom(null, typeof(EntityReference));
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public void CanConvertToString()
-        {
-            var converter = new LookupConverter();
-            var result = converter.CanConvertTo(null, typeof(string));
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public void CanConvertToEntityReference()
-        {
-            var converter = new LookupConverter();
-            var result = converter.CanConvertTo(null, typeof(EntityReference));
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
         public void ConvertFromString()
         {
             var converter = new LookupConverter();
-            var result = converter.ConvertFrom(null, null, "TestLogicalName|CF998748-0E2E-4A3C-A254-0BB1AD850466|TestName") as EntityReference;
+            var result = converter.ConvertFrom("TestLogicalName|CF998748-0E2E-4A3C-A254-0BB1AD850466|TestName") as EntityReference;
 
             Assert.IsNotNull(result);
             Assert.AreEqual("TestLogicalName", result.LogicalName);
@@ -56,7 +24,7 @@ namespace XrmFramework.Tests.BindingModel.Converters
         public void ConvertFromEmptyString()
         {
             var converter = new LookupConverter();
-            var result = converter.ConvertFrom(null, null, "") as EntityReference;
+            var result = converter.ConvertFrom("") as EntityReference;
 
             Assert.IsNull(result);
         }
