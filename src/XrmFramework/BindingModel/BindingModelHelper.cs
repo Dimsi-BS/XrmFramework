@@ -219,6 +219,13 @@ namespace XrmFramework.BindingModel
                                         value = entity.GetAttributeValue<EntityReference>(attributeName).Name;
                                     }
                                 }
+                                else if (targetEntityDefinition.IsPrimaryAttribute(crmLookupAttribute.AttributeName, PrimaryAttributeType.Id))
+                                {
+                                    if (entity.Contains(attributeName) && entity[attributeName] != null)
+                                    {
+                                        value = entity.GetAttributeValue<EntityReference>(attributeName).Id;
+                                    }
+                                }
                                 else
                                 {
                                     foreach (var relationship in modelLookupAttributes
