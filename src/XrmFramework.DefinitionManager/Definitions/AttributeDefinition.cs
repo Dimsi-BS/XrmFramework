@@ -35,7 +35,7 @@ class AttributeDefinition : AbstractDefinition
     public bool IsPrimaryImageAttribute { get; set; }
 
     [Mergeable]
-    public DateTimeBehavior DateTimeBehavior { get; set; }
+    public DateTimeBehavior? DateTimeBehavior { get; set; }
 
     private List<string> _keyNames = new();
     [Mergeable]
