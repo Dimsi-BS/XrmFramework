@@ -636,7 +636,14 @@ namespace XrmFramework.BindingModel
 
             foreach (var property in modelDefinition.ExtendBindingAttributes)
             {
-                FillEntity(property.GetValue(bindingModel), service, fillRelatedEntities, entity, keyInfos);
+                var extendBindingModel = property.GetValue(bindingModel);
+
+                if (extendBindingModel == null)
+                {
+                    continue;
+                }
+                
+                FillEntity(extendBindingModel, service, fillRelatedEntities, entity, keyInfos);
             }
 
             if (fillRelatedEntities)
