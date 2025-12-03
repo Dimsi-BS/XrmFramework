@@ -48,7 +48,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="System.Reflection.DispatchProxy" Version="4.7.1" />
+    <PackageReference Include="System.Reflection.DispatchProxy" Version="4.8.2" />
   </ItemGroup>
 
   <ItemGroup>
