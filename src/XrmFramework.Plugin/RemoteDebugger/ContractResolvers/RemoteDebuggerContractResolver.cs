@@ -65,6 +65,7 @@ public class RemoteDebuggerContractResolver : DefaultContractResolver
         new FormattedValueCollectionConverter(),
         new EntityImageCollectionConverter(),
         new AttributeCollectionConverter(),
+        new EndpointCollectionConverter(),
         new RelatedEntityCollectionConverter(),
         new RelationshipQueryCollectionConverter(),
         new OrganizationRequestCollectionConverter(),
