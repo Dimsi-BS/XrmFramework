@@ -5,6 +5,7 @@ using Microsoft.Xrm.Sdk.Workflow;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xrm.Sdk.Discovery;
 
 namespace XrmFramework.RemoteDebugger.Converters
 {
@@ -119,6 +120,21 @@ namespace XrmFramework.RemoteDebugger.Converters
         public override AttributeCollection ReadJson(JsonReader reader, Type objectType, AttributeCollection existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             return (AttributeCollection)_internalConverter.ReadJson(reader, objectType, existingValue, hasExistingValue, serializer);
+        }
+    }
+
+    public class EndpointCollectionConverter : JsonConverter<EndpointCollection>
+    {
+        private readonly DataCollectionConverter<EndpointType, string> _internalConverter = new DataCollectionConverter<EndpointType, string>();
+
+        public override void WriteJson(JsonWriter writer, EndpointCollection value, JsonSerializer serializer)
+        {
+            _internalConverter.WriteJson(writer, value, serializer);
+        }
+
+        public override EndpointCollection ReadJson(JsonReader reader, Type objectType, EndpointCollection existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            return (EndpointCollection)_internalConverter.ReadJson(reader, objectType, existingValue, hasExistingValue, serializer);
         }
     }
 
