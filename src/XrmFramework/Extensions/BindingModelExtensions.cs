@@ -225,11 +225,11 @@ namespace XrmFramework
 
                 if (attributeMetada.AttributeType.ToInt() == AttributeTypeCode.String.ToInt())
                 {
-                    equals &= valueX != null && valueY != null && string.Equals((string)valueX, (string)valueY, StringComparison.InvariantCultureIgnoreCase);
+                    equals &= (valueX == null && valueY == null) || (valueX != null && valueY != null && string.Equals((string)valueX, (string)valueY, StringComparison.InvariantCultureIgnoreCase));
                 }
                 else
                 {
-                    equals &= valueX != null && valueY != null && Equals(valueX, valueY);
+                    equals &= (valueX == null && valueY == null) || (valueX != null && valueY != null && Equals(valueX, valueY));
                 }
             }
             return equals;
