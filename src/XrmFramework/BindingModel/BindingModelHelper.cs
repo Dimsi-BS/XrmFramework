@@ -9,7 +9,11 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml.Linq;
+#if !PLUGIN
+using Microsoft.PowerPlatform.Dataverse.Client;
+#endif
 using EntityReference = Microsoft.Xrm.Sdk.EntityReference;
 
 namespace XrmFramework.BindingModel
@@ -1858,11 +1862,34 @@ namespace XrmFramework.BindingModel
 
         public static IList<T> RetrieveAll<T>(this IOrganizationService service, QueryExpression query, bool cleanLinks = false) where T : IBindingModel
         {
-            return RetrieveAll(service, query, cleanLinks).ToBindingModel<T>().ToList();
+            return service.RetrieveAll(query, cleanLinks).ToBindingModel<T>().ToList();
         }
 
-        public static IList<Entity> RetrieveAll(this IOrganizationService service, QueryExpression query, bool cleanLinks = false)
+        public static IList<Entity> RetrieveAll(this IOrganizationService service, QueryExpression query, bool cleanLinks = false) 
+            => RetrieveAllInternal(query, cleanLinks, q => Task.FromResult(service.RetrieveMultiple(q))).GetAwaiter().GetResult();
+
+#if !PLUGIN
+        extension(IOrganizationServiceAsync service)
         {
+            public async Task<IList<T>> RetrieveAllAsync<T>() where T : IBindingModel
+            {
+                var query = GetRetrieveAllQuery(typeof(T));
+                return (await service.RetrieveAllAsync(query)).ToBindingModel<T>().ToList();
+            }
+
+            public async Task<IList<T>> RetrieveAllAsync<T>(QueryExpression query, bool cleanLinks = false) where T : IBindingModel
+            {
+                return (await service.RetrieveAllAsync(query, cleanLinks)).ToBindingModel<T>().ToList();
+            }
+
+            public async Task<IList<Entity>> RetrieveAllAsync(QueryExpression query, bool cleanLinks = false)
+                => await RetrieveAllInternal(query, cleanLinks, async q => await service.RetrieveMultipleAsync(q));
+        }
+#endif
+
+        private static async Task<IList<Entity>> RetrieveAllInternal(QueryExpression query, bool cleanLinks, Func<QueryExpression, Task<EntityCollection>> retrieveMultiple)
+        {
+            
             if (!query.TopCount.HasValue)
             {
                 query.PageInfo = new PagingInfo { Count = 5000, PageNumber = 1 };
@@ -1879,7 +1906,7 @@ namespace XrmFramework.BindingModel
 
             do
             {
-                ec = service.RetrieveMultiple(query);
+                ec = await retrieveMultiple(query);
                 Debug.WriteLine($"Récupération de la page {query.PageInfo?.PageNumber} de {query.PageInfo?.Count} enregistrements.");
 
                 result.AddRange(ec.Entities);
@@ -1894,6 +1921,7 @@ namespace XrmFramework.BindingModel
 
             return result;
         }
+        
 
         public class JobResult
         {
