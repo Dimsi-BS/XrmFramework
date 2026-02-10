@@ -220,6 +220,20 @@ The step method registered in the ``AddSteps`` registration can be injected with
 public void Method(IPluginContext context, IAccountService accountService, ...)
 ```
 
+## Code reuse through definition of ``IService`` interfaces
+
+Services are interfaces that can be implemented to access CRM Data from several places in your solution.
+The XrmFramework provides a base class ``DefaultService`` inheriting ``XrmFramework.IService`` interface that can be used to implement your services.
+
+More infos [here (Working with Services)](docs/WorkingWithServices.md)
+
+## Deploying your project
+In the solution are created 2 deployment projects :
+- ``Deploy.Plugins`` : Deploys the plugins / workflows and Custom Apis defined in your Plugins project
+- ``Deploy.Webresources`` : Deploys the webresources defined in your Webresources project
+
+Set the ``Deploy.Plugins`` or ``Deploy.Webresources`` project as Startup project and run it.
+
 ## Utilities
 
 XrmFramework contains a bunch of utility methods or Extensions to better work with the SDK.
