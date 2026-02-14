@@ -738,6 +738,12 @@ namespace XrmFramework.DeployUtils
                 }
             }
 
+            var sdkMessageFilterRef = _filters
+                .Where(f => f.SdkMessageId.Name == step.Message)
+                .Where(f=> f.PrimaryObjectTypeCode == (string.IsNullOrEmpty(step.EntityName) ? "none": step.EntityName))
+                .Select(f => f.ToEntityReference())
+                .FirstOrDefault();
+
             var t = new SdkMessageProcessingStep()
             {
                 AsyncAutoDelete = step.Mode == Model.Modes.Asynchronous,
@@ -757,8 +763,7 @@ namespace XrmFramework.DeployUtils
 #pragma warning restore 0612
                 Rank = step.Order,
                 SdkMessageId = _messages[step.Message], //GetSdkMessageRef(service, step.Message),
-                SdkMessageFilterId = _filters.Where(f => f.SdkMessageId.Name == step.Message && f.PrimaryObjectTypeCode == step.EntityName)
-                                             .Select(f => f.ToEntityReference()).FirstOrDefault(), //GetSdkMessageFilterRef(service, step),
+                SdkMessageFilterId = sdkMessageFilterRef,
                 //SdkMessageProcessingStepSecureConfigId = GetSdkMessageProcessingStepSecureConfigRef(service, step),
                 Stage = new OptionSetValue((int)step.Stage),
                 SupportedDeployment = new OptionSetValue((int)sdkmessageprocessingstep_supporteddeployment.ServerOnly),

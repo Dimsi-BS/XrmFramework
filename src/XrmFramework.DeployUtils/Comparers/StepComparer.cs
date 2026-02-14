@@ -19,11 +19,11 @@ namespace XrmFramework.DeployUtils.Comparers
 
         public int GetHashCode(SdkMessageProcessingStep obj) 
             =>
-                (obj.SdkMessageFilterId?.GetHashCode() ?? 0) 
+                (obj.SdkMessageFilterId?.Id.GetHashCode() ?? 0) 
                 ^ obj.Stage.GetHashCode() 
                 ^ obj.Mode.GetHashCode() 
-                ^ obj.SdkMessageId.GetHashCode() 
-                ^ obj.EventHandler.GetHashCode();
+                ^ obj.SdkMessageId.Id.GetHashCode() 
+                ^ obj.EventHandler.Id.GetHashCode();
 
         public bool NeedsUpdate(SdkMessageProcessingStep x, SdkMessageProcessingStep y)
         {
