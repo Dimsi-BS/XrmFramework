@@ -9,11 +9,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
-#if !PLUGIN
-using Microsoft.PowerPlatform.Dataverse.Client;
-#endif
 using EntityReference = Microsoft.Xrm.Sdk.EntityReference;
 
 namespace XrmFramework.BindingModel
@@ -756,7 +752,7 @@ namespace XrmFramework.BindingModel
             return query;
         }
 
-        private static void AddQueryFilter(Type bindingModelType, Func<Relationship, LinkEntity, JoinOperator> filter, ColumnSet columnSet, DataCollection<LinkEntity> links, int depth = 1, string linkAlias = "")
+        public static void AddQueryFilter(Type bindingModelType, Func<Relationship, LinkEntity, JoinOperator> filter, ColumnSet columnSet, DataCollection<LinkEntity> links, int depth = 1, string linkAlias = "")
         {
             var modelDefinition = DefinitionCache.GetModelDefinition(bindingModelType);
             var entityDefinition = modelDefinition.MainDefinition;
@@ -1462,199 +1458,7 @@ namespace XrmFramework.BindingModel
             return bindingType;
         }
 
-        public static RetrieveRequest GetRetrieveRequest(Type type, EntityReference reference)
-        {
-            var entityDefinition = DefinitionCache.GetEntityDefinitionFromModelType(type);
-
-            var request = new RetrieveRequest
-            {
-                Target = reference,
-                ColumnSet = new ColumnSet(),
-                RelatedEntitiesQuery = new RelationshipQueryCollection()
-            };
-
-            FillRetrieveRequest(type, request, entityDefinition);
-
-            return request;
-        }
-
-        private static void FillRetrieveRequest(Type type, RetrieveRequest request, EntityDefinition entityDefinition)
-        {
-            var modelDefinition = DefinitionCache.GetModelDefinition(type);
-
-            foreach (var property in modelDefinition.CrmAttributes)
-            {
-                var mappingAttribute = property.CrmMappingAttribute;
-
-                if (!request.ColumnSet.Columns.Contains(mappingAttribute.AttributeName))
-                {
-                    request.ColumnSet.AddColumn(mappingAttribute.AttributeName);
-                }
-
-                if (!entityDefinition.IsLookupAttribute(mappingAttribute.AttributeName) || property.CrmLookupAttribute == null && (property.ObjectType == typeof(Guid) || property.ObjectType == typeof(EntityReference)))
-                {
-                    continue;
-                }
-
-                var definitionLookupAttributes = entityDefinition.GetCrmLookupAttributes(mappingAttribute.AttributeName).ToList();
-                var lookupAttribute = property.CrmLookupAttribute;
-                var isBindingModel = typeof(IBindingModel).IsAssignableFrom(property.PropertyType);
-
-                var subModelDefinition = isBindingModel ? DefinitionCache.GetModelDefinition(property.PropertyType) : null;
-
-                var targetEntityName = isBindingModel ? subModelDefinition.MainDefinition.EntityName : lookupAttribute?.TargetEntityName;
-
-                if (definitionLookupAttributes.Count == 1 && targetEntityName == null)
-                {
-                    targetEntityName = definitionLookupAttributes.Single().TargetEntityName;
-                }
-
-                foreach (var definitionLookupAttribute in definitionLookupAttributes)
-                {
-                    if (string.IsNullOrEmpty(targetEntityName))
-                    {
-                        targetEntityName = definitionLookupAttribute.TargetEntityName;
-                    }
-
-                    if (definitionLookupAttribute.TargetEntityName != targetEntityName)
-                    {
-                        continue;
-                    }
-
-                    QueryExpression query;
-
-                    if (request.RelatedEntitiesQuery.Keys.All(r => r.SchemaName != definitionLookupAttribute.RelationshipName))
-                    {
-                        query = new QueryExpression(targetEntityName);
-                        request.RelatedEntitiesQuery.Add(new Microsoft.Xrm.Sdk.Relationship(definitionLookupAttribute.RelationshipName) { PrimaryEntityRole = Microsoft.Xrm.Sdk.EntityRole.Referencing }, query);
-                    }
-                    else
-                    {
-                        query = (QueryExpression)request.RelatedEntitiesQuery.First(r => r.Key.SchemaName == definitionLookupAttribute.RelationshipName).Value;
-                    }
-
-                    if (isBindingModel)
-                    {
-                        AddQueryFilter(property.PropertyType, null, query.ColumnSet, query.LinkEntities, 2, string.Empty);
-                    }
-                    else if (lookupAttribute != null)
-                    {
-                        query.ColumnSet.AddColumn(lookupAttribute.AttributeName);
-                    }
-                }
-            }
-
-
-            foreach (var property in modelDefinition.ExtendBindingAttributes)
-            {
-                FillRetrieveRequest(property.PropertyType, request, entityDefinition);
-            }
-
-            foreach (var property in modelDefinition.RelationshipAttributes)
-            {
-                if (property.IsCollectionProperty(out var bindingType))
-                {
-                    var query = GetRetrieveAllQuery(bindingType);
-                    
-                    var relationship = new Microsoft.Xrm.Sdk.Relationship(property.Relationship.SchemaName)
-                    {
-                        PrimaryEntityRole = property.Relationship.PrimaryEntityRole == EntityRole.Referenced ? Microsoft.Xrm.Sdk.EntityRole.Referenced : Microsoft.Xrm.Sdk.EntityRole.Referencing
-                    };
-
-                    request.RelatedEntitiesQuery.Add(relationship, query);
-                }
-            }
-        }
-
-        public static T GetById<T>(this IOrganizationService service, Guid id) where T : IBindingModel
-        {
-            var type = typeof(T);
-            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
-            return (T)GetById(type, service, new EntityReference(definition.EntityName, id));
-        }
-
-        public static T GetById<T>(this IOrganizationService service, Guid id, Entity recordImage) where T : IBindingModel
-        {
-            var type = typeof(T);
-            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
-            return (T)GetById(type, service, new EntityReference(definition.EntityName, id), recordImage);
-        }
-
-        public static T GetById<T>(this IOrganizationService service, EntityReference reference, Entity recordImage) where T : IBindingModel
-        {
-            var type = typeof(T);
-            return (T)GetById(type, service, reference, recordImage);
-        }
-
-        public static T GetById<T>(this IOrganizationService service, EntityReference reference) where T : IBindingModel
-        {
-            var type = typeof(T);
-            return (T)GetById(type, service, reference);
-        }
-
-        public static IBindingModel GetById(Type type, IOrganizationService service, Guid id)
-        {
-            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
-            return GetById(type, service, new EntityReference(definition.EntityName, id));
-        }
-
-        private static IBindingModel GetById(Type type, IOrganizationService service, EntityReference reference, Entity recordImage = null)
-        {
-            var request = GetRetrieveRequest(type, reference);
-
-            var response = (RetrieveResponse)service.Execute(request);
-            
-            if (recordImage != null)
-            {
-                response.Entity.MergeWith(recordImage);
-            }
-
-            return response.Entity.ToBindingModel(type);
-        }
-
-        public static bool TryGetById<T>(this IOrganizationService service, Guid id, out T result) where T : IBindingModel
-        {
-            var type = typeof(T);
-            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
-            IBindingModel resultTemp;
-
-            var isOk = TryGetById(type, service, new EntityReference(definition.EntityName, id), out resultTemp);
-            result = (T)resultTemp;
-            return isOk;
-        }
-
-        public static bool TryGetById<T>(this IOrganizationService service, EntityReference reference, out T result) where T : IBindingModel
-        {
-            var type = typeof(T);
-
-            IBindingModel resultTemp;
-
-            var isOk = TryGetById(type, service, reference, out resultTemp);
-            result = (T)resultTemp;
-            return isOk;
-        }
-
-        public static bool TryGetById(Type type, IOrganizationService service, Guid id, out IBindingModel result)
-        {
-            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
-            return TryGetById(type, service, new EntityReference(definition.EntityName, id), out result);
-        }
-
-        public static bool TryGetById(Type type, IOrganizationService service, EntityReference reference, out IBindingModel result)
-        {
-            bool bSuccess = false;
-            try
-            {
-                result = GetById(type, service, reference);
-                bSuccess = true;
-            }
-            catch (Exception)
-            {
-                result = null;
-            }
-            return bSuccess;
-        }
-
+         
 
         public static T ToDto<T>(IBindingModel model) where T : new()
         {
@@ -1854,74 +1658,6 @@ namespace XrmFramework.BindingModel
             return response.Responses.Cast<T>().ToList();
         }
 
-        public static IList<T> RetrieveAll<T>(this IOrganizationService service) where T : IBindingModel
-        {
-            var query = GetRetrieveAllQuery(typeof(T));
-            return RetrieveAll(service, query).ToBindingModel<T>().ToList();
-        }
-
-        public static IList<T> RetrieveAll<T>(this IOrganizationService service, QueryExpression query, bool cleanLinks = false) where T : IBindingModel
-        {
-            return service.RetrieveAll(query, cleanLinks).ToBindingModel<T>().ToList();
-        }
-
-        public static IList<Entity> RetrieveAll(this IOrganizationService service, QueryExpression query, bool cleanLinks = false) 
-            => RetrieveAllInternal(query, cleanLinks, q => Task.FromResult(service.RetrieveMultiple(q))).GetAwaiter().GetResult();
-
-#if !PLUGIN
-        extension(IOrganizationServiceAsync service)
-        {
-            public async Task<IList<T>> RetrieveAllAsync<T>() where T : IBindingModel
-            {
-                var query = GetRetrieveAllQuery(typeof(T));
-                return (await service.RetrieveAllAsync(query)).ToBindingModel<T>().ToList();
-            }
-
-            public async Task<IList<T>> RetrieveAllAsync<T>(QueryExpression query, bool cleanLinks = false) where T : IBindingModel
-            {
-                return (await service.RetrieveAllAsync(query, cleanLinks)).ToBindingModel<T>().ToList();
-            }
-
-            public async Task<IList<Entity>> RetrieveAllAsync(QueryExpression query, bool cleanLinks = false)
-                => await RetrieveAllInternal(query, cleanLinks, async q => await service.RetrieveMultipleAsync(q));
-        }
-#endif
-
-        private static async Task<IList<Entity>> RetrieveAllInternal(QueryExpression query, bool cleanLinks, Func<QueryExpression, Task<EntityCollection>> retrieveMultiple)
-        {
-            
-            if (!query.TopCount.HasValue)
-            {
-                query.PageInfo = new PagingInfo { Count = 5000, PageNumber = 1 };
-            }
-
-            var result = new List<Entity>();
-
-            EntityCollection ec;
-
-            if (cleanLinks)
-            {
-                query.CleanLinks();
-            }
-
-            do
-            {
-                ec = await retrieveMultiple(query);
-                Debug.WriteLine($"Récupération de la page {query.PageInfo?.PageNumber} de {query.PageInfo?.Count} enregistrements.");
-
-                result.AddRange(ec.Entities);
-
-                if (query.PageInfo != null)
-                {
-                    query.PageInfo.PageNumber++;
-                    query.PageInfo.PagingCookie = ec.PagingCookie;
-                }
-
-            } while (ec.MoreRecords);
-
-            return result;
-        }
-        
 
         public class JobResult
         {
