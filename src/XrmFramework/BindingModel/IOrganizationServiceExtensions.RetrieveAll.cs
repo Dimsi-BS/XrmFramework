@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-#if !PLUGIN
+#if !PLUGIN && !ON_PREMISE
 using System.Threading;
 using Microsoft.PowerPlatform.Dataverse.Client;
 #endif
@@ -31,7 +31,7 @@ public static class IOrganizationServiceExtensions_RetrieveAll
         => RetrieveAllInternal(query, cleanLinks, q => Task.FromResult(service.RetrieveMultiple(q))).GetAwaiter()
             .GetResult();
 
-#if !PLUGIN
+#if !PLUGIN && !ON_PREMISE
     extension(IOrganizationServiceAsync service)
     {
         public async Task<IList<T>> RetrieveAllAsync<T>() where T : IBindingModel

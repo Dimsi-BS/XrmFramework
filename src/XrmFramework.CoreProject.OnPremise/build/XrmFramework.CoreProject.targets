@@ -1,0 +1,19 @@
+﻿<Project ToolsVersion="14.0"
+         xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+
+  <PropertyGroup>
+    <!-- Here you need to experiment with [Build/Compile/SomeOther]DependsOn property -->
+    <CoreCompileDependsOn>
+      CheckVariables;
+      $(CoreCompileDependsOn)
+    </CoreCompileDependsOn>
+  </PropertyGroup>
+
+  <Target Name="CheckVariables" >
+    <Error
+      Text="The RootFolder property must be set in the root Directory.Build.props file. It must be set like this  &lt;PropertyGroup&gt; &lt;RootFolder&gt;%24(MSBuildThisFileDirectory)&lt;/RootFolder&gt; &lt;/PropertyGroup&gt;"
+      Condition="'$(RootFolder)' == ''" />
+  </Target>
+
+</Project>
