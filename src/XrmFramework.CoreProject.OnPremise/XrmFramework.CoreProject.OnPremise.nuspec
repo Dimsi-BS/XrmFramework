@@ -24,7 +24,7 @@
   </metadata>
 
   <files>
-    <file src="**\*.cs" target="contentFiles\cs\any\__Imports\XrmFramework.CoreProject" exclude="obj\**;**\AssemblyInfo.cs;**\CrmServiceClientDummy.cs" />
+    <file src="**\*.cs" target="contentFiles\cs\any\__Imports\XrmFramework.CoreProject.OnPremise" exclude="obj\**;**\AssemblyInfo.cs;**\CrmServiceClientDummy.cs" />
 
     <file src="build\**\*" target="build" />
 
