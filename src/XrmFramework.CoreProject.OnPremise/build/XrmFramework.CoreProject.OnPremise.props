@@ -4,6 +4,6 @@
   </ItemGroup>
 
     <PropertyGroup>
-        <DefineConstants>$(DefineConstants);CORE_PROJECT</DefineConstants>
+        <DefineConstants>$(DefineConstants);CORE_PROJECT;ON_PREMISE</DefineConstants>
     </PropertyGroup>
 </Project>
