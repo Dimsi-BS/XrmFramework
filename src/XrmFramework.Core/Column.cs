@@ -12,6 +12,7 @@ namespace XrmFramework.Core
         
         public string Name { get; set; }
 
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         [JsonConverter(typeof(StringEnumConverter))]
         public AttributeTypeCode Type { get; set; }
 
