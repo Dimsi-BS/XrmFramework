@@ -1,0 +1,41 @@
+<Project>
+
+    <UsingTask TaskName="GenerateTsFilesTask" AssemblyFile="$(MSBuildThisFileDirectory)XrmFramework.TypeScript.dll" />
+
+    <!--
+        Copies the TypeScript files shipped with this package into the consuming project.
+        Files are always overwritten so they stay in sync with the installed package version.
+        Add 'xrmFramework/lib/' to the consuming project's .gitignore.
+    -->
+    <Target Name="CopyXrmFrameworkTypeScriptFiles" BeforeTargets="TransformFiles">
+        <ItemGroup>
+            <_XrmFwTsFiles Include="$(MSBuildThisFileDirectory)typescripts\**\*.ts" />
+        </ItemGroup>
+        <MakeDir Directories="$(MSBuildProjectDirectory)\xrmFramework" />
+        <Copy SourceFiles="@(_XrmFwTsFiles)"
+              DestinationFiles="@(_XrmFwTsFiles->'$(MSBuildProjectDirectory)\xrmFramework\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true" />
+    </Target>
+
+    <Target Name="TransformFiles" BeforeTargets="PreComputeCompileTypeScript">
+
+        <ItemGroup>
+            <SourceFiles Include="$(RootFolder)\$(XrmFrameworkCoreProjectName)\**\*.table" />
+        </ItemGroup>
+
+        <GenerateTsFilesTask
+                SourceFiles="@(SourceFiles)"
+                OutputDirectory="$(MSBuildProjectDirectory)\xrmFramework"
+                TypePrefix="type" />
+    </Target>
+
+
+    <PropertyGroup>
+        <WebpackMode Condition="'$(Configuration)' == 'Release'">production</WebpackMode>
+        <WebpackMode Condition="'$(Configuration)' != 'Release'">development</WebpackMode>
+    </PropertyGroup>
+
+    <Target Name="RunWebresourcesAfterBuild" AfterTargets="Build" >
+        <Exec Command="npx webpack --mode=$(WebpackMode)" WorkingDirectory="$(ProjectDir)" />
+    </Target>
+</Project>

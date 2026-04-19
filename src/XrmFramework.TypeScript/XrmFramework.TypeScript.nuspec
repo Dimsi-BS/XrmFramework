@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>XrmFramework.TypeScript</id>
+        <version>$version$</version>
+        <title>XrmFramework.TypeScript</title>
+        <authors>$author$</authors>
+        <owners>$owner$</owners>
+        <description>XrmFramework aims at simplifying Microsoft Dynamics 365  and Dataverse plugin, workflows development, deployment and testing</description>
+        <summary>XrmFramework aims at simplifying Microsoft Dynamics 365 and Dataverse plugin, workflows development, deployment and testing</summary>
+        <language>en-US</language>
+        <projectUrl>https://aka.ms/XrmFramework</projectUrl>
+        <license type="expression">MIT</license>
+        <tags>Dynamics365 CRM DynamicsCrm Dataverse PowerApps</tags>
+        <copyright>$copyright$</copyright>
+        <dependencies>
+            <group targetFramework="netstandard2.0">
+                <dependency id="Microsoft.TypeScript.MSBuild" version="6.0.3" />
+            </group>
+        </dependencies>
+    </metadata>
+
+    <files>
+        <file src="build\**\*" target="build\"
+              exclude="build\netstandard2.0\typescripts\tables.d.ts;build\netstandard2.0\typescripts\enums.ts" />
+
+        <file src="bin\$config$\netstandard2.0\XrmFramework.TypeScript.dll" target="build\netstandard2.0\" />
+
+        <file src="lib\**" target="lib" />
+
+    </files>
+</package>

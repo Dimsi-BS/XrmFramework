@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+
+        <AssemblyName>XrmFramework.TypeScript</AssemblyName>
+        <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
+        <PackageId>XrmFramework.TypeScript</PackageId>
+
+        <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.TypeScript.nuspec</NuspecFile>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Build.Framework" Version="18.4.0" />
+        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.4.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    </ItemGroup>
+
+
+</Project>
