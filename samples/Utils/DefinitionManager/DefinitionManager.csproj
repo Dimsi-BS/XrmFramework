@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--
+      Outil graphique (WinForms) pour générer les fichiers de définition d'entités.
+      net472 est requis par XrmFramework.DefinitionManager (WinForms).
+    -->
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Référence directe au projet XrmFramework.DefinitionManager (au lieu du package NuGet).
+      Ce projet référence lui-même XrmFramework.Core et XrmFramework.DeployUtils.
+    -->
+    <ProjectReference Include="../../../src/XrmFramework.DefinitionManager/XrmFramework.DefinitionManager.csproj" />
+    <ProjectReference Include="..\..\XrmFramework.Sample.Core\XrmFramework.Sample.Core.csproj" />
+  </ItemGroup>
+
+</Project>
