@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--
+      Outil de déploiement des plugins vers Dataverse.
+      net462 est requis pour la compatibilité avec les SDK Dynamics.
+    -->
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Référence au projet Plugins de cet exemple (pour détecter les plugins à déployer) -->
+    <ProjectReference Include="$(RootFolder)/XrmFramework.Sample.Plugins/XrmFramework.Sample.Plugins.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Référence directe au projet XrmFramework.DeployUtils (au lieu du package NuGet).
+      Permet le débogage pas-à-pas dans le code de déploiement du framework.
+    -->
+    <ProjectReference Include="../../../src/XrmFramework.DeployUtils/XrmFramework.DeployUtils.csproj" />
+  </ItemGroup>
+
+</Project>

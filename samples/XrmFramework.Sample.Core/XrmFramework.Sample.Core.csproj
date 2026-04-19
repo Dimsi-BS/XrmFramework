@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--
+      Projet Core : contient les définitions d'entités, les modèles et les services.
+      Cible net10.0 et net462 pour être compatible avec les outils de déploiement.
+    -->
+    <TargetFrameworks>net10.0;net462</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Référence directe au projet XrmFramework.CoreProject (au lieu du package NuGet).
+      Permet le débogage pas-à-pas dans le code du framework.
+      XrmFramework.CoreProject inclut déjà les sources de XrmFramework en interne.
+    -->
+    <ProjectReference Include="../../src/XrmFramework.CoreProject/XrmFramework.CoreProject.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Definitions/" />
+    <Folder Include="Model/" />
+    <Folder Include="Services/" />
+  </ItemGroup>
+
+</Project>
