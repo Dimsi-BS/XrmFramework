@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>XrmFramework.LogicApp</id>
+    <version>$version$</version>
+    <title>XrmFramework.LogicApp</title>
+    <authors>$author$</authors>
+    <owners>$owner$</owners>
+    <description>XrmFramework.LogicApp provides a fluent C# API to define and generate Azure Logic Apps JSON definitions, supporting both Consumption and Standard hosting plans.</description>
+    <summary>Fluent builder API for generating Azure Logic Apps (Consumption and Standard) JSON definitions from C# algorithm files.</summary>
+    <language>en-US</language>
+    <projectUrl>https://aka.ms/XrmFramework</projectUrl>
+    <license type="expression">MIT</license>
+    <tags>Dynamics365 LogicApp Azure AzureLogicApps PowerAutomate XrmFramework</tags>
+    <copyright>$copyright$</copyright>
+    <dependencies>
+      <group targetFramework="net462">
+        <dependency id="Newtonsoft.Json" version="13.0.4" />
+      </group>
+      <group targetFramework="net8.0">
+        <dependency id="Newtonsoft.Json" version="13.0.4" />
+      </group>
+      <group targetFramework="net10.0">
+        <dependency id="Newtonsoft.Json" version="13.0.4" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="lib\**" target="lib" />
+  </files>
+</package>
