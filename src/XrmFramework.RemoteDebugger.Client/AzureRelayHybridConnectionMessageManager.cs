@@ -114,11 +114,15 @@ namespace XrmFramework.RemoteDebugger.Client
         public void RunAndBlock()
         {
             Listener.OpenAsync().GetAwaiter().GetResult();
-
             Console.In.ReadLineAsync().GetAwaiter().GetResult();
-
             Listener.CloseAsync().GetAwaiter().GetResult();
         }
+
+        /// <inheritdoc />
+        public Task OpenAsync() => Listener.OpenAsync();
+
+        /// <inheritdoc />
+        public Task CloseAsync() => Listener.CloseAsync();
 
         protected virtual void OnContextReceived(RemoteDebugExecutionContext obj)
         {

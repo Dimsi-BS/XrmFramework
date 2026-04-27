@@ -1,0 +1,37 @@
+{
+  "LogName": "globalEnums",
+  "Name": "OptionSet",
+  "Cols": [],
+  "NtoN": [],
+  "OneToN": [],
+  "NToOne": [],
+  "Keys": [],
+  "Enums": [
+    {
+      "LogName": "workflow_runas",
+      "Name": "UtilisateurExecutant",
+      "Values": [
+        {
+          "Name": "Owner",
+          "Labels": [
+            {
+              "Label": "Propriétaire",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "CallingUser",
+          "Labels": [
+            {
+              "Label": "Utilisateur appelant",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "IsGlobal": true
+    },
+  ]
+}

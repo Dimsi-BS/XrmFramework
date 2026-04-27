@@ -18,4 +18,7 @@
     <ProjectReference Include="..\..\XrmFramework.Sample.Core\XrmFramework.Sample.Core.csproj" />
   </ItemGroup>
 
+
+  <Import Project="../Directory.Build.props" />
+  <Import Project="../../../src/XrmFramework.DefinitionManager/build/net462/XrmFramework.DefinitionManager.props" />
 </Project>

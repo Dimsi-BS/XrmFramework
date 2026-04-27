@@ -12,7 +12,7 @@
     <projectUrl>https://aka.ms/XrmFramework</projectUrl>
     <license type="expression">MIT</license>
     <tags>Dynamics365 CRM DynamicsCrm Dataverse PowerApps</tags>
-    <copyright>$copyrigth$</copyright>
+    <copyright>$copyright$</copyright>
     <dependencies>
       <group targetFramework="net462">
         <dependency id="Microsoft.Azure.Relay" version="3.0.1" />

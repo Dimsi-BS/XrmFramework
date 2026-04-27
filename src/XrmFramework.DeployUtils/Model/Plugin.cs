@@ -1,45 +1,66 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
-using Deploy;
+using XrmFramework.Definitions;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
-namespace XrmFramework.DeployUtils.Model
+namespace XrmFramework.DeployUtils.Model;
+
+/// <summary>
+///     Metadata of a Plugin
+/// </summary>
+/// <seealso cref="ICrmComponent" />
+public class Plugin : BaseCrmComponent
 {
-    public class Plugin
-    {
-        private Plugin(string fullName)
-        {
-            FullName = fullName;
-        }
+	public Plugin(string fullName)
+	{
+		FullName = fullName;
+	}
 
-        private Plugin(string fullName, string displayName) :this(fullName)
-        {
-            DisplayName = displayName;
-        }
+	public Plugin(string fullName, string displayName) : this(fullName)
+	{
+		DisplayName = displayName;
+	}
 
-        public bool IsWorkflow => !string.IsNullOrWhiteSpace(DisplayName);
+	public string FullName { get; set; }
+	public string DisplayName { get; }
 
-        public string FullName { get; }
+    /// <summary>Collection of the <see cref="Step" /></summary>
+    public StepCollection Steps { get; } = new();
 
-        public string DisplayName { get; }
+    /// <summary>Indicates whether this <see cref="Plugin" /> is a WorkFlow</summary>
+    public bool IsWorkflow => !string.IsNullOrWhiteSpace(DisplayName);
 
-        public StepCollection Steps { get; } = new StepCollection();
 
+	#region BaseCrmComponent overrides
 
-        public static Plugin FromXrmFrameworkPlugin(dynamic plugin, bool isWorkflow = false)
-        {
-            var pluginTemp = !isWorkflow ? new Plugin(plugin.GetType().FullName) : new Plugin(plugin.GetType().FullName, plugin.DisplayName);
+	public override string UniqueName
+	{
+		get => FullName;
+		set => FullName = value;
+	}
 
-            if (!isWorkflow)
-            {
-                foreach (var step in plugin.Steps)
-                {
-                    pluginTemp.Steps.Add(Step.FromXrmFrameworkStep(step));
-                }
-            }
-            
-            return pluginTemp;
-        }
-    }
+	public override IEnumerable<ICrmComponent> Children => Steps;
+
+	public override void AddChild(ICrmComponent child)
+	{
+		if (child is not Step step) throw new ArgumentException("Plugin doesn't take this type of children");
+		base.AddChild(child);
+		Steps.Add(step);
+	}
+
+	protected override void RemoveChild(ICrmComponent child)
+	{
+		if (child is not Step step) throw new ArgumentException("Plugin doesn't have this type of children");
+		Steps.Remove(step);
+	}
+
+	public override string EntityTypeName => PluginTypeDefinition.EntityName;
+	public override int Rank => 10;
+	public override bool DoAddToSolution => false;
+	public override bool DoFetchTypeCode => false;
+
+	#endregion
 }

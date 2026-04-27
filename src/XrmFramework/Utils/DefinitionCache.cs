@@ -15,6 +15,29 @@ namespace XrmFramework
 
         private static readonly ConcurrentDictionary<Type, ModelDefinition> InternalModelDefinitionCache = new ConcurrentDictionary<Type, ModelDefinition>();
 
+        private static readonly ConcurrentBag<Assembly> AdditionalAssemblies = new ConcurrentBag<Assembly>();
+
+        /// <summary>
+        /// Registers an additional assembly to search for <see cref="EntityDefinitionAttribute"/>-decorated types.
+        /// Call this from test assembly initializers to make test-defined entity definitions discoverable.
+        /// </summary>
+        public static void RegisterAssembly(Assembly assembly)
+        {
+            if (assembly != null && !AdditionalAssemblies.Contains(assembly))
+            {
+                AdditionalAssemblies.Add(assembly);
+            }
+        }
+
+        /// <summary>
+        /// Clears all cached definitions. Useful in test teardown to ensure a clean state between tests.
+        /// </summary>
+        public static void ResetCache()
+        {
+            InternalDefinitionCache.Clear();
+            InternalModelDefinitionCache.Clear();
+        }
+
         public static EntityDefinition GetEntityDefinition(string entityName)
         {
             if (TryGetEntityDefinition(entityName, out var definition))
@@ -56,9 +79,12 @@ namespace XrmFramework
         {
             definition = InternalDefinitionCache.GetOrAdd(entityName, (name) =>
             {
-                var definitionTypes = typeof(DefinitionCache)
-                    .Assembly
-                    .GetTypes()
+                var assembliesToSearch = new[] { typeof(DefinitionCache).Assembly }
+                    .Concat(AdditionalAssemblies)
+                    .Distinct();
+
+                var definitionTypes = assembliesToSearch
+                    .SelectMany(a => a.GetTypes())
                     .Where(t => t.GetCustomAttribute<EntityDefinitionAttribute>() != null)
                     .Where(t => t.GetField("EntityName") != null)
                     .Where(t =>

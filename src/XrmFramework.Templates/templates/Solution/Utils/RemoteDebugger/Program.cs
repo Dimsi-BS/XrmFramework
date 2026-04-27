@@ -1,16 +1,6 @@
-﻿using System;
-using XrmFramework.RemoteDebugger.Client;
+﻿using XrmFramework.RemoteDebugger.Client;
 using XrmFramework.RemoteDebugger.Common;
 
-namespace XrmFramework.RemoteDebugger
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            var remoteDebugger = new RemoteDebugger<AzureRelayHybridConnectionMessageManager>();
+var remoteDebugger = new RemoteDebugger<AzureRelayHybridConnectionMessageManager>();
 
-            remoteDebugger.Start();
-        }
-    }
-}
+remoteDebugger.Start();

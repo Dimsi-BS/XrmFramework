@@ -37,4 +37,20 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="**\*.table" />
+        <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
+
+        <Compile Remove="**/Generated/**/*.cs" />
+        <None Include="**/Generated/**/*.cs" />
+    </ItemGroup>
 </Project>

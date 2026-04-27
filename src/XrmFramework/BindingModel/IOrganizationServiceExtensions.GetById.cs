@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
-#if !PLUGIN && !ON_PREMISE
+#if !NET462_OR_GREATER
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.PowerPlatform.Dataverse.Client;
@@ -88,7 +88,7 @@ public static class IOrganizationServiceExtensions_GetById
     }
 
 
-#if !PLUGIN && !ON_PREMISE
+#if !NET462_OR_GREATER
     extension(IOrganizationServiceAsync service)
     {
         public async Task<T> GetByIdAsync<T>(Guid id) where T : IBindingModel

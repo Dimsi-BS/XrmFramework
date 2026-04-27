@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 using XrmFramework.RemoteDebugger;
 
@@ -76,7 +77,7 @@ namespace XrmFramework.RemoteDebugger.Common.ConsoleUI
 
         /// <summary>Liste des appels OrgService effectués pendant l'exécution.</summary>
         public IReadOnlyList<OrgServiceCallRecord> OrgServiceCalls => _orgServiceCalls;
-        private readonly List<OrgServiceCallRecord> _orgServiceCalls = new List<OrgServiceCallRecord>();
+        private readonly List<OrgServiceCallRecord> _orgServiceCalls = new();
 
         /// <summary>
         /// Session de test complète pour rejouer cette exécution.
@@ -185,5 +186,23 @@ namespace XrmFramework.RemoteDebugger.Common.ConsoleUI
             var lastDot = typePart.LastIndexOf('.');
             return lastDot >= 0 ? typePart.Substring(lastDot + 1) : typePart;
         }
+    }
+
+    internal class RecordedOrgServiceCall
+    {
+        public string RequestJson { get; set; }
+        public string ResponseJson { get; set; }
+    }
+
+    public class PluginTestSession
+    {
+        public string PluginTypeAssemblyQualifiedName { get; set; }
+        
+        public DateTime ExecutionDate { get; set; }
+        
+        public RemoteDebugExecutionContext InputContext { get; set; }
+        
+        public RemoteDebugExecutionContext OutputContext { get; set; }
+        public ICollection<> OrgServiceCalls { get; set; }
     }
 }

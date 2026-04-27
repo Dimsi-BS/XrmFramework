@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
 
@@ -24,20 +23,17 @@ namespace XrmFramework.RemoteDebugger.Converters
         public override AliasedValue ReadJson(JsonReader reader, Type objectType, AliasedValue existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             reader.Read();
-            var propertyName = (string)reader.Value;
             reader.Read();
 
             var attributeLogicalName = (string)reader.Value;
 
             reader.Read();
-            propertyName = (string)reader.Value;
 
             reader.Read();
 
             var entityLogicalName = (string)reader.Value;
 
             reader.Read();
-            propertyName = (string)reader.Value;
             reader.Read();
 
             var serializedValue = serializer.Deserialize<ObjectSerialization>(reader);

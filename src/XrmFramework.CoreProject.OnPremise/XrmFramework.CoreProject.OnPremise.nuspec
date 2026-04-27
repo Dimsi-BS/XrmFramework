@@ -12,7 +12,7 @@
     <projectUrl>https://aka.ms/XrmFramework</projectUrl>
     <license type="expression">MIT</license>
     <tags>Dynamics365 CRM DynamicsCrm Dataverse PowerApps</tags>
-    <copyright>$copyrigth$</copyright>
+    <copyright>$copyright$</copyright>
     <dependencies>
       <group targetFramework="net48">
           <dependency id="Microsoft.CrmSdk.XrmTooling.CoreAssembly" version="9.1.1.65" />

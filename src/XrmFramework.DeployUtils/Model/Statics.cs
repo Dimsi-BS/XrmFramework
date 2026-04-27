@@ -39,6 +39,7 @@ namespace XrmFramework.DeployUtils.Model
     // ReSharper disable once PartialTypeWithSinglePart
     public partial class Messages
     {
+        #region Static Fields
         public static Messages AddItem { get; } = new("AddItem");
         public static Messages AddListMembers { get; } = new("AddListMembers");
         public static Messages AddMember { get; } = new("AddMember");
@@ -129,6 +130,8 @@ namespace XrmFramework.DeployUtils.Model
         public static Messages ExecuteWorkflow { get; } = new("ExecuteWorkflow");
         public static Messages Default { get; } = new("Default");
 
+        #endregion
+        
         protected string MessageName { get; }
 
         protected Messages(string messageName)
@@ -139,6 +142,24 @@ namespace XrmFramework.DeployUtils.Model
         public static bool operator ==(Messages x, Messages y) => x?.MessageName == y?.MessageName;
 
         public static bool operator !=(Messages x, Messages y) => !(x == y);
+        
+        // implicit converter from string
+        public static implicit operator Messages(string messageName)
+        {
+            return GetMessage(messageName);
+        }
+        
+        // implicit converter to XrmFramework.Messages
+        public static implicit operator string(Messages message)
+        {
+            return message.MessageName;
+        }
+        
+        // implicit converter to XrmFramework.Messages
+        public static implicit operator XrmFramework.Messages(Messages message)
+        {
+            return XrmFramework.Messages.GetMessage(message.MessageName);
+        }
 
         public override string ToString() => MessageName;
 

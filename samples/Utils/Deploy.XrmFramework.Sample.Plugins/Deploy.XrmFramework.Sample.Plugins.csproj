@@ -22,4 +22,8 @@
     <ProjectReference Include="../../../src/XrmFramework.DeployUtils/XrmFramework.DeployUtils.csproj" />
   </ItemGroup>
 
+
+  <Import Project="../../../src/XrmFramework.DeployUtils/build/net462/XrmFramework.DeployUtils.props" />
+
+
 </Project>

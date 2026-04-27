@@ -9,19 +9,16 @@ namespace XrmFramework.DefinitionManager.Definitions;
 
 class AttributeDefinition : AbstractDefinition
 {
-
-    private string _displayName, _type;
-
     public AttributeDefinition()
     {
         this.PropertyChanged += AttributeDefinition_PropertyChanged;
     }
 
     [Column("Display Name", 1, 300)]
-    public string DisplayName { get { return _displayName; } set { _displayName = value; OnPropertyChanged("DisplayName"); } }
+    public string DisplayName { get { return field; } set { field = value; OnPropertyChanged("DisplayName"); } }
 
     [Column("Column Type", 2, 100)]
-    public string Type { get { return _type; } set { _type = value; OnPropertyChanged("Type"); } }
+    public string Type { get { return field; } set { field = value; OnPropertyChanged("Type"); } }
 
     public EntityDefinition ParentEntity { get; set; }
 
@@ -69,19 +66,18 @@ class AttributeDefinition : AbstractDefinition
         }
     }
 
-    private EnumDefinition _enum;
     private readonly List<OneToManyRelationshipMetadata> _relationships = new();
 
     [Mergeable]
     public EnumDefinition Enum
     {
-        get { return _enum; }
+        get { return field; }
         set
         {
-            _enum = value;
+            field = value;
             if (value != null)
             {
-                _enum.PropertyChanged += _enum_PropertyChanged;
+                field.PropertyChanged += _enum_PropertyChanged;
             }
             OnPropertyChanged("EnumName");
         }
