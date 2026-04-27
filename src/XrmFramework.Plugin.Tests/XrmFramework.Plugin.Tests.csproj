@@ -1,0 +1,71 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Projet source pour le package NuGet XrmFramework.Plugin.Tests.
+
+    Ce projet remplit deux rôles :
+      1. Compiler les sources de tests pour vérifier qu'elles compilent correctement
+         contre la version courante de XrmFramework.Plugin.
+      2. Générer le package NuGet qui embarque ces sources comme contentFiles,
+         permettant aux consommateurs de mesurer la couverture de code du Framework.
+
+    IMPORTANT : Ce projet N'EST PAS un runner de tests (IsTestProject=false).
+    Pour exécuter les tests localement, utilisez src/Tests/XrmFramework.Plugin.Tests/.
+  -->
+
+  <PropertyGroup>
+    <TargetFrameworks>net462</TargetFrameworks>
+    <AssemblyName>XrmFramework.Plugin.Tests</AssemblyName>
+    <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
+    <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
+
+    <!-- Packaging -->
+    <PackageId>XrmFramework.Plugin.Tests</PackageId>
+    <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.Plugin.Tests.nuspec</NuspecFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!--
+      Ce projet compile les tests pour validation, mais n'est pas un projet de test exécutable.
+      Le runner de tests est src/Tests/XrmFramework.Plugin.Tests/.
+    -->
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+
+  <!--
+    Référence au projet Framework pour compilation locale.
+    Lors de la consommation du package NuGet, cette référence est remplacée
+    par la dépendance déclarée dans le .nuspec (XrmFramework.Plugin).
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\XrmFramework.Plugin\XrmFramework.Plugin.csproj" />
+  </ItemGroup>
+
+  <!--
+    Dépendances MSTest nécessaires pour compiler les sources de tests.
+    PrivateAssets=all sur le SDK et l'adapter : ils ne doivent pas apparaître
+    dans les dépendances transitives du package généré (géré via nuspec).
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+  </ItemGroup>
+
+  <!--
+    Sources de tests liées depuis src/Tests/XrmFramework.Plugin.Tests/.
+    Source unique de vérité : les fichiers ne sont pas dupliqués.
+    Le Link= contrôle l'affichage dans l'IDE.
+  -->
+  <ItemGroup>
+    <Compile Include="..\Tests\XrmFramework.Plugin.Tests\**\*.cs"
+             Link="%(RecursiveDir)%(Filename)%(Extension)"
+             Exclude="..\Tests\XrmFramework.Plugin.Tests\obj\**;..\Tests\XrmFramework.Plugin.Tests\bin\**" />
+  </ItemGroup>
+
+</Project>
