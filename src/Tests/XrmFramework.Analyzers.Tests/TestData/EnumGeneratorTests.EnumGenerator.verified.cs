@@ -5,14 +5,21 @@ using System.Collections.Generic;
 
 namespace XrmFramework
 {
-   partial class Messages
-   {
-      private static IReadOnlyList<Messages> _items;
-      public static IReadOnlyList<Messages> Items => _items ??= GetItems();
+    partial class Messages
+    {
+        private static IReadOnlyList<Messages> _items;
+        public static IReadOnlyList<Messages> Items => _items ??= GetItems();
 
-      private static IReadOnlyList<Messages> GetItems()
-      {
-         return new[] { Create, Update };
-      }
-   }
+        private static IReadOnlyList<Messages> GetItems()
+        {
+            return new[] {
+                Create,
+                Update,
+#pragma warning disable CS0612
+                SetState
+#pragma warning restore CS0612
+
+            };
+        }
+    }
 }

@@ -31,6 +31,17 @@
     <Compile Remove="**\*.verified.*" />
   </ItemGroup>
 
+  <!--
+    Fixtures (.table / .model) used by TableSourceFileGeneratorTests and
+    ModelSourceFileGeneratorTests. They are copied next to the test assembly
+    so the harness can stream them as AdditionalText inputs at runtime.
+  -->
+  <ItemGroup>
+    <None Update="Resources\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" />
   </ItemGroup>

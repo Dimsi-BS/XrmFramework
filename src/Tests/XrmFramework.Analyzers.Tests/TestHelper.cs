@@ -1,8 +1,11 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Xrm.Sdk;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using VerifyXunit;
+using XrmFramework.Analyzers.Model;
 
 namespace XrmFramework.Analyzers.Tests
 {
@@ -10,10 +13,11 @@ namespace XrmFramework.Analyzers.Tests
     {
         public static Task Verify<TGenerator>(string source, params (string path, byte[] content)[] additionalTexts) where TGenerator : IIncrementalGenerator, new()
         {
-            // Parse the provided string into a C# syntax tree
+            // Parse the provided string into a C# syntax tree.
             SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(source);
 
-            // Create a Roslyn compilation for the syntax tree.
+            // Build a Roslyn compilation around it. We bring in mscorlib and Microsoft.Xrm.Sdk
+            // so that generators can resolve common framework types.
             CSharpCompilation compilation = CSharpCompilation.Create(
                 assemblyName: "Tests",
                 syntaxTrees: new[] { syntaxTree },
@@ -22,21 +26,20 @@ namespace XrmFramework.Analyzers.Tests
                     MetadataReference.CreateFromFile(typeof(Entity).Assembly.Location)
                 });
 
+            // Wrap any (path, content) tuple so the generator can read it through
+            // context.AdditionalTextsProvider, exactly like a project-level <AdditionalFiles>.
+            var additionalFiles = ImmutableArray
+                .CreateRange(additionalTexts.Select(a => (AdditionalText)new TableAdditionalText(a)));
 
-            // Create an instance of our EnumGenerator incremental source generator
-            var generator = new TGenerator();
-
-            // The GeneratorDriver is used to run our generator against a compilation
             GeneratorDriver driver = CSharpGeneratorDriver
-                .Create(generator);
+                .Create(new TGenerator())
+                .AddAdditionalTexts(additionalFiles);
 
-            // Run the source generator!
             driver = driver.RunGenerators(compilation);
 
-            // Use verify to snapshot test the source generator output!
             return Verifier
-                    .Verify(driver)
-                    .UseDirectory("TestData");
+                .Verify(driver)
+                .UseDirectory("TestData");
         }
     }
 }
