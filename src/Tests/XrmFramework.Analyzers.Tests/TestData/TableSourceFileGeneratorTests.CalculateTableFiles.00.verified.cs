@@ -1,2 +1,32 @@
 ﻿//HintName: Account.table.cs
-namespace Titi { public static class AccountDefinition { public const string EntityName = "Account"; } }
+using System;
+using System.CodeDom.Compiler;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
+using System.ComponentModel;
+
+namespace XrmFramework
+{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
