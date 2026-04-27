@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Microsoft.Xrm.Sdk;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,275 +8,237 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
-using XrmFramework.Workflow;
+using Microsoft.Xrm.Sdk;
+using Newtonsoft.Json;
 
-namespace XrmFramework
+namespace XrmFramework;
+
+/// <summary>
+///     Base class for all Plugins.
+/// </summary>
+//[DebuggerNonUserCode]
+public abstract partial class Plugin : IPlugin
 {
+    protected const string PreImageName = "PreImage";
+
+    protected const string PostImageName = "PostImage";
+
+    //Steps at which this plugin will invoke a method
+    private readonly IList<Step> _newRegisteredEvents = new Collection<Step>();
+
+    private string SecuredConfig { get; }
+
+    private string UnSecuredConfig { get; }
+
+    public bool StepsInitialized { get; private set; }
+
+    #region .ctor
+
     /// <summary>
-    ///     Base class for all Plugins.
+    ///     Initializes a new instance of the <see cref="Plugin" /> class.
     /// </summary>
-    //[DebuggerNonUserCode]
-    public abstract partial class Plugin : IPlugin
+    protected Plugin(string unsecuredConfig, string securedConfig) : this(unsecuredConfig, securedConfig, false)
     {
-        private readonly IList<Step> _newRegisteredEvents = new Collection<Step>();
+    }
 
-        protected const string PreImageName = "PreImage";
+    protected Plugin(string unsecuredConfig, string securedConfig, bool delayStepRegistration)
+    {
+        SecuredConfig = securedConfig;
+        UnSecuredConfig = unsecuredConfig;
+        InitializeSteps(delayStepRegistration);
+    }
+    #endregion
 
-        protected const string PostImageName = "PostImage";
-
-        private string SecuredConfig { get; }
-
-        private string UnSecuredConfigFull { get; }
-
-        protected string UnsecuredConfig { get; }
-
-        public bool StepsInitialized { get; private set; }
-
-        #region .ctor
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Plugin" /> class.
-        /// </summary>
-        protected Plugin(string unsecuredConfig, string securedConfig) : this(unsecuredConfig, securedConfig, false)
+    protected void InitializeSteps(bool delayStepRegistration = false)
+    {
+        if (delayStepRegistration)
         {
+            return;
+        }
+        AddSteps();
+        StepsInitialized = true;
+    }
+
+
+    protected abstract void AddSteps();
+
+    public ReadOnlyCollection<Step> Steps => new ReadOnlyCollection<Step>(_newRegisteredEvents);
+
+    protected void AddStep(Stages stage, Messages messageName, Modes mode, string entityName, string actionName, params string[] columns)
+    {
+        var list = _newRegisteredEvents;
+        // Create a new step with the input parameters 
+        var step = new Step(this, messageName, stage, mode, entityName, actionName, columns);
+        // Invoked method must exist, be public and non static
+        if (step.Method == null)
+        {
+            throw new InvalidPluginExecutionException($"The method {ChildClassName}.{actionName} used during {messageName} message does not exist or is private");
         }
 
-        protected Plugin(string unsecuredConfig, string securedConfig, bool delayStepRegistration)
+        if (!step.Method.IsPublic || step.Method.IsStatic)
         {
-            SecuredConfig = securedConfig;
-            UnSecuredConfigFull = unsecuredConfig;
-
-            try 
-            {
-                var stepConfiguration = JsonConvert.DeserializeObject<StepConfiguration>(unsecuredConfig);
-
-                UnsecuredConfig = stepConfiguration.Configuration;
-            }
-            catch (Exception) 
-            {
-                // Problème de désérialization de la config
-                UnsecuredConfig = unsecuredConfig;
-            }
-
-            InitializeSteps(delayStepRegistration);
-        }
-        #endregion
-
-        protected void InitializeSteps(bool delayStepRegistration = false)
-        {
-            if (delayStepRegistration)
-            {
-                return;
-            }
-            AddSteps();
-            StepsInitialized = true;
+            throw new InvalidPluginExecutionException($"The method {ChildClassName}.{actionName} used during {messageName} message should be public and not static");
         }
 
-        protected abstract void AddSteps();
-
-        public ReadOnlyCollection<Step> Steps => new ReadOnlyCollection<Step>(_newRegisteredEvents);
-
-        protected void AddStep(Stages stage, Messages messageName, Modes mode, string entityName, string actionName, params string[] columns)
+        foreach (var param in step.Method.GetParameters())
         {
-            var list = _newRegisteredEvents;
-
-            var step = new Step(this, messageName, stage, mode, entityName, actionName, columns);
-
-            if (step.Method == null)
+            //Parameters for the step method must be an interface like IPluginContext and IService
+            if (!param.ParameterType.IsInterface || (!typeof(IPluginContext).IsAssignableFrom(param.ParameterType)
+                                                      && !typeof(IService).IsAssignableFrom(param.ParameterType)))
             {
-                throw new InvalidPluginExecutionException($"The method {ChildClassName}.{actionName} used during {messageName} message does not exist or is private");
+                throw new InvalidPluginExecutionException($"{ChildClassName}.{actionName} parameter : {param.Name}. Only IPluginContext and IService interfaces are allowed as parameters");
             }
-            else if (!step.Method.IsPublic || step.Method.IsStatic)
-            {
-                throw new InvalidPluginExecutionException($"The method {ChildClassName}.{actionName} used during {messageName} message should be public and not static");
-            }
-
-            foreach (var param in step.Method.GetParameters())
-            {
-                if (!param.ParameterType.IsInterface || (!typeof(IPluginContext).IsAssignableFrom(param.ParameterType)
-                        && (!typeof(IService).IsAssignableFrom(param.ParameterType))))
-                {
-                    throw new InvalidPluginExecutionException($"{ChildClassName}.{actionName} parameter : {param.Name}. Only IPluginContext and IService interfaces are allowed as parameters");
-                }
-            }
-
-            list.Add(step);
         }
 
-        /// <summary>
-        ///     Gets or sets the name of the child class.
-        /// </summary>
-        /// <value>The name of the child class.</value>
-        protected string ChildClassName => GetType().Name;
+        list.Add(step);
+    }
 
-        protected void SetCustomApiInfos(string methodName)
+    /// <summary>
+    ///     Gets or sets the name of the child class.
+    /// </summary>
+    /// <value>The name of the child class.</value>
+    protected string? ChildClassName => GetType().Name;
+
+    /// <summary>
+    ///     Executes the plug-in.
+    /// </summary>
+    /// <param name="serviceProvider">The service provider.</param>
+    /// <remarks>
+    ///     For improved performance, Microsoft Dynamics CRM caches plug-in instances.
+    ///     The plug-in's Execute method should be written to be stateless as the constructor
+    ///     is not called for every invocation of the plug-in. Also, multiple system threads
+    ///     could execute the plug-in at the same time. All per invocation state information
+    ///     is stored in the context. This means that you should not use global variables in plug-ins.
+    /// </remarks>
+    public void Execute(IServiceProvider serviceProvider)
+    {
+        if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
+
+        // Construct the Local plug-in context.
+        var localContext = new LocalPluginContext(serviceProvider, UnSecuredConfig, SecuredConfig);
+
+        localContext.Log($"\r\nClass {ChildClassName}");
+        localContext.LogStart();
+        localContext.Log("The context is genuine");
+
+        try
         {
-            _isCustomApi = true;
-            _customApiMethodName = methodName;
 
-            var customApiAttribute = GetType().GetCustomAttribute<CustomApiAttribute>();
+#if !DISABLE_REMOTE_DEBUG
+            // If currently remote debugging, no need to go on
+            if (IsBeingDebugged(localContext)) return;
+#endif
 
-            if (customApiAttribute is null)
-            {
-                throw new InvalidPluginExecutionException($"{ChildClassName} : No CustomApiAttribute found");
-            }
+            localContext.LogContextEntry();
 
-            _customApiEntityName = string.IsNullOrWhiteSpace(customApiAttribute.BoundEntityLogicalName) ? string.Empty : customApiAttribute.BoundEntityLogicalName;
+            //This is a virtual method, it is overriden in the CustomApi derived class
+            var steps = InitStepsToExecute(localContext);
+
+            InvokeSteps(localContext, steps);
+        }
+        catch (FaultException<OrganizationServiceFault> e)
+        {
+            localContext.Log($"Exception: {e}");
+            throw;
+        }
+        catch (Exception e)
+        {
+            PluginExceptionHandler(localContext, e);
         }
 
-        private bool _isCustomApi;
-        private string _customApiMethodName;
-        private string _customApiEntityName;
+        localContext.LogContextExit();
+        localContext.Log($"Exiting {ChildClassName}.Execute()");
+        localContext.LogExit();
+    }
 
-        /// <summary>
-        ///     Executes the plug-in.
-        /// </summary>
-        /// <param name="serviceProvider">The service provider.</param>
-        /// <remarks>
-        ///     For improved performance, Microsoft Dynamics CRM caches plug-in instances.
-        ///     The plug-in's Execute method should be written to be stateless as the constructor
-        ///     is not called for every invocation of the plug-in. Also, multiple system threads
-        ///     could execute the plug-in at the same time. All per invocation state information
-        ///     is stored in the context. This means that you should not use global variables in plug-ins.
-        /// </remarks>
-        public void Execute(IServiceProvider serviceProvider)
+    private void InvokeSteps(LocalPluginContext localContext, IEnumerable<Step> steps)
+    {
+        var methodsToAvoid = string.IsNullOrEmpty(UnSecuredConfig)
+          ? new List<string>()
+          : JsonConvert.DeserializeObject<StepConfiguration>(UnSecuredConfig).BannedMethods;
+
+        // Create stage enum value with local context
+
+        var sw = new Stopwatch();
+
+        // Execute the action corresponding to each step
+        foreach (var step in steps)
         {
-            var sw = new Stopwatch();
-            if (serviceProvider == null)
+            //Proceed to filtering
+            // If the filtering condition are not met, proceed to the next step without executing the action corresponding to this one
+
+            if (!ShouldExecuteForFilteringAttributes(localContext, step))
             {
-                throw new ArgumentNullException(nameof(serviceProvider));
+                localContext.LogNotFiredForFilteringAttributes(ChildClassName, step.Method.Name);
+                continue;
             }
 
-            // Construct the Local plug-in context.
-            var localContext = new LocalPluginContext(serviceProvider, UnSecuredConfigFull, SecuredConfig);
+            // Get the info regarding the method corresponding to the step
+            var entityAction = step.Method;
 
-            localContext.Log($"Entity: {localContext.PrimaryEntityName}, Message: {localContext.MessageName}, Stage: {Enum.ToObject(typeof(Stages), localContext.Stage)}, Mode: {localContext.Mode}");
+            if (methodsToAvoid.Contains(entityAction.Name))
+            {
+                localContext.Log(
+                  $"\r\n{ChildClassName}.{step.Method.Name} is not fired because it has been manually disabled in the Unsecured Configuration.");
+                continue;
+            }
 
-            localContext.Log($"\r\nClass {ChildClassName}");
-            localContext.Log($"\r\nUserId\t\t\t\t{localContext.UserId}\r\nInitiatingUserId\t{localContext.InitiatingUserId}");
-            localContext.Log($"\r\nStart : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}");
+            localContext.Log($"\r\n\r\n{ChildClassName}.{step.Method.Name} is firing");
+
             sw.Restart();
 
+            localContext.Log($"{ChildClassName}.{step.Method.Name} Start");
+            //Call the method corresponding to the step
+            localContext.InvokeMethod(this, entityAction);
 
-            try
-            {
-                if (SendToRemoteDebugger(localContext))
-                {
-                    return;
-                }
+            localContext.Log($"{ChildClassName}.{step.Method.Name} End, duration : {sw.Elapsed}");
+        }
+    }
 
-                IEnumerable<Step> steps;
+    internal virtual IEnumerable<Step> InitStepsToExecute(LocalPluginContext localContext)
+    {
+        return from a in _newRegisteredEvents
+               where
+                 localContext.ShouldExecuteStep(a)
+               select a;
+    }
 
-                if (_isCustomApi)
-                {
-                    steps = new List<Step>
-                    {
-                        new Step(this, localContext.MessageName, Stages.PostOperation, Modes.Synchronous, _customApiEntityName, _customApiMethodName)
-                    };
-                }
-                else
-                {
-                    steps =
-                        from a in _newRegisteredEvents
-                        where
-                            localContext.ShouldExecuteStep(a)
-                        select a;
-                }
+    private static bool ShouldExecuteForFilteringAttributes(LocalPluginContext localContext, Step step)
+    {
+        if (!(step.Message == Messages.Update && step.FilteringAttributes.Any())) return true;
 
-                var stage = Enum.ToObject(typeof(Stages), localContext.Stage);
-                sw.Restart();
-                localContext.Log("------------------ Input Variables (before) ------------------");
-                localContext.DumpInputParameters();
-                localContext.Log("\r\n------------------ Shared Variables (before) ------------------");
-                localContext.DumpSharedVariables();
-                localContext.Log("\r\n---------------------------------------------------------------");
+        var target = localContext.GetInputParameter<Entity>(InputParameters.Target);
+        //Create a variable of which the value signals one or more of the filtered attributes is present
+        var useStep = false;
+        //Test the target to determine the value of useStep
+        foreach (var attributeName in target.Attributes.Select(a => a.Key))
+            useStep |= step.FilteringAttributes.Contains(attributeName);
 
-                foreach (var step in steps)
-                {
-                    sw.Restart();
-                    if (step.Message == Messages.Update && step.FilteringAttributes.Any())
-                    {
+        return useStep;
+    }
 
-                        var target = localContext.GetInputParameter<Entity>(InputParameters.Target);
+    private void PluginExceptionHandler(LocalPluginContext localContext, Exception exception)
+    {
+        switch (exception)
+        {
+            case TargetInvocationException e:
 
-                        var useStep = false;
-
-                        foreach (var attributeName in target.Attributes.Select(a => a.Key))
-                        {
-                            useStep |= step.FilteringAttributes.Contains(attributeName);
-                        }
-
-                        if (!useStep)
-                        {
-                            localContext.Log(
-                                "\r\n{0}.{5} is not fired because filteringAttributes filter is not met.",
-                                ChildClassName,
-                                localContext.PrimaryEntityName,
-                                localContext.MessageName,
-                                stage,
-                                localContext.Mode, step.Method.Name);
-                            continue;
-                        }
-
-                    }
-
-                    var entityAction = step.Method;
-
-                    localContext.Log($"\r\n\r\n{ChildClassName}.{step.Method.Name} is firing");
-
-                    sw.Restart();
-
-                    localContext.Log($"{ChildClassName}.{step.Method.Name} Start");
-
-                    localContext.InvokeMethod(this, entityAction);
-
-                    localContext.Log($"{ChildClassName}.{step.Method.Name} End, duration : {sw.Elapsed}");
-                }
-
-                if (localContext.IsStage(Stages.PreValidation) || localContext.IsStage(Stages.PreOperation))
-                {
-                    localContext.Log("\r\n\r\n------------------ Input Variables (after) ------------------");
-                    localContext.DumpInputParameters();
-                    localContext.Log("\r\n------------------ Shared Variables (after) ------------------");
-                    localContext.DumpSharedVariables();
-                    localContext.Log("\r\n---------------------------------------------------------------");
-                }
-            }
-            catch (FaultException<OrganizationServiceFault> e)
-            {
-                localContext.Log($"Exception: {e}");
-
-                // Handle the exception.
-                throw;
-            }
-            catch (TargetInvocationException e)
-            {
                 localContext.Log($"Exception : {e.InnerException}");
-
                 if (e.InnerException != null)
                 {
                     if (e.InnerException is InvalidPluginExecutionException invalidPluginExecutionException)
-                    {
                         throw invalidPluginExecutionException;
-                    }
-                    else
-                    {
-                        throw new InvalidPluginExecutionException(e.InnerException.Message);
-                    }
+
+                    throw new InvalidPluginExecutionException(e.InnerException.Message);
                 }
-            }
-            catch (JsonException e)
-            {
-                throw new InvalidPluginExecutionException(e.ToString());
-            }
-            finally
-            {
-                localContext.Log($"Exiting {ChildClassName}.Execute()");
 
-                localContext.Log($"End : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}\r\n");
+                throw e;
 
-                localContext.FlushLogs();
-            }
+            case JsonException e:
+                {
+                    throw new InvalidPluginExecutionException(e.ToString());
+                }
+            default: throw exception;
         }
     }
 }

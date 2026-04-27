@@ -88,7 +88,7 @@ namespace XrmFramework
         }
 
 
-        public IOrganizationService GetService(Guid userId)
+        public IOrganizationService GetOrganizationService(Guid? userId)
         {
 #if CORE_PROJECT
             if (OrganizationService is 
@@ -101,7 +101,10 @@ namespace XrmFramework
                 client)
             {
                 var clonedClient = client.Clone();
-                clonedClient.CallerId = userId;
+                if (userId.HasValue)
+                {
+                    clonedClient.CallerId = userId.Value;
+                }
 
                 return clonedClient;
             }

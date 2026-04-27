@@ -63,7 +63,7 @@ You can add `--accept-scripts` to install the solution and run the script withou
 
 
 ### Configure the new project
-A `connectionStrings.config` file as been created in the `Config\` folder near of the new solution.
+A `connectionStrings.config` file has been created in the `Config\` folder near of the new solution.
 
 This file will contain the connectionStrings needed for the tools to connect to your Dynamics 365 / Dataverse environments.
 ```xml

@@ -23,23 +23,44 @@
     <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.Analyzers.nuspec</NuspecFile>
   </PropertyGroup>
 
-  <ItemGroup>
+    <ItemGroup>
+        <Compile Include="..\XrmFramework.DeployUtils\Check.cs" Link="Helpers\Check.cs" />
+        <Compile Include="..\XrmFramework\Attributes\PrimaryAttributeAttribute.cs" Link="Model\Attributes\PrimaryAttributeAttribute.cs" />
 
-    <Compile Include="..\XrmFramework.DeployUtils\Check.cs" Link="Helpers\Check.cs" />
-  </ItemGroup>
+        <Compile Include="..\XrmFramework.Core\**\*.cs" Link="_Imports/XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0"/>
-  </ItemGroup>
+        <Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="XrmFramework.Core\SdkEnums.cs" />
+        <Compile Include="..\XrmFramework\Utils\BoDi.cs" Link="XrmFramework.Core\BoDi.cs" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Resources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Resources.resx" />
-    <EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.8.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Resources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Resources.resx" />
+        <EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json"
+                          Version="13.0.3"
+                          PrivateAssets="all"
+                          GeneratePathProperty="true" />
+
+        <None Include="$(OutputPath)\$(AssemblyName).dll"
+              Pack="true"
+              PackagePath="analyzers/dotnet/cs"
+              Visible="false" />
+        <None Include="$(PkgNewtonsoft_Json)\lib\netstandard2.0\*.dll"
+              Pack="true"
+              PackagePath="analyzers/dotnet/cs"
+              Visible="false" />
+    </ItemGroup>
 
 </Project>

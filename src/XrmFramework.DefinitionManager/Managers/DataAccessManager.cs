@@ -40,9 +40,7 @@ namespace DefinitionManager
         {
         }
 
-        private static DataAccessManager _instance = new();
-
-        public static DataAccessManager Instance { get { return _instance; } }
+        public static DataAccessManager Instance { get { return field; } } = new();
 
         private string Prefix { get; set; }
 

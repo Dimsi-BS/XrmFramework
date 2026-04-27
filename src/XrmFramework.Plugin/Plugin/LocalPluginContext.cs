@@ -7,16 +7,18 @@ using System;
 
 namespace XrmFramework
 {
-    internal partial class LocalPluginContext : LocalContext, IPluginContext
+    internal partial class LocalPluginContext : LocalContext, IPluginContext, IServiceProvider
     {
-        public string UnsecureConfig { get; }
-        public string SecureConfig { get; }
+        protected string UnsecuredConfig { get; }
 
-        public LocalPluginContext(IServiceProvider serviceProvider, string unsecureConfig, string secureConfig)
+        protected string SecuredConfig { get; }
+
+        public LocalPluginContext(IServiceProvider serviceProvider, string unsecuredConfig, string securedConfig)
             : base(serviceProvider)
         {
-            UnsecureConfig = unsecureConfig;
-            SecureConfig = secureConfig;
+            UnsecuredConfig = unsecuredConfig;
+            SecuredConfig = securedConfig;
+
             if (PluginExecutionContext.ParentContext != null)
             {
                 ParentLocalContext = new LocalPluginContext(this, PluginExecutionContext.ParentContext);
@@ -57,7 +59,7 @@ namespace XrmFramework
             return PluginExecutionContext.Stage == (int)stage;
         }
 
-        public string PrimaryEntityName => PluginExecutionContext.PrimaryEntityName == "none" ? string.Empty : PluginExecutionContext.PrimaryEntityName;
+        public string PrimaryEntityName => PluginExecutionContext.PrimaryEntityName;
 
         public Guid PrimaryEntityId => PluginExecutionContext.PrimaryEntityId;
 
@@ -67,7 +69,7 @@ namespace XrmFramework
 
         public int Depth => PluginExecutionContext.Depth;
 
-        public IPluginContext ParentContext => (IPluginContext)ParentLocalContext;
+        public IPluginContext? ParentContext => (IPluginContext)ParentLocalContext;
 
         public bool IsMultiplePrePostOperation
         {
@@ -91,18 +93,16 @@ namespace XrmFramework
                 && Mode == step.Mode
                 && IsMessage(step.Message);
 
-            if (isValid 
-                && !step.Message.IsCustomMessage
-                && (string.IsNullOrWhiteSpace(PrimaryEntityName) && !string.IsNullOrWhiteSpace(step.EntityName) || PrimaryEntityName != step.EntityName))
+            if (isValid && step.EntityName != PrimaryEntityName)
             {
                 isValid = false;
 
-                if ((step.Message == Messages.Associate || step.Message == Messages.Disassociate)
-                    && !string.IsNullOrWhiteSpace(UnsecureConfig))
+                if ((Messages.Associate.Equals(step.Message) || Messages.Disassociate.Equals(step.Message))
+                    && !string.IsNullOrWhiteSpace(UnsecuredConfig))
                 {
                     try
                     {
-                        var stepConfig = JsonConvert.DeserializeObject<StepConfiguration>(UnsecureConfig);
+                        var stepConfig = JsonConvert.DeserializeObject<StepConfiguration>(UnsecuredConfig);
                         isValid = step.EntityName == stepConfig.RelationshipName;
                     }
                     catch
@@ -114,6 +114,58 @@ namespace XrmFramework
 
             return isValid;
         }
+
+        public void LogStart()
+        {
+            Log($"Entity: {PrimaryEntityName}, Message: {MessageName}, Stage: {Enum.ToObject(typeof(Stages), Stage)}, Mode: {Mode}");
+
+            Log($"\r\nUserId\t\t\t{UserId}\r\nInitiatingUserId\t{InitiatingUserId}");
+#pragma warning disable XRM0300
+            Log($"\r\nStart : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}");
+#pragma warning restore XRM0300
+        }
+
+        public void LogExit()
+        {
+#pragma warning disable XRM0300
+            Log($"End : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}\r\n");
+#pragma warning restore XRM0300
+        }
+
+        public void LogContextEntry()
+        {
+            Log("\r\n------------------ Input Variables (before) ------------------");
+            DumpInputParameters();
+            Log("\r\n------------------ Shared Variables (before) ------------------");
+            DumpSharedVariables();
+            Log("\r\n---------------------------------------------------------------");
+        }
+        public void LogContextExit()
+        {
+            if (IsStage(Stages.PreValidation) || IsStage(Stages.PreOperation))
+            {
+                Log("\r\n\r\n------------------ Input Variables (after) ------------------");
+                DumpInputParameters();
+                Log("\r\n------------------ Shared Variables (after) ------------------");
+                DumpSharedVariables();
+                Log("\r\n---------------------------------------------------------------");
+            }
+        }
+
+        public void LogNotFiredForFilteringAttributes(string? childClassName, string methodName)
+        {
+            var stage = Enum.ToObject(typeof(Stages), Stage);
+
+            Log("\r\n{0}.{5} is not fired because filteringAttributes filter is not met.",
+                childClassName,
+                PrimaryEntityName,
+                MessageName,
+                stage,
+                Mode, methodName);
+        }
+
+        public object? GetService(Type serviceType)
+            => ObjectContainer.Resolve(serviceType);
     }
 
 }

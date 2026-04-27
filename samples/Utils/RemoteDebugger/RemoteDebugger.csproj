@@ -23,4 +23,6 @@
     <ProjectReference Include="../../../src/XrmFramework.RemoteDebugger.Client/XrmFramework.RemoteDebugger.Client.csproj" />
   </ItemGroup>
 
+  <Import Project="../../../src/XrmFramework.RemoteDebugger.Client/build/net462/XrmFramework.RemoteDebugger.Client.props" />
+
 </Project>

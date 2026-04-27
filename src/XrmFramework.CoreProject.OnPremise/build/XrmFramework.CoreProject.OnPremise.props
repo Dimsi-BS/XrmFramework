@@ -3,6 +3,11 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Remove="Microsoft.PowerPlatform.Dataverse.Client" />
+        <PackageReference Remove="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" />
+    </ItemGroup>
+    
     <PropertyGroup>
         <DefineConstants>$(DefineConstants);CORE_PROJECT;ON_PREMISE</DefineConstants>
     </PropertyGroup>

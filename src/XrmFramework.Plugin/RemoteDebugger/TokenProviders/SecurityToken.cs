@@ -1,23 +1,23 @@
 // ReSharper disable once CheckNamespace
 
+using System.Globalization;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Net;
 
 namespace XrmFramework.RemoteDebugger.TokenProviders;
 
 public class SecurityToken
   {
-    private static readonly Func<string, string> Decoder = new Func<string, string>(WebUtility.UrlDecode);
-    private static readonly DateTime EpochTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-    private readonly string token;
-    private readonly DateTime expiresAtUtc;
-    private readonly string audience;
-    private readonly string audienceFieldName;
-    private readonly string expiresOnFieldName;
-    private readonly string keyValueSeparator;
-    private readonly string pairSeparator;
+    private static readonly Func<string, string> Decoder = WebUtility.UrlDecode;
+    private static readonly DateTime EpochTime = new(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+    private readonly string _token;
+    private readonly DateTime _expiresAtUtc;
+    private readonly string _audience;
+    private readonly string _audienceFieldName;
+    private readonly string _expiresOnFieldName;
+    private readonly string _keyValueSeparator;
+    private readonly string _pairSeparator;
 
     /// <summary>
     /// Creates a new instance of the <see cref="T:Microsoft.Azure.Relay.SecurityToken" /> class.
@@ -34,34 +34,34 @@ public class SecurityToken
       string keyValueSeparator,
       string pairSeparator)
     {
-      this.token = tokenString != null ? tokenString : throw new ArgumentNullException(nameof (tokenString));
-      this.audienceFieldName = audienceFieldName;
-      this.expiresOnFieldName = expiresOnFieldName;
-      this.keyValueSeparator = keyValueSeparator;
-      this.pairSeparator = pairSeparator;
-      this.GetExpirationDateAndAudienceFromToken(tokenString, out this.expiresAtUtc, out this.audience);
+      this._token = tokenString != null ? tokenString : throw new ArgumentNullException(nameof (tokenString));
+      this._audienceFieldName = audienceFieldName;
+      this._expiresOnFieldName = expiresOnFieldName;
+      this._keyValueSeparator = keyValueSeparator;
+      this._pairSeparator = pairSeparator;
+      this.GetExpirationDateAndAudienceFromToken(tokenString, out this._expiresAtUtc, out this._audience);
     }
 
     /// <summary>Gets the audience of this token.</summary>
-    public string Audience => this.audience;
+    public string Audience => this._audience;
 
     /// <summary>Gets the expiration time of this token.</summary>
-    public DateTime ExpiresAtUtc => this.expiresAtUtc;
+    public DateTime ExpiresAtUtc => this._expiresAtUtc;
 
     /// <summary>Gets the actual token as a string.</summary>
-    public string TokenString => this.token;
+    public string TokenString => this._token;
 
     private void GetExpirationDateAndAudienceFromToken(
       string tokenString,
       out DateTime expiresOn,
       out string audience)
     {
-      IDictionary<string, string> dictionary = SecurityToken.Decode(tokenString, SecurityToken.Decoder, SecurityToken.Decoder, this.keyValueSeparator, this.pairSeparator);
+      IDictionary<string, string> dictionary = SecurityToken.Decode(tokenString, SecurityToken.Decoder, SecurityToken.Decoder, this._keyValueSeparator, this._pairSeparator);
       string s;
-      if (!dictionary.TryGetValue(this.expiresOnFieldName, out s))
-        throw new ArgumentException(nameof (tokenString), "TokenMissingExpiresOn");
-      if (!dictionary.TryGetValue(this.audienceFieldName, out audience))
-        throw new ArgumentException(nameof (tokenString), "TokenMissingAudience");
+      if (!dictionary.TryGetValue(this._expiresOnFieldName, out s))
+        throw new ArgumentException(@"TokenMissingExpiresOn", nameof (tokenString));
+      if (!dictionary.TryGetValue(this._audienceFieldName, out audience))
+        throw new ArgumentException(@"TokenMissingAudience", nameof (tokenString));
       expiresOn = SecurityToken.EpochTime + TimeSpan.FromSeconds(double.Parse(s, CultureInfo.InvariantCulture));
     }
 
@@ -83,7 +83,7 @@ public class SecurityToken
           keyValueSeparator
         }, StringSplitOptions.None);
         if (strArray.Length != 2)
-          throw new ArgumentException(nameof (tokenString), @"Invalid encoding");
+          throw new ArgumentException(@"Invalid encoding", nameof (tokenString));
         dictionary.Add(keyDecoder(strArray[0]), valueDecoder(strArray[1]));
       }
       return dictionary;

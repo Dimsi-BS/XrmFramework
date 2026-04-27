@@ -1,14 +1,13 @@
-﻿using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Workflow;
+﻿using System;
+using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
-using System;
-using System.Activities;
 
 namespace XrmFramework.RemoteDebugger;
 
 [JsonObject(MemberSerialization.OptOut)]
-public class RemoteDebugExecutionContext : IPluginExecutionContext, IWorkflowContext
+public partial class RemoteDebugExecutionContext : IPluginExecutionContext
 {
+    // Execution context to replicate the CrmContext
     public RemoteDebugExecutionContext() { }
 
     public RemoteDebugExecutionContext(IExecutionContext context)
@@ -39,19 +38,9 @@ public class RemoteDebugExecutionContext : IPluginExecutionContext, IWorkflowCon
         OperationId = context.OperationId;
         OperationCreatedOn = context.OperationCreatedOn;
 
-        if (context is IWorkflowContext workflowContext)
+        if (context.GetType().Name == "IWorkflowContext")
         {
-
-            StageName = workflowContext.StageName;
-            WorkflowCategory = workflowContext.WorkflowCategory;
-            WorkflowMode = workflowContext.WorkflowMode;
-
-            IsWorkflowContext = true;
-
-            if (workflowContext.ParentContext != null)
-            {
-                RemoteParentContext = new RemoteDebugExecutionContext(workflowContext.ParentContext);
-            }
+            InitRemoteWorkflowContext(context);
         }
         else if (context is IPluginExecutionContext pluginContext)
         {
@@ -63,6 +52,8 @@ public class RemoteDebugExecutionContext : IPluginExecutionContext, IWorkflowCon
             }
         }
     }
+        
+    partial void InitRemoteWorkflowContext(IExecutionContext context);
 
     public bool IsWorkflowContext { get; set; }
 
@@ -118,27 +109,25 @@ public class RemoteDebugExecutionContext : IPluginExecutionContext, IWorkflowCon
 
     public Guid Id { get; set; }
 
-    public ArgumentsCollection Arguments { get; set; } = [];
-
     public int Stage { get; set; }
 
-    public string StageName { get; }
+    public string StageName { get; set; }
 
-    public int WorkflowCategory { get; }
+    public int WorkflowCategory { get; set; }
 
-    public int WorkflowMode { get; }
+    public int WorkflowMode { get; set; }
 
     public RemoteDebugExecutionContext RemoteParentContext { get; set; }
 
     [JsonIgnore]
     IPluginExecutionContext IPluginExecutionContext.ParentContext => RemoteParentContext;
 
-    [JsonIgnore]
-    IWorkflowContext IWorkflowContext.ParentContext => RemoteParentContext;
-
     public string TypeAssemblyQualifiedName { get; set; }
 
     public string UnsecureConfig { get; set; }
 
     public string SecureConfig { get; set; }
+    
+    public string ToPrettyString() 
+        => $"{TypeAssemblyQualifiedName.Split(',')[0]} - {MessageName} - {Stage.ToEnum<Stages>()} - {PrimaryEntityName}";
 }

@@ -304,7 +304,7 @@ namespace XrmFramework
                 return GetService(true);
             }
 
-            return _context.GetService(callerId);
+            return _context.GetOrganizationService(callerId);
         }
 
         protected IOrganizationService GetService(bool useAdmin)
@@ -471,12 +471,12 @@ namespace XrmFramework
             return AdminOrganizationService.GetById<T>(id);
         }
 
-        public T GetById<T>(EntityReference entityReference) where T : IBindingModel, new()
+        public T GetById<T>(EntityReference entityReference) where T : class, IBindingModel, new()
         {
             return AdminOrganizationService.GetById<T>(entityReference);
         }
 
-        public T Upsert<T>(T model, bool isAdmin = false, bool bypassCustomPluginExecution = false) where T : IBindingModel, new()
+        public T Upsert<T>(T model, bool isAdmin = false, bool bypassCustomPluginExecution = false) where T : class, IBindingModel, new()
         {
             var service = isAdmin ? AdminOrganizationService : OrganizationService;
 
@@ -638,7 +638,7 @@ namespace XrmFramework
             return UserHasOneRoleOf(userId, parentRoleId);
         }
 
-        public Entity ToEntity<T>(T model) where T : IBindingModel
+        public Entity ToEntity<T>(T model) where T : class, IBindingModel
         {
             return model.ToEntity(OrganizationService);
         }

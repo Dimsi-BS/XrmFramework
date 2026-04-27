@@ -22,19 +22,58 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="..\XrmFramework.Plugin\**\StepConfiguration*.cs" Link="Model\StepConfigurations\%(RecursiveDir)%(Filename)%(Extension)" />
-  </ItemGroup>
-    
     <ItemGroup>
-        <PackageReference Include="CommandLineParser" Version="2.9.1" />
-        <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.2.10" />
-        <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+        <Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**;..\XrmFramework\Generated\**;" />
+
+        <Compile Include="..\XrmFramework.Core\**\*.cs" Link="_Imports\XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />
+
+        <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\**\*.cs" Link="_Imports\XrmFramework.Plugin\RemoteDebugger\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\**\*partial*.cs;..\XrmFramework.Plugin\RemoteDebugger\RemoteDebugger.Remote\*.cs" />
+
+  
+        <Compile Include="..\XrmFramework.Plugin\**\StepConfiguration*.cs" Link="Model\StepConfigurations\%(RecursiveDir)%(Filename)%(Extension)" />
+
+
     </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='net462'">
+    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'" >
+        <Compile Include="..\XrmFramework.Workflows\**\*.cs" Link="_Imports\XrmFramework.Workflows\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Workflows\EnableRuleProvider\**\*.cs;..\XrmFramework.Workflows\**\CustomWorkflowActivity*.cs;..\XrmFramework.Workflows\obj\**\*.cs;..\XrmFramework.Workflows\RemoteDebugger\RemoteDebugger.Remote\*.cs" />
+    </ItemGroup>
+    
+    
+    
+    <ItemGroup>
+        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+
+
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.52" />
+    <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.52" />
+    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.45" />
+
     <Reference Include="System.Configuration" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.2.10" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.2.10" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.2.2" />
+    <PackageReference Include="Spectre.Console" Version="0.48.0" />
+    <PackageReference Include="Spectre.Console.Analyzer" Version="0.48.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,5 +90,14 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
   </ItemGroup>
+
+
+    <ItemGroup>
+        <None Remove="**\*.table" />
+        <AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**" />
+
+        <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
+    </ItemGroup>
+
 
 </Project>

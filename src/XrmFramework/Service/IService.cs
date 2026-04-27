@@ -67,9 +67,9 @@ namespace XrmFramework
 
         T GetById<T>(Guid id) where T : IBindingModel, new();
 
-        T GetById<T>(EntityReference entityReference) where T : IBindingModel, new();
+        T GetById<T>(EntityReference entityReference) where T : class, IBindingModel, new();
 
-        T Upsert<T>(T model, bool isAdmin = false, bool bypassCustomPluginExecution = false) where T : IBindingModel, new();
+        T Upsert<T>(T model, bool isAdmin = false, bool bypassCustomPluginExecution = false) where T : class, IBindingModel, new();
 
         bool UserHasRole(Guid userId, Guid parentRoleId);
 
@@ -79,7 +79,7 @@ namespace XrmFramework
 
         ICollection<Guid> GetUserRoleIds(EntityReference userRef);
 
-        Entity ToEntity<T>(T model) where T : IBindingModel;
+        Entity ToEntity<T>(T model) where T : class, IBindingModel;
 
         ICollection<EntityReference> GetTeamMemberRefs(EntityReference teamRef);
 

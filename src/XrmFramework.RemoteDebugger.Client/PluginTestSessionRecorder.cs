@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using Newtonsoft.Json;
 using XrmFramework.RemoteDebugger;
+using XrmFramework.RemoteDebugger.Common.ConsoleUI;
 
 namespace XrmFramework.RemoteDebugger.Common
 {

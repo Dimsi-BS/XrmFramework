@@ -14,21 +14,21 @@
        PROJETS EXEMPLE
        ═══════════════════════════════════════════════════ -->
   <Folder Name="/Sample/">
-    <!-- Projet Core : définitions d'entités, modèles, interfaces de services -->
     <Project Path="XrmFramework.Sample.Core/XrmFramework.Sample.Core.csproj" />
-    <!-- Projet Plugins : implémentations des plugins et workflows Dataverse -->
     <Project Path="XrmFramework.Sample.Plugins/XrmFramework.Sample.Plugins.csproj" />
+  </Folder>
+  <Folder Name="/Sample/Config/">
+    <File Path="Config/App.config" />
+    <File Path="Config/connectionStrings.config" />
+    <File Path="Config/xrmFramework.config" />
   </Folder>
 
   <!-- ═══════════════════════════════════════════════════
        OUTILS UTILITAIRES
        ═══════════════════════════════════════════════════ -->
   <Folder Name="/Sample/Utils/">
-    <!-- Génère les fichiers de définition d'entités à partir des métadonnées Dataverse -->
     <Project Path="Utils/DefinitionManager/DefinitionManager.csproj" />
-    <!-- Déploie les plugins vers l'environnement Dataverse cible -->
     <Project Path="Utils/Deploy.XrmFramework.Sample.Plugins/Deploy.XrmFramework.Sample.Plugins.csproj" />
-    <!-- Client de débogage distant : redirige l'exécution des plugins vers la machine de dev -->
     <Project Path="Utils/RemoteDebugger/RemoteDebugger.csproj" />
   </Folder>
 
@@ -38,20 +38,13 @@
        dans le code source et le débogage pas-à-pas.
        ═══════════════════════════════════════════════════ -->
   <Folder Name="/Framework/">
-    <!-- Fondations : types de base, attributs, extensions -->
-    <Project Path="../src/XrmFramework/XrmFramework.csproj" />
-    <!-- Métadonnées d'entités et de colonnes (sans dépendances SDK) -->
     <Project Path="../src/XrmFramework.Core/XrmFramework.Core.csproj" />
-    <!-- Implémentation Cloud/Online avec injection de dépendances -->
     <Project Path="../src/XrmFramework.CoreProject/XrmFramework.CoreProject.csproj" />
-    <!-- Classes de base pour plugins et workflows, débogueur distant -->
-    <Project Path="../src/XrmFramework.Plugin/XrmFramework.Plugin.csproj" />
-    <!-- Utilitaires de déploiement vers Dataverse -->
-    <Project Path="../src/XrmFramework.DeployUtils/XrmFramework.DeployUtils.csproj" />
-    <!-- Outil graphique de génération des définitions d'entités -->
     <Project Path="../src/XrmFramework.DefinitionManager/XrmFramework.DefinitionManager.csproj" />
-    <!-- Client de connexion au débogueur distant via Azure Relay -->
+    <Project Path="../src/XrmFramework.DeployUtils/XrmFramework.DeployUtils.csproj" />
+    <Project Path="../src/XrmFramework.Plugin/XrmFramework.Plugin.csproj" />
     <Project Path="../src/XrmFramework.RemoteDebugger.Client/XrmFramework.RemoteDebugger.Client.csproj" />
+    <Project Path="../src/XrmFramework/XrmFramework.csproj" />
   </Folder>
 
 </Solution>

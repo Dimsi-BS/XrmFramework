@@ -1,75 +1,72 @@
-﻿using Microsoft.Xrm.Sdk;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+using Microsoft.Xrm.Sdk;
+using XrmFramework.Definitions;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
-namespace Deploy
+namespace XrmFramework.DeployUtils.Model
 {
-    partial class CustomApi
+    /// <summary>
+    /// Metadata of CustomApi
+    /// </summary>
+    /// <seealso cref="ICrmComponent" />
+    public class CustomApi : BaseCrmComponent
     {
-        public List<CustomApiRequestParameter> InArguments { get; } = new List<CustomApiRequestParameter>();
+        // Don't put these fields in readonly, AutoMapper wouldn't be able to map them
+        // but if you know a way enjoy :D
+        private readonly List<ICustomApiComponent> _arguments = new();
 
-        public List<CustomApiResponseProperty> OutArguments { get; } = new List<CustomApiResponseProperty>();
+        /// <summary>Id of the Assembly the PluginType is attached to</summary>
+        public Guid AssemblyId { get; set; } = Guid.NewGuid();
 
+        public override IEnumerable<ICrmComponent> Children => _arguments;
 
-        public static CustomApi FromXrmFrameworkCustomApi(dynamic record, string prefix, bool isOnPrem)
+        public override void AddChild(ICrmComponent child)
         {
-            var type = (Type)record.GetType();
-
-            dynamic customApiAttribute = type.GetCustomAttributes().FirstOrDefault(a => a.GetType().FullName == "XrmFramework.CustomApiAttribute");
-
-            if (customApiAttribute == null)
+            if (child is not ICustomApiComponent apiComponent)
             {
-                throw new Exception($"The custom api type {type.FullName} must have a CustomApiAttribute defined");
+                throw new ArgumentException("CustomApi doesn't take this type of children");
             }
-
-            var name = string.IsNullOrWhiteSpace(customApiAttribute.Name) ? type.Name : customApiAttribute.Name;
-
-            var customApi = new CustomApi
-            {
-                DisplayName = string.IsNullOrWhiteSpace(customApiAttribute.DisplayName) ? name : customApiAttribute.DisplayName,
-                Name = name,
-                AllowedCustomProcessingStepType = new OptionSetValue((int)customApiAttribute.AllowedCustomProcessing),
-                BindingType = new OptionSetValue((int)customApiAttribute.BindingType),
-                BoundEntityLogicalName = customApiAttribute.BoundEntityLogicalName,
-                Description = string.IsNullOrWhiteSpace(customApiAttribute.Description) ? name : customApiAttribute.Description,
-                ExecutePrivilegeName = customApiAttribute.ExecutePrivilegeName,
-                IsFunction = customApiAttribute.IsFunction,
-                IsPrivate = customApiAttribute.IsPrivate,
-                UniqueName = $"{prefix}_{name}",
-                FullName = type.FullName
-            };
-
-            if (!isOnPrem)
-            {
-                customApi.WorkflowSdkStepEnabled = customApiAttribute.WorkflowSdkStepEnabled;
-            }
-
-            foreach (var argument in record.Arguments)
-            {
-                if (argument.IsInArgument)
-                {
-                    customApi.InArguments.Add(CustomApiRequestParameter.FromXrmFrameworkArgument(customApi.Name, argument, isOnPrem));
-                }
-                else
-                {
-                    customApi.OutArguments.Add(CustomApiResponseProperty.FromXrmFrameworkArgument(customApi.Name, argument, isOnPrem));
-                }
-            }
-
-            return customApi;
+            _arguments.Add(apiComponent);
+            base.AddChild(child);
         }
 
-        public string FullName
+        protected override void RemoveChild(ICrmComponent child)
         {
-            get;
-            set;
+            if (child is not ICustomApiComponent apiComponent)
+            {
+                throw new ArgumentException("CustomApi doesn't have this type of children");
+            }
+            _arguments.Remove(apiComponent);
         }
 
-        public string Prefix
+        public override int Rank => 15;
+        public override bool DoAddToSolution => true;
+        public override bool DoFetchTypeCode => true;
+        public override string UniqueName
         {
-            set => UniqueName = $"{value}{Name}";
+            get => $"{Prefix}_{Name}";
+            set
+            {
+                var split = value.Split('_');
+                Prefix = split[0];
+                Name = split[1];
+            }
         }
+        public override string EntityTypeName => CustomApiDefinition.EntityName;
+
+        public string FullName { get; set; }
+        public string DisplayName { get; set; }
+        public string Name { get; set; }
+        public string Prefix { get; set; }
+
+        public OptionSetValue AllowedCustomProcessingStepType { get; set; }
+        public string BoundEntityLogicalName { get; set; }
+        public OptionSetValue BindingType { get; set; }
+        public string Description { get; set; }
+        public string ExecutePrivilegeName { get; set; }
+        public bool IsFunction { get; set; }
+        public bool IsPrivate { get; set; }
+        public bool WorkflowSdkStepEnabled { get; set; }
     }
 }

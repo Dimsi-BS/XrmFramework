@@ -8,6 +8,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Workflow;
 using Newtonsoft.Json;
 using XrmFramework.RemoteDebugger;
+using XrmFramework.RemoteDebugger.Common.ConsoleUI;
 
 namespace XrmFramework.RemoteDebugger.Common
 {
