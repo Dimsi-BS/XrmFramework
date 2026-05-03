@@ -1,7 +1,8 @@
 // Copyright (c) DIMSI. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using NUnit.Framework;
 using XrmFramework.LogicApp.Builders;
 using XrmFramework.LogicApp.Models;
 using XrmFramework.LogicApp.Models.Actions;
@@ -12,24 +13,24 @@ namespace XrmFramework.LogicApp.Tests.Builders;
 /// <summary>
 /// Tests unitaires pour <see cref="LogicAppBuilder"/>.
 /// </summary>
-[TestClass]
+[TestFixture]
 public class LogicAppBuilderTests
 {
     // ──────────────────────────────────────────────
     //  ForConsumption
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void ForConsumption_Build_ReturnsConsumptionWorkflow()
     {
         var result = LogicAppBuilder
             .ForConsumption()
             .Build();
 
-        Assert.IsInstanceOfType<ConsumptionWorkflow>(result);
+        Assert.That(result, Is.InstanceOf<ConsumptionWorkflow>());
     }
 
-    [TestMethod]
+    [Test]
     public void ForConsumption_BuildConsumption_ReturnsConsumptionWorkflow()
     {
         var result = LogicAppBuilder
@@ -39,30 +40,30 @@ public class LogicAppBuilderTests
         Assert.IsNotNull(result);
     }
 
-    [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
+    [Test]
     public void ForConsumption_BuildStandard_ThrowsInvalidOperationException()
     {
-        LogicAppBuilder
-            .ForConsumption()
-            .BuildStandard();
+        Assert.Throws<InvalidOperationException>(() =>
+            LogicAppBuilder
+                .ForConsumption()
+                .BuildStandard());
     }
 
     // ──────────────────────────────────────────────
     //  ForStandard
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void ForStandard_Build_ReturnsStandardWorkflow()
     {
         var result = LogicAppBuilder
             .ForStandard()
             .Build();
 
-        Assert.IsInstanceOfType<StandardWorkflow>(result);
+        Assert.That(result, Is.InstanceOf<StandardWorkflow>());
     }
 
-    [TestMethod]
+    [Test]
     public void ForStandard_BuildStandard_ReturnsStandardWorkflow()
     {
         var result = LogicAppBuilder
@@ -72,20 +73,20 @@ public class LogicAppBuilderTests
         Assert.IsNotNull(result);
     }
 
-    [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
+    [Test]
     public void ForStandard_BuildConsumption_ThrowsInvalidOperationException()
     {
-        LogicAppBuilder
-            .ForStandard()
-            .BuildConsumption();
+        Assert.Throws<InvalidOperationException>(() =>
+            LogicAppBuilder
+                .ForStandard()
+                .BuildConsumption());
     }
 
     // ──────────────────────────────────────────────
     //  WithWorkflow
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void WithWorkflow_AddsTrigger_DefinitionContainsTrigger()
     {
         var result = LogicAppBuilder
@@ -97,7 +98,7 @@ public class LogicAppBuilderTests
         Assert.IsTrue(result.Definition.Triggers.ContainsKey("manual"));
     }
 
-    [TestMethod]
+    [Test]
     public void WithWorkflow_AddsAction_DefinitionContainsAction()
     {
         var result = LogicAppBuilder
@@ -114,7 +115,7 @@ public class LogicAppBuilderTests
     //  AddConnection (Consumption)
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void AddConnection_SetsConsumptionParameters()
     {
         var result = LogicAppBuilder
@@ -129,7 +130,7 @@ public class LogicAppBuilderTests
         Assert.IsTrue(result.Parameters.ContainsKey("$connections"));
     }
 
-    [TestMethod]
+    [Test]
     public void AddConnection_WithNoConnections_ParametersIsNull()
     {
         var result = LogicAppBuilder
@@ -143,7 +144,7 @@ public class LogicAppBuilderTests
     //  AddConnectionReference (Standard)
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void AddConnectionReference_SetsStandardConnectionReferences()
     {
         var result = LogicAppBuilder
@@ -155,7 +156,7 @@ public class LogicAppBuilderTests
         Assert.IsTrue(result.ConnectionReferences.ContainsKey("myConn"));
     }
 
-    [TestMethod]
+    [Test]
     public void AddConnectionReference_WithNoReferences_ConnectionReferencesIsNull()
     {
         var result = LogicAppBuilder
@@ -169,7 +170,7 @@ public class LogicAppBuilderTests
     //  Build — sans workflow configuré
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void Build_WithoutWorkflow_ReturnsEmptyDefinition()
     {
         var result = LogicAppBuilder

@@ -13,13 +13,13 @@ namespace XrmFramework.RemoteDebugger.Common.ConsoleUI
     public class OrgServiceCallRecord
     {
         private static readonly Regex RequestNameRegex =
-            new Regex(@"""RequestName""\s*:\s*""([^""]+)""", RegexOptions.Compiled);
+            new(@"""RequestName""\s*:\s*""([^""]+)""", RegexOptions.Compiled);
 
         private static readonly Regex LogicalNameRegex =
-            new Regex(@"""LogicalName""\s*:\s*""([^""]+)""", RegexOptions.Compiled);
+            new(@"""LogicalName""\s*:\s*""([^""]+)""", RegexOptions.Compiled);
 
         private static readonly Regex EntityIdRegex =
-            new Regex(@"""Id""\s*:\s*""([0-9a-fA-F\-]{36})""", RegexOptions.Compiled);
+            new(@"""Id""\s*:\s*""([0-9a-fA-F\-]{36})""", RegexOptions.Compiled);
 
         public OrgServiceCallRecord(string requestJson)
         {

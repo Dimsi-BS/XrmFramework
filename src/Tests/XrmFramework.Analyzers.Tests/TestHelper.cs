@@ -1,10 +1,11 @@
+using VerifyNUnit;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Xrm.Sdk;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using VerifyXunit;
+
 using XrmFramework.Analyzers.Model;
 
 namespace XrmFramework.Analyzers.Tests

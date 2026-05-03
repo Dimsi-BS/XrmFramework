@@ -115,19 +115,19 @@ using System.Collections.Generic;
 
 {(ns is null ? null : $@"namespace {ns}
 {{")}
-   partial class {name}
-   {{
-      private static IReadOnlyList<{name}> _items;
-      public static IReadOnlyList<{name}> Items => _items ??= GetItems();
+    partial class {name}
+    {{
+        private static IReadOnlyList<{name}> _items;
+        public static IReadOnlyList<{name}> Items => _items ??= GetItems();
 
-      private static IReadOnlyList<{name}> GetItems()
-      {{
-        return new[] {{
-{itemsText}
-        }};
-      }}
-   }}
-{(ns is null ? null : @"}
+        private static IReadOnlyList<{name}> GetItems()
+        {{
+          return new {name}[] {{
+  {itemsText}
+          }};
+        }}
+     }}
+  {(ns is null ? null : @"}
 ")}";
         }
 

@@ -31,12 +31,19 @@
 
   <ItemGroup>
     <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\XrmFramework.Analyzers.CodeFixes\XrmFramework.Analyzers.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="**\*.table" />
 
-    <AdditionalFiles Include="..\XrmFramework.DeployUtils\**\*.table" Exclude="..\XrmFramework.DeployUtils\bin/**;..\XrmFramework.DeployUtils\obj/**" />
+    <AdditionalFiles 
+            Include="..\XrmFramework.DeployUtils\**\*.table" 
+            Exclude="..\XrmFramework.DeployUtils\bin/**;..\XrmFramework.DeployUtils\obj/**"
+            Link="__Imports\XrmFramework.DeployUtils\%(RecursiveDir)%(Filename)%(Extension)"
+    />
+      
+      
 
     <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
   </ItemGroup>

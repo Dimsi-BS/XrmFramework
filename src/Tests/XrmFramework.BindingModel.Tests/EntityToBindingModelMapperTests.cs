@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Microsoft.Xrm.Sdk;
 using XrmFramework.BindingModel.Tests.Fakes;
 
@@ -14,7 +14,7 @@ namespace XrmFramework.BindingModel.Tests
     /// Unit tests for the Entity → IBindingModel mapping path
     /// (exercised through <see cref="BindingModelHelper.ToBindingModel{T}(Entity)"/>).
     /// </summary>
-    [TestClass]
+    [TestFixture]
     public class EntityToBindingModelMapperTests
     {
         // ------------------------------------------------------------------
@@ -34,7 +34,7 @@ namespace XrmFramework.BindingModel.Tests
         // Null / wrong entity
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_NullEntity_ReturnsNull()
         {
             Entity? nullEntity = null;
@@ -43,7 +43,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.IsNull(result);
         }
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_WrongLogicalName_ReturnsNull()
         {
             var entity = new Entity("lead") { Id = Guid.NewGuid() };
@@ -56,7 +56,7 @@ namespace XrmFramework.BindingModel.Tests
         // Id mapping
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_EntityId_IsMappedToModelId()
         {
             var expectedId = Guid.NewGuid();
@@ -72,7 +72,7 @@ namespace XrmFramework.BindingModel.Tests
         // String attribute
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_StringAttribute_MapsCorrectly()
         {
             var entity = CreateContact();
@@ -84,7 +84,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual("John Doe", model.FullName);
         }
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_StringAttribute_AbsentFromEntity_RemainsDefault()
         {
             var entity = CreateContact();
@@ -100,7 +100,7 @@ namespace XrmFramework.BindingModel.Tests
         // Boolean attribute
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_BooleanAttribute_True_MapsCorrectly()
         {
             var entity = CreateContact();
@@ -112,7 +112,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual(true, model.IsActive);
         }
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_BooleanAttribute_False_MapsCorrectly()
         {
             var entity = CreateContact();
@@ -128,7 +128,7 @@ namespace XrmFramework.BindingModel.Tests
         // DateTime attribute
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_DateTimeAttribute_MapsCorrectly()
         {
             var expectedDate = new DateTime(1990, 6, 15, 0, 0, 0, DateTimeKind.Utc);
@@ -145,7 +145,7 @@ namespace XrmFramework.BindingModel.Tests
         // Money attribute
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_MoneyAttribute_MapsToDecimal()
         {
             var entity = CreateContact();
@@ -157,7 +157,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual(1234.56m, model.Revenue);
         }
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_MoneyAttribute_NullMoney_MapsToNull()
         {
             var entity = CreateContact();
@@ -169,7 +169,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.IsNull(model.Revenue);
         }
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_MoneyAttribute_AbsentFromEntity_RemainsNull()
         {
             var entity = CreateContact();
@@ -185,7 +185,7 @@ namespace XrmFramework.BindingModel.Tests
         // Picklist (OptionSet) attribute
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_PicklistAttribute_MapsToEnum()
         {
             var entity = CreateContact();
@@ -197,7 +197,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual(ContactStatus.Active, model.StatusCode);
         }
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_PicklistAttribute_NullOptionSet_LeavesDefault()
         {
             var entity = CreateContact();
@@ -213,7 +213,7 @@ namespace XrmFramework.BindingModel.Tests
         // MultiSelectPicklist attribute
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_MultiSelectPicklist_MapsToEnumList()
         {
             var entity = CreateContact();
@@ -227,12 +227,10 @@ namespace XrmFramework.BindingModel.Tests
             var model = entity.ToBindingModel<ContactModel>();
 
             Assert.IsNotNull(model);
-            CollectionAssert.AreEquivalent(
-                new[] { ContactInterest.Sports, ContactInterest.Travel },
-                model.Interests);
+            Assert.That(model.Interests, Is.EquivalentTo(new[] { ContactInterest.Sports, ContactInterest.Travel }));
         }
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_MultiSelectPicklist_EmptyCollection_LeavesEmptyList()
         {
             var entity = CreateContact();
@@ -248,7 +246,7 @@ namespace XrmFramework.BindingModel.Tests
         // Lookup attribute (Guid typed)
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_LookupAttribute_MapsGuidFromEntityReference()
         {
             var accountId = Guid.NewGuid();
@@ -262,7 +260,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual(accountId, model.AccountId);
         }
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_LookupAttribute_AbsentFromEntity_LeavesGuidEmpty()
         {
             // When the lookup attribute is not in the entity at all, HasValueFor returns false
@@ -280,7 +278,7 @@ namespace XrmFramework.BindingModel.Tests
         // MapMany (batch mapping with cache)
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void MapMany_WithMultipleEntities_ReturnsAllModels()
         {
             var entities = Enumerable.Range(0, 5)
@@ -301,7 +299,7 @@ namespace XrmFramework.BindingModel.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void MapMany_EmptyCollection_ReturnsEmptyEnumerable()
         {
             var result = Enumerable.Empty<Entity>().ToBindingModel<ContactModel>();
@@ -312,7 +310,7 @@ namespace XrmFramework.BindingModel.Tests
         // Multiple scalar attributes in one entity
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_MultipleAttributes_AllMappedCorrectly()
         {
             var contactId = Guid.NewGuid();

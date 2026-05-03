@@ -1,0 +1,615 @@
+{
+  "LogName": "webresource",
+  "Name": "WebResource",
+  "CollName": "webresources",
+  "Cols": [
+    {
+      "LogName": "canbedeleted",
+      "Name": "CanBeDeleted",
+      "Type": "ManagedProperty",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Peut être supprimé",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "componentstate",
+      "Name": "ComponentState",
+      "Type": "Picklist",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "État du composant",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "componentstate"
+    },
+    {
+      "LogName": "content",
+      "Name": "Content",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [],
+      "StrLen": 1073741823,
+      "Select": true
+    },
+    {
+      "LogName": "contentfileref",
+      "Name": "ContentFileRef",
+      "Type": "Virtual",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Référence au fichier de contenu",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "contentjson",
+      "Name": "ContentJson",
+      "Type": "Memo",
+      "Capa": 7,
+      "Labels": [],
+      "StrLen": 1073741823
+    },
+    {
+      "LogName": "contentjsonfileref",
+      "Name": "ContentJsonFileRef",
+      "Type": "Virtual",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Référence au fichier Json de contenu",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "createdby",
+      "Name": "CreatedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "createdonbehalfby",
+      "Name": "CreatedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "dependencyxml",
+      "Name": "DependencyXml",
+      "Type": "Memo",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "DependencyXML",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 5000,
+      "Select": true
+    },
+    {
+      "LogName": "description",
+      "Name": "Description",
+      "Type": "Memo",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Description",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 2000,
+      "Select": true
+    },
+    {
+      "LogName": "displayname",
+      "Name": "DisplayName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom complet",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 200,
+      "Select": true
+    },
+    {
+      "LogName": "introducedversion",
+      "Name": "IntroducedVersion",
+      "Type": "String",
+      "Capa": 5,
+      "Labels": [
+        {
+          "Label": "Version présentée",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 48
+    },
+    {
+      "LogName": "isavailableformobileoffline",
+      "Name": "IsAvailableForMobileOffline",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Est disponible pour Mobile Offline",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "iscustomizable",
+      "Name": "IsCustomizable",
+      "Type": "ManagedProperty",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Personnalisable",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "isenabledformobileclient",
+      "Name": "IsEnabledForMobileClient",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Est activé pour le client mobile",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ishidden",
+      "Name": "IsHidden",
+      "Type": "ManagedProperty",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Masqué",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ismanaged",
+      "Name": "IsManaged",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "languagecode",
+      "Name": "LanguageCode",
+      "Type": "Integer",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Langue",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": 0.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "modifiedby",
+      "Name": "ModifiedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedon",
+      "Name": "ModifiedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "modifiedonbehalfby",
+      "Name": "ModifiedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Nom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256,
+      "Select": true
+    },
+    {
+      "LogName": "organizationid",
+      "Name": "OrganizationId",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Organisation",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "overwritetime",
+      "Name": "OverwriteTime",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Heure de remplacement de l’enregistrement",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "silverlightversion",
+      "Name": "SilverlightVersion",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Version Silverlight",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "solutionid",
+      "Name": "SolutionId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Solution",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "versionnumber",
+      "Name": "VersionNumber",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "webresourceid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 5,
+      "Labels": [
+        {
+          "Label": "Identificateur de la ressource web",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "webresourceidunique",
+      "Name": "WebResourceIdUnique",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "webresourcetype",
+      "Name": "WebResourceType",
+      "Type": "Picklist",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Type",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "webresource|webresourcetype",
+      "Select": true
+    }
+  ],
+  "NtoN": [
+    {
+      "Name": "appactionrule_webresource_scripts",
+      "Etn": "appactionrule",
+      "NavPropName": "appactionrule_webresource_scripts",
+      "LookName": "appactionruleid"
+    }
+  ],
+  "OneToN": [
+    {
+      "Name": "webresource_savedqueryvisualizations",
+      "Etn": "savedqueryvisualization",
+      "Role": "Referenced",
+      "NavPropName": "webresource_savedqueryvisualizations",
+      "LookName": "webresourceid"
+    },
+    {
+      "Name": "userentityinstancedata_webresource",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_webresource",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "solution_configuration_webresource",
+      "Etn": "solution",
+      "Role": "Referenced",
+      "NavPropName": "solution_configuration_webresource",
+      "LookName": "configurationpageid"
+    },
+    {
+      "Name": "webresource_userqueryvisualizations",
+      "Etn": "userqueryvisualization",
+      "Role": "Referenced",
+      "NavPropName": "webresource_userqueryvisualizations",
+      "LookName": "webresourceid"
+    },
+    {
+      "Name": "lk_theme_logoid",
+      "Etn": "theme",
+      "Role": "Referenced",
+      "NavPropName": "lk_theme_logoid",
+      "LookName": "logoid"
+    },
+    {
+      "Name": "webresource_FileAttachments",
+      "Etn": "fileattachment",
+      "Role": "Referenced",
+      "NavPropName": "webresource_FileAttachments",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "webresource_appaction_iconwebresourceid",
+      "Etn": "appaction",
+      "Role": "Referenced",
+      "NavPropName": "webresource_appaction_iconwebresourceid",
+      "LookName": "iconwebresourceid"
+    },
+    {
+      "Name": "webresource_appaction_onclickeventjavascriptwebresourceid",
+      "Etn": "appaction",
+      "Role": "Referenced",
+      "NavPropName": "webresource_appaction_onclickeventjavascriptwebresourceid",
+      "LookName": "onclickeventjavascriptwebresourceid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_webresourcebase_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "webresource_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_webresourcebase_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "webresource_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "webresource_organization",
+      "Etn": "organization",
+      "NavPropName": "organizationid",
+      "LookName": "organizationid"
+    },
+    {
+      "Name": "FileAttachment_WebResource_ContentFileRef",
+      "Etn": "fileattachment",
+      "NavPropName": "ContentFileRef",
+      "LookName": "contentfileref"
+    },
+    {
+      "Name": "FileAttachment_WebResource_ContentJsonFileRef",
+      "Etn": "fileattachment",
+      "NavPropName": "ContentJsonFileRef",
+      "LookName": "contentjsonfileref"
+    }
+  ],
+  "Keys": [],
+  "Enums": [
+    {
+      "LogName": "webresource|webresourcetype",
+      "Name": "WebResourceType",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "PageWebHTML",
+          "Labels": [
+            {
+              "Label": "Page Web (HTML)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "FeuilleDeStyleCSS",
+          "Labels": [
+            {
+              "Label": "Feuille de style (CSS)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "ScriptJscript",
+          "Labels": [
+            {
+              "Label": "Script (JScript)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "DonneesXML",
+          "Labels": [
+            {
+              "Label": "Données (XML)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 5,
+          "Name": "FormatPNG",
+          "Labels": [
+            {
+              "Label": "Format PNG",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 6,
+          "Name": "FormatJPG",
+          "Labels": [
+            {
+              "Label": "Format JPG",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 7,
+          "Name": "FormatGIF",
+          "Labels": [
+            {
+              "Label": "Format GIF",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 8,
+          "Name": "SilverlightXAP",
+          "Labels": [
+            {
+              "Label": "Silverlight (XAP)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 9,
+          "Name": "FeuilleDeStyleXSL",
+          "Labels": [
+            {
+              "Label": "Feuille de style (XSL)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 10,
+          "Name": "FormatICO",
+          "Labels": [
+            {
+              "Label": "Format ICO",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 11,
+          "Name": "FormatVectorielSVG",
+          "Labels": [
+            {
+              "Label": "Format vectoriel (SVG)",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 12,
+          "Name": "ChaineRESX",
+          "Labels": [
+            {
+              "Label": "Chaîne (RESX)",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    }
+  ]
+}

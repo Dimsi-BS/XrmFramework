@@ -8,6 +8,8 @@ namespace XrmFramework.Analyzers.Generators
     [Generator]
     public class ModelSourceFileGenerator : IIncrementalGenerator
     {
+        static ModelSourceFileGenerator() => DependencyLoader.EnsureLoaded();
+
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
 

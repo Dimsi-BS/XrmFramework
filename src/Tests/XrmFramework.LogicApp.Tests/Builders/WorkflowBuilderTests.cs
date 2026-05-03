@@ -1,7 +1,8 @@
 // Copyright (c) DIMSI. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using NUnit.Framework;
 using XrmFramework.LogicApp.Builders;
 using XrmFramework.LogicApp.Models.Actions;
 using XrmFramework.LogicApp.Models.Triggers;
@@ -11,14 +12,14 @@ namespace XrmFramework.LogicApp.Tests.Builders;
 /// <summary>
 /// Tests unitaires pour <see cref="WorkflowBuilder"/>.
 /// </summary>
-[TestClass]
+[TestFixture]
 public class WorkflowBuilderTests
 {
     // ──────────────────────────────────────────────
     //  Build — état initial
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void Build_EmptyBuilder_ReturnsEmptyDefinition()
     {
         var definition = new WorkflowBuilder().Build();
@@ -32,7 +33,7 @@ public class WorkflowBuilderTests
     //  AddTrigger
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void AddTrigger_Instance_AddsToDefinition()
     {
         var trigger = new HttpRequestTrigger();
@@ -44,18 +45,19 @@ public class WorkflowBuilderTests
         Assert.AreSame(trigger, definition.Triggers["manual"]);
     }
 
-    [TestMethod]
+    [Test]
     public void AddTrigger_Factory_ConfiguresTriggerAndAddsToDefinition()
     {
+        var schema = new { type = "object" };
         var definition = new WorkflowBuilder()
-            .AddTrigger<HttpRequestTrigger>("manual", t => t.Method = "POST")
+            .AddTrigger<HttpRequestTrigger>("manual", t => t.Schema = schema)
             .Build();
 
         Assert.IsTrue(definition.Triggers.ContainsKey("manual"));
-        Assert.AreEqual("POST", ((HttpRequestTrigger)definition.Triggers["manual"]).Method);
+        Assert.AreEqual(schema, ((HttpRequestTrigger)definition.Triggers["manual"]).Schema);
     }
 
-    [TestMethod]
+    [Test]
     public void AddTrigger_MultipleTriggers_AllPresentInDefinition()
     {
         var definition = new WorkflowBuilder()
@@ -70,7 +72,7 @@ public class WorkflowBuilderTests
     //  AddAction
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void AddAction_Instance_AddsToDefinition()
     {
         var action = new HttpAction { Method = "GET", Uri = "https://api.example.com" };
@@ -82,7 +84,7 @@ public class WorkflowBuilderTests
         Assert.AreSame(action, definition.Actions["Call_API"]);
     }
 
-    [TestMethod]
+    [Test]
     public void AddAction_Factory_ConfiguresActionAndAddsToDefinition()
     {
         var definition = new WorkflowBuilder()
@@ -99,7 +101,7 @@ public class WorkflowBuilderTests
         Assert.AreEqual("https://api.example.com/data", httpAction.Uri);
     }
 
-    [TestMethod]
+    [Test]
     public void AddAction_MultipleActions_AllPresentInDefinition()
     {
         var definition = new WorkflowBuilder()
@@ -115,7 +117,7 @@ public class WorkflowBuilderTests
     //  AddParameter
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void AddParameter_Typed_AddsToDefinition()
     {
         var definition = new WorkflowBuilder()
@@ -128,7 +130,7 @@ public class WorkflowBuilderTests
         Assert.AreEqual("defaultValue", definition.Parameters["myParam"].DefaultValue);
     }
 
-    [TestMethod]
+    [Test]
     public void AddParameter_WithoutDefault_DefaultValueIsNull()
     {
         var definition = new WorkflowBuilder()
@@ -142,7 +144,7 @@ public class WorkflowBuilderTests
     //  AddOutput
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void AddOutput_AddsToDefinition()
     {
         var definition = new WorkflowBuilder()
@@ -158,7 +160,7 @@ public class WorkflowBuilderTests
     //  Fluent chaining
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void FluentChaining_ReturnsBuilderInstance()
     {
         var builder = new WorkflowBuilder();

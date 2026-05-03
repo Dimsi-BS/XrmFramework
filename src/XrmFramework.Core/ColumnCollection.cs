@@ -87,7 +87,7 @@ namespace XrmFramework.Core
 
         public int Count => Columns.Count;
 
-        public bool IsReadOnly => Columns.Values.IsReadOnly;
+        public bool IsReadOnly => false;
 
         #endregion
     }

@@ -1,10 +1,11 @@
+using NUnit.Framework;
 // Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using VerifyXunit;
-using Xunit;
+
+
 using XrmFramework.RemoteDebugger.Generator;
 
 namespace XrmFramework.Generators.Tests;
@@ -13,14 +14,15 @@ namespace XrmFramework.Generators.Tests;
 /// Tests du générateur de source <see cref="PluginTestSourceGenerator"/>.
 /// Utilise Verify pour comparer la sortie générée avec des snapshots.
 /// </summary>
-[UsesVerify]
+
+[TestFixture]
 public class PluginTestSourceGeneratorTests
 {
     // ──────────────────────────────────────────────
     //  Sans fichiers .pluginsession.json
     // ──────────────────────────────────────────────
 
-    [Fact]
+    [Test]
     public Task Generator_WithNoAdditionalFiles_ProducesNoOutput()
     {
         const string source = "// empty";
@@ -32,7 +34,7 @@ public class PluginTestSourceGeneratorTests
     //  Avec un fichier .pluginsession.json minimal
     // ──────────────────────────────────────────────
 
-    [Fact]
+    [Test]
     public Task Generator_WithSingleSessionFile_GeneratesTestClass()
     {
         const string source = "// empty";
@@ -60,7 +62,7 @@ public class PluginTestSourceGeneratorTests
     //  Compilation sans erreurs
     // ──────────────────────────────────────────────
 
-    [Fact]
+    [Test]
     public void Generator_WithNoAdditionalFiles_CompilationHasNoDiagnostics()
     {
         const string source = "// empty";

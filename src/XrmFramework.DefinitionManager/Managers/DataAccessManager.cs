@@ -10,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.PowerPlatform.Dataverse.Client;
+using Microsoft.Xrm.Tooling.Connector;
 using XrmFramework.Core;
 using XrmFramework.DefinitionManager;
 using XrmFramework.DefinitionManager.Definitions;
@@ -62,7 +62,7 @@ namespace DefinitionManager
         {
             SendStepChange("Connecting...");
 
-            _service = new ServiceClient(ConfigHelper.GetSelectedConnectionString());
+            _service = new CrmServiceClient(ConfigHelper.GetSelectedConnectionString());
 
             _service.Execute(new WhoAmIRequest());
             SendStepChange("Connected!");
@@ -145,12 +145,6 @@ namespace DefinitionManager
                             Name = key.LogicalName
                         };
                         newKey.FieldNames.AddRange(key.KeyAttributes);
-
-
-                        if (newEntity.Keys == null)
-                        {
-                            newEntity.Keys = new List<Key>();
-                        }
 
                         newEntity.Keys.Add(newKey);
                     }

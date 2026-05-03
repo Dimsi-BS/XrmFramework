@@ -1,7 +1,7 @@
 // Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Microsoft.Xrm.Sdk;
 
 namespace XrmFramework.Tests.Plugin;
@@ -10,7 +10,7 @@ namespace XrmFramework.Tests.Plugin;
 /// Tests unitaires pour la mécanique d'enregistrement des steps (<see cref="Plugin.AddStep"/>)
 /// et l'initialisation du plugin (<see cref="Plugin"/>).
 /// </summary>
-[TestClass]
+[TestFixture]
 public class PluginStepRegistrationTests
 {
     // ──────────────────────────────────────────────
@@ -73,7 +73,7 @@ public class PluginStepRegistrationTests
     //  Initialisation du plugin
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void Plugin_Constructor_StepsInitializedIsTrue()
     {
         var plugin = new ContactCreatePlugin();
@@ -81,7 +81,7 @@ public class PluginStepRegistrationTests
         Assert.IsTrue(plugin.StepsInitialized);
     }
 
-    [TestMethod]
+    [Test]
     public void Plugin_DelayStepRegistration_StepsInitializedIsFalse()
     {
         var plugin = new PrivateMethodPlugin(); // delayStepRegistration = true
@@ -93,7 +93,7 @@ public class PluginStepRegistrationTests
     //  Enregistrement des steps
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void AddStep_SingleStep_PluginHasOneStep()
     {
         var plugin = new ContactCreatePlugin();
@@ -101,7 +101,7 @@ public class PluginStepRegistrationTests
         Assert.AreEqual(1, plugin.Steps.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void AddStep_SingleStep_StepHasCorrectMessage()
     {
         var plugin = new ContactCreatePlugin();
@@ -110,7 +110,7 @@ public class PluginStepRegistrationTests
         Assert.AreEqual(Messages.Create, step.Message);
     }
 
-    [TestMethod]
+    [Test]
     public void AddStep_SingleStep_StepHasCorrectStage()
     {
         var plugin = new ContactCreatePlugin();
@@ -119,7 +119,7 @@ public class PluginStepRegistrationTests
         Assert.AreEqual(Stages.PreOperation, step.Stage);
     }
 
-    [TestMethod]
+    [Test]
     public void AddStep_SingleStep_StepHasCorrectMode()
     {
         var plugin = new ContactCreatePlugin();
@@ -128,7 +128,7 @@ public class PluginStepRegistrationTests
         Assert.AreEqual(Modes.Synchronous, step.Mode);
     }
 
-    [TestMethod]
+    [Test]
     public void AddStep_SingleStep_StepHasCorrectEntityName()
     {
         var plugin = new ContactCreatePlugin();
@@ -137,7 +137,7 @@ public class PluginStepRegistrationTests
         Assert.AreEqual("contact", step.EntityName);
     }
 
-    [TestMethod]
+    [Test]
     public void AddStep_SingleStep_MethodNameMatches()
     {
         var plugin = new ContactCreatePlugin();
@@ -146,7 +146,7 @@ public class PluginStepRegistrationTests
         Assert.AreEqual(nameof(ContactCreatePlugin.OnContactCreate), step.Method?.Name);
     }
 
-    [TestMethod]
+    [Test]
     public void AddStep_MultipleSteps_AllStepsRegistered()
     {
         var plugin = new MultiStepPlugin();

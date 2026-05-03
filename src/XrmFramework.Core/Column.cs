@@ -32,13 +32,13 @@ namespace XrmFramework.Core
         public double? MaxRange { get; set; }
 
         [JsonProperty("DatBehav")]
-        public DateTimeBehavior DateTimeBehavior { get; set; }
+        public DateTimeBehavior? DateTimeBehavior { get; set; }
 
         public bool IsMultiSelect { get; set; }
 
         public string EnumName { get; set; }
 
-        [JsonIgnore]
+        [JsonProperty("Select")]
         public bool Selected { get; set; }
     }
 }

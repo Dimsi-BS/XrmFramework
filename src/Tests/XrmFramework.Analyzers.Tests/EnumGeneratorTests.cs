@@ -1,14 +1,16 @@
+using NUnit.Framework;
 using System.Threading.Tasks;
-using VerifyXunit;
-using Xunit;
+
+
 using XrmFramework.Analyzers.Generators;
 
 namespace XrmFramework.Analyzers.Tests;
 
-[UsesVerify]
+
+[TestFixture]
 public class EnumGeneratorTests
 {
-    [Fact]
+    [Test]
     public async Task EnumGenerator()
     {
         // Source contains a smart-enum-style class flagged with [EnumGeneration].

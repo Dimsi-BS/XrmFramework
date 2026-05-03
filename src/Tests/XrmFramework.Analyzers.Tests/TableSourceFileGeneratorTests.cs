@@ -1,19 +1,21 @@
+using NUnit.Framework;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using VerifyXunit;
-using Xunit;
+
+
 using XrmFramework.Analyzers.Generators;
 
 namespace XrmFramework.Analyzers.Tests;
 
-[UsesVerify]
+
+[TestFixture]
 public class TableSourceFileGeneratorTests
 {
     private static byte[] LoadFixture(string fileName)
         => File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "Resources", fileName));
 
-    [Fact]
+    [Test]
     public async Task CalculateTableFiles()
     {
         // No C# user code is needed: TableSourceFileGenerator only consumes AdditionalTexts.

@@ -39,7 +39,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.8.0" />
+        <!-- Required to use AssemblyLoadContext in DependencyLoader (netstandard2.0 shim) -->
+        <PackageReference Include="System.Runtime.Loader" Version="4.3.0" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup>
@@ -49,7 +50,7 @@
 
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json"
-                          Version="13.0.3"
+                          Version="13.0.4"
                           PrivateAssets="all"
                           GeneratePathProperty="true" />
 
@@ -57,10 +58,22 @@
               Pack="true"
               PackagePath="analyzers/dotnet/cs"
               Visible="false" />
+        <!-- NuGet package: include Newtonsoft.Json.dll next to the analyzer in the package -->
         <None Include="$(PkgNewtonsoft_Json)\lib\netstandard2.0\*.dll"
               Pack="true"
               PackagePath="analyzers/dotnet/cs"
               Visible="false" />
+
+        <!--
+            Dev build: embed Newtonsoft.Json.dll as a manifest resource inside the analyzer DLL
+            so DependencyLoader can load it via AssemblyLoadContext.LoadFromStream at runtime.
+            $(PkgNewtonsoft_Json) is set by NuGet restore (GeneratePathProperty="true" above).
+            LogicalName must match the resource name used in DependencyLoader.cs.
+        -->
+        <EmbeddedResource Include="$(PkgNewtonsoft_Json)\lib\netstandard2.0\Newtonsoft.Json.dll"
+                          LogicalName="Newtonsoft.Json.dll"
+                          Visible="false"
+                          Condition="'$(PkgNewtonsoft_Json)' != ''" />
     </ItemGroup>
 
 </Project>

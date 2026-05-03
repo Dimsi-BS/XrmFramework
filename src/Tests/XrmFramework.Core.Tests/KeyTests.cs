@@ -1,11 +1,11 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace XrmFramework.Core.Tests
 {
-    [TestClass]
+    [TestFixture]
     public class KeyTests
     {
-        [TestMethod]
+        [Test]
         public void ObjectInitialization()
         {
             var key = new Key();

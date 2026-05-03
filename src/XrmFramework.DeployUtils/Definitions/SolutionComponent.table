@@ -1,0 +1,257 @@
+{
+  "LogName": "solutioncomponent",
+  "Name": "SolutionComponent",
+  "CollName": "solutioncomponentss",
+  "Cols": [
+    {
+      "LogName": "componenttype",
+      "Name": "ComponentType",
+      "Type": "Picklist",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Code de type d’objet",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "componenttype"
+    },
+    {
+      "LogName": "createdby",
+      "Name": "CreatedBy",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Créé par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Créé le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "createdonbehalfby",
+      "Name": "CreatedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ismetadata",
+      "Name": "IsMetadata",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Consiste en des métadonnées",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedby",
+      "Name": "ModifiedBy",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Modifié par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedon",
+      "Name": "ModifiedOn",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Modifié le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "modifiedonbehalfby",
+      "Name": "ModifiedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "objectid",
+      "Name": "ObjectId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Concernant",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "rootcomponentbehavior",
+      "Name": "RootComponentBehavior",
+      "Type": "Picklist",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Comportement du composant racine",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "solutioncomponent|rootcomponentbehavior"
+    },
+    {
+      "LogName": "rootsolutioncomponentid",
+      "Name": "RootSolutionComponentId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "ID du composant de solution racine",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "solutioncomponentid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Identificateur du composant de solution",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "solutionid",
+      "Name": "SolutionId",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Solution",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "versionnumber",
+      "Name": "VersionNumber",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": []
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "userentityinstancedata_solutioncomponent",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_solutioncomponent",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "solutioncomponent_parent_solutioncomponent",
+      "Etn": "solutioncomponent",
+      "Role": "Referenced",
+      "NavPropName": "solutioncomponent_parent_solutioncomponent",
+      "LookName": "rootsolutioncomponentid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_solutioncomponentbase_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "lk_solutioncomponentbase_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "solution_solutioncomponent",
+      "Etn": "solution",
+      "NavPropName": "solutionid",
+      "LookName": "solutionid"
+    },
+    {
+      "Name": "solutioncomponent_parent_solutioncomponent",
+      "Etn": "solutioncomponent",
+      "NavPropName": "rootsolutioncomponentid_solutioncomponent",
+      "LookName": "rootsolutioncomponentid"
+    }
+  ],
+  "Keys": [],
+  "Enums": [
+    {
+      "LogName": "solutioncomponent|rootcomponentbehavior",
+      "Name": "InclureLeComportement",
+      "Values": [
+        {
+          "Name": "InclureLesSousComposants",
+          "Labels": [
+            {
+              "Label": "Inclure les sous-composants",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "NePasInclureLesSousComposants",
+          "Labels": [
+            {
+              "Label": "Ne pas inclure les sous-composants",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "InclureCommeShellUniquement",
+          "Labels": [
+            {
+              "Label": "Inclure comme shell uniquement",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -8,6 +8,8 @@ using System.Activities;
 using System.Linq;
 using System.Threading.Tasks;
 using XrmFramework.RemoteDebugger;
+using XrmFramework.RemoteDebugger.Client;
+using XrmFramework.RemoteDebugger.Client.ConsoleUI;
 using XrmFramework.RemoteDebugger.Common.ConsoleUI;
 
 namespace XrmFramework.RemoteDebugger.Common
@@ -112,7 +114,7 @@ namespace XrmFramework.RemoteDebugger.Common
         /// </summary>
         public void StartWithConsoleUI()
         {
-            var ui = new DebuggerConsoleUI(
+            var ui = new DebuggerConsoleUi(
                 onSave: SaveSession,
                 onReplay: ReplayExecution);
 

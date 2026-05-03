@@ -28,7 +28,7 @@
     <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.59" />
     <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.59" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.7" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
@@ -37,4 +37,14 @@
     <Compile Include="..\XrmFramework\**\*.cs" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
   </ItemGroup>
 
+
+    <ItemGroup>
+        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\XrmFramework.Analyzers.CodeFixes\XrmFramework.Analyzers.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AdditionalFiles Include="../XrmFramework/**/*.table" Exclude="../XrmFramework/bin/**;../XrmFramework/obj/**" />
+    </ItemGroup>
+    
 </Project>
