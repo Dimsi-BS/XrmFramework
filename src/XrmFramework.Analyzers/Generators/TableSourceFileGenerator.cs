@@ -8,6 +8,8 @@ namespace XrmFramework.Analyzers.Generators;
 [Generator]
 public class TableSourceFileGenerator : IIncrementalGenerator
 {
+	static TableSourceFileGenerator() => DependencyLoader.EnsureLoaded();
+
 	/// <inheritdoc />
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
@@ -65,124 +67,121 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 
 			using (sb.Indent())
 			{
-				if (table.Columns.Any())
+				sb.AppendLine("[GeneratedCode(\"XrmFramework\", \"2.0\")]");
+				sb.AppendLine("[EntityDefinition]");
+				sb.AppendLine("[ExcludeFromCodeCoverage]");
+
+
+				sb.AppendLine($"public static partial class {table.Name}Definition");
+				sb.AppendLine("{");
+
+				using (sb.Indent())
 				{
-					sb.AppendLine("[GeneratedCode(\"XrmFramework\", \"2.0\")]");
-					sb.AppendLine("[EntityDefinition]");
-					sb.AppendLine("[ExcludeFromCodeCoverage]");
+					sb.AppendLine($"public const string EntityName = \"{table.LogicalName}\";");
+					sb.AppendLine($"public const string EntityCollectionName = \"{table.CollectionName}\";");
 
-
-					sb.AppendLine($"public static partial class {table.Name}Definition");
+					sb.AppendLine();
+					sb.AppendLine(
+						"[SuppressMessage(\"Microsoft.Design\", \"CA1034:NestedTypesShouldNotBeVisible\")]");
+					sb.AppendLine("public static class Columns");
 					sb.AppendLine("{");
 
 					using (sb.Indent())
 					{
-						sb.AppendLine($"public const string EntityName = \"{table.LogicalName}\";");
-						sb.AppendLine($"public const string EntityCollectionName = \"{table.CollectionName}\";");
-
-						sb.AppendLine();
-						sb.AppendLine(
-							"[SuppressMessage(\"Microsoft.Design\", \"CA1034:NestedTypesShouldNotBeVisible\")]");
-						sb.AppendLine("public static class Columns");
-						sb.AppendLine("{");
-
-						using (sb.Indent())
+						foreach (var col in table.Columns)
 						{
-							foreach (var col in table.Columns)
+							if (!col.Selected) continue;
+							var enumDefinition = scopedEnums.FirstOrDefault(e => e.LogicalName == col.EnumName);
+
+							AddColumnSummary(sb, col, enumDefinition);
+
+							sb.AppendLine($"[AttributeMetadata(AttributeTypeCode.{col.Type.ToString()})]");
+							if (col.Type == AttributeTypeCode.Lookup)
 							{
-								if (!col.Selected) continue;
-								var enumDefinition = scopedEnums.FirstOrDefault(e => e.LogicalName == col.EnumName);
-
-								AddColumnSummary(sb, col, enumDefinition);
-
-								sb.AppendLine($"[AttributeMetadata(AttributeTypeCode.{col.Type.ToString()})]");
-								if (col.Type == AttributeTypeCode.Lookup)
+								var relation =
+									table.ManyToOneRelationships.FirstOrDefault(r =>
+									                                            r.LookupFieldName == col.LogicalName);
+								if (relation != null)
 								{
-									var relation =
-										table.ManyToOneRelationships.FirstOrDefault(r =>
-											                                            r.LookupFieldName == col.LogicalName);
-									if (relation != null)
+									var tb = tables.FirstOrDefault(t => t.LogicalName == relation.EntityName);
+									//var eC = this._entityCollection[relationship.ReferencedEntity];
+									var rcol = tb?.Columns.FirstOrDefault(colTemp =>
+									                                      colTemp.PrimaryType == PrimaryType.Id);
+
+									if (tb != null)
 									{
-										var tb = tables.FirstOrDefault(t => t.LogicalName == relation.EntityName);
-										//var eC = this._entityCollection[relationship.ReferencedEntity];
-										var rcol = tb?.Columns.FirstOrDefault(colTemp =>
-											                                      colTemp.PrimaryType == PrimaryType.Id);
-
-										if (tb != null)
-										{
-											sb.Append($"[CrmLookup({tb.Name}Definition.EntityName, ");
-											if (rcol != null)
-												sb.Append($"{tb.Name}Definition.Columns.{rcol.Name}, ");
-											else
-												throw new Exception(
-													"No primaryType was found for the referenced table");
-											//sb.Append($"{relation.LookupFieldName},");
-										}
+										sb.Append($"[CrmLookup({tb.Name}Definition.EntityName, ");
+										if (rcol != null)
+											sb.Append($"{tb.Name}Definition.Columns.{rcol.Name}, ");
 										else
-										{
-											sb.Append($"[CrmLookup(\"{relation.EntityName}\", ");
-											sb.Append($"\"{relation.LookupFieldName}\", ");
-										}
-
-										sb.AppendLine($"RelationshipName = ManyToOneRelationships.{relation.Name})]");
+											throw new Exception(
+												"No primaryType was found for the referenced table");
+										//sb.Append($"{relation.LookupFieldName},");
 									}
+									else
+									{
+										sb.Append($"[CrmLookup(\"{relation.EntityName}\", ");
+										sb.Append($"\"{relation.LookupFieldName}\", ");
+									}
+
+									sb.AppendLine($"RelationshipName = ManyToOneRelationships.{relation.Name})]");
 								}
-
-								if (col.PrimaryType == PrimaryType.Id)
-									sb.AppendLine("[PrimaryAttribute(PrimaryAttributeType.Id)]");
-
-								if (enumDefinition != null)
-									sb.AppendLine($"[OptionSet(typeof({enumDefinition.Name}))]");
-
-								if (col.PrimaryType == PrimaryType.Name)
-									sb.AppendLine("[PrimaryAttribute(PrimaryAttributeType.Name)]");
-
-								if (col.PrimaryType == PrimaryType.Image)
-									sb.AppendLine("[PrimaryAttribute(PrimaryAttributeType.Image)]");
-								if (col.StringLength.HasValue)
-									sb.AppendLine($"[StringLength({col.StringLength.Value})]");
-
-								if (col is { MinRange: not null, MaxRange: not null })
-									sb.AppendLine($"[Range({col.MinRange.Value}, {col.MaxRange.Value})]");
-
-								if (table.Keys != null)
-									foreach (var key in table.Keys)
-										if (key.FieldNames.Find(n => n == col.LogicalName) != null)
-											// Write a corresponding line
-											sb.AppendLine($"[AlternateKey(AlternateKeyNames.{key.Name})]");
-
-								if (col.Type == AttributeTypeCode.DateTime)
-									sb.AppendLine($"[DateTimeBehavior(DateTimeBehavior.{col.DateTimeBehavior})]");
-
-								sb.AppendLine($"public const string {col.Name} = \"{col.LogicalName}\";\r\n");
 							}
-						}
 
-						sb.AppendLine("}");
+							if (col.PrimaryType == PrimaryType.Id)
+								sb.AppendLine("[PrimaryAttribute(PrimaryAttributeType.Id)]");
 
+							if (enumDefinition != null)
+								sb.AppendLine($"[OptionSet(typeof({enumDefinition.Name}))]");
 
-						if (table.Keys != null && table.Keys.Any())
-						{
-							sb.AppendLine(
-								"[SuppressMessage(\"Microsoft.Design\", \"CA1034:NestedTypesShouldNotBeVisible\")]");
-							sb.AppendLine("public static class AlternateKeyNames");
-							sb.AppendLine("{");
-							using (sb.Indent())
-							{
+							if (col.PrimaryType == PrimaryType.Name)
+								sb.AppendLine("[PrimaryAttribute(PrimaryAttributeType.Name)]");
+
+							if (col.PrimaryType == PrimaryType.Image)
+								sb.AppendLine("[PrimaryAttribute(PrimaryAttributeType.Image)]");
+							if (col.StringLength.HasValue)
+								sb.AppendLine($"[StringLength({col.StringLength.Value})]");
+
+							if (col is { MinRange: not null, MaxRange: not null })
+								sb.AppendLine($"[Range({col.MinRange.Value}, {col.MaxRange.Value})]");
+
+							if (table.Keys != null)
 								foreach (var key in table.Keys)
-									sb.AppendLine($"public const string {key.Name} = \"{key.LogicalName}\";\r\n");
-							}
+									if (key.FieldNames.Find(n => n == col.LogicalName) != null)
+										// Write a corresponding line
+										sb.AppendLine($"[AlternateKey(AlternateKeyNames.{key.Name})]");
 
-							sb.AppendLine("}");
+							if (col.Type == AttributeTypeCode.DateTime)
+								sb.AppendLine($"[DateTimeBehavior(DateTimeBehavior.{col.DateTimeBehavior})]");
+
+							sb.AppendLine($"public const string {col.Name} = \"{col.LogicalName}\";\r\n");
 						}
-
-						AddRelations(sb, tables, table, table.ManyToOneRelationships, "ManyToOneRelationships");
-						AddRelations(sb, tables, table, table.ManyToManyRelationships, "ManyToManyRelationships");
-						AddRelations(sb, tables, table, table.OneToManyRelationships, "OneToManyRelationships");
 					}
 
 					sb.AppendLine("}");
+
+
+					if (table.Keys != null && table.Keys.Any())
+					{
+						sb.AppendLine(
+							"[SuppressMessage(\"Microsoft.Design\", \"CA1034:NestedTypesShouldNotBeVisible\")]");
+						sb.AppendLine("public static class AlternateKeyNames");
+						sb.AppendLine("{");
+						using (sb.Indent())
+						{
+							foreach (var key in table.Keys)
+								sb.AppendLine($"public const string {key.Name} = \"{key.LogicalName}\";\r\n");
+						}
+
+						sb.AppendLine("}");
+					}
+
+					AddRelations(sb, tables, table, table.ManyToOneRelationships, "ManyToOneRelationships");
+					AddRelations(sb, tables, table, table.ManyToManyRelationships, "ManyToManyRelationships");
+					AddRelations(sb, tables, table, table.OneToManyRelationships, "OneToManyRelationships");
 				}
+
+				sb.AppendLine("}");
 
 				if (table.Enums.Any())
 					foreach (var ose in table.Enums)

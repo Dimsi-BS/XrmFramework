@@ -37,10 +37,10 @@
       <group targetFramework="net462">
         <!-- Version fixée à celle du package : les tests doivent correspondre exactement au Framework -->
         <dependency id="XrmFramework.Plugin" version="[$version$]" />
-        <!-- Infrastructure de tests MSTest -->
+        <!-- Infrastructure de tests NUnit -->
         <dependency id="Microsoft.NET.Test.Sdk" version="17.8.0" />
-        <dependency id="MSTest.TestAdapter"     version="3.1.1" />
-        <dependency id="MSTest.TestFramework"   version="3.1.1" />
+        <dependency id="NUnit"                  version="4.5.1" />
+        <dependency id="NUnit3TestAdapter"       version="6.2.0" />
         <!--
           coverlet.collector est géré via le fichier build/net462/XrmFramework.Plugin.Tests.props
           avec PrivateAssets=all pour éviter la propagation transitive.

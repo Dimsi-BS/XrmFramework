@@ -4,7 +4,7 @@
 using System;
 using System.Linq;
 using System.Xml.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using XrmFramework.BindingModel.Tests.Fakes;
 
 namespace XrmFramework.BindingModel.Tests
@@ -14,7 +14,7 @@ namespace XrmFramework.BindingModel.Tests
     /// (exercised through <see cref="BindingModelHelper.ToBindingModel{T}(XElement)"/>
     /// and <see cref="BindingModelHelper.ToXElement{T}"/>).
     /// </summary>
-    [TestClass]
+    [TestFixture]
     public class XmlBindingModelMapperTests
     {
         // ------------------------------------------------------------------
@@ -43,7 +43,7 @@ namespace XrmFramework.BindingModel.Tests
         // Null element
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_NullElement_ReturnsDefault()
         {
             XElement? nullElement = null;
@@ -56,7 +56,7 @@ namespace XrmFramework.BindingModel.Tests
         // String parsing
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_StringElement_MapsCorrectly()
         {
             var element = BuildContactElement(fullName: "Alice");
@@ -66,7 +66,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual("Alice", model.FullName);
         }
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_AbsentStringElement_RemainsNull()
         {
             var element = BuildContactElement(); // no fullname element
@@ -80,7 +80,7 @@ namespace XrmFramework.BindingModel.Tests
         // Int parsing
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_IntElement_MapsCorrectly()
         {
             var element = BuildContactElement(age: "42");
@@ -90,7 +90,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual(42, model.Age);
         }
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_InvalidIntElement_MapsToNull()
         {
             var element = BuildContactElement(age: "not-a-number");
@@ -105,7 +105,7 @@ namespace XrmFramework.BindingModel.Tests
         // Decimal parsing — dot separator (en-US)
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_DecimalDotSeparator_MapsCorrectly()
         {
             var element = BuildContactElement(score: "12.5");
@@ -119,7 +119,7 @@ namespace XrmFramework.BindingModel.Tests
         // Decimal parsing — comma separator (fr-FR)
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_DecimalCommaSeparator_MapsCorrectly()
         {
             var element = BuildContactElement(score: "12,5");
@@ -133,7 +133,7 @@ namespace XrmFramework.BindingModel.Tests
         // Boolean parsing
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_BooleanTrue_MapsCorrectly()
         {
             var element = BuildContactElement(isActive: "true");
@@ -143,7 +143,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.IsTrue(model.IsActive);
         }
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_BooleanFalse_MapsCorrectly()
         {
             var element = BuildContactElement(isActive: "false");
@@ -157,7 +157,7 @@ namespace XrmFramework.BindingModel.Tests
         // DateTime parsing
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_DateTimeIso8601_MapsCorrectly()
         {
             var element = BuildContactElement(birthDate: "1990-06-15T00:00:00");
@@ -170,7 +170,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual(15, model.BirthDate.Value.Day);
         }
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_EmptyDateTimeElement_MapsToNull()
         {
             var element = BuildContactElement(birthDate: "");
@@ -184,7 +184,7 @@ namespace XrmFramework.BindingModel.Tests
         // Guid parsing
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_ValidGuid_MapsCorrectly()
         {
             var id = Guid.NewGuid();
@@ -195,7 +195,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual(id, model.TrackingId);
         }
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_EmptyGuidString_MapsToGuidEmpty()
         {
             var element = BuildContactElement(trackingId: "");
@@ -209,7 +209,7 @@ namespace XrmFramework.BindingModel.Tests
         // Collection of child elements
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_ChildCollection_MapsAllElements()
         {
             var element = new XElement("contact",
@@ -231,7 +231,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual(20, model.Children[1].Value);
         }
 
-        [TestMethod]
+        [Test]
         public void ToBindingModel_EmptyChildCollection_LeavesEmptyList()
         {
             var element = new XElement("contact",
@@ -247,7 +247,7 @@ namespace XrmFramework.BindingModel.Tests
         // Serialization: ToXElement
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToXElement_StringProperty_IsPresent()
         {
             var model = new SimpleXmlModel { FullName = "Bob" };
@@ -257,7 +257,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual("Bob", element.Element("fullname")?.Value);
         }
 
-        [TestMethod]
+        [Test]
         public void ToXElement_IntProperty_IsPresent()
         {
             var model = new SimpleXmlModel { Age = 33 };
@@ -267,7 +267,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual("33", element.Element("age")?.Value);
         }
 
-        [TestMethod]
+        [Test]
         public void ToXElement_DecimalProperty_UsesInvariantCulture()
         {
             var model = new SimpleXmlModel { Score = 7.5m };
@@ -278,7 +278,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual("7.5", element.Element("score")?.Value);
         }
 
-        [TestMethod]
+        [Test]
         public void ToXElement_DateTimeProperty_UsesIso8601()
         {
             var model = new SimpleXmlModel
@@ -289,14 +289,14 @@ namespace XrmFramework.BindingModel.Tests
 
             Assert.IsNotNull(element);
             // Expect ISO-8601 sortable format.
-            StringAssert.StartsWith(element.Element("birthdate")?.Value, "1990-06-15T12:30:00");
+            Assert.That(element.Element("birthdate")?.Value, Does.StartWith("1990-06-15T12:30:00"));
         }
 
         // ------------------------------------------------------------------
         // Roundtrip: FromXElement → ToXElement
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void Roundtrip_FromAndToXElement_PreservesAllScalars()
         {
             var trackingId = Guid.NewGuid();
@@ -321,7 +321,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual(trackingId.ToString(), result.Element("trackingid")?.Value);
         }
 
-        [TestMethod]
+        [Test]
         public void Roundtrip_FromAndToXElement_PreservesChildCollection()
         {
             var source = new XElement("contact",
@@ -349,7 +349,7 @@ namespace XrmFramework.BindingModel.Tests
         // Null model → ToXElement returns null
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToXElement_NullModel_ReturnsNull()
         {
             SimpleXmlModel? nullModel = null;

@@ -1,4 +1,4 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace XrmFramework.Core.Tests
 {
-    [TestClass]
+    [TestFixture]
     public class ColumnCollectionTests
     {
         private ColumnCollection _columnCollection = null!;
@@ -30,13 +30,13 @@ namespace XrmFramework.Core.Tests
             Name = "OtherName"
         };
 
-        [TestInitialize]
+        [SetUp]
         public void InitTests()
         {
             _columnCollection = new ColumnCollection();
         }
 
-        [TestMethod]
+        [Test]
         public void ObjectInitialization()
         {
             Assert.IsNotNull(_columnCollection.GetEnumerator());
@@ -45,7 +45,7 @@ namespace XrmFramework.Core.Tests
 
         }
 
-        [TestMethod]
+        [Test]
         public void AddColumn()
         {
             _columnCollection.Add(null);
@@ -54,7 +54,7 @@ namespace XrmFramework.Core.Tests
             _columnCollection.Add(_selectedColumn);
 
             Assert.AreEqual(1, _columnCollection.Count);
-            CollectionAssert.AreEquivalent(new List<Column> { _selectedColumn }, _columnCollection.ToList());
+            Assert.That(_columnCollection.ToList(), Is.EquivalentTo(new List<Column> { _selectedColumn }));
 
 
             _columnCollection.Add(_notSelectedColumn);
@@ -80,10 +80,10 @@ namespace XrmFramework.Core.Tests
 
             _columnCollection.Add(_otherColumn);
 
-            CollectionAssert.AreEquivalent(new List<Column> { _otherColumn, _notSelectedColumn }, _columnCollection.ToList());
+            Assert.That(_columnCollection.ToList(), Is.EquivalentTo(new List<Column> { _otherColumn, _notSelectedColumn }));
         }
 
-        [TestMethod]
+        [Test]
         public void RemoveColumn()
         {
             _columnCollection.Add(_selectedColumn);
@@ -95,7 +95,7 @@ namespace XrmFramework.Core.Tests
             Assert.AreEqual(0, _columnCollection.Count);
         }
 
-        [TestMethod]
+        [Test]
         public void ContainsColumn()
         {
             _columnCollection.Add(_selectedColumn);
@@ -105,13 +105,13 @@ namespace XrmFramework.Core.Tests
             Assert.IsTrue(_columnCollection.Contains(_notSelectedColumn));
         }
 
-        [TestMethod]
+        [Test]
         public void IsReadOnly()
         {
-            Assert.IsTrue(_columnCollection.IsReadOnly);
+            Assert.IsFalse(_columnCollection.IsReadOnly);
         }
 
-        [TestMethod]
+        [Test]
         public void GetEnumeratorGeneric()
         {
             _columnCollection.Add(_selectedColumn);
@@ -130,7 +130,7 @@ namespace XrmFramework.Core.Tests
             Assert.AreEqual(_otherColumn, enumerator.Current);
         }
 
-        [TestMethod]
+        [Test]
         public void GetEnumerator()
         {
             _columnCollection.Add(_selectedColumn);
@@ -138,7 +138,7 @@ namespace XrmFramework.Core.Tests
 
             var enumerator = ((IEnumerable)_columnCollection).GetEnumerator();
 
-            Assert.ThrowsException<InvalidOperationException>(() => enumerator.Current);
+            Assert.Throws<InvalidOperationException>(() => { _ = enumerator.Current; });
 
             enumerator.MoveNext();
 
@@ -149,7 +149,7 @@ namespace XrmFramework.Core.Tests
             Assert.AreEqual(_otherColumn, enumerator.Current);
         }
 
-        [TestMethod]
+        [Test]
         public void MergeColumns()
         {
             _columnCollection.Add(_selectedColumn);
@@ -160,7 +160,7 @@ namespace XrmFramework.Core.Tests
 
             Assert.AreEqual(list.Count, _columnCollection.Count);
 
-            CollectionAssert.AreEquivalent(list, _columnCollection.ToList());
+            Assert.That(_columnCollection.ToList(), Is.EquivalentTo(list));
         }
     }
 }

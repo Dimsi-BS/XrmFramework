@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Microsoft.Xrm.Sdk;
 using XrmFramework.BindingModel.Tests.Fakes;
 
@@ -12,7 +12,7 @@ namespace XrmFramework.BindingModel.Tests
     /// Unit tests for the IBindingModel → Entity mapping path
     /// (exercised through <see cref="BindingModelHelper.ToEntity"/>).
     /// </summary>
-    [TestClass]
+    [TestFixture]
     public class BindingModelToEntityMapperTests
     {
         // The mapper calls IOrganizationService only for CrmLookupAttribute + AllowNotExisting
@@ -23,7 +23,7 @@ namespace XrmFramework.BindingModel.Tests
         // Entity name
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToEntity_SetsCorrectEntityLogicalName()
         {
             var model = new ContactModel { Id = Guid.NewGuid() };
@@ -36,7 +36,7 @@ namespace XrmFramework.BindingModel.Tests
         // Id mapping
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToEntity_SetsEntityId()
         {
             var id = Guid.NewGuid();
@@ -50,7 +50,7 @@ namespace XrmFramework.BindingModel.Tests
         // String attribute
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToEntity_StringAttribute_IsWrittenToEntity()
         {
             var model = new ContactModel
@@ -64,7 +64,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual("John Doe", entity.GetAttributeValue<string>(ContactDefinition.Columns.FullName));
         }
 
-        [TestMethod]
+        [Test]
         public void ToEntity_NullStringAttribute_WritesNull()
         {
             var model = new ContactModel { Id = Guid.NewGuid(), FullName = null };
@@ -78,7 +78,7 @@ namespace XrmFramework.BindingModel.Tests
         // Picklist (OptionSet)
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToEntity_PicklistEnum_WritesOptionSetValue()
         {
             var model = new ContactModel
@@ -94,7 +94,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual(1, optionSet.Value);
         }
 
-        [TestMethod]
+        [Test]
         public void ToEntity_PicklistEnum_NullValueEnum_WritesNull()
         {
             // ContactStatus.Null has integer value 0 and name "Null" → should produce null OptionSetValue.
@@ -114,7 +114,7 @@ namespace XrmFramework.BindingModel.Tests
         // Money attribute
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToEntity_MoneyAttribute_WritesMoneyValue()
         {
             var model = new ContactModel
@@ -130,7 +130,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual(9999.99m, money.Value);
         }
 
-        [TestMethod]
+        [Test]
         public void ToEntity_MoneyAttribute_NullDecimal_WritesNull()
         {
             var model = new ContactModel { Id = Guid.NewGuid(), Revenue = null };
@@ -144,7 +144,7 @@ namespace XrmFramework.BindingModel.Tests
         // Boolean attribute
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToEntity_BooleanAttribute_True_WritesTrue()
         {
             var model = new ContactModel { Id = Guid.NewGuid(), IsActive = true };
@@ -157,7 +157,7 @@ namespace XrmFramework.BindingModel.Tests
         // DateTime: MinValue should be treated as null
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToEntity_DateTimeMinValue_WritesNull()
         {
             var model = new ContactModel
@@ -172,7 +172,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.IsNull(entity.GetAttributeValue<DateTime?>(ContactDefinition.Columns.BirthDate));
         }
 
-        [TestMethod]
+        [Test]
         public void ToEntity_ValidDateTime_WritesDateTime()
         {
             var date = new DateTime(1990, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -186,7 +186,7 @@ namespace XrmFramework.BindingModel.Tests
         // InitializedProperties tracking (BindingModelBase)
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToEntity_WithBindingModelBase_OnlyInitializedPropertiesAreWritten()
         {
             // Only set FullName; Email and Revenue should not appear in the entity.
@@ -206,7 +206,7 @@ namespace XrmFramework.BindingModel.Tests
                 "Revenue was NOT set, it should be absent.");
         }
 
-        [TestMethod]
+        [Test]
         public void ToEntity_WithBindingModelBase_MultipleInitializedProperties_AllWritten()
         {
             var model = new ContactModelWithBase
@@ -226,7 +226,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual(500m, money.Value);
         }
 
-        [TestMethod]
+        [Test]
         public void ToEntity_WithBindingModelBase_NothingSet_EntityHasNoAttributes()
         {
             var model = new ContactModelWithBase { Id = Guid.NewGuid() };
@@ -242,7 +242,7 @@ namespace XrmFramework.BindingModel.Tests
         // Lookup (Guid typed) attribute
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void ToEntity_LookupGuidAttribute_WritesEntityReference()
         {
             var accountId = Guid.NewGuid();
@@ -255,7 +255,7 @@ namespace XrmFramework.BindingModel.Tests
             Assert.AreEqual(AccountDefinition.EntityName, entityRef.LogicalName);
         }
 
-        [TestMethod]
+        [Test]
         public void ToEntity_LookupGuidAttribute_EmptyGuid_WritesNull()
         {
             var model = new ContactModel { Id = Guid.NewGuid(), AccountId = Guid.Empty };

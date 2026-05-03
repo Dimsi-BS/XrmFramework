@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using XrmFramework.BindingModel.Tests.Fakes;
 
 namespace XrmFramework.BindingModel.Tests
@@ -11,14 +11,14 @@ namespace XrmFramework.BindingModel.Tests
     /// Unit tests for <see cref="BindingModelHelper.GetRetrieveAllQuery{T}"/> and the
     /// underlying <c>BindingModelQueryBuilder</c> logic.
     /// </summary>
-    [TestClass]
+    [TestFixture]
     public class BindingModelQueryBuilderTests
     {
         // ------------------------------------------------------------------
         // Entity name
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void GetRetrieveAllQuery_UsesCorrectEntityName()
         {
             var query = BindingModelHelper.GetRetrieveAllQuery<ContactModel>();
@@ -30,22 +30,22 @@ namespace XrmFramework.BindingModel.Tests
         // Column set — scalar attributes
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void GetRetrieveAllQuery_IncludesAllMappedColumns()
         {
             var query = BindingModelHelper.GetRetrieveAllQuery<ContactModel>();
             var columns = query.ColumnSet.Columns;
 
-            CollectionAssert.Contains(columns, ContactDefinition.Columns.FullName);
-            CollectionAssert.Contains(columns, ContactDefinition.Columns.Email);
-            CollectionAssert.Contains(columns, ContactDefinition.Columns.IsActive);
-            CollectionAssert.Contains(columns, ContactDefinition.Columns.BirthDate);
-            CollectionAssert.Contains(columns, ContactDefinition.Columns.Revenue);
-            CollectionAssert.Contains(columns, ContactDefinition.Columns.StatusCode);
-            CollectionAssert.Contains(columns, ContactDefinition.Columns.AccountId);
+            Assert.That(columns, Does.Contain(ContactDefinition.Columns.FullName));
+            Assert.That(columns, Does.Contain(ContactDefinition.Columns.Email));
+            Assert.That(columns, Does.Contain(ContactDefinition.Columns.IsActive));
+            Assert.That(columns, Does.Contain(ContactDefinition.Columns.BirthDate));
+            Assert.That(columns, Does.Contain(ContactDefinition.Columns.Revenue));
+            Assert.That(columns, Does.Contain(ContactDefinition.Columns.StatusCode));
+            Assert.That(columns, Does.Contain(ContactDefinition.Columns.AccountId));
         }
 
-        [TestMethod]
+        [Test]
         public void GetRetrieveAllQuery_DoesNotDuplicateColumns()
         {
             var query = BindingModelHelper.GetRetrieveAllQuery<ContactModel>();
@@ -61,7 +61,7 @@ namespace XrmFramework.BindingModel.Tests
         // Lookup column — link entity
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void GetRetrieveAllQuery_LookupAttribute_NullObjectTypedAsGuid_NoLinkEntityAdded()
         {
             // ContactModel.AccountId is a Guid-typed lookup without an explicit CrmLookupAttribute
@@ -69,30 +69,29 @@ namespace XrmFramework.BindingModel.Tests
             var query = BindingModelHelper.GetRetrieveAllQuery<ContactModel>();
 
             // The column should be present.
-            CollectionAssert.Contains(query.ColumnSet.Columns, ContactDefinition.Columns.AccountId);
+            Assert.That(query.ColumnSet.Columns, Does.Contain(ContactDefinition.Columns.AccountId));
         }
 
         // ------------------------------------------------------------------
         // Non-generic overload
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void GetRetrieveAllQuery_NonGenericOverload_ReturnsSameQueryAsGeneric()
         {
             var generic = BindingModelHelper.GetRetrieveAllQuery<ContactModel>();
             var nonGeneric = BindingModelHelper.GetRetrieveAllQuery(typeof(ContactModel));
 
             Assert.AreEqual(generic.EntityName, nonGeneric.EntityName);
-            CollectionAssert.AreEquivalent(
-                generic.ColumnSet.Columns.ToList(),
-                nonGeneric.ColumnSet.Columns.ToList());
+            Assert.That(nonGeneric.ColumnSet.Columns.ToList(), Is.EquivalentTo(
+                generic.ColumnSet.Columns.ToList()));
         }
 
         // ------------------------------------------------------------------
         // Simple model with no lookup — no link entities
         // ------------------------------------------------------------------
 
-        [TestMethod]
+        [Test]
         public void GetRetrieveAllQuery_ModelWithNoLookup_HasNoLinkEntities()
         {
             var query = BindingModelHelper.GetRetrieveAllQuery<ContactModelWithBase>();

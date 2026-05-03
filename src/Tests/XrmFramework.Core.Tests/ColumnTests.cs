@@ -1,12 +1,12 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Microsoft.Xrm.Sdk.Metadata;
 
 namespace XrmFramework.Core.Tests
 {
-    [TestClass]
+    [TestFixture]
     public class ColumnTests
     {
-        [TestMethod]
+        [Test]
         public void ObjectInitialization()
         {
             var column = new Column();

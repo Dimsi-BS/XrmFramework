@@ -37,6 +37,7 @@ public partial class RemoteDebugExecutionContext : IPluginExecutionContext
         IsInTransaction = context.IsInTransaction;
         OperationId = context.OperationId;
         OperationCreatedOn = context.OperationCreatedOn;
+        ExecutionDate = DateTime.UtcNow;
 
         if (context.GetType().Name == "IWorkflowContext")
         {
@@ -52,7 +53,9 @@ public partial class RemoteDebugExecutionContext : IPluginExecutionContext
             }
         }
     }
-        
+
+    public DateTime ExecutionDate { get; set; }
+
     partial void InitRemoteWorkflowContext(IExecutionContext context);
 
     public bool IsWorkflowContext { get; set; }

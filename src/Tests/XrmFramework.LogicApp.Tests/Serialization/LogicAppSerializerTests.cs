@@ -1,7 +1,9 @@
 // Copyright (c) DIMSI. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.IO;
+using NUnit.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using XrmFramework.LogicApp.Builders;
@@ -15,14 +17,14 @@ namespace XrmFramework.LogicApp.Tests.Serialization;
 /// <summary>
 /// Tests unitaires pour <see cref="LogicAppSerializer"/>.
 /// </summary>
-[TestClass]
+[TestFixture]
 public class LogicAppSerializerTests
 {
     // ──────────────────────────────────────────────
     //  SerializeConsumption
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void SerializeConsumption_ReturnsValidJson()
     {
         var workflow = LogicAppBuilder
@@ -38,7 +40,7 @@ public class LogicAppSerializerTests
         Assert.IsNotNull(parsed);
     }
 
-    [TestMethod]
+    [Test]
     public void SerializeConsumption_ContainsDefinitionKey()
     {
         var workflow = LogicAppBuilder
@@ -52,7 +54,7 @@ public class LogicAppSerializerTests
         Assert.IsTrue(parsed.ContainsKey("definition"), "Le JSON doit contenir la clé 'definition'.");
     }
 
-    [TestMethod]
+    [Test]
     public void SerializeConsumption_IsIndented()
     {
         var workflow = new ConsumptionWorkflow
@@ -67,7 +69,7 @@ public class LogicAppSerializerTests
             "Le JSON par défaut doit être indenté.");
     }
 
-    [TestMethod]
+    [Test]
     public void SerializeConsumption_NullValuesOmitted()
     {
         var workflow = new ConsumptionWorkflow
@@ -83,7 +85,7 @@ public class LogicAppSerializerTests
             "Les clés null ne doivent pas être incluses dans le JSON.");
     }
 
-    [TestMethod]
+    [Test]
     public void SerializeConsumption_UsesCamelCase()
     {
         var workflow = LogicAppBuilder
@@ -101,7 +103,7 @@ public class LogicAppSerializerTests
     //  SerializeStandard
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void SerializeStandard_ReturnsValidJson()
     {
         var workflow = LogicAppBuilder
@@ -116,7 +118,7 @@ public class LogicAppSerializerTests
         Assert.IsNotNull(parsed);
     }
 
-    [TestMethod]
+    [Test]
     public void SerializeStandard_ContainsKindKey()
     {
         var workflow = LogicAppBuilder
@@ -134,7 +136,7 @@ public class LogicAppSerializerTests
     //  Serialize (générique)
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void Serialize_WorkflowObject_ReturnsValidJson()
     {
         var workflowObject = LogicAppBuilder
@@ -152,14 +154,14 @@ public class LogicAppSerializerTests
     //  WriteConsumption
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void WriteConsumption_CreatesFileWithCorrectContent()
     {
         var workflow = LogicAppBuilder
             .ForConsumption()
             .WithWorkflow(w => w
                 .AddTrigger("manual", new HttpRequestTrigger())
-                .AddAction("Compose", new ComposeAction { Inputs = "Hello, World!" }))
+                .AddAction("Compose", new ComposeAction { Value = "Hello, World!" }))
             .BuildConsumption();
 
         var outputPath = Path.Combine(Path.GetTempPath(), $"test_consumption_{Guid.NewGuid():N}.json");
@@ -183,7 +185,7 @@ public class LogicAppSerializerTests
     //  WriteStandard
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void WriteStandard_CreatesWorkflowJsonInSubfolder()
     {
         var workflow = LogicAppBuilder
@@ -210,7 +212,7 @@ public class LogicAppSerializerTests
         }
     }
 
-    [TestMethod]
+    [Test]
     public void WriteStandard_ReturnsFullPathToWorkflowJson()
     {
         var workflow = LogicAppBuilder.ForStandard().BuildStandard();
@@ -234,7 +236,7 @@ public class LogicAppSerializerTests
     //  Settings personnalisés
     // ──────────────────────────────────────────────
 
-    [TestMethod]
+    [Test]
     public void SerializeConsumption_WithCustomSettings_AppliesSettings()
     {
         var workflow = new ConsumptionWorkflow { Definition = new WorkflowDefinition() };

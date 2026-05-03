@@ -1,0 +1,535 @@
+{
+  "LogName": "pluginpackage",
+  "Name": "Pluginpackage",
+  "CollName": "pluginpackages",
+  "Cols": [
+    {
+      "LogName": "componentidunique",
+      "Name": "ComponentIdUnique",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "ID de ligne unique",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "componentstate",
+      "Name": "ComponentState",
+      "Type": "Picklist",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "État du composant",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "componentstate",
+      "Select": true
+    },
+    {
+      "LogName": "content",
+      "Name": "Content",
+      "Type": "Memo",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Contenu",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 1073741823,
+      "Select": true
+    },
+    {
+      "LogName": "createdby",
+      "Name": "CreatedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Auteur",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Date de création",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0,
+      "Select": true
+    },
+    {
+      "LogName": "createdonbehalfby",
+      "Name": "CreatedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Auteur (délégué)",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "fileid",
+      "Name": "FileId",
+      "Type": "Virtual",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "FileId",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "importsequencenumber",
+      "Name": "ImportSequenceNumber",
+      "Type": "Integer",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Numéro de séquence de l’importation",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -2147483648.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "iscustomizable",
+      "Name": "IsCustomizable",
+      "Type": "ManagedProperty",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Est personnalisable",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ismanaged",
+      "Name": "IsManaged",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Est géré",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "modifiedby",
+      "Name": "ModifiedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Auteur de la modification",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "modifiedon",
+      "Name": "ModifiedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Date de modification",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0,
+      "Select": true
+    },
+    {
+      "LogName": "modifiedonbehalfby",
+      "Name": "ModifiedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Auteur de la modification (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100,
+      "Select": true
+    },
+    {
+      "LogName": "organizationid",
+      "Name": "OrganizationId",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "ID d’organisation",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "overriddencreatedon",
+      "Name": "OverriddenCreatedOn",
+      "Type": "DateTime",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Date de création de l′enregistrement",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0,
+      "Select": true
+    },
+    {
+      "LogName": "overwritetime",
+      "Name": "OverwriteTime",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Heure de remplacement de l'enregistrement",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0,
+      "Select": true
+    },
+    {
+      "LogName": "package",
+      "Name": "Package",
+      "Type": "Virtual",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Package",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "pluginpackageid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Package de plug-ins",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "solutionid",
+      "Name": "SolutionId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Solution",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "statecode",
+      "Name": "Statecode",
+      "Type": "State",
+      "Capa": 11,
+      "Labels": [
+        {
+          "Label": "Statut",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "pluginpackage|statecode",
+      "Select": true
+    },
+    {
+      "LogName": "statuscode",
+      "Name": "Statuscode",
+      "Type": "Status",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Raison du statut",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "pluginpackage|statuscode",
+      "Select": true
+    },
+    {
+      "LogName": "timezoneruleversionnumber",
+      "Name": "TimeZoneRuleVersionNumber",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Numéro de version de la règle du fuseau horaire",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -1.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "uniquename",
+      "Name": "UniqueName",
+      "Type": "String",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Nom unique",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 128,
+      "Select": true
+    },
+    {
+      "LogName": "utcconversiontimezonecode",
+      "Name": "UTCConversionTimeZoneCode",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Code de fuseau horaire pour la conversion UTC",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -1.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "version",
+      "Name": "Version",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Version",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100,
+      "Select": true
+    },
+    {
+      "LogName": "versionnumber",
+      "Name": "VersionNumber",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Numéro de version",
+          "LangId": 1036
+        }
+      ]
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "pluginpackage_SyncErrors",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "pluginpackage_SyncErrors",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "pluginpackage_AsyncOperations",
+      "Etn": "asyncoperation",
+      "Role": "Referenced",
+      "NavPropName": "pluginpackage_AsyncOperations",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "pluginpackage_MailboxTrackingFolders",
+      "Etn": "mailboxtrackingfolder",
+      "Role": "Referenced",
+      "NavPropName": "pluginpackage_MailboxTrackingFolders",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "pluginpackage_UserEntityInstanceDatas",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "pluginpackage_UserEntityInstanceDatas",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "pluginpackage_BulkDeleteFailures",
+      "Etn": "bulkdeletefailure",
+      "Role": "Referenced",
+      "NavPropName": "pluginpackage_BulkDeleteFailures",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "pluginpackage_PrincipalObjectAttributeAccesses",
+      "Etn": "principalobjectattributeaccess",
+      "Role": "Referenced",
+      "NavPropName": "pluginpackage_PrincipalObjectAttributeAccesses",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "pluginpackage_FileAttachments",
+      "Etn": "fileattachment",
+      "Role": "Referenced",
+      "NavPropName": "pluginpackage_FileAttachments",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "pluginpackage_pluginassembly",
+      "Etn": "pluginassembly",
+      "Role": "Referenced",
+      "NavPropName": "pluginpackage_pluginassembly",
+      "LookName": "packageid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_pluginpackage_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_pluginpackage_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_pluginpackage_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_pluginpackage_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "organization_pluginpackage",
+      "Etn": "organization",
+      "NavPropName": "organizationid",
+      "LookName": "organizationid"
+    },
+    {
+      "Name": "FileAttachment_pluginpackage_FileId",
+      "Etn": "fileattachment",
+      "NavPropName": "FileId",
+      "LookName": "fileid"
+    },
+    {
+      "Name": "FileAttachment_pluginpackage_Package",
+      "Etn": "fileattachment",
+      "NavPropName": "Pacakge",
+      "LookName": "package"
+    }
+  ],
+  "Keys": [
+    {
+      "LogicalName": "uniquename",
+      "Name": "FullNameOfPackage",
+      "FieldNames": [
+        "componentstate",
+        "overwritetime",
+        "uniquename"
+      ]
+    }
+  ],
+  "Enums": [
+    {
+      "LogName": "pluginpackage|statecode",
+      "Name": "PluginpackageState",
+      "Values": [
+        {
+          "Name": "Actif",
+          "Labels": [
+            {
+              "Label": "Actif",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Inactif",
+          "Labels": [
+            {
+              "Label": "Inactif",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "pluginpackage|statuscode",
+      "Name": "PluginpackageStatus",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Actif",
+          "Labels": [
+            {
+              "Label": "Actif",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Inactif",
+          "Labels": [
+            {
+              "Label": "Inactif",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

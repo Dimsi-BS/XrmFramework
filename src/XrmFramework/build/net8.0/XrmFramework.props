@@ -1,5 +1,6 @@
 ﻿<Project>
-
+    <Import Project="../XrmFramework.props" />
+    
     <ItemGroup>
         <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.2.10" Exclude="Build,Analyzers"/>
         <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.2.10" Exclude="Build,Analyzers"/>

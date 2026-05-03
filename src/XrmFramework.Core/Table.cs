@@ -17,23 +17,25 @@ namespace XrmFramework.Core
         [JsonProperty("CollName")]
         public string CollectionName { get; set; }
 
-        [JsonProperty("Cols")]
+        [JsonProperty("Cols", ObjectCreationHandling = ObjectCreationHandling.Reuse)]
         public ColumnCollection Columns { get; } = new ColumnCollection();
 
-        [JsonProperty("NtoN")]
+        [JsonProperty("NtoN", ObjectCreationHandling = ObjectCreationHandling.Reuse)]
         public List<Relation> ManyToManyRelationships { get; } = new();
 
-        [JsonProperty("OneToN")]
+        [JsonProperty("OneToN", ObjectCreationHandling = ObjectCreationHandling.Reuse)]
         public List<Relation> OneToManyRelationships { get; } = new();
 
-        [JsonProperty("NToOne")]
+        [JsonProperty("NToOne", ObjectCreationHandling = ObjectCreationHandling.Reuse)]
         public List<Relation> ManyToOneRelationships { get; } = new();
 
         [JsonProperty("Locked")]
         public bool isLocked { get; set; } = false;
 
+        [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Reuse)]
         public ICollection<Key> Keys { get; } = new List<Key>();
 
+        [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Reuse)]
         public List<OptionSetEnum> Enums { get; } = new();
 
         [JsonIgnore]

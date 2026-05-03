@@ -138,7 +138,7 @@ public class CrmSettingsFactory<TSettings> where TSettings : CrmSettings, new()
                         }
     
                         return bool.Parse(variable.Value);
-                    case EnvironmentVariableType.Json:
+                    case EnvironmentVariableType.JSON:
                         return JsonConvert.DeserializeObject(variable.Value, objectType);
                     default:
                         throw new ArgumentOutOfRangeException(nameof(variable), "The Type of the environment variable is not supported");
