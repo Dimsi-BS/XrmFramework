@@ -6,7 +6,6 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Model;
 using CustomApi = Deploy.CustomApi;
 using CustomApiRequestParameter = Deploy.CustomApiRequestParameter;

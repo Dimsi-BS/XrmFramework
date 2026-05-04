@@ -47,12 +47,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <AdditionalFiles Include="../XrmFramework/**/*.table" Exclude="../XrmFramework/bin/**;../XrmFramework/obj/**" />
+        <AdditionalFiles Include="../XrmFramework/**/*.table"  Exclude="../XrmFramework/bin/**;../XrmFramework/obj/**" />
     </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.52" />
-    <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.52" />
     <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.45" />
 
     <Reference Include="System.Configuration" />
@@ -69,15 +67,15 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.2.2" />
-    <PackageReference Include="Spectre.Console" Version="0.48.0" />
-    <PackageReference Include="Spectre.Console.Analyzer" Version="0.48.0">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.7" />
+    <PackageReference Include="MSTest.TestFramework" Version="4.2.2" />
+    <PackageReference Include="Spectre.Console" Version="0.55.2" />
+    <PackageReference Include="Spectre.Console.Analyzer" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
+    <PackageReference Include="Spectre.Console.Cli" Version="0.55.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -101,6 +99,12 @@
         <AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**" />
 
         <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
+    </ItemGroup>
+
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+      <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.60" />
+      <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.60" />
     </ItemGroup>
 
 

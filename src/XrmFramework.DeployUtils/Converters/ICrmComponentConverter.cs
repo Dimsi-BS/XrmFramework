@@ -1,5 +1,4 @@
 using Microsoft.Xrm.Sdk;
-using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Model.Interfaces;
 
 namespace XrmFramework.DeployUtils.Converters

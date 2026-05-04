@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xrm.Sdk;
 using XrmFramework;
-using XrmFramework.Definitions;
 
 namespace Deploy
 {

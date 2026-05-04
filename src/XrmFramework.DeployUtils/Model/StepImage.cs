@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Model.Interfaces;
 

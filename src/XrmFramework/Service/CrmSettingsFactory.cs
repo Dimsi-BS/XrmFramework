@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Windows;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Newtonsoft.Json;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
 using XrmFramework.Model;
 
 namespace XrmFramework;
@@ -45,13 +43,14 @@ public class CrmSettingsFactory<TSettings> where TSettings : CrmSettings, new()
 			
 			
 			var	settingsValues = initSettings(splitPropertySettings);
-			
-			if(!settingsValues.Any())
+
+			var valueTuples = settingsValues ?? settingsValues.ToArray();
+			if(!valueTuples.Any())
 			{
-				settingsValues = DefaultInitSettings(splitPropertySettings);
+				settingsValues = DefaultInitSettings(splitPropertySettings.ToArray());
 			}
 
-			foreach (var value in settingsValues)
+			foreach (var value in valueTuples)
 			{
 				var property = propertySettings.FirstOrDefault(p => p.Name == value.settingName);
 

@@ -42,6 +42,8 @@
         <file src="**\*.cs" target="contentFiles\cs\any\__Imports\XrmFramework"
               exclude="obj\**;**\AssemblyInfo.cs;**\CrmServiceClientDummy.cs"/>
 
+        <file src="**\*.table" target="content\tables\"
+              exclude="bin\**;obj\**"/>
         <file src="build\**\*" target="build"/>
 
         <file src="lib\**" target="lib"/>

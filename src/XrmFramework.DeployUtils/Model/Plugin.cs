@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Model.Interfaces;
 
 namespace XrmFramework.DeployUtils.Model;

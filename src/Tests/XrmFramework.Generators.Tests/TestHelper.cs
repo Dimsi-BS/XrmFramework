@@ -29,12 +29,12 @@ public static class TestHelper
 
         CSharpCompilation compilation = CSharpCompilation.Create(
             assemblyName: "GeneratorTests",
-            syntaxTrees: new[] { syntaxTree },
-            references: new[]
-            {
+            syntaxTrees: [syntaxTree],
+            references:
+            [
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(Task).Assembly.Location),
-            });
+                MetadataReference.CreateFromFile(typeof(Task).Assembly.Location)
+            ]);
 
         var generator = new TGenerator();
 
@@ -46,7 +46,7 @@ public static class TestHelper
                 .Select(t => (Microsoft.CodeAnalysis.AdditionalText)new InMemoryAdditionalText(t.path, t.content))
                 .ToArray();
 
-            driver = driver.AddAdditionalTexts(ImmutableArray.Create(texts));
+            driver = driver.AddAdditionalTexts([..texts]);
         }
 
         driver = driver.RunGenerators(compilation);

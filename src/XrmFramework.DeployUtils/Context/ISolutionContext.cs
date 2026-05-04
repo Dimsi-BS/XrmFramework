@@ -24,9 +24,9 @@ namespace XrmFramework.DeployUtils.Context
 
         Guid GetUserId(string userName);
 
-        EntityReference GetMessage(Model.Messages message);
+        EntityReference GetMessage(Messages message);
 
-        EntityReference GetMessageFilter(Model.Messages message, string entityName);
+        EntityReference GetMessageFilter(Messages message, string entityName);
 
         /// <summary>Retrieves all metadata of the solution</summary>
         /// <remarks>This method is not used anymore, but is left because it would be a pain to write it again if it's ever needed</remarks>

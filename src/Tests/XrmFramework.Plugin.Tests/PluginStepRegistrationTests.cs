@@ -2,8 +2,8 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using NUnit.Framework;
-using Microsoft.Xrm.Sdk;
 
+// ReSharper disable once CheckNamespace
 namespace XrmFramework.Tests.Plugin;
 
 /// <summary>
@@ -20,52 +20,44 @@ public class PluginStepRegistrationTests
     /// <summary>
     /// Plugin minimal avec un step Create sur l'entité Contact.
     /// </summary>
-    private sealed class ContactCreatePlugin : XrmFramework.Plugin
+    private sealed class ContactCreatePlugin(string? unsecuredConfig = null, string? securedConfig = null)
+        : XrmFramework.Plugin(unsecuredConfig, securedConfig)
     {
-        public ContactCreatePlugin(string unsecuredConfig = null, string securedConfig = null)
-            : base(unsecuredConfig, securedConfig) { }
-
         protected override void AddSteps()
         {
             AddStep(Stages.PreOperation, Messages.Create, Modes.Synchronous, "contact", nameof(OnContactCreate));
         }
 
-        public void OnContactCreate(IPluginContext context) { }
+        public void OnContactCreate(IPluginContext _) { }
     }
 
     /// <summary>
     /// Plugin avec plusieurs steps pour tester l'accumulation.
     /// </summary>
-    private sealed class MultiStepPlugin : XrmFramework.Plugin
+    private sealed class MultiStepPlugin() : XrmFramework.Plugin(null, null)
     {
-        public MultiStepPlugin()
-            : base(null, null) { }
-
         protected override void AddSteps()
         {
             AddStep(Stages.PreOperation, Messages.Create, Modes.Synchronous, "account", nameof(OnCreate));
             AddStep(Stages.PostOperation, Messages.Update, Modes.Asynchronous, "account", nameof(OnUpdate));
         }
 
-        public void OnCreate(IPluginContext context) { }
-        public void OnUpdate(IPluginContext context) { }
+        public void OnCreate(IPluginContext _) { }
+        public void OnUpdate(IPluginContext _) { }
     }
 
     /// <summary>
     /// Plugin dont la méthode de step est privée (doit échouer à l'enregistrement).
     /// </summary>
-    private sealed class PrivateMethodPlugin : XrmFramework.Plugin
+    private sealed class PrivateMethodPlugin() : XrmFramework.Plugin(null, null, delayStepRegistration: true)
     {
-        public PrivateMethodPlugin()
-            : base(null, null, delayStepRegistration: true) { }
-
         protected override void AddSteps()
         {
             AddStep(Stages.PreOperation, Messages.Create, Modes.Synchronous, "contact", nameof(PrivateAction));
         }
 
 #pragma warning disable IDE0051
-        private void PrivateAction(IPluginContext context) { }
+        private void PrivateAction(IPluginContext _) { }
 #pragma warning restore IDE0051
     }
 

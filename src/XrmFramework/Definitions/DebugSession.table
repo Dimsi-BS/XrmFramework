@@ -1,0 +1,296 @@
+{
+  "LogName": "dimsi_debugsession",
+  "Name": "DebugSession",
+  "CollName": "dimsi_debugsessions",
+  "Cols": [
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Created On",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0,
+      "Select": true
+    },
+    {
+      "LogName": "dimsi_debugeeid",
+      "Name": "DebugeeId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Debugee",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "dimsi_debugsessionid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Debug Session",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "dimsi_hybridconnectionname",
+      "Name": "HybridConnectionName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Hybrid Connection Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100,
+      "Select": true
+    },
+    {
+      "LogName": "dimsi_name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100,
+      "Select": true
+    },
+    {
+      "LogName": "dimsi_debuginfos",
+      "Name": "DebugInfo",
+      "Type": "Memo",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Debug Info",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 8000,
+      "Select": true
+    },
+    {
+      "LogName": "dimsi_relayurl",
+      "Name": "RelayUrl",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Relay URL",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100,
+      "Select": true
+    },
+    {
+      "LogName": "dimsi_sasconnectionkey",
+      "Name": "SasConnectionKey",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "SAS Connection Key",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100,
+      "Select": true
+    },
+    {
+      "LogName": "dimsi_saskeyname",
+      "Name": "SasKeyName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "SAS Key Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100,
+      "Select": true
+    },
+    {
+      "LogName": "dimsi_sessionend",
+      "Name": "SessionEnd",
+      "Type": "DateTime",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Session End",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0,
+      "Select": true
+    },
+    {
+      "LogName": "statecode",
+      "Name": "StateCode",
+      "Type": "State",
+      "Capa": 11,
+      "Labels": [
+        {
+          "Label": "Status",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "dimsi_debugsession|statecode",
+      "Select": true
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "dimsi_debugsession_AsyncOperations",
+      "Etn": "asyncoperation",
+      "Role": "Referenced",
+      "NavPropName": "dimsi_debugsession_AsyncOperations",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "dimsi_debugsession_BulkDeleteFailures",
+      "Etn": "bulkdeletefailure",
+      "Role": "Referenced",
+      "NavPropName": "dimsi_debugsession_BulkDeleteFailures",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "dimsi_debugsession_MailboxTrackingFolders",
+      "Etn": "mailboxtrackingfolder",
+      "Role": "Referenced",
+      "NavPropName": "dimsi_debugsession_MailboxTrackingFolders",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "dimsi_debugsession_PrincipalObjectAttributeAccesses",
+      "Etn": "principalobjectattributeaccess",
+      "Role": "Referenced",
+      "NavPropName": "dimsi_debugsession_PrincipalObjectAttributeAccesses",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "dimsi_debugsession_ProcessSession",
+      "Etn": "processsession",
+      "Role": "Referenced",
+      "NavPropName": "dimsi_debugsession_ProcessSession",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "dimsi_debugsession_SyncErrors",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "dimsi_debugsession_SyncErrors",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "dimsi_debugsession_UserEntityInstanceDatas",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "dimsi_debugsession_UserEntityInstanceDatas",
+      "LookName": "objectid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "business_unit_dimsi_debugsession",
+      "Etn": "businessunit",
+      "NavPropName": "owningbusinessunit",
+      "LookName": "owningbusinessunit"
+    },
+    {
+      "Name": "dimsi_debugsession_user",
+      "Etn": "systemuser",
+      "NavPropName": "dimsi_DebugeeId",
+      "LookName": "dimsi_debugeeid"
+    },
+    {
+      "Name": "lk_dimsi_debugsession_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_dimsi_debugsession_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_dimsi_debugsession_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_dimsi_debugsession_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "owner_dimsi_debugsession",
+      "Etn": "owner",
+      "NavPropName": "ownerid",
+      "LookName": "ownerid"
+    },
+    {
+      "Name": "team_dimsi_debugsession",
+      "Etn": "team",
+      "NavPropName": "owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "user_dimsi_debugsession",
+      "Etn": "systemuser",
+      "NavPropName": "owninguser",
+      "LookName": "owninguser"
+    }
+  ],
+  "Enums": [
+    {
+      "LogName": "dimsi_debugsession|statecode",
+      "Name": "DebugSessionState",
+      "Values": [
+        {
+          "Name": "Active",
+          "Labels": [
+            {
+              "Label": "Active",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Inactive",
+          "Labels": [
+            {
+              "Label": "Inactive",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

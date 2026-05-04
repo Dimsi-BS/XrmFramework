@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Messages;
 using Spectre.Console;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;

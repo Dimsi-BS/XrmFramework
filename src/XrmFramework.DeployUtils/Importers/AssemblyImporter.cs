@@ -6,7 +6,6 @@ using System.Reflection;
 using Deploy;
 using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
-using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
@@ -115,19 +114,19 @@ public class AssemblyImporter : IAssemblyImporter
         }
 
         step = new Step(pluginName,
-            Model.Messages.GetMessage(sdkStep.SdkMessageId.Name),
+            Messages.GetMessage(sdkStep.SdkMessageId.Name),
 #pragma warning disable CS8509 // The switch expression does not handle all possible values of its input type (it is not exhaustive).
             sdkStep.StageEnum switch
 #pragma warning restore CS8509 // The switch expression does not handle all possible values of its input type (it is not exhaustive).
             {
-                sdkmessageprocessingstep_stage.Prevalidation => Model.Stages.PreValidation,
-                sdkmessageprocessingstep_stage.Preoperation => Model.Stages.PreOperation,
-                sdkmessageprocessingstep_stage.Postoperation => Model.Stages.PostOperation
+                sdkmessageprocessingstep_stage.Prevalidation => Stages.PreValidation,
+                sdkmessageprocessingstep_stage.Preoperation => Stages.PreOperation,
+                sdkmessageprocessingstep_stage.Postoperation => Stages.PostOperation
             },
             sdkStep.ModeEnum switch
             {
-                sdkmessageprocessingstep_mode.Synchronous => Model.Modes.Synchronous,
-                _ => Model.Modes.Asynchronous
+                sdkmessageprocessingstep_mode.Synchronous => Modes.Synchronous,
+                _ => Modes.Asynchronous
             },
             entityName)
         {
@@ -256,8 +255,8 @@ public class AssemblyImporter : IAssemblyImporter
 
     private Step FromXrmFrameworkStep(dynamic s)
     {
-        var step = new Step(s.Plugin.GetType().Name, Model.Messages.GetMessage(s.Message.ToString()), (Model.Stages)(int)s.Stage,
-            (Model.Modes)(int)s.Mode, s.EntityName)
+        var step = new Step(s.Plugin.GetType().Name, Messages.GetMessage(s.Message.ToString()), (Stages)(int)s.Stage,
+            (Modes)(int)s.Mode, s.EntityName)
         {
             PluginTypeFullName = s.Plugin.GetType().FullName
         };
