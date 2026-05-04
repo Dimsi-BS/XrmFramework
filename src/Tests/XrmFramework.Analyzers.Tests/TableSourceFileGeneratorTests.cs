@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 
@@ -21,10 +22,16 @@ public class TableSourceFileGeneratorTests
         // No C# user code is needed: TableSourceFileGenerator only consumes AdditionalTexts.
         var source = string.Empty;
 
-        await TestHelper.Verify<TableSourceFileGenerator>(source,
-            ("Account.table", LoadFixture("Account.table")),
-            ("Contratdelocation.table", LoadFixture("Contratdelocation.table")),
-            ("OptionSet.table", LoadFixture("OptionSet.table")),
-            ("Particulier.table", LoadFixture("Particulier.table")));
+        // load all the files from the Resources folder
+        
+        var files = 
+            Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "Resources"))
+                .Where(f => f.EndsWith(".table"))
+                .Select(f => (path: f, content: LoadFixture(f)))
+                .ToArray();
+        
+        
+        
+        await TestHelper.Verify<TableSourceFileGenerator>(source, files);
     }
 }

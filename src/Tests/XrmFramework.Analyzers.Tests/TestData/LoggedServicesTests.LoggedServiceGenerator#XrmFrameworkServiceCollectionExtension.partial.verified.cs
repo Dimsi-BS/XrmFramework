@@ -1,0 +1,48 @@
+﻿//HintName: XrmFrameworkServiceCollectionExtension.partial.cs
+#if PLUGIN || CORE_PROJECT
+using BoDi;
+using ClientNamespace.Core;
+using XrmFramework;
+
+namespace XrmFramework
+{
+    partial class InternalDependencyProvider
+    {
+        static partial void RegisterServices(IObjectContainer container)
+        {
+            RegisterService<IService, DefaultService, LoggedIService>(container);
+
+            RegisterService<ISubService, SubService, LoggedISubService>(container);
+
+            RegisterService<ISubService, Sub2Service, LoggedISubService>(container);
+
+            RegisterService<ISub2Service, Sub2Service, LoggedISub2Service>(container);
+
+            RegisterService<ISub3Service, Sub3Service, LoggedISub3Service>(container);
+
+        }
+    }
+}
+#endif
+#if CORE_PROJECT
+
+namespace Microsoft.Extensions.DependencyInjection
+{
+    partial class XrmFrameworkServiceCollectionExtension
+    {
+        static partial void RegisterServices(IServiceCollection serviceCollection)
+        {
+            RegisterService<IService>(serviceCollection);
+
+            RegisterService<ISubService>(serviceCollection);
+
+            RegisterService<ISubService>(serviceCollection);
+
+            RegisterService<ISub2Service>(serviceCollection);
+
+            RegisterService<ISub3Service>(serviceCollection);
+
+        }
+    }
+}
+#endif
