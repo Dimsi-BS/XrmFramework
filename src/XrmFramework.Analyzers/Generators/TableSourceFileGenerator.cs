@@ -32,9 +32,16 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 			{
 				foreach (var tuple in tablesValues)
 				{
-					var table = JsonConvert.DeserializeObject<Table>(tuple.content);
+					try
+					{
+						var table = JsonConvert.DeserializeObject<Table>(tuple.content);
 
-					tables.Add(table);
+						tables.Add(table);
+					}
+					catch (Exception e)
+					{
+						
+					}
 				}
 
 				WriteTables(productionContext, tables);
@@ -152,7 +159,7 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 										sb.AppendLine($"[AlternateKey(AlternateKeyNames.{key.Name})]");
 
 							if (col.Type == AttributeTypeCode.DateTime)
-								sb.AppendLine($"[DateTimeBehavior(DateTimeBehavior.{col.DateTimeBehavior})]");
+								sb.AppendLine($"[DateTimeBehavior(DateTimeBehavior.{col.DateTimeBehavior.GetValueOrDefault()})]");
 
 							sb.AppendLine($"public const string {col.Name} = \"{col.LogicalName}\";\r\n");
 						}
