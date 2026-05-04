@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using Deploy;
 using Microsoft.Xrm.Sdk;
-using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;

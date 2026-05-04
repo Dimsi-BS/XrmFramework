@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
-using XrmFramework.Definitions;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Model.Interfaces;
 

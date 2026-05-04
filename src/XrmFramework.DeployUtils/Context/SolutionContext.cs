@@ -5,8 +5,6 @@ using Deploy;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Spectre.Console;
-using XrmFramework.Definitions;
-using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
 
@@ -283,12 +281,12 @@ namespace XrmFramework.DeployUtils.Context
 			return _components.Find(c => c.ObjectId.Equals(objectRef.Id));
 		}
 
-		public EntityReference GetMessage(Model.Messages message)
+		public EntityReference GetMessage(Messages message)
 		{
 			return _messages[message];
 		}
 
-		public EntityReference GetMessageFilter(Model.Messages message, string entityName)
+		public EntityReference GetMessageFilter(Messages message, string entityName)
 		{
 			return _filters.Find(f =>
 				                     f.SdkMessageId.Name        == message.ToString()

@@ -9,7 +9,7 @@ namespace XrmFramework.Analyzers.Tests
         [ModuleInitializer]
         public static void Init()
         {
-            VerifySourceGenerators.Enable();
+            VerifySourceGenerators.Initialize();
 
             // Verify.Xunit 16.5.4 ships an EmptyFiles whose Category enum
             // cannot parse "binary" under .NET 10 — the type initializer

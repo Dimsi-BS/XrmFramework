@@ -9,7 +9,6 @@ using IApplicationInsightsLogger = Microsoft.Xrm.Sdk.PluginTelemetry.ILogger;
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
-using XrmFramework.Definitions;
 
 namespace XrmFramework
 {

@@ -43,6 +43,6 @@ namespace XrmFramework {
     }
 }";
 
-        await TestHelper.Verify<Generators.EnumGenerator>(source);
+        await TestHelper.Verify<EnumGenerator>(source);
     }
 }

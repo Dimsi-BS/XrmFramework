@@ -70,11 +70,11 @@ public class PluginTestSourceGeneratorTests
 
         CSharpCompilation compilation = CSharpCompilation.Create(
             assemblyName: "DiagnosticsTest",
-            syntaxTrees: new[] { syntaxTree },
-            references: new[]
-            {
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            });
+            syntaxTrees: [syntaxTree],
+            references:
+            [
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
+            ]);
 
         var generator = new PluginTestSourceGenerator();
         GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
@@ -82,6 +82,6 @@ public class PluginTestSourceGeneratorTests
 
         var result = driver.GetRunResult();
 
-        Assert.Empty(result.Diagnostics);
+        Assert.IsEmpty(result.Diagnostics);
     }
 }
