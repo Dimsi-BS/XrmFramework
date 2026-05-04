@@ -326,6 +326,60 @@ namespace XrmFramework.RemoteDebugger.Common
             }
         }
 
+        // ════════════════════════════════════════════════════════════════
+        // Navigateur de sessions sauvegardées
+        // ════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Lance le navigateur interactif de sessions de test sauvegardées sur disque.
+        /// <para>
+        /// Affiche une interface console à trois niveaux :
+        /// <list type="bullet">
+        ///   <item>Groupes par <b>CorrelationId</b> — nommés d'après le premier plugin déclenché dans la corrélation.</item>
+        ///   <item>Liste des <b>sessions</b> dans le groupe sélectionné.</item>
+        ///   <item><b>Détail</b> complet d'une session (contexte d'entrée / appels OrgService / contexte de sortie).</item>
+        /// </list>
+        /// </para>
+        /// Raccourcis : [↑↓] naviguer · [Entrée] zoomer · [Échap] remonter ·
+        ///              [R] rejouer · [D] rejouer en debug · [F5] recharger · [Q] quitter.
+        /// </summary>
+        /// <param name="sessionPath">
+        ///   Répertoire contenant les fichiers <c>*.pluginsession.json</c>.
+        ///   Utilise <see cref="SessionSavePath"/> si non renseigné.
+        /// </param>
+        public void BrowseSessions(string sessionPath = null)
+        {
+            var path = sessionPath ?? SessionSavePath ?? ".";
+
+            var ui = new SessionBrowserUi(
+                sessionPath: path,
+                onReplay: (session, debugMode) =>
+                {
+                    if (debugMode)
+                    {
+                        Console.WriteLine(
+                            $"[Debug] Attachez le débogueur au PID {System.Diagnostics.Process.GetCurrentProcess().Id}, " +
+                            "puis l'exécution démarrera automatiquement.");
+                        System.Diagnostics.Debugger.Launch();
+                    }
+
+                    try
+                    {
+                        var output = PluginTestRunner.Run(session);
+                        Console.WriteLine(
+                            $"Rejouage terminé — " +
+                            $"{output.OutputParameters?.Count ?? 0} OutputParameter(s), " +
+                            $"{output.SharedVariables?.Count ?? 0} SharedVariable(s).");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Rejouage échoué : {ex.GetType().Name}: {ex.Message}");
+                    }
+                });
+
+            ui.Run();
+        }
+
         // ── Helpers ──────────────────────────────────────────────────────
 
         private static void AddWorkflowExtension<TService>(
