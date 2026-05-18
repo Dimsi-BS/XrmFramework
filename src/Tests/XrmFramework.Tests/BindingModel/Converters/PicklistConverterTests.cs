@@ -1,13 +1,13 @@
 using System.Xml.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using XrmFramework.BindingModel;
 
 namespace XrmFramework.Tests.BindingModel.Converters;
 
-[TestClass]
+[TestFixture]
 public class PicklistConverterTests
 {
-    [TestMethod]
+    [Test]
     public void ConvertFromXElement_NonNullElementWithId_ReturnsIntegerValue()
     {
         // Arrange
@@ -19,11 +19,11 @@ public class PicklistConverterTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.IsInstanceOfType(result, typeof(int?));
+        Assert.IsInstanceOf(typeof(int?), result);
         Assert.AreEqual(42, (int?)result);
     }
 
-    [TestMethod]
+    [Test]
     public void ConvertFromXElement_NonNullElementWithoutId_ReturnsNull()
     {
         // Arrange
@@ -37,7 +37,7 @@ public class PicklistConverterTests
         Assert.IsNull(result);
     }
 
-    [TestMethod]
+    [Test]
     public void FillXElement_NullValue_SetsEmptyStringInElement()
     {
         // Arrange
@@ -51,7 +51,7 @@ public class PicklistConverterTests
         Assert.AreEqual("<Data><Id></Id></Data>", element.ToString(SaveOptions.DisableFormatting));
     }
 
-    [TestMethod]
+    [Test]
     public void FillXElement_NonNullValue_SetsIntegerValueInElement()
     {
         // Arrange

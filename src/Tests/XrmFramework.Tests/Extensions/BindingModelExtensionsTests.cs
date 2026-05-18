@@ -3,19 +3,18 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
 
 namespace XrmFramework.Tests;
 
-[TestClass]
+[TestFixture]
 public class BindingModelExtensionsTests
 {
     private TestBindingModel _sourceModel = null!;
     private TestBindingModel _targetModel = null!;
 
-    [TestInitialize]
+    [SetUp]
     public void InitTests()
     {
         _sourceModel = new TestBindingModel
@@ -36,12 +35,12 @@ public class BindingModelExtensionsTests
             CreatedDate = DateTime.UtcNow.AddDays(-1)
         };
         
-        DefinitionCache.RegisterDefinitionsAssembly(GetType().Assembly);
+        DefinitionCache.RegisterAssembly(GetType().Assembly);
     }
 
     #region GetDiffGeneric Tests
 
-    [TestMethod]
+    [Test]
     public void GetDiffGeneric_TargetIsNull_ReturnsSource()
     {
         var result = _sourceModel.GetDiffGeneric<TestBindingModel>(null);
@@ -51,7 +50,7 @@ public class BindingModelExtensionsTests
         Assert.AreEqual(_sourceModel.Age, result.Age);
     }
 
-    [TestMethod]
+    [Test]
     public void GetDiffGeneric_NoChanges_ReturnsEmptyModel()
     {
         var source = new TestBindingModel
@@ -74,7 +73,7 @@ public class BindingModelExtensionsTests
         // Only properties with differences should be set
     }
 
-    [TestMethod]
+    [Test]
     public void GetDiffGeneric_WithChanges_ReturnsDifferences()
     {
         var result = _sourceModel.GetDiffGeneric(_targetModel);
@@ -83,7 +82,7 @@ public class BindingModelExtensionsTests
         Assert.AreEqual(_sourceModel.Id, result.Id);
     }
 
-    [TestMethod]
+    [Test]
     public void GetDiffGeneric_TargetIdEmpty_UsesSourceId()
     {
         _targetModel.Id = Guid.Empty;
@@ -93,7 +92,7 @@ public class BindingModelExtensionsTests
         Assert.AreEqual(_sourceModel.Id, result.Id);
     }
 
-    [TestMethod]
+    [Test]
     public void GetDiffGeneric_SourceIdEmpty_UsesTargetId()
     {
         var sourceId = _sourceModel.Id;
@@ -108,7 +107,7 @@ public class BindingModelExtensionsTests
 
     #region GetDiffGeneric List Tests
 
-    [TestMethod]
+    [Test]
     public void GetDiffGenericList_EmptyLists_ReturnsEmpty()
     {
         var sourceList = new List<TestBindingModel>();
@@ -119,7 +118,7 @@ public class BindingModelExtensionsTests
         Assert.AreEqual(0, result.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void GetDiffGenericList_NewItems_ReturnsAllNew()
     {
         var sourceList = new List<TestBindingModel>
@@ -134,7 +133,7 @@ public class BindingModelExtensionsTests
         Assert.AreEqual(2, result.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void GetDiffGenericList_UpdatedItems_ReturnsUpdated()
     {
         var id = Guid.NewGuid();
@@ -153,7 +152,7 @@ public class BindingModelExtensionsTests
         Assert.AreEqual(id, result[0].Id);
     }
 
-    [TestMethod]
+    [Test]
     public void GetDiffGenericList_MixedChanges_ReturnsCorrectDiff()
     {
         var existingId = Guid.NewGuid();
@@ -174,7 +173,7 @@ public class BindingModelExtensionsTests
         Assert.AreEqual(2, result.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void GetDiffGenericList_WithCustomComparer_UsesComparer()
     {
         var comparer = new KeyEqualityComparer(typeof(TestBindingModel));
@@ -193,7 +192,7 @@ public class BindingModelExtensionsTests
 
     #region CopyField Tests
 
-    [TestMethod]
+    [Test]
     public void CopyField_ByPropertyName_CopiesValue()
     {
         var input = new TestBindingModel { Name = "Test Name" };
@@ -204,7 +203,7 @@ public class BindingModelExtensionsTests
         Assert.AreEqual("Test Name", output.Name);
     }
 
-    [TestMethod]
+    [Test]
     public void CopyField_PropertyNotInitialized_DoesNotCopy()
     {
         var input = new TestBindingModel();
@@ -216,7 +215,7 @@ public class BindingModelExtensionsTests
         Assert.AreEqual("Original", output.Name);
     }
 
-    [TestMethod]
+    [Test]
     public void CopyField_ByExpression_CopiesValue()
     {
         var input = new TestBindingModel { Age = 42 };
@@ -227,7 +226,7 @@ public class BindingModelExtensionsTests
         Assert.AreEqual(42, output.Age);
     }
 
-    [TestMethod]
+    [Test]
     public void CopyField_NullSourceProperty_DoesNotThrow()
     {
         var input = new TestBindingModel();
@@ -239,7 +238,7 @@ public class BindingModelExtensionsTests
         Assert.IsNotNull(output);
     }
 
-    [TestMethod]
+    [Test]
     public void CopyField_NullTargetProperty_DoesNotThrow()
     {
         var input = new TestBindingModel { Name = "Test" };
@@ -254,16 +253,16 @@ public class BindingModelExtensionsTests
     #endregion
 }
 
-[TestClass]
+[TestFixture]
 public class KeyEqualityComparerTests
 {
-    [TestInitialize]
+    [SetUp]
     public void InitTests()
     {
-        DefinitionCache.RegisterDefinitionsAssembly(GetType().Assembly);
+        DefinitionCache.RegisterAssembly(GetType().Assembly);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_SameKeyValues_ReturnsTrue()
     {
         var comparer = new KeyEqualityComparer(typeof(TestBindingModel));
@@ -276,7 +275,7 @@ public class KeyEqualityComparerTests
         Assert.IsFalse(result);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_DifferentKeyValues_ReturnsFalse()
     {
         var comparer = new KeyEqualityComparer(typeof(TestBindingModel));
@@ -288,7 +287,7 @@ public class KeyEqualityComparerTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_StringProperties_CaseInsensitive()
     {
         var comparer = new KeyEqualityComparer(typeof(TestBindingModelWithStringKey));
@@ -300,7 +299,7 @@ public class KeyEqualityComparerTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void GetHashCode_ReturnsConsistentValue()
     {
         var comparer = new KeyEqualityComparer(typeof(TestBindingModel));
@@ -312,7 +311,7 @@ public class KeyEqualityComparerTests
         Assert.AreEqual(hash1, hash2);
     }
 
-    [TestMethod]
+    [Test]
     public void GetHashCode_NullValues_ReturnsZero()
     {
         var comparer = new KeyEqualityComparer(typeof(TestBindingModel));
@@ -324,10 +323,10 @@ public class KeyEqualityComparerTests
     }
 }
 
-[TestClass]
+[TestFixture]
 public class MultipleEqualityComparerTests
 {
-    [TestMethod]
+    [Test]
     public void Constructor_WithPropertyNames_InitializesCorrectly()
     {
         var comparer = new MultipleEqualityComparer<TestBindingModel>(nameof(TestBindingModel.Name), nameof(TestBindingModel.Age));
@@ -335,7 +334,7 @@ public class MultipleEqualityComparerTests
         Assert.IsNotNull(comparer);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_SamePropertyValues_ReturnsTrue()
     {
         var comparer = new MultipleEqualityComparer<TestBindingModel>(nameof(TestBindingModel.Name), nameof(TestBindingModel.Age));
@@ -347,7 +346,7 @@ public class MultipleEqualityComparerTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_DifferentPropertyValues_ReturnsFalse()
     {
         var comparer = new MultipleEqualityComparer<TestBindingModel>(nameof(TestBindingModel.Name), nameof(TestBindingModel.Age));
@@ -359,7 +358,7 @@ public class MultipleEqualityComparerTests
         Assert.IsFalse(result);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_StringProperty_CaseInsensitive()
     {
         var comparer = new MultipleEqualityComparer<TestBindingModel>(nameof(TestBindingModel.Name));
@@ -371,7 +370,7 @@ public class MultipleEqualityComparerTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_BothNull_ReturnsTrue()
     {
         var comparer = new MultipleEqualityComparer<TestBindingModel>(nameof(TestBindingModel.Email));
@@ -383,7 +382,7 @@ public class MultipleEqualityComparerTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void GetHashCode_ReturnsConsistentValue()
     {
         var comparer = new MultipleEqualityComparer<TestBindingModel>(nameof(TestBindingModel.Name));
@@ -395,7 +394,7 @@ public class MultipleEqualityComparerTests
         Assert.AreEqual(hash1, hash2);
     }
 
-    [TestMethod]
+    [Test]
     public void GetHashCode_StringProperty_CaseInsensitive()
     {
         var comparer = new MultipleEqualityComparer<TestBindingModel>(nameof(TestBindingModel.Name));
@@ -409,10 +408,10 @@ public class MultipleEqualityComparerTests
     }
 }
 
-[TestClass]
+[TestFixture]
 public class ModelEqualityComparerTests
 {
-    [TestMethod]
+    [Test]
     public void Equals_SameId_ReturnsTrue()
     {
         var comparer = new ModelEqualityComparer<TestBindingModel>();
@@ -425,7 +424,7 @@ public class ModelEqualityComparerTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_DifferentId_ReturnsFalse()
     {
         var comparer = new ModelEqualityComparer<TestBindingModel>();
@@ -437,7 +436,7 @@ public class ModelEqualityComparerTests
         Assert.IsFalse(result);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_BothNull_ReturnsTrue()
     {
         var comparer = new ModelEqualityComparer<TestBindingModel>();
@@ -447,7 +446,7 @@ public class ModelEqualityComparerTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_OneNull_ReturnsFalse()
     {
         var comparer = new ModelEqualityComparer<TestBindingModel>();
@@ -458,7 +457,7 @@ public class ModelEqualityComparerTests
         Assert.IsFalse(result);
     }
 
-    [TestMethod]
+    [Test]
     public void GetHashCode_ReturnsIdHashCode()
     {
         var comparer = new ModelEqualityComparer<TestBindingModel>();
@@ -471,10 +470,10 @@ public class ModelEqualityComparerTests
     }
 }
 
-[TestClass]
+[TestFixture]
 public class DeepModelEqualityComparerTests
 {
-    [TestMethod]
+    [Test]
     public void Constructor_ValidType_InitializesCorrectly()
     {
         var comparer = new DeepModelEqualityComparer(typeof(TestBindingModel));
@@ -482,7 +481,7 @@ public class DeepModelEqualityComparerTests
         Assert.IsNotNull(comparer);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_AllPropertiesSame_ReturnsTrue()
     {
         var comparer = new DeepModelEqualityComparer(typeof(TestBindingModel));
@@ -494,7 +493,7 @@ public class DeepModelEqualityComparerTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_DifferentProperties_ReturnsFalse()
     {
         var comparer = new DeepModelEqualityComparer(typeof(TestBindingModel));
@@ -506,7 +505,7 @@ public class DeepModelEqualityComparerTests
         Assert.IsFalse(result);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_StringProperties_CaseInsensitive()
     {
         var comparer = new DeepModelEqualityComparer(typeof(TestBindingModel));
@@ -518,7 +517,7 @@ public class DeepModelEqualityComparerTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void GetHashCode_ReturnsConsistentValue()
     {
         var comparer = new DeepModelEqualityComparer(typeof(TestBindingModel));
@@ -531,10 +530,10 @@ public class DeepModelEqualityComparerTests
     }
 }
 
-[TestClass]
+[TestFixture]
 public class DeepModelEqualityComparerGenericTests
 {
-    [TestMethod]
+    [Test]
     public void Constructor_InitializesProperties()
     {
         var comparer = new DeepModelEqualityComparer<TestBindingModel>();
@@ -542,7 +541,7 @@ public class DeepModelEqualityComparerGenericTests
         Assert.IsNotNull(comparer);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_AllPropertiesSame_ReturnsTrue()
     {
         var comparer = new DeepModelEqualityComparer<TestBindingModel>();
@@ -555,7 +554,7 @@ public class DeepModelEqualityComparerGenericTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void Equals_DifferentProperties_ReturnsFalse()
     {
         var comparer = new DeepModelEqualityComparer<TestBindingModel>();
@@ -567,7 +566,7 @@ public class DeepModelEqualityComparerGenericTests
         Assert.IsFalse(result);
     }
 
-    [TestMethod]
+    [Test]
     public void GetHashCode_ReturnsConsistentValue()
     {
         var comparer = new DeepModelEqualityComparer<TestBindingModel>();

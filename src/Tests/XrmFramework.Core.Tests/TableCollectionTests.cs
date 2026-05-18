@@ -1,13 +1,11 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using XrmFramework.Core.Tests.Comparers;
+using NUnit.Framework;
 
 namespace XrmFramework.Core.Tests;
 
-[TestClass]
+[TestFixture]
 public class TableCollectionTests
 {
     private TableCollection _tableCollection = null!;
@@ -16,7 +14,7 @@ public class TableCollectionTests
     private Table _table2 = null!;
     private Table _table3 = null!;
 
-    [TestInitialize]
+    [SetUp]
     public void InitTests()
     {
         _tableCollection = new TableCollection();
@@ -45,7 +43,7 @@ public class TableCollectionTests
         };
     }
 
-    [TestMethod]
+    [Test]
     public void ObjectInitialization()
     {
         Assert.IsNotNull(_tableCollection);
@@ -53,7 +51,7 @@ public class TableCollectionTests
         Assert.IsNotNull(_tableCollection.GetEnumerator());
     }
 
-    [TestMethod]
+    [Test]
     public void Add_NullTable_DoesNotAdd()
     {
         _tableCollection.Add(null);
@@ -61,7 +59,7 @@ public class TableCollectionTests
         Assert.AreEqual(0, _tableCollection.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void Add_NewTable_AddsSuccessfully()
     {
         _tableCollection.Add(_table1);
@@ -70,7 +68,7 @@ public class TableCollectionTests
         Assert.IsTrue(_tableCollection.Contains(_table1));
     }
 
-    [TestMethod]
+    [Test]
     public void Add_MultipleTables_AddsAll()
     {
         _tableCollection.Add(_table1);
@@ -83,7 +81,7 @@ public class TableCollectionTests
         Assert.IsTrue(_tableCollection.Contains(_table3));
     }
 
-    [TestMethod]
+    [Test]
     public void Add_DuplicateTable_MergesColumns()
     {
         var table1Copy = new Table
@@ -106,7 +104,7 @@ public class TableCollectionTests
         Assert.IsTrue(firstTable.Columns.Any(c => c.LogicalName == "name"));
     }
 
-    [TestMethod]
+    [Test]
     public void Add_DuplicateTableWithNoExisting_AddsOnce()
     {
         var table1Copy = new Table
@@ -121,7 +119,7 @@ public class TableCollectionTests
         Assert.AreEqual(1, _tableCollection.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void Clear_RemovesAllTables()
     {
         _tableCollection.Add(_table1);
@@ -133,7 +131,7 @@ public class TableCollectionTests
         Assert.AreEqual(0, _tableCollection.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void Contains_ExistingTable_ReturnsTrue()
     {
         _tableCollection.Add(_table1);
@@ -141,7 +139,7 @@ public class TableCollectionTests
         Assert.IsTrue(_tableCollection.Contains(_table1));
     }
 
-    [TestMethod]
+    [Test]
     public void Contains_NonExistingTable_ReturnsFalse()
     {
         _tableCollection.Add(_table1);
@@ -149,7 +147,7 @@ public class TableCollectionTests
         Assert.IsFalse(_tableCollection.Contains(_table2));
     }
 
-    [TestMethod]
+    [Test]
     public void CopyTo_CopiesToArray()
     {
         _tableCollection.Add(_table1);
@@ -163,7 +161,7 @@ public class TableCollectionTests
         Assert.IsNotNull(array[1]);
     }
 
-    [TestMethod]
+    [Test]
     public void CopyTo_WithArrayIndex_CopiesToCorrectPosition()
     {
         _tableCollection.Add(_table1);
@@ -176,7 +174,7 @@ public class TableCollectionTests
         Assert.IsNull(array[2]);
     }
 
-    [TestMethod]
+    [Test]
     public void Remove_ExistingTable_RemovesAndReturnsTrue()
     {
         _tableCollection.Add(_table1);
@@ -189,7 +187,7 @@ public class TableCollectionTests
         Assert.IsFalse(_tableCollection.Contains(_table1));
     }
 
-    [TestMethod]
+    [Test]
     public void Remove_NonExistingTable_ReturnsFalse()
     {
         _tableCollection.Add(_table1);
@@ -200,7 +198,7 @@ public class TableCollectionTests
         Assert.AreEqual(1, _tableCollection.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void Count_ReturnsCorrectValue()
     {
         Assert.AreEqual(0, _tableCollection.Count);
@@ -218,13 +216,13 @@ public class TableCollectionTests
         Assert.AreEqual(0, _tableCollection.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void IsReadOnly_ReturnsFalse()
     {
         Assert.IsFalse(_tableCollection.IsReadOnly);
     }
 
-    [TestMethod]
+    [Test]
     public void AddRange_EmptyList_NoChanges()
     {
         _tableCollection.Add(_table1);
@@ -234,7 +232,7 @@ public class TableCollectionTests
         Assert.AreEqual(1, _tableCollection.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void AddRange_WithMultipleTables_AddsAll()
     {
         var tables = new List<Table> { _table1, _table2, _table3 };
@@ -247,7 +245,7 @@ public class TableCollectionTests
         Assert.IsTrue(_tableCollection.Contains(_table3));
     }
 
-    [TestMethod]
+    [Test]
     public void AddRange_WithDuplicates_MergesCorrectly()
     {
         var table1Copy = new Table
@@ -269,7 +267,7 @@ public class TableCollectionTests
         Assert.AreEqual(2, accountTable.Columns.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void AddRange_WithNullTable_SkipsNull()
     {
         var tables = new List<Table> { _table1, null, _table2 };
@@ -279,7 +277,7 @@ public class TableCollectionTests
         Assert.AreEqual(2, _tableCollection.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void GetEnumerator_Generic_EnumeratesCorrectly()
     {
         _tableCollection.Add(_table1);
@@ -297,7 +295,7 @@ public class TableCollectionTests
         Assert.AreEqual(2, items.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void GetEnumerator_NonGeneric_EnumeratesCorrectly()
     {
         _tableCollection.Add(_table1);
@@ -314,7 +312,7 @@ public class TableCollectionTests
         Assert.AreEqual(2, items.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void SortedBehavior_MaintainsSortOrder()
     {
         var tableC = new Table { LogicalName = "customer", Name = "Customer" };
@@ -333,7 +331,7 @@ public class TableCollectionTests
         Assert.AreEqual("Customer", list[2].Name);
     }
 
-    [TestMethod]
+    [Test]
     public void SortedBehavior_SameNameDifferentLogicalName_SortsByLogicalName()
     {
         var table1 = new Table { LogicalName = "table_b", Name = "SameName" };
@@ -348,7 +346,7 @@ public class TableCollectionTests
         Assert.AreEqual("table_b", list[1].LogicalName);
     }
 
-    [TestMethod]
+    [Test]
     public void Enumeration_AfterModification_ReflectsChanges()
     {
         _tableCollection.Add(_table1);
@@ -362,7 +360,7 @@ public class TableCollectionTests
         Assert.AreEqual(2, countAfter);
     }
 
-    [TestMethod]
+    [Test]
     public void Add_TableWithoutColumns_AddsSuccessfully()
     {
         var emptyTable = new Table
@@ -377,7 +375,7 @@ public class TableCollectionTests
         Assert.IsTrue(_tableCollection.Contains(emptyTable));
     }
 
-    [TestMethod]
+    [Test]
     public void MergeTo_NullExistingTable_DoesNotThrow()
     {
         var newTable = new Table

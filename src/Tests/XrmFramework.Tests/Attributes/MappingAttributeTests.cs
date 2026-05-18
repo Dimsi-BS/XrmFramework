@@ -1,14 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Security.Cryptography.Xml;
+﻿using System;
+using NUnit.Framework;
 using XrmFramework.BindingModel;
 
 namespace XrmFramework.Tests.Attributes;
 
-[TestClass]
+[TestFixture]
 public class MappingAttributeTests
 {
-    [TestMethod]
+    [Test]
     public void MappingAttribute_ConstructorWithRelativePath_SetsRelativePath()
     {
         // Arrange
@@ -21,7 +20,7 @@ public class MappingAttributeTests
         Assert.AreEqual(relativePath, attribute.RelativePath);
     }
 
-    [TestMethod]
+    [Test]
     public void MappingAttribute_ConstructorWithRelativePathAndAlternatePath_SetsRelativePathAndAlternatePath()
     {
         // Arrange
@@ -36,7 +35,7 @@ public class MappingAttributeTests
         Assert.AreEqual(alternateRelativePath, attribute.AlternateRelativePath);
     }
 
-    [TestMethod]
+    [Test]
     public void MappingAttribute_ConstructorWithRelativePathAndConverterType_SetsRelativePathAndConverterType()
     {
         // Arrange
@@ -51,7 +50,7 @@ public class MappingAttributeTests
         Assert.AreEqual(converterType, attribute.ConverterType);
     }
 
-    [TestMethod]
+    [Test]
     public void DtoObjectMappingAttribute_ConstructorWithRelativePathAndConverterType_SetsRelativePathAndConverterType()
     {
         // Arrange
@@ -66,7 +65,7 @@ public class MappingAttributeTests
         Assert.AreEqual(converterType, attribute.ConverterType);
     }
 
-    [TestMethod]
+    [Test]
     public void MappingAttribute_ConstructorWithRelativePathAlternatePathAndConverterType_SetsPathsAndConverterType()
     {
         // Arrange
@@ -83,7 +82,7 @@ public class MappingAttributeTests
         Assert.AreEqual(converterType, attribute.ConverterType);
     }
 
-    [TestMethod]
+    [Test]
     public void MappingAttribute_ValidForExportProperty_CanBeSetAndGet()
     {
         // Arrange
@@ -96,7 +95,7 @@ public class MappingAttributeTests
         Assert.IsFalse(attribute.ValidForExport);
     }
 
-    [TestMethod]
+    [Test]
     public void XmlMappingAttribute_IsAttributeProperty_CanBeSetAndGet()
     {
         // Arrange
@@ -109,7 +108,7 @@ public class MappingAttributeTests
         Assert.IsTrue(attribute.IsAttribute);
     }
 
-    [TestMethod]
+    [Test]
     public void DtoFieldMappingAttribute_ConstructorWithDtoFieldName_SetsDtoFieldName()
     {
         // Arrange
@@ -122,7 +121,7 @@ public class MappingAttributeTests
         Assert.AreEqual(dtoFieldName, attribute.RelativePath);
     }
 
-    [TestMethod]
+    [Test]
     public void DtoObjectMappingAttribute_ConstructorWithDtoClassName_SetsDtoClassName()
     {
         // Arrange
