@@ -12,6 +12,7 @@ namespace XrmFramework.Core
         
         public string Name { get; set; }
 
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         [JsonConverter(typeof(StringEnumConverter))]
         public AttributeTypeCode Type { get; set; }
 
@@ -31,13 +32,13 @@ namespace XrmFramework.Core
         public double? MaxRange { get; set; }
 
         [JsonProperty("DatBehav")]
-        public DateTimeBehavior DateTimeBehavior { get; set; }
+        public DateTimeBehavior? DateTimeBehavior { get; set; }
 
         public bool IsMultiSelect { get; set; }
 
         public string EnumName { get; set; }
 
-        [JsonIgnore]
+        [JsonProperty("Select")]
         public bool Selected { get; set; }
     }
 }

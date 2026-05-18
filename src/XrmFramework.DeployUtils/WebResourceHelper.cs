@@ -12,7 +12,6 @@ using System.IO;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
-using Microsoft.PowerPlatform.Dataverse.Client;
 using XrmFramework.DeployUtils.CommandOptions;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
@@ -63,13 +62,24 @@ public static class WebResourceHelper
 
         Console.WriteLine(@"Connecting to CRM...");
 
-        ServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
+#if NET462_OR_GREATER
 
-        var service = new ServiceClient(connectionString);
-            
+        Microsoft.Xrm.Tooling.Connector.CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
+
+        var service = new Microsoft.Xrm.Tooling.Connector.CrmServiceClient(connectionString);
+
+#else
+        Microsoft.PowerPlatform.Dataverse.Client.ServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
+        var service = new Microsoft.PowerPlatform.Dataverse.Client.ServiceClient(connectionString);
+#endif
         if (!service.IsReady)
         {
-            throw new Exception($"Unable to connect to CRM : {service.LastError}");
+            throw new Exception(
+#if NET462_OR_GREATER
+                $"Unable to connect to CRM : {service.LastCrmError}");
+#else
+            $"Unable to connect to CRM : {service.LastError}");
+#endif
         }
 
         try
@@ -78,7 +88,13 @@ public static class WebResourceHelper
         }
         catch (FaultException<OrganizationServiceFault>)
         {
-            throw new Exception($"Unable to connect to CRM : {service.LastError}");
+            throw new Exception(
+#if NET462_OR_GREATER
+                $"Unable to connect to CRM : {service.LastCrmError}"
+#else
+            $"Unable to connect to CRM : {service.LastError}"
+#endif
+                );
         }
 
         var query = new QueryExpression(Solution.EntityLogicalName);

@@ -1,9 +1,8 @@
 ﻿
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json.Utilities;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace XrmFramework.RemoteDebugger.Converters
 {
@@ -32,9 +31,9 @@ namespace XrmFramework.RemoteDebugger.Converters
         {
             if (reader.TokenType == JsonToken.Null)
             {
-                if (!ReflectionUtils.IsNullableType(objectType))
+                if (objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(Nullable<>))
                 {
-                    throw JsonSerializationException.Create(reader, "Cannot convert null value to KeyValuePair.");
+                    throw new JsonSerializationException("Cannot convert null value to KeyValuePair.");
                 }
 
                 return default;
@@ -44,41 +43,32 @@ namespace XrmFramework.RemoteDebugger.Converters
             TValue value = default;
             string typeName = null;
 
-            reader.ReadAndAssert();
-
-            Type t = ReflectionUtils.IsNullableType(objectType)
-                ? Nullable.GetUnderlyingType(objectType)
-                : objectType;
-
-            JsonContract keyContract = serializer.ContractResolver.ResolveContract(typeof(TKey));
-            JsonContract typeContract = serializer.ContractResolver.ResolveContract(typeof(string));
+            ReadAndAssert(reader);
 
             while (reader.TokenType == JsonToken.PropertyName)
             {
                 string propertyName = reader.Value.ToString();
+
                 if (string.Equals(propertyName, TypeName, StringComparison.OrdinalIgnoreCase))
                 {
-                    reader.ReadForTypeAndAssert(typeContract, false);
+                    ReadAndAssert(reader);
 
-                    typeName = (string)serializer.Deserialize(reader, typeContract.UnderlyingType);
+                    typeName = serializer.Deserialize<string>(reader);
                 }
                 else if (string.Equals(propertyName, KeyName, StringComparison.OrdinalIgnoreCase))
                 {
-                    reader.ReadForTypeAndAssert(keyContract, false);
+                    ReadAndAssert(reader);
 
-                    key = (TKey)serializer.Deserialize(reader, keyContract.UnderlyingType);
+                    key = serializer.Deserialize<TKey>(reader);
                 }
                 else if (string.Equals(propertyName, ValueName, StringComparison.OrdinalIgnoreCase))
                 {
                     if (!string.IsNullOrEmpty(typeName))
                     {
                         var valueType = Type.GetType(typeName);
+                        ReadAndAssert(reader);
 
-                        JsonContract valueContract = serializer.ContractResolver.ResolveContract(valueType);
-
-                        reader.ReadForTypeAndAssert(valueContract, false);
-
-                        value = (TValue)serializer.Deserialize(reader, valueContract.UnderlyingType);
+                        value = (TValue)serializer.Deserialize(reader, valueType);
                     }
                     else
                     {
@@ -90,10 +80,18 @@ namespace XrmFramework.RemoteDebugger.Converters
                     reader.Skip();
                 }
 
-                reader.ReadAndAssert();
+                ReadAndAssert(reader);
             }
-
             return new KeyValuePair<TKey, TValue>(key, value);
+        }
+
+
+        private void ReadAndAssert(JsonReader reader)
+        {
+            if (!reader.Read())
+            {
+                throw new JsonSerializationException("Cannot convert null value to KeyValuePair.");
+            }
         }
     }
 }

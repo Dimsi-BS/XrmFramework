@@ -1,5 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Security: force patched versions of vulnerable transitive dependencies -->
+  <ItemGroup>
+    <!-- System.Security.Cryptography.Xml 8.0.2 has a known high severity vulnerability (GHSA-37gx-xxp4-5rgx).
+         Pulled in transitively by System.ServiceModel.Primitives. Override to patched versions per TFM. -->
+    <PackageReference Include="System.Security.Cryptography.Xml" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.3" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Condition="'$(TargetFramework)' == 'net10.0'" Version="10.0.7" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
       <Version>3.9.50</Version>

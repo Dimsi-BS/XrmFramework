@@ -15,37 +15,35 @@ public abstract class AbstractDefinition : INotifyPropertyChanged
     public event PropertyChangedEventHandler PropertyChanged;
 
     private string _previousName = null;
-    private string _name = null;
 
     [Column("Name", -1)]
     public string Name
     {
-        get => _name;
+        get;
         set
         {
             if (string.IsNullOrEmpty(_previousName))
             {
                 _previousName = value;
             }
-            _name = value;
+
+            field = value;
 
             OnPropertyChanged("Name");
         }
-    }
-
-    private string _logicalName = null;
+    } = null;
 
     [Column("Logical Name", 0)]
     public string LogicalName
     {
-        get => _logicalName;
+        get;
         set
         {
-            _logicalName = value;
+            field = value;
 
             OnPropertyChanged("LogicalName");
         }
-    }
+    } = null;
 
     public bool IsLoaded { get; set; }
 
@@ -60,25 +58,23 @@ public abstract class AbstractDefinition : INotifyPropertyChanged
 
     public virtual bool IncludeLogicalNameColumn => true;
 
-    private bool _isSelected = false;
     public virtual bool IsSelected
     {
-        get => _isSelected;
+        get;
         set
         {
-            _isSelected = value;
+            field = value;
 
             OnPropertyChanged("IsSelected");
         }
-    }
+    } = false;
 
-    private bool _isActive;
     public bool IsActive
     {
-        get => _isActive;
+        get;
         set
         {
-            _isActive = value;
+            field = value;
             OnPropertyChanged("IsActive");
         }
     }

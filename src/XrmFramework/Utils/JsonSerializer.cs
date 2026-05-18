@@ -63,7 +63,7 @@ using Newtonsoft.Json;
             {
                 return JsonConvert.DeserializeObject<M>(serialized, setting);
             }
-            catch (JsonSerializationException e)
+            catch (Exception e) when (e is JsonSerializationException || e is JsonReaderException)
             {
                 throw new InvalidPluginExecutionException($"Erreur de désérialisation : {serialized}\r\n{e.Message}");
             }

@@ -1,0 +1,424 @@
+{
+  "LogName": "sdkmessage",
+  "Name": "SdkMessage",
+  "CollName": "sdkmessages",
+  "Cols": [
+    {
+      "LogName": "autotransact",
+      "Name": "AutoTransact",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Transaction automatique",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "availability",
+      "Name": "Availability",
+      "Type": "Integer",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Disponibilité",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -2147483648.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "categoryname",
+      "Name": "CategoryName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom de la catégorie",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 25
+    },
+    {
+      "LogName": "componentstate",
+      "Name": "ComponentState",
+      "Type": "Picklist",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "État du composant",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "componentstate"
+    },
+    {
+      "LogName": "createdby",
+      "Name": "CreatedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "createdonbehalfby",
+      "Name": "CreatedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "customizationlevel",
+      "Name": "CustomizationLevel",
+      "Type": "Integer",
+      "Capa": 1,
+      "Labels": [],
+      "MinRange": -255.0,
+      "MaxRange": 255.0
+    },
+    {
+      "LogName": "executeprivilegename",
+      "Name": "ExecutePrivilegeName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Execute Privilege Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "expand",
+      "Name": "Expand",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Développer",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "introducedversion",
+      "Name": "IntroducedVersion",
+      "Type": "String",
+      "Capa": 5,
+      "Labels": [
+        {
+          "Label": "Version présentée",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 48
+    },
+    {
+      "LogName": "isactive",
+      "Name": "IsActive",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Est actif",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ismanaged",
+      "Name": "IsManaged",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "État",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "isprivate",
+      "Name": "IsPrivate",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Est privé",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "isreadonly",
+      "Name": "IsReadOnly",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Intention",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "isvalidforexecuteasync",
+      "Name": "IsValidForExecuteAsync",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Est valide pour l'exécution asynchrone",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedby",
+      "Name": "ModifiedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedon",
+      "Name": "ModifiedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié le",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "modifiedonbehalfby",
+      "Name": "ModifiedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par (délégué)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom ",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 256,
+      "Select": true
+    },
+    {
+      "LogName": "organizationid",
+      "Name": "OrganizationId",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "overwritetime",
+      "Name": "OverwriteTime",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Heure de remplacement de l'enregistrement",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "sdkmessageid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 5,
+      "Labels": [],
+      "Select": true
+    },
+    {
+      "LogName": "sdkmessageidunique",
+      "Name": "SdkMessageIdUnique",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "solutionid",
+      "Name": "SolutionId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Solution",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "template",
+      "Name": "Template",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Modèle",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "throttlesettings",
+      "Name": "ThrottleSettings",
+      "Type": "String",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Paramètres de limitation",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 512
+    },
+    {
+      "LogName": "versionnumber",
+      "Name": "VersionNumber",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": []
+    },
+    {
+      "LogName": "workflowsdkstepenabled",
+      "Name": "WorkflowSdkStepEnabled",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "WorkflowSdkStepEnabled",
+          "LangId": 1036
+        }
+      ]
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "sdkmessageid_sdkmessageprocessingstep",
+      "Etn": "sdkmessageprocessingstep",
+      "Role": "Referenced",
+      "NavPropName": "sdkmessageid_sdkmessageprocessingstep",
+      "LookName": "sdkmessageid"
+    },
+    {
+      "Name": "userentityinstancedata_sdkmessage",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_sdkmessage",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "sdkmessageid_sdkmessagefilter",
+      "Etn": "sdkmessagefilter",
+      "Role": "Referenced",
+      "NavPropName": "sdkmessageid_sdkmessagefilter",
+      "LookName": "sdkmessageid"
+    },
+    {
+      "Name": "message_sdkmessagepair",
+      "Etn": "sdkmessagepair",
+      "Role": "Referenced",
+      "NavPropName": "message_sdkmessagepair",
+      "LookName": "sdkmessageid"
+    },
+    {
+      "Name": "sdkmessageid_workflow_dependency",
+      "Etn": "workflowdependency",
+      "Role": "Referenced",
+      "NavPropName": "sdkmessageid_workflow_dependency",
+      "LookName": "sdkmessageid"
+    },
+    {
+      "Name": "sdkmessage_customapi",
+      "Etn": "customapi",
+      "Role": "Referenced",
+      "NavPropName": "CustomAPIId",
+      "LookName": "sdkmessageid"
+    },
+    {
+      "Name": "sdkmessage_serviceplanmapping",
+      "Etn": "serviceplanmapping",
+      "Role": "Referenced",
+      "NavPropName": "sdkmessage_serviceplanmapping",
+      "LookName": "sdkmessage"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_sdkmessage_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "createdby_sdkmessage",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_sdkmessage_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "organization_sdkmessage",
+      "Etn": "organization",
+      "NavPropName": "organizationid",
+      "LookName": "organizationid"
+    },
+    {
+      "Name": "modifiedby_sdkmessage",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    }
+  ],
+  "Keys": [],
+  "Enums": []
+}

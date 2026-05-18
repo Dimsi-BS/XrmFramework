@@ -736,7 +736,25 @@ namespace Deploy
 				this.OnPropertyChanged("Content");
 			}
 		}
-		
+
+		/// <summary>
+		/// Reference to the plug-in package this assembly belongs to.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("packageid")]
+		public Microsoft.Xrm.Sdk.EntityReference PackageId
+		{
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("packageid");
+			}
+			set
+			{
+				this.OnPropertyChanging("PackageId");
+				this.SetAttributeValue("packageid", value);
+				this.OnPropertyChanged("PackageId");
+			}
+		}
+
 		/// <summary>
 		/// Unique identifier of the user who created the plug-in assembly.
 		/// </summary>
@@ -1205,6 +1223,112 @@ namespace Deploy
 		}
 	}
 	
+	/// <summary>
+	/// Plug-in package that contains plug-in assemblies.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	[Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("pluginpackage")]
+	[System.CodeDom.Compiler.GeneratedCodeAttribute("CrmSvcUtil", "6.0.0001.0061")]
+	[System.Diagnostics.DebuggerStepThrough()]
+	public partial class PluginPackage : Microsoft.Xrm.Sdk.Entity, System.ComponentModel.INotifyPropertyChanging, System.ComponentModel.INotifyPropertyChanged
+	{
+		public PluginPackage() : base(EntityLogicalName) { }
+
+		public const string EntityLogicalName = "pluginpackage";
+
+		public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+		public event System.ComponentModel.PropertyChangingEventHandler PropertyChanging;
+
+		private void OnPropertyChanged(string propertyName)
+		{
+			if ((this.PropertyChanged != null))
+				this.PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+		}
+
+		private void OnPropertyChanging(string propertyName)
+		{
+			if ((this.PropertyChanging != null))
+				this.PropertyChanging(this, new System.ComponentModel.PropertyChangingEventArgs(propertyName));
+		}
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("content")]
+		public string Content
+		{
+			get { return this.GetAttributeValue<string>("content"); }
+			set
+			{
+				this.OnPropertyChanging("Content");
+				this.SetAttributeValue("content", value);
+				this.OnPropertyChanged("Content");
+			}
+		}
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("name")]
+		public string Name
+		{
+			get { return this.GetAttributeValue<string>("name"); }
+			set
+			{
+				this.OnPropertyChanging("Name");
+				this.SetAttributeValue("name", value);
+				this.OnPropertyChanged("Name");
+			}
+		}
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("uniquename")]
+		public string UniqueName
+		{
+			get { return this.GetAttributeValue<string>("uniquename"); }
+			set
+			{
+				this.OnPropertyChanging("UniqueName");
+				this.SetAttributeValue("uniquename", value);
+				this.OnPropertyChanged("UniqueName");
+			}
+		}
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("version")]
+		public string Version
+		{
+			get { return this.GetAttributeValue<string>("version"); }
+			set
+			{
+				this.OnPropertyChanging("Version");
+				this.SetAttributeValue("version", value);
+				this.OnPropertyChanged("Version");
+			}
+		}
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ismanaged")]
+		public System.Nullable<bool> IsManaged
+		{
+			get { return this.GetAttributeValue<System.Nullable<bool>>("ismanaged"); }
+		}
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("pluginpackageid")]
+		public System.Nullable<System.Guid> PluginPackageId
+		{
+			get { return this.GetAttributeValue<System.Nullable<System.Guid>>("pluginpackageid"); }
+			set
+			{
+				this.OnPropertyChanging("PluginPackageId");
+				this.SetAttributeValue("pluginpackageid", value);
+				if (value.HasValue)
+					base.Id = value.Value;
+				else
+					base.Id = System.Guid.Empty;
+				this.OnPropertyChanged("PluginPackageId");
+			}
+		}
+
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("pluginpackageid")]
+		public override System.Guid Id
+		{
+			get { return base.Id; }
+			set { this.PluginPackageId = value; }
+		}
+	}
+
 	/// <summary>
 	/// Type that inherits from the IPlugin interface and is contained within a plug-in assembly.
 	/// </summary>

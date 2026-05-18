@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 using System.Threading.Tasks;
 using VerifyCS = XrmFramework.Analyzers.Test.CSharpCodeFixVerifier<
     XrmFramework.Analyzers.XrmFrameworkAnalyzersAnalyzer,
@@ -6,11 +6,11 @@ using VerifyCS = XrmFramework.Analyzers.Test.CSharpCodeFixVerifier<
 
 namespace XrmFramework.Analyzers.Test
 {
-    [TestClass]
+    [TestFixture]
     public class XrmFrameworkAnalyzersUnitTest
     {
         //No diagnostics expected to show up
-        [TestMethod]
+        [Test]
         public async Task TestMethod1()
         {
             var test = @"";
@@ -19,7 +19,7 @@ namespace XrmFramework.Analyzers.Test
         }
 
         //Diagnostic and CodeFix both triggered and checked for
-        [TestMethod]
+        [Test]
         public async Task TestMethod2()
         {
             var test = @"

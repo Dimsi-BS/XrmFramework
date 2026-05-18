@@ -1,0 +1,50 @@
+<Solution>
+  <!--
+    Solution exemple pour XrmFramework.
+    Référence les PROJETS sources du framework (au lieu des packages NuGet)
+    afin de permettre le débogage pas-à-pas dans le code du framework.
+
+    Structure :
+      /Sample/           → Projets de l'exemple (Core + Plugins)
+      /Sample/Utils/     → Outils utilitaires (déploiement, débogage distant, DefinitionManager)
+      /Framework/        → Projets sources du framework (pour navigation et débogage)
+  -->
+
+  <!-- ═══════════════════════════════════════════════════
+       PROJETS EXEMPLE
+       ═══════════════════════════════════════════════════ -->
+  <Folder Name="/Sample/">
+    <Project Path="XrmFramework.Sample.Core/XrmFramework.Sample.Core.csproj" />
+    <Project Path="XrmFramework.Sample.Plugins/XrmFramework.Sample.Plugins.csproj" />
+  </Folder>
+  <Folder Name="/Sample/Config/">
+    <File Path="Config/App.config" />
+    <File Path="Config/connectionStrings.config" />
+    <File Path="Config/xrmFramework.config" />
+  </Folder>
+
+  <!-- ═══════════════════════════════════════════════════
+       OUTILS UTILITAIRES
+       ═══════════════════════════════════════════════════ -->
+  <Folder Name="/Sample/Utils/">
+    <Project Path="Utils/DefinitionManager/DefinitionManager.csproj" />
+    <Project Path="Utils/Deploy.XrmFramework.Sample.Plugins/Deploy.XrmFramework.Sample.Plugins.csproj" />
+    <Project Path="Utils/RemoteDebugger/RemoteDebugger.csproj" />
+  </Folder>
+
+  <!-- ═══════════════════════════════════════════════════
+       PROJETS SOURCES DU FRAMEWORK (pour débogage)
+       Ces projets sont inclus pour permettre la navigation
+       dans le code source et le débogage pas-à-pas.
+       ═══════════════════════════════════════════════════ -->
+  <Folder Name="/Framework/">
+    <Project Path="../src/XrmFramework.Core/XrmFramework.Core.csproj" />
+    <Project Path="../src/XrmFramework.CoreProject/XrmFramework.CoreProject.csproj" />
+    <Project Path="../src/XrmFramework.DefinitionManager/XrmFramework.DefinitionManager.csproj" />
+    <Project Path="../src/XrmFramework.DeployUtils/XrmFramework.DeployUtils.csproj" />
+    <Project Path="../src/XrmFramework.Plugin/XrmFramework.Plugin.csproj" />
+    <Project Path="../src/XrmFramework.RemoteDebugger.Client/XrmFramework.RemoteDebugger.Client.csproj" />
+    <Project Path="../src/XrmFramework/XrmFramework.csproj" />
+  </Folder>
+
+</Solution>

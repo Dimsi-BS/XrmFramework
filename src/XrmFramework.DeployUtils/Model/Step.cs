@@ -1,155 +1,170 @@
 ﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Newtonsoft.Json;
+using XrmFramework.DeployUtils.Model.Interfaces;
 
 namespace XrmFramework.DeployUtils.Model
 {
-    public class Step
-    {
-        public Step(string pluginTypeName, string message, Stages stage, Modes mode, string entityName)
-        {
-            PluginTypeName = pluginTypeName;
-            Message = message;
-            Stage = stage;
-            Mode = mode;
-            EntityName = entityName;
+	/// <summary>
+	/// Component of a <see cref="Plugin"/> that defines on which particular input said plugin should be executed
+	/// </summary>
+	/// <seealso cref="ICrmComponent" />
+	public class Step : BaseCrmComponent
+	{
+		public Step(string pluginTypeName, Messages message, Stages stage, Modes mode, string entityName)
+		{
+			PluginTypeName = pluginTypeName;
+			Message        = message;
+			Stage          = stage;
+			Mode           = mode;
+			EntityName     = entityName;
+			PreImage = new StepImage(Message, true, stage)
+			{
+				FatherStep = this
+			};
+			PostImage = new StepImage(Message, false, stage)
+			{
+				FatherStep = this
+			};
 
-            if (!string.IsNullOrWhiteSpace(EntityName) &&
-                (message == Messages.Associate.ToString() || message == Messages.Disassociate.ToString()))
-            {
-                EntityName = string.Empty;
+			if (string.IsNullOrWhiteSpace(EntityName) ||
+			    (!Messages.Associate.Equals(message) && !Messages.Disassociate.Equals(message)))
+			{
+				return;
+			}
 
-                var stepConfig = new StepConfiguration
-                {
-                    RelationshipName = entityName
-                };
+			EntityName                         = string.Empty;
+			StepConfiguration.RelationshipName = entityName;
+		}
 
-                UnsecureConfig = JsonConvert.SerializeObject(stepConfig);
-            }
+		/// <summary>Full Name of the <see cref="Plugin"/></summary>
+		/// <example>Assembly.NameSpace.Plugin</example>
+		public string PluginTypeFullName { get; set; }
 
-        }
+		/// <summary>Simplified Name of the <see cref="Plugin"/></summary>
+		/// <example>Plugin</example>
+		public string PluginTypeName { get; set; }
 
-        public string PluginTypeName { get; }
+		/// <summary>Message on which to fire</summary>
+		public Messages Message { get; }
 
-        public string Message { get; }
-        public Stages Stage { get; }
-        public Modes Mode { get; }
-        public string EntityName { get; }
+		/// <summary>Stage on which to fire</summary>
+		public Stages Stage { get; }
 
-        public Guid MessageId { get; set; }
+		/// <summary>Mode of the <see cref="Step"/></summary>
+		public Modes Mode { get; }
 
-        public bool DoNotFilterAttributes { get; set; }
+		/// <summary>Entity the step is bound to</summary>
+		public string EntityName { get; }
 
-        public List<string> FilteringAttributes { get; } = new List<string>();
+		/// <summary><inheritdoc cref="XrmFramework.StepConfiguration"/></summary>
+		public StepConfiguration StepConfiguration { get; set; } = new();
 
-        public bool PreImageUsed => Message != "Create" && Message != "Book" && (PreImageAllAttributes || PreImageAttributes.Any());
-        public bool PreImageAllAttributes { get; set; }
-        public List<string> PreImageAttributes { get; } = new List<string>();
+		public Guid MessageId { get; set; }
 
-        public string JoinedPreImageAttributes => string.Join(",", PreImageAttributes);
+		/// <summary>Indicates if there are Filtering Attributes</summary>
+		public bool DoNotFilterAttributes { get; set; }
 
-        public bool PostImageUsed => Stage == Stages.PostOperation && (PostImageAllAttributes || PostImageAttributes.Any());
-        public bool PostImageAllAttributes { get; set; }
-        public List<string> PostImageAttributes { get; } = new List<string>();
+		/// <summary>List of Attributes to Filter on trigger</summary>
+		public HashSet<string> FilteringAttributes { get; } = new HashSet<string>();
 
-        public string JoinedPostImageAttributes => string.Join(",", PostImageAttributes);
+		/// <summary>PreImage of the Step, may not be used</summary>
+		public StepImage PreImage { get; set; }
 
-        public string UnsecureConfig { get; set; }
+		/// <summary>PostImage of the Step, may not be used</summary>
+		public StepImage PostImage { get; set; }
 
-        public int Order { get; set; }
+		/// <summary>Preferred Order of execution</summary>
+		public int Order { get; set; }
 
-        public string ImpersonationUsername { get; set; }
+		/// <summary>Can execute while impersonating a specific user</summary>
+		public string ImpersonationUsername { get; set; }
 
-        public List<string> MethodNames { get; } = new List<string>();
-        public string MethodsDisplayName => string.Join(",", MethodNames);
+		/// <summary><inheritdoc cref="XrmFramework.StepConfiguration.RegisteredMethods"/></summary>
+		public HashSet<string> MethodNames => StepConfiguration.RegisteredMethods;
 
+		/// <summary>Joined string of the <see cref="MethodNames"/></summary>
+		public string MethodsDisplayName => string.Join(",", MethodNames);
 
+		/// <summary>Serialized string of <see cref="StepConfiguration"/></summary>
+		public string UnsecureConfig => JsonConvert.SerializeObject(StepConfiguration);
 
-        public void Merge(Step step)
-        {
-            if (!step.FilteringAttributes.Any())
-            {
-                DoNotFilterAttributes = true;
-            }
+		/// <summary>Merge two Steps that trigger on the same event</summary>
+		/// <param name="step"></param>
+		public void Merge(Step step)
+		{
+			DoNotFilterAttributes |= step.DoNotFilterAttributes;
 
-            FilteringAttributes.AddRange(step.FilteringAttributes);
+			if (DoNotFilterAttributes)
+			{
+				FilteringAttributes.Clear();
+			}
+			else
+			{
+				FilteringAttributes.UnionWith(step.FilteringAttributes);
+			}
 
-            if (step.PreImageAllAttributes)
-            {
-                PreImageAllAttributes = true;
-                PreImageAttributes.Clear();
-            }
-            else if (!PreImageAllAttributes)
-            {
-                PreImageAttributes.AddRange(step.PreImageAttributes);
-            }
+			PreImage.Merge(step.PreImage);
 
-            if (step.PostImageAllAttributes)
-            {
-                PostImageAllAttributes = true;
-                PostImageAttributes.Clear();
-            }
-            else if (!PostImageAllAttributes)
-            {
-                PostImageAttributes.AddRange(step.PostImageAttributes);
-            }
+			PostImage.Merge(step.PostImage);
 
-            if (!string.IsNullOrWhiteSpace(step.UnsecureConfig) && step.UnsecureConfig != UnsecureConfig)
-            {
-                var existingConfig = string.IsNullOrWhiteSpace(UnsecureConfig) ? new StepConfiguration() : JsonConvert.DeserializeObject<StepConfiguration>(UnsecureConfig);
+			MethodNames.UnionWith(step.MethodNames);
+		}
 
-                var newConfig = JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig);
+		/// <summary>
+		/// Description of the <see cref="Step"/><br/>
+		/// Is built like this : <br/>
+		/// <see cref="PluginTypeName"/> : <see cref="Stage"/> <see cref="Message"/> of <see cref="EntityName"/> (<see cref="MethodsDisplayName"/>)
+		/// </summary>
+		public string Description => $"{PluginTypeName} : {Stage} {Message} of {(string.IsNullOrEmpty(EntityName) ? StepConfiguration.RelationshipName : EntityName)} ({MethodsDisplayName})";
 
-                if (string.IsNullOrWhiteSpace(existingConfig.Configuration) &&
-                    !string.IsNullOrWhiteSpace(newConfig.Configuration))
-                {
-                    existingConfig.Configuration = newConfig.Configuration;
-                }
+	#region BaseCrmComponent overrides
 
-                UnsecureConfig = JsonConvert.SerializeObject(existingConfig);
-            }
+		public override string UniqueName
+		{
+			get => $"{PluginTypeFullName}.{Stage}.{Message}.{EntityName}.{MethodsDisplayName}";
+			set => _ = value;
+		}
 
-            MethodNames.AddRange(step.MethodNames);
-        }
+		public override IEnumerable<ICrmComponent> Children
+		{
+			get
+			{
+				var res = new List<ICrmComponent>();
+				if (PreImage.ShouldAppearAsChild) res.Add(PreImage);
+				if (PostImage.ShouldAppearAsChild) res.Add(PostImage);
+				return res;
+			}
+		}
 
-        public static Step FromXrmFrameworkStep(dynamic s)
-        {
-            var step = new Step(s.Plugin.GetType().Name, s.Message.ToString(), (Stages)(int)s.Stage, (Modes)(int)s.Mode, s.EntityName);
+		public override void AddChild(ICrmComponent child)
+		{
+			if (child is not StepImage stepChild) throw new ArgumentException("Step doesn't take this type of children");
+			if (stepChild.IsPreImage)
+			{
+				PreImage = stepChild;
+			}
+			else
+			{
+				PostImage = stepChild;
+			}
 
-            step.FilteringAttributes.AddRange(s.FilteringAttributes);
-            step.ImpersonationUsername = s.ImpersonationUsername;
-            step.Order = s.Order;
-            step.PostImageAllAttributes = s.PostImageAllAttributes;
-            step.PostImageAttributes.AddRange(s.PostImageAttributes);
-            step.PreImageAllAttributes = s.PreImageAllAttributes;
-            step.PreImageAttributes.AddRange(s.PreImageAttributes);
+			base.AddChild(child);
+		}
 
-            if (!string.IsNullOrWhiteSpace(s.UnsecureConfig) || !string.IsNullOrWhiteSpace(step.UnsecureConfig))
-            {
-                var stepConfiguration = new StepConfiguration
-                {
-                    Configuration = s.UnsecureConfig
-                };
+		protected override void RemoveChild(ICrmComponent child)
+		{
+			child.RegistrationState = RegistrationState.Computed;
+		}
 
-                if (!string.IsNullOrWhiteSpace(step.UnsecureConfig))
-                {
-                    var stepConfig = JsonConvert.DeserializeObject<StepConfiguration>(step.UnsecureConfig);
+		public override string EntityTypeName => SdkMessageProcessingStepDefinition.EntityName;
+		public override int Rank => 20;
+		public override bool DoAddToSolution => true;
+		public override bool DoFetchTypeCode => false;
 
-                    stepConfiguration.RelationshipName = stepConfig.RelationshipName;
-                }
-
-                step.UnsecureConfig = JsonConvert.SerializeObject(stepConfiguration);
-
-            }
-
-            step.MethodNames.AddRange(s.MethodNames);
-
-            return step;
-        }
-    }
-
+	#endregion
+	}
 }

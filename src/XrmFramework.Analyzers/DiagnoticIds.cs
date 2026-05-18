@@ -16,5 +16,6 @@ namespace XrmFramework.Analyzers
         public const string Xrm0101Id = "XRM0101";
         public const string Xrm0102Id = "XRM0102";
         public const string Xrm0200Id = "XRM0200";
+        public const string Xrm0300Id = "XRM0300";
     }
 }

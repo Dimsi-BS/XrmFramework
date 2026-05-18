@@ -1,11 +1,9 @@
 ﻿
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Query;
-using Microsoft.Xrm.Sdk.Workflow;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using Microsoft.Xrm.Sdk.Discovery;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
+using Newtonsoft.Json;
 
 namespace XrmFramework.RemoteDebugger.Converters
 {
@@ -123,21 +121,6 @@ namespace XrmFramework.RemoteDebugger.Converters
         }
     }
 
-    public class EndpointCollectionConverter : JsonConverter<EndpointCollection>
-    {
-        private readonly DataCollectionConverter<EndpointType, string> _internalConverter = new DataCollectionConverter<EndpointType, string>();
-
-        public override void WriteJson(JsonWriter writer, EndpointCollection value, JsonSerializer serializer)
-        {
-            _internalConverter.WriteJson(writer, value, serializer);
-        }
-
-        public override EndpointCollection ReadJson(JsonReader reader, Type objectType, EndpointCollection existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            return (EndpointCollection)_internalConverter.ReadJson(reader, objectType, existingValue, hasExistingValue, serializer);
-        }
-    }
-
     public class KeyAttributeCollectionConverter : JsonConverter<KeyAttributeCollection>
     {
         private readonly DataCollectionConverter<string, object> _internalConverter = new DataCollectionConverter<string, object>();
@@ -210,21 +193,6 @@ namespace XrmFramework.RemoteDebugger.Converters
         public override OrganizationResponseCollection ReadJson(JsonReader reader, Type objectType, OrganizationResponseCollection existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             return (OrganizationResponseCollection)_internalConverter.ReadJson(reader, objectType, existingValue, hasExistingValue, serializer);
-        }
-    }
-
-    public class ArgumentsCollectionConverter : JsonConverter<ArgumentsCollection>
-    {
-        private readonly DataCollectionConverter<string, object> _internalConverter = new DataCollectionConverter<string, object>();
-
-        public override void WriteJson(JsonWriter writer, ArgumentsCollection value, JsonSerializer serializer)
-        {
-            _internalConverter.WriteJson(writer, value, serializer);
-        }
-
-        public override ArgumentsCollection ReadJson(JsonReader reader, Type objectType, ArgumentsCollection existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            return (ArgumentsCollection)_internalConverter.ReadJson(reader, objectType, existingValue, hasExistingValue, serializer);
         }
     }
 

@@ -12,11 +12,10 @@
     <projectUrl>https://aka.ms/XrmFramework</projectUrl>
     <license type="expression">MIT</license>
     <tags>Dynamics365 CRM DynamicsCrm Dataverse PowerApps</tags>
-    <copyright>$copyrigth$</copyright>
+    <copyright>$copyright$</copyright>
     <dependencies>
       <group targetFramework="net462">
         <dependency id="XrmFramework" version="[$version$]" />
-        <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.60" />
       </group>
     </dependencies>
   </metadata>

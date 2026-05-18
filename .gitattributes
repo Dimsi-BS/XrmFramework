@@ -1,0 +1,106 @@
+# Normalise toutes les fins de ligne dans le repo en LF.
+# Le working tree est écrit en LF aussi bien sur macOS que sur Windows
+# (Visual Studio, Rider, dotnet CLI gèrent LF sans problème depuis VS 2017+).
+# Ce fichier prend le pas sur core.autocrlf — il est inutile (et déconseillé)
+# de configurer autocrlf en plus.
+
+* text=auto eol=lf
+
+# ---------- Sources & projets .NET ----------
+*.cs        text eol=lf diff=csharp
+*.cshtml    text eol=lf
+*.razor     text eol=lf
+*.vb        text eol=lf
+*.fs        text eol=lf
+*.fsx       text eol=lf
+*.csproj    text eol=lf
+*.vbproj    text eol=lf
+*.fsproj    text eol=lf
+*.shproj    text eol=lf
+*.props     text eol=lf
+*.targets   text eol=lf
+*.nuspec    text eol=lf
+*.config    text eol=lf
+*.runsettings text eol=lf
+
+# ---------- Solutions ----------
+# Les .sln (format hérité) requièrent CRLF, certains outils MS s'y cassent
+# les dents en LF. Le format .slnx (XML, plus récent) tolère LF.
+*.sln       text eol=crlf
+*.slnx      text eol=lf
+
+# ---------- Scripts ----------
+*.cmd       text eol=crlf
+*.bat       text eol=crlf
+*.ps1       text eol=lf
+*.psm1      text eol=lf
+*.psd1      text eol=lf
+*.sh        text eol=lf
+
+# ---------- Données / config ----------
+*.json      text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.xml       text eol=lf
+*.xaml      text eol=lf
+*.resx      text eol=lf
+*.ruleset   text eol=lf
+*.editorconfig text eol=lf
+*.gitattributes text eol=lf
+*.gitignore text eol=lf
+
+# ---------- Web ----------
+*.html      text eol=lf
+*.htm       text eol=lf
+*.css       text eol=lf
+*.scss      text eol=lf
+*.less      text eol=lf
+*.js        text eol=lf
+*.jsx       text eol=lf
+*.ts        text eol=lf
+*.tsx       text eol=lf
+*.map       text eol=lf
+
+# ---------- Markdown / docs ----------
+*.md        text eol=lf
+*.markdown  text eol=lf
+*.txt       text eol=lf
+
+# ---------- Fichiers métiers XrmFramework ----------
+*.table     text eol=lf
+*.model     text eol=lf
+
+# ---------- Binaires ----------
+*.snk       binary
+*.pfx       binary
+*.dll       binary
+*.exe       binary
+*.pdb       binary
+*.so        binary
+*.dylib     binary
+*.zip       binary
+*.7z        binary
+*.tar       binary
+*.gz        binary
+*.bz2       binary
+*.xz        binary
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.bmp       binary
+*.ico       binary
+*.tiff      binary
+*.svg       text eol=lf
+*.pdf       binary
+*.docx      binary
+*.xlsx      binary
+*.pptx      binary
+*.mp3       binary
+*.mp4       binary
+*.mov       binary
+*.wav       binary
+*.ttf       binary
+*.otf       binary
+*.woff      binary
+*.woff2     binary

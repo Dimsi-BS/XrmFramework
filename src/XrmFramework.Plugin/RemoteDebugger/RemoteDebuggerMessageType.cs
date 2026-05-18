@@ -5,6 +5,7 @@
         Context,
         Request,
         Response,
-        Exception
+        Exception,
+        Ping
     }
 }

@@ -5,6 +5,5 @@ namespace XrmFramework.DefinitionManager.Definitions;
 
 internal class EnumDefinitionCollection : DefinitionCollection<EnumDefinition>
 {
-    private static EnumDefinitionCollection _instance = new();
-    public static EnumDefinitionCollection Instance { get { return _instance; } }
+    public static EnumDefinitionCollection Instance { get { return field; } } = new();
 }

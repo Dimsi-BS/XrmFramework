@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <!-- Dossier racine de la solution exemple, utilisé par les projets Utils -->
+    <RootFolder>$(MSBuildThisFileDirectory)</RootFolder>
+
+    <LangVersion>latest</LangVersion>
+
+    <!-- Nom du projet Core de la solution exemple, utilisé par le DefinitionManager -->
+    <XrmFrameworkCoreProjectName>XrmFramework.Sample.Core</XrmFrameworkCoreProjectName>
+  </PropertyGroup>
+</Project>

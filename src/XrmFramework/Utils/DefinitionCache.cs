@@ -11,11 +11,32 @@ namespace XrmFramework
 {
     public static class DefinitionCache
     {
-        private static readonly ConcurrentBag<Assembly> DiscoveredAssemblies = [typeof(DefinitionCache).Assembly];
-        
         private static readonly ConcurrentDictionary<string, EntityDefinition> InternalDefinitionCache = new ConcurrentDictionary<string, EntityDefinition>();
 
         private static readonly ConcurrentDictionary<Type, ModelDefinition> InternalModelDefinitionCache = new ConcurrentDictionary<Type, ModelDefinition>();
+
+        private static readonly ConcurrentBag<Assembly> AdditionalAssemblies = new ConcurrentBag<Assembly>();
+
+        /// <summary>
+        /// Registers an additional assembly to search for <see cref="EntityDefinitionAttribute"/>-decorated types.
+        /// Call this from test assembly initializers to make test-defined entity definitions discoverable.
+        /// </summary>
+        public static void RegisterAssembly(Assembly assembly)
+        {
+            if (assembly != null && !AdditionalAssemblies.Contains(assembly))
+            {
+                AdditionalAssemblies.Add(assembly);
+            }
+        }
+
+        /// <summary>
+        /// Clears all cached definitions. Useful in test teardown to ensure a clean state between tests.
+        /// </summary>
+        public static void ResetCache()
+        {
+            InternalDefinitionCache.Clear();
+            InternalModelDefinitionCache.Clear();
+        }
 
         public static EntityDefinition GetEntityDefinition(string entityName)
         {
@@ -25,11 +46,6 @@ namespace XrmFramework
             }
 
             throw new KeyNotFoundException($"No definition found for entity {entityName}");
-        }
-
-        public static void RegisterDefinitionsAssembly(Assembly assembly)
-        {
-            DiscoveredAssemblies.Add(assembly);
         }
 
         public static EntityDefinition GetEntityDefinition(Type type)
@@ -48,9 +64,9 @@ namespace XrmFramework
                 throw new Exception($"Type {type.Name} does not have a proper EntityName const field defined.");
             }
 
-            if (InternalDefinitionCache.TryGetValue(entityName, out var entityDefinition))
+            if (InternalDefinitionCache.ContainsKey(entityName))
             {
-                return entityDefinition;
+                return InternalDefinitionCache[entityName];
             }
 
             var definition = new EntityDefinition(type);
@@ -59,11 +75,15 @@ namespace XrmFramework
             return definition;
         }
 
-        private static bool TryGetEntityDefinition(string entityName, out EntityDefinition definition)
+        public static bool TryGetEntityDefinition(string entityName, out EntityDefinition definition)
         {
             definition = InternalDefinitionCache.GetOrAdd(entityName, (name) =>
             {
-                var definitionTypes = DiscoveredAssemblies
+                var assembliesToSearch = new[] { typeof(DefinitionCache).Assembly }
+                    .Concat(AdditionalAssemblies)
+                    .Distinct();
+
+                var definitionTypes = assembliesToSearch
                     .SelectMany(a => a.GetTypes())
                     .Where(t => t.GetCustomAttribute<EntityDefinitionAttribute>() != null)
                     .Where(t => t.GetField("EntityName") != null)
@@ -73,7 +93,7 @@ namespace XrmFramework
 
                 var definitionType = definitionTypes.OrderBy(t => t.Namespace?.Contains("XrmFramework.Definitions") ?? false).FirstOrDefault();
 
-                if (definitionType == null)
+                if (definitionType == default)
                 {
                     return null;
                 }
@@ -91,7 +111,7 @@ namespace XrmFramework
             if (crmEntityAttribute == null)
             {
                 var interfaceType = type.GetInterfaces()
-                    .FirstOrDefault(t => t.GetCustomAttribute<CrmEntityAttribute>(true) != null);
+                    .FirstOrDefault(t => CustomAttributeExtensions.GetCustomAttribute<CrmEntityAttribute>((MemberInfo)t, true) != null);
 
                 if (interfaceType != null)
                 {
