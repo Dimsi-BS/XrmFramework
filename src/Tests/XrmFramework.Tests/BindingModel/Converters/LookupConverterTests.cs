@@ -1,14 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xrm.Sdk;
+﻿using Microsoft.Xrm.Sdk;
 using System;
+using NUnit.Framework;
 using XrmFramework.BindingModel;
 
 namespace XrmFramework.Tests.BindingModel.Converters
 {
-    [TestClass]
+    [TestFixture]
     public class LookupConverterTests
     {
-        [TestMethod]
+        [Test]
         public void ConvertFromString()
         {
             var converter = new LookupConverter();
@@ -20,7 +20,7 @@ namespace XrmFramework.Tests.BindingModel.Converters
             Assert.AreEqual("TestName", result.Name);
         }
 
-        [TestMethod]
+        [Test]
         public void ConvertFromEmptyString()
         {
             var converter = new LookupConverter();
@@ -29,7 +29,7 @@ namespace XrmFramework.Tests.BindingModel.Converters
             Assert.IsNull(result);
         }
 
-        [TestMethod]
+        [Test]
         public void ConvertFromEntityReference()
         {
             var converter = new LookupConverter();
@@ -43,13 +43,13 @@ namespace XrmFramework.Tests.BindingModel.Converters
             Assert.AreEqual("TestLogicalName|cf998748-0e2e-4a3c-a254-0bb1ad850466|TestName", result);
         }
 
-        [TestMethod]
+        [Test]
         public void ConvertFromUnsupportedType()
         {
             var converter = new LookupConverter();
             var intValue = 0;
 
-            Assert.ThrowsException<ArgumentException>(() =>
+            Assert.Throws<ArgumentException>(() =>
             {
                 _ = converter.ConvertFrom(intValue) as string;
             });

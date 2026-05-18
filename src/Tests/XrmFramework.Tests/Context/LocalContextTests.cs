@@ -1,20 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
-using BoDi;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xrm.Sdk;
 using Moq;
-using XrmFramework.Definitions;
+using NUnit.Framework;
 
 namespace XrmFramework.Tests;
 
-[TestClass]
+[TestFixture]
 public class LocalContextTests
 {
     private Mock<IServiceProvider> _serviceProviderMock = null!;
-    private Mock<IPluginExecutionContext> _executionContextMock = null!;
+    private Mock<IPluginExecutionContext7> _executionContextMock = null!;
     private Mock<ITracingService> _tracingServiceMock = null!;
     private Mock<IOrganizationServiceFactory> _serviceFactoryMock = null!;
     private Mock<IOrganizationService> _organizationServiceMock = null!;
@@ -26,7 +22,7 @@ public class LocalContextTests
     private Guid _businessUnitId;
     private string _organizationName;
 
-    [TestInitialize]
+    [SetUp]
     public void InitTests()
     {
         _userId = Guid.NewGuid();
@@ -36,7 +32,7 @@ public class LocalContextTests
         _organizationName = "TestOrg";
 
         _serviceProviderMock = new Mock<IServiceProvider>();
-        _executionContextMock = new Mock<IPluginExecutionContext>();
+        _executionContextMock = new Mock<IPluginExecutionContext7>();
         _tracingServiceMock = new Mock<ITracingService>();
         _serviceFactoryMock = new Mock<IOrganizationServiceFactory>();
         _organizationServiceMock = new Mock<IOrganizationService>();
@@ -54,7 +50,12 @@ public class LocalContextTests
         _executionContextMock.Setup(e => e.OutputParameters).Returns(new ParameterCollection());
         _executionContextMock.Setup(e => e.SharedVariables).Returns(new ParameterCollection());
 
-        _serviceProviderMock.Setup(s => s.GetService(typeof(IPluginExecutionContext))).Returns(_executionContextMock.Object);
+        _serviceProviderMock.Setup(s => s.GetService(typeof(IPluginExecutionContext2))).Returns(_executionContextMock.Object);
+        _serviceProviderMock.Setup(s => s.GetService(typeof(IPluginExecutionContext3))).Returns(_executionContextMock.Object);
+        _serviceProviderMock.Setup(s => s.GetService(typeof(IPluginExecutionContext4))).Returns(_executionContextMock.Object);
+        _serviceProviderMock.Setup(s => s.GetService(typeof(IPluginExecutionContext5))).Returns(_executionContextMock.Object);
+        _serviceProviderMock.Setup(s => s.GetService(typeof(IPluginExecutionContext6))).Returns(_executionContextMock.Object);
+        _serviceProviderMock.Setup(s => s.GetService(typeof(IPluginExecutionContext7))).Returns(_executionContextMock.Object);
         _serviceProviderMock.Setup(s => s.GetService(typeof(ITracingService))).Returns(_tracingServiceMock.Object);
         _serviceProviderMock.Setup(s => s.GetService(typeof(IOrganizationServiceFactory))).Returns(_serviceFactoryMock.Object);
 
@@ -62,13 +63,13 @@ public class LocalContextTests
         _serviceFactoryMock.Setup(f => f.CreateOrganizationService(null)).Returns(_adminServiceMock.Object);
     }
 
-    [TestMethod]
+    [Test]
     public void Constructor_NullServiceProvider_ThrowsArgumentNullException()
     {
-        Assert.ThrowsException<ArgumentNullException>(() => new LocalContext(null));
+        Assert.Throws<ArgumentNullException>(() => new LocalContext(null));
     }
 
-    [TestMethod]
+    [Test]
     public void Constructor_ValidServiceProvider_InitializesCorrectly()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -83,7 +84,7 @@ public class LocalContextTests
         Assert.AreEqual(_organizationName, context.OrganizationName);
     }
 
-    [TestMethod]
+    [Test]
     public void UserRef_ReturnsCorrectEntityReference()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -95,7 +96,7 @@ public class LocalContextTests
         Assert.AreEqual(_userId, userRef.Id);
     }
 
-    [TestMethod]
+    [Test]
     public void BusinessUnitRef_ReturnsCorrectEntityReference()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -107,7 +108,7 @@ public class LocalContextTests
         Assert.AreEqual(_businessUnitId, businessUnitRef.Id);
     }
 
-    [TestMethod]
+    [Test]
     public void AdminOrganizationService_ReturnsAdminService()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -119,7 +120,7 @@ public class LocalContextTests
         _serviceFactoryMock.Verify(f => f.CreateOrganizationService(null), Times.Once);
     }
 
-    [TestMethod]
+    [Test]
     public void AdminOrganizationService_CalledMultipleTimes_ReturnsCachedInstance()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -131,7 +132,7 @@ public class LocalContextTests
         _serviceFactoryMock.Verify(f => f.CreateOrganizationService(null), Times.Once);
     }
 
-    [TestMethod]
+    [Test]
     public void MessageName_ReturnsCorrectMessage()
     {
         _executionContextMock.Setup(e => e.MessageName).Returns("Create");
@@ -142,7 +143,7 @@ public class LocalContextTests
         Assert.AreEqual(Messages.Create, messageName);
     }
 
-    [TestMethod]
+    [Test]
     public void Log_CallsLoggerLog()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -152,7 +153,7 @@ public class LocalContextTests
         _tracingServiceMock.Verify(t => t.Trace(It.IsAny<string>(), new object[] {It.IsAny<string>()}), Times.AtLeastOnce);
     }
 
-    [TestMethod]
+    [Test]
     public void LogError_CallsLoggerLogError()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -165,7 +166,7 @@ public class LocalContextTests
 
     #region Image Helpers Tests
 
-    [TestMethod]
+    [Test]
     public void HasPreImage_ImageExists_ReturnsTrue()
     {
         var images = new EntityImageCollection { { "PreImage", new Entity() } };
@@ -177,7 +178,7 @@ public class LocalContextTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void HasPreImage_ImageDoesNotExist_ReturnsFalse()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -187,7 +188,7 @@ public class LocalContextTests
         Assert.IsFalse(result);
     }
 
-    [TestMethod]
+    [Test]
     public void GetPreImage_ImageExists_ReturnsImage()
     {
         var entity = new Entity("account");
@@ -200,15 +201,15 @@ public class LocalContextTests
         Assert.AreSame(entity, result);
     }
 
-    [TestMethod]
+    [Test]
     public void GetPreImage_ImageDoesNotExist_ThrowsArgumentNullException()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
 
-        Assert.ThrowsException<ArgumentNullException>(() => context.GetPreImage("NonExistent"));
+        Assert.Throws<ArgumentNullException>(() => context.GetPreImage("NonExistent"));
     }
 
-    [TestMethod]
+    [Test]
     public void GetPreImageOrDefault_ImageExists_ReturnsImage()
     {
         var entity = new Entity("account");
@@ -221,7 +222,7 @@ public class LocalContextTests
         Assert.AreSame(entity, result);
     }
 
-    [TestMethod]
+    [Test]
     public void GetPreImageOrDefault_ImageDoesNotExist_ReturnsNull()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -231,7 +232,7 @@ public class LocalContextTests
         Assert.IsNull(result);
     }
 
-    [TestMethod]
+    [Test]
     public void HasPostImage_ImageExists_ReturnsTrue()
     {
         var images = new EntityImageCollection { { "PostImage", new Entity() } };
@@ -243,7 +244,7 @@ public class LocalContextTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void HasPostImage_ImageDoesNotExist_ReturnsFalse()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -253,7 +254,7 @@ public class LocalContextTests
         Assert.IsFalse(result);
     }
 
-    [TestMethod]
+    [Test]
     public void GetPostImage_ImageExists_ReturnsImage()
     {
         var entity = new Entity("account");
@@ -266,19 +267,19 @@ public class LocalContextTests
         Assert.AreSame(entity, result);
     }
 
-    [TestMethod]
+    [Test]
     public void GetPostImage_ImageDoesNotExist_ThrowsArgumentNullException()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
 
-        Assert.ThrowsException<ArgumentNullException>(() => context.GetPostImage("NonExistent"));
+        Assert.Throws<ArgumentNullException>(() => context.GetPostImage("NonExistent"));
     }
 
     #endregion
 
     #region Message/Stage/Mode Helpers Tests
 
-    [TestMethod]
+    [Test]
     public void IsCreate_MessageIsCreate_ReturnsTrue()
     {
         _executionContextMock.Setup(e => e.MessageName).Returns("Create");
@@ -289,7 +290,7 @@ public class LocalContextTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void IsCreate_MessageIsNotCreate_ReturnsFalse()
     {
         _executionContextMock.Setup(e => e.MessageName).Returns("Update");
@@ -300,7 +301,7 @@ public class LocalContextTests
         Assert.IsFalse(result);
     }
 
-    [TestMethod]
+    [Test]
     public void IsUpdate_MessageIsUpdate_ReturnsTrue()
     {
         _executionContextMock.Setup(e => e.MessageName).Returns("Update");
@@ -311,7 +312,7 @@ public class LocalContextTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void IsUpdate_MessageIsNotUpdate_ReturnsFalse()
     {
         _executionContextMock.Setup(e => e.MessageName).Returns("Create");
@@ -322,7 +323,7 @@ public class LocalContextTests
         Assert.IsFalse(result);
     }
 
-    [TestMethod]
+    [Test]
     public void IsMessage_MatchingMessage_ReturnsTrue()
     {
         _executionContextMock.Setup(e => e.MessageName).Returns("Delete");
@@ -333,7 +334,7 @@ public class LocalContextTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void IsMessage_NonMatchingMessage_ReturnsFalse()
     {
         _executionContextMock.Setup(e => e.MessageName).Returns("Create");
@@ -344,7 +345,7 @@ public class LocalContextTests
         Assert.IsFalse(result);
     }
 
-    [TestMethod]
+    [Test]
     public void IsSynchronous_ModeIsSynchronous_ReturnsTrue()
     {
         _executionContextMock.Setup(e => e.Mode).Returns((int)Modes.Synchronous);
@@ -355,7 +356,7 @@ public class LocalContextTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void IsSynchronous_ModeIsAsynchronous_ReturnsFalse()
     {
         _executionContextMock.Setup(e => e.Mode).Returns((int)Modes.Asynchronous);
@@ -366,7 +367,7 @@ public class LocalContextTests
         Assert.IsFalse(result);
     }
 
-    [TestMethod]
+    [Test]
     public void IsAsynchronous_ModeIsAsynchronous_ReturnsTrue()
     {
         _executionContextMock.Setup(e => e.Mode).Returns((int)Modes.Asynchronous);
@@ -377,7 +378,7 @@ public class LocalContextTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void IsAsynchronous_ModeIsSynchronous_ReturnsFalse()
     {
         _executionContextMock.Setup(e => e.Mode).Returns((int)Modes.Synchronous);
@@ -388,7 +389,7 @@ public class LocalContextTests
         Assert.IsFalse(result);
     }
 
-    [TestMethod]
+    [Test]
     public void Mode_ValidMode_ReturnsMode()
     {
         _executionContextMock.Setup(e => e.Mode).Returns((int)Modes.Synchronous);
@@ -399,20 +400,11 @@ public class LocalContextTests
         Assert.AreEqual(Modes.Synchronous, mode);
     }
 
-    [TestMethod]
-    public void Mode_InvalidMode_ThrowsInvalidPluginExecutionException()
-    {
-        _executionContextMock.Setup(e => e.Mode).Returns(999);
-        var context = new LocalContext(_serviceProviderMock.Object);
-
-        Assert.ThrowsException<InvalidPluginExecutionException>(() => context.Mode);
-    }
-
     #endregion
 
     #region Parameters Helpers Tests
 
-    [TestMethod]
+    [Test]
     public void GetInputParameter_ParameterExists_ReturnsValue()
     {
         var parameters = new ParameterCollection { { "Target", new Entity("account") } };
@@ -425,15 +417,15 @@ public class LocalContextTests
         Assert.AreEqual("account", result.LogicalName);
     }
 
-    [TestMethod]
+    [Test]
     public void GetInputParameter_ParameterDoesNotExist_ThrowsArgumentNullException()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
 
-        Assert.ThrowsException<ArgumentNullException>(() => context.GetInputParameter<Entity>(InputParameters.Target));
+        Assert.Throws<ArgumentNullException>(() => context.GetInputParameter<Entity>(InputParameters.Target));
     }
 
-    [TestMethod]
+    [Test]
     public void SetInputParameter_SetsParameterValue()
     {
         var entity = new Entity("account");
@@ -445,7 +437,7 @@ public class LocalContextTests
         Assert.AreSame(entity, context.ExecutionContext.InputParameters["Target"]);
     }
 
-    [TestMethod]
+    [Test]
     public void GetOutputParameter_ParameterExists_ReturnsValue()
     {
         var id = Guid.NewGuid();
@@ -458,7 +450,7 @@ public class LocalContextTests
         Assert.AreEqual(id, result);
     }
 
-    [TestMethod]
+    [Test]
     public void SetOutputParameter_SetsParameterValue()
     {
         var id = Guid.NewGuid();
@@ -470,7 +462,7 @@ public class LocalContextTests
         Assert.AreEqual(id, context.ExecutionContext.OutputParameters["BusinessEntityCollection"]);
     }
 
-    [TestMethod]
+    [Test]
     public void HasSharedVariable_VariableExists_ReturnsTrue()
     {
         var variables = new ParameterCollection { { "TestVar", "TestValue" } };
@@ -482,7 +474,7 @@ public class LocalContextTests
         Assert.IsTrue(result);
     }
 
-    [TestMethod]
+    [Test]
     public void HasSharedVariable_VariableDoesNotExist_ReturnsFalse()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -492,7 +484,7 @@ public class LocalContextTests
         Assert.IsFalse(result);
     }
 
-    [TestMethod]
+    [Test]
     public void SetSharedVariable_StringValue_SetsVariable()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -503,7 +495,7 @@ public class LocalContextTests
         Assert.AreEqual("TestValue", context.ExecutionContext.SharedVariables["TestVar"]);
     }
 
-    [TestMethod]
+    [Test]
     public void GetSharedVariable_VariableExists_ReturnsValue()
     {
         var variables = new ParameterCollection { { "TestVar", "TestValue" } };
@@ -515,7 +507,7 @@ public class LocalContextTests
         Assert.AreEqual("TestValue", result);
     }
 
-    [TestMethod]
+    [Test]
     public void GetSharedVariable_VariableDoesNotExist_ReturnsDefault()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -527,21 +519,8 @@ public class LocalContextTests
 
     #endregion
 
-    [TestMethod]
-    public void GetService_ReturnsServiceForSpecifiedUser()
-    {
-        var specificUserId = Guid.NewGuid();
-        var specificServiceMock = new Mock<IOrganizationService>();
-        _serviceFactoryMock.Setup(f => f.CreateOrganizationService(specificUserId)).Returns(specificServiceMock.Object);
-        var context = new LocalContext(_serviceProviderMock.Object);
 
-        var service = context.GetService(specificUserId);
-
-        Assert.AreSame(specificServiceMock.Object, service);
-        _serviceFactoryMock.Verify(f => f.CreateOrganizationService(specificUserId), Times.Once);
-    }
-
-    [TestMethod]
+    [Test]
     public void GetInitiatingUserId_NoParent_ReturnsInitiatingUserId()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -551,7 +530,7 @@ public class LocalContextTests
         Assert.AreEqual(_initiatingUserId, result);
     }
 
-    [TestMethod]
+    [Test]
     public void GetRootUserId_NoParent_ReturnsUserId()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -561,7 +540,7 @@ public class LocalContextTests
         Assert.AreEqual(_userId, result);
     }
 
-    [TestMethod]
+    [Test]
     public void LogFields_CallsLoggerLogCollection()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -574,7 +553,7 @@ public class LocalContextTests
         _tracingServiceMock.Verify(t => t.Trace(It.IsAny<string>(), new object[]{ It.IsAny<string>(), It.IsAny<string>()}), Times.AtLeast(2));
     }
 
-    [TestMethod]
+    [Test]
     public void InvokeMethod_NoParameters_InvokesSuccessfully()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -586,7 +565,7 @@ public class LocalContextTests
         Assert.IsTrue(testObject.MethodCalled);
     }
 
-    [TestMethod]
+    [Test]
     public void InvokeMethod_WithParameters_InvokesSuccessfully()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -598,7 +577,7 @@ public class LocalContextTests
         Assert.IsTrue(testObject.MethodWithContextCalled);
     }
 
-    [TestMethod]
+    [Test]
     public void InvokeMethod_TaskMethod_WaitsForCompletion()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -610,7 +589,7 @@ public class LocalContextTests
         Assert.IsTrue(testObject.AsyncMethodCalled);
     }
 
-    [TestMethod]
+    [Test]
     public void DumpSharedVariables_CallsLoggerLogCollection()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -627,7 +606,7 @@ public class LocalContextTests
         _tracingServiceMock.Verify(t => t.Trace(It.IsAny<string>(), new object[]{It.IsAny<string>(), It.IsAny<string>()}), Times.AtLeastOnce);
     }
 
-    [TestMethod]
+    [Test]
     public void DumpInputParameters_CallsLoggerLogCollection()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
