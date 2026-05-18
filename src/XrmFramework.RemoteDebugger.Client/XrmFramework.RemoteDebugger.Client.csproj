@@ -50,7 +50,9 @@
 
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.0" />
     <PackageReference Include="Microsoft.Azure.Relay" Version="3.1.1" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.61.3" />
     <!-- TUI interactive — interface console moderne pour le débogueur distant -->
     <PackageReference Include="Spectre.Console" Version="0.55.2" />
   </ItemGroup>

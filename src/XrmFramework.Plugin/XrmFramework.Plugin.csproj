@@ -46,5 +46,5 @@
     <ItemGroup>
         <AdditionalFiles Include="../XrmFramework/**/*.table" Exclude="../XrmFramework/bin/**;../XrmFramework/obj/**" />
     </ItemGroup>
-    
+
 </Project>

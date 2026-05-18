@@ -24,4 +24,12 @@
     <ProjectReference Include="..\..\XrmFramework.Plugin\XrmFramework.Plugin.csproj" />
   </ItemGroup>
 
+
+    <PropertyGroup>
+        <CollectCoverage>true</CollectCoverage>
+        <Exclude>[Newtonsoft.Json]*</Exclude>
+        <ExcludeByFile>**/Bodi.cs</ExcludeByFile>
+    </PropertyGroup>
+
+
 </Project>
