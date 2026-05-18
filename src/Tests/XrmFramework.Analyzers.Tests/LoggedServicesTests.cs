@@ -1,13 +1,16 @@
+using NUnit.Framework;
 ﻿using System.Threading.Tasks;
-using VerifyXunit;
+
 using XrmFramework.Analyzers.Generators;
-using Xunit;
+
 
 namespace XrmFramework.Analyzers.Tests;
 
+
+[TestFixture]
 public class LoggedServicesTests
 {
-    [Fact]
+    [Test]
     public async Task LoggedServiceGenerator()
     {
         // The source code to test

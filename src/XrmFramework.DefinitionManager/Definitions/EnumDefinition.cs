@@ -10,8 +10,6 @@ namespace XrmFramework.DefinitionManager.Definitions;
 
 class EnumDefinition : AbstractDefinition
 {
-    private DefinitionCollection<EnumValueDefinition> _values = new();
-
     private readonly HashSet<AttributeDefinition> _referencingAttributes = new(new DefinitionComparer<AttributeDefinition>());
 
     public IReadOnlyCollection<AttributeDefinition> ReferencedBy => _referencingAttributes.ToList();
@@ -40,7 +38,7 @@ class EnumDefinition : AbstractDefinition
 
     public override bool IsSelected => _referencingAttributes.Any();
 
-    public DefinitionCollection<EnumValueDefinition> Values => _values;
+    public DefinitionCollection<EnumValueDefinition> Values { get; } = new();
 
     public bool IsGlobal { get; set; }
 

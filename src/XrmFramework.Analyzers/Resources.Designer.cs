@@ -329,5 +329,34 @@ namespace XrmFramework.Analyzers {
                 return ResourceManager.GetString("Xrm0200_Title", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Utiliser IDateTimeProvider à la place de DateTime.Now ou DateTime.UtcNow
+        ///   pour permettre des tests déterministes et le rejouage de session.
+        /// </summary>
+        internal static string Xrm0300_Description {
+            get {
+                return ResourceManager.GetString("Xrm0300_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Remplacer &apos;{0}&apos; par IDateTimeProvider.{1}
+        ///   — injecter IDateTimeProvider comme paramètre de méthode.
+        /// </summary>
+        internal static string Xrm0300_MessageFormat {
+            get {
+                return ResourceManager.GetString("Xrm0300_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Utiliser IDateTimeProvider plutôt que DateTime.Now / DateTime.UtcNow.
+        /// </summary>
+        internal static string Xrm0300_Title {
+            get {
+                return ResourceManager.GetString("Xrm0300_Title", resourceCulture);
+            }
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using Newtonsoft.Json;
 
 namespace XrmFramework.RemoteDebugger.Converters

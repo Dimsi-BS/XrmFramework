@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>XrmFramework.Analyzers.CodeFixes</AssemblyName>
+
+    <!-- Roslyn component: DLL must not be compiled into consuming assemblies -->
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- CodeFix providers intentionally reference Workspaces — do not enforce RS1038 here -->
+    <EnforceExtendedAnalyzerRules>false</EnforceExtendedAnalyzerRules>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <AnalysisLevel>latest</AnalysisLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Reference Analyzers for DiagnosticIds and shared types (compile-only, not propagated) -->
+    <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj"
+                      ReferenceOutputAssembly="true"
+                      OutputItemType="none" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.12.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Pack the DLL into the NuGet analyzer slot alongside XrmFramework.Analyzers.dll -->
+    <None Include="$(OutputPath)\$(AssemblyName).dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false" />
+  </ItemGroup>
+
+</Project>

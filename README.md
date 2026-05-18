@@ -12,6 +12,7 @@ The XrmFramework project is the result of 15+ years working on Dynamics 365 / Da
     - [Defining Steps to register](#defining-steps-to-register)
     - [Adding details to the registered steps](#adding-details-to-the-registered-steps)
     - [Choosing method arguments](#choosing-method-arguments)
+  - [Custom APIs](#custom-apis)
   - [Utilities](#utilities)
   - [Contribute](#contribute)
 
@@ -62,7 +63,7 @@ You can add `--accept-scripts` to install the solution and run the script withou
 
 
 ### Configure the new project
-A `connectionStrings.config` file as been created in the `Config\` folder near of the new solution.
+A `connectionStrings.config` file has been created in the `Config\` folder near of the new solution.
 
 This file will contain the connectionStrings needed for the tools to connect to your Dynamics 365 / Dataverse environments.
 ```xml
@@ -220,23 +221,34 @@ The step method registered in the ``AddSteps`` registration can be injected with
 public void Method(IPluginContext context, IAccountService accountService, ...)
 ```
 
-## Code reuse through definition of ``IService`` interfaces
+## Plugins (detailed reference)
 
-Services are interfaces that can be implemented to access CRM Data from several places in your solution.
-The XrmFramework provides a base class ``DefaultService`` inheriting ``XrmFramework.IService`` interface that can be used to implement your services.
+The quick start above covers the essentials. For a complete reference of all plugin options — stages, messages, modes, all method attributes, the full `IPluginContext` API, and a complete worked example — see the dedicated page:
 
-More infos [here (Working with Services)](docs/WorkingWithServices.md)
+[XrmFramework Plugins](docs/Plugins.md)
 
-## Deploying your project
-In the solution are created 2 deployment projects :
-- ``Deploy.Plugins`` : Deploys the plugins / workflows and Custom Apis defined in your Plugins project
-- ``Deploy.Webresources`` : Deploys the webresources defined in your Webresources project
+## Services
 
-Set the ``Deploy.Plugins`` or ``Deploy.Webresources`` project as Startup project and run it.
+All data-access and business logic is encapsulated in typed service classes that are injected into plugins and Custom APIs. Two documents cover this in depth:
+
+- [Working with Services](docs/WorkingWithServices.md) — Practical guide: create a service interface, implement it, and inject it into plugins.
+- [IService Architecture](docs/IService-Architecture.md) — Design rationale, the full `IService` API surface, logging wrappers, and a comparison with raw `IOrganizationService`.
+
+## Custom APIs
+
+XrmFramework lets you define and deploy Custom APIs (Dataverse custom messages) entirely from C# code: a class decorated with `[CustomApi]` describes the API metadata, its input/output parameters, and the method that implements the logic. The deployment tool automatically creates and updates the `customapi`, `customapirequestparameter` and `customapiresponseproperty` records in Dataverse.
+
+[XrmFramework Custom APIs](docs/CustomApis.md)
+
+## Remote Debugger
+
+XrmFramework includes a remote debugger that lets you set Visual Studio breakpoints in plugin code and step through real Dataverse executions, live, on any environment — by forwarding the execution context to your local machine over Azure Relay.
+
+[Remote Debugger](docs/RemoteDebugger.md)
 
 ## Utilities
 
-XrmFramework contains a bunch of utility methods or Extensions to better work with the SDK.
+XrmFramework contains a collection of extension methods that make working with the Dataverse SDK more concise: typed OptionSet helpers, preImage/target merge, QueryExpression helpers, EntityReference conversions, and more.
 
 [XrmFramework Utilities](docs/XrmFrameworkUtilities.md)
 

@@ -1,0 +1,579 @@
+{
+  "LogName": "customapiresponseproperty",
+  "Name": "CustomApiResponseProperty",
+  "CollName": "customapiresponseproperties",
+  "Cols": [
+    {
+      "LogName": "componentidunique",
+      "Name": "ComponentIdUnique",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Row id unique",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "componentstate",
+      "Name": "ComponentState",
+      "Type": "Picklist",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Component State",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "componentstate",
+      "Select": true
+    },
+    {
+      "LogName": "createdby",
+      "Name": "CreatedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Created By",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Created On",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "createdonbehalfby",
+      "Name": "CreatedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Created By (Delegate)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "customapiid",
+      "Name": "CustomAPIId",
+      "Type": "Lookup",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Custom API",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "customapiresponsepropertyid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Custom API Response Property",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "description",
+      "Name": "Description",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Description",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "displayname",
+      "Name": "DisplayName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Display Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "importsequencenumber",
+      "Name": "ImportSequenceNumber",
+      "Type": "Integer",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Import Sequence Number",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -2147483648.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "iscustomizable",
+      "Name": "IsCustomizable",
+      "Type": "ManagedProperty",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Is Customizable",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "ismanaged",
+      "Name": "IsManaged",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Is Managed",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "logicalentityname",
+      "Name": "LogicalEntityName",
+      "Type": "String",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Bound Entity Logical Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "modifiedby",
+      "Name": "ModifiedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modified By",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedon",
+      "Name": "ModifiedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modified On",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "modifiedonbehalfby",
+      "Name": "ModifiedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modified By (Delegate)",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 100,
+      "Select": true
+    },
+    {
+      "LogName": "overriddencreatedon",
+      "Name": "OverriddenCreatedOn",
+      "Type": "DateTime",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Record Created On",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "overwritetime",
+      "Name": "OverwriteTime",
+      "Type": "DateTime",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Record Overwrite Time",
+          "LangId": 1036
+        }
+      ],
+      "DatBehav": 0,
+      "Select": true
+    },
+    {
+      "LogName": "ownerid",
+      "Name": "OwnerId",
+      "Type": "Owner",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Owner",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "owningbusinessunit",
+      "Name": "OwningBusinessUnit",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Owning Business Unit",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "owningteam",
+      "Name": "OwningTeam",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Owning Team",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "owninguser",
+      "Name": "OwningUser",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Owning User",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "solutionid",
+      "Name": "SolutionId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Solution",
+          "LangId": 1036
+        }
+      ]
+    },
+    {
+      "LogName": "statecode",
+      "Name": "Statecode",
+      "Type": "State",
+      "Capa": 11,
+      "Labels": [
+        {
+          "Label": "Status",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "customapiresponseproperty|statecode"
+    },
+    {
+      "LogName": "statuscode",
+      "Name": "Statuscode",
+      "Type": "Status",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Status Reason",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "customapiresponseproperty|statuscode"
+    },
+    {
+      "LogName": "timezoneruleversionnumber",
+      "Name": "TimeZoneRuleVersionNumber",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Time Zone Rule Version Number",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -1.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "type",
+      "Name": "Type",
+      "Type": "Picklist",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Type",
+          "LangId": 1036
+        }
+      ],
+      "EnumName": "customapifieldtype"
+    },
+    {
+      "LogName": "uniquename",
+      "Name": "UniqueName",
+      "Type": "String",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Unique Name",
+          "LangId": 1036
+        }
+      ],
+      "StrLen": 128,
+      "Select": true
+    },
+    {
+      "LogName": "utcconversiontimezonecode",
+      "Name": "UTCConversionTimeZoneCode",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "UTC Conversion Time Zone Code",
+          "LangId": 1036
+        }
+      ],
+      "MinRange": -1.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "versionnumber",
+      "Name": "VersionNumber",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Version Number",
+          "LangId": 1036
+        }
+      ]
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "customapiresponseproperty_SyncErrors",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "customapiresponseproperty_SyncErrors",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "customapiresponseproperty_AsyncOperations",
+      "Etn": "asyncoperation",
+      "Role": "Referenced",
+      "NavPropName": "customapiresponseproperty_AsyncOperations",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "customapiresponseproperty_MailboxTrackingFolders",
+      "Etn": "mailboxtrackingfolder",
+      "Role": "Referenced",
+      "NavPropName": "customapiresponseproperty_MailboxTrackingFolders",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "customapiresponseproperty_UserEntityInstanceDatas",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "customapiresponseproperty_UserEntityInstanceDatas",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "customapiresponseproperty_ProcessSession",
+      "Etn": "processsession",
+      "Role": "Referenced",
+      "NavPropName": "customapiresponseproperty_ProcessSession",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "customapiresponseproperty_BulkDeleteFailures",
+      "Etn": "bulkdeletefailure",
+      "Role": "Referenced",
+      "NavPropName": "customapiresponseproperty_BulkDeleteFailures",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "customapiresponseproperty_PrincipalObjectAttributeAccesses",
+      "Etn": "principalobjectattributeaccess",
+      "Role": "Referenced",
+      "NavPropName": "customapiresponseproperty_PrincipalObjectAttributeAccesses",
+      "LookName": "objectid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_customapiresponseproperty_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "lk_customapiresponseproperty_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "lk_customapiresponseproperty_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "lk_customapiresponseproperty_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "user_customapiresponseproperty",
+      "Etn": "systemuser",
+      "NavPropName": "owninguser",
+      "LookName": "owninguser"
+    },
+    {
+      "Name": "team_customapiresponseproperty",
+      "Etn": "team",
+      "NavPropName": "owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "owner_customapiresponseproperty",
+      "Etn": "owner",
+      "NavPropName": "ownerid",
+      "LookName": "ownerid"
+    },
+    {
+      "Name": "business_unit_customapiresponseproperty",
+      "Etn": "businessunit",
+      "NavPropName": "owningbusinessunit",
+      "LookName": "owningbusinessunit"
+    },
+    {
+      "Name": "customapi_customapiresponseproperty",
+      "Etn": "customapi",
+      "NavPropName": "CustomAPIId",
+      "LookName": "customapiid"
+    }
+  ],
+  "Keys": [
+    {
+      "LogicalName": "custom api response property export key",
+      "Name": "CustomAPIResponsePropertyExportKey",
+      "FieldNames": [
+        "componentstate",
+        "customapiid",
+        "overwritetime",
+        "uniquename"
+      ]
+    }
+  ],
+  "Enums": [
+    {
+      "LogName": "customapiresponseproperty|statecode",
+      "Name": "CustomapiresponsepropertyState",
+      "Values": [
+        {
+          "Name": "Active",
+          "Labels": [
+            {
+              "Label": "Active",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Inactive",
+          "Labels": [
+            {
+              "Label": "Inactive",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "customapiresponseproperty|statuscode",
+      "Name": "CustomapiresponsepropertyStatus",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Active",
+          "Labels": [
+            {
+              "Label": "Active",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Inactive",
+          "Labels": [
+            {
+              "Label": "Inactive",
+              "LangId": 1036
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

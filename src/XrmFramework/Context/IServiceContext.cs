@@ -16,7 +16,7 @@ namespace XrmFramework
 
         void Log(string message, params object[] paramsObject);
 
-        IOrganizationService GetService(Guid userId);
+        IOrganizationService GetOrganizationService(Guid? userId);
 
         LogServiceMethod LogServiceMethod { get; }
     }

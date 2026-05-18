@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,9 +27,9 @@ namespace XrmFramework.RemoteDebugger
             _client.DefaultRequestHeaders.Add("ServiceBusAuthorization", token.TokenString);
         }
 
-        public async Task<RemoteDebuggerMessage> SendMessage(RemoteDebuggerMessage message)
+        public async Task<RemoteDebuggerMessage?> SendMessage(RemoteDebuggerMessage message)
         {
-            var serializedContext = JsonConvert.SerializeObject(message, RemoteDebuggerSettings.JsonSerializerSettings);
+            var serializedContext = JsonConvert.SerializeObject(message);
 
             var request = new HttpRequestMessage(HttpMethod.Post, _uri)
             {
@@ -61,5 +60,29 @@ namespace XrmFramework.RemoteDebugger
         }
 
         #endregion
+
+        public static bool TryPingDebugSession(DebugSession debugSession)
+        {
+            var uri = new Uri($"{debugSession.RelayUrl.TrimEnd('/')}/{debugSession.HybridConnectionName}");
+
+            var isOnline = false;
+
+            try
+            {
+                using var hybridConnection = new HybridConnection(debugSession.SasKeyName, debugSession.SasConnectionKey, uri.AbsoluteUri);
+
+                var message = new RemoteDebuggerMessage(RemoteDebuggerMessageType.Ping, null, Guid.NewGuid());
+
+                var response = hybridConnection.SendMessage(message).GetAwaiter().GetResult();
+
+                isOnline = response.MessageType == RemoteDebuggerMessageType.Ping;
+            }
+            catch (HttpRequestException)
+            {
+                //isOnline is false and will stay that way
+            }
+            return isOnline;
+
+        }
     }
 }

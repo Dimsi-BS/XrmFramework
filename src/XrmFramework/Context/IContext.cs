@@ -10,6 +10,13 @@ namespace XrmFramework
         EntityReference UserRef { get; }
         EntityReference BusinessUnitRef { get; }
 
+        /// <summary>
+        /// Fournisseur de date/heure. À utiliser à la place de <see cref="System.DateTime.UtcNow"/>
+        /// et <see cref="System.DateTime.Now"/> pour garantir la reproductibilité lors du rejouage
+        /// de sessions de test.
+        /// </summary>
+        IDateTimeProvider Clock { get; }
+
         T GetInputParameter<T>(InputParameters parameterName);
         void SetInputParameter<T>(InputParameters parameterName, T parameterValue);
 

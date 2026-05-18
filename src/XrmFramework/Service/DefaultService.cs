@@ -10,37 +10,26 @@ using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
 using XrmFramework.BindingModel;
-using XrmFramework.Definitions;
-using XrmFramework.Model;
-using Newtonsoft.Json;
 
 namespace XrmFramework
 {
-    public partial class DefaultService : IService
+    public partial class DefaultService(IServiceContext context) : IService
     {
-        private readonly IServiceContext _context;
+        protected LogServiceMethod Log { get; } = context.LogServiceMethod;
 
-        protected LogServiceMethod Log { get; }
+        protected IOrganizationService OrganizationService => context.OrganizationService;
 
-        public DefaultService(IServiceContext context)
-        {
-            _context = context;
-            Log = context.LogServiceMethod;
-        }
+        protected IOrganizationService AdminOrganizationService => context.AdminOrganizationService;
 
-        protected IOrganizationService OrganizationService => _context.OrganizationService;
+        protected EntityReference BusinessUnitRef => context.BusinessUnitRef;
 
-        protected IOrganizationService AdminOrganizationService => _context.AdminOrganizationService;
+        protected Guid UserId => context.UserId;
 
-        protected EntityReference BusinessUnitRef => _context.BusinessUnitRef;
+        protected string OrganizationName => context.OrganizationName;
 
-        protected Guid UserId => _context.UserId;
+        protected Guid InitiatingUserId => context.InitiatingUserId;
 
-        protected string OrganizationName => _context.OrganizationName;
-
-        protected Guid InitiatingUserId => _context.InitiatingUserId;
-
-        protected Guid CorrelationId => _context.CorrelationId;
+        protected Guid CorrelationId => context.CorrelationId;
 
         public Guid Create(Entity entity, bool useAdmin = false, bool bypassCustomPluginExecution = false)
         {
@@ -304,7 +293,7 @@ namespace XrmFramework
                 return GetService(true);
             }
 
-            return _context.GetService(callerId);
+            return context.GetOrganizationService(callerId);
         }
 
         protected IOrganizationService GetService(bool useAdmin)
@@ -471,12 +460,12 @@ namespace XrmFramework
             return AdminOrganizationService.GetById<T>(id);
         }
 
-        public T GetById<T>(EntityReference entityReference) where T : IBindingModel, new()
+        public T GetById<T>(EntityReference entityReference) where T : class, IBindingModel, new()
         {
             return AdminOrganizationService.GetById<T>(entityReference);
         }
 
-        public T Upsert<T>(T model, bool isAdmin = false, bool bypassCustomPluginExecution = false) where T : IBindingModel, new()
+        public T Upsert<T>(T model, bool isAdmin = false, bool bypassCustomPluginExecution = false) where T : class, IBindingModel, new()
         {
             var service = isAdmin ? AdminOrganizationService : OrganizationService;
 
@@ -638,7 +627,7 @@ namespace XrmFramework
             return UserHasOneRoleOf(userId, parentRoleId);
         }
 
-        public Entity ToEntity<T>(T model) where T : IBindingModel
+        public Entity ToEntity<T>(T model) where T : class, IBindingModel
         {
             return model.ToEntity(OrganizationService);
         }

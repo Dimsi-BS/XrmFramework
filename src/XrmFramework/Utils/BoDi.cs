@@ -991,7 +991,7 @@ namespace BoDi
 
         public override string ToString()
         {
-            return string.Join(Environment.NewLine,
+            return string.Join("\\",
                 registrations
                     .Where(r => !(r.Value is NamedInstanceDictionaryRegistration))
                     .Select(r => string.Format("{0} -> {1}", r.Key, (r.Key.Type == typeof(IObjectContainer) && r.Key.Name == null) ? "<self>" : r.Value.ToString())));

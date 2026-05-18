@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace XrmFramework.Core
 {
@@ -17,27 +17,37 @@ namespace XrmFramework.Core
         [JsonProperty("CollName")]
         public string CollectionName { get; set; }
 
-        [JsonProperty("Cols")]
-        public ColumnCollection Columns { get; } = new();
-        
-        [JsonProperty("NtoN")]
+        [JsonProperty("Cols", ObjectCreationHandling = ObjectCreationHandling.Reuse)]
+        public ColumnCollection Columns { get; } = new ColumnCollection();
+
+        [JsonProperty("NtoN", ObjectCreationHandling = ObjectCreationHandling.Reuse)]
         public List<Relation> ManyToManyRelationships { get; } = new();
 
-        [JsonProperty("OneToN")]
+        [JsonProperty("OneToN", ObjectCreationHandling = ObjectCreationHandling.Reuse)]
         public List<Relation> OneToManyRelationships { get; } = new();
 
-        [JsonProperty("NToOne")]
+        [JsonProperty("NToOne", ObjectCreationHandling = ObjectCreationHandling.Reuse)]
         public List<Relation> ManyToOneRelationships { get; } = new();
 
-        public ICollection<Key> Keys { get; set; }
+        [JsonProperty("Locked")]
+        public bool isLocked { get; set; } = false;
 
+        [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Reuse)]
+        public ICollection<Key> Keys { get; } = new List<Key>();
+
+        [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Reuse)]
         public List<OptionSetEnum> Enums { get; } = new();
 
         [JsonIgnore]
         public bool Selected { get; set; }
 
-        public void MergeTo(Table existingEntity) 
-            => existingEntity?.Columns.MergeColumns(Columns);
+        public void MergeTo(Table existingEntity)
+        {
+            if (existingEntity != null)
+            {
+                Columns.ToList().ForEach(existingEntity.Columns.Add);
+            }
+        }
 
         public int CompareTo(Table other)
         {
