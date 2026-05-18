@@ -24,9 +24,9 @@ namespace XrmFramework
             {
                 debugSession = debuggerManager.GetDebugSession();
             }
-            catch
+            catch (Exception e)
             {
-                localContext.Log("An error occurred fetching the Debug Session");
+                localContext.Log("An error occurred fetching the Debug Session : {0}", e.Message);
                 return false;
             }
 

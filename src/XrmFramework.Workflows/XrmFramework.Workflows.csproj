@@ -68,4 +68,12 @@
     <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
   </ItemGroup>
 
+
+    <PropertyGroup>
+        <CollectCoverage>true</CollectCoverage>
+        <Exclude>[Newtonsoft.Json]*</Exclude>
+        <!-- Ou par filtre de fichier source -->
+        <ExcludeByFile>**/Bodi.cs</ExcludeByFile>
+    </PropertyGroup>
+
 </Project>

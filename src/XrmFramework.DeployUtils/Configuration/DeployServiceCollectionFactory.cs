@@ -1,11 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
 
-#if NET462_OR_GREATER
-
-#else
-using Microsoft.PowerPlatform.Dataverse.Client;
-#endif
 using Microsoft.Xrm.Sdk;
 using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Context;
@@ -50,7 +45,7 @@ internal static class DeployServiceCollectionFactory
 #if NET462_OR_GREATER
                 return new Microsoft.Xrm.Tooling.Connector.CrmServiceClient(deploySettings.ConnectionString);
 #else
-                return new ServiceClient(deploySettings.ConnectionString);
+                return new Microsoft.PowerPlatform.Dataverse.Client.ServiceClient(deploySettings.ConnectionString);
 #endif
             });
 

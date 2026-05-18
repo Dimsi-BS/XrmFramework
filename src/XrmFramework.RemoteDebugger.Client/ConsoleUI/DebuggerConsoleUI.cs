@@ -30,20 +30,16 @@ public class DebuggerConsoleUi(
     private View _currentView = View.List;
     private readonly List<ExecutionRecord> _executions = new();
     private int _selectedIndex;
+    private int _traceScrollOffset;
+    private const int TracePageSize = 10;
     private readonly object _lock = new();
 
     // ── Journal de messages ──────────────────────────────────────────
     private readonly List<string> _logs = new();
     private const int MaxLogs = 6;
 
-    // ── Interception de Console.Out ──────────────────────────────────
-    private System.IO.TextWriter _originalConsoleOut;
-
     // ── Contrôle du cycle de vie ─────────────────────────────────────
     private CancellationTokenSource _cts;
-
-    // ── Action de sauvegarde (fournie par RemoteDebugger<T>) ─────────
-    // bool = debugMode
 
     // ── Titre de l'application ───────────────────────────────────────
     private const string AppTitle = "XrmFramework Remote Debugger";
@@ -90,7 +86,7 @@ public class DebuggerConsoleUi(
     public void NotifyExecutionCompleted(ExecutionRecord record, RemoteDebugExecutionContext outputContext)
     {
         record.Complete(outputContext);
-        AddLog($"[grey]Exécution #{record.Id} terminée :[/] [green]✅ {record.Duration?.TotalMilliseconds:F0}ms[/] ({record.OrgServiceCallCount} appels CRM)");
+        AddLog($"[grey]Exécution #{record.Id} terminée :[/] [green]{record.Duration?.TotalMilliseconds:F0}ms[/] ({record.OrgServiceCallCount} appels CRM)");
     }
 
     /// <summary>
@@ -101,7 +97,7 @@ public class DebuggerConsoleUi(
         record.Fail(error);
         var shortError = error?.Message?.Split('\n')[0] ?? "Erreur inconnue";
         if (shortError.Length > 60) shortError = shortError.Substring(0, 57) + "...";
-        AddLog($"[grey]Exécution #{record.Id} :[/] [red]❌ {Markup.Escape(shortError)}[/]");
+        AddLog($"[grey]Exécution #{record.Id} :[/] [red]ECHEC {Markup.Escape(shortError)}[/]");
     }
 
     /// <summary>
@@ -129,17 +125,12 @@ public class DebuggerConsoleUi(
     {
         _cts = new CancellationTokenSource();
 
-        // Intercepter Console.Out pour capturer les logs de l'infrastructure
-        _originalConsoleOut = Console.Out;
-        Console.SetOut(new LogCaptureWriter(this, _originalConsoleOut));
-
         try
         {
             AnsiConsole.Cursor.Hide();
-            AnsiConsole.Clear();
 
             // Lancer la boucle de rendu dans une tâche séparée
-            var renderTask = Task.Run(async () => await RunRenderLoopAsync(), _cts.Token);
+            var renderTask = Task.Run(RunRenderLoopAsync);
 
             // Lire le clavier dans le thread principal
             RunKeyboardLoop();
@@ -150,7 +141,6 @@ public class DebuggerConsoleUi(
         }
         finally
         {
-            Console.SetOut(_originalConsoleOut);
             AnsiConsole.Cursor.Show();
             AnsiConsole.Clear();
         }
@@ -176,15 +166,20 @@ public class DebuggerConsoleUi(
                                 : BuildMainView();
                         }
                         ctx.UpdateTarget(view);
-                        await Task.Delay(120, _cts.Token);
+                        ctx.Refresh();
+                    }
+                    catch (Exception ex)
+                    {
+                        AddLog($"[red]Erreur rendu : {Markup.Escape(ex.Message)}[/]");
+                    }
+
+                    try
+                    {
+                        await Task.Delay(150, _cts.Token);
                     }
                     catch (OperationCanceledException)
                     {
                         break;
-                    }
-                    catch
-                    {
-                        // Ne jamais faire crasher le rendu
                     }
                 }
             });
@@ -233,7 +228,10 @@ public class DebuggerConsoleUi(
 
             case ConsoleKey.Enter:
                 if (_executions.Count > 0)
+                {
+                    _traceScrollOffset = 0;
                     _currentView = View.Detail;
+                }
                 break;
 
             case ConsoleKey.R:
@@ -263,7 +261,20 @@ public class DebuggerConsoleUi(
         switch (key.Key)
         {
             case ConsoleKey.Escape:
+                _traceScrollOffset = 0;
                 _currentView = View.List;
+                break;
+
+            case ConsoleKey.UpArrow:
+                if (_traceScrollOffset > 0) _traceScrollOffset--;
+                break;
+
+            case ConsoleKey.DownArrow:
+                if (TryGetSelected(out var recForScroll) && recForScroll.TraceLogs.Count > 0)
+                {
+                    var maxOffset = Math.Max(0, recForScroll.TraceLogs.Count - TracePageSize);
+                    if (_traceScrollOffset < maxOffset) _traceScrollOffset++;
+                }
                 break;
 
             case ConsoleKey.R:
@@ -292,7 +303,7 @@ public class DebuggerConsoleUi(
         if (onReplay != null)
         {
             Task.Run(() => onReplay(record, debugMode));
-            AddLog($"[yellow]🔄 Rejouage #{record.Id} {(debugMode ? "en mode debug" : "")} lancé...[/]");
+            AddLog($"[yellow]Rejouage #{record.Id} {(debugMode ? "en mode debug" : "")} lance...[/]");
         }
         else if (record.TestSession != null)
         {
@@ -300,21 +311,21 @@ public class DebuggerConsoleUi(
             {
                 if (debugMode)
                 {
-                    AddLog($"[yellow]🔗 Attachez le débogueur au PID [bold]{Process.GetCurrentProcess().Id}[/] puis appuyez sur une touche...[/]");
+                    AddLog($"[yellow]Attachez le debogueur au PID [bold]{Process.GetCurrentProcess().Id}[/] puis appuyez sur une touche...[/]");
                     Debugger.Launch();
                 }
 
                 try
                 {
                     var result = PluginTestRunner.Run(record.TestSession);
-                    AddLog($"[green]✅ Rejouage #{record.Id} terminé ({result.OutputParameters?.Count ?? 0} OutputParams)[/]");
+                    AddLog($"[green]OK Rejouage #{record.Id} termine ({result.OutputParameters?.Count ?? 0} OutputParams)[/]");
                 }
                 catch (Exception ex)
                 {
-                    AddLog($"[red]❌ Rejouage #{record.Id} échoué : {Markup.Escape(ex.Message)}[/]");
+                    AddLog($"[red]ECHEC Rejouage #{record.Id} : {Markup.Escape(ex.Message)}[/]");
                 }
             });
-            AddLog($"[yellow]🔄 Rejouage #{record.Id} lancé...[/]");
+            AddLog($"[yellow]Rejouage #{record.Id} lance...[/]");
         }
     }
 
@@ -339,7 +350,7 @@ public class DebuggerConsoleUi(
 
         // ── En-tête ──────────────────────────────────────────────────
         rows.Add(new Panel(
-                new Markup($"[bold deepskyblue1]🛠  {AppTitle}[/]  [grey]|[/]  PID: [white]{Process.GetCurrentProcess().Id}[/]  [grey]|[/]  {DateTime.Now:HH:mm:ss}"))
+                new Markup($"[bold deepskyblue1]{AppTitle}[/]  [grey]|[/]  PID: [white]{Process.GetCurrentProcess().Id}[/]  [grey]|[/]  {DateTime.Now:HH:mm:ss}"))
             .Border(BoxBorder.None)
             .Padding(0, 0));
 
@@ -350,7 +361,7 @@ public class DebuggerConsoleUi(
         rows.Add(BuildLogPanel());
 
         // ── Barre de raccourcis ──────────────────────────────────────
-        rows.Add(new Rule("[grey][[↑↓]] Naviguer   [[Entrée]] Zoom in   [[R]] Rejouer   [[D]] Debug   [[S]] Sauvegarder   [[Q]] Quitter[/]")
+        rows.Add(new Rule("[grey][[haut/bas]] Naviguer   [[Entree]] Detail   [[R]] Rejouer   [[D]] Debug   [[S]] Sauvegarder   [[Q]] Quitter[/]")
             .Border(BoxBorder.None)
             .RuleStyle(Style.Parse("grey")));
 
@@ -365,15 +376,15 @@ public class DebuggerConsoleUi(
             .AddColumn(new TableColumn("[grey]#[/]").RightAligned().Width(4))
             .AddColumn(new TableColumn("[white]Plugin[/]").Width(22))
             .AddColumn(new TableColumn("[white]Message[/]").Width(12))
-            .AddColumn(new TableColumn("[white]Entité[/]").Width(22))
+            .AddColumn(new TableColumn("[white]Entite[/]").Width(22))
             .AddColumn(new TableColumn("[grey]Appels[/]").Centered().Width(7))
             .AddColumn(new TableColumn("[white]Statut[/]").Width(14));
 
         if (_executions.Count == 0)
         {
             table.AddRow(
-                new Markup("[grey]─[/]"),
-                new Markup("[grey]En attente d'exécutions…[/]"),
+                new Markup("[grey]-[/]"),
+                new Markup("[grey]En attente d'executions...[/]"),
                 new Text(""), new Text(""), new Text(""), new Text(""));
             return table;
         }
@@ -386,7 +397,7 @@ public class DebuggerConsoleUi(
             var isSelected = i == _selectedIndex;
 
             var idStr = isSelected
-                ? $"[bold yellow]▶ {rec.Id}[/]"
+                ? $"[bold yellow]> {rec.Id}[/]"
                 : $"[grey]{rec.Id}[/]";
 
             var pluginStr = isSelected
@@ -394,11 +405,7 @@ public class DebuggerConsoleUi(
                 : $"[white]{Markup.Escape(rec.PluginShortName)}[/]";
 
             var entityStr = FormatEntityColumn(rec);
-
-            var callsStr = rec.OrgServiceCallCount > 0
-                ? $"[grey]{rec.OrgServiceCallCount}[/]"
-                : "[grey]0[/]";
-
+            var callsStr = $"[grey]{rec.OrgServiceCallCount}[/]";
             var statusStr = FormatStatus(rec);
 
             table.AddRow(
@@ -419,7 +426,7 @@ public class DebuggerConsoleUi(
         if (rec.PrimaryEntityId != Guid.Empty)
         {
             var shortId = rec.PrimaryEntityId.ToString("D").Substring(0, 8);
-            return $"[white]{entity}[/] [grey]({shortId}…)[/]";
+            return $"[white]{entity}[/] [grey]({shortId}...)[/]";
         }
         return $"[white]{entity}[/]";
     }
@@ -429,11 +436,11 @@ public class DebuggerConsoleUi(
         switch (rec.Status)
         {
             case ExecutionStatus.Running:
-                return $"[yellow]⏳ {rec.ElapsedTime.TotalMilliseconds:F0}ms…[/]";
+                return $"[yellow]{rec.ElapsedTime.TotalMilliseconds:F0}ms...[/]";
             case ExecutionStatus.Succeeded:
-                return $"[green]✅ {rec.Duration?.TotalMilliseconds:F0}ms[/]";
+                return $"[green]OK {rec.Duration?.TotalMilliseconds:F0}ms[/]";
             case ExecutionStatus.Failed:
-                return $"[red]❌ {rec.Duration?.TotalMilliseconds:F0}ms[/]";
+                return $"[red]ECHEC {rec.Duration?.TotalMilliseconds:F0}ms[/]";
             default:
                 return "";
         }
@@ -468,7 +475,6 @@ public class DebuggerConsoleUi(
                     $"[bold]#{rec.Id}[/]  [deepskyblue1]{Markup.Escape(rec.PluginShortName)}[/]  " +
                     $"[grey]·[/]  [cyan]{Markup.Escape(rec.MessageName)}[/]  " +
                     $"[grey]·[/]  [white]{Markup.Escape(rec.PrimaryEntityName)}[/]" +
-                    $"  [grey]({rec.PrimaryEntityId.ToString("D").Substring(0, 8)}…)[/]" +
                     $"    {headerStatus}"))
             .Border(BoxBorder.None)
             .Padding(0, 0));
@@ -479,20 +485,21 @@ public class DebuggerConsoleUi(
         // ── Appels OrgService ─────────────────────────────────────────
         rows.Add(BuildOrgCallsPanel(rec));
 
+        // ── Traces du plugin ──────────────────────────────────────────
+        if (rec.TraceLogs.Count > 0)
+            rows.Add(BuildTraceLogsPanel(rec));
+
         // ── Contexte de sortie ou erreur ──────────────────────────────
         if (rec.Status == ExecutionStatus.Succeeded)
             rows.Add(BuildOutputContextPanel(rec));
         else if (rec.Status == ExecutionStatus.Failed)
             rows.Add(BuildErrorPanel(rec));
         else
-            rows.Add(new Panel(new Markup("[yellow]⏳ Exécution en cours…[/]"))
+            rows.Add(new Panel(new Markup("[yellow]Execution en cours...[/]"))
                 .Header("[yellow] En cours [/]").Padding(1, 0));
 
         // ── Barre de raccourcis ───────────────────────────────────────
-        var canReplay = rec.TestSession != null ? "" : "[grey strikethrough]";
-        var canReplayEnd = rec.TestSession != null ? "" : "[/]";
-        rows.Add(new Rule(
-                $"[grey][[ESC]] Retour   [/]{canReplay}[[R]] Rejouer   [[D]] Debug{canReplayEnd}[grey]   [[S]] Sauvegarder   [[Q]] Quitter[/]")
+        rows.Add(new Rule("[grey][[ESC]] Retour   [[haut/bas]] Traces   [[R]] Rejouer   [[D]] Debug   [[S]] Sauvegarder   [[Q]] Quitter[/]")
             .Border(BoxBorder.None)
             .RuleStyle(Style.Parse("grey")));
 
@@ -505,7 +512,7 @@ public class DebuggerConsoleUi(
         var sb = new StringBuilder();
 
         AppendField(sb, "Stage", FormatStage(ctx.Stage, ctx.IsWorkflowContext));
-        AppendField(sb, "UserId", ctx.UserId.ToString("D").Substring(0, 8) + "…");
+        AppendField(sb, "UserId", ctx.UserId.ToString("D").Substring(0, 8) + "...");
         AppendField(sb, "Entity", $"{ctx.PrimaryEntityName} ({ctx.PrimaryEntityId:D})");
         AppendField(sb, "Depth", ctx.Depth.ToString());
 
@@ -516,7 +523,7 @@ public class DebuggerConsoleUi(
             foreach (var param in ctx.InputParameters)
             {
                 var value = FormatParameterValue(param.Value);
-                sb.AppendLine($"    [grey]•[/] [cyan]{Markup.Escape(param.Key)}[/] = {value}");
+                sb.AppendLine($"    [grey].[/] [cyan]{Markup.Escape(param.Key)}[/] = {value}");
             }
         }
 
@@ -525,11 +532,11 @@ public class DebuggerConsoleUi(
             sb.AppendLine();
             sb.AppendLine("  [underline]PreEntityImages[/]");
             foreach (var img in ctx.PreEntityImages)
-                sb.AppendLine($"    [grey]•[/] [cyan]{Markup.Escape(img.Key)}[/] ({img.Value?.Attributes?.Count ?? 0} attributs)");
+                sb.AppendLine($"    [grey].[/] [cyan]{Markup.Escape(img.Key)}[/] ({img.Value?.Attributes?.Count ?? 0} attributs)");
         }
 
         return new Panel(new Markup(sb.ToString().TrimEnd()))
-            .Header("[deepskyblue1] Contexte d'entrée [/]")
+            .Header("[deepskyblue1] Contexte d'entree [/]")
             .BorderColor(Color.DeepSkyBlue1)
             .Padding(1, 0);
     }
@@ -541,7 +548,7 @@ public class DebuggerConsoleUi(
         if (calls.Count == 0)
         {
             return new Panel(new Markup("[grey](aucun appel OrgService)[/]"))
-                .Header($"[blue] Appels OrgService (0) [/]")
+                .Header("[blue] Appels OrgService (0) [/]")
                 .BorderColor(Color.Blue)
                 .Padding(1, 0);
         }
@@ -554,16 +561,16 @@ public class DebuggerConsoleUi(
 
             if (call.IsRunning)
             {
-                statusIcon = "[yellow]⏳[/]";
+                statusIcon = "[yellow]...[/]";
             }
             else if (call.Success == true)
             {
-                statusIcon = "[green]✅[/]";
+                statusIcon = "[green]OK[/]";
                 durationStr = $"  [grey]{call.Duration?.TotalMilliseconds:F0}ms[/]";
             }
             else
             {
-                statusIcon = "[red]❌[/]";
+                statusIcon = "[red]ERR[/]";
                 durationStr = call.ErrorMessage != null
                     ? $"  [red]{Markup.Escape(TruncateStr(call.ErrorMessage, 50))}[/]"
                     : "";
@@ -573,13 +580,42 @@ public class DebuggerConsoleUi(
                 $"  {statusIcon}  [grey]{call.Index}.[/]  " +
                 $"[cyan]{Markup.Escape(call.RequestType)}[/]  " +
                 $"[white]{Markup.Escape(call.EntityLogicalName)}[/]" +
-                (call.EntityId != Guid.Empty ? $" [grey]({call.EntityId.ToString("D").Substring(0, 8)}…)[/]" : "") +
+                (call.EntityId != Guid.Empty ? $" [grey]({call.EntityId.ToString("D").Substring(0, 8)}...)[/]" : "") +
                 durationStr);
         }
 
         return new Panel(new Markup(sb.ToString().TrimEnd()))
             .Header($"[blue] Appels OrgService ({calls.Count}) [/]")
             .BorderColor(Color.Blue)
+            .Padding(1, 0);
+    }
+
+    private IRenderable BuildTraceLogsPanel(ExecutionRecord rec)
+    {
+        var logs  = rec.TraceLogs;
+        var total = logs.Count;
+
+        // Clamp l'offset au cas où les logs auraient changé pendant le rendu
+        var offset = Math.Min(_traceScrollOffset, Math.Max(0, total - TracePageSize));
+        var end    = Math.Min(offset + TracePageSize, total);
+
+        var sb = new StringBuilder();
+        for (int i = offset; i < end; i++)
+            sb.AppendLine($"  [grey]{Markup.Escape(logs[i])}[/]");
+
+        // Indicateur de position + raccourci scroll
+        var scrollHint = total > TracePageSize
+            ? $"  [grey]ligne {offset + 1}-{end} / {total}   [[haut/bas]] pour scroller[/]"
+            : $"  [grey]{total} ligne(s)[/]";
+        sb.Append(scrollHint);
+
+        var header = total > TracePageSize
+            ? $"[yellow] Traces ({total})  {offset + 1}-{end} [/]"
+            : $"[yellow] Traces ({total}) [/]";
+
+        return new Panel(new Markup(sb.ToString().TrimEnd()))
+            .Header(header)
+            .BorderColor(Color.Yellow)
             .Padding(1, 0);
     }
 
@@ -594,7 +630,7 @@ public class DebuggerConsoleUi(
             foreach (var param in ctx.OutputParameters)
             {
                 var value = FormatParameterValue(param.Value);
-                sb.AppendLine($"    [grey]•[/] [cyan]{Markup.Escape(param.Key)}[/] = {value}");
+                sb.AppendLine($"    [grey].[/] [cyan]{Markup.Escape(param.Key)}[/] = {value}");
             }
         }
         else
@@ -607,7 +643,7 @@ public class DebuggerConsoleUi(
             sb.AppendLine();
             sb.AppendLine("  [underline]SharedVariables[/]");
             foreach (var v in ctx.SharedVariables)
-                sb.AppendLine($"    [grey]•[/] [cyan]{Markup.Escape(v.Key)}[/] = {FormatParameterValue(v.Value)}");
+                sb.AppendLine($"    [grey].[/] [cyan]{Markup.Escape(v.Key)}[/] = {FormatParameterValue(v.Value)}");
         }
 
         if (ctx?.PostEntityImages?.Count > 0)
@@ -615,7 +651,7 @@ public class DebuggerConsoleUi(
             sb.AppendLine();
             sb.AppendLine("  [underline]PostEntityImages[/]");
             foreach (var img in ctx.PostEntityImages)
-                sb.AppendLine($"    [grey]•[/] [cyan]{Markup.Escape(img.Key)}[/] ({img.Value?.Attributes?.Count ?? 0} attributs)");
+                sb.AppendLine($"    [grey].[/] [cyan]{Markup.Escape(img.Key)}[/] ({img.Value?.Attributes?.Count ?? 0} attributs)");
         }
 
         return new Panel(new Markup(sb.ToString().TrimEnd()))
@@ -668,13 +704,13 @@ public class DebuggerConsoleUi(
     private static string FormatStage(int stage, bool isWorkflow)
     {
         if (isWorkflow) return $"{stage} (Workflow)";
-        return stage switch
+        switch (stage)
         {
-            10 => "10 (PreValidation)",
-            20 => "20 (PreOperation)",
-            40 => "40 (PostOperation)",
-            _ => stage.ToString()
-        };
+            case 10: return "10 (PreValidation)";
+            case 20: return "20 (PreOperation)";
+            case 40: return "40 (PostOperation)";
+            default: return stage.ToString();
+        }
     }
 
     private static string FormatParameterValue(object value)
@@ -691,32 +727,5 @@ public class DebuggerConsoleUi(
     {
         if (s == null) return "";
         return s.Length <= maxLen ? s : s.Substring(0, maxLen - 3) + "...";
-    }
-
-    // ════════════════════════════════════════════════════════════════
-    // Interception de Console.Out → journal interne
-    // ════════════════════════════════════════════════════════════════
-
-    private class LogCaptureWriter : System.IO.TextWriter
-    {
-        private readonly DebuggerConsoleUi _ui;
-        private readonly System.IO.TextWriter _original;
-
-        public LogCaptureWriter(DebuggerConsoleUi ui, System.IO.TextWriter original)
-        {
-            _ui = ui;
-            _original = original;
-        }
-
-        public override Encoding Encoding => _original.Encoding;
-
-        public override void WriteLine(string value)
-        {
-            if (!string.IsNullOrWhiteSpace(value))
-                _ui.AddLog($"[grey]{Markup.Escape(value)}[/]");
-        }
-
-        public override void Write(string value) { /* ignoré */ }
-        public override void Write(char value) { /* ignoré */ }
     }
 }

@@ -46,9 +46,6 @@ public static class PluginTestSessionRecorder
 
         File.WriteAllText(filePath, json, System.Text.Encoding.UTF8);
 
-        Console.WriteLine($"[PluginTestSessionRecorder] Session sauvegardée : {filePath}");
-        Console.WriteLine($"[PluginTestSessionRecorder] Appels OrgService enregistrés : {session.OrgServiceCalls.Count}");
-
         return filePath;
     }
 

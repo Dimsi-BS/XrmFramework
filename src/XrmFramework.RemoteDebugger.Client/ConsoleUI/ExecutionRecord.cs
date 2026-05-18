@@ -78,6 +78,10 @@ public class ExecutionRecord
     public IReadOnlyList<OrgServiceCallRecord> OrgServiceCalls => _orgServiceCalls;
     private readonly List<OrgServiceCallRecord> _orgServiceCalls = new();
 
+    /// <summary>Logs de tracing émis par le plugin via <c>ITracingService.Trace</c>.</summary>
+    public IReadOnlyList<string> TraceLogs => _traceLogs;
+    private readonly List<string> _traceLogs = new();
+
     /// <summary>
     /// Session de test complète pour rejouer cette exécution.
     /// Disponible uniquement après la fin de l'exécution.
@@ -95,6 +99,18 @@ public class ExecutionRecord
     public int OrgServiceCallCount
     {
         get { lock (_lock) { return _orgServiceCalls.Count; } }
+    }
+
+    /// <summary>
+    /// Ajoute une ligne de trace émise par le plugin via <c>ITracingService</c>.
+    /// Appelé depuis le callback passé à <c>LocalServiceProvider</c>.
+    /// </summary>
+    internal void AddTraceLog(string message)
+    {
+        lock (_lock)
+        {
+            _traceLogs.Add(message);
+        }
     }
 
     /// <summary>
@@ -173,6 +189,9 @@ public class ExecutionRecord
                     ResponseJson = call.ResponseJson
                 });
             }
+
+            foreach (var log in _traceLogs)
+                session.TraceLogs.Add(log);
         }
 
         TestSession = session;
@@ -212,4 +231,10 @@ public class PluginTestSession
     public RemoteDebugExecutionContext OutputContext { get; set; }
 
     public IList<RecordedOrgServiceCall> OrgServiceCalls { get; set; } = new List<RecordedOrgServiceCall>();
+
+    /// <summary>
+    /// Logs émis par le plugin via <c>ITracingService.Trace</c> pendant l'exécution.
+    /// Conservés dans la session pour analyse et rejouage.
+    /// </summary>
+    public IList<string> TraceLogs { get; set; } = new List<string>();
 }

@@ -10,10 +10,11 @@ namespace XrmFramework.RemoteDebugger.Common
 
         public event RequestHandler RequestSent;
 
-        public ITracingService TracingService { get; } = new LocalTracingService();
+        public ITracingService TracingService { get; }
 
-        public LocalServiceProvider(RemoteDebugExecutionContext context)
+        public LocalServiceProvider(RemoteDebugExecutionContext context, Action<string> traceSink = null)
         {
+            TracingService = new LocalTracingService(traceSink);
             Context = context;
 
             OrganizationServiceFactory = new LocalOrganizationServiceFactory(Context, OnRequestSent);

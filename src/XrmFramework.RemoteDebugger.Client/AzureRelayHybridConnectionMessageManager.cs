@@ -29,9 +29,9 @@ namespace XrmFramework.RemoteDebugger.Client
             // create a connection string with the listener profile
             Listener = new HybridConnectionListener(ConfigurationManager.ConnectionStrings["DebugConnectionString"].ConnectionString);
 
-            Listener.Connecting += (_, _) => { Console.WriteLine("Listener is connecting to Azure…"); };
-            Listener.Offline += (_, _) => { Console.WriteLine("Listener is about to go offline…"); };
-            Listener.Online += (_, _) => { Console.WriteLine("Listener is online…"); };
+          //  Listener.Connecting += (_, _) => { Console.WriteLine("Listener is connecting to Azure…"); };
+          //  Listener.Offline += (_, _) => { Console.WriteLine("Listener is about to go offline…"); };
+          //  Listener.Online += (_, _) => { Console.WriteLine("Listener is online…"); };
 
             Listener.RequestHandler = RequestHandler;
         }
@@ -62,6 +62,11 @@ namespace XrmFramework.RemoteDebugger.Client
             {
                 MessageReceiveCache.TryAdd(message.PluginExecutionId, message);
 
+            }
+
+            if (message.MessageType == RemoteDebuggerMessageType.Ping)
+            {
+                MessageSendCache.TryAdd(message.PluginExecutionId, message);
             }
 
             RemoteDebuggerMessage response;

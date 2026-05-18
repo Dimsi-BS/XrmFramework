@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Spectre.Console;
-using Spectre.Console.Rendering;
+using Spectre.Console.Rendering; // IRenderable
 using XrmFramework.RemoteDebugger;
 using XrmFramework.RemoteDebugger.Client;
 using XrmFramework.RemoteDebugger.Common.ConsoleUI;
@@ -28,13 +28,13 @@ namespace XrmFramework.RemoteDebugger.Client.ConsoleUI;
 /// </para>
 /// Raccourcis clavier :
 /// <list type="bullet">
-///   <item>[↑↓]     Naviguer dans la liste courante</item>
-///   <item>[Entrée] Descendre d'un niveau</item>
-///   <item>[Échap]  Remonter d'un niveau</item>
-///   <item>[R]      Rejouer la session sélectionnée (sans débogueur)</item>
-///   <item>[D]      Rejouer en mode debug (attach debugger)</item>
-///   <item>[F5]     Recharger les fichiers depuis le disque</item>
-///   <item>[Q]      Quitter</item>
+///   <item>[Up/Down] Naviguer dans la liste courante</item>
+///   <item>[Entrée]  Descendre d'un niveau</item>
+///   <item>[Echap]   Remonter d'un niveau</item>
+///   <item>[R]       Rejouer la session sans débogueur</item>
+///   <item>[D]       Rejouer en mode debug (attacher le débogueur)</item>
+///   <item>[F5]      Recharger les fichiers depuis le disque</item>
+///   <item>[Q]       Quitter</item>
 /// </list>
 /// </summary>
 public class SessionBrowserUi
@@ -59,7 +59,6 @@ public class SessionBrowserUi
 
     // ── Cycle de vie ──────────────────────────────────────────────────────
     private CancellationTokenSource _cts;
-    private System.IO.TextWriter _originalOut;
 
     private const string AppTitle = "XrmFramework Session Browser";
 
@@ -72,11 +71,11 @@ public class SessionBrowserUi
     /// </param>
     /// <param name="onReplay">
     ///   Callback appelé lorsque l'utilisateur lance un rejouage.
-    ///   Si <c>null</c>, le rejouage est effectué en local via <see cref="PluginTestRunner"/>.
+    ///   Si <c>null</c>, le rejouage est effectué localement via <see cref="PluginTestRunner"/>.
     /// </param>
     public SessionBrowserUi(string sessionPath, Action<PluginTestSession, bool> onReplay = null)
     {
-        _sessionPath = sessionPath;
+        _sessionPath = sessionPath ?? ".";
         _onReplay    = onReplay;
     }
 
@@ -90,25 +89,46 @@ public class SessionBrowserUi
     public void Run()
     {
         _cts = new CancellationTokenSource();
+
+        // Charger les sessions avant de démarrer l'interface
         Reload();
 
-        _originalOut = Console.Out;
-        Console.SetOut(new LogCaptureWriter(this, _originalOut));
+        // Masquer le curseur avant le démarrage de l'interface.
+        AnsiConsole.Cursor.Hide();
+
+        // Démarrer la boucle de rendu dans un thread séparé.
+        // En cas d'échec fatal du rendu, on annule le token pour sortir proprement.
+        var renderTask = Task.Run(async () =>
+        {
+            try
+            {
+                await RunRenderLoopAsync();
+            }
+            catch (OperationCanceledException)
+            {
+                // Annulation normale — pas d'erreur.
+            }
+            catch (Exception ex)
+            {
+                // Echec critique : logguer et débloquer la boucle clavier
+                AddLog($"[red bold]Erreur rendu critique : {Markup.Escape(ex.GetType().Name)}[/]");
+                AddLog($"[red]{Markup.Escape(ex.Message.Split('\n')[0])}[/]");
+                _cts.Cancel();
+            }
+        });
 
         try
         {
-            AnsiConsole.Cursor.Hide();
-            AnsiConsole.Clear();
-
-            var renderTask = Task.Run(async () => await RunRenderLoopAsync(), _cts.Token);
+            // Lire le clavier dans le thread principal (bloque jusqu'à [Q])
             RunKeyboardLoop();
-
-            try { renderTask.GetAwaiter().GetResult(); }
-            catch (OperationCanceledException) { }
         }
         finally
         {
-            Console.SetOut(_originalOut);
+            // Attendre la fin propre du rendu
+            _cts.Cancel();
+            try { renderTask.GetAwaiter().GetResult(); }
+            catch { /* déjà géré dans la tâche */ }
+
             AnsiConsole.Cursor.Show();
             AnsiConsole.Clear();
         }
@@ -135,11 +155,10 @@ public class SessionBrowserUi
             _groupIndex = Math.Min(_groupIndex, Math.Max(0, _groups.Count - 1));
         }
 
-        var totalSessions = loaded.Sum(g => g.SessionCount);
+        var total = loaded.Sum(g => g.SessionCount);
         AddLog(
-            $"[grey]Chargé[/] [white]{totalSessions}[/] [grey]session(s) dans[/] " +
-            $"[white]{loaded.Count}[/] [grey]corrélation(s) depuis[/] " +
-            $"[cyan]{Markup.Escape(_sessionPath)}[/]");
+            $"[grey]Repertoire :[/] [cyan]{Markup.Escape(_sessionPath)}[/]  " +
+            $"[grey]|[/] [white]{total}[/] [grey]session(s) / [/][white]{loaded.Count}[/] [grey]correlation(s)[/]");
     }
 
     // ════════════════════════════════════════════════════════════════════
@@ -164,8 +183,8 @@ public class SessionBrowserUi
                             view = _currentView switch
                             {
                                 View.Sessions when TryGetSelectedGroup(out var g) => BuildSessionsView(g),
-                                View.Detail   when TryGetSelectedSession(out var s) => BuildDetailView(s),
-                                _                                                   => BuildCorrelationsView()
+                                View.Detail when TryGetSelectedSession(out var s) => BuildDetailView(s),
+                                _ => BuildCorrelationsView()
                             };
                         }
                         ctx.UpdateTarget(view);
@@ -225,7 +244,7 @@ public class SessionBrowserUi
                 break;
 
             case ConsoleKey.F5:
-                Task.Run(Reload);
+                Task.Run(() => Reload());
                 break;
 
             case ConsoleKey.Q:
@@ -306,7 +325,7 @@ public class SessionBrowserUi
             ? ExtractShortTypeName(session.InputContext.TypeAssemblyQualifiedName)
             : "plugin";
 
-        AddLog($"[yellow]🔄 Rejouage de [bold]{Markup.Escape(pluginName)}[/]{(debugMode ? " [grey](debug)[/]" : "")} lancé…[/]");
+        AddLog($"[yellow]Rejouage de {Markup.Escape(pluginName)}{(debugMode ? " (debug)" : "")} lance...[/]");
 
         if (_onReplay != null)
         {
@@ -318,7 +337,7 @@ public class SessionBrowserUi
         {
             if (debugMode)
             {
-                AddLog($"[yellow]🔗 Attachez le débogueur au PID [bold]{Process.GetCurrentProcess().Id}[/]…[/]");
+                AddLog($"[yellow]Attachez le debogueur au PID {Process.GetCurrentProcess().Id}...[/]");
                 Debugger.Launch();
             }
 
@@ -326,12 +345,12 @@ public class SessionBrowserUi
             {
                 var result = PluginTestRunner.Run(session);
                 AddLog(
-                    $"[green]✅ Rejouage terminé[/] [grey]—[/] " +
+                    $"[green]Rejouage termine[/] [grey]--[/] " +
                     $"[white]{result.OutputParameters?.Count ?? 0}[/] [grey]OutputParam(s)[/]");
             }
             catch (Exception ex)
             {
-                AddLog($"[red]❌ Rejouage échoué : {Markup.Escape(ex.Message)}[/]");
+                AddLog($"[red]Rejouage echoue : {Markup.Escape(ex.Message)}[/]");
             }
         });
     }
@@ -371,15 +390,19 @@ public class SessionBrowserUi
     {
         var rows = new List<IRenderable>();
 
-        rows.Add(BuildHeader(
-            $"[bold deepskyblue1]🗂  {AppTitle}[/]  " +
-            $"[grey]|[/]  [cyan]{Markup.Escape(_sessionPath)}[/]  " +
-            $"[grey]|[/]  {DateTime.Now:HH:mm:ss}"));
+        rows.Add(new Panel(
+                new Markup(
+                    $"[bold deepskyblue1]{AppTitle}[/]  " +
+                    $"[grey]|[/]  [cyan]{Markup.Escape(_sessionPath)}[/]  " +
+                    $"[grey]|[/]  [white]{DateTime.Now:HH:mm:ss}[/]"))
+            .Border(BoxBorder.None)
+            .Padding(0, 0));
 
         rows.Add(BuildCorrelationTable());
         rows.Add(BuildLogPanel());
-        rows.Add(BuildShortcutsBar(
-            "[[↑↓]] Naviguer   [[Entrée]] Ouvrir   [[F5]] Recharger   [[Q]] Quitter"));
+        rows.Add(new Rule("[grey][[Up/Down]] Nav   [[Entree]] Ouvrir   [[F5]] Recharger   [[Q]] Quitter[/]")
+            .Border(BoxBorder.None)
+            .RuleStyle(Style.Parse("grey")));
 
         return new Rows(rows);
     }
@@ -390,44 +413,43 @@ public class SessionBrowserUi
             .Border(TableBorder.Rounded)
             .BorderColor(Color.Grey37)
             .AddColumn(new TableColumn("[grey]#[/]").RightAligned().Width(4))
-            .AddColumn(new TableColumn("[white]Corrélation[/]").Width(32))
-            .AddColumn(new TableColumn("[grey]Sessions[/]").Centered().Width(9))
-            .AddColumn(new TableColumn("[white]Première occurrence[/]").Width(20))
-            .AddColumn(new TableColumn("[white]Dernière occurrence[/]").Width(20))
-            .AddColumn(new TableColumn("[grey]CorrelationId[/]").Width(14));
+            .AddColumn(new TableColumn("[white]Correlation[/]").Width(28))
+            .AddColumn(new TableColumn("[grey]Nb[/]").Centered().Width(4))
+            .AddColumn(new TableColumn("[white]Premiere[/]").Width(17))
+            .AddColumn(new TableColumn("[white]Derniere[/]").Width(17))
+            .AddColumn(new TableColumn("[grey]CorrelId[/]").Width(10));
 
         if (_groups.Count == 0)
         {
             table.AddRow(
-                new Markup("[grey]─[/]"),
-                new Markup("[grey]Aucune session trouvée — vérifiez le chemin ou appuyez sur [[F5]][/]"),
+                new Markup("[grey]-[/]"),
+                new Markup("[grey]Aucune session trouvee. Appuyez sur [[F5]] pour recharger.[/]"),
                 new Text(""), new Text(""), new Text(""), new Text(""));
             return table;
         }
 
-        // Afficher les 20 derniers groupes
         var startIdx = Math.Max(0, _groups.Count - 20);
-        for (int i = startIdx; i < _groups.Count; i++)
+        for (var i = startIdx; i < _groups.Count; i++)
         {
             var g          = _groups[i];
             var isSelected = i == _groupIndex;
 
-            var idStr   = isSelected ? $"[bold yellow]▶ {g.Id}[/]" : $"[grey]{g.Id}[/]";
+            var idStr   = isSelected ? $"[bold yellow]> {g.Id}[/]" : $"[grey]{g.Id}[/]";
             var nameStr = isSelected
                 ? $"[bold white]{Markup.Escape(g.Name)}[/]"
                 : $"[white]{Markup.Escape(g.Name)}[/]";
 
             var lastStr = g.SessionCount > 1
-                ? $"[grey]{g.LastOccurrence:dd/MM/yy HH:mm:ss}[/]"
-                : "[grey]─[/]";
+                ? $"[grey]{g.LastOccurrence:dd/MM HH:mm:ss}[/]"
+                : "[grey]-[/]";
 
             table.AddRow(
                 new Markup(idStr),
                 new Markup(nameStr),
                 new Markup($"[grey]{g.SessionCount}[/]"),
-                new Markup($"[grey]{g.FirstOccurrence:dd/MM/yy HH:mm:ss}[/]"),
+                new Markup($"[grey]{g.FirstOccurrence:dd/MM HH:mm:ss}[/]"),
                 new Markup(lastStr),
-                new Markup($"[grey]{g.CorrelationId.ToString("D").Substring(0, 8)}…[/]"));
+                new Markup($"[grey]{g.CorrelationId.ToString("N").Substring(0, 8)}[/]"));
         }
 
         return table;
@@ -441,16 +463,20 @@ public class SessionBrowserUi
     {
         var rows = new List<IRenderable>();
 
-        rows.Add(BuildHeader(
-            $"[bold deepskyblue1]🗂  {AppTitle}[/]  " +
-            $"[grey]›[/]  [bold white]{Markup.Escape(group.Name)}[/]  " +
-            $"[grey]({group.CorrelationId.ToString("D").Substring(0, 8)}…)[/]  " +
-            $"[grey]|[/]  {DateTime.Now:HH:mm:ss}"));
+        rows.Add(new Panel(
+                new Markup(
+                    $"[bold deepskyblue1]{AppTitle}[/]  [grey]>[/]  " +
+                    $"[bold white]{Markup.Escape(group.Name)}[/]  " +
+                    $"[grey]({group.SessionCount} session(s))[/]  " +
+                    $"[grey]|[/]  [white]{DateTime.Now:HH:mm:ss}[/]"))
+            .Border(BoxBorder.None)
+            .Padding(0, 0));
 
         rows.Add(BuildSessionTable(group));
         rows.Add(BuildLogPanel());
-        rows.Add(BuildShortcutsBar(
-            "[[ESC]] Retour   [[↑↓]] Naviguer   [[Entrée]] Détail   [[R]] Rejouer   [[D]] Debug   [[Q]] Quitter"));
+        rows.Add(new Rule("[grey][[Echap]] Retour   [[Up/Down]] Nav   [[Entree]] Detail   [[R]] Rejouer   [[D]] Debug   [[Q]] Quitter[/]")
+            .Border(BoxBorder.None)
+            .RuleStyle(Style.Parse("grey")));
 
         return new Rows(rows);
     }
@@ -461,27 +487,21 @@ public class SessionBrowserUi
             .Border(TableBorder.Rounded)
             .BorderColor(Color.Grey37)
             .AddColumn(new TableColumn("[grey]#[/]").RightAligned().Width(4))
-            .AddColumn(new TableColumn("[white]Plugin[/]").Width(22))
+            .AddColumn(new TableColumn("[white]Plugin[/]").Width(20))
             .AddColumn(new TableColumn("[white]Message[/]").Width(12))
-            .AddColumn(new TableColumn("[white]Entité[/]").Width(22))
-            .AddColumn(new TableColumn("[grey]Appels[/]").Centered().Width(7))
-            .AddColumn(new TableColumn("[white]Horodatage[/]").Width(18));
+            .AddColumn(new TableColumn("[white]Entite[/]").Width(18))
+            .AddColumn(new TableColumn("[grey]CRM[/]").Centered().Width(5))
+            .AddColumn(new TableColumn("[white]Horodatage[/]").Width(17));
 
-        for (int i = 0; i < group.Sessions.Count; i++)
+        for (var i = 0; i < group.Sessions.Count; i++)
         {
             var s          = group.Sessions[i];
             var isSelected = i == _sessionIndex;
             var ctx        = s.InputContext;
 
-            var pluginShort = ctx != null
-                ? ExtractShortTypeName(ctx.TypeAssemblyQualifiedName)
-                : "?";
-
-            var idStr = isSelected
-                ? $"[bold yellow]▶ {i + 1}[/]"
-                : $"[grey]{i + 1}[/]";
-
-            var pluginStr = isSelected
+            var pluginShort = ctx != null ? ExtractShortTypeName(ctx.TypeAssemblyQualifiedName) : "?";
+            var idStr       = isSelected ? $"[bold yellow]> {i + 1}[/]" : $"[grey]{i + 1}[/]";
+            var pluginStr   = isSelected
                 ? $"[bold white]{Markup.Escape(pluginShort)}[/]"
                 : $"[white]{Markup.Escape(pluginShort)}[/]";
 
@@ -491,7 +511,7 @@ public class SessionBrowserUi
                 new Markup($"[cyan]{Markup.Escape(ctx?.MessageName ?? "")}[/]"),
                 new Markup(FormatEntityColumn(ctx)),
                 new Markup($"[grey]{s.OrgServiceCalls?.Count ?? 0}[/]"),
-                new Markup($"[grey]{s.Timestamp:dd/MM/yy HH:mm:ss}[/]"));
+                new Markup($"[grey]{s.Timestamp:dd/MM HH:mm:ss}[/]"));
         }
 
         return table;
@@ -508,12 +528,15 @@ public class SessionBrowserUi
 
         var rows = new List<IRenderable>();
 
-        rows.Add(BuildHeader(
-            $"[bold deepskyblue1]🗂  {AppTitle}[/]  [grey]›[/]  " +
-            $"[deepskyblue1]{Markup.Escape(pluginShort)}[/]  " +
-            $"[grey]·[/]  [cyan]{Markup.Escape(ctx?.MessageName ?? "")}[/]  " +
-            $"[grey]·[/]  [white]{Markup.Escape(ctx?.PrimaryEntityName ?? "")}[/]  " +
-            $"[grey]|[/]  {session.Timestamp:dd/MM/yy HH:mm:ss}"));
+        rows.Add(new Panel(
+                new Markup(
+                    $"[bold deepskyblue1]{AppTitle}[/]  [grey]>[/]  " +
+                    $"[deepskyblue1]{Markup.Escape(pluginShort)}[/]  " +
+                    $"[grey].[/]  [cyan]{Markup.Escape(ctx?.MessageName ?? "")}[/]  " +
+                    $"[grey].[/]  [white]{Markup.Escape(ctx?.PrimaryEntityName ?? "")}[/]  " +
+                    $"[grey]|[/]  [white]{session.Timestamp:dd/MM HH:mm:ss}[/]"))
+            .Border(BoxBorder.None)
+            .Padding(0, 0));
 
         if (ctx != null)
             rows.Add(BuildInputContextPanel(ctx));
@@ -523,8 +546,9 @@ public class SessionBrowserUi
         if (session.OutputContext != null)
             rows.Add(BuildOutputContextPanel(session.OutputContext));
 
-        rows.Add(BuildShortcutsBar(
-            "[[ESC]] Retour   [[R]] Rejouer   [[D]] Debug   [[Q]] Quitter"));
+        rows.Add(new Rule("[grey][[Echap]] Retour   [[R]] Rejouer   [[D]] Debug   [[Q]] Quitter[/]")
+            .Border(BoxBorder.None)
+            .RuleStyle(Style.Parse("grey")));
 
         return new Rows(rows);
     }
@@ -534,7 +558,7 @@ public class SessionBrowserUi
         var sb = new StringBuilder();
 
         AppendField(sb, "Stage",         FormatStage(ctx.Stage, ctx.IsWorkflowContext));
-        AppendField(sb, "UserId",        ctx.UserId.ToString("D").Substring(0, 8) + "…");
+        AppendField(sb, "UserId",        ctx.UserId.ToString("N").Substring(0, 8) + "...");
         AppendField(sb, "Entity",        $"{ctx.PrimaryEntityName} ({ctx.PrimaryEntityId:D})");
         AppendField(sb, "Depth",         ctx.Depth.ToString());
         AppendField(sb, "CorrelationId", ctx.CorrelationId.ToString("D"));
@@ -543,8 +567,8 @@ public class SessionBrowserUi
         {
             sb.AppendLine();
             sb.AppendLine("  [underline]InputParameters[/]");
-            foreach (var param in ctx.InputParameters)
-                sb.AppendLine($"    [grey]•[/] [cyan]{Markup.Escape(param.Key)}[/] = {FormatParamValue(param.Value)}");
+            foreach (var p in ctx.InputParameters)
+                sb.AppendLine($"    [grey]- [/][cyan]{Markup.Escape(p.Key)}[/] = {FormatParamValue(p.Value)}");
         }
 
         if (ctx.PreEntityImages?.Count > 0)
@@ -552,11 +576,11 @@ public class SessionBrowserUi
             sb.AppendLine();
             sb.AppendLine("  [underline]PreEntityImages[/]");
             foreach (var img in ctx.PreEntityImages)
-                sb.AppendLine($"    [grey]•[/] [cyan]{Markup.Escape(img.Key)}[/] ({img.Value?.Attributes?.Count ?? 0} attributs)");
+                sb.AppendLine($"    [grey]- [/][cyan]{Markup.Escape(img.Key)}[/] ({img.Value?.Attributes?.Count ?? 0} attr)");
         }
 
         return new Panel(new Markup(sb.ToString().TrimEnd()))
-            .Header("[deepskyblue1] Contexte d'entrée [/]")
+            .Header("[deepskyblue1] Contexte d entree [/]")
             .BorderColor(Color.DeepSkyBlue1)
             .Padding(1, 0);
     }
@@ -567,24 +591,20 @@ public class SessionBrowserUi
 
         if (calls == null || calls.Count == 0)
         {
-            return new Panel(new Markup("[grey](aucun appel OrgService enregistré)[/]"))
+            return new Panel(new Markup("[grey](aucun appel OrgService enregistre)[/]"))
                 .Header("[blue] Appels OrgService (0) [/]")
                 .BorderColor(Color.Blue)
                 .Padding(1, 0);
         }
 
         var sb = new StringBuilder();
-        for (int i = 0; i < calls.Count; i++)
+        for (var i = 0; i < calls.Count; i++)
         {
-            // Réutiliser OrgServiceCallRecord pour analyser le JSON de requête
             var rec = new OrgServiceCallRecord(calls[i].RequestJson ?? "");
-            sb.AppendLine(
-                $"  [green]✅[/]  [grey]{i + 1}.[/]  " +
-                $"[cyan]{Markup.Escape(rec.RequestType)}[/]  " +
-                $"[white]{Markup.Escape(rec.EntityLogicalName)}[/]" +
-                (rec.EntityId != Guid.Empty
-                    ? $" [grey]({rec.EntityId.ToString("D").Substring(0, 8)}…)[/]"
-                    : ""));
+            var entity = string.IsNullOrEmpty(rec.EntityLogicalName) ? "" : $" {Markup.Escape(rec.EntityLogicalName)}";
+            var id     = rec.EntityId != Guid.Empty ? $" ({rec.EntityId.ToString("N").Substring(0, 8)}...)" : "";
+
+            sb.AppendLine($"  [green]OK[/]  [grey]{i + 1}.[/]  [cyan]{Markup.Escape(rec.RequestType)}[/]{entity}[grey]{id}[/]");
         }
 
         return new Panel(new Markup(sb.ToString().TrimEnd()))
@@ -601,7 +621,7 @@ public class SessionBrowserUi
         {
             sb.AppendLine("  [underline]OutputParameters[/]");
             foreach (var p in ctx.OutputParameters)
-                sb.AppendLine($"    [grey]•[/] [cyan]{Markup.Escape(p.Key)}[/] = {FormatParamValue(p.Value)}");
+                sb.AppendLine($"    [grey]- [/][cyan]{Markup.Escape(p.Key)}[/] = {FormatParamValue(p.Value)}");
         }
         else
         {
@@ -613,7 +633,7 @@ public class SessionBrowserUi
             sb.AppendLine();
             sb.AppendLine("  [underline]SharedVariables[/]");
             foreach (var v in ctx.SharedVariables)
-                sb.AppendLine($"    [grey]•[/] [cyan]{Markup.Escape(v.Key)}[/] = {FormatParamValue(v.Value)}");
+                sb.AppendLine($"    [grey]- [/][cyan]{Markup.Escape(v.Key)}[/] = {FormatParamValue(v.Value)}");
         }
 
         if (ctx.PostEntityImages?.Count > 0)
@@ -621,38 +641,12 @@ public class SessionBrowserUi
             sb.AppendLine();
             sb.AppendLine("  [underline]PostEntityImages[/]");
             foreach (var img in ctx.PostEntityImages)
-                sb.AppendLine($"    [grey]•[/] [cyan]{Markup.Escape(img.Key)}[/] ({img.Value?.Attributes?.Count ?? 0} attributs)");
+                sb.AppendLine($"    [grey]- [/][cyan]{Markup.Escape(img.Key)}[/] ({img.Value?.Attributes?.Count ?? 0} attr)");
         }
 
         return new Panel(new Markup(sb.ToString().TrimEnd()))
             .Header("[green] Contexte de sortie [/]")
             .BorderColor(Color.Green)
-            .Padding(1, 0);
-    }
-
-    // ════════════════════════════════════════════════════════════════════
-    // Helpers de rendu communs
-    // ════════════════════════════════════════════════════════════════════
-
-    private static IRenderable BuildHeader(string markup)
-        => new Panel(new Markup(markup))
-            .Border(BoxBorder.None)
-            .Padding(0, 0);
-
-    private static IRenderable BuildShortcutsBar(string shortcuts)
-        => new Rule($"[grey]{shortcuts}[/]")
-            .Border(BoxBorder.None)
-            .RuleStyle(Style.Parse("grey"));
-
-    private IRenderable BuildLogPanel()
-    {
-        var recent  = _logs.Skip(Math.Max(0, _logs.Count - MaxLogs)).ToList();
-        var content = recent.Count > 0 ? string.Join("\n", recent) : "[grey](aucun log)[/]";
-
-        return new Panel(new Markup(content))
-            .Header("[grey] Logs [/]")
-            .Border(BoxBorder.Ascii)
-            .BorderColor(Color.Grey23)
             .Padding(1, 0);
     }
 
@@ -663,10 +657,10 @@ public class SessionBrowserUi
     private static string FormatEntityColumn(RemoteDebugExecutionContext ctx)
     {
         if (ctx == null) return "";
-        var entity = Markup.Escape(ctx.PrimaryEntityName ?? "");
+        var name = Markup.Escape(ctx.PrimaryEntityName ?? "");
         return ctx.PrimaryEntityId != Guid.Empty
-            ? $"[white]{entity}[/] [grey]({ctx.PrimaryEntityId.ToString("D").Substring(0, 8)}…)[/]"
-            : $"[white]{entity}[/]";
+            ? $"[white]{name}[/] [grey]({ctx.PrimaryEntityId.ToString("N").Substring(0, 8)}...)[/]"
+            : $"[white]{name}[/]";
     }
 
     private static string FormatStage(int stage, bool isWorkflow)
@@ -684,7 +678,7 @@ public class SessionBrowserUi
     private static string FormatParamValue(object value)
     {
         if (value == null) return "[grey]null[/]";
-        var str = value.ToString();
+        var str = value.ToString() ?? "";
         if (str.Length > 80) str = str.Substring(0, 77) + "...";
         return $"[white]{Markup.Escape(str)}[/]";
     }
@@ -701,7 +695,7 @@ public class SessionBrowserUi
     }
 
     // ════════════════════════════════════════════════════════════════════
-    // Journal & interception Console.Out
+    // Journal
     // ════════════════════════════════════════════════════════════════════
 
     /// <summary>Ajoute un message horodaté au journal interne.</summary>
@@ -716,26 +710,15 @@ public class SessionBrowserUi
         }
     }
 
-    private class LogCaptureWriter : System.IO.TextWriter
+    private IRenderable BuildLogPanel()
     {
-        private readonly SessionBrowserUi    _ui;
-        private readonly System.IO.TextWriter _original;
+        var recent  = _logs.Skip(Math.Max(0, _logs.Count - MaxLogs)).ToList();
+        var content = recent.Count > 0 ? string.Join("\n", recent) : "[grey](aucun log)[/]";
 
-        public LogCaptureWriter(SessionBrowserUi ui, System.IO.TextWriter original)
-        {
-            _ui      = ui;
-            _original = original;
-        }
-
-        public override Encoding Encoding => _original.Encoding;
-
-        public override void WriteLine(string value)
-        {
-            if (!string.IsNullOrWhiteSpace(value))
-                _ui.AddLog($"[grey]{Markup.Escape(value)}[/]");
-        }
-
-        public override void Write(string value) { }
-        public override void Write(char value)   { }
+        return new Panel(new Markup(content))
+            .Header("[grey] Logs [/]")
+            .Border(BoxBorder.Ascii)
+            .BorderColor(Color.Grey23)
+            .Padding(1, 0);
     }
 }
