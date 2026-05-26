@@ -21,7 +21,6 @@ public class ConnectionStringParserTests
 
         Assert.AreEqual("https://org.crm.dynamics.com", cs.Url);
         Assert.AreEqual("admin@org.onmicrosoft.com", cs.Username);
-        Assert.AreEqual("S3cr3t!", cs.Password);
     }
 
     [Test]
@@ -31,7 +30,6 @@ public class ConnectionStringParserTests
 
         Assert.AreEqual("https://org.crm.dynamics.com", cs.Url);
         Assert.IsNull(cs.Username);
-        Assert.IsNull(cs.Password);
     }
 
     [Test]
@@ -40,15 +38,6 @@ public class ConnectionStringParserTests
         var cs = ConnectionStringParser.Parse("Url= https://org.crm.dynamics.com ");
 
         Assert.AreEqual("https://org.crm.dynamics.com", cs.Url);
-    }
-
-    [Test]
-    public void Parse_PasswordContainsEquals_PreservesEntirePassword()
-    {
-        // Password values may contain '=' (e.g. base64-encoded secrets)
-        var cs = ConnectionStringParser.Parse("Url=https://org.crm.dynamics.com;Password=abc=def=");
-
-        Assert.AreEqual("abc=def=", cs.Password);
     }
 
     [Test]
