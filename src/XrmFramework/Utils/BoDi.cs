@@ -86,7 +86,7 @@ namespace BoDi
         }
 #endif
 
-        static private string GetMessage(string message, Type[] resolutionPath)
+        private static string GetMessage(string message, Type[] resolutionPath)
         {
             if (resolutionPath == null || resolutionPath.Length == 0)
                 return message;
