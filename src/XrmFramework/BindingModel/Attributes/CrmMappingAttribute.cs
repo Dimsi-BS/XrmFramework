@@ -8,11 +8,12 @@ namespace XrmFramework.BindingModel
     [AttributeUsage(AttributeTargets.Property)]
     public class CrmMappingAttribute : Attribute
     {
-        private CrmMappingAttribute(string attributeName, AttributeTypeCode attributeType)
+        protected internal CrmMappingAttribute(string attributeName, AttributeTypeCode attributeType)
         {
             AttributeName = attributeName;
             AttributeType = attributeType;
         }
+        
         public CrmMappingAttribute(string attributeName)
         {
             AttributeName = attributeName;
@@ -20,7 +21,7 @@ namespace XrmFramework.BindingModel
 
         public string AttributeName { get; private set; }
 
-        protected AttributeTypeCode AttributeType { get; private set; }
+        protected internal AttributeTypeCode AttributeType { get; private set; }
 
         public bool FollowLink { get; set; }
 
