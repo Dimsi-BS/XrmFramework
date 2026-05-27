@@ -28,5 +28,6 @@
   <Project Path="XrmFramework.Templates/XrmFramework.Templates.csproj" />
   <Project Path="XrmFramework.TypeScript/XrmFramework.TypeScript.csproj" />
   <Project Path="XrmFramework.Workflows/XrmFramework.Workflows.csproj" />
+  <Project Path="XrmFramework.Tests/XrmFramework.Tests.csproj" />
   <Project Path="XrmFramework/XrmFramework.csproj" />
 </Solution>
