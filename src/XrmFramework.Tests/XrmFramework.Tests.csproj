@@ -1,0 +1,72 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Projet source pour le package NuGet XrmFramework.Tests.
+
+    Ce projet remplit deux rôles :
+      1. Compiler les sources de tests pour vérifier qu'elles compilent correctement
+         contre la version courante de XrmFramework.
+      2. Générer le package NuGet qui embarque ces sources comme contentFiles,
+         permettant aux consommateurs de mesurer la couverture de code du Framework.
+
+    IMPORTANT : Ce projet N'EST PAS un runner de tests (IsTestProject=false).
+    Pour exécuter les tests localement, utilisez src/Tests/XrmFramework.Tests/.
+  -->
+
+  <PropertyGroup>
+    <TargetFrameworks>$(XrmFramework_Runtime_TFM)</TargetFrameworks>
+    <AssemblyName>XrmFramework.Tests</AssemblyName>
+    <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
+    <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
+
+    <!-- Packaging -->
+    <PackageId>XrmFramework.Tests</PackageId>
+    <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.Tests.nuspec</NuspecFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!--
+      Ce projet compile les tests pour validation, mais n'est pas un projet de test exécutable.
+      Le runner de tests est src/Tests/XrmFramework.Tests/.
+    -->
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+
+  <!--
+    Référence au projet Framework pour compilation locale.
+    Lors de la consommation du package NuGet, cette référence est remplacée
+    par la dépendance déclarée dans le .nuspec (XrmFramework).
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\XrmFramework\XrmFramework.csproj" />
+  </ItemGroup>
+
+  <!--
+    Dépendances NUnit et Moq nécessaires pour compiler les sources de tests.
+    PrivateAssets=all sur le SDK et l'adapter : ils ne doivent pas apparaître
+    dans les dépendances transitives du package généré (géré via nuspec).
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="NUnit3TestAdapter" Version="6.2.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="NUnit" Version="4.6.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+  </ItemGroup>
+
+  <!--
+    Sources de tests liées depuis src/Tests/XrmFramework.Tests/.
+    Source unique de vérité : les fichiers ne sont pas dupliqués.
+    Le Link= contrôle l'affichage dans l'IDE.
+  -->
+  <ItemGroup>
+    <Compile Include="..\Tests\XrmFramework.Tests\**\*.cs"
+             Link="%(RecursiveDir)%(Filename)%(Extension)"
+             Exclude="..\Tests\XrmFramework.Tests\obj\**;..\Tests\XrmFramework.Tests\bin\**" />
+  </ItemGroup>
+
+</Project>

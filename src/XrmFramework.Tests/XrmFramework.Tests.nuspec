@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>XrmFramework.Tests</id>
+    <version>$version$</version>
+    <title>XrmFramework.Tests</title>
+    <authors>$author$</authors>
+    <owners>$owner$</owners>
+    <description>
+      Sources de tests unitaires pour XrmFramework.
+      Référencer ce package dans votre projet de tests pour compiler les tests du Framework
+      directement dans votre assembly et mesurer la couverture de code du Framework lui-même.
+      Les fichiers .cs sont embarqués en tant que contentFiles (buildAction=Compile) :
+      ils s'ajoutent à la compilation du projet consommateur sans DLL supplémentaire.
+    </description>
+    <summary>Unit test sources for XrmFramework — enables code coverage measurement of the framework itself.</summary>
+    <language>en-US</language>
+    <projectUrl>https://aka.ms/XrmFramework</projectUrl>
+    <license type="expression">MIT</license>
+    <tags>Dynamics365 CRM DynamicsCrm Dataverse PowerApps Tests Coverage</tags>
+    <copyright>$copyright$</copyright>
+    <!--
+      developmentDependency=true : ce package est une dépendance de développement uniquement.
+      Il ne sera pas propagé comme dépendance transitive si le consommateur publie son propre package.
+    -->
+    <developmentDependency>true</developmentDependency>
+
+    <!--
+      Déclaration explicite du buildAction pour que NuGet traite tous les .cs
+      comme des items <Compile> dans le projet consommateur.
+    -->
+    <contentFiles>
+      <files include="**/*.cs" buildAction="Compile" />
+    </contentFiles>
+
+    <dependencies>
+      <group targetFramework="net462">
+        <dependency id="XrmFramework" version="[$version$]" />
+        <dependency id="Microsoft.NET.Test.Sdk" version="17.8.0" />
+        <dependency id="NUnit"                  version="4.6.0" />
+        <dependency id="NUnit3TestAdapter"       version="6.2.0" />
+        <dependency id="Moq"                    version="4.20.72" />
+      </group>
+      <group targetFramework="net8.0">
+        <dependency id="XrmFramework" version="[$version$]" />
+        <dependency id="Microsoft.NET.Test.Sdk" version="17.8.0" />
+        <dependency id="NUnit"                  version="4.6.0" />
+        <dependency id="NUnit3TestAdapter"       version="6.2.0" />
+        <dependency id="Moq"                    version="4.20.72" />
+      </group>
+      <group targetFramework="net10.0">
+        <dependency id="XrmFramework" version="[$version$]" />
+        <dependency id="Microsoft.NET.Test.Sdk" version="17.8.0" />
+        <dependency id="NUnit"                  version="4.6.0" />
+        <dependency id="NUnit3TestAdapter"       version="6.2.0" />
+        <dependency id="Moq"                    version="4.20.72" />
+      </group>
+    </dependencies>
+  </metadata>
+
+  <files>
+    <!--
+      Sources de tests embarquées comme contentFiles.
+      Cible : contentFiles/cs/any/__Tests/XrmFramework.Tests/
+      NuGet les ajoutera comme <Compile> dans le projet consommateur.
+      La couverture de code portera donc sur les sources du Framework.
+    -->
+    <file src="..\Tests\XrmFramework.Tests\**\*.cs"
+          target="contentFiles\cs\any\__Tests\XrmFramework.Tests"
+          exclude="..\Tests\XrmFramework.Tests\obj\**;..\Tests\XrmFramework.Tests\bin\**;**\AssemblyInfo.cs" />
+
+    <!--
+      Placeholders lib : package source uniquement, pas d'assembly compilé fourni.
+    -->
+    <file src="lib\net462\_._" target="lib\net462" />
+    <file src="lib\net8.0\_._"  target="lib\net8.0" />
+    <file src="lib\net10.0\_._" target="lib\net10.0" />
+
+    <!--
+      Fichiers .props injectés par NuGet dans le projet consommateur :
+      ajoutent coverlet.collector avec PrivateAssets=all.
+    -->
+    <file src="build\**\*" target="build" />
+  </files>
+</package>
