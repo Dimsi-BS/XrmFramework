@@ -1,0 +1,37 @@
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{cs,vb,fs,fsx}]
+indent_style = space
+indent_size = 4
+
+[*.{csproj,vbproj,fsproj,shproj,props,targets,nuspec,config,runsettings}]
+indent_style = space
+indent_size = 2
+
+[*.{xml,xaml,resx}]
+indent_style = space
+indent_size = 2
+
+[*.{json,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.{html,htm,css,scss,less,js,jsx,ts,tsx}]
+indent_style = space
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+# Les .sln (format hérité Microsoft) requièrent CRLF
+[*.sln]
+end_of_line = crlf
+
+[*.{cmd,bat}]
+end_of_line = crlf
