@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="MSTest.TestAdapter" Version="4.2.2" />
     <PackageReference Include="MSTest.TestFramework" Version="4.2.2" />
     <PackageReference Include="coverlet.collector" Version="6.0.0">
@@ -22,6 +23,18 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\XrmFramework.Plugin\XrmFramework.Plugin.csproj" />
+  </ItemGroup>
+
+
+  <!--
+    Sources de tests liées depuis src/Tests/XrmFramework.Tests/.
+    Source unique de vérité : les fichiers ne sont pas dupliqués.
+    Le Link= contrôle l'affichage dans l'IDE.
+  -->
+  <ItemGroup>
+    <Compile Include="..\XrmFramework.Tests\**\*.cs"
+             Link="_Tests/%(RecursiveDir)%(Filename)%(Extension)"
+             Exclude="..\XrmFramework.Tests\obj\**;..\XrmFramework.Tests\bin\**" />
   </ItemGroup>
 
 
