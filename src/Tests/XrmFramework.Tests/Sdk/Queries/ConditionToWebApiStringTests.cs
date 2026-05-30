@@ -1,0 +1,152 @@
+// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using NUnit.Framework;
+using NUnit.Framework.Legacy;
+using XrmFramework.Sdk.Queries;
+using XrmFramework.Tests.Sdk.Queries.Fakes;
+
+namespace XrmFramework.Tests.Sdk.Queries
+{
+    [TestFixture]
+    public class ConditionToWebApiStringTests
+    {
+        private static string GetWebApiString(string attribute, ConditionOperator op, object value = null)
+        {
+            var query = new Query(ContactDefinition.EntityName);
+            if (value != null)
+                query.Criteria.AddCondition(attribute, op, value);
+            else
+                query.Criteria.AddCondition(attribute, op);
+            int i = 0;
+            return query.Criteria.Conditions[0].ToWebApiString(() => ++i);
+        }
+
+        [Test]
+        public void ToWebApiString_NullOperator_ReturnsEqNull()
+        {
+            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.Null);
+
+            Assert.AreEqual($"{ContactDefinition.Columns.Email} eq null", result);
+        }
+
+        [Test]
+        public void ToWebApiString_NotNullOperator_ReturnsNeNull()
+        {
+            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.NotNull);
+
+            Assert.AreEqual($"{ContactDefinition.Columns.Email} ne null", result);
+        }
+
+        [Test]
+        public void ToWebApiString_EqualStringValue_ReturnsEqWithQuotedValue()
+        {
+            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.Equal, "test@test.com");
+
+            Assert.AreEqual($"{ContactDefinition.Columns.Email} eq 'test@test.com'", result);
+        }
+
+        [Test]
+        public void ToWebApiString_GreaterThanIntValue_ReturnsGtOperator()
+        {
+            var result = GetWebApiString(ContactDefinition.Columns.Age, ConditionOperator.GreaterThan, 18);
+
+            StringAssert.Contains(" gt ", result);
+            StringAssert.Contains("18", result);
+        }
+
+        [Test]
+        public void ToWebApiString_LikeWithBothWildcards_ReturnsContainsFunction()
+        {
+            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.Like, "%test%");
+
+            Assert.AreEqual($"contains({ContactDefinition.Columns.Email}, 'test')", result);
+        }
+
+        [Test]
+        public void ToWebApiString_LikeWithLeadingWildcard_ReturnsEndswithFunction()
+        {
+            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.Like, "%test");
+
+            Assert.AreEqual($"endswith({ContactDefinition.Columns.Email}, 'test')", result);
+        }
+
+        [Test]
+        public void ToWebApiString_LikeWithTrailingWildcard_ReturnsStartswithFunction()
+        {
+            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.Like, "test%");
+
+            Assert.AreEqual($"startswith({ContactDefinition.Columns.Email}, 'test')", result);
+        }
+
+        [Test]
+        public void ToWebApiString_NotLike_ReturnsPrefixedContains()
+        {
+            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.NotLike, "%test%");
+
+            StringAssert.StartsWith("not ", result);
+            StringAssert.Contains("contains(", result);
+        }
+
+        [Test]
+        public void ToWebApiString_BeginsWith_ReturnsStartswithFunction()
+        {
+            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.BeginsWith, "john");
+
+            Assert.AreEqual($"startswith({ContactDefinition.Columns.Email}, 'john')", result);
+        }
+
+        [Test]
+        public void ToWebApiString_DoesNotBeginWith_ReturnsPrefixedStartswith()
+        {
+            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.DoesNotBeginWith, "john");
+
+            Assert.AreEqual($"not startswith({ContactDefinition.Columns.Email}, 'john')", result);
+        }
+
+        [Test]
+        public void ToWebApiString_EndsWith_ReturnsEndswithFunction()
+        {
+            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.EndsWith, ".com");
+
+            Assert.AreEqual($"endswith({ContactDefinition.Columns.Email}, '.com')", result);
+        }
+
+        [Test]
+        public void ToWebApiString_DoesNotEndWith_ReturnsPrefixedEndswith()
+        {
+            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.DoesNotEndWith, ".com");
+
+            Assert.AreEqual($"not endswith({ContactDefinition.Columns.Email}, '.com')", result);
+        }
+
+        [Test]
+        public void ToWebApiString_InOperator_UsesAliasAndOrExpression()
+        {
+            var query = new Query(ContactDefinition.EntityName);
+            query.Criteria.AddCondition(ContactDefinition.Columns.Email, ConditionOperator.In,
+                new object[] { "a@a.com", "b@b.com" });
+            int i = 0;
+            var result = query.Criteria.Conditions[0].ToWebApiString(() => ++i);
+
+            StringAssert.Contains("@p1", result);
+            StringAssert.Contains("eq", result);
+            StringAssert.Contains(" or", result);
+            Assert.IsTrue(query.Criteria.Conditions[0].UseAlias);
+        }
+
+        [Test]
+        public void ToWebApiString_NotInOperator_UsesNegateAndAndExpression()
+        {
+            var query = new Query(ContactDefinition.EntityName);
+            query.Criteria.AddCondition(ContactDefinition.Columns.Email, ConditionOperator.NotIn,
+                new object[] { "a@a.com", "b@b.com" });
+            int i = 0;
+            var result = query.Criteria.Conditions[0].ToWebApiString(() => ++i);
+
+            StringAssert.StartsWith("not ", result);
+            StringAssert.Contains("neq", result);
+            StringAssert.Contains(" and", result);
+        }
+    }
+}
