@@ -4,9 +4,13 @@
     <TargetFrameworks>$(XrmFramework_Runtime_TFM)</TargetFrameworks>
     <Nullable>enable</Nullable>
 
-    <IsPackable>false</IsPackable>
+    <IsPackable>true</IsPackable>
 
-    <SignAssembly>false</SignAssembly>
+    <PackageId>XrmFramework.Tests</PackageId>
+    <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.Tests.nuspec</NuspecFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
   <ItemGroup>
