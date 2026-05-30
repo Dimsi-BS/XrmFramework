@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
+using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
 using Moq;
 using NUnit.Framework;
@@ -1101,6 +1102,462 @@ namespace XrmFramework.Tests.Service
         }
 
         // ─────────────────────────────────────────────────────────────
+        //  Upsert(Entity) — bypass flag + callerId empty routing
+        // ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void Upsert_WithCallerIdGuidEmpty_ExecutesOnAdminOrganizationService()
+        {
+            _adminOrgServiceMock.Setup(s => s.Execute(It.IsAny<UpsertRequest>())).Returns(new UpsertResponse());
+
+            _sut.Upsert(new Entity("contact"), Guid.Empty);
+
+            _adminOrgServiceMock.Verify(s => s.Execute(It.IsAny<UpsertRequest>()), Times.Once);
+        }
+
+        [Test]
+        public void Upsert_UseAdmin_BypassCustomPluginExecution_SetsRequestFlag()
+        {
+            UpsertRequest capturedRequest = null;
+            _orgServiceMock
+                .Setup(s => s.Execute(It.IsAny<UpsertRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (UpsertRequest)r)
+                .Returns(new UpsertResponse());
+
+            _sut.Upsert(new Entity("contact"), useAdmin: false, bypassCustomPluginExecution: true);
+
+            Assert.IsNotNull(capturedRequest);
+            Assert.AreEqual(true, capturedRequest["BypassCustomPluginExecution"]);
+        }
+
+        [Test]
+        public void Upsert_UseAdmin_BypassFalse_DoesNotSetRequestFlag()
+        {
+            UpsertRequest capturedRequest = null;
+            _orgServiceMock
+                .Setup(s => s.Execute(It.IsAny<UpsertRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (UpsertRequest)r)
+                .Returns(new UpsertResponse());
+
+            _sut.Upsert(new Entity("contact"), useAdmin: false, bypassCustomPluginExecution: false);
+
+            Assert.IsFalse(capturedRequest.Parameters.Contains("BypassCustomPluginExecution"));
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  Update — bypass flag
+        // ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void Update_BypassCustomPluginExecution_SetsRequestFlag()
+        {
+            UpdateRequest capturedRequest = null;
+            _orgServiceMock
+                .Setup(s => s.Execute(It.IsAny<UpdateRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (UpdateRequest)r)
+                .Returns(new UpdateResponse());
+
+            _sut.Update(new Entity("contact") { Id = Guid.NewGuid() }, useAdmin: false, bypassCustomPluginExecution: true);
+
+            Assert.IsNotNull(capturedRequest);
+            Assert.AreEqual(true, capturedRequest["BypassCustomPluginExecution"]);
+        }
+
+        [Test]
+        public void Update_BypassFalse_DoesNotSetRequestFlag()
+        {
+            UpdateRequest capturedRequest = null;
+            _orgServiceMock
+                .Setup(s => s.Execute(It.IsAny<UpdateRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (UpdateRequest)r)
+                .Returns(new UpdateResponse());
+
+            _sut.Update(new Entity("contact") { Id = Guid.NewGuid() }, useAdmin: false, bypassCustomPluginExecution: false);
+
+            Assert.IsFalse(capturedRequest.Parameters.Contains("BypassCustomPluginExecution"));
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  Delete — routing + bypass gaps
+        // ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void Delete_StringGuid_UseAdminTrue_ExecutesDeleteOnAdminService()
+        {
+            _adminOrgServiceMock.Setup(s => s.Execute(It.IsAny<DeleteRequest>())).Returns(new DeleteResponse());
+
+            _sut.Delete("contact", Guid.NewGuid(), useAdmin: true);
+
+            _adminOrgServiceMock.Verify(s => s.Execute(It.IsAny<DeleteRequest>()), Times.Once);
+        }
+
+        [Test]
+        public void Delete_EntityRef_UseAdminFalse_ExecutesDeleteOnOrgService()
+        {
+            _orgServiceMock.Setup(s => s.Execute(It.IsAny<DeleteRequest>())).Returns(new DeleteResponse());
+
+            _sut.Delete(new EntityReference("contact", Guid.NewGuid()), useAdmin: false);
+
+            _orgServiceMock.Verify(s => s.Execute(It.IsAny<DeleteRequest>()), Times.Once);
+        }
+
+        [Test]
+        public void Delete_EntityRefCallerId_GuidEmpty_ExecutesOnAdminService()
+        {
+            _adminOrgServiceMock.Setup(s => s.Execute(It.IsAny<DeleteRequest>())).Returns(new DeleteResponse());
+
+            _sut.Delete(new EntityReference("contact", Guid.NewGuid()), Guid.Empty);
+
+            _adminOrgServiceMock.Verify(s => s.Execute(It.IsAny<DeleteRequest>()), Times.Once);
+        }
+
+        [Test]
+        public void Delete_EntityRef_Bypass_SetsRequestFlag()
+        {
+            DeleteRequest capturedRequest = null;
+            _adminOrgServiceMock
+                .Setup(s => s.Execute(It.IsAny<DeleteRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (DeleteRequest)r)
+                .Returns(new DeleteResponse());
+
+            _sut.Delete(new EntityReference("contact", Guid.NewGuid()), useAdmin: true, bypassCustomPluginExecution: true);
+
+            Assert.IsNotNull(capturedRequest);
+            Assert.AreEqual(true, capturedRequest["BypassCustomPluginExecution"]);
+        }
+
+        [Test]
+        public void Delete_StringGuid_Bypass_SetsRequestFlag()
+        {
+            DeleteRequest capturedRequest = null;
+            _orgServiceMock
+                .Setup(s => s.Execute(It.IsAny<DeleteRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (DeleteRequest)r)
+                .Returns(new DeleteResponse());
+
+            _sut.Delete("contact", Guid.NewGuid(), useAdmin: false, bypassCustomPluginExecution: true);
+
+            Assert.IsNotNull(capturedRequest);
+            Assert.AreEqual(true, capturedRequest["BypassCustomPluginExecution"]);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  AssignEntity — bypass flag
+        // ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void AssignEntity_Bypass_SetsRequestFlag()
+        {
+            AssignRequest capturedRequest = null;
+            _adminOrgServiceMock
+                .Setup(s => s.Execute(It.IsAny<AssignRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (AssignRequest)r)
+                .Returns(new AssignResponse());
+
+            _sut.AssignEntity(new EntityReference("contact", Guid.NewGuid()), null, bypassCustomPluginExecution: true);
+
+            Assert.IsNotNull(capturedRequest);
+            Assert.AreEqual(true, capturedRequest["BypassCustomPluginExecution"]);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  SetState — bypass flag
+        // ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void SetState_Bypass_SetsRequestFlag()
+        {
+            SetStateRequest capturedRequest = null;
+            _orgServiceMock
+                .Setup(s => s.Execute(It.IsAny<SetStateRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (SetStateRequest)r)
+                .Returns(new SetStateResponse());
+
+            _sut.SetState(new EntityReference("contact", Guid.NewGuid()), 0, 1, useAdmin: false, bypassCustomPluginExecution: true);
+
+            Assert.IsNotNull(capturedRequest);
+            Assert.AreEqual(true, capturedRequest["BypassCustomPluginExecution"]);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  Share — bypass flag
+        // ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void Share_Bypass_SetsRequestFlag()
+        {
+            GrantAccessRequest capturedRequest = null;
+            _adminOrgServiceMock
+                .Setup(s => s.Execute(It.IsAny<GrantAccessRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (GrantAccessRequest)r)
+                .Returns(new GrantAccessResponse());
+
+            _sut.Share(new EntityReference("contact", Guid.NewGuid()), new EntityReference("systemuser", Guid.NewGuid()),
+                AccessRights.ReadAccess, bypassCustomPluginExecution: true);
+
+            Assert.IsNotNull(capturedRequest);
+            Assert.AreEqual(true, capturedRequest["BypassCustomPluginExecution"]);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  UnShare — bypass flag + callerRef behavior
+        // ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void UnShare_Bypass_SetsRequestFlag()
+        {
+            RevokeAccessRequest capturedRequest = null;
+            _adminOrgServiceMock
+                .Setup(s => s.Execute(It.IsAny<RevokeAccessRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (RevokeAccessRequest)r)
+                .Returns(new RevokeAccessResponse());
+
+            _sut.UnShare(new EntityReference("contact", Guid.NewGuid()),
+                new EntityReference("systemuser", Guid.NewGuid()), bypassCustomPluginExecution: true);
+
+            Assert.IsNotNull(capturedRequest);
+            Assert.AreEqual(true, capturedRequest["BypassCustomPluginExecution"]);
+        }
+
+        [Test]
+        public void UnShare_WithCallerRef_AlwaysExecutesOnAdminService()
+        {
+            var callerId = Guid.NewGuid();
+            var callerService = new Mock<IOrganizationService>();
+            _contextMock.Setup(c => c.GetOrganizationService(callerId)).Returns(callerService.Object);
+            _adminOrgServiceMock.Setup(s => s.Execute(It.IsAny<RevokeAccessRequest>())).Returns(new RevokeAccessResponse());
+
+            _sut.UnShare(new EntityReference("contact", Guid.NewGuid()),
+                new EntityReference("systemuser", Guid.NewGuid()),
+                callerRef: new EntityReference("systemuser", callerId));
+
+            _adminOrgServiceMock.Verify(s => s.Execute(It.IsAny<RevokeAccessRequest>()), Times.Once);
+            callerService.Verify(s => s.Execute(It.IsAny<OrganizationRequest>()), Times.Never);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  AddUsersToTeam — bypass flag
+        // ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void AddUsersToTeam_WithBypass_SetsRequestFlag()
+        {
+            AddMembersTeamRequest capturedRequest = null;
+            _adminOrgServiceMock
+                .Setup(s => s.Execute(It.IsAny<AddMembersTeamRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (AddMembersTeamRequest)r)
+                .Returns(new AddMembersTeamResponse());
+
+            var user = new EntityReference("systemuser", Guid.NewGuid());
+            _sut.AddUsersToTeam(new EntityReference("team", Guid.NewGuid()), bypassCustomPluginExecution: true, user);
+
+            Assert.IsNotNull(capturedRequest);
+            Assert.AreEqual(true, capturedRequest["BypassCustomPluginExecution"]);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  AddToQueue — bypass flag
+        // ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void AddToQueue_Bypass_SetsRequestFlag()
+        {
+            AddToQueueRequest capturedRequest = null;
+            _adminOrgServiceMock
+                .Setup(s => s.Execute(It.IsAny<AddToQueueRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (AddToQueueRequest)r)
+                .Returns(new AddToQueueResponse());
+
+            _sut.AddToQueue(Guid.NewGuid(), new EntityReference("email", Guid.NewGuid()), bypassCustomPluginExecution: true);
+
+            Assert.IsNotNull(capturedRequest);
+            Assert.AreEqual(true, capturedRequest["BypassCustomPluginExecution"]);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  Merge — bypass flag
+        // ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void Merge_Bypass_SetsRequestFlag()
+        {
+            MergeRequest capturedRequest = null;
+            _adminOrgServiceMock
+                .Setup(s => s.Execute(It.IsAny<MergeRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (MergeRequest)r)
+                .Returns(new MergeResponse());
+
+            _sut.Merge(new EntityReference("contact", Guid.NewGuid()), Guid.NewGuid(), new Entity("contact"), bypassCustomPluginExecution: true);
+
+            Assert.IsNotNull(capturedRequest);
+            Assert.AreEqual(true, capturedRequest["BypassCustomPluginExecution"]);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  Retrieve — ColumnSet verification
+        // ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void Retrieve_StringGuidCols_RequestContainsSpecifiedColumns()
+        {
+            RetrieveRequest capturedRequest = null;
+            var response = new RetrieveResponse();
+            response.Results["Entity"] = new Entity("contact");
+            _adminOrgServiceMock
+                .Setup(s => s.Execute(It.IsAny<RetrieveRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (RetrieveRequest)r)
+                .Returns(response);
+
+            _sut.Retrieve("contact", Guid.NewGuid(), "firstname", "lastname");
+
+            Assert.IsNotNull(capturedRequest);
+            CollectionAssert.Contains(capturedRequest.ColumnSet.Columns, "firstname");
+            CollectionAssert.Contains(capturedRequest.ColumnSet.Columns, "lastname");
+            Assert.IsFalse(capturedRequest.ColumnSet.AllColumns);
+        }
+
+        [Test]
+        public void Retrieve_StringGuidAllColumns_RequestUsesAllColumns()
+        {
+            RetrieveRequest capturedRequest = null;
+            var response = new RetrieveResponse();
+            response.Results["Entity"] = new Entity("contact");
+            _adminOrgServiceMock
+                .Setup(s => s.Execute(It.IsAny<RetrieveRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (RetrieveRequest)r)
+                .Returns(response);
+
+            _sut.Retrieve("contact", Guid.NewGuid(), true);
+
+            Assert.IsNotNull(capturedRequest);
+            Assert.IsTrue(capturedRequest.ColumnSet.AllColumns);
+        }
+
+        [Test]
+        public void Retrieve_EntityRefCols_RequestContainsSpecifiedColumns()
+        {
+            RetrieveRequest capturedRequest = null;
+            var response = new RetrieveResponse();
+            response.Results["Entity"] = new Entity("contact");
+            _adminOrgServiceMock
+                .Setup(s => s.Execute(It.IsAny<RetrieveRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (RetrieveRequest)r)
+                .Returns(response);
+
+            var objectRef = new EntityReference("contact", Guid.NewGuid());
+            _sut.Retrieve(objectRef, "emailaddress1");
+
+            Assert.IsNotNull(capturedRequest);
+            Assert.AreEqual(objectRef, capturedRequest.Target);
+            CollectionAssert.Contains(capturedRequest.ColumnSet.Columns, "emailaddress1");
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  GetOptionSetNameFromValue — happy paths
+        // ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void GetOptionSetNameFromValue_MatchingValue_ReturnsLabel()
+        {
+            var metadata = new OptionSetMetadata();
+            metadata.Options.Add(BuildOption("Active", 1033, 1));
+            metadata.Options.Add(BuildOption("Inactive", 1033, 2));
+            var response = new RetrieveOptionSetResponse();
+            response.Results["OptionSetMetadata"] = metadata;
+            _orgServiceMock.Setup(s => s.Execute(It.IsAny<RetrieveOptionSetRequest>())).Returns(response);
+
+            var result = _sut.GetOptionSetNameFromValue("statuscode", 1);
+
+            Assert.AreEqual("Active", result);
+        }
+
+        [Test]
+        public void GetOptionSetNameFromValue_NoMatchingValue_ReturnsEmptyString()
+        {
+            var metadata = new OptionSetMetadata();
+            metadata.Options.Add(BuildOption("Active", 1033, 1));
+            var response = new RetrieveOptionSetResponse();
+            response.Results["OptionSetMetadata"] = metadata;
+            _orgServiceMock.Setup(s => s.Execute(It.IsAny<RetrieveOptionSetRequest>())).Returns(response);
+
+            var result = _sut.GetOptionSetNameFromValue("statuscode", 99);
+
+            Assert.AreEqual(string.Empty, result);
+        }
+
+        [Test]
+        public void GetOptionSetNameFromValue_PassesOptionsetNameToRequest()
+        {
+            RetrieveOptionSetRequest capturedRequest = null;
+            var metadata = new OptionSetMetadata();
+            metadata.Options.Add(BuildOption("Active", 1033, 0));
+            var response = new RetrieveOptionSetResponse();
+            response.Results["OptionSetMetadata"] = metadata;
+            _orgServiceMock
+                .Setup(s => s.Execute(It.IsAny<RetrieveOptionSetRequest>()))
+                .Callback<OrganizationRequest>(r => capturedRequest = (RetrieveOptionSetRequest)r)
+                .Returns(response);
+
+            _sut.GetOptionSetNameFromValue("statuscode", 0);
+
+            Assert.IsNotNull(capturedRequest);
+            Assert.AreEqual("statuscode", capturedRequest.Name);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  GetTeamMemberRefs — multiple members
+        // ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void GetTeamMemberRefs_WithMultipleMembers_ReturnsAllMemberRefs()
+        {
+            var member1Id = Guid.NewGuid();
+            var member2Id = Guid.NewGuid();
+            _adminOrgServiceMock
+                .Setup(s => s.RetrieveMultiple(It.IsAny<QueryBase>()))
+                .Returns(new EntityCollection(new List<Entity>
+                {
+                    new Entity("systemuser") { Id = member1Id },
+                    new Entity("systemuser") { Id = member2Id }
+                }));
+
+            var result = _sut.GetTeamMemberRefs(new EntityReference("team", Guid.NewGuid()));
+
+            Assert.AreEqual(2, result.Count);
+            Assert.IsTrue(result.Any(r => r.Id == member1Id));
+            Assert.IsTrue(result.Any(r => r.Id == member2Id));
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        //  UserHasOneRoleOf — multiple roles
+        // ─────────────────────────────────────────────────────────────
+
+        [Test]
+        public void UserHasOneRoleOf_MultipleRoleIds_QueryExecutedOnce()
+        {
+            _adminOrgServiceMock
+                .Setup(s => s.RetrieveMultiple(It.IsAny<QueryBase>()))
+                .Returns(new EntityCollection(new List<Entity> { new Entity("role") }));
+
+            var result = _sut.UserHasOneRoleOf(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+
+            Assert.IsTrue(result);
+            _adminOrgServiceMock.Verify(s => s.RetrieveMultiple(It.IsAny<QueryBase>()), Times.Once);
+        }
+
+        [Test]
+        public void UserHasOneRoleOf_StringArray_MultipleRoles_ReturnsTrue()
+        {
+            _adminOrgServiceMock
+                .Setup(s => s.RetrieveMultiple(It.IsAny<QueryBase>()))
+                .Returns(new EntityCollection(new List<Entity> { new Entity("role") }));
+
+            var result = _sut.UserHasOneRoleOf(Guid.NewGuid(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+
+            Assert.IsTrue(result);
+        }
+
+        // ─────────────────────────────────────────────────────────────
         //  Helpers
         // ─────────────────────────────────────────────────────────────
 
@@ -1122,6 +1579,14 @@ namespace XrmFramework.Tests.Service
             var response = new RetrieveResponse();
             response.Results["Entity"] = entity;
             mock.Setup(s => s.Execute(It.IsAny<RetrieveRequest>())).Returns(response);
+        }
+
+        private static OptionMetadata BuildOption(string labelText, int languageCode, int value)
+        {
+            var localizedLabel = new LocalizedLabel(labelText, languageCode);
+            var label = new Label(labelText, languageCode);
+            label.UserLocalizedLabel = localizedLabel;
+            return new OptionMetadata(label, value);
         }
     }
 }
