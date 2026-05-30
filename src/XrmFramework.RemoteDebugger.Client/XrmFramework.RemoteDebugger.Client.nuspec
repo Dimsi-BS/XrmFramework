@@ -15,12 +15,12 @@
     <copyright>$copyright$</copyright>
     <dependencies>
       <group targetFramework="net462">
-        <dependency id="Microsoft.Azure.Relay" version="3.1.1" />
-        <dependency id="System.ComponentModel.Annotations" version="5.0.0" exclude="Build,Analyzers" />
-        <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.60" />
-        <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.60" />
-          <dependency id="XrmFramework.DeployUtils" version="[$version$]" />
-          <dependency id="Spectre.Console" version="0.55.2" />
+        <dependency id="Microsoft.Azure.Relay" version="$Ver_AzureRelay$" />
+        <dependency id="System.ComponentModel.Annotations" version="$Ver_SysComponentAnnotations$" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="$Ver_CrmSdkCoreAssemblies$" />
+        <dependency id="Microsoft.CrmSdk.Workflow" version="$Ver_CrmSdkWorkflow$" />
+        <dependency id="XrmFramework.DeployUtils" version="[$version$]" />
+        <dependency id="Spectre.Console" version="$Ver_SpectreConsole$" />
       </group>
     </dependencies>
     <repository

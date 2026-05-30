@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <!--
+    Source unique de vérité pour les numéros de version des dépendances.
+    Ces propriétés sont utilisées à deux endroits :
+      - les entrées <PackageVersion> ci-dessous  → .csproj via Central Package Management
+      - le target SetNuspecProperties (src/Directory.Build.targets) → .nuspec via substitution $token$
+
+    Pour mettre à jour une dépendance, modifier la propriété Ver_* correspondante.
+    Les projets ayant besoin d'une version différente utilisent VersionOverride="..." dans leur .csproj.
+  -->
+  <PropertyGroup Label="Dependency versions">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         Microsoft Dataverse / CRM SDK
+         ═══════════════════════════════════════════════════════════ -->
+    <Ver_DataverseClient>1.2.10</Ver_DataverseClient>
+    <Ver_CrmSdkCoreAssemblies>9.0.2.60</Ver_CrmSdkCoreAssemblies>
+    <Ver_CrmSdkWorkflow>9.0.2.60</Ver_CrmSdkWorkflow>
+    <!-- Version par défaut (OnPremise). DeployUtils/net462 utilise 9.1.1.45 via VersionOverride. -->
+    <Ver_CrmSdkXrmTooling>9.1.1.65</Ver_CrmSdkXrmTooling>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         Sérialisation
+         ═══════════════════════════════════════════════════════════ -->
+    <Ver_NewtonsoftJson>13.0.4</Ver_NewtonsoftJson>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         Microsoft Extensions
+         ═══════════════════════════════════════════════════════════ -->
+    <!-- Default net8+/net10+. DeployUtils/net462 utilise 3.1.8 via VersionOverride. -->
+    <Ver_ExtDependencyInjection>10.0.7</Ver_ExtDependencyInjection>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         Packages système
+         ═══════════════════════════════════════════════════════════ -->
+    <Ver_MicrosoftCSharp>4.7.0</Ver_MicrosoftCSharp>
+    <Ver_SysComponentAnnotations>5.0.0</Ver_SysComponentAnnotations>
+    <Ver_SysConfigurationManager>10.0.7</Ver_SysConfigurationManager>
+    <Ver_SysNetHttp>4.3.4</Ver_SysNetHttp>
+    <Ver_SysReflectionDispatchProxy>4.8.2</Ver_SysReflectionDispatchProxy>
+    <Ver_SysRuntimeLoader>4.3.0</Ver_SysRuntimeLoader>
+    <Ver_SysTextRegex>4.3.1</Ver_SysTextRegex>
+    <!-- Correctif de sécurité pour la dépendance transitive System.ServiceModel.Primitives.
+         PackageVersion central = net10. net8 utilise VersionOverride dans Directory.Build.props. -->
+    <Ver_SecCryptoXmlNet8>8.0.3</Ver_SecCryptoXmlNet8>
+    <Ver_SecCryptoXmlNet10>10.0.7</Ver_SecCryptoXmlNet10>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         Roslyn / Code Analysis
+         ═══════════════════════════════════════════════════════════ -->
+    <Ver_CodeAnalysisCSharp>4.12.0</Ver_CodeAnalysisCSharp>
+    <!-- Default : version récente. RemoteDebugger.Generator et ses tests utilisent 4.0.1 via VersionOverride. -->
+    <Ver_CodeAnalysisAnalyzers>4.14.0</Ver_CodeAnalysisAnalyzers>
+    <Ver_CodeAnalysisWorkspacesCommon>4.12.0</Ver_CodeAnalysisWorkspacesCommon>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         Outils de build
+         ═══════════════════════════════════════════════════════════ -->
+    <Ver_MSBuildFramework>18.4.0</Ver_MSBuildFramework>
+    <Ver_NerdbankGitVersioning>3.9.50</Ver_NerdbankGitVersioning>
+    <Ver_NetFrameworkRefAssemblies>1.0.3</Ver_NetFrameworkRefAssemblies>
+    <Ver_SourceLinkGitHub>8.0.0</Ver_SourceLinkGitHub>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CLI / Console
+         ═══════════════════════════════════════════════════════════ -->
+    <Ver_CommandLineParser>2.9.1</Ver_CommandLineParser>
+    <Ver_SpectreConsole>0.55.2</Ver_SpectreConsole>
+    <Ver_SpectreConsoleCli>0.55.0</Ver_SpectreConsoleCli>
+    <Ver_SpectreConsoleAnalyzer>1.0.0</Ver_SpectreConsoleAnalyzer>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         Azure / Réseau
+         ═══════════════════════════════════════════════════════════ -->
+    <Ver_SignalRClient>8.0.0</Ver_SignalRClient>
+    <Ver_AzureRelay>3.1.1</Ver_AzureRelay>
+    <Ver_MsalClient>4.61.3</Ver_MsalClient>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         Divers
+         ═══════════════════════════════════════════════════════════ -->
+    <Ver_JetBrainsAnnotations>2025.2.4</Ver_JetBrainsAnnotations>
+    <Ver_TypeScriptMSBuild>6.0.3</Ver_TypeScriptMSBuild>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         Tests
+         ═══════════════════════════════════════════════════════════ -->
+    <!-- Default 17.8.0. XrmFramework.DeployUtils.Tests utilise 18.4.0 via VersionOverride. -->
+    <Ver_NETTestSdk>17.8.0</Ver_NETTestSdk>
+    <!-- Default 4.6.0. LogicApp.Tests, Analyzers.Test et Plugin.Tests utilisent 4.5.1 via VersionOverride. -->
+    <Ver_NUnit>4.6.0</Ver_NUnit>
+    <Ver_NUnit3Adapter>6.2.0</Ver_NUnit3Adapter>
+    <Ver_Moq>4.20.72</Ver_Moq>
+    <Ver_CoverletCollector>10.0.0</Ver_CoverletCollector>
+    <Ver_MSTestFramework>4.2.2</Ver_MSTestFramework>
+    <Ver_VerifyNUnit>31.16.2</Ver_VerifyNUnit>
+    <Ver_VerifySourceGenerators>2.5.0</Ver_VerifySourceGenerators>
+    <Ver_CodeAnalysisTestingNUnit>1.1.2</Ver_CodeAnalysisTestingNUnit>
+
+  </PropertyGroup>
+
+  <ItemGroup Label="Central Package Versions">
+
+    <!-- Microsoft Dataverse / CRM SDK -->
+    <PackageVersion Include="Microsoft.PowerPlatform.Dataverse.Client"          Version="$(Ver_DataverseClient)" />
+    <PackageVersion Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="$(Ver_DataverseClient)" />
+    <PackageVersion Include="Microsoft.CrmSdk.CoreAssemblies"                   Version="$(Ver_CrmSdkCoreAssemblies)" />
+    <PackageVersion Include="Microsoft.CrmSdk.Workflow"                         Version="$(Ver_CrmSdkWorkflow)" />
+    <PackageVersion Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly"          Version="$(Ver_CrmSdkXrmTooling)" />
+
+    <!-- Sérialisation -->
+    <PackageVersion Include="Newtonsoft.Json" Version="$(Ver_NewtonsoftJson)" />
+
+    <!-- Microsoft Extensions -->
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(Ver_ExtDependencyInjection)" />
+
+    <!-- Packages système -->
+    <PackageVersion Include="Microsoft.CSharp"                         Version="$(Ver_MicrosoftCSharp)" />
+    <PackageVersion Include="System.ComponentModel.Annotations"        Version="$(Ver_SysComponentAnnotations)" />
+    <PackageVersion Include="System.Configuration.ConfigurationManager" Version="$(Ver_SysConfigurationManager)" />
+    <PackageVersion Include="System.Net.Http"                          Version="$(Ver_SysNetHttp)" />
+    <PackageVersion Include="System.Reflection.DispatchProxy"          Version="$(Ver_SysReflectionDispatchProxy)" />
+    <PackageVersion Include="System.Runtime.Loader"                    Version="$(Ver_SysRuntimeLoader)" />
+    <PackageVersion Include="System.Text.RegularExpressions"           Version="$(Ver_SysTextRegex)" />
+    <!-- Version centrale = net10. net8 utilise VersionOverride="$(Ver_SecCryptoXmlNet8)" dans Directory.Build.props. -->
+    <PackageVersion Include="System.Security.Cryptography.Xml"         Version="$(Ver_SecCryptoXmlNet10)" />
+
+    <!-- Roslyn / Code Analysis -->
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp"            Version="$(Ver_CodeAnalysisCSharp)" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers"         Version="$(Ver_CodeAnalysisAnalyzers)" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="$(Ver_CodeAnalysisWorkspacesCommon)" />
+
+    <!-- Outils de build -->
+    <PackageVersion Include="Microsoft.Build.Framework"                   Version="$(Ver_MSBuildFramework)" />
+    <PackageVersion Include="Microsoft.Build.Utilities.Core"              Version="$(Ver_MSBuildFramework)" />
+    <PackageVersion Include="Nerdbank.GitVersioning"                      Version="$(Ver_NerdbankGitVersioning)" />
+    <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies"  Version="$(Ver_NetFrameworkRefAssemblies)" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub"                 Version="$(Ver_SourceLinkGitHub)" />
+
+    <!-- CLI / Console -->
+    <PackageVersion Include="CommandLineParser"         Version="$(Ver_CommandLineParser)" />
+    <PackageVersion Include="Spectre.Console"           Version="$(Ver_SpectreConsole)" />
+    <PackageVersion Include="Spectre.Console.Cli"       Version="$(Ver_SpectreConsoleCli)" />
+    <PackageVersion Include="Spectre.Console.Analyzer"  Version="$(Ver_SpectreConsoleAnalyzer)" />
+
+    <!-- Azure / Réseau -->
+    <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="$(Ver_SignalRClient)" />
+    <PackageVersion Include="Microsoft.Azure.Relay"               Version="$(Ver_AzureRelay)" />
+    <PackageVersion Include="Microsoft.Identity.Client"           Version="$(Ver_MsalClient)" />
+
+    <!-- Divers -->
+    <PackageVersion Include="JetBrains.Annotations" Version="$(Ver_JetBrainsAnnotations)" />
+
+    <!-- Tests -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk"   Version="$(Ver_NETTestSdk)" />
+    <PackageVersion Include="NUnit"                    Version="$(Ver_NUnit)" />
+    <PackageVersion Include="NUnit3TestAdapter"        Version="$(Ver_NUnit3Adapter)" />
+    <PackageVersion Include="Moq"                      Version="$(Ver_Moq)" />
+    <PackageVersion Include="coverlet.collector"       Version="$(Ver_CoverletCollector)" />
+    <PackageVersion Include="MSTest.TestAdapter"       Version="$(Ver_MSTestFramework)" />
+    <PackageVersion Include="MSTest.TestFramework"     Version="$(Ver_MSTestFramework)" />
+    <PackageVersion Include="Verify.NUnit"             Version="$(Ver_VerifyNUnit)" />
+    <PackageVersion Include="Verify.SourceGenerators"  Version="$(Ver_VerifySourceGenerators)" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.NUnit"       Version="$(Ver_CodeAnalysisTestingNUnit)" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.NUnit"        Version="$(Ver_CodeAnalysisTestingNUnit)" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing.NUnit" Version="$(Ver_CodeAnalysisTestingNUnit)" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.VisualBasic.Analyzer.Testing.NUnit"  Version="$(Ver_CodeAnalysisTestingNUnit)" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.VisualBasic.CodeFix.Testing.NUnit"   Version="$(Ver_CodeAnalysisTestingNUnit)" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.VisualBasic.CodeRefactoring.Testing.NUnit" Version="$(Ver_CodeAnalysisTestingNUnit)" />
+
+  </ItemGroup>
+
+</Project>

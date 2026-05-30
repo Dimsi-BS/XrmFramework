@@ -21,7 +21,7 @@
             <group targetFramework="net462">
                 <dependency id="XrmFramework" version="[$version$]"/>
                 <dependency id="XrmFramework.Plugin" version="[$version$]"/>
-                <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.60"/>
+                <dependency id="Microsoft.CrmSdk.Workflow" version="$Ver_CrmSdkWorkflow$"/>
             </group>
         </dependencies>
         <frameworkAssemblies>

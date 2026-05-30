@@ -48,13 +48,13 @@
     dans les dépendances transitives du package généré (géré via nuspec).
   -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0">
+    <PackageReference Include="Microsoft.NET.Test.Sdk">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="NUnit3TestAdapter" Version="6.2.0">
+    <PackageReference Include="NUnit3TestAdapter">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="NUnit" Version="4.5.1" />
+    <PackageReference Include="NUnit" />
   </ItemGroup>
 
   <!--

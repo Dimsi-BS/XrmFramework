@@ -10,6 +10,26 @@
       <NuspecProperties>$(NuspecProperties);commit=$(GitCommitId)</NuspecProperties>
 
       <NuspecProperties>$(NuspecProperties);XrmFramework_FullFramework_Runtime_TFM=$(XrmFramework_FullFramework_Runtime_TFM)</NuspecProperties>
+
+      <!-- Versions des dépendances tierces — source unique de vérité : Directory.Packages.props -->
+      <NuspecProperties>$(NuspecProperties);Ver_DataverseClient=$(Ver_DataverseClient)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_CrmSdkCoreAssemblies=$(Ver_CrmSdkCoreAssemblies)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_CrmSdkWorkflow=$(Ver_CrmSdkWorkflow)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_CrmSdkXrmTooling=$(Ver_CrmSdkXrmTooling)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_NewtonsoftJson=$(Ver_NewtonsoftJson)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_ExtDependencyInjection=$(Ver_ExtDependencyInjection)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_MicrosoftCSharp=$(Ver_MicrosoftCSharp)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_SysComponentAnnotations=$(Ver_SysComponentAnnotations)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_SysConfigurationManager=$(Ver_SysConfigurationManager)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_SysNetHttp=$(Ver_SysNetHttp)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_CommandLineParser=$(Ver_CommandLineParser)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_SpectreConsole=$(Ver_SpectreConsole)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_AzureRelay=$(Ver_AzureRelay)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_NETTestSdk=$(Ver_NETTestSdk)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_NUnit=$(Ver_NUnit)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_NUnit3Adapter=$(Ver_NUnit3Adapter)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_Moq=$(Ver_Moq)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);Ver_TypeScriptMSBuild=$(Ver_TypeScriptMSBuild)</NuspecProperties>
     </PropertyGroup>
 
     <ItemGroup>
