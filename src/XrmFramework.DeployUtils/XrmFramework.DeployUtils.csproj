@@ -51,8 +51,10 @@
     </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.45" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.8" />
+    <!-- XrmTooling 9.1.1.45 requis sur net462 ; version centrale = 9.1.1.65 (OnPremise) -->
+    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" VersionOverride="9.1.1.45" />
+    <!-- DI 3.1.8 requis sur net462 ; version centrale = 10.0.7 -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" VersionOverride="3.1.8" />
 
     <Reference Include="System.Configuration" />
     <Reference Include="Microsoft.CSharp" />
@@ -61,20 +63,20 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net10.0'">
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.2.10" />
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.2.10" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.9.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="4.2.2" />
-    <PackageReference Include="Spectre.Console" Version="0.55.2" />
-    <PackageReference Include="Spectre.Console.Analyzer" Version="1.0.0">
+    <PackageReference Include="CommandLineParser" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="Spectre.Console" />
+    <PackageReference Include="Spectre.Console.Analyzer">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Spectre.Console.Cli" Version="0.55.0" />
+    <PackageReference Include="Spectre.Console.Cli" />
   </ItemGroup>
 
   <ItemGroup>
@@ -102,8 +104,8 @@
 
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-      <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.60" />
-      <PackageReference Include="Microsoft.CrmSdk.Workflow" Version="9.0.2.60" />
+      <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" />
+      <PackageReference Include="Microsoft.CrmSdk.Workflow" />
     </ItemGroup>
 
 

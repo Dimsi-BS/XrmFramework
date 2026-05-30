@@ -15,7 +15,7 @@
         <copyright>$copyright$</copyright>
         <dependencies>
             <group targetFramework="netstandard2.0">
-                <dependency id="Microsoft.TypeScript.MSBuild" version="6.0.3" />
+                <dependency id="Microsoft.TypeScript.MSBuild" version="$Ver_TypeScriptMSBuild$" />
             </group>
         </dependencies>
     </metadata>

@@ -15,9 +15,9 @@
     <copyright>$copyright$</copyright>
     <dependencies>
       <group targetFramework="net48">
-          <dependency id="Microsoft.CrmSdk.XrmTooling.CoreAssembly" version="9.1.1.65" />
-        <dependency id="Newtonsoft.Json" version="13.0.4" />
-        <dependency id="Microsoft.Extensions.DependencyInjection" version="8.0.1" />
+        <dependency id="Microsoft.CrmSdk.XrmTooling.CoreAssembly" version="$Ver_CrmSdkXrmTooling$" />
+        <dependency id="Newtonsoft.Json" version="$Ver_NewtonsoftJson$" />
+        <dependency id="Microsoft.Extensions.DependencyInjection" version="$Ver_ExtDependencyInjection$" />
         <dependency id="XrmFramework" version="$version$" />
       </group>
     </dependencies>
