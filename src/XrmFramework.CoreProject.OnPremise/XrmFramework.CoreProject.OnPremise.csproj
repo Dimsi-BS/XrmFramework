@@ -24,27 +24,20 @@
     <DefineConstants>$(DefineConstants);DEPENDENCY_INJECTION;CORE_PROJECT;ON_PREMISE</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+  <ItemGroup >
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-  </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.7" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-  </ItemGroup>
 
-  <ItemGroup>
-        <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
-        <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.65" />
-        <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
-    </ItemGroup>
-
-
-  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
+    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.65" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="System.Reflection.DispatchProxy" Version="4.8.2" />
@@ -55,13 +48,13 @@
   </ItemGroup>
 
 
-    <ItemGroup>
-        <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-        <ProjectReference Include="..\XrmFramework.Analyzers.CodeFixes\XrmFramework.Analyzers.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\XrmFramework.Analyzers.CodeFixes\XrmFramework.Analyzers.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <AdditionalFiles Include="../XrmFramework/**/*.table" Exclude="../XrmFramework/bin/**;../XrmFramework/obj/**" />
-    </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="../XrmFramework/**/*.table" Exclude="../XrmFramework/bin/**;../XrmFramework/obj/**" />
+  </ItemGroup>
 
 </Project>
