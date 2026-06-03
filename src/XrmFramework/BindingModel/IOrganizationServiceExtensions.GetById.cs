@@ -89,60 +89,61 @@ public static class IOrganizationServiceExtensions_GetById
 
 
 #if !PLUGIN && !ON_PREMISE
-    extension(IOrganizationServiceAsync service)
+    public static async Task<T> GetByIdAsync<T>(this IOrganizationServiceAsync service, Guid id)
+        where T : IBindingModel
     {
-        public async Task<T> GetByIdAsync<T>(Guid id) where T : IBindingModel
-        {
-            var type = typeof(T);
-            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
-            return (T)await GetByIdAsync(type, service, new EntityReference(definition.EntityName, id));
-        }
-
-        public async Task<T> GetByIdAsync<T>(Guid id, Entity recordImage) where T : IBindingModel
-        {
-            var type = typeof(T);
-            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
-            return (T)await GetByIdAsync(type, service, new EntityReference(definition.EntityName, id), recordImage);
-        }
-
-        public async Task<T> GetByIdAsync<T>(EntityReference reference, Entity recordImage) where T : IBindingModel
-        {
-            var type = typeof(T);
-            return (T)await GetByIdAsync(type, service, reference, recordImage);
-        }
-
-        public async Task<T> GetByIdAsync<T>(EntityReference reference) where T : IBindingModel
-        {
-            var type = typeof(T);
-            return (T)await GetByIdAsync(type, service, reference);
-        }
+        var type = typeof(T);
+        var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
+        return (T)await GetByIdAsync(type, service, new EntityReference(definition.EntityName, id));
     }
 
-    extension(IOrganizationServiceAsync2 service)
+    public static async Task<T> GetByIdAsync<T>(this IOrganizationServiceAsync service, Guid id, Entity recordImage)
+        where T : IBindingModel
     {
-        public async Task<T> GetByIdAsync<T>(Guid id, CancellationToken cancellationToken) where T : IBindingModel
-        {
-            var type = typeof(T);
-            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
-            return (T)await GetByIdAsync(type, service, new EntityReference(definition.EntityName, id),
-                cancellationToken);
-        }
+        var type = typeof(T);
+        var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
+        return (T)await GetByIdAsync(type, service, new EntityReference(definition.EntityName, id), recordImage);
+    }
 
-        public async Task<T> GetByIdAsync<T>(Guid id, CancellationToken cancellationToken, Entity recordImage)
-            where T : IBindingModel
-        {
-            var type = typeof(T);
-            var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
-            return (T)await GetByIdAsync(type, service, new EntityReference(definition.EntityName, id),
-                cancellationToken, recordImage);
-        }
+    public static async Task<T> GetByIdAsync<T>(this IOrganizationServiceAsync service, EntityReference reference,
+        Entity recordImage) where T : IBindingModel
+    {
+        var type = typeof(T);
+        return (T)await GetByIdAsync(type, service, reference, recordImage);
+    }
 
-        public async Task<T> GetByIdAsync<T>(EntityReference reference, CancellationToken cancellationToken,
-            Entity recordImage = null) where T : IBindingModel
-        {
-            var type = typeof(T);
-            return (T)await GetByIdAsync(type, service, reference, cancellationToken, recordImage);
-        }
+    public static async Task<T> GetByIdAsync<T>(this IOrganizationServiceAsync service, EntityReference reference)
+        where T : IBindingModel
+    {
+        var type = typeof(T);
+        return (T)await GetByIdAsync(type, service, reference);
+    }
+
+    public static async Task<T> GetByIdAsync<T>(this IOrganizationServiceAsync2 service, Guid id,
+        CancellationToken cancellationToken) where T : IBindingModel
+    {
+        var type = typeof(T);
+        var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
+        return (T)await GetByIdAsync(type, service, new EntityReference(definition.EntityName, id),
+            cancellationToken);
+    }
+
+    public static async Task<T> GetByIdAsync<T>(this IOrganizationServiceAsync2 service, Guid id,
+        CancellationToken cancellationToken, Entity recordImage)
+        where T : IBindingModel
+    {
+        var type = typeof(T);
+        var definition = DefinitionCache.GetEntityDefinitionFromModelType(type);
+        return (T)await GetByIdAsync(type, service, new EntityReference(definition.EntityName, id),
+            cancellationToken, recordImage);
+    }
+
+    public static async Task<T> GetByIdAsync<T>(this IOrganizationServiceAsync2 service, EntityReference reference,
+        CancellationToken cancellationToken,
+        Entity recordImage = null) where T : IBindingModel
+    {
+        var type = typeof(T);
+        return (T)await GetByIdAsync(type, service, reference, cancellationToken, recordImage);
     }
 
     private static async Task<IBindingModel> GetByIdAsync(Type type, IOrganizationServiceAsync service, Guid id)
