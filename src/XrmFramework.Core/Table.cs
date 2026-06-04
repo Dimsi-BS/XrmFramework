@@ -30,7 +30,7 @@ namespace XrmFramework.Core
         public List<Relation> ManyToOneRelationships { get; } = new();
 
         [JsonProperty("Locked")]
-        public bool isLocked { get; set; } = false;
+        public bool IsLocked { get; set; } = false;
 
         [JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Reuse)]
         public ICollection<Key> Keys { get; } = new List<Key>();

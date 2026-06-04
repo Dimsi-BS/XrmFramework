@@ -284,7 +284,7 @@ namespace XrmFramework.Tests.Service
         [Test]
         public void Delete_StringGuid_NullLogicalName_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Delete((string)null, Guid.NewGuid()));
+            Assert.Throws<ArgumentNullException>(() => _sut.Delete((string?)null, Guid.NewGuid()));
         }
 
         [Test]
@@ -306,7 +306,7 @@ namespace XrmFramework.Tests.Service
         [Test]
         public void Delete_StringGuidCallerId_NullLogicalName_Throws()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Delete((string)null, Guid.NewGuid(), Guid.NewGuid()));
+            Assert.Throws<ArgumentNullException>(() => _sut.Delete(null, Guid.NewGuid(), Guid.NewGuid()));
         }
 
         [Test]
@@ -341,13 +341,13 @@ namespace XrmFramework.Tests.Service
         [Test]
         public void Delete_EntityRef_Null_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Delete((EntityReference)null));
+            Assert.Throws<ArgumentNullException>(() => _sut.Delete(null));
         }
 
         [Test]
         public void Delete_EntityRef_NullWithCallerId_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Delete((EntityReference)null, Guid.NewGuid()));
+            Assert.Throws<ArgumentNullException>(() => _sut.Delete((EntityReference?)null, Guid.NewGuid()));
         }
 
         [Test]
@@ -408,7 +408,7 @@ namespace XrmFramework.Tests.Service
         [Test]
         public void Retrieve_StringGuidCols_NullColumns_Throws()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Retrieve("contact", Guid.NewGuid(), (string[])null));
+            Assert.Throws<ArgumentNullException>(() => _sut.Retrieve("contact", Guid.NewGuid(), null));
         }
 
         [Test]
@@ -442,7 +442,7 @@ namespace XrmFramework.Tests.Service
         [Test]
         public void Retrieve_RefCols_NullRef_Throws()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Retrieve((EntityReference)null, "name"));
+            Assert.Throws<ArgumentNullException>(() => _sut.Retrieve(null, "name"));
         }
 
         [Test]
@@ -460,7 +460,7 @@ namespace XrmFramework.Tests.Service
         [Test]
         public void Retrieve_RefAllColumns_NullRef_Throws()
         {
-            Assert.Throws<ArgumentNullException>(() => _sut.Retrieve((EntityReference)null, true));
+            Assert.Throws<ArgumentNullException>(() => _sut.Retrieve(null, true));
         }
 
         [Test]
@@ -578,7 +578,7 @@ namespace XrmFramework.Tests.Service
         {
             var objectRef = new EntityReference("contact", Guid.NewGuid());
             var ownerRef = new EntityReference("systemuser", Guid.NewGuid());
-            AssignRequest capturedRequest = null;
+            AssignRequest? capturedRequest = null;
             _adminOrgServiceMock
                 .Setup(s => s.Execute(It.IsAny<AssignRequest>()))
                 .Callback<OrganizationRequest>(r => capturedRequest = (AssignRequest)r)
@@ -587,7 +587,7 @@ namespace XrmFramework.Tests.Service
             _sut.AssignEntity(objectRef, ownerRef);
 
             Assert.IsNotNull(capturedRequest);
-            Assert.AreEqual(ownerRef.Id, capturedRequest.Assignee.Id);
+            Assert.AreEqual(ownerRef.Id, capturedRequest!.Assignee.Id);
             Assert.AreEqual(objectRef, capturedRequest.Target);
         }
 
