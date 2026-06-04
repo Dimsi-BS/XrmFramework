@@ -13,6 +13,13 @@ namespace XrmFramework.DeployUtils.Configuration
 
         public string Name { get; set; }
 
+        /// <summary>
+        /// Indicates whether the target CRM is an On-Premises instance.
+        /// When <see langword="true" />, the deploy pipeline may use authentication
+        /// mechanisms adapted to On-Premises (e.g. AD/NTLM on net462, OAuth on net8+).
+        /// </summary>
+        public bool IsOnPremise { get; set; }
+
         public string AuthType => ConnectionStringParser.GetConnectionStringField(ConnectionString, "AuthType");
         public string Url => ConnectionStringParser.GetConnectionStringField(ConnectionString, "Url");
         public string ClientId => ConnectionStringParser.GetConnectionStringField(ConnectionString, "ClientId");

@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xrm.Sdk;
 using Spectre.Console;
+using XrmFramework.DeployUtils.CommandOptions;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Exporters;
@@ -41,34 +43,72 @@ public partial class RegistrationHelper
     }
 
     /// <summary>
-    ///     Entrypoint for registering the <typeparamref name="TPlugin" /> in the solution <paramref name="projectName" />
+    ///     Entrypoint for registering the <typeparamref name="TPlugin" /> assembly in the CRM solution
+    ///     <paramref name="projectName" />.
     /// </summary>
-    /// <typeparam name="TPlugin">Root type of all components to deploy, should be <c>XrmFramework.Plugin</c></typeparam>
-    public static void RegisterPluginsAndWorkflows<TPlugin>()
+    /// <typeparam name="TPlugin">
+    ///     Root type of all components to deploy, should be <c>XrmFramework.Plugin</c>.
+    /// </typeparam>
+    /// <param name="projectName">
+    ///     Name of the target CRM solution (e.g. <c>"MyProject.Plugins"</c>).
+    /// </param>
+    /// <param name="isOnPremise">
+    ///     <see langword="true" /> for an On-Premises CRM; <see langword="false" /> for Dataverse Online.
+    /// </param>
+    /// <param name="args">
+    ///     Command-line arguments forwarded from <c>Program.cs</c>.
+    ///     Supported options:
+    ///     <list type="bullet">
+    ///         <item><c>-n</c> / <c>--noprompt</c> — skip the interactive connection confirmation (CI/CD mode).</item>
+    ///     </list>
+    /// </param>
+    public static void RegisterPluginsAndWorkflows<TPlugin>(
+        string projectName,
+        bool isOnPremise,
+        string[] args)
     {
+        // ── 1. Parse les args pour extraire les options de déploiement ─────────
+        var noPrompt = false;
+
+        Parser.Default
+            .ParseArguments<DeployCommandOptions>(args)
+            .WithParsed(opts => noPrompt = opts.NoPrompt)
+            .WithNotParsed(_ => { /* options inconnues ignorées silencieusement */ });
+
+        var deployOptions = new DeployOptions
+        {
+            IsOnPremise = isOnPremise,
+            NoPrompt = noPrompt
+        };
+
+        // ── 2. Initialise le conteneur DI ──────────────────────────────────────
         var localDll = typeof(TPlugin).Assembly;
-        var serviceCollection = DeployServiceCollectionFactory.CreateServiceCollection(localDll.GetName().Name);
+        var serviceCollection = DeployServiceCollectionFactory
+            .CreateServiceCollection(projectName, deployOptions);
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var deploySettingsProvider = serviceProvider.GetRequiredService<IDeploySettingsProvider>();
-        var deploySettings = deploySettingsProvider.GetSelectedDeploySettings();
+        var deploySettings = serviceProvider.GetRequiredService<DeploySettings>();
 
-        AnsiConsole.WriteLine($@"Assembly {localDll.GetName().Name}");
-        AnsiConsole.WriteLine(@"You are about to deploy on organization:");
-        AnsiConsole.WriteLine(@$"Url : {deploySettings.Url}");
-        AnsiConsole.WriteLine(@$"ClientId : {deploySettings.ClientId}");
-        if (!AnsiConsole.Confirm("Continue with deployment?"))
+        // ── 3. Affiche le résumé de connexion ──────────────────────────────────
+        AnsiConsole.WriteLine($"Assembly  : {localDll.GetName().Name}");
+        AnsiConsole.WriteLine($"Cible     : {deploySettings.Url}");
+        AnsiConsole.WriteLine($"ClientId  : {deploySettings.ClientId}");
+        AnsiConsole.WriteLine($"OnPremise : {(isOnPremise ? "oui" : "non")}");
+
+        // ── 4. Confirmation interactive (sauf mode silencieux) ─────────────────
+        if (!deployOptions.NoPrompt && !AnsiConsole.Confirm("Continuer le déploiement ?"))
         {
             Environment.Exit(0);
         }
-        AnsiConsole.WriteLine(@"Connecting to CRM...");
+
+        // ── 5. Connexion et déploiement ────────────────────────────────────────
+        AnsiConsole.WriteLine("Connexion au CRM...");
 
         var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
         solutionContext.InitSolutionContext();
 
         var registrationHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
-
         registrationHelper.Register(localDll);
     }
 

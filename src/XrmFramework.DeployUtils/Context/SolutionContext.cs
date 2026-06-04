@@ -6,6 +6,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Spectre.Console;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Service;
 
 namespace XrmFramework.DeployUtils.Context
@@ -15,11 +16,11 @@ namespace XrmFramework.DeployUtils.Context
 	/// </summary>
 	public class SolutionContext : ISolutionContext
 	{
-		public SolutionContext(IRegistrationService service, IDeploySettingsProvider deploySettingsProvider)
+		public SolutionContext(IRegistrationService service, DeploySettings deploySettings)
 		{
 			_service = service;
 
-			SolutionName = deploySettingsProvider.GetSelectedDeploySettings().PluginSolutionUniqueName;
+			SolutionName = deploySettings.PluginSolutionUniqueName;
 		}
 
 		private readonly IRegistrationService _service;
@@ -198,7 +199,7 @@ namespace XrmFramework.DeployUtils.Context
 			{
 				query.Criteria.AddCondition(SdkMessageFilterDefinition.PrimaryObjectTypeCode, ConditionOperator.In, interestingEntityNames.ToArray());
 			}
-			
+
 			var messageLink = query.AddLink(SdkMessageDefinition.EntityName,
 			                                SdkMessageFilterDefinition.Columns.SdkMessageId, SdkMessageDefinition.Columns.Id);
 
