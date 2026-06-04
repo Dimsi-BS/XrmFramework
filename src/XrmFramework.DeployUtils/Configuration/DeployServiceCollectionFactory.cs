@@ -1,7 +1,8 @@
+using System.Configuration;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-
-
 using Microsoft.Xrm.Sdk;
+using Spectre.Console;
 using XrmFramework.DeployUtils.Comparers;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Converters;
@@ -18,47 +19,64 @@ namespace XrmFramework.DeployUtils.Configuration;
 internal static class DeployServiceCollectionFactory
 {
     /// <summary>
-    ///     Configures the required objects used during Deploy, such as :
-    ///     <list type="bullet">
-    ///         <item><see cref="IRegistrationService" />, the service used for communicating with the CRM</item>
-    ///         <item><see cref="ICrmMapper" />, used for conversion between <see cref="Deploy" /> and
-    ///             <see cref="Model" /> objects as well as cloning</item>
-    ///         <item><see cref="DeploySettings" />, an object that contains information on the target <c>Solution</c></item>
-    ///         <item>The configuration of all other implemented interfaces</item>
-    ///     </list>
+    ///     Construit un <see cref="DeploySettings" /> à partir de la configuration et des options
+    ///     de déploiement, puis configure le conteneur DI.
     /// </summary>
-    /// <param name="projectName">Name of the target solution</param>
-    /// <returns><see cref="IServiceProvider" /> the service provider used to instantiate every object needed</returns>
-    public static IServiceCollection CreateServiceCollection(string projectName)
+    /// <param name="projectName">
+    ///     Nom du projet tel que déclaré dans <c>xrmFramework.config</c>.
+    ///     Utilisé pour résoudre le nom de la solution CRM cible.
+    /// </param>
+    /// <param name="deployOptions">
+    ///     Options de déploiement (OnPremise, mode silencieux, etc.) transmises par
+    ///     <see cref="RegistrationHelper.RegisterPluginsAndWorkflows{TPlugin}" />.
+    /// </param>
+    public static IServiceCollection CreateServiceCollection(string projectName, DeployOptions deployOptions)
     {
-        var serviceCollection =
-            new ServiceCollection()
+        // ── Lecture de la configuration ────────────────────────────────────────
+        var xrmSection     = ConfigHelper.GetSection();
+        var connectionString = ConfigurationManager
+            .ConnectionStrings[xrmSection.SelectedConnection]
+            .ConnectionString;
+
+        var projectConfig = xrmSection.Projects
+            .OfType<ProjectElement>()
+            .FirstOrDefault(p => p.Name == projectName);
+
+        if (projectConfig == null)
+        {
+            AnsiConsole.MarkupLine(
+                $"[red]Le projet «{projectName}» est introuvable dans xrmFramework.config.[/]");
+            System.Environment.Exit(1);
+        }
+
+        var deploySettings = new DeploySettings
+        {
+            ConnectionString        = connectionString,
+            PluginSolutionUniqueName = projectConfig!.TargetSolution,
+            IsOnPremise             = deployOptions.IsOnPremise
+        };
+
+        // ── Configuration du conteneur DI ─────────────────────────────────────
+        return new ServiceCollection()
             .InitServiceCollection()
             .AddScoped<IAssemblyExporter, AssemblyExporter>()
-            .AddSingleton<IDeploySettingsProvider, DeploySettingsProvider>()
-            .AddSingleton<ITargetSolutionProvider>(_ => new TargetSolutionProvider(projectName))
+            .AddSingleton(deploySettings)
             .AddScoped<IOrganizationService>(sp =>
             {
-                var deploySettingsProvider = sp.GetRequiredService<IDeploySettingsProvider>();
-                var deploySettings = deploySettingsProvider.GetSelectedDeploySettings();
-
+                var settings = sp.GetRequiredService<DeploySettings>();
 #if NET462_OR_GREATER
-                return new Microsoft.Xrm.Tooling.Connector.CrmServiceClient(deploySettings.ConnectionString);
+                // net462 : CrmServiceClient supporte Online et On-Premises (NTLM/AD/OAuth).
+                return new Microsoft.Xrm.Tooling.Connector.CrmServiceClient(settings.ConnectionString);
 #else
-                return new Microsoft.PowerPlatform.Dataverse.Client.ServiceClient(deploySettings.ConnectionString);
+                // net8+ : ServiceClient (Dataverse) supporte Online et On-Premises via OAuth.
+                return new Microsoft.PowerPlatform.Dataverse.Client.ServiceClient(settings.ConnectionString);
 #endif
             });
-
-        return serviceCollection;
     }
 
     /// <summary>
-    ///     Configures the base <see cref="IServiceCollection" /> required for deploy,
-    ///     for more functionalities you can add them in the returned <see cref="IServiceCollection" />
+    ///     Enregistre les services de base communs à toutes les configurations de déploiement.
     /// </summary>
-    /// <returns>
-    ///     <see cref="IServiceCollection" />
-    /// </returns>
     public static IServiceCollection InitServiceCollection(this IServiceCollection serviceCollection)
       => serviceCollection
         .AddScoped<IRegistrationService, RegistrationService>()

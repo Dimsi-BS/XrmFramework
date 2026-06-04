@@ -1,7 +1,21 @@
 <Project>
-    <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    </ItemGroup>
+  <!--
+  Chemin vers l'outil xrmframework-tablesync embarqué dans ce package.
+  Utilisable dans les cibles MSBuild du projet consommateur.
+
+  Ligne de commande :
+
+  dotnet $(XrmFrameworkTableSyncTool) &#45;&#45;dll $(TargetPath) &#45;&#45;tables-dir $(MSBuildProjectDirectory)\..\Definitions
+
+  Exemple dans une cible MSBuild :
+
+    <Target Name="SyncTableFiles">
+      <Exec Command="dotnet $(XrmFrameworkTableSyncTool) &#45;&#45;dll $(TargetPath) &#45;&#45;tables-dir $(MSBuildProjectDirectory)\..\Definitions" />
+    </Target>
+  -->
+  <PropertyGroup>
+    <XrmFrameworkTableSyncTool>$(MSBuildThisFileDirectory)..\tools\net8.0\any\XrmFramework.TableSync.Tool.dll</XrmFrameworkTableSyncTool>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Include="$(RootFolder)\Config\App.config" Condition="">

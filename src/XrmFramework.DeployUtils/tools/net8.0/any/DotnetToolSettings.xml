@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DotNetCliTool Version="1">
+  <Commands>
+    <!--
+      Commande disponible après installation du package en tant que tool local :
+        dotnet tool install XrmFramework.DeployUtils --local
+
+      Invocation directe depuis le cache NuGet (library consumers) :
+        dotnet {nuget-cache}/xrmframework.deployutils/{version}/tools/net8.0/any/XrmFramework.TableSync.Tool.dll [options]
+
+      Options :
+        --dll        <chemin.dll>   (obligatoire)  DLL à analyser
+        --tables-dir <répertoire>   (obligatoire)  Répertoire des .table
+        --clean                     (optionnel)    De-sélectionne les colonnes orphelines
+    -->
+    <Command Name="xrmframework-tablesync"
+             EntryPoint="XrmFramework.TableSync.Tool.dll"
+             Runner="dotnet" />
+  </Commands>
+</DotNetCliTool>

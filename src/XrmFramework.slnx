@@ -22,6 +22,7 @@
   <Project Path="XrmFramework.CoreProject/XrmFramework.CoreProject.csproj" />
   <Project Path="XrmFramework.DefinitionManager/XrmFramework.DefinitionManager.csproj" />
   <Project Path="XrmFramework.DeployUtils/XrmFramework.DeployUtils.csproj" />
+  <Project Path="XrmFramework.TableSync.Tool/XrmFramework.TableSync.Tool.csproj" />
   <Project Path="XrmFramework.Plugin/XrmFramework.Plugin.csproj" />
   <Project Path="XrmFramework.RemoteDebugger.Client/XrmFramework.RemoteDebugger.Client.csproj" />
   <Project Path="XrmFramework.RemoteDebugger.Generator/XrmFramework.RemoteDebugger.Generator.csproj" />
