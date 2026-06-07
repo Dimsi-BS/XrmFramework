@@ -42,20 +42,20 @@ dotnet run --project src/XrmFramework.Cli -- <commande> [options]
 ## Configuration de l'environnement
 
 Les commandes de **déploiement** ciblent l'environnement *sélectionné* dans la
-configuration du projet, via deux fichiers (mécanisme XrmFramework existant) :
+configuration du projet, via deux fichiers (mécanisme XrmFramework existant) lus dans
+le dossier **`Config/`** de la racine du projet (`--project-root`, défaut : dossier courant) :
 
 | Fichier | Rôle |
 |---|---|
-| `xrmFramework.config` | Déclare les projets et la connexion active (`SelectedConnection`). |
-| `connectionStrings.config` | Définit les chaînes de connexion nommées (Dataverse / On-Premises). |
+| `Config/xrmFramework.config` | Déclare les projets et la connexion active (`selectedConnection`). |
+| `Config/connectionStrings.config` | Définit les chaînes de connexion nommées (Dataverse / On-Premises). |
 
-`SelectedConnection` pointe vers une entrée de `connectionStrings.config` : c'est
+`selectedConnection` pointe vers une entrée de `connectionStrings.config` : c'est
 **l'environnement cible** des commandes `deploy`. La commande `tables sync`, elle,
 n'a **pas** besoin de connexion (elle travaille uniquement à partir d'un assembly local).
 
-> Note : la résolution de configuration repose aujourd'hui sur `ConfigurationManager`.
-> Pour un tool exécuté hors du dossier projet, prévoir le passage du dossier de config
-> (cf. [Roadmap](#roadmap)).
+> Le CLI charge ces deux fichiers explicitement (sans dépendre d'un `App.config`
+> applicatif) — cf. [`ConfigHelper.UseProjectConfig`](../XrmFramework.DeployUtils/Configuration/ConfigHelper.cs).
 
 ---
 
@@ -97,6 +97,48 @@ Implémentation : [`TableSyncHelper.Sync`](../XrmFramework.DeployUtils/TableSync
 → [`DefinitionAnalyzer`](../XrmFramework.DeployUtils/TableSync/DefinitionAnalyzer.cs)
 + [`TableFileSyncer`](../XrmFramework.DeployUtils/TableSync/TableFileSyncer.cs).
 
+### `xrmframework deploy plugins` ✅ *(disponible)*
+
+Déploie une assembly XrmFramework — **plugins, custom APIs et workflows** — vers
+l'environnement sélectionné dans `Config/xrmFramework.config`.
+
+```bash
+xrmframework deploy plugins --dll <chemin.dll> --project <nom> [--project-root <dir>] [--on-premise] [--noprompt]
+```
+
+| Option | Requis | Description |
+|---|:---:|---|
+| `--dll <PATH>` | ✅ | Assembly **net8.0** du projet plugin à déployer. |
+| `--project <NAME>` | ✅ | Nom du projet tel que déclaré dans `xrmFramework.config` (ex. `Plugins`). |
+| `--project-root <DIR>` | ❌ | Racine contenant le dossier `Config/` (défaut : dossier courant). |
+| `--on-premise` | ❌ | Cible un CRM On-Premises (défaut : Dataverse Online). |
+| `-n`, `--noprompt` | ❌ | Mode silencieux : ignore la confirmation de connexion (CI/CD). |
+
+> ⚠️ **`--dll` doit pointer l'asset net8.0** du projet plugin. Les projets plugin sont
+> aujourd'hui `net462` ; leur multi-ciblage `net8.0` (pour le chargement par ce tool net8.0)
+> est en cours (cf. [Roadmap](#roadmap)). L'asset net8.0 sert uniquement à l'outillage —
+> Dataverse exécute toujours le build net462.
+
+**Exemple**
+
+```bash
+xrmframework deploy plugins --dll bin/Release/net8.0/MyProject.Plugins.dll \
+                            --project MyProject.Plugins \
+                            --noprompt
+```
+
+**Codes de sortie**
+
+| Code | Signification |
+|:---:|---|
+| `0` | Succès (ou annulation à la confirmation). |
+| `1` | Projet absent de `xrmFramework.config`. |
+| `3` | Erreur inattendue (connexion, déploiement…). |
+| `255` | Erreur de validation des arguments (Spectre). |
+
+Implémentation : [`RegistrationHelper.RegisterPluginsAndWorkflows`](../XrmFramework.DeployUtils/RegistrationHelper.cs)
++ [`ConfigHelper.UseProjectConfig`](../XrmFramework.DeployUtils/Configuration/ConfigHelper.cs).
+
 ---
 
 ## Roadmap
@@ -109,9 +151,13 @@ xrmframework
 │   ├── sync           ✅  synchronise les .table depuis un assembly
 │   └── columns        🚧  ajoute / modifie des colonnes d'une ou plusieurs tables
 └── deploy
-    ├── plugins        🚧  déploie une assembly plugins / custom API / workflow
+    ├── plugins        ✅  déploie une assembly plugins / custom API / workflow
     └── webresources   🚧  déploie les webresources
 ```
+
+> Pré-requis 🚧 pour `deploy plugins` : multi-ciblage **net8.0** des projets/packages
+> plugin (aujourd'hui `net462`), pour que ce tool net8.0 charge nativement l'assembly.
+> Lot de travail séparé, en cours.
 
 ### 🚧 `tables columns` — ajouter / modifier des colonnes
 
@@ -120,18 +166,6 @@ ou plusieurs tables (sans repasser par la génération complète). Verbes presse
 (à figer) : `tables columns add` / `tables columns set`. Réutilisera la couche
 d'écriture de [`TableFileSyncer`](../XrmFramework.DeployUtils/TableSync/TableFileSyncer.cs).
 
-### 🚧 `deploy plugins` — déployer une assembly plugins / custom API / workflow
-
-Déploie/enregistre les steps de plugins, custom APIs et workflows d'une assembly
-vers l'environnement `SelectedConnection`. S'appuiera sur
-[`RegistrationHelper.RegisterPluginsAndWorkflows`](../XrmFramework.DeployUtils/RegistrationHelper.cs).
-
-> Adaptation CLI nécessaire : la signature actuelle prend l'assembly via un
-> paramètre générique `<TPlugin>` (résolution à la compilation). En CLI, l'assembly
-> sera chargée **par chemin** (`--dll`, comme `tables sync`) + un nom de projet
-> (`--project`, tel que déclaré dans `xrmFramework.config`). Prévoir aussi
-> `-n/--noprompt` (déjà géré par `DeployCommandOptions`) et la localisation des
-> fichiers de config (`--config` / dossier courant).
 
 ### 🚧 `deploy webresources` — déployer les webresources
 

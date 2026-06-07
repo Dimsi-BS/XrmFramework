@@ -33,10 +33,10 @@ internal static class DeployServiceCollectionFactory
     public static IServiceCollection CreateServiceCollection(string projectName, DeployOptions deployOptions)
     {
         // ── Lecture de la configuration ────────────────────────────────────────
-        var xrmSection     = ConfigHelper.GetSection();
-        var connectionString = ConfigurationManager
-            .ConnectionStrings[xrmSection.SelectedConnection]
-            .ConnectionString;
+        // Passe par ConfigHelper pour honorer une éventuelle config de projet chargée
+        // explicitement via ConfigHelper.UseProjectConfig (cas du CLI autonome).
+        var xrmSection       = ConfigHelper.GetSection();
+        var connectionString = ConfigHelper.GetSelectedConnectionString();
 
         var projectConfig = xrmSection.Projects
             .OfType<ProjectElement>()

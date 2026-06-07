@@ -75,41 +75,74 @@ public partial class RegistrationHelper
             .WithParsed(opts => noPrompt = opts.NoPrompt)
             .WithNotParsed(_ => { /* options inconnues ignorées silencieusement */ });
 
-        var deployOptions = new DeployOptions
+        // L'assembly est résolue à la compilation via le type racine fourni.
+        var exitCode = RegisterPluginsAndWorkflows(typeof(TPlugin).Assembly, projectName, isOnPremise, noPrompt);
+        if (exitCode != 0)
+            Environment.Exit(exitCode);
+    }
+
+    /// <summary>
+    ///     Enregistre l'assembly <paramref name="localDll" /> (plugins, custom APIs, workflows)
+    ///     dans la solution CRM <paramref name="projectName" />.
+    /// </summary>
+    /// <param name="localDll">
+    ///     Assembly à déployer. Doit contenir les types de base XrmFramework (compilés depuis
+    ///     le package source <c>XrmFramework.Plugin</c>) et apparaître dans <c>xrmFramework.config</c>.
+    /// </param>
+    /// <param name="projectName">Nom du projet/solution cible (ex. <c>"MyProject.Plugins"</c>).</param>
+    /// <param name="isOnPremise"><see langword="true" /> pour On-Premises ; sinon Dataverse Online.</param>
+    /// <param name="noPrompt">Mode silencieux : ignore la confirmation interactive (CI/CD).</param>
+    /// <returns>Code de sortie : <c>0</c> succès (ou annulation au prompt), <c>3</c> erreur inattendue.</returns>
+    public static int RegisterPluginsAndWorkflows(
+        Assembly localDll,
+        string projectName,
+        bool isOnPremise,
+        bool noPrompt)
+    {
+        try
         {
-            IsOnPremise = isOnPremise,
-            NoPrompt = noPrompt
-        };
+            var deployOptions = new DeployOptions
+            {
+                IsOnPremise = isOnPremise,
+                NoPrompt = noPrompt
+            };
 
-        // ── 2. Initialise le conteneur DI ──────────────────────────────────────
-        var localDll = typeof(TPlugin).Assembly;
-        var serviceCollection = DeployServiceCollectionFactory
-            .CreateServiceCollection(projectName, deployOptions);
+            // ── Initialise le conteneur DI ─────────────────────────────────────
+            var serviceCollection = DeployServiceCollectionFactory
+                .CreateServiceCollection(projectName, deployOptions);
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var deploySettings = serviceProvider.GetRequiredService<DeploySettings>();
+            var deploySettings = serviceProvider.GetRequiredService<DeploySettings>();
 
-        // ── 3. Affiche le résumé de connexion ──────────────────────────────────
-        AnsiConsole.WriteLine($"Assembly  : {localDll.GetName().Name}");
-        AnsiConsole.WriteLine($"Cible     : {deploySettings.Url}");
-        AnsiConsole.WriteLine($"ClientId  : {deploySettings.ClientId}");
-        AnsiConsole.WriteLine($"OnPremise : {(isOnPremise ? "oui" : "non")}");
+            // ── Affiche le résumé de connexion ─────────────────────────────────
+            AnsiConsole.WriteLine($"Assembly  : {localDll.GetName().Name}");
+            AnsiConsole.WriteLine($"Cible     : {deploySettings.Url}");
+            AnsiConsole.WriteLine($"ClientId  : {deploySettings.ClientId}");
+            AnsiConsole.WriteLine($"OnPremise : {(isOnPremise ? "oui" : "non")}");
 
-        // ── 4. Confirmation interactive (sauf mode silencieux) ─────────────────
-        if (!deployOptions.NoPrompt && !AnsiConsole.Confirm("Continuer le déploiement ?"))
-        {
-            Environment.Exit(0);
+            // ── Confirmation interactive (sauf mode silencieux) ────────────────
+            if (!deployOptions.NoPrompt && !AnsiConsole.Confirm("Continuer le déploiement ?"))
+            {
+                return 0;
+            }
+
+            // ── Connexion et déploiement ───────────────────────────────────────
+            AnsiConsole.WriteLine("Connexion au CRM...");
+
+            var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
+            solutionContext.InitSolutionContext();
+
+            var registrationHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
+            registrationHelper.Register(localDll);
+
+            return 0;
         }
-
-        // ── 5. Connexion et déploiement ────────────────────────────────────────
-        AnsiConsole.WriteLine("Connexion au CRM...");
-
-        var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
-        solutionContext.InitSolutionContext();
-
-        var registrationHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
-        registrationHelper.Register(localDll);
+        catch (Exception ex)
+        {
+            AnsiConsole.WriteException(ex);
+            return 3;
+        }
     }
 
     /// <summary>
