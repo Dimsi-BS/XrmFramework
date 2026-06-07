@@ -33,6 +33,14 @@ steps:
     version: '10.0.x'
     includePreviewVersions: true
 
+- powershell: |
+    $versionJson = Get-Content "$(Build.SourcesDirectory)/version.json" -Raw | ConvertFrom-Json
+    if ("$(Build.SourceBranch)" -eq "refs/heads/main" -and $versionJson.version -notmatch "-beta") {
+      Write-Error "La branche main doit produire une version beta. Version actuelle: $($versionJson.version)"
+      exit 1
+    }
+  displayName: 'Validate beta version on main'
+
 - script: dotnet build XrmFramework.slnx --configuration $(buildConfiguration) /p:PublicRelease=true
   displayName: Build
   workingDirectory: src
