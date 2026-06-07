@@ -15,6 +15,11 @@
       XrmFramework.Plugin inclut déjà les sources de XrmFramework en interne.
     -->
     <ProjectReference Include="../../src/XrmFramework.Plugin/XrmFramework.Plugin.csproj" />
+
+    <!-- Générateur de manifeste de steps (analyzer) : émet XrmFramework.Generated.PluginManifest -->
+    <ProjectReference Include="../../src/XrmFramework.PluginManifest.Generator/XrmFramework.PluginManifest.Generator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

@@ -153,7 +153,9 @@ public partial class RegistrationHelper
     {
         _consoleService.SetStatus("Fetching Local Assembly...");
 
-        var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(localDll);
+        // La configuration des composants est lue depuis le manifeste embarqué (généré à la
+        // compilation du plugin), sans instancier aucun type — un seul chemin, tous TFM.
+        var localAssembly = _assemblyFactory.CreateFromManifestAssemblyContext(localDll);
 
         _consoleService.SetStatus("Fetching Remote Assembly...");
 

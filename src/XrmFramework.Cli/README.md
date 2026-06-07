@@ -108,21 +108,28 @@ xrmframework deploy plugins --dll <chemin.dll> --project <nom> [--project-root <
 
 | Option | Requis | Description |
 |---|:---:|---|
-| `--dll <PATH>` | ✅ | Assembly **net8.0** du projet plugin à déployer. |
+| `--dll <PATH>` | ✅ | Assembly du projet plugin (`net462`, celle enregistrée dans Dataverse). |
 | `--project <NAME>` | ✅ | Nom du projet tel que déclaré dans `xrmFramework.config` (ex. `Plugins`). |
 | `--project-root <DIR>` | ❌ | Racine contenant le dossier `Config/` (défaut : dossier courant). |
 | `--on-premise` | ❌ | Cible un CRM On-Premises (défaut : Dataverse Online). |
 | `-n`, `--noprompt` | ❌ | Mode silencieux : ignore la confirmation de connexion (CI/CD). |
 
-> ⚠️ **`--dll` doit pointer l'asset net8.0** du projet plugin. Les projets plugin sont
-> aujourd'hui `net462` ; leur multi-ciblage `net8.0` (pour le chargement par ce tool net8.0)
-> est en cours (cf. [Roadmap](#roadmap)). L'asset net8.0 sert uniquement à l'outillage —
-> Dataverse exécute toujours le build net462.
+> **Comment ça marche — via un manifeste, sans instanciation.** Le tool ne *charge* ni
+> *n'exécute* les types du plugin (impossible : un plugin est `net462`, ce tool est `net8.0`).
+> Il lit un **manifeste de steps embarqué dans l'assembly** (`XrmFramework.Generated.PluginManifest`),
+> émis à la compilation par le source generator livré dans le package `XrmFramework.Plugin`.
+>
+> Deux conséquences :
+> - Le projet plugin doit être **(re)compilé avec un XrmFramework porteur du générateur** —
+>   sinon le manifeste est absent et le déploiement échoue avec un message explicite.
+> - Les steps doivent être déclarés **statiquement** : une liste plate d'appels `AddStep(...)`
+>   à arguments constants (littéraux, enums, `nameof`). L'enregistrement *dynamique*
+>   (boucle / condition / valeur calculée) provoque une **erreur de compilation** (`XRMMAN001`).
 
 **Exemple**
 
 ```bash
-xrmframework deploy plugins --dll bin/Release/net8.0/MyProject.Plugins.dll \
+xrmframework deploy plugins --dll bin/Release/net462/MyProject.Plugins.dll \
                             --project MyProject.Plugins \
                             --noprompt
 ```
@@ -133,10 +140,11 @@ xrmframework deploy plugins --dll bin/Release/net8.0/MyProject.Plugins.dll \
 |:---:|---|
 | `0` | Succès (ou annulation à la confirmation). |
 | `1` | Projet absent de `xrmFramework.config`. |
-| `3` | Erreur inattendue (connexion, déploiement…). |
+| `3` | Erreur inattendue (manifeste absent, connexion, déploiement…). |
 | `255` | Erreur de validation des arguments (Spectre). |
 
 Implémentation : [`RegistrationHelper.RegisterPluginsAndWorkflows`](../XrmFramework.DeployUtils/RegistrationHelper.cs)
+→ [`PluginManifestReader`](../XrmFramework.DeployUtils/Factories/PluginManifestReader.cs)
 + [`ConfigHelper.UseProjectConfig`](../XrmFramework.DeployUtils/Configuration/ConfigHelper.cs).
 
 ---
@@ -155,9 +163,9 @@ xrmframework
     └── webresources   🚧  déploie les webresources
 ```
 
-> Pré-requis 🚧 pour `deploy plugins` : multi-ciblage **net8.0** des projets/packages
-> plugin (aujourd'hui `net462`), pour que ce tool net8.0 charge nativement l'assembly.
-> Lot de travail séparé, en cours.
+> `deploy plugins` lit le **manifeste** embarqué dans l'assembly plugin `net462` (généré à
+> la compilation par le package `XrmFramework.Plugin`) — aucun chargement ni instanciation
+> de types, donc aucun multi-ciblage net8.0 requis.
 
 ### 🚧 `tables columns` — ajouter / modifier des colonnes
 

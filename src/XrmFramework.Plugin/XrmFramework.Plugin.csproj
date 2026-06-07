@@ -47,4 +47,16 @@
         <AdditionalFiles Include="../XrmFramework/**/*.table" Exclude="../XrmFramework/bin/**;../XrmFramework/obj/**" />
     </ItemGroup>
 
+  <!--
+    Compile le source generator de manifeste AVANT la génération du nuspec, afin que sa
+    DLL (analyzers/dotnet/cs) soit disponible pour l'embarquement dans ce package.
+    Le générateur n'est PAS publié comme package autonome.
+  -->
+  <Target Name="BuildPluginManifestGeneratorBeforePack" BeforeTargets="GenerateNuspec">
+    <MSBuild Projects="$(MSBuildThisFileDirectory)..\XrmFramework.PluginManifest.Generator\XrmFramework.PluginManifest.Generator.csproj"
+             Targets="Build"
+             Properties="Configuration=$(Configuration)"
+             BuildInParallel="false" />
+  </Target>
+
 </Project>

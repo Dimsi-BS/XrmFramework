@@ -11,11 +11,13 @@ namespace XrmFramework.DeployUtils.Factories;
 public partial interface IAssemblyFactory
 {
     /// <summary>
-    ///     Imports the <paramref name="assembly" /> Local Assembly and parses it as a <see cref="IAssemblyContext" />
+    ///     Construit l'<see cref="IAssemblyContext" /> local à partir du manifeste de steps embarqué
+    ///     dans l'<paramref name="assembly" /> (constante générée par XrmFramework.PluginManifest.Generator),
+    ///     <b>sans instancier</b> aucun type. Unique source de l'assembly locale (tous TFM).
     /// </summary>
-    /// <param name="assembly">The local assembly to load</param>
-    /// <returns><see cref="IAssemblyContext" /> The parsed AssemblyContext</returns>
-    IAssemblyContext CreateFromLocalAssemblyContext(Assembly assembly);
+    /// <param name="assembly">The local plugin assembly carrying the manifest.</param>
+    /// <returns><see cref="IAssemblyContext" /> rebuilt from the manifest.</returns>
+    IAssemblyContext CreateFromManifestAssemblyContext(Assembly assembly);
 
     /// <summary>
     ///     Imports the <paramref name="assemblyName" /> Remote Assembly and parses it as a <see cref="IAssemblyContext" />
