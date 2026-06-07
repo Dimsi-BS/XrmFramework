@@ -17,12 +17,12 @@
   </Folder>
   <Project Path="XrmFramework.Analyzers/XrmFramework.Analyzers.csproj" />
   <Project Path="XrmFramework.Analyzers.CodeFixes/XrmFramework.Analyzers.CodeFixes.csproj" />
+  <Project Path="XrmFramework.Cli/XrmFramework.Cli.csproj" />
   <Project Path="XrmFramework.Core/XrmFramework.Core.csproj" />
   <Project Path="XrmFramework.CoreProject.OnPremise/XrmFramework.CoreProject.OnPremise.csproj" />
   <Project Path="XrmFramework.CoreProject/XrmFramework.CoreProject.csproj" />
   <Project Path="XrmFramework.DefinitionManager/XrmFramework.DefinitionManager.csproj" />
   <Project Path="XrmFramework.DeployUtils/XrmFramework.DeployUtils.csproj" />
-  <Project Path="XrmFramework.TableSync.Tool/XrmFramework.TableSync.Tool.csproj" />
   <Project Path="XrmFramework.Plugin/XrmFramework.Plugin.csproj" />
   <Project Path="XrmFramework.RemoteDebugger.Client/XrmFramework.RemoteDebugger.Client.csproj" />
   <Project Path="XrmFramework.RemoteDebugger.Generator/XrmFramework.RemoteDebugger.Generator.csproj" />

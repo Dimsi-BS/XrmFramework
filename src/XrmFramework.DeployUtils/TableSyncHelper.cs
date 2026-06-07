@@ -32,12 +32,23 @@ namespace XrmFramework.DeployUtils
         /// Synchronise les fichiers .table selon les classes <c>[EntityDefinition]</c>
         /// trouvées dans le DLL indiqué par <paramref name="args"/>.
         /// </summary>
+        /// <remarks>
+        /// Point d'entrée hérité conservé pour compatibilité : il effectue le parsing
+        /// CommandLineParser puis délègue à <see cref="Sync(string, string, bool)"/>.
+        /// En cas d'échec, le processus est terminé via <see cref="Environment.Exit(int)"/>.
+        /// Les nouveaux appelants (CLI Spectre) doivent préférer <see cref="Sync(string, string, bool)"/>.
+        /// </remarks>
         /// <param name="args">Arguments de ligne de commande.</param>
         public static void SyncTables(params string[] args)
         {
             Parser.Default
                   .ParseArguments<TableSyncCommandOptions>(args)
-                  .WithParsed(Run)
+                  .WithParsed(options =>
+                  {
+                      var exitCode = Sync(options.DllPath, options.TablesDirectory, options.Clean);
+                      if (exitCode != 0)
+                          Environment.Exit(exitCode);
+                  })
                   .WithNotParsed(errors =>
                   {
                       foreach (var error in errors)
@@ -49,47 +60,62 @@ namespace XrmFramework.DeployUtils
 
         // ──────────────────────────────────────────────────────────────────────────
 
-        private static void Run(TableSyncCommandOptions options)
+        /// <summary>
+        /// Synchronise les fichiers <c>.table</c> du répertoire indiqué à partir des classes
+        /// <c>[EntityDefinition]</c> trouvées dans le DLL fourni.
+        /// </summary>
+        /// <param name="dllPath">Chemin vers le DLL à analyser.</param>
+        /// <param name="tablesDirectory">Répertoire contenant les fichiers .table.</param>
+        /// <param name="clean">
+        /// Met <c>Select=false</c> sur les colonnes orphelines et supprime les .table
+        /// entièrement générés par l'outil sans donnée CRM.
+        /// </param>
+        /// <returns>
+        /// Code de sortie : <c>0</c> succès, <c>2</c> fichier/répertoire introuvable,
+        /// <c>3</c> erreur inattendue.
+        /// </returns>
+        public static int Sync(string dllPath, string tablesDirectory, bool clean)
         {
             AnsiConsole.MarkupLine("[bold]XrmFramework · Synchronisation des fichiers .table[/]");
-            AnsiConsole.MarkupLine($"  DLL       : [cyan]{options.DllPath}[/]");
-            AnsiConsole.MarkupLine($"  Répertoire: [cyan]{options.TablesDirectory}[/]");
-            AnsiConsole.MarkupLine($"  Mode clean: [cyan]{(options.Clean ? "oui" : "non")}[/]");
+            AnsiConsole.MarkupLine($"  DLL       : [cyan]{dllPath}[/]");
+            AnsiConsole.MarkupLine($"  Répertoire: [cyan]{tablesDirectory}[/]");
+            AnsiConsole.MarkupLine($"  Mode clean: [cyan]{(clean ? "oui" : "non")}[/]");
             AnsiConsole.WriteLine();
 
             try
             {
                 // 1. Analyser le DLL
                 AnsiConsole.MarkupLine("Analyse du DLL...");
-                var definitions = DefinitionAnalyzer.ExtractDefinitions(options.DllPath);
+                var definitions = DefinitionAnalyzer.ExtractDefinitions(dllPath);
 
                 if (definitions.Count == 0)
                 {
                     AnsiConsole.MarkupLine("[yellow]Aucune classe [EntityDefinition] trouvée dans le DLL.[/]");
-                    return;
+                    return 0;
                 }
 
                 // 2. Synchroniser les .table
-                var syncer = new TableFileSyncer(options.TablesDirectory);
-                syncer.Sync(definitions, options.Clean);
+                var syncer = new TableFileSyncer(tablesDirectory);
+                syncer.Sync(definitions, clean);
 
                 AnsiConsole.WriteLine();
                 AnsiConsole.MarkupLine("[green]Synchronisation terminée.[/]");
+                return 0;
             }
             catch (FileNotFoundException ex)
             {
                 AnsiConsole.MarkupLine($"[red]Fichier introuvable :[/] {ex.FileName}");
-                Environment.Exit(2);
+                return 2;
             }
             catch (DirectoryNotFoundException ex)
             {
                 AnsiConsole.MarkupLine($"[red]Répertoire introuvable :[/] {ex.Message}");
-                Environment.Exit(2);
+                return 2;
             }
             catch (Exception ex)
             {
                 AnsiConsole.WriteException(ex);
-                Environment.Exit(3);
+                return 3;
             }
         }
     }

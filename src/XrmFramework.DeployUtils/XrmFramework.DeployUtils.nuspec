@@ -39,16 +39,10 @@
     <file src="build\**\*" target="build/" />
 
     <!--
-      Tool xrmframework-tablesync (tools/) - embarqué dans ce package.
-      Invocation directe via $(XrmFrameworkTableSyncTool) exposé dans le .props.
-      Le DotnetToolSettings.xml est inclus pour compatibilite dotnet tool install.
+      La synchronisation des .table est distribuée séparément comme .NET tool
+      (package XrmFramework.Cli, commande « xrmframework tables sync »).
+      Ce package n'embarque plus de dossier tools/.
     -->
-    <!-- Métadonnées du tool (DotnetToolSettings.xml) -->
-    <file src="tools\**\*" target="tools" />
-    <!-- Binaire et dépendances du tool (sortie build net8.0) -->
-    <file src="..\XrmFramework.TableSync.Tool\bin\$config$\net8.0\**\*"
-          target="tools\net8.0\any"
-          exclude="**\*.pdb;**\ref\**" />
 
     <file src="$SolutionDir$\*.txt" target="" />
   </files>

@@ -117,25 +117,9 @@
     </ItemGroup>
 
   <!--
-    ═══════════════════════════════════════════════════════════════════════════
-    Embarquement du tool xrmframework-tablesync dans le package NuGet.
-
-    Le projet XrmFramework.TableSync.Tool est un exécutable net8.0 qui utilise
-    TableSyncHelper. Son binaire est inclus dans tools/net8.0/any/ de ce package
-    via le nuspec — il n'est PAS packagé séparément.
-
-    Ce target s'exécute APRÈS la compilation de DeployUtils (ses DLLs sont déjà
-    disponibles quand le tool est compilé) et AVANT la génération du nuspec.
-    ═══════════════════════════════════════════════════════════════════════════
+    La synchronisation des fichiers .table est désormais distribuée comme .NET tool
+    autonome (projet XrmFramework.Cli, commande « xrmframework tables sync »).
+    La logique reste hébergée ici (TableSyncHelper / DefinitionAnalyzer / TableFileSyncer).
   -->
-  <Target Name="BuildTableSyncToolBeforePack"
-          BeforeTargets="GenerateNuspec"
-          Condition="'$(TargetFramework)' == 'net8.0'">
-    <MSBuild Projects="$(MSBuildThisFileDirectory)..\XrmFramework.TableSync.Tool\XrmFramework.TableSync.Tool.csproj"
-             Targets="Build"
-             Properties="Configuration=$(Configuration)"
-             BuildInParallel="false" />
-    <Message Importance="High" Text="xrmframework-tablesync tool compilé → tools/net8.0/any/" />
-  </Target>
 
 </Project>

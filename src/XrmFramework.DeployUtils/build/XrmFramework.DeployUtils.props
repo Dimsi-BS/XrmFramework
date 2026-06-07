@@ -1,21 +1,13 @@
 <Project>
   <!--
-  Chemin vers l'outil xrmframework-tablesync embarqué dans ce package.
-  Utilisable dans les cibles MSBuild du projet consommateur.
+    La synchronisation des fichiers .table est désormais fournie par le .NET tool
+    autonome XrmFramework.Cli :
 
-  Ligne de commande :
+      dotnet tool install --global XrmFramework.Cli
+      xrmframework tables sync --dll <chemin.dll> --tables-dir <répertoire> [--clean]
 
-  dotnet $(XrmFrameworkTableSyncTool) &#45;&#45;dll $(TargetPath) &#45;&#45;tables-dir $(MSBuildProjectDirectory)\..\Definitions
-
-  Exemple dans une cible MSBuild :
-
-    <Target Name="SyncTableFiles">
-      <Exec Command="dotnet $(XrmFrameworkTableSyncTool) &#45;&#45;dll $(TargetPath) &#45;&#45;tables-dir $(MSBuildProjectDirectory)\..\Definitions" />
-    </Target>
+    Ce package n'expose donc plus de propriété $(XrmFrameworkTableSyncTool).
   -->
-  <PropertyGroup>
-    <XrmFrameworkTableSyncTool>$(MSBuildThisFileDirectory)..\tools\net8.0\any\XrmFramework.TableSync.Tool.dll</XrmFrameworkTableSyncTool>
-  </PropertyGroup>
 
   <ItemGroup>
     <None Include="$(RootFolder)\Config\App.config" Condition="">
