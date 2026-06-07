@@ -34,6 +34,12 @@ steps:
     arguments: '--collect "Code coverage"'
     workingDirectory: 'src'
   
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'NUnit'
+    testResultsFiles: '**/TEST-*.xml'
+    mergeTestResults: true
+
 - task: CopyFiles@2
   inputs:
     SourceFolder: 'src/GeneratedNuGetPackages/$(buildConfiguration)/'
