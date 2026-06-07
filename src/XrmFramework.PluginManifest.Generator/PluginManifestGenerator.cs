@@ -138,10 +138,10 @@ namespace XrmFramework.PluginManifest.Generator
             }
 
             var stage = ResolveMemberName(model, args[0].Expression);
-            var message = ResolveMemberName(model, args[1].Expression);
+            var message = ResolveMessage(model, args[1].Expression);
             var mode = ResolveMemberName(model, args[2].Expression);
-            var entityName = ResolveConstString(model, args[3].Expression);
-            var methodName = ResolveConstString(model, args[4].Expression);
+            var entityName = ResolveString(model, args[3].Expression);
+            var methodName = ResolveString(model, args[4].Expression);
 
             if (stage is null || message is null || mode is null || entityName is null || methodName is null)
             {
@@ -153,7 +153,7 @@ namespace XrmFramework.PluginManifest.Generator
             var columns = new List<string>();
             for (var i = 5; i < args.Count; i++)
             {
-                var col = ResolveConstString(model, args[i].Expression);
+                var col = ResolveString(model, args[i].Expression);
                 if (col != null) columns.Add(col);
             }
 
@@ -272,7 +272,7 @@ namespace XrmFramework.PluginManifest.Generator
                     if (!IsCall(invocation, "SetDisplayName") || invocation.ArgumentList.Arguments.Count < 1)
                         continue;
 
-                    var literal = ResolveConstString(model, invocation.ArgumentList.Arguments[0].Expression);
+                    var literal = ResolveString(model, invocation.ArgumentList.Arguments[0].Expression);
                     if (literal != null)
                         displayName = literal;
                 }
@@ -481,10 +481,123 @@ namespace XrmFramework.PluginManifest.Generator
             };
         }
 
-        private static string? ResolveConstString(SemanticModel model, ExpressionSyntax expr)
+        /// <summary>
+        /// Résout une chaîne en valeur littérale : littéral, <c>const</c>, <c>nameof</c>, OU
+        /// membre statique (champ/propriété) dont l'initialiseur se réduit à un littéral —
+        /// typiquement <c>XxxDefinition.EntityName</c> déclaré en <c>static</c> (code legacy).
+        /// </summary>
+        private static string? ResolveString(SemanticModel model, ExpressionSyntax expr, int depth = 0)
         {
             var constant = model.GetConstantValue(expr);
-            return constant.HasValue ? constant.Value as string : null;
+            if (constant.HasValue && constant.Value is string s)
+                return s;
+
+            if (depth > 5)
+                return null;
+
+            var symbol = model.GetSymbolInfo(expr).Symbol;
+            switch (symbol)
+            {
+                case IFieldSymbol field when field.HasConstantValue && field.ConstantValue is string fc:
+                    return fc;
+                case IFieldSymbol field:
+                    return ResolveMemberInitializerString(model, field, depth);
+                case IPropertySymbol property:
+                    return ResolveMemberInitializerString(model, property, depth);
+                case ILocalSymbol local:
+                    return ResolveMemberInitializerString(model, local, depth);
+                default:
+                    return null;
+            }
+        }
+
+        /// <summary>
+        /// Résout le message : <c>Messages.Create</c>, un membre statique custom
+        /// (<c>MyMessages.Action</c>), <c>Messages.GetMessage("...")</c> ou un littéral.
+        /// Extrait la vraie chaîne du message (argument de <c>new Messages("...")</c> /
+        /// <c>GetMessage("...")</c>) ; repli sur le nom du membre (cas où il coïncide).
+        /// </summary>
+        private static string? ResolveMessage(SemanticModel model, ExpressionSyntax expr, int depth = 0)
+        {
+            if (depth > 5)
+                return null;
+
+            // Xxx.GetMessage("custom_action")
+            if (expr is InvocationExpressionSyntax invocation && IsCall(invocation, "GetMessage")
+                && invocation.ArgumentList.Arguments.Count >= 1)
+            {
+                var arg = model.GetConstantValue(invocation.ArgumentList.Arguments[0].Expression);
+                if (arg.HasValue && arg.Value is string ms)
+                    return ms;
+            }
+
+            var constant = model.GetConstantValue(expr);
+            if (constant.HasValue && constant.Value is string sc)
+                return sc;
+
+            var symbol = model.GetSymbolInfo(expr).Symbol;
+            if (symbol is IFieldSymbol || symbol is IPropertySymbol)
+            {
+                var fromInitializer = ResolveMessageFromInitializer(model, symbol, depth);
+                if (fromInitializer != null)
+                    return fromInitializer;
+
+                // Repli : nom du membre (Messages.Create → "Create" == nom du message).
+                return symbol.Name;
+            }
+
+            return null;
+        }
+
+        private static string? ResolveMemberInitializerString(SemanticModel model, ISymbol symbol, int depth)
+        {
+            foreach (var initializer in GetInitializers(symbol))
+            {
+                var declModel = model.Compilation.GetSemanticModel(initializer.SyntaxTree);
+                var value = ResolveString(declModel, initializer, depth + 1);
+                if (value != null)
+                    return value;
+            }
+            return null;
+        }
+
+        private static string? ResolveMessageFromInitializer(SemanticModel model, ISymbol symbol, int depth)
+        {
+            foreach (var initializer in GetInitializers(symbol))
+            {
+                var declModel = model.Compilation.GetSemanticModel(initializer.SyntaxTree);
+
+                // new Messages("X")
+                if (initializer is ObjectCreationExpressionSyntax creation
+                    && creation.ArgumentList?.Arguments.Count >= 1)
+                {
+                    var c = declModel.GetConstantValue(creation.ArgumentList.Arguments[0].Expression);
+                    if (c.HasValue && c.Value is string s1)
+                        return s1;
+                }
+
+                // Membre statique assigné à un autre message (Messages.GetMessage("X"), alias…)
+                var nested = ResolveMessage(declModel, initializer, depth + 1);
+                if (nested != null)
+                    return nested;
+            }
+            return null;
+        }
+
+        /// <summary>Expression d'initialisation d'un champ / propriété / variable locale.</summary>
+        private static IEnumerable<ExpressionSyntax> GetInitializers(ISymbol symbol)
+        {
+            foreach (var reference in symbol.DeclaringSyntaxReferences)
+            {
+                ExpressionSyntax? init = reference.GetSyntax() switch
+                {
+                    VariableDeclaratorSyntax v => v.Initializer?.Value,
+                    PropertyDeclarationSyntax p => p.Initializer?.Value ?? p.ExpressionBody?.Expression,
+                    _ => null
+                };
+                if (init != null)
+                    yield return init;
+            }
         }
 
         private static AttributeData? GetAttribute(IMethodSymbol method, string attributeFullName)

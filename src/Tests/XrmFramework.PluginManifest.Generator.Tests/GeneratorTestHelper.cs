@@ -29,6 +29,7 @@ namespace XrmFramework
         public static Messages Create { get; } = new Messages(""Create"");
         public static Messages Update { get; } = new Messages(""Update"");
         public static Messages Delete { get; } = new Messages(""Delete"");
+        public static Messages GetMessage(string messageName) => new Messages(messageName);
     }
     public enum CustomApiBindingType { Global, Entity, EntityCollection }
     public enum AllowedCustomProcessingStep { None, AsyncOnly, SyncAndAsync }
