@@ -79,7 +79,6 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" />
-    <PackageReference Include="MSTest.TestFramework" />
     <PackageReference Include="Spectre.Console" />
     <PackageReference Include="Spectre.Console.Analyzer">
       <PrivateAssets>all</PrivateAssets>
