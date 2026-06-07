@@ -1,14 +1,4 @@
 <Project>
-  <!--
-    La synchronisation des fichiers .table est désormais fournie par le .NET tool
-    autonome XrmFramework.Cli :
-
-      dotnet tool install --global XrmFramework.Cli
-      xrmframework tables sync --dll <chemin.dll> --tables-dir <répertoire> [--clean]
-
-    Ce package n'expose donc plus de propriété $(XrmFrameworkTableSyncTool).
-  -->
-
   <ItemGroup>
     <None Include="$(RootFolder)\Config\App.config" Condition="">
       <Link>App.config</Link>
