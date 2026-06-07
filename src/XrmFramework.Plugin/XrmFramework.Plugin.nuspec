@@ -25,6 +25,10 @@
     <file src="build\**\*" target="build/" />
 
     <file src="lib\**" target="lib" />
-    
+
+    <!-- Source generator de manifeste de steps, embarqué comme analyzer.
+         NuGet l'applique automatiquement à tout projet référençant ce package. -->
+    <file src="..\XrmFramework.PluginManifest.Generator\bin\$config$\netstandard2.0\XrmFramework.PluginManifest.Generator.dll"
+          target="analyzers\dotnet\cs" />
   </files>
 </package>

@@ -62,27 +62,6 @@ internal interface IAssemblyImporter
 	PluginPackage CreatePackageFromRemote(Deploy.PluginPackage package);
 
 	/// <summary>
-	///     Creates a <see cref="Plugin" /> from a local Assembly <see cref="Type" />
-	/// </summary>
-	/// <param name="type"></param>
-	/// <returns></returns>
-	Plugin CreatePluginFromType(Type type);
-
-	/// <summary>
-	///     Creates a <see cref="Plugin" /> as a CustomWorkflow from a local Assembly <see cref="Type" />
-	/// </summary>
-	/// <param name="type"></param>
-	/// <returns></returns>
-	Plugin CreateWorkflowFromType(Type type);
-
-	/// <summary>
-	///     Creates a <see cref="CustomApi" /> from a local Assembly <see cref="Type" />
-	/// </summary>
-	/// <param name="type"></param>
-	/// <returns></returns>
-	CustomApi CreateCustomApiFromType(Type type);
-
-	/// <summary>
 	///     Creates a <see cref="Step" /> from a remote Assembly <see cref="Deploy.SdkMessageProcessingStep" />
 	///     and the <see cref="Deploy.SdkMessageProcessingStepImage" /> registered on the remote Assembly
 	/// </summary>

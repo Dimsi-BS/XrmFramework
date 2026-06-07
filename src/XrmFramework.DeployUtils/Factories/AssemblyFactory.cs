@@ -15,48 +15,37 @@ namespace XrmFramework.DeployUtils.Factories;
 internal partial class AssemblyFactory : IAssemblyFactory
 {
 	private readonly IAssemblyImporter _importer;
+	private readonly ISolutionContext _solutionContext;
 
-	public AssemblyFactory(IAssemblyImporter importer)
+	public AssemblyFactory(IAssemblyImporter importer, ISolutionContext solutionContext)
 	{
 		_importer = importer;
+		_solutionContext = solutionContext;
 	}
 
-	public IAssemblyContext CreateFromLocalAssemblyContext(Assembly assembly)
+	public IAssemblyContext CreateFromManifestAssemblyContext(Assembly assembly)
 	{
-		var pluginType = assembly.GetType("XrmFramework.Plugin");
-		var customApiType = assembly.GetType("XrmFramework.CustomApi");
-		var workflowType = assembly.GetType("XrmFramework.Workflow.CustomWorkflowActivity");
+		var json = PluginManifestReader.ReadManifestJson(assembly);
+		if (string.IsNullOrEmpty(json))
+			throw new InvalidOperationException(
+				$"Aucun manifeste ({PluginManifestReader.ManifestTypeName}) trouvé dans l'assembly '{assembly.GetName().Name}'. " +
+				"Le package XrmFramework.PluginManifest.Generator est-il bien référencé par le projet plugin ?");
 
-		var plugins = assembly.GetTypes()
-			.Where(t => pluginType.IsAssignableFrom(t)
-			            && !customApiType.IsAssignableFrom(t)
-			            && t.IsPublic
-			            && !t.IsAbstract)
-			.Select(t => _importer.CreatePluginFromType(t))
-			.ToList();
-
-		var workflows = assembly.GetTypes()
-			.Where(t => workflowType != null && workflowType.IsAssignableFrom(t)
-			            && !t.IsAbstract
-			            && t.IsPublic)
-			.Select(t => _importer.CreateWorkflowFromType(t))
-			.ToList();
-
-		var customApis = assembly.GetTypes()
-			.Where(t => customApiType.IsAssignableFrom(t)
-			            && t.IsPublic
-			            && !t.IsAbstract)
-			.Select(t => _importer.CreateCustomApiFromType(t))
-			.ToList();
-
-		var localAssembly = new AssemblyContext()
+		var localAssembly = new AssemblyContext
 		{
 			AssemblyInfo = GetLocalAssemblyInfo(assembly)
 		};
 
-		plugins.ForEach(localAssembly.AddChild);
-		customApis.ForEach(localAssembly.AddChild);
-		workflows.ForEach(localAssembly.AddChild);
+		foreach (var plugin in PluginManifestReader.ReadPlugins(json))
+			localAssembly.AddChild(plugin);
+
+		foreach (var workflow in PluginManifestReader.ReadWorkflows(json))
+			localAssembly.AddChild(workflow);
+
+		// Le préfixe du publisher (environnement connecté) entre dans le UniqueName des custom APIs.
+		var prefix = _solutionContext.Publisher.CustomizationPrefix;
+		foreach (var customApi in PluginManifestReader.ReadCustomApis(json, prefix))
+			localAssembly.AddChild(customApi);
 
 		return localAssembly;
 	}
