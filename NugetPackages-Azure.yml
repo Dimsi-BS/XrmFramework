@@ -23,9 +23,16 @@ steps:
 - checkout: self
   fetchDepth: 0
 
-- script: dotnet build XrmFramework.slnx --configuration $(buildConfiguration) /p:PublicRelease=true
+- script: dotnet build --configuration $(buildConfiguration) /p:PublicRelease=true
   displayName: Build
   workingDirectory: src
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+    projects: 'XrmFramework.slnx'
+    arguments: '--collect "Code coverage"'
+    workingDirectory: 'src'
   
 - task: CopyFiles@2
   inputs:
