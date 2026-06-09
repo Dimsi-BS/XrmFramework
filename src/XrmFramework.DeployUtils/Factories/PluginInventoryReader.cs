@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Microsoft.Xrm.Sdk;
 using Newtonsoft.Json;
 using XrmFramework.DeployUtils.Model;
@@ -12,33 +11,12 @@ using XrmFramework.DeployUtils.Model.Interfaces;
 namespace XrmFramework.DeployUtils.Factories
 {
     /// <summary>
-    ///     Lit le manifeste de steps émis par <c>XrmFramework.PluginManifest.Generator</c>
-    ///     (constante <c>XrmFramework.Generated.PluginManifest.Json</c> embarquée dans l'assembly)
-    ///     et le mappe vers le modèle de déploiement (<see cref="Plugin" />, <see cref="Step" />).
+    ///     Désérialise le JSON d'inventaire produit par <c>XrmFramework.PluginInventory</c> (qui exécute
+    ///     le code d'enregistrement des plugins) et le mappe vers le modèle de déploiement
+    ///     (<see cref="Plugin" />, <see cref="Step" />, <see cref="CustomApi" />).
     /// </summary>
-    /// <remarks>
-    ///     Permet de déterminer les composants à déployer <b>sans instancier</b> les types de
-    ///     l'assembly (lecture d'une constante = métadonnées), donc depuis un process net8.0 même
-    ///     pour une assembly plugin net462.
-    /// </remarks>
-    public static class PluginManifestReader
+    public static class PluginInventoryReader
     {
-        /// <summary>Nom complet du type généré portant le manifeste.</summary>
-        public const string ManifestTypeName = "XrmFramework.Generated.PluginManifest";
-
-        /// <summary>
-        ///     Lit la constante JSON du manifeste depuis l'assembly (sans exécuter de code),
-        ///     ou <see langword="null" /> si l'assembly ne contient pas de manifeste.
-        /// </summary>
-        public static string ReadManifestJson(Assembly assembly)
-        {
-            var type = assembly.GetType(ManifestTypeName);
-            var field = type?.GetField("Json", BindingFlags.Public | BindingFlags.Static);
-
-            // GetRawConstantValue lit la métadonnée de la constante sans déclencher le cctor.
-            return field?.GetRawConstantValue() as string;
-        }
-
         /// <summary>
         ///     Désérialise le manifeste JSON et mappe les plugins (et leurs steps) vers le modèle.
         /// </summary>

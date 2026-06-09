@@ -12,7 +12,7 @@
     <Project Path="Tests/XrmFramework.Core.Tests/XrmFramework.Core.Tests.csproj" />
     <Project Path="Tests/XrmFramework.DeployUtils.Tests/XrmFramework.DeployUtils.Tests.csproj" />
     <Project Path="Tests/XrmFramework.Generators.Tests/XrmFramework.Generators.Tests.csproj" />
-    <Project Path="Tests/XrmFramework.PluginManifest.Generator.Tests/XrmFramework.PluginManifest.Generator.Tests.csproj" />
+    <Project Path="Tests/XrmFramework.PluginInventory.Tests/XrmFramework.PluginInventory.Tests.csproj" />
     <Project Path="Tests/XrmFramework.Plugin.Tests/XrmFramework.Plugin.Tests.csproj" />
     <Project Path="Tests/XrmFramework.Tests/XrmFramework.Tests.csproj" />
   </Folder>
@@ -25,7 +25,7 @@
   <Project Path="XrmFramework.DefinitionManager/XrmFramework.DefinitionManager.csproj" />
   <Project Path="XrmFramework.DeployUtils/XrmFramework.DeployUtils.csproj" />
   <Project Path="XrmFramework.Plugin/XrmFramework.Plugin.csproj" />
-  <Project Path="XrmFramework.PluginManifest.Generator/XrmFramework.PluginManifest.Generator.csproj" />
+  <Project Path="XrmFramework.PluginInventory/XrmFramework.PluginInventory.csproj" />
   <Project Path="XrmFramework.RemoteDebugger.Client/XrmFramework.RemoteDebugger.Client.csproj" />
   <Project Path="XrmFramework.RemoteDebugger.Generator/XrmFramework.RemoteDebugger.Generator.csproj" />
   <Project Path="XrmFramework.Templates/XrmFramework.Templates.csproj" />

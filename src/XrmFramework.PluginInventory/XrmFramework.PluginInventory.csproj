@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Outil d'inventaire net462, lancé hors-process par le CLI net8 (commande deploy plugins).
+    Il charge l'assembly plugin, EXÉCUTE les constructeurs (AddSteps) et reflète les types pour
+    produire le manifeste JSON (plugins/steps/workflows/custom APIs) sur la sortie standard.
+
+    net462 obligatoire : instancier un plugin exécute du code qui dépend de Microsoft.Xrm.Sdk
+    (net462) — impossible depuis un process net8. Volontairement autonome (aucune référence au
+    reste de la solution) pour rester packageable dans le tool net8 avec une closure minimale.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net462</TargetFramework>
+    <AssemblyName>XrmFramework.PluginInventory</AssemblyName>
+    <RootNamespace>XrmFramework.PluginInventory</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+
+    <!-- Embarqué dans le package du CLI, pas publié comme package autonome. -->
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+
+    <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+</Project>

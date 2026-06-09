@@ -18,14 +18,14 @@ namespace XrmFramework.DeployUtils.Importers;
 internal interface IAssemblyImporter
 {
 	/// <summary>
-	///     Creates a <see cref="IAssemblyContext" /> with only the <see cref="AssemblyInfo" /> Property computed from an
-	///     <see cref="Assembly" />
+	///     Creates an <see cref="AssemblyInfo" /> from a local assembly file path (metadata only,
+	///     without loading the assembly into the runtime).
 	/// </summary>
-	/// <param name="assembly"></param>
+	/// <param name="dllPath">Path to the local plugin assembly.</param>
 	/// <returns>
-	///     <see cref="IAssemblyContext" />
+	///     <see cref="AssemblyInfo" />
 	/// </returns>
-	AssemblyInfo CreateAssemblyFromLocal(Assembly assembly);
+	AssemblyInfo CreateAssemblyFromLocal(string dllPath);
 
 	/// <summary>
 	///     Creates a <see cref="IAssemblyContext" /> with only the <see cref="AssemblyInfo" /> Property computed from a

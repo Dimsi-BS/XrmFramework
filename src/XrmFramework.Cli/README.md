@@ -114,17 +114,18 @@ xrmframework deploy plugins --dll <chemin.dll> --project <nom> [--project-root <
 | `--on-premise` | ❌ | Cible un CRM On-Premises (défaut : Dataverse Online). |
 | `-n`, `--noprompt` | ❌ | Mode silencieux : ignore la confirmation de connexion (CI/CD). |
 
-> **Comment ça marche — via un manifeste, sans instanciation.** Le tool ne *charge* ni
-> *n'exécute* les types du plugin (impossible : un plugin est `net462`, ce tool est `net8.0`).
-> Il lit un **manifeste de steps embarqué dans l'assembly** (`XrmFramework.Generated.PluginManifest`),
-> émis à la compilation par le source generator livré dans le package `XrmFramework.Plugin`.
+> **Comment ça marche — inventaire par exécution réelle du code.** Un plugin est `net462`,
+> ce tool est `net8.0` : il ne peut donc pas instancier les types du plugin lui-même. Il délègue
+> à l'outil **`XrmFramework.PluginInventory`** (exe `net462`, embarqué sous `inventory/`), qui
+> charge l'assembly, **exécute les constructeurs (`AddSteps`)** et reflète les types, puis renvoie
+> le manifeste JSON (plugins / steps / workflows / custom APIs) sur sa sortie standard.
 >
-> Deux conséquences :
-> - Le projet plugin doit être **(re)compilé avec un XrmFramework porteur du générateur** —
->   sinon le manifeste est absent et le déploiement échoue avec un message explicite.
-> - Les steps doivent être déclarés **statiquement** : une liste plate d'appels `AddStep(...)`
->   à arguments constants (littéraux, enums, `nameof`). L'enregistrement *dynamique*
->   (boucle / condition / valeur calculée) provoque une **erreur de compilation** (`XRMMAN001`).
+> Conséquences :
+> - L'enregistrement des steps est **entièrement libre** : boucles, conditions, valeurs calculées,
+>   configuration… puisque le vrai code s'exécute (aucune contrainte d'analyse statique).
+> - Le déploiement requiert le **runtime .NET Framework** (Windows). En développement multiplateforme,
+>   un lanceur peut être fourni via la variable `XRMFRAMEWORK_INVENTORY_LAUNCHER` (ex. `mono`) ;
+>   `XRMFRAMEWORK_INVENTORY_EXE` permet de pointer un exécutable d'inventaire alternatif.
 
 **Exemple**
 
@@ -140,11 +141,12 @@ xrmframework deploy plugins --dll bin/Release/net462/MyProject.Plugins.dll \
 |:---:|---|
 | `0` | Succès (ou annulation à la confirmation). |
 | `1` | Projet absent de `xrmFramework.config`. |
-| `3` | Erreur inattendue (manifeste absent, connexion, déploiement…). |
+| `3` | Erreur inattendue (inventaire, connexion, déploiement…). |
 | `255` | Erreur de validation des arguments (Spectre). |
 
 Implémentation : [`RegistrationHelper.RegisterPluginsAndWorkflows`](../XrmFramework.DeployUtils/RegistrationHelper.cs)
-→ [`PluginManifestReader`](../XrmFramework.DeployUtils/Factories/PluginManifestReader.cs)
+→ inventaire [`XrmFramework.PluginInventory`](../XrmFramework.PluginInventory/PluginInventoryEngine.cs)
+→ [`PluginInventoryReader`](../XrmFramework.DeployUtils/Factories/PluginInventoryReader.cs)
 + [`ConfigHelper.UseProjectConfig`](../XrmFramework.DeployUtils/Configuration/ConfigHelper.cs).
 
 ---
@@ -163,9 +165,9 @@ xrmframework
     └── webresources   🚧  déploie les webresources
 ```
 
-> `deploy plugins` lit le **manifeste** embarqué dans l'assembly plugin `net462` (généré à
-> la compilation par le package `XrmFramework.Plugin`) — aucun chargement ni instanciation
-> de types, donc aucun multi-ciblage net8.0 requis.
+> `deploy plugins` inventorie l'assembly plugin `net462` en **exécutant son code d'enregistrement**
+> via l'outil `XrmFramework.PluginInventory` (exe `net462` embarqué) — l'enregistrement des steps
+> reste donc totalement libre (boucles, conditions…). Nécessite le runtime .NET Framework (Windows).
 
 ### 🚧 `tables columns` — ajouter / modifier des colonnes
 
