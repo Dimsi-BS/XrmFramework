@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Importers;
 using XrmFramework.DeployUtils.Model;
@@ -23,31 +22,44 @@ internal partial class AssemblyFactory : IAssemblyFactory
 		_solutionContext = solutionContext;
 	}
 
-	public IAssemblyContext CreateFromManifestAssemblyContext(Assembly assembly)
+	public IAssemblyContext CreateFromLocalAssemblyContext(string dllPath)
 	{
-		var json = PluginManifestReader.ReadManifestJson(assembly);
+		// Inventaire par EXÉCUTION du code d'enregistrement (constructeurs / AddSteps), via le
+		// moteur partagé XrmFramework.PluginInventory : in-process sur net462, hors-process
+		// (exe net462) depuis net8/net10. Le résultat est le même schéma JSON que le reader consomme.
+		var json = GetManifestJson(dllPath);
 		if (string.IsNullOrEmpty(json))
 			throw new InvalidOperationException(
-				$"Aucun manifeste ({PluginManifestReader.ManifestTypeName}) trouvé dans l'assembly '{assembly.GetName().Name}'. " +
-				"Le package XrmFramework.PluginManifest.Generator est-il bien référencé par le projet plugin ?");
+				$"L'inventaire de l'assembly '{dllPath}' est vide. Vérifiez que la DLL est bien une assembly plugin XrmFramework.");
 
 		var localAssembly = new AssemblyContext
 		{
-			AssemblyInfo = GetLocalAssemblyInfo(assembly)
+			AssemblyInfo = GetLocalAssemblyInfo(dllPath)
 		};
 
-		foreach (var plugin in PluginManifestReader.ReadPlugins(json))
+		foreach (var plugin in PluginInventoryReader.ReadPlugins(json))
 			localAssembly.AddChild(plugin);
 
-		foreach (var workflow in PluginManifestReader.ReadWorkflows(json))
+		foreach (var workflow in PluginInventoryReader.ReadWorkflows(json))
 			localAssembly.AddChild(workflow);
 
 		// Le préfixe du publisher (environnement connecté) entre dans le UniqueName des custom APIs.
 		var prefix = _solutionContext.Publisher.CustomizationPrefix;
-		foreach (var customApi in PluginManifestReader.ReadCustomApis(json, prefix))
+		foreach (var customApi in PluginInventoryReader.ReadCustomApis(json, prefix))
 			localAssembly.AddChild(customApi);
 
 		return localAssembly;
+	}
+
+	private static string GetManifestJson(string dllPath)
+	{
+#if NET462_OR_GREATER
+		// Déjà sous .NET Framework : on instancie les plugins in-process.
+		return PluginInventory.PluginInventoryEngine.BuildManifestJson(dllPath);
+#else
+		// net8/net10 : délégué à l'exe net462 (impossible d'instancier un plugin net462 ici).
+		return PluginInventoryProcessRunner.Run(dllPath);
+#endif
 	}
 
 	public IAssemblyContext CreateFromRemoteAssemblyContext(IRegistrationService service, string assemblyName)
@@ -63,9 +75,9 @@ internal partial class AssemblyFactory : IAssemblyFactory
 		return registeredAssembly;
 	}
 
-	public AssemblyInfo GetLocalAssemblyInfo(Assembly assembly)
+	public AssemblyInfo GetLocalAssemblyInfo(string dllPath)
 	{
-		var result = _importer.CreateAssemblyFromLocal(assembly);
+		var result = _importer.CreateAssemblyFromLocal(dllPath);
 		return result;
 	}
 

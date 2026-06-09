@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using XrmFramework.DeployUtils.Context;
+﻿using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Service;
 
@@ -11,13 +10,14 @@ namespace XrmFramework.DeployUtils.Factories;
 public partial interface IAssemblyFactory
 {
     /// <summary>
-    ///     Construit l'<see cref="IAssemblyContext" /> local à partir du manifeste de steps embarqué
-    ///     dans l'<paramref name="assembly" /> (constante générée par XrmFramework.PluginManifest.Generator),
-    ///     <b>sans instancier</b> aucun type. Unique source de l'assembly locale (tous TFM).
+    ///     Construit l'<see cref="IAssemblyContext" /> local en INVENTORIANT l'assembly située à
+    ///     <paramref name="dllPath" /> : exécution réelle du code d'enregistrement (constructeurs /
+    ///     AddSteps) via XrmFramework.PluginInventory (in-process net462, ou exe net462 hors-process
+    ///     depuis net8/net10).
     /// </summary>
-    /// <param name="assembly">The local plugin assembly carrying the manifest.</param>
-    /// <returns><see cref="IAssemblyContext" /> rebuilt from the manifest.</returns>
-    IAssemblyContext CreateFromManifestAssemblyContext(Assembly assembly);
+    /// <param name="dllPath">Chemin de l'assembly plugin locale à inventorier.</param>
+    /// <returns><see cref="IAssemblyContext" /> reconstruit depuis l'inventaire.</returns>
+    IAssemblyContext CreateFromLocalAssemblyContext(string dllPath);
 
     /// <summary>
     ///     Imports the <paramref name="assemblyName" /> Remote Assembly and parses it as a <see cref="IAssemblyContext" />
@@ -27,6 +27,6 @@ public partial interface IAssemblyFactory
     /// <returns><see cref="IAssemblyContext" /> The parsed AssemblyContext</returns>
     IAssemblyContext CreateFromRemoteAssemblyContext(IRegistrationService service, string assemblyName);
 
-	AssemblyInfo GetLocalAssemblyInfo(Assembly assembly);
+	AssemblyInfo GetLocalAssemblyInfo(string dllPath);
 	AssemblyInfo GetRemoteAssemblyInfo(IRegistrationService service, string assemblyName);
 }

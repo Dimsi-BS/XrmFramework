@@ -31,14 +31,19 @@ public class AssemblyImporter : IAssemblyImporter
         _mapper = mapper;
     }
 
-    public AssemblyInfo CreateAssemblyFromLocal(Assembly assembly)
+    public AssemblyInfo CreateAssemblyFromLocal(string dllPath)
     {
-        var fullNameSplit = assembly.FullName.Split(',');
+        // Identité lue depuis les métadonnées (sans charger l'assembly dans le runtime) :
+        // permet à un process net8 de décrire une assembly plugin net462.
+        var an = AssemblyName.GetAssemblyName(dllPath);
 
-        var name = fullNameSplit[0];
-        var version = fullNameSplit[1].Substring(fullNameSplit[1].IndexOf('=') + 1);
-        var culture = fullNameSplit[2].Substring(fullNameSplit[2].IndexOf('=') + 1);
-        var publicKeyToken = fullNameSplit[3].Substring(fullNameSplit[3].IndexOf('=') + 1);
+        var name = an.Name;
+        var version = an.Version?.ToString() ?? "0.0.0.0";
+        var culture = string.IsNullOrEmpty(an.CultureName) ? "neutral" : an.CultureName;
+        var tokenBytes = an.GetPublicKeyToken();
+        var publicKeyToken = tokenBytes == null || tokenBytes.Length == 0
+            ? "null"
+            : string.Concat(tokenBytes.Select(b => b.ToString("x2")));
         var description = $"{name} plugin assembly";
 
         var t = new AssemblyInfo
@@ -50,7 +55,7 @@ public class AssemblyImporter : IAssemblyImporter
             PublicKeyToken = publicKeyToken,
             Version = version,
             Description = description,
-            Content = File.ReadAllBytes(assembly.Location)
+            Content = File.ReadAllBytes(dllPath)
         };
 
         return t;
