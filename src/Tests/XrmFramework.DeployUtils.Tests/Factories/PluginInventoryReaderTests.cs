@@ -10,7 +10,7 @@ using XrmFramework.DeployUtils.Model.Interfaces;
 namespace XrmFramework.DeployUtils.Tests.Factories;
 
 [TestFixture]
-public class PluginManifestReaderTests
+public class PluginInventoryReaderTests
 {
     private const string Manifest = @"
 {
@@ -38,7 +38,7 @@ public class PluginManifestReaderTests
   ""workflows"": [], ""customApis"": []
 }";
 
-    private static Plugin Plugin() => PluginManifestReader.ReadPlugins(Manifest).Single();
+    private static Plugin Plugin() => PluginInventoryReader.ReadPlugins(Manifest).Single();
     private static Step Step(string method) => Plugin().Steps.Single(s => s.MethodNames.Contains(method));
 
     [Test]
@@ -88,7 +88,7 @@ public class PluginManifestReaderTests
     [Test]
     public void ReadPlugins_EmptyManifest_YieldsNoPlugins()
     {
-        var plugins = PluginManifestReader.ReadPlugins(@"{""plugins"":[],""workflows"":[],""customApis"":[]}");
+        var plugins = PluginInventoryReader.ReadPlugins(@"{""plugins"":[],""workflows"":[],""customApis"":[]}");
         Assert.That(plugins, Is.Empty);
     }
 
@@ -115,7 +115,7 @@ public class PluginManifestReaderTests
     [Test]
     public void ReadWorkflows_MapsWorkflowWithDisplayName()
     {
-        var workflow = PluginManifestReader.ReadWorkflows(WorkflowAndApiManifest).Single();
+        var workflow = PluginInventoryReader.ReadWorkflows(WorkflowAndApiManifest).Single();
         Assert.Multiple(() =>
         {
             Assert.That(workflow.FullName, Is.EqualTo("My.Ns.MyWf"));
@@ -127,7 +127,7 @@ public class PluginManifestReaderTests
     [Test]
     public void ReadCustomApis_MapsApiHeaderAndUniqueName()
     {
-        var api = PluginManifestReader.ReadCustomApis(WorkflowAndApiManifest, "new").Single();
+        var api = PluginInventoryReader.ReadCustomApis(WorkflowAndApiManifest, "new").Single();
         Assert.Multiple(() =>
         {
             Assert.That(api.Name, Is.EqualTo("my_api"));
@@ -142,7 +142,7 @@ public class PluginManifestReaderTests
     [Test]
     public void ReadCustomApis_MapsArgumentsWithTypeAndDirection()
     {
-        var api = PluginManifestReader.ReadCustomApis(WorkflowAndApiManifest, "new").Single();
+        var api = PluginInventoryReader.ReadCustomApis(WorkflowAndApiManifest, "new").Single();
         var args = api.Children.OfType<ICustomApiComponent>().ToList();
 
         var input = args.Single(a => a.Name == "inText");
@@ -161,21 +161,5 @@ public class PluginManifestReaderTests
 
             Assert.That(enumArg.Type.Value, Is.EqualTo(9));  // Picklist (isEnum)
         });
-    }
-
-    // ── Lecture du const depuis un assembly réel (chaîne complète) ───────────
-
-    [Test]
-    public void ReadManifestJson_ReadsConstFromAssembly_WithoutInstantiation()
-    {
-        // Le type Generated.PluginManifest ci-dessous simule la sortie du générateur,
-        // embarquée dans cet assembly de test.
-        var assembly = typeof(global::XrmFramework.Generated.PluginManifest).Assembly;
-
-        var json = PluginManifestReader.ReadManifestJson(assembly);
-        Assert.That(json, Is.EqualTo(global::XrmFramework.Generated.PluginManifest.Json));
-
-        var plugins = PluginManifestReader.ReadPlugins(json);
-        Assert.That(plugins.Single().FullName, Is.EqualTo("Emb.MyPlugin"));
     }
 }

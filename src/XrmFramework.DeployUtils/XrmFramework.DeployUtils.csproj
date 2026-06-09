@@ -59,6 +59,16 @@
         <AdditionalFiles Include="../XrmFramework/**/*.table"  Exclude="../XrmFramework/bin/**;../XrmFramework/obj/**" />
     </ItemGroup>
 
+  <!--
+    Inventaire in-process (net462 uniquement) : on lie le moteur partagé de
+    XrmFramework.PluginInventory. Sur net8/net10 l'inventaire passe par l'exe net462 hors-process
+    (instancier un plugin net462 est impossible depuis net8).
+  -->
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <Compile Include="..\XrmFramework.PluginInventory\PluginInventoryEngine.cs" Link="_Imports\PluginInventory\PluginInventoryEngine.cs" />
+    <Compile Include="..\XrmFramework.PluginInventory\ManifestModel.cs" Link="_Imports\PluginInventory\ManifestModel.cs" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <!-- XrmTooling 9.1.1.45 requis sur net462 ; version centrale = 9.1.1.65 (OnPremise) -->
     <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" VersionOverride="9.1.1.45" />

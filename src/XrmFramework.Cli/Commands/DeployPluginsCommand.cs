@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -15,14 +14,16 @@ namespace XrmFramework.Cli.Commands;
 /// Commande <c>xrmframework deploy plugins</c> : déploie une assembly XrmFramework
 /// (plugins, custom APIs, workflows) vers l'environnement sélectionné dans
 /// <c>Config/xrmFramework.config</c>. Délègue à
-/// <see cref="RegistrationHelper.RegisterPluginsAndWorkflows(Assembly, string, bool, bool)" />.
+/// <see cref="RegistrationHelper.RegisterPluginsAndWorkflows(string, string, bool, bool)" />.
+/// L'inventaire est produit en exécutant le code d'enregistrement via l'outil net462
+/// <c>XrmFramework.PluginInventory</c> (le déploiement requiert .NET Framework / Windows).
 /// </summary>
 public sealed class DeployPluginsCommand : Command<DeployPluginsCommand.Settings>
 {
     public sealed class Settings : CommandSettings
     {
         [CommandOption("--dll <PATH>")]
-        [System.ComponentModel.Description("Assembly net8.0 du projet plugin à déployer (plugins, custom APIs, workflows).")]
+        [System.ComponentModel.Description("Assembly net462 du projet plugin à déployer (plugins, custom APIs, workflows).")]
         public string? DllPath { get; init; }
 
         [CommandOption("--project <NAME>")]
@@ -61,11 +62,9 @@ public sealed class DeployPluginsCommand : Command<DeployPluginsCommand.Settings
         // 1. Pointe la config vers Config/ de la racine projet.
         ConfigHelper.UseProjectConfig(Path.GetFullPath(settings.ProjectRoot));
 
-        // 2. Charge l'assembly à déployer (net8.0 → chargement natif).
-        var assembly = Assembly.LoadFrom(Path.GetFullPath(settings.DllPath!));
-
-        // 3. Déploie.
+        // 2. Déploie : l'assembly n'est PAS chargée dans ce process net8 ; son chemin est transmis
+        //    à l'outil d'inventaire net462 (et ses métadonnées lues sans chargement runtime).
         return RegistrationHelper.RegisterPluginsAndWorkflows(
-            assembly, settings.Project!, settings.OnPremise, settings.NoPrompt);
+            Path.GetFullPath(settings.DllPath!), settings.Project!, settings.OnPremise, settings.NoPrompt);
     }
 }

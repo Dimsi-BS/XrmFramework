@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using CommandLine;
@@ -93,8 +94,19 @@ public partial class RegistrationHelper
     /// <param name="isOnPremise"><see langword="true" /> pour On-Premises ; sinon Dataverse Online.</param>
     /// <param name="noPrompt">Mode silencieux : ignore la confirmation interactive (CI/CD).</param>
     /// <returns>Code de sortie : <c>0</c> succès (ou annulation au prompt), <c>3</c> erreur inattendue.</returns>
+    /// <summary>
+    ///     Surcharge de compatibilité : déduit le chemin de l'assembly chargée (<c>localDll.Location</c>)
+    ///     et délègue à <see cref="RegisterPluginsAndWorkflows(string,string,bool,bool)" />.
+    /// </summary>
     public static int RegisterPluginsAndWorkflows(
         Assembly localDll,
+        string projectName,
+        bool isOnPremise,
+        bool noPrompt)
+        => RegisterPluginsAndWorkflows(localDll.Location, projectName, isOnPremise, noPrompt);
+
+    public static int RegisterPluginsAndWorkflows(
+        string dllPath,
         string projectName,
         bool isOnPremise,
         bool noPrompt)
@@ -116,7 +128,7 @@ public partial class RegistrationHelper
             var deploySettings = serviceProvider.GetRequiredService<DeploySettings>();
 
             // ── Affiche le résumé de connexion ─────────────────────────────────
-            AnsiConsole.WriteLine($"Assembly  : {localDll.GetName().Name}");
+            AnsiConsole.WriteLine($"Assembly  : {Path.GetFileNameWithoutExtension(dllPath)}");
             AnsiConsole.WriteLine($"Cible     : {deploySettings.Url}");
             AnsiConsole.WriteLine($"ClientId  : {deploySettings.ClientId}");
             AnsiConsole.WriteLine($"OnPremise : {(isOnPremise ? "oui" : "non")}");
@@ -134,7 +146,7 @@ public partial class RegistrationHelper
             solutionContext.InitSolutionContext();
 
             var registrationHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
-            registrationHelper.Register(localDll);
+            registrationHelper.Register(dllPath);
 
             return 0;
         }
@@ -146,20 +158,20 @@ public partial class RegistrationHelper
     }
 
     /// <summary>
-    ///     Main algorithm for deploying the <see cref="Assembly" /> assembly
+    ///     Main algorithm for deploying the plugin assembly located at <paramref name="dllPath" />.
     /// </summary>
-    /// <param name="localDll">The local Assembly, should appear in <c>xrmFramework.config</c></param>
-    private void Register(Assembly localDll)
+    /// <param name="dllPath">The local plugin assembly path, should appear in <c>xrmFramework.config</c>.</param>
+    private void Register(string dllPath)
     {
         _consoleService.SetStatus("Fetching Local Assembly...");
 
-        // La configuration des composants est lue depuis le manifeste embarqué (généré à la
-        // compilation du plugin), sans instancier aucun type — un seul chemin, tous TFM.
-        var localAssembly = _assemblyFactory.CreateFromManifestAssemblyContext(localDll);
+        // L'inventaire local est obtenu en EXÉCUTANT le code d'enregistrement (constructeurs /
+        // AddSteps) via XrmFramework.PluginInventory : in-process net462, exe net462 hors-process net8.
+        var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(dllPath);
 
         _consoleService.SetStatus("Fetching Remote Assembly...");
 
-        var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, localDll.GetName().Name);
+        var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, localAssembly.AssemblyInfo.Name);
 
         _consoleService.SetStatus("Computing Difference...");
 
@@ -194,51 +206,5 @@ public partial class RegistrationHelper
         var componentsToCreate = strategyPool.Where(c =>
             c.RegistrationState == RegistrationState.ToCreate);
         _assemblyExporter.CreateAllComponents(componentsToCreate);
-    }
-
-    private void ExecuteAllRequests(List<OrganizationRequest> allRequests)
-    {
-        foreach (var organizationRequest in allRequests)
-        {
-            _registrationService.Execute(organizationRequest);
-        }
-    }
-
-    /// <summary>
-    ///     Creates the Assembly, deleting all obsolete components in the process
-    /// </summary>
-    private void RegisterAssembly(Assembly localAssembly)
-    {
-        var localInfo = _assemblyFactory.GetLocalAssemblyInfo(localAssembly);
-        var remoteInfo = _assemblyFactory.GetRemoteAssemblyInfo(_registrationService, localInfo.Name);
-
-        var operation = _assemblyDiffFactory.ComputeAssemblyOperation(localInfo, remoteInfo);
-
-        if (operation.RegistrationState == RegistrationState.ToCreate)
-        {
-            AnsiConsole.WriteLine($"\tCreating {operation.HumanName}...");
-            _assemblyExporter.CreateComponent(operation);
-        }
-        else if (operation.RegistrationState == RegistrationState.ToUpdate)
-        {
-            AnsiConsole.WriteLine($"\tUpdating {operation.HumanName}");
-            _assemblyExporter.UpdateComponent(operation);
-        }
-    }
-
-    private IEnumerable<OrganizationRequest> CreateDeleteRequests(IReadOnlyCollection<ICrmComponent> strategyPool)
-    {
-        var componentsToDelete = strategyPool
-          .Where(d => d.RegistrationState == RegistrationState.ToDelete);
-
-        return _assemblyExporter.ToDeleteRequestCollection(componentsToDelete);
-    }
-
-    private IEnumerable<OrganizationRequest> CreateUpdateRequests(IReadOnlyCollection<ICrmComponent> strategyPool)
-    {
-        var componentsToUpdate = strategyPool
-          .Where(d => d.RegistrationState == RegistrationState.ToUpdate);
-
-        return _assemblyExporter.ToUpdateRequestCollection(componentsToUpdate);
     }
 }

@@ -35,6 +35,30 @@
 
   <ItemGroup>
     <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj" />
+
+    <!--
+      Outil d'inventaire net462 : référencé uniquement pour l'ordre de build (pas de dépendance de
+      code ; le CLI le lance hors-process). SkipGetTargetFrameworkProperties évite la négociation
+      de TFM net8 ↔ net462.
+    -->
+    <ProjectReference Include="..\XrmFramework.PluginInventory\XrmFramework.PluginInventory.csproj"
+                      ReferenceOutputAssembly="false"
+                      SkipGetTargetFrameworkProperties="true"
+                      Private="false" />
+  </ItemGroup>
+
+  <!--
+    Embarque l'exe d'inventaire net462 sous inventory/ : copié à côté du tool (pour l'exécution
+    locale) et packagé sous tools/net8.0/any/inventory/ (résolu via AppContext.BaseDirectory).
+    Le helper n'a aucune dépendance tierce (BCL + framework GAC) → seul l'exe est nécessaire.
+  -->
+  <ItemGroup>
+    <None Include="..\XrmFramework.PluginInventory\bin\$(Configuration)\net462\XrmFramework.PluginInventory.exe"
+          Link="inventory\XrmFramework.PluginInventory.exe"
+          CopyToOutputDirectory="PreserveNewest"
+          Visible="false"
+          Pack="true"
+          PackagePath="tools/net8.0/any/inventory/" />
   </ItemGroup>
 
   <ItemGroup>
