@@ -9,7 +9,7 @@ namespace XrmFramework
     public interface IServiceContext : ILoggerContext
     {
         IOrganizationService AdminOrganizationService { get; }
-        
+
         IOrganizationService OrganizationService { get; }
 
         EntityReference BusinessUnitRef { get; }
@@ -17,6 +17,10 @@ namespace XrmFramework
         void Log(string message, params object[] paramsObject);
 
         IOrganizationService GetOrganizationService(Guid? userId);
+
+        IServiceEndpointNotificationService NotificationService { get; }
+
+        IManagedIdentityService ManagedIdentityService { get; }
 
         LogServiceMethod LogServiceMethod { get; }
     }
