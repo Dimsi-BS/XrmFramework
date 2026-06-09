@@ -15,10 +15,14 @@ namespace XrmFramework
     public partial class LocalContext : IContext, IServiceContext
     {
         private IServiceProvider ServiceProvider { get; }
+
         private IOrganizationService _adminService;
 
         public IServiceEndpointNotificationService NotificationService =>
             ServiceProvider.Get<IServiceEndpointNotificationService>();
+
+        public IManagedIdentityService ManagedIdentityService =>
+            ServiceProvider.Get<IManagedIdentityService>();
 
         private readonly EntityReference _businessUnitRef;
 
