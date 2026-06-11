@@ -7,17 +7,17 @@ namespace XrmFramework.Tests.Sdk.Queries.Fakes
 {
     [EntityDefinition]
     [ExcludeFromCodeCoverage]
-    public static class ContactDefinition
+    public static class FakeContactDefinition
     {
-        public const string EntityName = "contact";
-        public const string EntityCollectionName = "contacts";
+        public const string EntityName = "fake_contact";
+        public const string EntityCollectionName = "fake_contacts";
 
         [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
         public static class Columns
         {
             [AttributeMetadata(AttributeTypeCode.Uniqueidentifier)]
             [PrimaryAttribute(PrimaryAttributeType.Id)]
-            public const string Id = "contactid";
+            public const string Id = "fake_contactid";
 
             [AttributeMetadata(AttributeTypeCode.String)]
             [PrimaryAttribute(PrimaryAttributeType.Name)]
@@ -42,15 +42,15 @@ namespace XrmFramework.Tests.Sdk.Queries.Fakes
             public const string Age = "xrm_age";
 
             [AttributeMetadata(AttributeTypeCode.Lookup)]
-            [CrmLookup(AccountDefinition.EntityName, AccountDefinition.Columns.Id,
+            [CrmLookup(FakeAccountDefinition.EntityName, FakeAccountDefinition.Columns.Id,
                 RelationshipName = ManyToOneRelationships.contact_customer_accounts)]
-            public const string AccountId = "parentcustomerid";
+            public const string FakeAccountId = "parentcustomerid";
         }
 
         [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
         public static class ManyToOneRelationships
         {
-            [Relationship(AccountDefinition.EntityName, EntityRole.Referencing,
+            [Relationship(FakeAccountDefinition.EntityName, EntityRole.Referencing,
                 "contact_customer_accounts_nav", "parentcustomerid")]
             public const string contact_customer_accounts = "contact_customer_accounts";
         }

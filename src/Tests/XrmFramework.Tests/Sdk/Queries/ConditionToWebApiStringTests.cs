@@ -13,7 +13,7 @@ namespace XrmFramework.Tests.Sdk.Queries
     {
         private static string GetWebApiString(string attribute, ConditionOperator op, object value = null)
         {
-            var query = new Query(ContactDefinition.EntityName);
+            var query = new Query(FakeContactDefinition.EntityName);
             if (value != null)
                 query.Criteria.AddCondition(attribute, op, value);
             else
@@ -25,31 +25,31 @@ namespace XrmFramework.Tests.Sdk.Queries
         [Test]
         public void ToWebApiString_NullOperator_ReturnsEqNull()
         {
-            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.Null);
+            var result = GetWebApiString(FakeContactDefinition.Columns.Email, ConditionOperator.Null);
 
-            Assert.AreEqual($"{ContactDefinition.Columns.Email} eq null", result);
+            Assert.AreEqual($"{FakeContactDefinition.Columns.Email} eq null", result);
         }
 
         [Test]
         public void ToWebApiString_NotNullOperator_ReturnsNeNull()
         {
-            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.NotNull);
+            var result = GetWebApiString(FakeContactDefinition.Columns.Email, ConditionOperator.NotNull);
 
-            Assert.AreEqual($"{ContactDefinition.Columns.Email} ne null", result);
+            Assert.AreEqual($"{FakeContactDefinition.Columns.Email} ne null", result);
         }
 
         [Test]
         public void ToWebApiString_EqualStringValue_ReturnsEqWithQuotedValue()
         {
-            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.Equal, "test@test.com");
+            var result = GetWebApiString(FakeContactDefinition.Columns.Email, ConditionOperator.Equal, "test@test.com");
 
-            Assert.AreEqual($"{ContactDefinition.Columns.Email} eq 'test@test.com'", result);
+            Assert.AreEqual($"{FakeContactDefinition.Columns.Email} eq 'test@test.com'", result);
         }
 
         [Test]
         public void ToWebApiString_GreaterThanIntValue_ReturnsGtOperator()
         {
-            var result = GetWebApiString(ContactDefinition.Columns.Age, ConditionOperator.GreaterThan, 18);
+            var result = GetWebApiString(FakeContactDefinition.Columns.Age, ConditionOperator.GreaterThan, 18);
 
             StringAssert.Contains(" gt ", result);
             StringAssert.Contains("18", result);
@@ -58,31 +58,31 @@ namespace XrmFramework.Tests.Sdk.Queries
         [Test]
         public void ToWebApiString_LikeWithBothWildcards_ReturnsContainsFunction()
         {
-            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.Like, "%test%");
+            var result = GetWebApiString(FakeContactDefinition.Columns.Email, ConditionOperator.Like, "%test%");
 
-            Assert.AreEqual($"contains({ContactDefinition.Columns.Email}, 'test')", result);
+            Assert.AreEqual($"contains({FakeContactDefinition.Columns.Email}, 'test')", result);
         }
 
         [Test]
         public void ToWebApiString_LikeWithLeadingWildcard_ReturnsEndswithFunction()
         {
-            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.Like, "%test");
+            var result = GetWebApiString(FakeContactDefinition.Columns.Email, ConditionOperator.Like, "%test");
 
-            Assert.AreEqual($"endswith({ContactDefinition.Columns.Email}, 'test')", result);
+            Assert.AreEqual($"endswith({FakeContactDefinition.Columns.Email}, 'test')", result);
         }
 
         [Test]
         public void ToWebApiString_LikeWithTrailingWildcard_ReturnsStartswithFunction()
         {
-            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.Like, "test%");
+            var result = GetWebApiString(FakeContactDefinition.Columns.Email, ConditionOperator.Like, "test%");
 
-            Assert.AreEqual($"startswith({ContactDefinition.Columns.Email}, 'test')", result);
+            Assert.AreEqual($"startswith({FakeContactDefinition.Columns.Email}, 'test')", result);
         }
 
         [Test]
         public void ToWebApiString_NotLike_ReturnsPrefixedContains()
         {
-            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.NotLike, "%test%");
+            var result = GetWebApiString(FakeContactDefinition.Columns.Email, ConditionOperator.NotLike, "%test%");
 
             StringAssert.StartsWith("not ", result);
             StringAssert.Contains("contains(", result);
@@ -91,40 +91,40 @@ namespace XrmFramework.Tests.Sdk.Queries
         [Test]
         public void ToWebApiString_BeginsWith_ReturnsStartswithFunction()
         {
-            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.BeginsWith, "john");
+            var result = GetWebApiString(FakeContactDefinition.Columns.Email, ConditionOperator.BeginsWith, "john");
 
-            Assert.AreEqual($"startswith({ContactDefinition.Columns.Email}, 'john')", result);
+            Assert.AreEqual($"startswith({FakeContactDefinition.Columns.Email}, 'john')", result);
         }
 
         [Test]
         public void ToWebApiString_DoesNotBeginWith_ReturnsPrefixedStartswith()
         {
-            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.DoesNotBeginWith, "john");
+            var result = GetWebApiString(FakeContactDefinition.Columns.Email, ConditionOperator.DoesNotBeginWith, "john");
 
-            Assert.AreEqual($"not startswith({ContactDefinition.Columns.Email}, 'john')", result);
+            Assert.AreEqual($"not startswith({FakeContactDefinition.Columns.Email}, 'john')", result);
         }
 
         [Test]
         public void ToWebApiString_EndsWith_ReturnsEndswithFunction()
         {
-            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.EndsWith, ".com");
+            var result = GetWebApiString(FakeContactDefinition.Columns.Email, ConditionOperator.EndsWith, ".com");
 
-            Assert.AreEqual($"endswith({ContactDefinition.Columns.Email}, '.com')", result);
+            Assert.AreEqual($"endswith({FakeContactDefinition.Columns.Email}, '.com')", result);
         }
 
         [Test]
         public void ToWebApiString_DoesNotEndWith_ReturnsPrefixedEndswith()
         {
-            var result = GetWebApiString(ContactDefinition.Columns.Email, ConditionOperator.DoesNotEndWith, ".com");
+            var result = GetWebApiString(FakeContactDefinition.Columns.Email, ConditionOperator.DoesNotEndWith, ".com");
 
-            Assert.AreEqual($"not endswith({ContactDefinition.Columns.Email}, '.com')", result);
+            Assert.AreEqual($"not endswith({FakeContactDefinition.Columns.Email}, '.com')", result);
         }
 
         [Test]
         public void ToWebApiString_InOperator_UsesAliasAndOrExpression()
         {
-            var query = new Query(ContactDefinition.EntityName);
-            query.Criteria.AddCondition(ContactDefinition.Columns.Email, ConditionOperator.In,
+            var query = new Query(FakeContactDefinition.EntityName);
+            query.Criteria.AddCondition(FakeContactDefinition.Columns.Email, ConditionOperator.In,
                 new object[] { "a@a.com", "b@b.com" });
             int i = 0;
             var result = query.Criteria.Conditions[0].ToWebApiString(() => ++i);
@@ -138,8 +138,8 @@ namespace XrmFramework.Tests.Sdk.Queries
         [Test]
         public void ToWebApiString_NotInOperator_UsesNegateAndAndExpression()
         {
-            var query = new Query(ContactDefinition.EntityName);
-            query.Criteria.AddCondition(ContactDefinition.Columns.Email, ConditionOperator.NotIn,
+            var query = new Query(FakeContactDefinition.EntityName);
+            query.Criteria.AddCondition(FakeContactDefinition.Columns.Email, ConditionOperator.NotIn,
                 new object[] { "a@a.com", "b@b.com" });
             int i = 0;
             var result = query.Criteria.Conditions[0].ToWebApiString(() => ++i);

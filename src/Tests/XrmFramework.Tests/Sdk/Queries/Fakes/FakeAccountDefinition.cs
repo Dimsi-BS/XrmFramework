@@ -7,17 +7,17 @@ namespace XrmFramework.Tests.Sdk.Queries.Fakes
 {
     [EntityDefinition]
     [ExcludeFromCodeCoverage]
-    public static class AccountDefinition
+    public static class FakeAccountDefinition
     {
-        public const string EntityName = "account";
-        public const string EntityCollectionName = "accounts";
+        public const string EntityName = "fake_account";
+        public const string EntityCollectionName = "fake_accounts";
 
         [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
         public static class Columns
         {
             [AttributeMetadata(AttributeTypeCode.Uniqueidentifier)]
             [PrimaryAttribute(PrimaryAttributeType.Id)]
-            public const string Id = "accountid";
+            public const string Id = "fake_accountid";
 
             [AttributeMetadata(AttributeTypeCode.String)]
             [PrimaryAttribute(PrimaryAttributeType.Name)]

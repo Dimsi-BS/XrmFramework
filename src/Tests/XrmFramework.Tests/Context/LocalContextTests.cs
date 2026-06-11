@@ -10,7 +10,7 @@ namespace XrmFramework.Tests;
 public class LocalContextTests
 {
     private Mock<IServiceProvider> _serviceProviderMock = null!;
-    private Mock<IPluginExecutionContext7> _executionContextMock = null!;
+    private Mock<IPluginExecutionContext5> _executionContextMock = null!;
     private Mock<ITracingService> _tracingServiceMock = null!;
     private Mock<IOrganizationServiceFactory> _serviceFactoryMock = null!;
     private Mock<IOrganizationService> _organizationServiceMock = null!;
@@ -32,7 +32,7 @@ public class LocalContextTests
         _organizationName = "TestOrg";
 
         _serviceProviderMock = new Mock<IServiceProvider>();
-        _executionContextMock = new Mock<IPluginExecutionContext7>();
+        _executionContextMock = new Mock<IPluginExecutionContext5>();
         _tracingServiceMock = new Mock<ITracingService>();
         _serviceFactoryMock = new Mock<IOrganizationServiceFactory>();
         _organizationServiceMock = new Mock<IOrganizationService>();
@@ -50,12 +50,7 @@ public class LocalContextTests
         _executionContextMock.Setup(e => e.OutputParameters).Returns(new ParameterCollection());
         _executionContextMock.Setup(e => e.SharedVariables).Returns(new ParameterCollection());
 
-        _serviceProviderMock.Setup(s => s.GetService(typeof(IPluginExecutionContext2))).Returns(_executionContextMock.Object);
-        _serviceProviderMock.Setup(s => s.GetService(typeof(IPluginExecutionContext3))).Returns(_executionContextMock.Object);
-        _serviceProviderMock.Setup(s => s.GetService(typeof(IPluginExecutionContext4))).Returns(_executionContextMock.Object);
         _serviceProviderMock.Setup(s => s.GetService(typeof(IPluginExecutionContext5))).Returns(_executionContextMock.Object);
-        _serviceProviderMock.Setup(s => s.GetService(typeof(IPluginExecutionContext6))).Returns(_executionContextMock.Object);
-        _serviceProviderMock.Setup(s => s.GetService(typeof(IPluginExecutionContext7))).Returns(_executionContextMock.Object);
         _serviceProviderMock.Setup(s => s.GetService(typeof(ITracingService))).Returns(_tracingServiceMock.Object);
         _serviceProviderMock.Setup(s => s.GetService(typeof(IOrganizationServiceFactory))).Returns(_serviceFactoryMock.Object);
 
