@@ -14,21 +14,21 @@ namespace XrmFramework.Tests.Sdk.Queries
         [Test]
         public void ToFetchXmlString_Basic_ContainsLinkEntityAttributes()
         {
-            var query = new Query(ContactDefinition.EntityName);
-            query.AddLink(AccountDefinition.EntityName, ContactDefinition.Columns.AccountId, AccountDefinition.Columns.Id, addColumns: false);
+            var query = new Query(FakeContactDefinition.EntityName);
+            query.AddLink(FakeAccountDefinition.EntityName, FakeContactDefinition.Columns.FakeAccountId, FakeAccountDefinition.Columns.Id, addColumns: false);
 
             var xml = query.Links[0].ToFetchXmlString();
 
-            StringAssert.Contains($"name=\"{AccountDefinition.EntityName}\"", xml);
-            StringAssert.Contains($"from=\"{AccountDefinition.Columns.Id}\"", xml);
-            StringAssert.Contains($"to=\"{ContactDefinition.Columns.AccountId}\"", xml);
+            StringAssert.Contains($"name=\"{FakeAccountDefinition.EntityName}\"", xml);
+            StringAssert.Contains($"from=\"{FakeAccountDefinition.Columns.Id}\"", xml);
+            StringAssert.Contains($"to=\"{FakeContactDefinition.Columns.FakeAccountId}\"", xml);
         }
 
         [Test]
         public void ToFetchXmlString_InnerJoin_ContainsInnerLinkType()
         {
-            var query = new Query(ContactDefinition.EntityName);
-            query.AddLink(AccountDefinition.EntityName, ContactDefinition.Columns.AccountId, AccountDefinition.Columns.Id, JoinOperator.Inner, addColumns: false);
+            var query = new Query(FakeContactDefinition.EntityName);
+            query.AddLink(FakeAccountDefinition.EntityName, FakeContactDefinition.Columns.FakeAccountId, FakeAccountDefinition.Columns.Id, JoinOperator.Inner, addColumns: false);
 
             var xml = query.Links[0].ToFetchXmlString();
 
@@ -38,8 +38,8 @@ namespace XrmFramework.Tests.Sdk.Queries
         [Test]
         public void ToFetchXmlString_OuterJoin_ContainsOuterLinkType()
         {
-            var query = new Query(ContactDefinition.EntityName);
-            query.AddLink(AccountDefinition.EntityName, ContactDefinition.Columns.AccountId, AccountDefinition.Columns.Id, JoinOperator.LeftOuter, addColumns: false);
+            var query = new Query(FakeContactDefinition.EntityName);
+            query.AddLink(FakeAccountDefinition.EntityName, FakeContactDefinition.Columns.FakeAccountId, FakeAccountDefinition.Columns.Id, JoinOperator.LeftOuter, addColumns: false);
 
             var xml = query.Links[0].ToFetchXmlString();
 
@@ -49,8 +49,8 @@ namespace XrmFramework.Tests.Sdk.Queries
         [Test]
         public void ToFetchXmlString_WithAlias_ContainsAliasAttribute()
         {
-            var query = new Query(ContactDefinition.EntityName);
-            var link = query.AddLink(AccountDefinition.EntityName, ContactDefinition.Columns.AccountId, AccountDefinition.Columns.Id, addColumns: false);
+            var query = new Query(FakeContactDefinition.EntityName);
+            var link = query.AddLink(FakeAccountDefinition.EntityName, FakeContactDefinition.Columns.FakeAccountId, FakeAccountDefinition.Columns.Id, addColumns: false);
             link.EntityAlias = "acc";
 
             var xml = link.ToFetchXmlString();
@@ -61,33 +61,33 @@ namespace XrmFramework.Tests.Sdk.Queries
         [Test]
         public void ToFetchXmlString_WithColumns_ContainsAttributeElements()
         {
-            var query = new Query(ContactDefinition.EntityName);
-            var link = query.AddLink(AccountDefinition.EntityName, ContactDefinition.Columns.AccountId, AccountDefinition.Columns.Id, addColumns: false);
-            link.AddColumn(AccountDefinition.Columns.Name);
+            var query = new Query(FakeContactDefinition.EntityName);
+            var link = query.AddLink(FakeAccountDefinition.EntityName, FakeContactDefinition.Columns.FakeAccountId, FakeAccountDefinition.Columns.Id, addColumns: false);
+            link.AddColumn(FakeAccountDefinition.Columns.Name);
 
             var xml = link.ToFetchXmlString();
 
-            StringAssert.Contains($"<attribute name=\"{AccountDefinition.Columns.Name}\"", xml);
+            StringAssert.Contains($"<attribute name=\"{FakeAccountDefinition.Columns.Name}\"", xml);
         }
 
         [Test]
         public void ToFetchXmlString_WithLinkCriteria_ContainsFilterElement()
         {
-            var query = new Query(ContactDefinition.EntityName);
-            var link = query.AddLink(AccountDefinition.EntityName, ContactDefinition.Columns.AccountId, AccountDefinition.Columns.Id, addColumns: false);
-            link.Criteria.AddCondition(AccountDefinition.Columns.City, ConditionOperator.NotNull);
+            var query = new Query(FakeContactDefinition.EntityName);
+            var link = query.AddLink(FakeAccountDefinition.EntityName, FakeContactDefinition.Columns.FakeAccountId, FakeAccountDefinition.Columns.Id, addColumns: false);
+            link.Criteria.AddCondition(FakeAccountDefinition.Columns.City, ConditionOperator.NotNull);
 
             var xml = link.ToFetchXmlString();
 
             StringAssert.Contains("<filter", xml);
-            StringAssert.Contains(AccountDefinition.Columns.City, xml);
+            StringAssert.Contains(FakeAccountDefinition.Columns.City, xml);
         }
 
         [Test]
         public void ToFetchXmlString_WellFormed_HasCloseTag()
         {
-            var query = new Query(ContactDefinition.EntityName);
-            query.AddLink(AccountDefinition.EntityName, ContactDefinition.Columns.AccountId, AccountDefinition.Columns.Id, addColumns: false);
+            var query = new Query(FakeContactDefinition.EntityName);
+            query.AddLink(FakeAccountDefinition.EntityName, FakeContactDefinition.Columns.FakeAccountId, FakeAccountDefinition.Columns.Id, addColumns: false);
 
             var xml = query.Links[0].ToFetchXmlString();
 
@@ -97,8 +97,8 @@ namespace XrmFramework.Tests.Sdk.Queries
         [Test]
         public void IsWebApiFriendly_WithValidDefinition_ReturnsTrue()
         {
-            var query = new Query(ContactDefinition.EntityName);
-            var link = query.AddLink(AccountDefinition.EntityName, ContactDefinition.Columns.AccountId, AccountDefinition.Columns.Id, addColumns: true);
+            var query = new Query(FakeContactDefinition.EntityName);
+            var link = query.AddLink(FakeAccountDefinition.EntityName, FakeContactDefinition.Columns.FakeAccountId, FakeAccountDefinition.Columns.Id, addColumns: true);
 
             Assert.IsTrue(link.IsWebApiFriendly);
         }
@@ -106,9 +106,9 @@ namespace XrmFramework.Tests.Sdk.Queries
         [Test]
         public void IsWebApiFriendly_WithCriteria_ReturnsFalse()
         {
-            var query = new Query(ContactDefinition.EntityName);
-            var link = query.AddLink(AccountDefinition.EntityName, ContactDefinition.Columns.AccountId, AccountDefinition.Columns.Id, addColumns: false);
-            link.Criteria.AddCondition(AccountDefinition.Columns.City, ConditionOperator.NotNull);
+            var query = new Query(FakeContactDefinition.EntityName);
+            var link = query.AddLink(FakeAccountDefinition.EntityName, FakeContactDefinition.Columns.FakeAccountId, FakeAccountDefinition.Columns.Id, addColumns: false);
+            link.Criteria.AddCondition(FakeAccountDefinition.Columns.City, ConditionOperator.NotNull);
 
             Assert.IsFalse(link.IsWebApiFriendly);
         }
@@ -116,9 +116,9 @@ namespace XrmFramework.Tests.Sdk.Queries
         [Test]
         public void ToWebApiString_WithRelationship_ReturnsNavigationPropertyName()
         {
-            var query = new Query(ContactDefinition.EntityName);
-            var link = query.AddLink(AccountDefinition.EntityName, ContactDefinition.Columns.AccountId, AccountDefinition.Columns.Id, addColumns: false);
-            link.AddColumn(AccountDefinition.Columns.Name);
+            var query = new Query(FakeContactDefinition.EntityName);
+            var link = query.AddLink(FakeAccountDefinition.EntityName, FakeContactDefinition.Columns.FakeAccountId, FakeAccountDefinition.Columns.Id, addColumns: false);
+            link.AddColumn(FakeAccountDefinition.Columns.Name);
 
             var result = link.ToWebApiString();
 
@@ -128,8 +128,8 @@ namespace XrmFramework.Tests.Sdk.Queries
         [Test]
         public void CleanLinks_RemovableLink_GetsRemovedFromQuery()
         {
-            var query = new Query(ContactDefinition.EntityName);
-            query.AddLink(AccountDefinition.EntityName, ContactDefinition.Columns.AccountId, AccountDefinition.Columns.Id, addColumns: true);
+            var query = new Query(FakeContactDefinition.EntityName);
+            query.AddLink(FakeAccountDefinition.EntityName, FakeContactDefinition.Columns.FakeAccountId, FakeAccountDefinition.Columns.Id, addColumns: true);
 
             query.CleanLinks();
 
@@ -139,9 +139,9 @@ namespace XrmFramework.Tests.Sdk.Queries
         [Test]
         public void CleanLinks_LinkWithCriteria_IsNotRemoved()
         {
-            var query = new Query(ContactDefinition.EntityName);
-            var link = query.AddLink(AccountDefinition.EntityName, ContactDefinition.Columns.AccountId, AccountDefinition.Columns.Id, addColumns: true);
-            link.Criteria.AddCondition(AccountDefinition.Columns.City, ConditionOperator.NotNull);
+            var query = new Query(FakeContactDefinition.EntityName);
+            var link = query.AddLink(FakeAccountDefinition.EntityName, FakeContactDefinition.Columns.FakeAccountId, FakeAccountDefinition.Columns.Id, addColumns: true);
+            link.Criteria.AddCondition(FakeAccountDefinition.Columns.City, ConditionOperator.NotNull);
 
             query.CleanLinks();
 

@@ -51,8 +51,9 @@ namespace XrmFramework.Tests.Attributes
         // ────────────────────────────────────────────────────────────
         //  Réflexion — attribut appliqué sur une classe
         // ────────────────────────────────────────────────────────────
-
+        #pragma warning disable XRM0200
         [CrmEntity("contact", ValidForCreate = true, AllowDeactivation = false)]
+        #pragma warning restore XRM0200
         private class ContactDefinitionStub { }
 
         [Test]
