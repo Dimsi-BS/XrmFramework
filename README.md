@@ -1,50 +1,98 @@
-# Xrm Framework 
-The XrmFramework project is the result of 15+ years working on Dynamics 365 / Dataverse projects.
+<div align="center">
 
-- [Xrm Framework](#xrm-framework)
-  - [Design Pattern](#design-pattern)
-  - [Quick start](#quick-start)
-    - [Download XrmFramework project templates](#download-xrmframework-project-templates)
-    - [Create a new solution for you Dynamics 365 / Dataverse project](#create-a-new-solution-for-you-dynamics-365--dataverse-project)
-    - [Configure the new project](#configure-the-new-project)
-  - [Generate model definitions](#generate-model-definitions)
-  - [Create your first plugin](#create-your-first-plugin)
-    - [Defining Steps to register](#defining-steps-to-register)
-    - [Adding details to the registered steps](#adding-details-to-the-registered-steps)
-    - [Choosing method arguments](#choosing-method-arguments)
-  - [Custom APIs](#custom-apis)
-  - [Utilities](#utilities)
-  - [Contribute](#contribute)
+# Xrm Framework
 
-## Design Pattern
-Several design pattern are included in this framework :
-1.	Definition of Services to access CRM Data from Plugins or external code (Webservices, console apps, ...)
-2.	Automatic Plugin Step registration from source code (use of attributes to describe plugin and plugin steps)
-3.	Advanced plugin traces (service calls are logged)
-4.  Metadata Definition extraction tool (no more plain string attribute references)
-5.  Definition and automatic registration of Custom Apis
+**The productivity framework that makes Dynamics 365 / Dataverse development feel like modern .NET.**
+
+Strongly-typed models, declarative plugin registration, one-click deployment and a real remote debugger — distilled from 15+ years of building production Dynamics 365 / Dataverse solutions.
+
+[![NuGet](https://img.shields.io/nuget/v/XrmFramework.Templates.svg?label=XrmFramework.Templates&color=512BD4)](https://www.nuget.org/packages/XrmFramework.Templates)
+[![Downloads](https://img.shields.io/nuget/dt/XrmFramework.svg?label=downloads&color=success)](https://www.nuget.org/packages/XrmFramework)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.txt)
+[![.NET](https://img.shields.io/badge/.NET-Framework%204.6.2%20%7C%208%20%7C%2010-512BD4.svg)](#)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contribute)
+
+</div>
+
+---
+
+## Why XrmFramework?
+
+Dynamics 365 / Dataverse plugin development is famous for its friction: magic strings everywhere, hand-registering plugin steps in the UI, no way to debug a plugin running in the cloud, and copy-pasted boilerplate in every project. XrmFramework removes that friction so you can focus on business logic.
+
+| Without XrmFramework | With XrmFramework |
+| --- | --- |
+| `entity.GetAttributeValue<string>("name")` — typos compile fine, break at runtime | `AccountDefinition.Columns.Name` — strongly typed, refactor-safe, IntelliSense everywhere |
+| Register every plugin step by hand in the Plugin Registration Tool | Steps are declared in code with attributes and **registered automatically on deploy** |
+| `Console.WriteLine`-style guesswork to debug a deployed plugin | Set a **breakpoint in Visual Studio** and step through a live Dataverse execution |
+| Re-glue the SDK, build, deploy and test plumbing in every new project | `dotnet new xrmSolution` scaffolds the whole thing in seconds |
+
+```csharp
+// ❌ Raw SDK — magic strings, no safety net
+var account = service.Retrieve("account", id, new ColumnSet("name", "accountnumber"));
+var name = account.GetAttributeValue<string>("name");
+
+// ✅ XrmFramework — generated definitions, fully typed
+var account = accountService.Get(id, AccountDefinition.Columns.Name, AccountDefinition.Columns.AccountNumber);
+var name = account.GetAttributeValue<string>(AccountDefinition.Columns.Name);
+```
+
+> 💡 **Battle-tested.** XrmFramework powers several large Dynamics 365 implementations in production and is downloaded **hundreds of thousands of times** from NuGet.
+
+## Features at a glance
+
+- 🧩 **Declarative plugins & Custom APIs** — describe steps, images, filtering attributes and execution order with C# attributes; the deploy tool registers everything in Dataverse for you.
+- 🏷️ **Strongly-typed model definitions** — generate typed table/column/optionset definitions from your environment with the **Definition Manager** UI. No more magic strings.
+- 💉 **Service-oriented architecture** — typed `IService` classes encapsulate data access and business logic, and are injected into plugins, Custom APIs, console apps and Azure Functions.
+- 🔍 **Live remote debugger** — set breakpoints in Visual Studio and step through real plugin executions on any environment, forwarded to your machine over Azure Relay.
+- 🚀 **One-command scaffolding & deployment** — `dotnet new` templates plus deploy utilities for plugins, web resources and Custom APIs.
+- 📋 **Rich, zero-boilerplate tracing** — every service call and step execution is logged automatically.
+- 🛠️ **Productivity utilities** — concise extension methods for OptionSets, image/target merges, QueryExpression and EntityReference handling.
+
+## Table of contents
+
+- [Why XrmFramework?](#why-xrmframework)
+- [Features at a glance](#features-at-a-glance)
+- [Quick start](#quick-start)
+  - [Download the project templates](#download-the-project-templates)
+  - [Create a new solution](#create-a-new-solution)
+  - [Configure the new project](#configure-the-new-project)
+- [Generate model definitions](#generate-model-definitions)
+- [Create your first plugin](#create-your-first-plugin)
+  - [Defining steps to register](#defining-steps-to-register)
+  - [Adding details to the registered steps](#adding-details-to-the-registered-steps)
+  - [Choosing method arguments](#choosing-method-arguments)
+- [Services](#services)
+- [Custom APIs](#custom-apis)
+- [Remote Debugger](#remote-debugger)
+- [Utilities](#utilities)
+- [Documentation](#documentation)
+- [Contribute](#contribute)
+- [License](#license)
 
 ## Quick start
 
-### Download XrmFramework project templates
-The XrmFramework project uses the `dotnet new` templating capabilities.
+Get from zero to a deployable, strongly-typed Dynamics 365 / Dataverse solution in three commands.
 
-To start using XrmFramework on a new project you have to download the XrmFramework.Templates NuGet package by running the following command :
+### Download the project templates
+
+XrmFramework uses the `dotnet new` templating engine. Install the templates from NuGet:
 
 ```PS
 dotnet new -i XrmFramework.Templates
 ```
 
-### Create a new solution for you Dynamics 365 / Dataverse project
-To instantiate a new solution you will need to run the following command:
+### Create a new solution
+
+Scaffold a complete solution — Core, Plugins, deployment and test projects — in one command:
 
 ```PS
 PS C:\Temp> dotnet new xrmSolution -n {solutionName}
 ```
 
-The -n argument will create the solution in the `C:\Temp\{solutionName}`
+The `-n` argument creates the solution in `C:\Temp\{solutionName}`.
 
-The templating service will prompt you to accept the execution of a PowerShell initialization script :
+The templating service will prompt you to accept the execution of a PowerShell initialization script:
 
 ```PS
 Processing post-creation actions...
@@ -55,17 +103,14 @@ Actual command: powershell -File initXrm.ps1
 Do you want to run this action (Y|N)?
 ```
 
-You need to accept this execution to be sure to have the solution configured correctly.
+Accept this execution to make sure the solution is configured correctly.
 
-
-You can add `--accept-scripts` to install the solution and run the script without the `dotnet new` script acceptance prompt.
-
-
+> Tip: add `--accept-scripts` to run the initialization script without the `dotnet new` prompt.
 
 ### Configure the new project
-A `connectionStrings.config` file has been created in the `Config\` folder near of the new solution.
 
-This file will contain the connectionStrings needed for the tools to connect to your Dynamics 365 / Dataverse environments.
+A `connectionStrings.config` file has been created in the `Config\` folder next to the new solution. It holds the connection strings the tools use to connect to your Dynamics 365 / Dataverse environments.
+
 ```xml
 
   <connectionStrings>
@@ -79,11 +124,11 @@ This file will contain the connectionStrings needed for the tools to connect to 
 
 ```
 
-The connectionStrings allowed are thoses documented in the Microsoft documentation [Use connection strings in XRM tooling to connect to Microsoft Dataverse](https://docs.microsoft.com/en-us/powerapps/developer/data-platform/xrm-tooling/use-connection-strings-xrm-tooling-connect)
+The supported connection strings are those documented in [Use connection strings in XRM tooling to connect to Microsoft Dataverse](https://docs.microsoft.com/en-us/powerapps/developer/data-platform/xrm-tooling/use-connection-strings-xrm-tooling-connect).
 
-The ``connectionStrings.config`` file is added to the .gitignore so your connectionString will not be sent to the repository and each developer can use his credentials.
+The `connectionStrings.config` file is added to `.gitignore`, so your credentials are never pushed to the repository and each developer can use their own.
 
-Edit the `xrmFramework.config` file in the ``Config`` solution folder to configure the connection to Dynamics 365 and the configuration of project deployments.
+Edit the `xrmFramework.config` file in the `Config` solution folder to configure the connection to Dynamics 365 and the deployment targets:
 
 ```xml
 <xrmFramework selectedConnection="XrmDev">
@@ -95,45 +140,25 @@ Edit the `xrmFramework.config` file in the ``Config`` solution folder to configu
 </xrmFramework>
 ```
 
-You can specify several connection strings and pick the one to use in deployment tools by modifying the attribute `selectedConnection`.
-```xml
-<xrmFramework selectedConnection="XrmDev">
-    ...    
-</xrmFramework>
-```
-
-Specify the solution unique name of the solution that is holding the entities in your Dynamics 365 implementation.
-```xml
-<entitySolution name="EntitiesSolutionUniqueName" />
-```
-
-Define project list you have in your solution and the corresponding deployment target solution
-
-```xml
-
-<projects>
-    <add name="Contoso.Plugins" targetSolution="PluginsSolutionUniqueName" type="PluginsWorkflows" />
-    <add name="Contoso.Webresources" targetSolution="WebResourcesSolutionUniqueName" type="WebResources" />
-</projects>
-
-```
+- Pick the connection to use in the deployment tools with the `selectedConnection` attribute — you can declare as many as you need.
+- Set `entitySolution` to the unique name of the solution that holds the entities in your Dynamics 365 implementation.
+- List your projects under `projects` together with their deployment target solution.
 
 ## Generate model definitions
-Launch the project executable `Utils\DefinitionManager` ( you can set the project as Startup project and run it pressing Ctrl + F5 in Visual Studio )
+
+Launch the `Utils\DefinitionManager` project (set it as Startup project and run it with `Ctrl + F5` in Visual Studio).
 
 <img src="docs/images/definitionManager1.png" width="800" alt="Start of DefinitionManager" />
 
-The program retrieves all the entities that are referenced in your entities solution.
-
-The definitions already added to you solution will be automatically selected.
+The program retrieves all the entities referenced in your entities solution. Definitions already present in your solution are automatically selected.
 
 <img src="docs/images/definitionManager2.png" width="800" alt="Loaded entities" />
 
-You can select attributes to add them to already generated definitions or select new entities to generate definition files for them.
+Select attributes to add them to existing definitions, or select new entities to generate definition files for them.
 
 <img src="docs/images/definitionManager3.png" width="300" alt="Select attribute" />
 
-Optionset attributes, when selected, generate corresponding enums
+OptionSet attributes, when selected, generate the corresponding enums:
 
 <img src="docs/images/definitionManager5.png" width="500" alt="Select attribute" />
 
@@ -149,11 +174,11 @@ Optionset attributes, when selected, generate corresponding enums
 	}
 ```
 
-When you have finished selecting the needed elements you can click on the "Generate Definitions" button.
+When you are done selecting, click **Generate Definitions**.
 
 <img src="docs/images/definitionManager4.png" width="300" alt="Generate definitions" />
 
-The ``Contoso.Core`` project is now updated with the definitions you chose.
+The `Contoso.Core` project is now updated with the definitions you chose.
 
 ## Create your first plugin
 
@@ -177,9 +202,9 @@ public class SamplePlugin : Plugin
 
 ```
 
-### Defining Steps to register
+### Defining steps to register
 
-Implement the ``AddSteps`` method to define the steps that this plugin will manage
+Implement the `AddSteps` method to declare the steps this plugin manages. They are registered in Dataverse automatically on deploy — no Plugin Registration Tool required.
 
 ```csharp
     protected override void AddSteps()
@@ -193,7 +218,8 @@ Implement the ``AddSteps`` method to define the steps that this plugin will mana
 ```
 
 ### Adding details to the registered steps
-For each method that you reference you can specify several information using method attributes :
+
+For each referenced method you can specify additional information using attributes:
 
 ```csharp
    
@@ -205,52 +231,61 @@ For each method that you reference you can specify several information using met
 
 ```
 
-- ``PreImageAttribute`` is used to define the fields that will be added in the preImage that will be registered
-
-- ``PostImageAttribute`` is used to define the fields that will be added in the postImage that will be registered
-
-- ``FilteringAttributesAttribute`` is used to define on which attribute change the method should launch
-
-- ``ExecutionOrderAttribute`` allows specifying the execution order that will be registered
+- `PreImageAttribute` defines the fields added to the registered pre-image.
+- `PostImageAttribute` defines the fields added to the registered post-image.
+- `FilteringAttributesAttribute` defines which attribute changes trigger the method.
+- `ExecutionOrderAttribute` specifies the registered execution order.
 
 ### Choosing method arguments
 
-The step method registered in the ``AddSteps`` registration can be injected with services 
+Step methods declared in `AddSteps` can be injected with services:
 
 ```csharp
 public void Method(IPluginContext context, IAccountService accountService, ...)
 ```
 
-## Plugins (detailed reference)
-
-The quick start above covers the essentials. For a complete reference of all plugin options — stages, messages, modes, all method attributes, the full `IPluginContext` API, and a complete worked example — see the dedicated page:
-
-[XrmFramework Plugins](docs/Plugins.md)
+> The quick start above covers the essentials. For a complete reference — all stages, messages, modes, every method attribute, the full `IPluginContext` API and a complete worked example — see **[XrmFramework Plugins](docs/Plugins.md)**.
 
 ## Services
 
-All data-access and business logic is encapsulated in typed service classes that are injected into plugins and Custom APIs. Two documents cover this in depth:
+All data-access and business logic is encapsulated in typed service classes that are injected into plugins, Custom APIs and external code. Two documents cover this in depth:
 
-- [Working with Services](docs/WorkingWithServices.md) — Practical guide: create a service interface, implement it, and inject it into plugins.
-- [IService Architecture](docs/IService-Architecture.md) — Design rationale, the full `IService` API surface, logging wrappers, and a comparison with raw `IOrganizationService`.
+- **[Working with Services](docs/WorkingWithServices.md)** — Practical guide: create a service interface, implement it, and inject it into plugins.
+- **[IService Architecture](docs/IService-Architecture.md)** — Design rationale, the full `IService` API surface, logging wrappers, and a comparison with the raw `IOrganizationService`.
 
 ## Custom APIs
 
-XrmFramework lets you define and deploy Custom APIs (Dataverse custom messages) entirely from C# code: a class decorated with `[CustomApi]` describes the API metadata, its input/output parameters, and the method that implements the logic. The deployment tool automatically creates and updates the `customapi`, `customapirequestparameter` and `customapiresponseproperty` records in Dataverse.
+XrmFramework lets you define and deploy Custom APIs (Dataverse custom messages) entirely from C# code: a class decorated with `[CustomApi]` describes the API metadata, its input/output parameters and the method that implements the logic. The deployment tool automatically creates and updates the `customapi`, `customapirequestparameter` and `customapiresponseproperty` records in Dataverse.
 
-[XrmFramework Custom APIs](docs/CustomApis.md)
+→ **[XrmFramework Custom APIs](docs/CustomApis.md)**
 
 ## Remote Debugger
 
 XrmFramework includes a remote debugger that lets you set Visual Studio breakpoints in plugin code and step through real Dataverse executions, live, on any environment — by forwarding the execution context to your local machine over Azure Relay.
 
-[Remote Debugger](docs/RemoteDebugger.md)
+→ **[Remote Debugger](docs/RemoteDebugger.md)**
 
 ## Utilities
 
-XrmFramework contains a collection of extension methods that make working with the Dataverse SDK more concise: typed OptionSet helpers, preImage/target merge, QueryExpression helpers, EntityReference conversions, and more.
+XrmFramework ships a collection of extension methods that make working with the Dataverse SDK more concise: typed OptionSet helpers, pre-image/target merges, QueryExpression helpers, EntityReference conversions and more.
 
-[XrmFramework Utilities](docs/XrmFrameworkUtilities.md)
+→ **[XrmFramework Utilities](docs/XrmFrameworkUtilities.md)**
+
+## Documentation
+
+| Topic | Description |
+| --- | --- |
+| [Plugins](docs/Plugins.md) | Full plugin reference: stages, messages, modes, attributes, `IPluginContext`. |
+| [Working with Services](docs/WorkingWithServices.md) | Hands-on guide to creating and injecting services. |
+| [IService Architecture](docs/IService-Architecture.md) | Design rationale and the complete `IService` API surface. |
+| [Custom APIs](docs/CustomApis.md) | Define and deploy Dataverse Custom APIs from C#. |
+| [Remote Debugger](docs/RemoteDebugger.md) | Debug live plugin executions in Visual Studio. |
+| [Utilities](docs/XrmFrameworkUtilities.md) | Extension methods for the Dataverse SDK. |
 
 ## Contribute
-The code is currently on production on several big project but is not at all finished. If you have time and motivation to contribute to it you are welcome to make pull requests. Il will study them and include the changes in this repo. 
+
+XrmFramework is in production on several large projects but it is far from finished — and contributions are very welcome. If you have the time and motivation, open a pull request: it will be reviewed and the changes folded into this repository. Bug reports, feature ideas and documentation improvements are just as valuable.
+
+## License
+
+XrmFramework is released under the [MIT License](LICENSE.txt). © 2015–present DIMSI.
