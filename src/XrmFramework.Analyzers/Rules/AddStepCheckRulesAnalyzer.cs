@@ -20,7 +20,7 @@ namespace XrmFramework.Analyzers
         private static readonly LocalizableString Xrm0010MessageFormat = new LocalizableResourceString(nameof(Resources.Xrm0010_MessageFormat), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableString Xrm0010Description = new LocalizableResourceString(nameof(Resources.Xrm0010_Description), Resources.ResourceManager, typeof(Resources));
 
-        private static readonly DiagnosticDescriptor Xrm0010 = new DiagnosticDescriptor(DiagnosticIds.Xrm0010Id, Xrm0010Title, Xrm0010MessageFormat, Category, DiagnosticSeverity.Error, true, Xrm0010Description);
+        private static readonly DiagnosticDescriptor Xrm0010 = new DiagnosticDescriptor(DiagnosticIds.Xrm0010Id, Xrm0010Title, Xrm0010MessageFormat, Category, DiagnosticSeverity.Error, true, Xrm0010Description, helpLinkUri: DiagnosticIds.HelpLink(DiagnosticIds.Xrm0010Id));
         #endregion
 
         #region XRM0011 : EntityName should be called through Definition class
@@ -28,7 +28,7 @@ namespace XrmFramework.Analyzers
         private static readonly LocalizableString Xrm0011MessageFormat = new LocalizableResourceString(nameof(Resources.Xrm0011_MessageFormat), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableString Xrm0011Description = new LocalizableResourceString(nameof(Resources.Xrm0011_Description), Resources.ResourceManager, typeof(Resources));
 
-        private static readonly DiagnosticDescriptor Xrm0011 = new DiagnosticDescriptor(DiagnosticIds.Xrm0011Id, Xrm0011Title, Xrm0011MessageFormat, Category, DiagnosticSeverity.Warning, true, Xrm0011Description);
+        private static readonly DiagnosticDescriptor Xrm0011 = new DiagnosticDescriptor(DiagnosticIds.Xrm0011Id, Xrm0011Title, Xrm0011MessageFormat, Category, DiagnosticSeverity.Warning, true, Xrm0011Description, helpLinkUri: DiagnosticIds.HelpLink(DiagnosticIds.Xrm0011Id));
         #endregion
 
         #region XRM0012 : Use nameof to reference callback
@@ -36,7 +36,7 @@ namespace XrmFramework.Analyzers
         private static readonly LocalizableString Xrm0012MessageFormat = new LocalizableResourceString(nameof(Resources.Xrm0012_MessageFormat), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableString Xrm0012Description = new LocalizableResourceString(nameof(Resources.Xrm0012_Description), Resources.ResourceManager, typeof(Resources));
 
-        private static readonly DiagnosticDescriptor Xrm0012 = new DiagnosticDescriptor(DiagnosticIds.Xrm0012Id, Xrm0012Title, Xrm0012MessageFormat, Category, DiagnosticSeverity.Warning, true, Xrm0012Description);
+        private static readonly DiagnosticDescriptor Xrm0012 = new DiagnosticDescriptor(DiagnosticIds.Xrm0012Id, Xrm0012Title, Xrm0012MessageFormat, Category, DiagnosticSeverity.Warning, true, Xrm0012Description, helpLinkUri: DiagnosticIds.HelpLink(DiagnosticIds.Xrm0012Id));
         #endregion
 
         #region XRM0013 : Invalid callback method
@@ -44,7 +44,7 @@ namespace XrmFramework.Analyzers
         private static readonly LocalizableString Xrm0013MessageFormat = new LocalizableResourceString(nameof(Resources.Xrm0013_MessageFormat), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableString Xrm0013Description = new LocalizableResourceString(nameof(Resources.Xrm0013_Description), Resources.ResourceManager, typeof(Resources));
 
-        private static readonly DiagnosticDescriptor Xrm0013 = new DiagnosticDescriptor(DiagnosticIds.Xrm0013Id, Xrm0013Title, Xrm0013MessageFormat, Category, DiagnosticSeverity.Error, true, Xrm0013Description);
+        private static readonly DiagnosticDescriptor Xrm0013 = new DiagnosticDescriptor(DiagnosticIds.Xrm0013Id, Xrm0013Title, Xrm0013MessageFormat, Category, DiagnosticSeverity.Error, true, Xrm0013Description, helpLinkUri: DiagnosticIds.HelpLink(DiagnosticIds.Xrm0013Id));
         #endregion
 
         #region XRM0014 : AddStep should be called from AddSteps method
@@ -52,7 +52,7 @@ namespace XrmFramework.Analyzers
         private static readonly LocalizableString Xrm0014MessageFormat = new LocalizableResourceString(nameof(Resources.Xrm0014_MessageFormat), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableString Xrm0014Description = new LocalizableResourceString(nameof(Resources.Xrm0014_Description), Resources.ResourceManager, typeof(Resources));
 
-        private static readonly DiagnosticDescriptor Xrm0014 = new DiagnosticDescriptor(DiagnosticIds.Xrm0014Id, Xrm0014Title, Xrm0014MessageFormat, Category, DiagnosticSeverity.Error, true, Xrm0014Description);
+        private static readonly DiagnosticDescriptor Xrm0014 = new DiagnosticDescriptor(DiagnosticIds.Xrm0014Id, Xrm0014Title, Xrm0014MessageFormat, Category, DiagnosticSeverity.Error, true, Xrm0014Description, helpLinkUri: DiagnosticIds.HelpLink(DiagnosticIds.Xrm0014Id));
         #endregion
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Xrm0010, Xrm0011, Xrm0012, Xrm0013, Xrm0014);

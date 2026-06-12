@@ -19,7 +19,7 @@ namespace XrmFramework.Analyzers
         private static readonly LocalizableString Xrm0200MessageFormat = new LocalizableResourceString(nameof(Resources.Xrm0200_MessageFormat), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableString Xrm0200Description = new LocalizableResourceString(nameof(Resources.Xrm0200_Description), Resources.ResourceManager, typeof(Resources));
 
-        private static readonly DiagnosticDescriptor Xrm0200 = new DiagnosticDescriptor(DiagnosticIds.Xrm0200Id, Xrm0200Title, Xrm0200MessageFormat, Category, DiagnosticSeverity.Error, true, description: Xrm0200Description);
+        private static readonly DiagnosticDescriptor Xrm0200 = new DiagnosticDescriptor(DiagnosticIds.Xrm0200Id, Xrm0200Title, Xrm0200MessageFormat, Category, DiagnosticSeverity.Error, true, description: Xrm0200Description, helpLinkUri: DiagnosticIds.HelpLink(DiagnosticIds.Xrm0200Id));
         #endregion
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Xrm0200);

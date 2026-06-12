@@ -281,6 +281,7 @@ XrmFramework ships a collection of extension methods that make working with the 
 | [Custom APIs](docs/CustomApis.md) | Define and deploy Dataverse Custom APIs from C#. |
 | [Remote Debugger](docs/RemoteDebugger.md) | Debug live plugin executions in Visual Studio. |
 | [Utilities](docs/XrmFrameworkUtilities.md) | Extension methods for the Dataverse SDK. |
+| [Analyzers](docs/Analyzers.md) | Build-time diagnostics (`XRM00xx`) and code fixes that catch plugin mistakes before deploy. |
 
 ## Contribute
 

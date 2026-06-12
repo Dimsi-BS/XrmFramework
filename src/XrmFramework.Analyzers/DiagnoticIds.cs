@@ -17,5 +17,18 @@ namespace XrmFramework.Analyzers
         public const string Xrm0102Id = "XRM0102";
         public const string Xrm0200Id = "XRM0200";
         public const string Xrm0300Id = "XRM0300";
+
+        /// <summary>
+        /// Base URL of the published analyzer documentation. Each rule has an anchor named
+        /// after its lowercased id (e.g. <c>#xrm0010</c>).
+        /// </summary>
+        public const string HelpLinkBase = "https://github.com/Dimsi-BS/XrmFramework/blob/main/docs/Analyzers.md";
+
+        /// <summary>
+        /// Builds the documentation URL surfaced by the IDE (the diagnostic's <c>helpLinkUri</c>)
+        /// for the given rule id, e.g. <c>HelpLink("XRM0010")</c> →
+        /// <c>.../docs/Analyzers.md#xrm0010</c>.
+        /// </summary>
+        public static string HelpLink(string ruleId) => $"{HelpLinkBase}#{ruleId.ToLowerInvariant()}";
     }
 }
