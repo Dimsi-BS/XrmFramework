@@ -33,8 +33,9 @@ Dynamics 365 / Dataverse plugin development is famous for its friction: magic st
 var account = service.Retrieve("account", id, new ColumnSet("name", "accountnumber"));
 var name = account.GetAttributeValue<string>("name");
 
-// ✅ XrmFramework — generated definitions, fully typed
-var account = accountService.Get(id, AccountDefinition.Columns.Name, AccountDefinition.Columns.AccountNumber);
+// ✅ XrmFramework — typed definitions, refactor-safe, no ColumnSet boilerplate
+var account = service.Retrieve(AccountDefinition.EntityName, id,
+    AccountDefinition.Columns.Name, AccountDefinition.Columns.AccountNumber);
 var name = account.GetAttributeValue<string>(AccountDefinition.Columns.Name);
 ```
 
