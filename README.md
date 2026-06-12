@@ -6,6 +6,7 @@
 
 Strongly-typed models, declarative plugin registration, one-click deployment and a real remote debugger — distilled from 15+ years of building production Dynamics 365 / Dataverse solutions.
 
+[![Build & Tests](https://dev.azure.com/dimsi/XrmFramework/_apis/build/status/41?branchName=main)](https://dev.azure.com/dimsi/XrmFramework/_build?definitionId=41)
 [![NuGet](https://img.shields.io/nuget/v/XrmFramework.Templates.svg?label=XrmFramework.Templates&color=512BD4)](https://www.nuget.org/packages/XrmFramework.Templates)
 [![Downloads](https://img.shields.io/nuget/dt/XrmFramework.svg?label=downloads&color=success)](https://www.nuget.org/packages/XrmFramework)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.txt)
@@ -67,6 +68,7 @@ var name = account.GetAttributeValue<string>(AccountDefinition.Columns.Name);
 - [Remote Debugger](#remote-debugger)
 - [Utilities](#utilities)
 - [Documentation](#documentation)
+- [Packages](#packages)
 - [Contribute](#contribute)
 - [License](#license)
 
@@ -282,6 +284,35 @@ XrmFramework ships a collection of extension methods that make working with the 
 | [Remote Debugger](docs/RemoteDebugger.md) | Debug live plugin executions in Visual Studio. |
 | [Utilities](docs/XrmFrameworkUtilities.md) | Extension methods for the Dataverse SDK. |
 | [Analyzers](docs/Analyzers.md) | Build-time diagnostics (`XRM00xx`) and code fixes that catch plugin mistakes before deploy. |
+
+## Packages
+
+Every piece of XrmFramework ships as an independent NuGet package, so you only pull in what you need. All packages are published on [nuget.org](https://www.nuget.org/profiles/XrmFramework) and have been downloaded **hundreds of thousands of times** in total.
+
+**Runtime libraries**
+
+| Package | Role | Latest | Downloads |
+| --- | --- | --- | --- |
+| [XrmFramework](https://www.nuget.org/packages/XrmFramework) | Core runtime — SDK helpers, services, plugin context | ![NuGet](https://img.shields.io/nuget/v/XrmFramework?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework?color=success&label=) |
+| [XrmFramework.Plugin](https://www.nuget.org/packages/XrmFramework.Plugin) | Plugin base class & execution pipeline | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.Plugin?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.Plugin?color=success&label=) |
+| [XrmFramework.Workflows](https://www.nuget.org/packages/XrmFramework.Workflows) | Custom workflow activities | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.Workflows?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.Workflows?color=success&label=) |
+| [XrmFramework.CoreProject](https://www.nuget.org/packages/XrmFramework.CoreProject) | Build SDK for the generated `.Core` project | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.CoreProject?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.CoreProject?color=success&label=) |
+| [XrmFramework.CoreProject.OnPremise](https://www.nuget.org/packages/XrmFramework.CoreProject.OnPremise) | On-premise (IFD) variant of the Core SDK | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.CoreProject.OnPremise?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.CoreProject.OnPremise?color=success&label=) |
+| [XrmFramework.TypeScript](https://www.nuget.org/packages/XrmFramework.TypeScript) | TypeScript tooling for web resources | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.TypeScript?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.TypeScript?color=success&label=) |
+| [XrmFramework.Tests](https://www.nuget.org/packages/XrmFramework.Tests) | Unit-test helpers for your plugins & services | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.Tests?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.Tests?color=success&label=) |
+
+**Developer tooling**
+
+| Package | Role | Latest | Downloads |
+| --- | --- | --- | --- |
+| [XrmFramework.Templates](https://www.nuget.org/packages/XrmFramework.Templates) | `dotnet new` solution & project templates | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.Templates?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.Templates?color=success&label=) |
+| [XrmFramework.Analyzers](https://www.nuget.org/packages/XrmFramework.Analyzers) | Roslyn analyzers & code fixes (`XRM00xx`) | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.Analyzers?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.Analyzers?color=success&label=) |
+| [XrmFramework.DefinitionManager](https://www.nuget.org/packages/XrmFramework.DefinitionManager) | Typed model definition generator (UI) | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.DefinitionManager?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.DefinitionManager?color=success&label=) |
+| [XrmFramework.DeployUtils](https://www.nuget.org/packages/XrmFramework.DeployUtils) | Deployment utilities (plugins, web resources, Custom APIs) | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.DeployUtils?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.DeployUtils?color=success&label=) |
+| [XrmFramework.RemoteDebugger.Client](https://www.nuget.org/packages/XrmFramework.RemoteDebugger.Client) | Remote debugger client | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.RemoteDebugger.Client?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.RemoteDebugger.Client?color=success&label=) |
+| [XrmFramework.RemoteDebugger.Generator](https://www.nuget.org/packages/XrmFramework.RemoteDebugger.Generator) | Remote debugger source generator | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.RemoteDebugger.Generator?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.RemoteDebugger.Generator?color=success&label=) |
+
+> Badges are live: version and download counts are fetched from nuget.org on every page view.
 
 ## Contribute
 
