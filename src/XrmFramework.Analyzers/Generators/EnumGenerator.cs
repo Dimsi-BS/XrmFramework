@@ -72,7 +72,8 @@ namespace XrmFramework.Analyzers.Generators
             messageFormat: "Could not generate Items collection for '{0}': {1}",
             category: "XrmFramework.Generators",
             defaultSeverity: DiagnosticSeverity.Error,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1002"));
 
         private static string GenerateCode(ITypeSymbol type)
         {

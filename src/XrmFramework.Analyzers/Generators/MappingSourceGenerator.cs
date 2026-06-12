@@ -301,7 +301,8 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
         "XRM2001", "MappingGenerator failure",
         "Could not generate mapping for '{0}': {1}",
         "XrmFramework.Generators",
-        DiagnosticSeverity.Warning, isEnabledByDefault: true);
+        DiagnosticSeverity.Warning, isEnabledByDefault: true,
+        helpLinkUri: DiagnosticIds.HelpLink("XRM2001"));
 
     private static void EmitSources(SourceProductionContext ctx, ImmutableArray<ModelInfo?> models)
     {

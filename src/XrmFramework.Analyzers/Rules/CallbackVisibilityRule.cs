@@ -16,7 +16,7 @@ namespace XrmFramework.Analyzers
         private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.CheckCallbackVisibilityDescription), Resources.ResourceManager, typeof(Resources));
         private const string Category = "Naming";
 
-        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticIds.Xrm0002Id, Title, MessageFormat, Category, DiagnosticSeverity.Error, true, description: Description);
+        private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticIds.Xrm0002Id, Title, MessageFormat, Category, DiagnosticSeverity.Error, true, description: Description, helpLinkUri: DiagnosticIds.HelpLink(DiagnosticIds.Xrm0002Id));
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 

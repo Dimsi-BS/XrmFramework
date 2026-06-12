@@ -42,7 +42,8 @@ namespace XrmFramework.Analyzers
             Category,
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: Xrm0300Description);
+            description: Xrm0300Description,
+            helpLinkUri: DiagnosticIds.HelpLink(DiagnosticIds.Xrm0300Id));
 
         #endregion
 
