@@ -33,10 +33,19 @@ Dynamics 365 / Dataverse plugin development is famous for its friction: magic st
 var account = service.Retrieve("account", id, new ColumnSet("name", "accountnumber"));
 var name = account.GetAttributeValue<string>("name");
 
-// ✅ XrmFramework — typed definitions, refactor-safe, no ColumnSet boilerplate
-var account = service.Retrieve(AccountDefinition.EntityName, id,
-    AccountDefinition.Columns.Name, AccountDefinition.Columns.AccountNumber);
-var name = account.GetAttributeValue<string>(AccountDefinition.Columns.Name);
+// ✅ XrmFramework — declare a typed model once…
+[CrmEntity(AccountDefinition.EntityName)]
+public class AccountModel : IBindingModel
+{
+    public Guid Id { get; set; }
+
+    [CrmMapping(AccountDefinition.Columns.Name)]
+    public string Nom { get; set; }
+}
+
+// …then read it with real, refactor-safe properties — no magic strings, no ColumnSet
+var account = service.GetById<AccountModel>(id);
+var name = account.Nom;
 ```
 
 > 💡 **Battle-tested.** XrmFramework powers several large Dynamics 365 implementations in production and is downloaded **hundreds of thousands of times** from NuGet.

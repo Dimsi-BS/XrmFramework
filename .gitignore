@@ -334,3 +334,5 @@ ASALocalRun/
 connectionStrings.config
 
 **/.DS_Store
+	/.claude/settings.local.json
+/src/.claude/settings.local.json
