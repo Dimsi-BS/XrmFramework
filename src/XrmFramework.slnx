@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/SolutionItems/" />
+  <Folder Name="/SolutionItems/Build/">
+    <File Path="../version.json" />
+    <File Path="Build/Versioning.targets" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/XrmFramework.Analyzers.Tests/XrmFramework.Analyzers.Tests.csproj" />
+  </Folder>
+  <Project Path="XrmFramework.Analyzers/XrmFramework.Analyzers.csproj" />
+  <Project Path="XrmFramework.Core/XrmFramework.Core.csproj" />
+  <Project Path="XrmFramework.CoreProject.OnPremise/XrmFramework.CoreProject.OnPremise.csproj" />
+  <Project Path="XrmFramework.CoreProject/XrmFramework.CoreProject.csproj" />
+  <Project Path="XrmFramework.DefinitionManager/XrmFramework.DefinitionManager.csproj" />
+  <Project Path="XrmFramework.DeployUtils/XrmFramework.DeployUtils.csproj" />
+  <Project Path="XrmFramework.Plugin/XrmFramework.Plugin.csproj" />
+  <Project Path="XrmFramework.RemoteDebugger.Client/XrmFramework.RemoteDebugger.Client.csproj" />
+  <Project Path="XrmFramework.Templates/XrmFramework.Templates.csproj" />
+  <Project Path="XrmFramework/XrmFramework.csproj" />
+</Solution>
