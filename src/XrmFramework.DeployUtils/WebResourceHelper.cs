@@ -338,6 +338,8 @@ public static class WebResourceHelper
             case ".ico":
             case ".svg":
             case ".resx":
+            case ".ttf":
+            case ".woff2":
                 return true;
             default:
                 return false;
