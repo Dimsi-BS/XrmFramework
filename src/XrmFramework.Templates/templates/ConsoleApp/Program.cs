@@ -1,43 +1,18 @@
-﻿using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using $safeprojectname$;
 
-namespace $safeprojectname$
-{
-    class Program
-{
-    private static IServiceProvider _serviceProvider;
+IConfiguration configuration = new ConfigurationBuilder()
+    .AddJsonFile("appSettings.json")
+    .AddEnvironmentVariables()
+    .AddCommandLine(args)
+    .Build();
 
-    static async Task Main(string[] args)
-    {
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddJsonFile("appSettings.json")
-            .AddEnvironmentVariables()
-            .AddCommandLine(args)
-            .Build();
+var services = new ServiceCollection();
+services.AddXrmFramework(opt => opt.UseConnectionString(configuration.GetConnectionString("Xrm")));
+services.AddTransient<ConsoleApplication>();
 
-        RegisterServices(configuration);
-        var scope = _serviceProvider.CreateScope();
-        await scope.ServiceProvider.GetRequiredService<ConsoleApplication>().RunAsync();
-        DisposeServices();
-    }
+await using var serviceProvider = services.BuildServiceProvider(true);
+using var scope = serviceProvider.CreateScope();
 
-    private static void RegisterServices(IConfiguration configuration)
-    {
-        var services = new ServiceCollection();
-        services.AddXrmFramework(opt => opt.UseConnectionString(configuration.GetConnectionString("Xrm")));
-
-        services.AddTransient<ConsoleApplication>();
-        _serviceProvider = services.BuildServiceProvider(true);
-    }
-
-    private static void DisposeServices()
-    {
-        if (_serviceProvider is IDisposable disposable)
-        {
-            disposable.Dispose();
-        }
-    }
-}
-}
+await scope.ServiceProvider.GetRequiredService<ConsoleApplication>().RunAsync();
