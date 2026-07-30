@@ -7,7 +7,7 @@ using XrmFramework.Cli.Commands;
 // Point d'entrée du CLI XrmFramework.
 //   xrmframework tables sync   --dll <chemin.dll> --tables-dir <répertoire> [--clean]
 //   xrmframework tables list   [--prefix <préfixe>] [--filter <texte>] [--custom-only]
-//   xrmframework tables pull   --table <nom> [--prefix <préfixe>] [--tables-dir <répertoire>] [--noprompt]
+//   xrmframework tables pull   [--table <nom>] [--prefix <préfixe>] [--tables-dir <répertoire>] [--noprompt]
 //   xrmframework deploy plugins --dll <chemin.dll> --project <nom> [--on-premise] [--noprompt]
 var app = new CommandApp();
 
@@ -28,7 +28,8 @@ app.Configure(config =>
               .WithExample("tables", "list", "--prefix", "ftp_");
 
         tables.AddCommand<TablePullCommand>("pull")
-              .WithDescription("Génère ou met à jour des fichiers .table depuis les métadonnées de l'environnement.")
+              .WithDescription("Génère ou met à jour des fichiers .table depuis les métadonnées de l'environnement (par défaut : ceux déjà présents).")
+              .WithExample("tables", "pull")
               .WithExample("tables", "pull", "--table", "account,ftp_contrat");
     });
 
