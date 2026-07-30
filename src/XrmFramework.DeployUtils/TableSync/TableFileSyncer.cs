@@ -58,7 +58,7 @@ public sealed class TableFileSyncer
         // Index des logical names sélectionnés par entité, utilisé en mode --clean
         // pour identifier les colonnes qui n'appartiennent plus à aucune Definition.
         var selectedByTable = definitions.GroupBy(d => d.TableName).ToDictionary(
-            d => d.Key,
+            g => g.Key,
             g => new HashSet<string>(
                      g.SelectMany(d => d.Columns.Select(c => c.LogicalName)),
                      StringComparer.OrdinalIgnoreCase),
@@ -110,6 +110,8 @@ public sealed class TableFileSyncer
         var isNew = !File.Exists(tablePath);
         var table = isNew ? CreateMinimalTable(def) : LoadTable(tablePath);
 
+        table.Name = def.TableName;
+
         var added = 0;
         var updated = 0;
 
@@ -134,6 +136,7 @@ public sealed class TableFileSyncer
             else if (!existing.Selected)
             {
                 existing.Selected = true;
+                existing.Name = colInfo.Name;
                 updated++;
             }
             // Si déjà Selected=true : rien à faire
