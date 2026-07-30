@@ -52,10 +52,10 @@ public sealed class TableFileSyncer
     {
         // Index des logical names sélectionnés par entité, utilisé en mode --clean
         // pour identifier les colonnes qui n'appartiennent plus à aucune Definition.
-        var selectedByTable = definitions.ToDictionary(
-            d => d.TableName,
-            d => new HashSet<string>(
-                     d.Columns.Select(c => c.LogicalName),
+        var selectedByTable = definitions.GroupBy(d => d.TableName).ToDictionary(
+            d => d.Key,
+            g => new HashSet<string>(
+                     g.SelectMany(d => d.Columns.Select(c => c.LogicalName)),
                      StringComparer.OrdinalIgnoreCase),
             StringComparer.OrdinalIgnoreCase);
 
