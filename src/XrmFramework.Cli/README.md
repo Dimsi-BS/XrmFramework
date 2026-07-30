@@ -193,9 +193,13 @@ référence. Cela évite de générer des milliers de constantes inutiles.
 
 Autres garanties :
 
+- **Une colonne déjà sélectionnée le reste.** `pull` ne rétrograde jamais un `Select: true`, et ne
+  réactive jamais une colonne délibérément désactivée — y compris `createdon` et consorts, pourtant
+  activées d'office à la création. Cette garantie est vérifiée de bout en bout (métadonnées →
+  fusion → écriture → relecture) par `TablePullPersistenceTests`.
 - Le fichier cible est retrouvé par son **`LogName`**, pas par son nom de fichier : une table
   dont le `Name` a été renommé à la main (`Contrat.table` → `ContratLocation.table`) est bien
-  mise à jour au lieu d'être dupliquée.
+  mise à jour au lieu d'être dupliquée — la sélection survit également à ce renommage.
 - Une colonne présente dans le fichier mais **absente de l'environnement** est conservée et
   signalée. `pull` rafraîchit, il ne détruit pas ; la désélection des orphelines relève de
   `tables sync --clean`.

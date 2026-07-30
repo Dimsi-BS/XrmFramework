@@ -218,32 +218,24 @@ namespace XrmFramework.DeployUtils.TableSync
 
                 globalEnums.AddRange(conversion.GlobalEnums);
 
-                // Le fichier est retrouvé par son nom logique : son nom de fichier suit le nom C#
-                // de la table, que les équipes renomment librement.
-                var path = TableFileStore.FindTableFile(targetDirectory, logicalName);
-                var existing = path == null ? null : TableFileStore.Load(path);
+                var outcome = TablePullWriter.Write(targetDirectory, conversion.Table);
 
-                var merged = TableMerger.Merge(existing, conversion.Table);
-                var missing = TableMerger.GetColumnsMissingFromCrm(existing, conversion.Table);
-
-                path = path ?? TableFileStore.BuildTableFilePath(targetDirectory, merged.Name);
-                TableFileStore.Save(path, merged);
-
-                var fileName = Path.GetFileName(path);
-                if (existing == null)
+                var fileName = Path.GetFileName(outcome.FilePath);
+                if (outcome.Created)
                     AnsiConsole.MarkupLine(
                         $"[green]Créé[/]       {Markup.Escape(fileName)} " +
-                        $"([bold]{merged.Columns.Count}[/] colonne(s))");
+                        $"([bold]{outcome.Table.Columns.Count}[/] colonne(s))");
                 else
                     AnsiConsole.MarkupLine(
                         $"[blue]Mis à jour[/] {Markup.Escape(fileName)} " +
-                        $"([bold]{merged.Columns.Count}[/] colonne(s))");
+                        $"([bold]{outcome.Table.Columns.Count}[/] colonne(s))");
 
-                if (missing.Count > 0)
+                if (outcome.ColumnsMissingFromCrm.Count > 0)
                     AnsiConsole.MarkupLine(
-                        $"           [yellow]{missing.Count} colonne(s) absente(s) de l'environnement, " +
-                        "conservée(s) :[/] " +
-                        Markup.Escape(string.Join(", ", missing.Select(c => c.LogicalName))));
+                        $"           [yellow]{outcome.ColumnsMissingFromCrm.Count} colonne(s) absente(s) " +
+                        "de l'environnement, conservée(s) :[/] " +
+                        Markup.Escape(string.Join(", ",
+                            outcome.ColumnsMissingFromCrm.Select(c => c.LogicalName))));
 
                 return true;
             }
