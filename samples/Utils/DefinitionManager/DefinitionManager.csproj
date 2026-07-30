@@ -19,6 +19,6 @@
   </ItemGroup>
 
 
-  <Import Project="../Directory.Build.props" />
+  <!-- samples/Directory.Build.props est importé automatiquement par MSBuild (remontée d'arborescence). -->
   <Import Project="../../../src/XrmFramework.DefinitionManager/build/net462/XrmFramework.DefinitionManager.props" />
 </Project>

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using XrmFramework.Core;
 using XrmFramework.DefinitionManager.Attributes;
@@ -20,29 +21,87 @@ namespace XrmFramework.DefinitionManager
 {
     public partial class MainForm : Form, ICustomListProvider
     {
-        private readonly DefinitionCollection<XrmFramework.DefinitionManager.Definitions.EntityDefinition> _entityCollection;
+        private readonly DefinitionCollection<XrmFramework.DefinitionManager.Definitions.EntityDefinition> _entityCollection = new();
 
-        private readonly TableCollection _tables;
+        private readonly TableCollection _tables = new();
         private readonly List<OptionSetEnum> _enums = new();
 
-        private readonly Type _iServiceType;
+        private readonly Assembly _coreAssembly;
         private readonly CoreProjectAttribute _coreProject;
-        
-        public MainForm(Type iServiceType, string coreProjectName = "")
+
+        /// <summary>
+        /// Ouvre le DefinitionManager sur le projet Core de la solution.
+        /// </summary>
+        /// <param name="coreProjectName">
+        /// Nom de l'assembly du projet Core. Laissé vide, on utilise celui porté par le
+        /// <see cref="CoreProjectAttribute"/> injecté par les props du package (propriété MSBuild
+        /// <c>XrmFrameworkCoreProjectName</c>).
+        /// </param>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public MainForm(string coreProjectName = "")
         {
-            _iServiceType = iServiceType;
-            CustomProvider.Instance = this;
+            _coreProject = Assembly.GetCallingAssembly().GetCustomAttribute<CoreProjectAttribute>();
+            _coreAssembly = ResolveCoreAssembly(coreProjectName, _coreProject);
+
+            Initialize();
+        }
+
+        [Obsolete("Utilisez MainForm(string). Le type n'a jamais servi que d'ancre pour retrouver l'assembly du projet Core, et typeof(IService) rend la compilation ambiguë (CS0433) dès que XrmFramework.DeployUtils est également référencé.")]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public MainForm(Type coreProjectType, string coreProjectName = "")
+        {
+            if (coreProjectType == null)
+            {
+                throw new ArgumentNullException(nameof(coreProjectType));
+            }
 
             _coreProject = Assembly.GetCallingAssembly().GetCustomAttribute<CoreProjectAttribute>();
-            
+            _coreAssembly = coreProjectType.Assembly;
+
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            CustomProvider.Instance = this;
+
             InitializeComponent();
 
             DataAccessManager.Instance.StepChanged += StepChangedHandler;
 
-            _entityCollection = new DefinitionCollection<XrmFramework.DefinitionManager.Definitions.EntityDefinition>();
-            _tables = new TableCollection();
-
             this.attributeListView.SelectionChanged += attributeListView_SelectionChanged;
+        }
+
+        private static Assembly ResolveCoreAssembly(string coreProjectName, CoreProjectAttribute coreProject)
+        {
+            var assemblyName = string.IsNullOrWhiteSpace(coreProjectName) ? coreProject?.Name : coreProjectName;
+
+            if (string.IsNullOrWhiteSpace(assemblyName))
+            {
+                throw new InvalidOperationException(
+                    "Impossible de déterminer le projet Core : aucun nom passé au constructeur et aucun CoreProjectAttribute sur l'assembly appelante. "
+                    + "Vérifiez que la propriété MSBuild XrmFrameworkCoreProjectName est définie dans le Directory.Build.props de la solution.");
+            }
+
+            var loaded = AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault(a => string.Equals(a.GetName().Name, assemblyName, StringComparison.OrdinalIgnoreCase));
+
+            if (loaded != null)
+            {
+                return loaded;
+            }
+
+            try
+            {
+                return Assembly.Load(new AssemblyName(assemblyName));
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    $"L'assembly du projet Core « {assemblyName} » est introuvable. "
+                    + "Vérifiez que le projet DefinitionManager la référence bien et qu'elle est copiée dans le répertoire de sortie.",
+                    ex);
+            }
         }
 
         void attributeListView_SelectionChanged(object sender, CustomListViewControl<XrmFramework.DefinitionManager.Definitions.AttributeDefinition>.SelectionChangedEventArgs e)
@@ -99,7 +158,7 @@ namespace XrmFramework.DefinitionManager
             var optionSetDefinitionAttributeType = GetExternalType("XrmFramework.OptionSetDefinitionAttribute");
             var definitionManagerIgnoreAttributeType = GetExternalType("XrmFramework.Definitions.Internal.DefinitionManagerIgnoreAttribute");
 
-            var definitionTypes = _iServiceType.Assembly.GetTypes()
+            var definitionTypes = _coreAssembly.GetTypes()
                 .Where(t => t.GetCustomAttributes(optionSetDefinitionAttributeType, false).Any());
 
             foreach (var type in definitionTypes)
@@ -162,7 +221,7 @@ namespace XrmFramework.DefinitionManager
         }
 
         private Type GetExternalType(string name)
-            => _iServiceType.Assembly.GetType(name);
+            => _coreAssembly.GetType(name);
 
         //private IEnumerable<Table> GetCodedEntities()
         //{
@@ -183,7 +242,7 @@ namespace XrmFramework.DefinitionManager
         private IEnumerable<XrmFramework.DefinitionManager.Definitions.EntityDefinition> GetCodedEntityDefinitions()
         {
             var entityDefinitionAttributeType = GetExternalType("XrmFramework.EntityDefinitionAttribute");
-            var definitionTypes = _iServiceType.Assembly.GetTypes().Where(t => t.GetCustomAttributes(entityDefinitionAttributeType, false).Any());
+            var definitionTypes = _coreAssembly.GetTypes().Where(t => t.GetCustomAttributes(entityDefinitionAttributeType, false).Any());
             var relationshipAttributeType = GetExternalType("XrmFramework.RelationshipAttribute");
             var definitionManagerIgnoreAttributeType = GetExternalType("XrmFramework.Definitions.Internal.DefinitionManagerIgnoreAttribute");
 
