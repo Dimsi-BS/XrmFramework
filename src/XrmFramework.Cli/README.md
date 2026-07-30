@@ -257,7 +257,7 @@ xrmframework deploy plugins --dll <chemin.dll> --project <nom> [--project-root <
 | `-n`, `--noprompt` | ❌ | Mode silencieux : ignore la confirmation de connexion (CI/CD). |
 
 > **Comment ça marche — inventaire par exécution réelle du code.** Un plugin est `net462`,
-> ce tool est `net8.0` : il ne peut donc pas instancier les types du plugin lui-même. Il délègue
+> ce tool est `net10.0` : il ne peut donc pas instancier les types du plugin lui-même. Il délègue
 > à l'outil **`XrmFramework.PluginInventory`** (exe `net462`, embarqué sous `inventory/`), qui
 > charge l'assembly, **exécute les constructeurs (`AddSteps`)** et reflète les types, puis renvoie
 > le manifeste JSON (plugins / steps / workflows / custom APIs) sur sa sortie standard.
@@ -373,7 +373,7 @@ dotnet pack src/XrmFramework.Cli -c Release -o ./nupkg
 unzip -p ./nupkg/XrmFramework.Cli.*.nupkg "*.nuspec"     # <packageType name="DotnetTool" />
 ```
 
-> Le package embarque toute la *closure* de dépendances sous `tools/net8.0/any/`
+> Le package embarque toute la *closure* de dépendances sous `tools/net10.0/any/`
 > (dont `XrmFramework.DeployUtils` et le client Dataverse) : c'est volumineux mais
 > nécessaire pour un tool autonome.
 

@@ -10,16 +10,19 @@
   -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <!-- Les .NET tools exigent un TFM unique — on cible net8.0 (LTS). -->
-    <TargetFramework>net8.0</TargetFramework>
+    <!-- Les .NET tools exigent un TFM unique — on cible net10.0 (LTS courant). -->
+    <TargetFramework>net10.0</TargetFramework>
 
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 
     <!-- Packaging en tant que .NET tool : PackAsTool règle PackageType=DotnetTool
-         et range la sortie (closure incluse) sous tools/net8.0/any/. -->
+         et range la sortie (closure incluse) sous tools/net10.0/any/. -->
     <PackageId>XrmFramework.Cli</PackageId>
     <IsPackable>true</IsPackable>
+    <!-- La pipeline (NugetPackages-Azure.yml) ne fait que « dotnet build » : sans cette propriété
+         le .nupkg du CLI n'est jamais généré ni recopié dans GeneratedNuGetPackages. -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>xrmframework</ToolCommandName>
     <PackageDescription>CLI XrmFramework : synchronisation des fichiers .table et utilitaires de développement Dynamics 365 / Dataverse.</PackageDescription>
@@ -48,17 +51,17 @@
   </ItemGroup>
 
   <!--
-    Embarque l'exe d'inventaire net462 sous inventory/ : copié à côté du tool (pour l'exécution
-    locale) et packagé sous tools/net8.0/any/inventory/ (résolu via AppContext.BaseDirectory).
+    Embarque l'exe d'inventaire net462 sous inventory/ : copié à côté du tool (résolu via
+    AppContext.BaseDirectory). PackAsTool empaquette la sortie de publication sous
+    tools/net10.0/any/, donc CopyToOutputDirectory suffit — une inclusion Pack explicite
+    ferait doublon (NU5118).
     Le helper n'a aucune dépendance tierce (BCL + framework GAC) → seul l'exe est nécessaire.
   -->
   <ItemGroup>
     <None Include="..\XrmFramework.PluginInventory\bin\$(Configuration)\net462\XrmFramework.PluginInventory.exe"
           Link="inventory\XrmFramework.PluginInventory.exe"
           CopyToOutputDirectory="PreserveNewest"
-          Visible="false"
-          Pack="true"
-          PackagePath="tools/net8.0/any/inventory/" />
+          Visible="false" />
   </ItemGroup>
 
   <ItemGroup>
