@@ -147,20 +147,36 @@ libellés localisés, capacités, bornes, relations, clés alternatives et optio
 l'équivalent headless du **DefinitionManager** (WinForms `net462`), utilisable en CI.
 
 ```bash
-xrmframework tables pull --table <noms> [--prefix <préfixe>] [--tables-dir <dir>] [--project-root <dir>] [-n]
+xrmframework tables pull [--table <noms>] [--prefix <préfixe>] [--tables-dir <dir>] [--project-root <dir>] [-n]
 ```
 
 | Option | Requis | Description |
 |---|:---:|---|
-| `-t`, `--table <NAME>` | ⚠️ | Nom logique d'une table. Option **répétable** et acceptant une liste séparée par des virgules. |
-| `--prefix <PREFIX>` | ⚠️ | Récupère en outre toutes les tables dont le nom logique commence par ce préfixe. |
+| `-t`, `--table <NAME>` | ❌ | Nom logique d'une table. Option **répétable** et acceptant une liste séparée par des virgules. |
+| `--prefix <PREFIX>` | ❌ | Récupère en outre toutes les tables dont le nom logique commence par ce préfixe. |
 | `--tables-dir <DIRECTORY>` | ❌ | Répertoire cible (défaut : le `Definitions` du projet Core, déduit de la configuration). |
 | `--project-root <DIR>` | ❌ | Racine contenant `Config/` (défaut : recherche en remontant depuis le dossier courant). |
 | `-n`, `--noprompt` | ❌ | Mode silencieux : ignore la confirmation (CI/CD). |
 
-⚠️ Au moins l'une des options `--table` / `--prefix` est obligatoire.
+#### Sélection par défaut : les tables déjà suivies
 
-**Exemple**
+Sans `--table` ni `--prefix`, `pull` rafraîchit **toutes les tables déjà décrites par un
+`.table`** du répertoire cible — la mise à jour de masse après une évolution du modèle, sans
+avoir à réénumérer les tables du projet.
+
+- La sélection est lue dans les fichiers, par leur `LogName` : un `.table` renommé reste suivi.
+- `OptionSet.table` (option sets globaux) est exclu — il ne correspond à aucune entité du CRM,
+  mais reste alimenté par les tables récupérées.
+- Un `.table` dont l'entité n'existe plus dans l'environnement est **signalé et ignoré**, sans
+  interrompre les autres ; le fichier n'est pas supprimé.
+- Si le répertoire ne contient aucun `.table`, la commande s'arrête avec le code `1` **avant de
+  se connecter** : rien à récupérer, autant ne pas authentifier pour rien.
+
+**Exemples**
+
+```bash
+xrmframework tables pull --noprompt
+```
 
 ```bash
 xrmframework tables pull --table account,ftp_contrat --noprompt

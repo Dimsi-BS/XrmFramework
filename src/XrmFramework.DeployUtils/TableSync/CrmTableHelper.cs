@@ -92,7 +92,7 @@ namespace XrmFramework.DeployUtils.TableSync
         {
             // Signale ce qui est déjà suivi dans le projet : c'est l'information qui manque le plus
             // au moment de choisir quoi récupérer.
-            var trackedLogicalNames = ReadTrackedLogicalNames(tablesDirectory);
+            var trackedLogicalNames = TableFileStore.ReadTrackedLogicalNames(tablesDirectory);
 
             var grid = new Spectre.Console.Table().Border(TableBorder.Rounded);
             grid.AddColumn("Nom logique");
@@ -119,7 +119,8 @@ namespace XrmFramework.DeployUtils.TableSync
         // ══════════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Génère ou met à jour les fichiers <c>.table</c> des entités demandées.
+        /// Génère ou met à jour les fichiers <c>.table</c> des entités demandées, ou de toutes
+        /// celles déjà suivies par le projet si aucun critère n'est donné.
         /// </summary>
         /// <param name="projectRoot">Racine explicite, ou <see langword="null" /> pour la découvrir.</param>
         /// <param name="tablesDirectory">Répertoire cible, ou <see langword="null" /> pour le déduire.</param>
@@ -154,9 +155,13 @@ namespace XrmFramework.DeployUtils.TableSync
                 AnsiConsole.MarkupLine($"Environnement : [cyan]{Markup.Escape(url ?? "inconnu")}[/]");
                 AnsiConsole.MarkupLine($"Répertoire    : [cyan]{Markup.Escape(targetDirectory)}[/]");
 
+                var selection = ResolveSelection(targetDirectory, tableNames, prefix);
+                if (selection == null)
+                    return ExitNoMatch;
+
                 var service = Connect(connectionString);
 
-                var requested = ResolveRequestedEntities(service, tableNames, prefix, out var unknown);
+                var requested = ResolveRequestedEntities(service, selection, prefix, out var unknown);
 
                 foreach (var name in unknown)
                     AnsiConsole.MarkupLine($"[yellow]Table introuvable dans l'environnement :[/] {Markup.Escape(name)}");
@@ -202,6 +207,43 @@ namespace XrmFramework.DeployUtils.TableSync
             {
                 return ReportUnexpected(ex);
             }
+        }
+
+        /// <summary>
+        /// Détermine les noms logiques à demander à l'environnement. Sans critère, la sélection est
+        /// celle du projet lui-même : toutes les tables déjà décrites par un <c>.table</c>.
+        /// </summary>
+        /// <remarks>
+        /// Résolu <b>avant</b> la connexion : un répertoire vide est une erreur de la ligne de
+        /// commande, inutile d'authentifier l'utilisateur pour la lui signaler.
+        /// </remarks>
+        /// <returns>
+        /// Les noms à demander, ou <see langword="null" /> si rien n'est sélectionnable — le message
+        /// correspondant a alors déjà été affiché.
+        /// </returns>
+        private static IList<string> ResolveSelection(
+            string targetDirectory, IEnumerable<string> tableNames, string prefix)
+        {
+            var names = SplitNames(tableNames).ToList();
+
+            if (names.Count > 0 || !string.IsNullOrWhiteSpace(prefix))
+                return names;
+
+            var tracked = TableFileStore.ReadTrackedLogicalNames(targetDirectory)
+                                        .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+                                        .ToList();
+
+            if (tracked.Count == 0)
+            {
+                AnsiConsole.MarkupLine(
+                    "[yellow]Aucun fichier .table dans ce répertoire.[/] Indiquez les tables à " +
+                    "récupérer via [cyan]--table[/] ou [cyan]--prefix[/].");
+                return null;
+            }
+
+            AnsiConsole.MarkupLine("Sélection     : [cyan]tables déjà suivies par le projet[/]");
+
+            return tracked;
         }
 
         private static bool PullSingleTable(
@@ -468,31 +510,5 @@ namespace XrmFramework.DeployUtils.TableSync
             }
         }
 
-        /// <summary>
-        /// Noms logiques déjà présents dans le répertoire des <c>.table</c>.
-        /// </summary>
-        private static HashSet<string> ReadTrackedLogicalNames(string tablesDirectory)
-        {
-            var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            if (string.IsNullOrWhiteSpace(tablesDirectory) || !Directory.Exists(tablesDirectory))
-                return result;
-
-            foreach (var path in Directory.GetFiles(tablesDirectory, "*" + TableFileStore.TableFileExtension))
-            {
-                try
-                {
-                    var table = TableFileStore.Load(path);
-                    if (!string.IsNullOrEmpty(table.LogicalName))
-                        result.Add(table.LogicalName);
-                }
-                catch (Exception)
-                {
-                    // Un .table illisible n'empêche pas de lister l'environnement.
-                }
-            }
-
-            return result;
-        }
     }
 }

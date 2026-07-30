@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -97,5 +98,42 @@ namespace XrmFramework.DeployUtils.TableSync
         /// </summary>
         public static string BuildTableFilePath(string directory, string tableName)
             => Path.Combine(directory, tableName + TableFileExtension);
+
+        /// <summary>
+        /// Noms logiques des entités déjà suivies par le projet, c'est-à-dire décrites par un
+        /// fichier <c>.table</c> du répertoire.
+        /// </summary>
+        /// <remarks>
+        /// Le pseudo-table des option sets globaux est exclu : il ne correspond à aucune entité de
+        /// l'environnement. Comme pour <see cref="FindTableFile" />, un fichier illisible est ignoré
+        /// plutôt que fatal.
+        /// </remarks>
+        public static ISet<string> ReadTrackedLogicalNames(string directory)
+        {
+            var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory))
+                return result;
+
+            foreach (var path in Directory.GetFiles(directory, "*" + TableFileExtension))
+            {
+                CoreTable table;
+                try
+                {
+                    table = Load(path);
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+
+                if (!string.IsNullOrEmpty(table.LogicalName)
+                    && !string.Equals(table.LogicalName, GlobalOptionSetLogicalName,
+                                      StringComparison.OrdinalIgnoreCase))
+                    result.Add(table.LogicalName);
+            }
+
+            return result;
+        }
     }
 }
