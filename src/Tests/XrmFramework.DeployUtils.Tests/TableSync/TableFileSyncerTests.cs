@@ -255,6 +255,94 @@ public class TableFileSyncerTests
     }
 
     // ══════════════════════════════════════════════════════════════════════════
+    // Tables livrées par le framework (SystemUser, Role, ...)
+    // ══════════════════════════════════════════════════════════════════════════
+
+    [Test]
+    public void Sync_DoesNotCreateFile_ForFrameworkTable()
+    {
+        new TableFileSyncer(_tempDir).Sync(new[] { SystemUserDef() });
+
+        Assert.IsFalse(File.Exists(Path.Combine(_tempDir, "SystemUser.table")),
+            "Une table livrée par le framework ne doit pas être recréée dans le projet : " +
+            "son .table fait déjà partie du package XrmFramework.");
+    }
+
+    [Test]
+    public void Sync_UpdatesFrameworkTable_WhenProjectAlreadyTracksIt()
+    {
+        // Le projet suit sa propre copie de SystemUser pour y ajouter ses colonnes :
+        // la table redevient alors une table comme les autres.
+        WriteTable("SystemUser", BuildTable("systemuser", "SystemUser", "systemusers",
+            new Column { LogicalName = "systemuserid", Name = "Id", IsLocked = true, Selected = false }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { SystemUserDef() });
+
+        var table = LoadTable("SystemUser");
+        Assert.IsTrue(table.Columns.Single(c => c.LogicalName == "systemuserid").Selected,
+            "Une colonne référencée par le code doit être activée, même sur une table du framework.");
+        Assert.IsTrue(table.Columns.Any(c => c.LogicalName == "fullname" && c.Selected),
+            "Les colonnes manquantes doivent être ajoutées comme sur n'importe quelle table.");
+    }
+
+    [Test]
+    public void Sync_PreservesLockedMarker_OnFrameworkColumn()
+    {
+        // "Locked" identifie les colonnes apportées par le framework dans une table que le
+        // projet étend : la synchronisation ne doit pas l'effacer.
+        WriteTable("SystemUser", BuildTable("systemuser", "SystemUser", "systemusers",
+            new Column { LogicalName = "systemuserid", Name = "Id", IsLocked = true, Selected = false }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { SystemUserDef() });
+
+        Assert.IsTrue(LoadTable("SystemUser").Columns.Single(c => c.LogicalName == "systemuserid").IsLocked,
+            "Le marqueur Locked du framework doit survivre à la synchronisation.");
+    }
+
+    [Test]
+    public void Sync_SkipsFrameworkTable_IdentifiedByLogicalName()
+    {
+        // Definition portant un autre nom de classe mais visant l'entité du framework :
+        // c'est le nom logique qui tranche.
+        var renamed = new DefinitionInfo
+        {
+            TableName = "Utilisateur",
+            EntityName = "systemuser",
+            EntityCollectionName = "systemusers",
+            Columns = new List<DefinitionColumnInfo> { new("systemuserid", "Id") }
+        };
+
+        new TableFileSyncer(_tempDir).Sync(new[] { renamed });
+
+        Assert.IsFalse(File.Exists(Path.Combine(_tempDir, "Utilisateur.table")));
+    }
+
+    [Test]
+    public void Sync_StillProcessesProjectTables_WhenFrameworkTablesArePresent()
+    {
+        new TableFileSyncer(_tempDir).Sync(new[] { SystemUserDef(), ContactDef() });
+
+        Assert.IsTrue(File.Exists(Path.Combine(_tempDir, "Contact.table")),
+            "Le filtrage des tables du framework ne doit pas affecter celles du projet.");
+    }
+
+    [Test]
+    public void Sync_Clean_TreatsTrackedFrameworkTableLikeAnyOther()
+    {
+        // Table du framework suivie par le projet : --clean y de-sélectionne les colonnes
+        // que plus aucune Definition ne référence, comme partout ailleurs.
+        WriteTable("SystemUser", BuildTable("systemuser", "SystemUser", "systemusers",
+            new Column { LogicalName = "systemuserid", Name = "Id", Selected = true },
+            new Column { LogicalName = "obsolete", Name = "Obsolete", Selected = true }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { SystemUserDef() }, clean: true);
+
+        var table = LoadTable("SystemUser");
+        Assert.IsTrue(table.Columns.Single(c => c.LogicalName == "systemuserid").Selected);
+        Assert.IsFalse(table.Columns.Single(c => c.LogicalName == "obsolete").Selected);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
     // Helpers
     // ══════════════════════════════════════════════════════════════════════════
 
@@ -267,6 +355,22 @@ public class TableFileSyncerTests
         {
             new("contactid", "Id"),
             new("fullname",  "FullName")
+        }
+    };
+
+    /// <summary>
+    /// Definition d'une table livrée par le framework : elle apparaît dans le DLL du projet
+    /// consommateur parce que le .table du package XrmFramework y est compilé.
+    /// </summary>
+    private static DefinitionInfo SystemUserDef() => new()
+    {
+        TableName = "SystemUser",
+        EntityName = "systemuser",
+        EntityCollectionName = "systemusers",
+        Columns = new List<DefinitionColumnInfo>
+        {
+            new("systemuserid", "Id"),
+            new("fullname",     "FullName")
         }
     };
 

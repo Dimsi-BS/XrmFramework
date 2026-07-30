@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using XrmFramework.Core;
+using XrmFramework.DeployUtils.Tests.TableSync.Fixtures;
 
 namespace XrmFramework.DeployUtils.Tests.TableSync;
 
@@ -44,7 +45,7 @@ public class TableRoundTripTests
     /// </summary>
     private static IEnumerable<TestCaseData> ShippedTableFiles()
     {
-        var definitionsDir = FindRepositoryDirectory(Path.Combine("src", "XrmFramework", "Definitions"));
+        var definitionsDir = RepositoryPaths.ShippedDefinitionsDirectory;
 
         return Directory.GetFiles(definitionsDir, "*.table")
                         .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
@@ -148,28 +149,4 @@ public class TableRoundTripTests
         }
     }
 
-    // ══════════════════════════════════════════════════════════════════════════
-    // Helpers
-    // ══════════════════════════════════════════════════════════════════════════
-
-    /// <summary>
-    /// Remonte depuis le répertoire de sortie des tests jusqu'à trouver la racine du dépôt,
-    /// identifiée par la présence du chemin relatif recherché.
-    /// </summary>
-    private static string FindRepositoryDirectory(string relativePath)
-    {
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-
-        while (directory != null)
-        {
-            var candidate = Path.Combine(directory.FullName, relativePath);
-            if (Directory.Exists(candidate))
-                return candidate;
-
-            directory = directory.Parent;
-        }
-
-        throw new DirectoryNotFoundException(
-            $"Impossible de localiser « {relativePath} » en remontant depuis {AppContext.BaseDirectory}.");
-    }
 }
