@@ -37,6 +37,8 @@
     <PackageReference Include="JetBrains.Annotations" />
     <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" />
     <PackageReference Include="System.Text.RegularExpressions" />
+    <!-- Remonte le plancher transitif de Microsoft.CrmSdk.CoreAssemblies (6.0.7, CVE-2024-43485). -->
+    <PackageReference Include="System.Text.Json" />
 
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Newtonsoft.Json" />
