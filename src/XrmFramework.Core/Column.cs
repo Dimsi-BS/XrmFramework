@@ -40,5 +40,13 @@ namespace XrmFramework.Core
 
         [JsonProperty("Select")]
         public bool Selected { get; set; }
+
+        /// <summary>
+        /// Marqueur local des .table internes au framework : la colonne est figée et ne doit pas
+        /// être régénérée. Absent des métadonnées CRM, il n'est jamais produit par une commande
+        /// de génération — il est uniquement relu et réécrit tel quel afin de ne pas être perdu.
+        /// </summary>
+        [JsonProperty("Locked")]
+        public bool IsLocked { get; set; }
     }
 }
