@@ -43,13 +43,25 @@
     <Ver_SysComponentAnnotations>5.0.0</Ver_SysComponentAnnotations>
     <Ver_SysConfigurationManager>10.0.7</Ver_SysConfigurationManager>
     <Ver_SysNetHttp>4.3.4</Ver_SysNetHttp>
+    <!-- Correctif de sécurité pour la dépendance transitive Microsoft.CrmSdk.CoreAssemblies
+         (via XrmTooling), qui plafonne à 6.0.7 — CVE-2024-43485 (High), corrigé en 6.0.10.
+         On reste sur la branche 6.0 (dernier correctif : 6.0.11) : même version d'assembly
+         6.0.0.0, donc aucune redirection de liaison à revoir côté net48. -->
+    <Ver_SysTextJson>6.0.11</Ver_SysTextJson>
     <Ver_SysReflectionDispatchProxy>4.8.2</Ver_SysReflectionDispatchProxy>
     <Ver_SysRuntimeLoader>4.3.0</Ver_SysRuntimeLoader>
     <Ver_SysTextRegex>4.3.1</Ver_SysTextRegex>
     <!-- Correctif de sécurité pour la dépendance transitive System.ServiceModel.Primitives.
-         PackageVersion central = net10. net8 utilise VersionOverride dans Directory.Build.props. -->
-    <Ver_SecCryptoXmlNet8>8.0.3</Ver_SecCryptoXmlNet8>
-    <Ver_SecCryptoXmlNet10>10.0.7</Ver_SecCryptoXmlNet10>
+         PackageVersion central = net10. net8 utilise VersionOverride dans Directory.Build.props.
+
+         Ce pin est permanent, pas un contournement : même le dernier System.ServiceModel.Primitives
+         déclare « System.Security.Cryptography.Xml >= 10.0.0 », plancher qui reste dans la plage
+         affectée. Toute nouvelle publication doit donc être remontée ici à la main.
+
+         Plancher courant — CVE-2026-47302 / -47304 / -50525 / -50527 / -50648 (High) :
+         branche 8.0 corrigée en 8.0.4, branche 10.0 corrigée en 10.0.10. -->
+    <Ver_SecCryptoXmlNet8>8.0.4</Ver_SecCryptoXmlNet8>
+    <Ver_SecCryptoXmlNet10>10.0.10</Ver_SecCryptoXmlNet10>
 
     <!-- ═══════════════════════════════════════════════════════════
          Roslyn / Code Analysis
@@ -125,6 +137,7 @@
     <PackageVersion Include="System.ComponentModel.Annotations"        Version="$(Ver_SysComponentAnnotations)" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="$(Ver_SysConfigurationManager)" />
     <PackageVersion Include="System.Net.Http"                          Version="$(Ver_SysNetHttp)" />
+    <PackageVersion Include="System.Text.Json"                         Version="$(Ver_SysTextJson)" />
     <PackageVersion Include="System.Reflection.DispatchProxy"          Version="$(Ver_SysReflectionDispatchProxy)" />
     <PackageVersion Include="System.Runtime.Loader"                    Version="$(Ver_SysRuntimeLoader)" />
     <PackageVersion Include="System.Text.RegularExpressions"           Version="$(Ver_SysTextRegex)" />

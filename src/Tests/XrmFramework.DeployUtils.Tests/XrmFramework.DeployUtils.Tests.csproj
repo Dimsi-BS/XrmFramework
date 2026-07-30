@@ -16,6 +16,9 @@
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="Newtonsoft.Json" />
+    <!-- Remonte le plancher transitif de System.Private.DataContractSerialization 4.3.0
+         (chaîne Dataverse.Client) — CVE-2019-0820 (High), corrigé en 4.3.1. -->
+    <PackageReference Include="System.Text.RegularExpressions" />
     <PackageReference Include="coverlet.collector">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
