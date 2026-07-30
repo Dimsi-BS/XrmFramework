@@ -41,9 +41,9 @@ dotnet run --project src/XrmFramework.Cli -- <commande> [options]
 
 ## Configuration de l'environnement
 
-Les commandes de **déploiement** ciblent l'environnement *sélectionné* dans la
-configuration du projet, via deux fichiers (mécanisme XrmFramework existant) lus dans
-le dossier **`Config/`** de la racine du projet (`--project-root`, défaut : dossier courant) :
+Les commandes **connectées** (`deploy`, `tables list`, `tables pull`) ciblent
+l'environnement *sélectionné* dans la configuration du projet, via deux fichiers
+(mécanisme XrmFramework existant) lus dans le dossier **`Config/`** de la racine du projet :
 
 | Fichier | Rôle |
 |---|---|
@@ -51,11 +51,29 @@ le dossier **`Config/`** de la racine du projet (`--project-root`, défaut : dos
 | `Config/connectionStrings.config` | Définit les chaînes de connexion nommées (Dataverse / On-Premises). |
 
 `selectedConnection` pointe vers une entrée de `connectionStrings.config` : c'est
-**l'environnement cible** des commandes `deploy`. La commande `tables sync`, elle,
-n'a **pas** besoin de connexion (elle travaille uniquement à partir d'un assembly local).
+**l'environnement cible**. La commande `tables sync`, elle, n'a **pas** besoin de connexion
+(elle travaille uniquement à partir d'un assembly local).
+
+### Découverte automatique de la configuration
+
+`tables list` et `tables pull` **remontent l'arborescence** depuis le dossier courant jusqu'à
+trouver un `Config/xrmFramework.config` : le CLI peut donc être lancé depuis n'importe quel
+sous-répertoire de la solution (y compris un `bin/Debug`). `--project-root` court-circuite
+cette recherche.
+
+Dans la racine ainsi trouvée, le CLI lit `Directory.Build.props` pour en extraire
+`XrmFrameworkCoreProjectName`, ce qui lui donne le répertoire `.table` par défaut :
+`<racine>/<ProjetCore>/Definitions`. C'est la même résolution que celle injectée par MSBuild
+au DefinitionManager. À défaut, `--tables-dir` devient obligatoire.
+
+> La découverte ne teste que `xrmFramework.config` : `connectionStrings.config` porte des
+> secrets et est gitignoré dans les solutions générées, donc absent d'un clone frais. Son
+> absence est signalée précisément au moment de la connexion, et non déguisée en
+> « configuration introuvable ».
 
 > Le CLI charge ces deux fichiers explicitement (sans dépendre d'un `App.config`
-> applicatif) — cf. [`ConfigHelper.UseProjectConfig`](../XrmFramework.DeployUtils/Configuration/ConfigHelper.cs).
+> applicatif) — cf. [`ConfigHelper.UseProjectConfig`](../XrmFramework.DeployUtils/Configuration/ConfigHelper.cs)
+> et [`ProjectConfigLocator`](../XrmFramework.DeployUtils/TableSync/ProjectConfigLocator.cs).
 
 ---
 
@@ -96,6 +114,110 @@ xrmframework tables sync --dll bin/Release/net8.0/MyProject.Plugins.dll \
 Implémentation : [`TableSyncHelper.Sync`](../XrmFramework.DeployUtils/TableSyncHelper.cs)
 → [`DefinitionAnalyzer`](../XrmFramework.DeployUtils/TableSync/DefinitionAnalyzer.cs)
 + [`TableFileSyncer`](../XrmFramework.DeployUtils/TableSync/TableFileSyncer.cs).
+
+### `xrmframework tables list` ✅ *(disponible)*
+
+Liste les tables de l'environnement sélectionné. La colonne `.table` indique celles déjà
+suivies dans le projet — l'information qui manque le plus au moment de choisir quoi récupérer.
+
+```bash
+xrmframework tables list [--prefix <préfixe>] [--filter <texte>] [--custom-only] [--project-root <dir>]
+```
+
+| Option | Requis | Description |
+|---|:---:|---|
+| `--prefix <PREFIX>` | ❌ | Ne retient que les tables dont le **nom logique** commence par ce préfixe (ex. `ftp_`). |
+| `--filter <TEXT>` | ❌ | Ne retient que les tables dont le nom logique **ou le libellé** contient ce texte. |
+| `--custom-only` | ❌ | Ne retient que les tables personnalisées. |
+| `--project-root <DIR>` | ❌ | Racine contenant `Config/` (défaut : recherche en remontant depuis le dossier courant). |
+
+**Exemple**
+
+```bash
+xrmframework tables list --prefix ftp_
+```
+
+Les métadonnées sont récupérées sans les attributs (`EntityFilters.Entity`), ce qui rend la
+commande nettement plus rapide qu'une récupération complète.
+
+### `xrmframework tables pull` ✅ *(disponible)*
+
+Génère ou met à jour des fichiers `.table` depuis les métadonnées de l'environnement : types,
+libellés localisés, capacités, bornes, relations, clés alternatives et option sets. C'est
+l'équivalent headless du **DefinitionManager** (WinForms `net462`), utilisable en CI.
+
+```bash
+xrmframework tables pull --table <noms> [--prefix <préfixe>] [--tables-dir <dir>] [--project-root <dir>] [-n]
+```
+
+| Option | Requis | Description |
+|---|:---:|---|
+| `-t`, `--table <NAME>` | ⚠️ | Nom logique d'une table. Option **répétable** et acceptant une liste séparée par des virgules. |
+| `--prefix <PREFIX>` | ⚠️ | Récupère en outre toutes les tables dont le nom logique commence par ce préfixe. |
+| `--tables-dir <DIRECTORY>` | ❌ | Répertoire cible (défaut : le `Definitions` du projet Core, déduit de la configuration). |
+| `--project-root <DIR>` | ❌ | Racine contenant `Config/` (défaut : recherche en remontant depuis le dossier courant). |
+| `-n`, `--noprompt` | ❌ | Mode silencieux : ignore la confirmation (CI/CD). |
+
+⚠️ Au moins l'une des options `--table` / `--prefix` est obligatoire.
+
+**Exemple**
+
+```bash
+xrmframework tables pull --table account,ftp_contrat --noprompt
+```
+
+#### Sélection des colonnes
+
+À la **création** d'un `.table`, seules les colonnes directement exploitables sont activées
+(`Select: true`) :
+
+- la clé primaire, la colonne de nom et la colonne d'image (`PrimaryType`) ;
+- les colonnes participant à une clé alternative ;
+- `createdon`, `modifiedon`, `statecode`, `statuscode`.
+
+Toutes les autres colonnes sont bien **écrites avec l'intégralité de leurs métadonnées**, mais
+restent inactives : c'est `tables sync` qui les active au fur et à mesure que le code les
+référence. Cela évite de générer des milliers de constantes inutiles.
+
+#### Règles de fusion sur un fichier existant
+
+> **Ce qui devient un identifiant C# appartient au fichier ; ce qui décrit la table appartient
+> au CRM.**
+
+| Élément | Source retenue |
+|---|---|
+| `Name` (table, colonne, clé, option set et ses membres) | **le fichier** — renommé à la main, le code compilé en dépend |
+| `Select` | **le fichier** — jamais de rétrogradation |
+| `Locked` | **le fichier** — marqueur local, absent du CRM |
+| `Type`, `PrimaryType`, `Capa`, `Labels`, `StrLen`, `MinRange`, `MaxRange`, `DatBehav`, `IsMultiSelect`, `EnumName`, relations | **le CRM** |
+
+Autres garanties :
+
+- Le fichier cible est retrouvé par son **`LogName`**, pas par son nom de fichier : une table
+  dont le `Name` a été renommé à la main (`Contrat.table` → `ContratLocation.table`) est bien
+  mise à jour au lieu d'être dupliquée.
+- Une colonne présente dans le fichier mais **absente de l'environnement** est conservée et
+  signalée. `pull` rafraîchit, il ne détruit pas ; la désélection des orphelines relève de
+  `tables sync --clean`.
+- Les option sets **globaux** sont fusionnés de façon purement additive dans `OptionSet.table` :
+  récupérer une seule table ne retire jamais ceux que les autres référencent.
+- L'opération est **idempotente** : un second `pull` sur la même table produit une diff vide.
+
+**Codes de sortie** (communs à `list` et `pull`)
+
+| Code | Signification |
+|:---:|---|
+| `0` | Succès (y compris annulation à la confirmation). |
+| `1` | Aucune table ne correspond aux critères. |
+| `2` | Configuration ou répertoire introuvable. |
+| `3` | Erreur inattendue, ou au moins une table en échec. |
+| `-1` | Erreur de validation des arguments (Spectre). |
+
+Implémentation : [`CrmTableHelper`](../XrmFramework.DeployUtils/TableSync/CrmTableHelper.cs)
+→ [`ProjectConfigLocator`](../XrmFramework.DeployUtils/TableSync/ProjectConfigLocator.cs)
++ [`MetadataTableFactory`](../XrmFramework.DeployUtils/TableSync/MetadataTableFactory.cs)
++ [`TableMerger`](../XrmFramework.DeployUtils/TableSync/TableMerger.cs)
++ [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs).
 
 ### `xrmframework deploy plugins` ✅ *(disponible)*
 
@@ -158,12 +280,17 @@ Arborescence de commandes cible (les ✅ existent, les 🚧 sont à venir) :
 ```
 xrmframework
 ├── tables
-│   ├── sync           ✅  synchronise les .table depuis un assembly
+│   ├── sync           ✅  .table ← assembly compilée        (hors ligne)
+│   ├── list           ✅  liste les tables de l'environnement (connecté)
+│   ├── pull           ✅  .table ← métadonnées Dataverse     (connecté)
 │   └── columns        🚧  ajoute / modifie des colonnes d'une ou plusieurs tables
 └── deploy
     ├── plugins        ✅  déploie une assembly plugins / custom API / workflow
     └── webresources   🚧  déploie les webresources
 ```
+
+Les deux directions sont complémentaires : `pull` apporte les métadonnées riches depuis
+l'environnement, `sync` active les colonnes que le code référence réellement.
 
 > `deploy plugins` inventorie l'assembly plugin `net462` en **exécutant son code d'enregistrement**
 > via l'outil `XrmFramework.PluginInventory` (exe `net462` embarqué) — l'enregistrement des steps
@@ -171,10 +298,11 @@ xrmframework
 
 ### 🚧 `tables columns` — ajouter / modifier des colonnes
 
-Édition des fichiers `.table` pour ajouter ou mettre à jour des colonnes sur une
-ou plusieurs tables (sans repasser par la génération complète). Verbes pressentis
-(à figer) : `tables columns add` / `tables columns set`. Réutilisera la couche
-d'écriture de [`TableFileSyncer`](../XrmFramework.DeployUtils/TableSync/TableFileSyncer.cs).
+Édition manuelle des fichiers `.table` pour activer ou ajuster des colonnes sans passer
+ni par un assembly (`tables sync`) ni par l'environnement (`tables pull`). Verbes pressentis
+(à figer) : `tables columns add` / `tables columns set`. Réutilisera
+[`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs) pour la lecture
+et l'écriture.
 
 
 ### 🚧 `deploy webresources` — déployer les webresources
