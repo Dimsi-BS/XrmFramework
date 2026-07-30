@@ -22,7 +22,7 @@ namespace XrmFramework.DeployUtils.Configuration
         ///     <c>Config/connectionStrings.config</c> situés sous <paramref name="projectRoot" />.
         /// </summary>
         /// <remarks>
-        ///     Permet à un outil autonome (CLI net8.0) de lire la config du projet consommateur
+        ///     Permet à un outil autonome (CLI net10.0) de lire la config du projet consommateur
         ///     sans dépendre du fichier App.config applicatif. Les deux fragments sont assemblés
         ///     dans un App.config temporaire chargé via <see cref="ConfigurationManager.OpenMappedExeConfiguration" />
         ///     — aucun état global ni réflexion.
