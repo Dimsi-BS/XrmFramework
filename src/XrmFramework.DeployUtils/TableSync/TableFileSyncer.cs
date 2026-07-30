@@ -48,6 +48,11 @@ public sealed class TableFileSyncer
     ///   Si true, met Select=false sur les colonnes absentes de toute Definition
     ///   et supprime les .table entièrement créés par l'outil (aucune donnée CRM réelle).
     /// </param>
+    /// <remarks>
+    ///   Les tables livrées par le framework (voir <see cref="FrameworkTableCatalog"/>) ne sont
+    ///   jamais créées ici — leur .table appartient au package XrmFramework — mais restent mises
+    ///   à jour lorsque le projet en suit déjà une copie.
+    /// </remarks>
     public void Sync(IReadOnlyList<DefinitionInfo> definitions, bool clean = false)
     {
         // Index des logical names sélectionnés par entité, utilisé en mode --clean
@@ -61,12 +66,33 @@ public sealed class TableFileSyncer
 
         AnsiConsole.MarkupLine($"[bold]{definitions.Count}[/] classe(s) Definition trouvée(s) dans le DLL.");
 
+        var skippedFrameworkTables = new List<string>();
+
         // 1. Mettre à jour / créer les .table pour chaque Definition
         foreach (var def in definitions)
         {
             var tablePath = TablePath(def.TableName);
+
+            // Les .table des tables livrées par le framework (SystemUser, Role, ...) font partie
+            // du package XrmFramework : ils sont compilés dans le projet consommateur, donc leurs
+            // Definitions apparaissent dans le DLL analysé. En déposer une copie ici produirait un
+            // doublon. Dès lors que le fichier existe en revanche, le projet a délibérément choisi
+            // de suivre la table pour l'enrichir de ses propres colonnes — celles du framework y
+            // étant marquées "Locked": true — et elle est alors synchronisée comme les autres.
+            if (!File.Exists(tablePath) && FrameworkTableCatalog.IsFrameworkTable(def))
+            {
+                skippedFrameworkTables.Add(def.TableName);
+                continue;
+            }
+
             SyncDefinition(def, tablePath);
         }
+
+        if (skippedFrameworkTables.Count > 0)
+            AnsiConsole.MarkupLine(
+                $"[grey]Ignorée(s)[/] [bold]{skippedFrameworkTables.Count}[/] table(s) livrée(s) par le " +
+                "framework et non suivie(s) par le projet : " +
+                string.Join(", ", skippedFrameworkTables.OrderBy(n => n, StringComparer.OrdinalIgnoreCase)));
 
         // 2. Mode --clean : traiter les .table sans Definition correspondante
         if (clean)

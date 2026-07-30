@@ -102,6 +102,24 @@ xrmframework tables sync --dll bin/Release/net8.0/MyProject.Plugins.dll \
                          --clean
 ```
 
+#### Tables livrées par le framework
+
+Les `.table` du package XrmFramework (`SystemUser`, `Role`, `Team`, `SdkMessage`, …) sont
+compilés dans le projet consommateur : leurs `*Definition` apparaissent donc dans le DLL
+analysé, au même titre que celles du projet. La commande **ne les crée pas** dans le
+répertoire cible — ce serait un doublon d'un fichier déjà fourni par le package — et signale
+simplement combien ont été ignorées.
+
+En revanche, si le projet **suit déjà sa propre copie** d'une de ces tables (fichier présent
+dans le répertoire cible, typiquement pour y déclarer des colonnes supplémentaires à côté de
+celles du framework marquées `"Locked": true`), elle est synchronisée comme n'importe quelle
+autre : ajout des colonnes manquantes, activation de celles que le code référence, et
+de-sélection des orphelines sous `--clean`. Le marqueur `Locked` n'est jamais modifié.
+
+L'inventaire vit dans
+[`FrameworkTableCatalog`](../XrmFramework.DeployUtils/TableSync/FrameworkTableCatalog.cs) ; un
+test vérifie qu'il correspond exactement aux `.table` de `src/XrmFramework/Definitions`.
+
 **Codes de sortie**
 
 | Code | Signification |
