@@ -115,7 +115,7 @@ namespace XrmFramework.BindingModel
 
         public static Type GetCorrespondingBindingType(Type dtoType)
         {
-            return typeof(IService).Assembly.GetTypes()
+            return typeof(DtoBindingModelMapper).Assembly.GetTypes()
                 .Where(t => typeof(IXmlModel).IsAssignableFrom(t))
                 .FirstOrDefault(t => t.GetCustomAttribute<DtoObjectMappingAttribute>()?.RelativePath == dtoType.Name);
         }

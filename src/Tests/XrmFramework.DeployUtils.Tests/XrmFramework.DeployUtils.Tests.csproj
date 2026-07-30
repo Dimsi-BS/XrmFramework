@@ -38,5 +38,13 @@
     <Compile Include="..\XrmFramework.Tests\**\*.cs"
              Link="_Tests/%(RecursiveDir)%(Filename)%(Extension)"
              Exclude="..\XrmFramework.Tests\obj\**;..\XrmFramework.Tests\bin\**" />
+
+    <!--
+      DeployUtils n'embarque plus la couche runtime du framework (Service/, Context/) :
+      les tests correspondants n'ont plus de sujet ici. Ils restent exécutés par
+      XrmFramework.Tests, sur le projet XrmFramework lui-même.
+    -->
+    <Compile Remove="..\XrmFramework.Tests\Service\**\*.cs" />
+    <Compile Remove="..\XrmFramework.Tests\Context\**\*.cs" />
   </ItemGroup>
 </Project>

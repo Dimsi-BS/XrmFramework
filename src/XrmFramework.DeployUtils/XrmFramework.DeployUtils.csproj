@@ -32,20 +32,45 @@
   
         <Compile Include="..\XrmFramework.Plugin\**\StepConfiguration*.cs" Link="Model\StepConfigurations\%(RecursiveDir)%(Filename)%(Extension)" />
 
-  
+
         <Compile Remove="Service\IDeploySettingsProvider.cs" />
 
-  
+
         <Compile Remove="Service\ITargetSolutionProvider.cs" />
 
-  
+
         <Compile Remove="Service\TargetSolutionProvider.cs" />
 
 
     </ItemGroup>
 
+    <!--
+      Couche runtime du framework (services, contexte d'exécution, journalisation) :
+      elle n'a de sens que dans une assembly de plugin. Aucun code de DeployUtils ne
+      l'utilise — les générateurs ne manipulent « IService » / « IServiceContext » que
+      sous forme de chaînes, pour émettre du code chez le consommateur.
+
+      L'embarquer ici republiait XrmFramework.IService et une centaine d'autres types du
+      namespace XrmFramework déjà compilés dans le projet Core du consommateur (livré en
+      contentFiles), d'où des CS0433 dans les projets qui référencent les deux.
+    -->
+    <ItemGroup>
+        <Compile Remove="..\XrmFramework\Service\**\*.cs" />
+        <Compile Remove="..\XrmFramework\Context\**\*.cs" />
+        <Compile Remove="..\XrmFramework\Utils\LogHelper.cs" />
+        <Compile Remove="..\XrmFramework\Utils\LoggerFactory.cs" />
+        <Compile Remove="..\XrmFramework\Utils\DefaultLoggerWithSettings.cs" />
+    </ItemGroup>
+
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'" >
         <Compile Include="..\XrmFramework.Workflows\**\*.cs" Link="_Imports\XrmFramework.Workflows\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Workflows\EnableRuleProvider\**\*.cs;..\XrmFramework.Workflows\**\CustomWorkflowActivity*.cs;..\XrmFramework.Workflows\obj\**\*.cs;..\XrmFramework.Workflows\RemoteDebugger\RemoteDebugger.Remote\*.cs" />
+
+        <!--
+          Idem côté workflows : contexte d'exécution, il dérive de la couche retirée
+          ci-dessus. Le Remove doit suivre l'Include, MSBuild évalue dans l'ordre du fichier.
+        -->
+        <Compile Remove="..\XrmFramework.Workflows\Context\**\*.cs" />
+        <Compile Remove="..\XrmFramework.Workflows\RemoteDebugger\LocalWorkflowContext.cs" />
     </ItemGroup>
     
     
