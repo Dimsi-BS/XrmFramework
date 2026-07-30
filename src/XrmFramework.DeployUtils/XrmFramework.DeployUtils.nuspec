@@ -17,14 +17,17 @@
       <group targetFramework="net462">
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="$Ver_DataverseClient$" />
         <dependency id="CommandLineParser" version="$Ver_CommandLineParser$" />
+        <dependency id="Spectre.Console" version="$Ver_SpectreConsole$" />
       </group>
       <group targetFramework="net8.0">
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="$Ver_DataverseClient$" />
         <dependency id="CommandLineParser" version="$Ver_CommandLineParser$" />
+        <dependency id="Spectre.Console" version="$Ver_SpectreConsole$" />
       </group>
       <group targetFramework="net10.0">
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="$Ver_DataverseClient$" />
         <dependency id="CommandLineParser" version="$Ver_CommandLineParser$" />
+        <dependency id="Spectre.Console" version="$Ver_SpectreConsole$" />
       </group>
     </dependencies>
   </metadata>
