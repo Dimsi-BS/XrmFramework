@@ -1,4 +1,25 @@
 <Project>
+  <!--
+    Détection du package Microsoft.PowerPlatform.Dataverse.Client dans le projet en cours de compilation.
+
+    Les sources de XrmFramework sont liées (<Compile Include="..\XrmFramework\**\*.cs" />) dans des projets
+    qui ne référencent pas tous ce package : XrmFramework.Workflows et XrmFramework.DeployUtils (net462)
+    passent par Microsoft.CrmSdk.XrmTooling.CoreAssembly, XrmFramework.Plugin n'a que le SDK Core, et la
+    déclinaison On-Premise le retire explicitement. Le code qui dépend de IOrganizationServiceAsync /
+    IOrganizationServiceAsync2 est donc encadré par « #if DATAVERSE_CLIENT ».
+
+    La détection se fait dans une cible : MSBuild n'autorise les références d'items (@(PackageReference))
+    que dans les cibles, pas au moment de l'évaluation des PropertyGroup. Un projet peut court-circuiter la
+    détection en définissant lui-même XrmFramework_HasDataverseClient à true ou false.
+  -->
+  <Target Name="XrmFramework_DetectDataverseClient" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <XrmFramework_HasDataverseClient Condition="'$(XrmFramework_HasDataverseClient)' == ''">@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.PowerPlatform.Dataverse.Client'))</XrmFramework_HasDataverseClient>
+
+      <DefineConstants Condition="'$(XrmFramework_HasDataverseClient)' == 'true'">$(DefineConstants);DATAVERSE_CLIENT</DefineConstants>
+    </PropertyGroup>
+  </Target>
+
   <Target Name="SetNuspecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
       <NuspecProperties>$(NuspecProperties);config=$(Configuration)</NuspecProperties>
