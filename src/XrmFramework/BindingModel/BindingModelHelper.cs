@@ -16,8 +16,8 @@ namespace XrmFramework.BindingModel
     /// <remarks>
     /// The actual implementations live in focused internal classes:
     /// <list type="bullet">
-    /// <item><see cref="EntityToBindingModelMapper"/> — Entity → IBindingModel.</item>
-    /// <item><see cref="BindingModelToEntityMapper"/> — IBindingModel → Entity.</item>
+    /// <item><see cref="EntityToBindingModelMapper"/> — Entity -> IBindingModel.</item>
+    /// <item><see cref="BindingModelToEntityMapper"/> — IBindingModel -> Entity.</item>
     /// <item><see cref="XmlBindingModelMapper"/> — XElement ↔ IXmlModel.</item>
     /// <item><see cref="DtoBindingModelMapper"/> — DTO ↔ IBindingModel.</item>
     /// <item><see cref="BindingModelQueryBuilder"/> — builds QueryExpressions from a model type.</item>

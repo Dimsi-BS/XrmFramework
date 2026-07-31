@@ -14,7 +14,7 @@ using XrmFramework.DeployUtils.Tests.TableSync.Fixtures;
 namespace XrmFramework.DeployUtils.Tests.TableSync;
 
 /// <summary>
-/// Safety net for the fidelity of a .table file's load → rewrite cycle.
+/// Safety net for the fidelity of a .table file's load -> rewrite cycle.
 ///
 /// Any command that updates an existing .table (tables sync, tables pull) deserializes it
 /// then reserializes it: a JSON property not modeled in <see cref="Table" /> or

@@ -82,7 +82,7 @@ public class LogicAppBuilder
     /// Only used for Consumption Logic Apps (stored in the root "parameters.$connections" property).
     /// </summary>
     /// <param name="connectionKey">
-    /// The key used in expressions, e.g. <c>servicebus</c> → <c>@parameters('$connections')['servicebus']</c>.
+    /// The key used in expressions, e.g. <c>servicebus</c> -> <c>@parameters('$connections')['servicebus']</c>.
     /// </param>
     /// <param name="connectionId">ARM resource ID of the API connection resource.</param>
     /// <param name="connectorId">ARM resource ID of the managed connector, e.g. the Service Bus connector.</param>

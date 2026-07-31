@@ -36,7 +36,7 @@ Dataverse sandbox                    Azure Relay                  Developer mach
 Plugin fires
   │
   ├─ DebugSession found for user?
-  │     No → execute normally
+  │     No -> execute normally
   │     Yes ──────────────────────► Hybrid Connection ──────────► RemoteDebugger receives context
   │                                                                │
   │                                                                ├─ Resolves plugin type locally
@@ -172,7 +172,7 @@ Console.WriteLine($"SharedVariables:  {output.SharedVariables?.Count ?? 0}");
 var debugger = new RemoteDebugger<AzureRelayHybridConnectionMessageManager>();
 
 debugger.ExecutionStarted          += record => Console.WriteLine($"[START] {record.PluginShortName}");
-debugger.OrgServiceCallStarted     += (record, call) => Console.WriteLine($"  → {call}");
+debugger.OrgServiceCallStarted     += (record, call) => Console.WriteLine($"  -> {call}");
 debugger.OrgServiceCallCompleted   += (record, call) => Console.WriteLine($"  ← {call.Duration}");
 debugger.ExecutionCompleted        += record => Console.WriteLine($"[OK]    {record.PluginShortName} ({record.Duration})");
 debugger.ExecutionFailed           += (record, ex) => Console.WriteLine($"[FAIL]  {record.PluginShortName}: {ex.Message}");

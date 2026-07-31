@@ -9,7 +9,7 @@ using XrmFramework.BindingModel.Tests.Fakes;
 namespace XrmFramework.BindingModel.Tests
 {
     /// <summary>
-    /// Unit tests for the IBindingModel → Entity mapping path
+    /// Unit tests for the IBindingModel -> Entity mapping path
     /// (exercised through <see cref="BindingModelHelper.ToEntity"/>).
     /// </summary>
     [TestFixture]
@@ -97,7 +97,7 @@ namespace XrmFramework.BindingModel.Tests
         [Test]
         public void ToEntity_PicklistEnum_NullValueEnum_WritesNull()
         {
-            // ContactStatus.Null has integer value 0 and name "Null" → should produce null OptionSetValue.
+            // ContactStatus.Null has integer value 0 and name "Null" -> should produce null OptionSetValue.
             var model = new ContactModel
             {
                 Id = Guid.NewGuid(),

@@ -213,7 +213,7 @@ AddStep(Stages.PostOperation, Messages.Update, Modes.Synchronous, AccountDefinit
 ```
 
 ```csharp
-// ✅ one-click fix → nameof
+// ✅ one-click fix -> nameof
 AddStep(Stages.PostOperation, Messages.Update, Modes.Synchronous, AccountDefinition.EntityName, nameof(OnPostUpdate));
 ```
 

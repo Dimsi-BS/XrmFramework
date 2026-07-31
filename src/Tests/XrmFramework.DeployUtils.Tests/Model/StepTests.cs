@@ -74,7 +74,7 @@ public class StepTests
     }
 
     // ──────────────────────────────────────────────
-    //  Associate / Disassociate : EntityName → RelationshipName
+    //  Associate / Disassociate : EntityName -> RelationshipName
     // ──────────────────────────────────────────────
 
     [Test]

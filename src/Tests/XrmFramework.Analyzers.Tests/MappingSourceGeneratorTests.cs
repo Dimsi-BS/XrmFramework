@@ -184,7 +184,7 @@ public partial class ContactModel : XrmFramework.BindingModel.IBindingModel
     public Guid AccountId { get; set; }
 }
 
-// ── ContactModelWithBase  (extends BindingModelBase → InitializedProperties) ──
+// ── ContactModelWithBase  (extends BindingModelBase -> InitializedProperties) ──
 
 [XrmFramework.CrmEntity(ContactDefinition.EntityName)]
 public partial class ContactModelWithBase : XrmFramework.BindingModel.BindingModelBase

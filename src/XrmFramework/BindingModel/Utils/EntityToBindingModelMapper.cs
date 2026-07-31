@@ -496,7 +496,7 @@ namespace XrmFramework.BindingModel
 
         /// <summary>
         /// Per-traversal cache used to break cycles when a binding model graph is self-referencing
-        /// (e.g. contact → parentcustomerid → account → primarycontactid → contact).
+        /// (e.g. contact -> parentcustomerid -> account -> primarycontactid -> contact).
         /// </summary>
         internal sealed class BindingCache
         {

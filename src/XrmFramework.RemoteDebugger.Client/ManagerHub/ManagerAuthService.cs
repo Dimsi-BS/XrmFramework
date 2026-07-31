@@ -74,7 +74,7 @@ internal sealed class ManagerAuthService
         }
         catch (MsalUiRequiredException)
         {
-            // Cache empty or expired → interactive login
+            // Cache empty or expired -> interactive login
         }
         catch (Exception ex)
         {

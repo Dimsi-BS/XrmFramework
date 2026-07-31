@@ -6,7 +6,7 @@
     The engine is pure reflection (TFM-agnostic): its sources are linked in and run against net8
     "stub" plugins that mimic the XrmFramework shape. We reuse the real core types (Stages/Modes/
     Messages, provided by DeployUtils) and the real PluginManifestReader to validate the
-    producer → consumer round-trip.
+    producer -> consumer round-trip.
   -->
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>

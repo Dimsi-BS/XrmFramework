@@ -65,7 +65,7 @@ namespace XrmFramework.DeployUtils.Factories
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // DTO → model mapping (replicates FromXrmFrameworkPlugin / FromXrmFrameworkStep)
+        // DTO -> model mapping (replicates FromXrmFrameworkPlugin / FromXrmFrameworkStep)
         // ──────────────────────────────────────────────────────────────────────
 
         private static Plugin MapPlugin(PluginDto dto)
@@ -207,7 +207,7 @@ namespace XrmFramework.DeployUtils.Factories
                 case "System.String": return 10;                         // String
                 case "System.String[]": return 11;                       // StringArray
                 case "System.Guid": return 12;                           // Guid
-                default: return 10;                                      // unmapped → String (serialized)
+                default: return 10;                                      // unmapped -> String (serialized)
             }
         }
 

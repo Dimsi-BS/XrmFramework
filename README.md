@@ -269,19 +269,19 @@ All data-access and business logic is encapsulated in typed service classes that
 
 XrmFramework lets you define and deploy Custom APIs (Dataverse custom messages) entirely from C# code: a class decorated with `[CustomApi]` describes the API metadata, its input/output parameters and the method that implements the logic. The deployment tool automatically creates and updates the `customapi`, `customapirequestparameter` and `customapiresponseproperty` records in Dataverse.
 
-→ **[XrmFramework Custom APIs](docs/CustomApis.md)**
+-> **[XrmFramework Custom APIs](docs/CustomApis.md)**
 
 ## Remote Debugger
 
 XrmFramework includes a remote debugger that lets you set Visual Studio breakpoints in plugin code and step through real Dataverse executions, live, on any environment — by forwarding the execution context to your local machine over Azure Relay.
 
-→ **[Remote Debugger](docs/RemoteDebugger.md)**
+-> **[Remote Debugger](docs/RemoteDebugger.md)**
 
 ## Utilities
 
 XrmFramework ships a collection of extension methods that make working with the Dataverse SDK more concise: typed OptionSet helpers, pre-image/target merges, QueryExpression helpers, EntityReference conversions and more.
 
-→ **[XrmFramework Utilities](docs/XrmFrameworkUtilities.md)**
+-> **[XrmFramework Utilities](docs/XrmFrameworkUtilities.md)**
 
 ## Documentation
 

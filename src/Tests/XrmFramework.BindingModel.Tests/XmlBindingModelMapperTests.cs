@@ -97,7 +97,7 @@ namespace XrmFramework.BindingModel.Tests
             var model = element.ToBindingModel<SimpleXmlModel>();
 
             Assert.IsNotNull(model);
-            // int.TryParse fails → null returned and cast to int gives 0 (default).
+            // int.TryParse fails -> null returned and cast to int gives 0 (default).
             Assert.AreEqual(0, model.Age);
         }
 
@@ -293,7 +293,7 @@ namespace XrmFramework.BindingModel.Tests
         }
 
         // ------------------------------------------------------------------
-        // Roundtrip: FromXElement → ToXElement
+        // Roundtrip: FromXElement -> ToXElement
         // ------------------------------------------------------------------
 
         [Test]
@@ -346,7 +346,7 @@ namespace XrmFramework.BindingModel.Tests
         }
 
         // ------------------------------------------------------------------
-        // Null model → ToXElement returns null
+        // Null model -> ToXElement returns null
         // ------------------------------------------------------------------
 
         [Test]

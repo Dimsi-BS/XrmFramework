@@ -289,7 +289,7 @@ namespace XrmFramework.Tests.Extensions
         {
             var values = new List<SimpleEnum> { SimpleEnum.Null, SimpleEnum.First };
             var result = values.ToOptionSetValueCollection();
-            // SimpleEnum.Null (value=0, name="Null") → ToOptionSetValue returns null → excluded
+            // SimpleEnum.Null (value=0, name="Null") -> ToOptionSetValue returns null -> excluded
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(1, result[0].Value);
         }
