@@ -162,23 +162,28 @@ namespace XrmFramework.DeployUtils.TableSync
                     continue;
                 }
 
-                if (!string.IsNullOrEmpty(logicalName))
-                    columns.Add(new DefinitionColumnInfo(logicalName, field.Name, ExtractOptionSetName(field)));
+                if (string.IsNullOrEmpty(logicalName))
+                    continue;
+
+                var optionSetType = ExtractOptionSetType(field);
+
+                columns.Add(new DefinitionColumnInfo(
+                    logicalName, field.Name, optionSetType?.Name, ExtractOptionSetValues(optionSetType)));
             }
 
             return columns;
         }
 
         /// <summary>
-        /// Reads the enum name from <c>[OptionSet(typeof(SomeEnum))]</c> carried by a column constant.
+        /// Reads the enum type from <c>[OptionSet(typeof(SomeEnum))]</c> carried by a column constant.
         /// </summary>
         /// <remarks>
         /// Like the rest of this analyzer, the attribute is matched by simple name so that several
         /// versions of XrmFramework can coexist in the load context. The argument is a
         /// <see cref="Type" />, whose resolution may fail if the enum lives in an assembly that could
-        /// not be loaded — in that case the column simply carries no option set name.
+        /// not be loaded — in that case the column simply carries no option set.
         /// </remarks>
-        private static string ExtractOptionSetName(FieldInfo field)
+        private static Type ExtractOptionSetType(FieldInfo field)
         {
             try
             {
@@ -188,7 +193,7 @@ namespace XrmFramework.DeployUtils.TableSync
                         || attribute.ConstructorArguments.Count < 1)
                         continue;
 
-                    return (attribute.ConstructorArguments[0].Value as Type)?.Name;
+                    return attribute.ConstructorArguments[0].Value as Type;
                 }
             }
             catch
@@ -197,6 +202,44 @@ namespace XrmFramework.DeployUtils.TableSync
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Reads the members of an option set enum, in declaration order, as (value, C# name) pairs.
+        /// </summary>
+        /// <remarks>
+        /// Declaration order matters: when the generator allows an empty value it emits a synthetic
+        /// <c>Null = 0</c> ahead of the real members, and the caller relies on the order to tell that
+        /// one apart from a genuine option numbered 0.
+        /// </remarks>
+        private static IReadOnlyList<DefinitionOptionSetValue> ExtractOptionSetValues(Type enumType)
+        {
+            var values = new List<DefinitionOptionSetValue>();
+
+            if (enumType == null || !enumType.IsEnum)
+                return values;
+
+            foreach (var field in enumType.GetFields(BindingFlags.Public | BindingFlags.Static))
+            {
+                if (!field.IsLiteral)
+                    continue;
+
+                try
+                {
+                    var raw = field.GetRawConstantValue();
+                    if (raw == null)
+                        continue;
+
+                    // CRM option values are int; an enum backed by a wider type that overflows is
+                    // not one of ours, and skipping the member beats failing the migration.
+                    values.Add(new DefinitionOptionSetValue(Convert.ToInt32(raw), field.Name));
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            return values;
         }
     }
 }

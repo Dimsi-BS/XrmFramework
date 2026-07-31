@@ -410,6 +410,153 @@ public class TableFileSyncerTests
             "The shared copy must be renamed too, and its file written back.");
     }
 
+    // ══════════════════════════════════════════════════════════════════════════
+    // Option set member names — what MyEnum.EnCours compiles against
+    // ══════════════════════════════════════════════════════════════════════════
+
+    [Test]
+    public void Sync_AppliesMemberNames_FromTheEnumDeclaredInTheAssembly()
+    {
+        WriteTable("Contact", TableWithLocalOptionSet(currentName: "contact_statuscode",
+            values: new[] { Value(1, "Actif"), Value(2, "Termine") }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("ContactStatus",
+            Member(1, "EnCours"), Member(2, "Termine")) });
+
+        var values = LoadTable("Contact").Enums.Single().Values.ToList();
+        Assert.AreEqual("EnCours", values.Single(v => v.Value == 1).Name,
+            "Code written against ContactStatus.EnCours must keep compiling after the migration.");
+        Assert.AreEqual("Termine", values.Single(v => v.Value == 2).Name);
+    }
+
+    [Test]
+    public void Sync_MatchesMembersOnTheirValue_NotTheirPosition()
+    {
+        WriteTable("Contact", TableWithLocalOptionSet(currentName: "contact_statuscode",
+            values: new[] { Value(2, "Deux"), Value(1, "Un") }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("ContactStatus",
+            Member(1, "Premier"), Member(2, "Second")) });
+
+        var values = LoadTable("Contact").Enums.Single().Values.ToList();
+        Assert.AreEqual("Premier", values.Single(v => v.Value == 1).Name);
+        Assert.AreEqual("Second", values.Single(v => v.Value == 2).Name);
+    }
+
+    [Test]
+    public void Sync_IgnoresTheSyntheticNullMember_OnAnOptionSetAllowingAnEmptyValue()
+    {
+        // The generator prepends "Null = 0" when HasNullValue is set: it mirrors the flag, not a CRM
+        // option, and must not claim the real option numbered 0.
+        var table = TableWithLocalOptionSet(currentName: "contact_statuscode",
+            values: new[] { Value(0, "Aucun"), Value(1, "Un") });
+        table.Enums.Single().HasNullValue = true;
+        WriteTable("Contact", table);
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("ContactStatus",
+            Member(0, "Null"), Member(0, "Vide"), Member(1, "Premier")) });
+
+        var values = LoadTable("Contact").Enums.Single().Values.ToList();
+        Assert.AreEqual("Vide", values.Single(v => v.Value == 0).Name,
+            "Value 0 belongs to the real option that follows the synthetic Null.");
+        Assert.AreEqual("Premier", values.Single(v => v.Value == 1).Name);
+    }
+
+    [Test]
+    public void Sync_KeepsTheNullMember_WhenTheOptionSetDoesNotAllowAnEmptyValue()
+    {
+        // No HasNullValue: a member named Null is a genuine CRM option and must be honoured.
+        WriteTable("Contact", TableWithLocalOptionSet(currentName: "contact_statuscode",
+            values: new[] { Value(0, "Zero") }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("ContactStatus",
+            Member(0, "Null")) });
+
+        Assert.AreEqual("Null", LoadTable("Contact").Enums.Single().Values.Single().Name);
+    }
+
+    [Test]
+    public void Sync_LeavesAmbiguousValueAlone_WhenTwoMembersShareIt()
+    {
+        // C# allows aliases; there is no way to tell which name the .table should carry.
+        WriteTable("Contact", TableWithLocalOptionSet(currentName: "contact_statuscode",
+            values: new[] { Value(1, "Original"), Value(2, "Deux") }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("ContactStatus",
+            Member(1, "First"), Member(1, "Alias"), Member(2, "Second")) });
+
+        var values = LoadTable("Contact").Enums.Single().Values.ToList();
+        Assert.AreEqual("Original", values.Single(v => v.Value == 1).Name,
+            "An ambiguous value is left as it is rather than guessed at.");
+        Assert.AreEqual("Second", values.Single(v => v.Value == 2).Name,
+            "The ambiguity must not spill over onto the other members.");
+    }
+
+    [Test]
+    public void Sync_LeavesValueAlone_WhenTheAssemblyDeclaresNoMemberForIt()
+    {
+        WriteTable("Contact", TableWithLocalOptionSet(currentName: "contact_statuscode",
+            values: new[] { Value(1, "Un"), Value(9, "Neuf") }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("ContactStatus",
+            Member(1, "Premier")) });
+
+        Assert.AreEqual("Neuf", LoadTable("Contact").Enums.Single().Values.Single(v => v.Value == 9).Name,
+            "A CRM option the code never referenced keeps the name the .table already had.");
+    }
+
+    [Test]
+    public void Sync_AppliesMemberNames_ToAGlobalOptionSetInItsOwnFile()
+    {
+        WriteTable("Contact", TableWithColumnPointingAt("tabsync_yesno"));
+
+        var global = new OptionSetEnum { LogicalName = "tabsync_yesno", Name = "tabsync_yesno", IsGlobal = true };
+        global.Values.Add(Value(1, "Oui"));
+        WriteTable("OptionSet", GlobalOptionSetTable(global));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("YesNo", Member(1, "Yes")) });
+
+        Assert.AreEqual("Yes", LoadTable("OptionSet").Enums.Single().Values.Single().Name);
+    }
+
+    [Test]
+    public void Sync_DoesNotRenameMembersOfALockedOptionSet()
+    {
+        WriteTable("Contact", TableWithColumnPointingAt("tabsync_yesno"));
+
+        var global = new OptionSetEnum
+        {
+            LogicalName = "tabsync_yesno",
+            Name = "FrameworkYesNo",
+            IsGlobal = true,
+            IsLocked = true
+        };
+        global.Values.Add(Value(1, "Oui"));
+        WriteTable("OptionSet", GlobalOptionSetTable(global));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("YesNo", Member(1, "Yes")) });
+
+        Assert.AreEqual("Oui", LoadTable("OptionSet").Enums.Single().Values.Single().Name,
+            "A frozen option set is frozen down to its members.");
+    }
+
+    [Test]
+    public void Sync_PreservesValueLabelsAndExternalValue_WhenRenamingMembers()
+    {
+        var table = TableWithLocalOptionSet(currentName: "contact_statuscode", values: new OptionSetEnumValue[0]);
+        var value = new OptionSetEnumValue { Value = 1, Name = "Actif", ExternalValue = "ACT" };
+        value.Labels.Add(new LocalizedLabel { Label = "Actif", LangId = 1036 });
+        table.Enums.Single().Values.Add(value);
+        WriteTable("Contact", table);
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("ContactStatus", Member(1, "EnCours")) });
+
+        var renamed = LoadTable("Contact").Enums.Single().Values.Single();
+        Assert.AreEqual("EnCours", renamed.Name);
+        Assert.AreEqual("ACT", renamed.ExternalValue, "Only the C# name moves.");
+        Assert.AreEqual(1, renamed.Labels.Count, "CRM labels must survive the rename.");
+    }
+
     [Test]
     public void Sync_DoesNotRenameLockedOptionSet()
     {
@@ -489,7 +636,8 @@ public class TableFileSyncerTests
     // ══════════════════════════════════════════════════════════════════════════
 
     /// <summary>Contact whose StatusCode column declares <c>[OptionSet(typeof(...))]</c>.</summary>
-    private static DefinitionInfo ContactDefWithOptionSet(string optionSetName) => new()
+    private static DefinitionInfo ContactDefWithOptionSet(
+        string optionSetName, params DefinitionOptionSetValue[] members) => new()
     {
         TableName = "Contact",
         EntityName = "contact",
@@ -497,12 +645,19 @@ public class TableFileSyncerTests
         Columns = new List<DefinitionColumnInfo>
         {
             new("contactid", "Id"),
-            new("statuscode", "StatusCode", optionSetName)
+            new("statuscode", "StatusCode", optionSetName, members)
         }
     };
 
+    /// <summary>A member of the enum as the analyzed assembly declares it.</summary>
+    private static DefinitionOptionSetValue Member(int value, string name) => new(value, name);
+
+    /// <summary>A value of the option set as the .table records it.</summary>
+    private static OptionSetEnumValue Value(int value, string name)
+        => new() { Value = value, Name = name };
+
     /// <summary>Contact.table whose statuscode column points at a local option set.</summary>
-    private static Table TableWithLocalOptionSet(string currentName)
+    private static Table TableWithLocalOptionSet(string currentName, OptionSetEnumValue[] values = null)
     {
         var table = BuildTable("contact", "Contact", "contacts",
             new Column
@@ -514,7 +669,10 @@ public class TableFileSyncerTests
             });
 
         var optionSet = new OptionSetEnum { LogicalName = "contact|statuscode", Name = currentName };
-        optionSet.Values.Add(new OptionSetEnumValue { Name = "Active", Value = 0 });
+
+        foreach (var value in values ?? new[] { Value(0, "Active") })
+            optionSet.Values.Add(value);
+
         table.Enums.Add(optionSet);
 
         return table;

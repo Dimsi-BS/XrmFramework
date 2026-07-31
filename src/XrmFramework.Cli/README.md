@@ -128,16 +128,18 @@ xrmframework tables sync --dll bin/Release/net8.0/MyProject.Plugins.dll \
 > ⚠️ The command **deletes and renames source files** in `--tables-dir` (see below). Run it on a
 > clean working tree so the whole migration shows up as a single reviewable diff.
 
-#### Naming the option sets
+#### Naming the option sets and their members
 
 A `.table` records an option set's logical name, which comes from the CRM; the `Name` under which
 it is compiled is a project decision — teams rename `workflow_runas` into `UtilisateurExecutant`
-and their code depends on it. Under 2.\* that name lived in the generated `.cs`; from 3.1 on the
-generator reads it from the `.table`.
+and their code depends on it. The same holds one level down: the generator derives each member's
+name from its CRM label and strips the diacritics (`Modèle` becomes `Modele`), but those get
+renamed too, and every `MyEnum.EnCours` in the project compiles against the result. Under 2.\*
+both lived in the generated `.cs`; from 3.1 on the generator reads them from the `.table`.
 
-The migration recovers it from `[OptionSet(typeof(SomeEnum))]` carried by the column constants,
-and applies it to the option set the column points at (matched on the column's `EnumName`) —
-**in every file that records it**:
+The migration recovers them from `[OptionSet(typeof(SomeEnum))]` carried by the column constants —
+the enum's name, and its members read off the type itself — and applies them to the option set the
+column points at (matched on the column's `EnumName`) — **in every file that records it**:
 
 - in the table's own `Enums`;
 - and in `OptionSet.table`, where shared option sets live — that file is loaded once and rewritten
@@ -148,10 +150,22 @@ set one of its columns referenced, *globals included*, while also writing the gl
 `OptionSet.table`. The generator unions the two, so a rename applied to only one copy would be
 contradicted by the other.
 
-The existing values, logical name and `IsGlobal` flag are untouched: only `Name` moves. Two cases
-are left alone — an option set marked `"Locked": true` (shipped by the framework, its name belongs
-to the package's generated code), and a column whose `.table` entry carries no `EnumName` yet,
-which happens for a column the migration itself just created. Both are reported.
+Members are matched on their **numeric value**, which is the stable CRM key — never on their
+position. Labels, `ExtVal`, logical name and the `IsGlobal` flag are untouched: only `Name` moves.
+
+Four cases are deliberately left alone:
+
+| Case | Why |
+|---|---|
+| Option set marked `"Locked": true` | Shipped by the framework — its names belong to the package's generated code, members included. |
+| Column whose `.table` entry carries no `EnumName` | Nothing links it to an option set. Happens for a column the migration itself just created; a `tables pull` fills the metadata in. |
+| A member the assembly declares twice for one value | C# allows aliases, so there is no way to tell which name the `.table` should carry. |
+| A value the assembly declares no member for | The code never referenced it; the `.table` keeps the name it already had. |
+
+One subtlety the migration handles for you: when an option set allows an empty value
+(`HasNullValue`), the generator prepends a synthetic `Null = 0` member. It mirrors the flag rather
+than any CRM option, so it is skipped — the real option numbered `0`, if there is one, keeps its
+own name.
 
 #### Cleaning up the `*Definition.cs` files
 

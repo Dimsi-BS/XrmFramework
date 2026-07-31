@@ -206,31 +206,41 @@ public sealed class TableFileSyncer
 
         foreach (var local in table.Enums)
             if (string.Equals(local.LogicalName, column.EnumName, StringComparison.OrdinalIgnoreCase))
-                renamed |= Rename(local, colInfo.OptionSetName, table.Name);
+                renamed |= Rename(local, colInfo, table.Name);
 
-        renamed |= globalOptionSets.Rename(column.EnumName, colInfo.OptionSetName);
+        renamed |= globalOptionSets.Rename(column.EnumName, colInfo);
 
         return renamed;
     }
 
     /// <summary>
-    /// Applies <paramref name="name"/> to <paramref name="optionSet"/> unless it is frozen or already
-    /// named otherwise.
+    /// Applies to <paramref name="optionSet"/> the enum name and the member names the code compiles
+    /// against, unless it is frozen.
     /// </summary>
-    private static bool Rename(OptionSetEnum optionSet, string name, string owner)
+    private static bool Rename(OptionSetEnum optionSet, DefinitionColumnInfo colInfo, string owner)
+    {
+        // "Locked" marks the option sets shipped by the framework: their names are part of the
+        // package's own generated code, and renaming them here would break it.
+        if (optionSet.IsLocked)
+        {
+            if (!string.Equals(optionSet.Name, colInfo.OptionSetName, StringComparison.Ordinal))
+                AnsiConsole.MarkupLine(
+                    $"[grey]Kept[/] the frozen name [bold]{optionSet.Name}[/] for {optionSet.LogicalName} " +
+                    $"(the code says {colInfo.OptionSetName})");
+
+            return false;
+        }
+
+        var renamed = RenameOptionSet(optionSet, colInfo.OptionSetName, owner);
+        renamed |= RenameValues(optionSet, colInfo, owner);
+
+        return renamed;
+    }
+
+    private static bool RenameOptionSet(OptionSetEnum optionSet, string name, string owner)
     {
         if (string.Equals(optionSet.Name, name, StringComparison.Ordinal))
             return false;
-
-        // "Locked" marks the option sets shipped by the framework: their name is part of the package's
-        // own generated code, and renaming it here would break it.
-        if (optionSet.IsLocked)
-        {
-            AnsiConsole.MarkupLine(
-                $"[grey]Kept[/] the frozen name [bold]{optionSet.Name}[/] for {optionSet.LogicalName} " +
-                $"(the code says {name})");
-            return false;
-        }
 
         if (!string.IsNullOrEmpty(optionSet.Name))
             AnsiConsole.MarkupLine(
@@ -239,6 +249,80 @@ public sealed class TableFileSyncer
 
         optionSet.Name = name;
         return true;
+    }
+
+    /// <summary>
+    /// Carries the enum member names over to the option set's values, matched on the numeric value.
+    /// </summary>
+    /// <remarks>
+    /// The generator derives a member name from the CRM label and strips its diacritics
+    /// (<c>Modèle</c> becomes <c>Modele</c>), but teams rename them, and every <c>MyEnum.EnCours</c>
+    /// in the project's code compiles against the result. Recovering them is what keeps that code
+    /// building after the migration.
+    /// </remarks>
+    private static bool RenameValues(OptionSetEnum optionSet, DefinitionColumnInfo colInfo, string owner)
+    {
+        var names = BuildValueLookup(colInfo.OptionSetValues, optionSet.HasNullValue);
+
+        if (names.Count == 0)
+            return false;
+
+        var changes = new List<string>();
+
+        foreach (var value in optionSet.Values)
+        {
+            string name;
+            if (!names.TryGetValue(value.Value, out name)
+                || string.Equals(value.Name, name, StringComparison.Ordinal))
+                continue;
+
+            changes.Add($"{value.Name} -> {name}");
+            value.Name = name;
+        }
+
+        if (changes.Count == 0)
+            return false;
+
+        AnsiConsole.MarkupLine(
+            $"[yellow]Renamed[/] [bold]{changes.Count}[/] member(s) of {optionSet.Name} in {owner}: " +
+            string.Join(", ", changes.ToArray()));
+
+        return true;
+    }
+
+    /// <summary>
+    /// Indexes the assembly's enum members by value, dropping what cannot be matched with certainty.
+    /// </summary>
+    /// <remarks>
+    /// Two members can share a value — the generator emits a synthetic <c>Null = 0</c> ahead of the
+    /// real ones for an option set that allows an empty value, and C# permits aliases besides. The
+    /// synthetic member mirrors <c>HasNullValue</c> rather than a CRM option, so it is skipped;
+    /// any remaining collision is genuinely ambiguous and its value is left untouched.
+    /// </remarks>
+    private static Dictionary<int, string> BuildValueLookup(
+        IReadOnlyList<DefinitionOptionSetValue> values, bool hasNullValue)
+    {
+        var lookup = new Dictionary<int, string>();
+        var ambiguous = new List<int>();
+
+        foreach (var value in values)
+        {
+            if (hasNullValue && value.Value == 0 && string.Equals(value.Name, "Null", StringComparison.Ordinal))
+                continue;
+
+            if (lookup.ContainsKey(value.Value))
+            {
+                ambiguous.Add(value.Value);
+                continue;
+            }
+
+            lookup[value.Value] = value.Name;
+        }
+
+        foreach (var value in ambiguous)
+            lookup.Remove(value);
+
+        return lookup;
     }
 
     /// <summary>
@@ -256,7 +340,7 @@ public sealed class TableFileSyncer
             _table = table;
         }
 
-        public bool Rename(string logicalName, string name)
+        public bool Rename(string logicalName, DefinitionColumnInfo colInfo)
         {
             if (_table == null)
                 return false;
@@ -264,7 +348,8 @@ public sealed class TableFileSyncer
             var optionSet = _table.Enums.FirstOrDefault(
                 e => string.Equals(e.LogicalName, logicalName, StringComparison.OrdinalIgnoreCase));
 
-            if (optionSet == null || !TableFileSyncer.Rename(optionSet, name, TableFileStore.GlobalOptionSetFileName))
+            if (optionSet == null
+                || !TableFileSyncer.Rename(optionSet, colInfo, TableFileStore.GlobalOptionSetFileName))
                 return false;
 
             _renamed = true;
