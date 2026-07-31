@@ -14,10 +14,22 @@ namespace XrmFramework.DeployUtils.TableSync
         /// <summary>C# field name (e.g. "Id") — used when creating an entry missing from the .table.</summary>
         public string Name { get; }
 
-        public DefinitionColumnInfo(string logicalName, string name)
+        /// <summary>
+        /// C# name of the enum declared by <c>[OptionSet(typeof(...))]</c> on the field
+        /// (e.g. "UtilisateurExecutant"), or <see langword="null" /> if the column carries no option set.
+        /// </summary>
+        /// <remarks>
+        /// This is an identifier the project's code depends on, and teams rename it freely — the CRM
+        /// only knows the logical name. Recovering it from the assembly is the only way a migration can
+        /// carry it over into the <c>.table</c>, which becomes the source the generator reads.
+        /// </remarks>
+        public string OptionSetName { get; }
+
+        public DefinitionColumnInfo(string logicalName, string name, string optionSetName = null)
         {
             LogicalName = logicalName;
             Name = name;
+            OptionSetName = optionSetName;
         }
     }
 }

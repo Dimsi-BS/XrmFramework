@@ -688,7 +688,7 @@
     },
     {
       "LogName": "workflow|type",
-      "Name": "Type",
+      "Name": "WorkflowType",
       "Locked": true,
       "Values": [
         {

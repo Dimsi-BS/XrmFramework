@@ -5,14 +5,17 @@ using CommandLine;
 
 namespace XrmFramework.DeployUtils.CommandOptions;
 
+/// <summary>
+/// Options of the 2.* -> 3.1+ definitions migration (<c>xrmframework tables sync</c>).
+/// </summary>
 public class TableSyncCommandOptions
 {
     [Option("dll", Required = true,
-        HelpText = "Path to the DLL to analyze (must contain *Definition classes with [EntityDefinition]).")]
+        HelpText = "Path to the 2.* DLL to analyze (must contain *Definition classes with [EntityDefinition]).")]
     public string DllPath { get; set; } = string.Empty;
 
     [Option("tables-dir", Required = true,
-        HelpText = "Directory containing the .table files to update or create.")]
+        HelpText = "Directory holding the .table and *Definition.cs files to migrate.")]
     public string TablesDirectory { get; set; } = string.Empty;
 
     [Option("clean", Required = false, Default = false,

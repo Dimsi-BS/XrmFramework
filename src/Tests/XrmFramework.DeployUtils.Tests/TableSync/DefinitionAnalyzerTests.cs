@@ -57,7 +57,7 @@ public class DefinitionAnalyzerTests
     public void ExtractDefinitions_KeepsTypeName_WhenNoDefinitionSuffix()
     {
         var noSuffix = GetOurDefinition("TableSyncTestNoSuffix");
-        // TableSyncTestNoSuffix does not end with "Definition" → name kept as-is.
+        // TableSyncTestNoSuffix does not end with "Definition" -> name kept as-is.
         Assert.AreEqual("TableSyncTestNoSuffix", noSuffix.TableName);
     }
 
@@ -111,6 +111,29 @@ public class DefinitionAnalyzerTests
     }
 
     // ──────────────────────────────────────────────────────────────────────────
+    // Option set names carried by [OptionSet(typeof(...))]
+    // ──────────────────────────────────────────────────────────────────────────
+
+    [Test]
+    public void ExtractDefinitions_ExtractsOptionSetName_FromColumnAttribute()
+    {
+        var def = GetOurDefinition("TableSyncTestOptionSet");
+        var status = def.Columns.Single(c => c.Name == "StatusCode");
+
+        Assert.AreEqual("TableSyncTestRenamedStatus", status.OptionSetName,
+            "The enum's C# name is what compiled code depends on: it has to come out of the assembly.");
+    }
+
+    [Test]
+    public void ExtractDefinitions_OptionSetNameIsNull_WhenColumnHasNoOptionSet()
+    {
+        var def = GetOurDefinition("TableSyncTestOptionSet");
+
+        Assert.IsNull(def.Columns.Single(c => c.Name == "Name").OptionSetName);
+        Assert.IsNull(def.Columns.Single(c => c.Name == "Id").OptionSetName);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
     // Filters: ignoring classes that are not usable Definitions
     // ──────────────────────────────────────────────────────────────────────────
 
@@ -118,7 +141,7 @@ public class DefinitionAnalyzerTests
     public void ExtractDefinitions_IgnoresTypesWithoutEntityName()
     {
         // TableSyncTestIncompleteDefinition is decorated with [EntityDefinition] but has
-        // no EntityName field → the analyzer must filter it out.
+        // no EntityName field -> the analyzer must filter it out.
         Assert.IsFalse(OurDefinitions().Any(d => d.TableName == "TableSyncTestIncomplete"));
     }
 

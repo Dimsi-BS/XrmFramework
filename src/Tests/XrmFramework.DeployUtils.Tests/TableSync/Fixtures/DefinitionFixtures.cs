@@ -56,7 +56,7 @@ namespace XrmFramework.DeployUtils.Tests.TableSync.Fixtures
     }
 
     // ──────────────────────────────────────────────────────────────────────────
-    // No "Definition" suffix → the class name is kept as-is
+    // No "Definition" suffix -> the class name is kept as-is
     // as TableName ("TableSyncTestNoSuffix").
     // ──────────────────────────────────────────────────────────────────────────
 
@@ -73,7 +73,7 @@ namespace XrmFramework.DeployUtils.Tests.TableSync.Fixtures
     }
 
     // ──────────────────────────────────────────────────────────────────────────
-    // No EntityName field → MUST be ignored by the analyzer.
+    // No EntityName field -> MUST be ignored by the analyzer.
     // ──────────────────────────────────────────────────────────────────────────
 
     [EntityDefinition]
@@ -86,7 +86,7 @@ namespace XrmFramework.DeployUtils.Tests.TableSync.Fixtures
     }
 
     // ──────────────────────────────────────────────────────────────────────────
-    // No [EntityDefinition] → MUST be ignored by the analyzer.
+    // No [EntityDefinition] -> MUST be ignored by the analyzer.
     // ──────────────────────────────────────────────────────────────────────────
 
     public static class TableSyncTestNotADefinition
@@ -100,7 +100,7 @@ namespace XrmFramework.DeployUtils.Tests.TableSync.Fixtures
     }
 
     // ──────────────────────────────────────────────────────────────────────────
-    // With EntityName but an empty Columns → 0 columns, a legitimate case.
+    // With EntityName but an empty Columns -> 0 columns, a legitimate case.
     // ──────────────────────────────────────────────────────────────────────────
 
     [EntityDefinition]
@@ -116,7 +116,7 @@ namespace XrmFramework.DeployUtils.Tests.TableSync.Fixtures
     }
 
     // ──────────────────────────────────────────────────────────────────────────
-    // No EntityCollectionName → CollectionName must be null.
+    // No EntityCollectionName -> CollectionName must be null.
     // ──────────────────────────────────────────────────────────────────────────
 
     [EntityDefinition]
@@ -127,6 +127,47 @@ namespace XrmFramework.DeployUtils.Tests.TableSync.Fixtures
         public static class Columns
         {
             public const string Id = "tabsync_nocollid";
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Columns carrying [OptionSet(typeof(...))]: the enum's C# name is a project
+    // decision the CRM knows nothing about, and must be recovered from the assembly.
+    // ──────────────────────────────────────────────────────────────────────────
+
+    public enum TableSyncTestRenamedStatus
+    {
+        Active = 0,
+        Inactive = 1
+    }
+
+    public enum TableSyncTestRenamedGlobal
+    {
+        Yes = 0,
+        No = 1
+    }
+
+    [EntityDefinition]
+    public static class TableSyncTestOptionSetDefinition
+    {
+        public const string EntityName = "tabsync_optionset";
+        public const string EntityCollectionName = "tabsync_optionsets";
+
+        public static class Columns
+        {
+            public const string Id = "tabsync_optionsetid";
+
+            [AttributeMetadata(AttributeTypeCode.Picklist)]
+            [OptionSet(typeof(TableSyncTestRenamedStatus))]
+            public const string StatusCode = "statuscode";
+
+            [AttributeMetadata(AttributeTypeCode.Picklist)]
+            [OptionSet(typeof(TableSyncTestRenamedGlobal))]
+            public const string GlobalPick = "tabsync_globalpick";
+
+            /// <summary>No option set: OptionSetName must stay null.</summary>
+            [AttributeMetadata(AttributeTypeCode.String)]
+            public const string Name = "tabsync_name";
         }
     }
 }

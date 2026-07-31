@@ -9,10 +9,15 @@ using XrmFramework.DeployUtils;
 namespace XrmFramework.Cli.Commands;
 
 /// <summary>
-/// <c>xrmframework tables sync</c> command: synchronizes the <c>.table</c> files
-/// of a directory from the <c>[EntityDefinition]</c> classes of an assembly.
-/// The actual logic lives in <see cref="TableSyncHelper.Sync(string, string, bool)"/>.
+/// <c>xrmframework tables sync</c> command: one-shot migration of a project's definitions from
+/// XrmFramework 2.* to 3.1 or above.
 /// </summary>
+/// <remarks>
+/// It updates the <c>.table</c> files from the <c>[EntityDefinition]</c> classes of the assembly last
+/// compiled under 2.*, then removes from the <c>*Definition.cs</c> files sitting next to them
+/// everything the 3.1 source generator now emits.
+/// The actual logic lives in <see cref="TableSyncHelper.Sync(string, string, bool)"/>.
+/// </remarks>
 public sealed class TableSyncCommand : Command<TableSyncCommand.Settings>
 {
     public sealed class Settings : CommandSettings
@@ -20,11 +25,11 @@ public sealed class TableSyncCommand : Command<TableSyncCommand.Settings>
         // Fully qualified attributes: a global MSTest using (transitive via
         // DeployUtils) makes [Description] ambiguous with UnitTesting.DescriptionAttribute.
         [CommandOption("--dll <PATH>")]
-        [System.ComponentModel.Description("Path to the DLL to analyze (contains *Definition classes with [[EntityDefinition]]).")]
+        [System.ComponentModel.Description("Path to the 2.* assembly to analyze (contains *Definition classes with [[EntityDefinition]]).")]
         public string? DllPath { get; init; }
 
         [CommandOption("--tables-dir <DIRECTORY>")]
-        [System.ComponentModel.Description("Directory containing the .table files to update or create.")]
+        [System.ComponentModel.Description("Directory holding the .table and *Definition.cs files to migrate.")]
         public string? TablesDirectory { get; init; }
 
         [CommandOption("--clean")]

@@ -3,10 +3,12 @@
   <!--
     XrmFramework CLI distributed as a .NET tool (dotnet tool install).
     Spectre.Console.Cli facade on top of the logic hosted in
-    XrmFramework.DeployUtils (TableSyncHelper, DefinitionAnalyzer, TableFileSyncer).
+    XrmFramework.DeployUtils (TableSyncHelper, DefinitionAnalyzer, TableFileSyncer,
+    DefinitionFileMigrator).
 
     Installation:  dotnet tool install XrmFramework.Cli (globally or locally)
     Invocation  :  xrmframework tables sync (dll / tables-dir / clean options)
+                   → one-shot migration of the definitions from 2.* to 3.1+
   -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -25,7 +27,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>xrmframework</ToolCommandName>
-    <PackageDescription>XrmFramework CLI: .table file synchronization and Dynamics 365 / Dataverse development utilities.</PackageDescription>
+    <PackageDescription>XrmFramework CLI: Dynamics 365 / Dataverse development and deployment utilities, including the migration of definitions from XrmFramework 2.* to 3.1+.</PackageDescription>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
