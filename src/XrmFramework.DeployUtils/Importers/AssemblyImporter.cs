@@ -49,8 +49,8 @@ public class AssemblyImporter : IAssemblyImporter
         var t = new AssemblyInfo
         {
             Name = name,
-            SourceType = TypeDeSource.Database,
-            IsolationMode = ModeDIsolation.Sandbox,
+            SourceType = SourceType.Database,
+            IsolationMode = IsolationMode.Sandbox,
             Culture = culture,
             PublicKeyToken = publicKeyToken,
             Version = version,

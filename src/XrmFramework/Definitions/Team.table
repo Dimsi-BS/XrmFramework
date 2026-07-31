@@ -4025,11 +4025,11 @@
     },
     {
       "LogName": "team|teamtype",
-      "Name": "TypeDEquipe",
+      "Name": "TeamType",
       "Locked": true,
       "Values": [
         {
-          "Name": "Proprietaire",
+          "Name": "Owner",
           "Labels": [
             {
               "Label": "Propriétaire",
@@ -4039,7 +4039,7 @@
         },
         {
           "Value": 1,
-          "Name": "Acces",
+          "Name": "Access",
           "Labels": [
             {
               "Label": "Accès",
@@ -4049,7 +4049,7 @@
         },
         {
           "Value": 2,
-          "Name": "GroupeDeSecuriteAAD",
+          "Name": "AadSecurityGroup",
           "Labels": [
             {
               "Label": "Groupe de sécurité AAD",
@@ -4059,7 +4059,7 @@
         },
         {
           "Value": 3,
-          "Name": "GroupeOfficeAAD",
+          "Name": "AadOfficeGroup",
           "Labels": [
             {
               "Label": "Groupe Office AAD",

@@ -9,7 +9,7 @@
   "Enums": [
     {
       "LogName": "workflow_runas",
-      "Name": "UtilisateurExecutant",
+      "Name": "RunAsUser",
       "Values": [
         {
           "Name": "Owner",

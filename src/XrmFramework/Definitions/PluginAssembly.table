@@ -502,7 +502,7 @@
   "Enums": [
     {
       "LogName": "pluginassembly|authtype",
-      "Name": "TypeDAuthentification",
+      "Name": "AuthenticationType",
       "Values": [
         {
           "Name": "Basicauth",
@@ -517,7 +517,7 @@
     },
     {
       "LogName": "pluginassembly|isolationmode",
-      "Name": "ModeDIsolation",
+      "Name": "IsolationMode",
       "Values": [
         {
           "Value": 1,
@@ -554,7 +554,7 @@
     },
     {
       "LogName": "pluginassembly|sourcetype",
-      "Name": "TypeDeSource",
+      "Name": "SourceType",
       "Values": [
         {
           "Name": "Database",

@@ -344,7 +344,7 @@
   "Enums": [
     {
       "LogName": "sdkmessageprocessingstepimage|imagetype",
-      "Name": "TypeDImage",
+      "Name": "ImageType",
       "Values": [
         {
           "Name": "Preimage",

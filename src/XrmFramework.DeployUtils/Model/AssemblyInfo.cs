@@ -17,10 +17,10 @@ public class AssemblyInfo : BaseCrmComponent, IBindingModel, IAssemblyComponent
 	public string Name { get; set; }
 
 	[CrmMapping(PluginAssemblyDefinition.Columns.SourceType)]
-	public TypeDeSource SourceType { get; set; }
+	public SourceType SourceType { get; set; }
 
 	[CrmMapping(PluginAssemblyDefinition.Columns.IsolationMode)]
-	public ModeDIsolation IsolationMode { get; set; }
+	public IsolationMode IsolationMode { get; set; }
 
 	[CrmMapping(PluginAssemblyDefinition.Columns.Culture)]
 	public string Culture { get; set; }

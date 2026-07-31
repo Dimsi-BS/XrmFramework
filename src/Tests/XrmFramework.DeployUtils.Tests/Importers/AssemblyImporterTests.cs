@@ -39,8 +39,8 @@ public class AssemblyImporterTests
             Assert.That(info.PublicKeyToken, Is.EqualTo(expectedToken));
             Assert.That(info.Description, Is.EqualTo($"{expected.Name} plugin assembly"));
             Assert.That(info.Content, Is.Not.Null.And.Length.GreaterThan(0));
-            Assert.That(info.SourceType, Is.EqualTo(TypeDeSource.Database));
-            Assert.That(info.IsolationMode, Is.EqualTo(ModeDIsolation.Sandbox));
+            Assert.That(info.SourceType, Is.EqualTo(SourceType.Database));
+            Assert.That(info.IsolationMode, Is.EqualTo(IsolationMode.Sandbox));
         });
     }
 }
