@@ -10,7 +10,7 @@ namespace XrmFramework.Tests.Attributes
     public class CrmEntityAttributeTests
     {
         // ────────────────────────────────────────────────────────────
-        //  Constructeur et propriétés
+        //  Constructor and properties
         // ────────────────────────────────────────────────────────────
 
         [Test]
@@ -49,7 +49,7 @@ namespace XrmFramework.Tests.Attributes
         }
 
         // ────────────────────────────────────────────────────────────
-        //  Réflexion — attribut appliqué sur une classe
+        //  Reflection — attribute applied to a class
         // ────────────────────────────────────────────────────────────
         #pragma warning disable XRM0200
         [CrmEntity("contact", ValidForCreate = true, AllowDeactivation = false)]

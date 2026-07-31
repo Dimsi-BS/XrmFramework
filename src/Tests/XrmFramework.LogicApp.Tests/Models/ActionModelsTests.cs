@@ -8,7 +8,7 @@ using XrmFramework.LogicApp.Models.Actions;
 namespace XrmFramework.LogicApp.Tests.Models;
 
 /// <summary>
-/// Tests unitaires pour les modèles d'actions Logic App.
+/// Unit tests for Logic App action models.
 /// </summary>
 [TestFixture]
 public class ActionModelsTests

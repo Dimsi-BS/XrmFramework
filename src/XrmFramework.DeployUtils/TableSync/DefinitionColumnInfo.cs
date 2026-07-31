@@ -4,14 +4,14 @@
 namespace XrmFramework.DeployUtils.TableSync
 {
     /// <summary>
-    /// Représente une colonne extraite d'une classe *Definition par réflexion.
+    /// Represents a column extracted from a *Definition class via reflection.
     /// </summary>
     public sealed class DefinitionColumnInfo
     {
-        /// <summary>Valeur de la constante (ex. "contactid") — clé de matching dans le .table.</summary>
+        /// <summary>Value of the constant (e.g. "contactid") — matching key in the .table.</summary>
         public string LogicalName { get; }
 
-        /// <summary>Nom du champ C# (ex. "Id") — utilisé lors de la création d'une entrée absente du .table.</summary>
+        /// <summary>C# field name (e.g. "Id") — used when creating an entry missing from the .table.</summary>
         public string Name { get; }
 
         public DefinitionColumnInfo(string logicalName, string name)

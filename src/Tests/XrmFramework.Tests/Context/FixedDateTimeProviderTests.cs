@@ -10,7 +10,7 @@ namespace XrmFramework.Tests.Context
     public class FixedDateTimeProviderTests
     {
         // ────────────────────────────────────────────────────────────
-        //  Construction avec une date UTC
+        //  Construction with a UTC date
         // ────────────────────────────────────────────────────────────
 
         [Test]
@@ -34,7 +34,7 @@ namespace XrmFramework.Tests.Context
         }
 
         // ────────────────────────────────────────────────────────────
-        //  Construction avec une date locale
+        //  Construction with a local date
         // ────────────────────────────────────────────────────────────
 
         [Test]
@@ -49,7 +49,7 @@ namespace XrmFramework.Tests.Context
         }
 
         // ────────────────────────────────────────────────────────────
-        //  UtcNow renvoie toujours exactement la même date (fixe)
+        //  UtcNow always returns exactly the same (fixed) date
         // ────────────────────────────────────────────────────────────
 
         [Test]
@@ -75,7 +75,7 @@ namespace XrmFramework.Tests.Context
         }
 
         // ────────────────────────────────────────────────────────────
-        //  Utilisation pour des calculs de dates relatifs déterministes
+        //  Use for deterministic relative date calculations
         // ────────────────────────────────────────────────────────────
 
         [Test]
@@ -90,7 +90,7 @@ namespace XrmFramework.Tests.Context
         }
 
         // ────────────────────────────────────────────────────────────
-        //  Implémente IDateTimeProvider
+        //  Implements IDateTimeProvider
         // ────────────────────────────────────────────────────────────
 
         [Test]
@@ -110,7 +110,7 @@ namespace XrmFramework.Tests.Context
         }
 
         // ────────────────────────────────────────────────────────────
-        //  Dates limites
+        //  Boundary dates
         // ────────────────────────────────────────────────────────────
 
         [Test]

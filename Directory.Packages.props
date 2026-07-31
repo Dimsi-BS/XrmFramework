@@ -6,13 +6,13 @@
   </PropertyGroup>
 
   <!--
-    Source unique de vérité pour les numéros de version des dépendances.
-    Ces propriétés sont utilisées à deux endroits :
-      - les entrées <PackageVersion> ci-dessous  → .csproj via Central Package Management
-      - le target SetNuspecProperties (src/Directory.Build.targets) → .nuspec via substitution $token$
+    Single source of truth for dependency version numbers.
+    These properties are used in two places:
+      - the <PackageVersion> entries below  → .csproj via Central Package Management
+      - the SetNuspecProperties target (src/Directory.Build.targets) → .nuspec via $token$ substitution
 
-    Pour mettre à jour une dépendance, modifier la propriété Ver_* correspondante.
-    Les projets ayant besoin d'une version différente utilisent VersionOverride="..." dans leur .csproj.
+    To update a dependency, change the corresponding Ver_* property.
+    Projects that need a different version use VersionOverride="..." in their .csproj.
   -->
   <PropertyGroup Label="Dependency versions">
 
@@ -22,44 +22,44 @@
     <Ver_DataverseClient>1.2.10</Ver_DataverseClient>
     <Ver_CrmSdkCoreAssemblies>9.0.2.60</Ver_CrmSdkCoreAssemblies>
     <Ver_CrmSdkWorkflow>9.0.2.60</Ver_CrmSdkWorkflow>
-    <!-- Version par défaut (OnPremise). DeployUtils/net462 utilise 9.1.1.45 via VersionOverride. -->
+    <!-- Default version (OnPremise). DeployUtils/net462 uses 9.1.1.45 via VersionOverride. -->
     <Ver_CrmSdkXrmTooling>9.1.1.65</Ver_CrmSdkXrmTooling>
 
     <!-- ═══════════════════════════════════════════════════════════
-         Sérialisation
+         Serialization
          ═══════════════════════════════════════════════════════════ -->
     <Ver_NewtonsoftJson>13.0.4</Ver_NewtonsoftJson>
 
     <!-- ═══════════════════════════════════════════════════════════
          Microsoft Extensions
          ═══════════════════════════════════════════════════════════ -->
-    <!-- Default net8+/net10+. DeployUtils/net462 utilise 3.1.8 via VersionOverride. -->
+    <!-- Default net8+/net10+. DeployUtils/net462 uses 3.1.8 via VersionOverride. -->
     <Ver_ExtDependencyInjection>10.0.7</Ver_ExtDependencyInjection>
 
     <!-- ═══════════════════════════════════════════════════════════
-         Packages système
+         System packages
          ═══════════════════════════════════════════════════════════ -->
     <Ver_MicrosoftCSharp>4.7.0</Ver_MicrosoftCSharp>
     <Ver_SysComponentAnnotations>5.0.0</Ver_SysComponentAnnotations>
     <Ver_SysConfigurationManager>10.0.7</Ver_SysConfigurationManager>
     <Ver_SysNetHttp>4.3.4</Ver_SysNetHttp>
-    <!-- Correctif de sécurité pour la dépendance transitive Microsoft.CrmSdk.CoreAssemblies
-         (via XrmTooling), qui plafonne à 6.0.7 — CVE-2024-43485 (High), corrigé en 6.0.10.
-         On reste sur la branche 6.0 (dernier correctif : 6.0.11) : même version d'assembly
-         6.0.0.0, donc aucune redirection de liaison à revoir côté net48. -->
+    <!-- Security fix for the transitive Microsoft.CrmSdk.CoreAssemblies dependency
+         (via XrmTooling), which caps at 6.0.7 — CVE-2024-43485 (High), fixed in 6.0.10.
+         We stay on the 6.0 branch (latest fix: 6.0.11): same assembly version
+         6.0.0.0, so no binding redirect needs to be revisited on the net48 side. -->
     <Ver_SysTextJson>6.0.11</Ver_SysTextJson>
     <Ver_SysReflectionDispatchProxy>4.8.2</Ver_SysReflectionDispatchProxy>
     <Ver_SysRuntimeLoader>4.3.0</Ver_SysRuntimeLoader>
     <Ver_SysTextRegex>4.3.1</Ver_SysTextRegex>
-    <!-- Correctif de sécurité pour la dépendance transitive System.ServiceModel.Primitives.
-         PackageVersion central = net10. net8 utilise VersionOverride dans Directory.Build.props.
+    <!-- Security fix for the transitive System.ServiceModel.Primitives dependency.
+         Central PackageVersion = net10. net8 uses VersionOverride in Directory.Build.props.
 
-         Ce pin est permanent, pas un contournement : même le dernier System.ServiceModel.Primitives
-         déclare « System.Security.Cryptography.Xml >= 10.0.0 », plancher qui reste dans la plage
-         affectée. Toute nouvelle publication doit donc être remontée ici à la main.
+         This pin is permanent, not a workaround: even the latest System.ServiceModel.Primitives
+         declares "System.Security.Cryptography.Xml >= 10.0.0", a floor that still falls within the
+         affected range. Any new release must therefore be bumped here by hand.
 
-         Plancher courant — CVE-2026-47302 / -47304 / -50525 / -50527 / -50648 (High) :
-         branche 8.0 corrigée en 8.0.4, branche 10.0 corrigée en 10.0.10. -->
+         Current floor — CVE-2026-47302 / -47304 / -50525 / -50527 / -50648 (High):
+         8.0 branch fixed in 8.0.4, 10.0 branch fixed in 10.0.10. -->
     <Ver_SecCryptoXmlNet8>8.0.4</Ver_SecCryptoXmlNet8>
     <Ver_SecCryptoXmlNet10>10.0.10</Ver_SecCryptoXmlNet10>
 
@@ -67,12 +67,12 @@
          Roslyn / Code Analysis
          ═══════════════════════════════════════════════════════════ -->
     <Ver_CodeAnalysisCSharp>4.12.0</Ver_CodeAnalysisCSharp>
-    <!-- Default : version récente. RemoteDebugger.Generator et ses tests utilisent 4.0.1 via VersionOverride. -->
+    <!-- Default: recent version. RemoteDebugger.Generator and its tests use 4.0.1 via VersionOverride. -->
     <Ver_CodeAnalysisAnalyzers>4.14.0</Ver_CodeAnalysisAnalyzers>
     <Ver_CodeAnalysisWorkspacesCommon>4.12.0</Ver_CodeAnalysisWorkspacesCommon>
 
     <!-- ═══════════════════════════════════════════════════════════
-         Outils de build
+         Build tools
          ═══════════════════════════════════════════════════════════ -->
     <Ver_MSBuildFramework>18.4.0</Ver_MSBuildFramework>
     <Ver_NerdbankGitVersioning>3.9.50</Ver_NerdbankGitVersioning>
@@ -88,14 +88,14 @@
     <Ver_SpectreConsoleAnalyzer>1.0.0</Ver_SpectreConsoleAnalyzer>
 
     <!-- ═══════════════════════════════════════════════════════════
-         Azure / Réseau
+         Azure / Networking
          ═══════════════════════════════════════════════════════════ -->
     <Ver_SignalRClient>8.0.0</Ver_SignalRClient>
     <Ver_AzureRelay>3.1.1</Ver_AzureRelay>
     <Ver_MsalClient>4.61.3</Ver_MsalClient>
 
     <!-- ═══════════════════════════════════════════════════════════
-         Divers
+         Miscellaneous
          ═══════════════════════════════════════════════════════════ -->
     <Ver_JetBrainsAnnotations>2025.2.4</Ver_JetBrainsAnnotations>
     <Ver_TypeScriptMSBuild>6.0.3</Ver_TypeScriptMSBuild>
@@ -103,9 +103,9 @@
     <!-- ═══════════════════════════════════════════════════════════
          Tests
          ═══════════════════════════════════════════════════════════ -->
-    <!-- Default 17.8.0. XrmFramework.DeployUtils.Tests utilise 18.4.0 via VersionOverride. -->
+    <!-- Default 17.8.0. XrmFramework.DeployUtils.Tests uses 18.4.0 via VersionOverride. -->
     <Ver_NETTestSdk>17.8.0</Ver_NETTestSdk>
-    <!-- Default 4.6.0. LogicApp.Tests, Analyzers.Test et Plugin.Tests utilisent 4.5.1 via VersionOverride. -->
+    <!-- Default 4.6.0. LogicApp.Tests, Analyzers.Test and Plugin.Tests use 4.5.1 via VersionOverride. -->
     <Ver_NUnit>4.6.0</Ver_NUnit>
     <Ver_NUnit3Adapter>6.2.0</Ver_NUnit3Adapter>
     <Ver_Moq>4.20.72</Ver_Moq>
@@ -126,13 +126,13 @@
     <PackageVersion Include="Microsoft.CrmSdk.Workflow"                         Version="$(Ver_CrmSdkWorkflow)" />
     <PackageVersion Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly"          Version="$(Ver_CrmSdkXrmTooling)" />
 
-    <!-- Sérialisation -->
+    <!-- Serialization -->
     <PackageVersion Include="Newtonsoft.Json" Version="$(Ver_NewtonsoftJson)" />
 
     <!-- Microsoft Extensions -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(Ver_ExtDependencyInjection)" />
 
-    <!-- Packages système -->
+    <!-- System packages -->
     <PackageVersion Include="Microsoft.CSharp"                         Version="$(Ver_MicrosoftCSharp)" />
     <PackageVersion Include="System.ComponentModel.Annotations"        Version="$(Ver_SysComponentAnnotations)" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="$(Ver_SysConfigurationManager)" />
@@ -141,7 +141,7 @@
     <PackageVersion Include="System.Reflection.DispatchProxy"          Version="$(Ver_SysReflectionDispatchProxy)" />
     <PackageVersion Include="System.Runtime.Loader"                    Version="$(Ver_SysRuntimeLoader)" />
     <PackageVersion Include="System.Text.RegularExpressions"           Version="$(Ver_SysTextRegex)" />
-    <!-- Version centrale = net10. net8 utilise VersionOverride="$(Ver_SecCryptoXmlNet8)" dans Directory.Build.props. -->
+    <!-- Central version = net10. net8 uses VersionOverride="$(Ver_SecCryptoXmlNet8)" in Directory.Build.props. -->
     <PackageVersion Include="System.Security.Cryptography.Xml"         Version="$(Ver_SecCryptoXmlNet10)" />
 
     <!-- Roslyn / Code Analysis -->
@@ -149,7 +149,7 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers"         Version="$(Ver_CodeAnalysisAnalyzers)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="$(Ver_CodeAnalysisWorkspacesCommon)" />
 
-    <!-- Outils de build -->
+    <!-- Build tools -->
     <PackageVersion Include="Microsoft.Build.Framework"                   Version="$(Ver_MSBuildFramework)" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core"              Version="$(Ver_MSBuildFramework)" />
     <PackageVersion Include="Nerdbank.GitVersioning"                      Version="$(Ver_NerdbankGitVersioning)" />
@@ -162,12 +162,12 @@
     <PackageVersion Include="Spectre.Console.Cli"       Version="$(Ver_SpectreConsoleCli)" />
     <PackageVersion Include="Spectre.Console.Analyzer"  Version="$(Ver_SpectreConsoleAnalyzer)" />
 
-    <!-- Azure / Réseau -->
+    <!-- Azure / Networking -->
     <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="$(Ver_SignalRClient)" />
     <PackageVersion Include="Microsoft.Azure.Relay"               Version="$(Ver_AzureRelay)" />
     <PackageVersion Include="Microsoft.Identity.Client"           Version="$(Ver_MsalClient)" />
 
-    <!-- Divers -->
+    <!-- Miscellaneous -->
     <PackageVersion Include="JetBrains.Annotations" Version="$(Ver_JetBrainsAnnotations)" />
 
     <!-- Tests -->

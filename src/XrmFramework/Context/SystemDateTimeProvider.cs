@@ -6,12 +6,12 @@ using System;
 namespace XrmFramework
 {
     /// <summary>
-    /// Implémentation de <see cref="IDateTimeProvider"/> qui délègue à l'horloge système.
-    /// Utilisée en production et lors du débogage distant en temps réel.
+    /// Implementation of <see cref="IDateTimeProvider"/> that delegates to the system clock.
+    /// Used in production and during real-time remote debugging.
     /// </summary>
     public class SystemDateTimeProvider : IDateTimeProvider
     {
-        /// <summary>Instance singleton sans état — partage possible entre contextes.</summary>
+        /// <summary>Stateless singleton instance — safe to share across contexts.</summary>
         public static readonly SystemDateTimeProvider Instance = new SystemDateTimeProvider();
 
         /// <inheritdoc />

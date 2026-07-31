@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Tests du moteur d'inventaire (XrmFramework.PluginInventory) sur net8.0.
+    Tests for the inventory engine (XrmFramework.PluginInventory) on net8.0.
 
-    Le moteur est de la réflexion pure (agnostique au TFM) : on en lie les sources et on l'exécute
-    contre des plugins « stub » net8 qui miment la forme XrmFramework. On réutilise les vrais types
-    cœur (Stages/Modes/Messages, fournis par DeployUtils) et le vrai PluginManifestReader pour
-    valider le round-trip producteur → consommateur.
+    The engine is pure reflection (TFM-agnostic): its sources are linked in and run against net8
+    "stub" plugins that mimic the XrmFramework shape. We reuse the real core types (Stages/Modes/
+    Messages, provided by DeployUtils) and the real PluginManifestReader to validate the
+    producer → consumer round-trip.
   -->
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -22,8 +22,8 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" VersionOverride="18.4.0" />
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />
-    <!-- Remonte le plancher transitif de System.Private.DataContractSerialization 4.3.0
-         (chaîne Dataverse.Client) — CVE-2019-0820 (High), corrigé en 4.3.1. -->
+    <!-- Bumps the transitive floor of System.Private.DataContractSerialization 4.3.0
+         (Dataverse.Client chain) — CVE-2019-0820 (High), fixed in 4.3.1. -->
     <PackageReference Include="System.Text.RegularExpressions" />
     <PackageReference Include="coverlet.collector">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -35,7 +35,7 @@
     <ProjectReference Include="..\..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj" />
   </ItemGroup>
 
-  <!-- Moteur d'inventaire lié en source (compilé pour net8 dans cet assembly de test). -->
+  <!-- Inventory engine linked in source (compiled for net8 in this test assembly). -->
   <ItemGroup>
     <Compile Include="..\..\XrmFramework.PluginInventory\PluginInventoryEngine.cs" Link="_Engine\PluginInventoryEngine.cs" />
     <Compile Include="..\..\XrmFramework.PluginInventory\ManifestModel.cs" Link="_Engine\ManifestModel.cs" />

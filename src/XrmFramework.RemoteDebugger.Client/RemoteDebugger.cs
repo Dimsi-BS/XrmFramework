@@ -19,16 +19,16 @@ using XrmFramework.RemoteDebugger.Common.ConsoleUI;
 namespace XrmFramework.RemoteDebugger.Common
 {
     /// <summary>
-    /// Débogueur distant qui reçoit les contextes d'exécution de plugins via Azure Relay,
-    /// exécute les plugins localement, et retourne les contextes modifiés.
+    /// Remote debugger that receives plugin execution contexts via Azure Relay,
+    /// executes the plugins locally, and returns the modified contexts.
     ///
-    /// <para><b>Mode standard</b> (sans TUI) :</para>
+    /// <para><b>Standard mode</b> (no TUI):</para>
     /// <code>
     /// var debugger = new RemoteDebugger&lt;AzureRelayHybridConnectionMessageManager&gt;();
     /// debugger.Start();
     /// </code>
     ///
-    /// <para><b>Mode TUI interactif</b> — interface console moderne :</para>
+    /// <para><b>Interactive TUI mode</b> — modern console interface:</para>
     /// <code>
     /// var debugger = new RemoteDebugger&lt;AzureRelayHybridConnectionMessageManager&gt;();
     /// debugger.SessionSavePath = @".\PluginTestSessions";
@@ -39,76 +39,76 @@ namespace XrmFramework.RemoteDebugger.Common
     {
         // ── Infrastructure ──────────────────────────────────────────────
 
-        /// <summary>Gestionnaire de messages pour la communication Azure Relay.</summary>
+        /// <summary>Message manager for Azure Relay communication.</summary>
         public T Manager { get; }
 
-        // ── Enregistrement de sessions ──────────────────────────────────
+        // ── Session recording ────────────────────────────────────────────
 
         /// <summary>
-        /// Répertoire de sauvegarde des sessions de test (.pluginsession.json).
-        /// Si <c>null</c> (défaut), aucune sauvegarde automatique n'est effectuée.
-        /// En mode TUI, la sauvegarde peut aussi être déclenchée manuellement via [S].
+        /// Directory where test sessions (.pluginsession.json) are saved.
+        /// If <c>null</c> (default), no automatic saving is performed.
+        /// In TUI mode, saving can also be triggered manually via [S].
         /// </summary>
         public string SessionSavePath { get; set; }
 
         /// <summary>
-        /// Répertoire de sauvegarde des messages échangés (.json).
-        /// Si <c>null</c> (défaut), aucune sauvegarde automatique n'est effectuée.
-        /// Chaque message (contexte entrant/sortant, requête/réponse OrgService, exception)
-        /// est sauvegardé dans un fichier JSON distinct.
+        /// Directory where exchanged messages (.json) are saved.
+        /// If <c>null</c> (default), no automatic saving is performed.
+        /// Each message (incoming/outgoing context, OrgService request/response, exception)
+        /// is saved to a separate JSON file.
         /// </summary>
         public string MessageLogPath { get; set; }
 
-        // ── Événements lifecycle ────────────────────────────────────────
+        // ── Lifecycle events ─────────────────────────────────────────────
 
-        /// <summary>Déclenché au début de chaque exécution de plugin.</summary>
+        /// <summary>Raised at the start of each plugin execution.</summary>
         public event Action<ExecutionRecord> ExecutionStarted;
 
-        /// <summary>Déclenché au début de chaque appel OrgService.</summary>
+        /// <summary>Raised at the start of each OrgService call.</summary>
         public event Action<ExecutionRecord, OrgServiceCallRecord> OrgServiceCallStarted;
 
-        /// <summary>Déclenché à la fin de chaque appel OrgService.</summary>
+        /// <summary>Raised at the end of each OrgService call.</summary>
         public event Action<ExecutionRecord, OrgServiceCallRecord> OrgServiceCallCompleted;
 
-        /// <summary>Déclenché quand une exécution se termine avec succès.</summary>
+        /// <summary>Raised when an execution completes successfully.</summary>
         public event Action<ExecutionRecord> ExecutionCompleted;
 
-        /// <summary>Déclenché quand une exécution échoue avec une exception.</summary>
+        /// <summary>Raised when an execution fails with an exception.</summary>
         public event Action<ExecutionRecord, Exception> ExecutionFailed;
 
-        // ── Événements messages ─────────────────────────────────────────
+        // ── Message events ────────────────────────────────────────────────
 
         /// <summary>
-        /// Déclenché quand un message est reçu depuis le plugin (contexte entrant,
-        /// réponse OrgService, etc.).
+        /// Raised when a message is received from the plugin (incoming context,
+        /// OrgService response, etc.).
         /// </summary>
         public event Action<RemoteDebuggerMessage> MessageReceived;
 
         /// <summary>
-        /// Déclenché quand un message est envoyé vers le plugin (contexte sortant,
-        /// requête OrgService, exception).
+        /// Raised when a message is sent to the plugin (outgoing context,
+        /// OrgService request, exception).
         /// </summary>
         public event Action<RemoteDebuggerMessage> MessageSent;
 
-        // ── Log interne ─────────────────────────────────────────────────
+        // ── Internal log ──────────────────────────────────────────────────
 
-        // En mode standard : Console.WriteLine. En mode TUI : ui.AddLog (sans markup Spectre).
+        // Standard mode: Console.WriteLine. TUI mode: ui.AddLog (without Spectre markup).
         private Action<string> _log = Console.WriteLine;
 
-        // ── Connexion Manager (Plugin Monitor) ───────────────────────────
+        // ── Manager connection (Plugin Monitor) ──────────────────────────
 
         /// <summary>
-        /// Paramètres de connexion SignalR vers le Manager.
-        /// Lorsqu'ils sont renseignés (URL + token non vides), les événements
-        /// d'exécution sont transmis en temps réel à l'interface Plugin Monitor.
-        /// Si la propriété est <c>null</c> ou que <see cref="ManagerHubSettings.IsConfigured"/>
-        /// est <c>false</c>, le comportement du débogueur reste inchangé.
+        /// SignalR connection settings to the Manager.
+        /// When populated (non-empty URL + token), execution events
+        /// are forwarded in real time to the Plugin Monitor interface.
+        /// If the property is <c>null</c> or <see cref="ManagerHubSettings.IsConfigured"/>
+        /// is <c>false</c>, the debugger's behavior remains unchanged.
         /// </summary>
         public ManagerHubSettings ManagerHub { get; set; }
 
         private ManagerHubForwarder _hubForwarder;
 
-        // ── Constructeur ────────────────────────────────────────────────
+        // ── Constructor ───────────────────────────────────────────────────
 
         public RemoteDebugger()
         {
@@ -116,12 +116,12 @@ namespace XrmFramework.RemoteDebugger.Common
         }
 
         // ════════════════════════════════════════════════════════════════
-        // Mode standard — sans TUI
+        // Standard mode — no TUI
         // ════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Lance le débogueur en mode console standard.
-        /// Bloque jusqu'à ce que l'utilisateur appuie sur Entrée.
+        /// Starts the debugger in standard console mode.
+        /// Blocks until the user presses Enter.
         /// </summary>
         public void Start()
         {
@@ -138,25 +138,25 @@ namespace XrmFramework.RemoteDebugger.Common
         }
 
         // ════════════════════════════════════════════════════════════════
-        // Mode TUI — interface console interactive
+        // TUI mode — interactive console interface
         // ════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Lance le débogueur avec l'interface console interactive (TUI Spectre.Console).
+        /// Starts the debugger with the interactive console interface (Spectre.Console TUI).
         /// <para>
-        /// Fonctionnalités :
+        /// Features:
         /// <list type="bullet">
-        ///   <item>Table live de toutes les exécutions (statut, durée, appels CRM)</item>
-        ///   <item>[Entrée] Zoom in — détail de l'exécution sélectionnée</item>
-        ///   <item>[ESC]   Zoom out — retour à la liste</item>
-        ///   <item>[↑↓]   Navigation dans la liste</item>
-        ///   <item>[R]    Rejouer l'exécution (sans débogueur)</item>
-        ///   <item>[D]    Rejouer en mode debug (attache le débogueur)</item>
-        ///   <item>[S]    Sauvegarder la session comme fichier .pluginsession.json</item>
-        ///   <item>[Q]    Quitter</item>
+        ///   <item>Live table of all executions (status, duration, CRM calls)</item>
+        ///   <item>[Enter] Zoom in — detail of the selected execution</item>
+        ///   <item>[ESC]   Zoom out — back to the list</item>
+        ///   <item>[↑↓]   Navigate the list</item>
+        ///   <item>[R]    Replay the execution (without debugger)</item>
+        ///   <item>[D]    Replay in debug mode (attaches the debugger)</item>
+        ///   <item>[S]    Save the session as a .pluginsession.json file</item>
+        ///   <item>[Q]    Quit</item>
         /// </list>
         /// </para>
-        /// Bloque jusqu'à ce que l'utilisateur quitte avec [Q].
+        /// Blocks until the user quits with [Q].
         /// </summary>
         public void StartWithConsoleUI()
         {
@@ -164,16 +164,16 @@ namespace XrmFramework.RemoteDebugger.Common
                 onSave: SaveSession,
                 onReplay: ReplayExecution);
 
-            // Rediriger les logs internes vers le TUI (sans markup Spectre)
+            // Redirect internal logs to the TUI (without Spectre markup)
             _log = msg => ui.AddLog($"[grey]{Markup.Escape(msg)}[/]");
 
-            // ── Brancher les événements sur le TUI ───────────────────────
-            // Note : la boucle de rendu (120ms) lit directement OrgServiceCalls
-            // depuis ExecutionRecord — pas besoin de brancher OrgServiceCallStarted/Completed.
+            // ── Wire events to the TUI ───────────────────────────────────
+            // Note: the render loop (120ms) reads OrgServiceCalls directly
+            // from ExecutionRecord — no need to wire OrgServiceCallStarted/Completed.
 
             Manager.ContextReceived += remoteContext =>
             {
-                // Le TUI ajoute le record à sa liste interne et le retourne
+                // The TUI adds the record to its internal list and returns it
                 var record = ui.NotifyExecutionStarted(remoteContext);
                 ExecutionStarted?.Invoke(record);
                 RunExecution(remoteContext, record);
@@ -182,63 +182,63 @@ namespace XrmFramework.RemoteDebugger.Common
             ExecutionCompleted += rec => ui.NotifyExecutionCompleted(rec, rec.OutputContext);
             ExecutionFailed   += (rec, ex) => ui.NotifyExecutionFailed(rec, ex);
 
-            // ── Connexion Manager (Plugin Monitor) ──────────────────────
+            // ── Manager connection (Plugin Monitor) ─────────────────────
             InitHubForwarder(msg => ui.AddLog($"[grey]{Markup.Escape(msg)}[/]"));
 
-            // ── Connexion Azure Relay ────────────────────────────────────
-            ui.AddLog("[grey]Ouverture de la connexion Azure Relay…[/]");
+            // ── Azure Relay connection ────────────────────────────────────
+            ui.AddLog("[grey]Opening Azure Relay connection…[/]");
             Manager.OpenAsync().GetAwaiter().GetResult();
-            ui.AddLog($"[green]Connexion établie — PID {System.Diagnostics.Process.GetCurrentProcess().Id}[/]");
-            ui.AddLog("[grey]En attente d'exécutions de plugins…[/]");
+            ui.AddLog($"[green]Connection established — PID {System.Diagnostics.Process.GetCurrentProcess().Id}[/]");
+            ui.AddLog("[grey]Waiting for plugin executions…[/]");
 
-            // ── Lancer l'interface (bloque jusqu'au [Q]) ─────────────────
+            // ── Start the interface (blocks until [Q]) ────────────────────
             ui.Run();
 
-            // ── Fermeture propre ─────────────────────────────────────────
+            // ── Clean shutdown ────────────────────────────────────────────
             Manager.CloseAsync().GetAwaiter().GetResult();
         }
 
         // ════════════════════════════════════════════════════════════════
-        // Cœur de l'exécution (partagé entre les deux modes)
+        // Execution core (shared between both modes)
         // ════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Exécute un plugin localement en capturant tous les appels OrgService.
-        /// Déclenche les événements lifecycle à chaque étape.
+        /// Executes a plugin locally, capturing all OrgService calls.
+        /// Raises the lifecycle events at each step.
         /// </summary>
         private void RunExecution(RemoteDebugExecutionContext remoteContext, ExecutionRecord record)
         {
-            // ── Contexte entrant ─────────────────────────────────────────
+            // ── Incoming context ──────────────────────────────────────────
             var incomingContextMsg = new RemoteDebuggerMessage(
                 RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
             OnMessageReceived(incomingContextMsg);
 
-            // ── Service provider avec interception des appels OrgService ─
+            // ── Service provider intercepting OrgService calls ───────────
             var serviceProvider = new LocalServiceProvider(remoteContext, record.AddTraceLog);
 
             serviceProvider.RequestSent += request =>
             {
-                // Création et suivi de l'appel CRM
+                // Create and track the CRM call
                 var call = record.BeginOrgServiceCall(request.Content);
                 OrgServiceCallStarted?.Invoke(record, call);
 
-                // Le message de requête OrgService est émis vers le cloud
+                // The OrgService request message is emitted to the cloud
                 OnMessageSent(request);
 
-                // Transmission au cloud CRM
+                // Forward to the CRM cloud
                 var response = Manager.SendMessageWithResponse(request).GetAwaiter().GetResult();
 
-                // La réponse OrgService est reçue depuis le cloud
+                // The OrgService response is received from the cloud
                 OnMessageReceived(response);
 
-                // Fin de l'appel (idempotent — ne pose pas de problème si rappelé)
+                // End of the call (idempotent — safe to call again)
                 call.Complete(response.Content);
                 OrgServiceCallCompleted?.Invoke(record, call);
 
                 return response;
             };
 
-            // ── Exécution du plugin dans un thread dédié ─────────────────
+            // ── Plugin execution on a dedicated thread ───────────────────
             var task = Task.Run(() => ExecutePluginType(remoteContext, serviceProvider));
 
             try
@@ -247,8 +247,8 @@ namespace XrmFramework.RemoteDebugger.Common
 
                 if (!pluginFound)
                 {
-                    // ── Type inconnu localement → renvoyer le contexte inchangé ──
-                    // Marquer le record comme terminé pour stopper le timer dans le TUI.
+                    // ── Type unknown locally → return the context unchanged ──
+                    // Mark the record as completed to stop the timer in the TUI.
                     record.Complete(remoteContext);
                     ExecutionCompleted?.Invoke(record);
 
@@ -259,17 +259,17 @@ namespace XrmFramework.RemoteDebugger.Common
                     return;
                 }
 
-                // ── Succès ───────────────────────────────────────────────────
-                // record.Complete() construit aussi la PluginTestSession pour le replay
+                // ── Success ────────────────────────────────────────────────
+                // record.Complete() also builds the PluginTestSession for replay
                 record.Complete(remoteContext);
                 ExecutionCompleted?.Invoke(record);
 
-                // Contexte sortant (après exécution locale)
+                // Outgoing context (after local execution)
                 var outgoingContextMsg = new RemoteDebuggerMessage(
                     RemoteDebuggerMessageType.Context, remoteContext, remoteContext.Id);
                 OnMessageSent(outgoingContextMsg);
 
-                // Sauvegarde automatique sur disque si SessionSavePath est configuré
+                // Automatic save to disk if SessionSavePath is configured
                 if (SessionSavePath != null && record.TestSession != null)
                 {
                     TrySaveSession(record.TestSession);
@@ -277,7 +277,7 @@ namespace XrmFramework.RemoteDebugger.Common
             }
             catch (Exception e)
             {
-                // ── Erreur ───────────────────────────────────────────────────
+                // ── Error ──────────────────────────────────────────────────
                 record.Fail(e);
                 ExecutionFailed?.Invoke(record, e);
 
@@ -289,15 +289,15 @@ namespace XrmFramework.RemoteDebugger.Common
         }
 
         /// <summary>
-        /// Résout le type du plugin depuis son AssemblyQualifiedName et l'exécute.
-        /// Retourne <c>true</c> si le plugin a été trouvé et exécuté,
-        /// <c>false</c> si le type est inconnu localement (contexte à renvoyer inchangé).
+        /// Resolves the plugin type from its AssemblyQualifiedName and executes it.
+        /// Returns <c>true</c> if the plugin was found and executed,
+        /// <c>false</c> if the type is unknown locally (context to be returned unchanged).
         /// </summary>
         private bool ExecutePluginType(
             RemoteDebugExecutionContext remoteContext,
             LocalServiceProvider serviceProvider)
         {
-            // Nettoyer le nom de type (supprimer Version= et PublicKeyToken= pour la portabilité)
+            // Clean up the type name (remove Version= and PublicKeyToken= for portability)
             var parts = remoteContext.TypeAssemblyQualifiedName
                 .Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
                 .Where(p => !p.StartsWith("Version=") && !p.StartsWith("PublicKeyToken=") && !p.StartsWith("Culture="))
@@ -342,12 +342,12 @@ namespace XrmFramework.RemoteDebugger.Common
         }
 
         // ════════════════════════════════════════════════════════════════
-        // Connexion Hub Manager
+        // Manager Hub connection
         // ════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Initialise et connecte le <see cref="ManagerHubForwarder"/> si
-        /// <see cref="ManagerHub"/> est configuré. Sans effet sinon.
+        /// Initializes and connects the <see cref="ManagerHubForwarder"/> if
+        /// <see cref="ManagerHub"/> is configured. No effect otherwise.
         /// </summary>
         private void InitHubForwarder(Action<string> logAction)
         {
@@ -359,8 +359,8 @@ namespace XrmFramework.RemoteDebugger.Common
         }
 
         /// <summary>
-        /// Abonne le <see cref="ManagerHubForwarder"/> à tous les événements
-        /// de cycle de vie en mode fire-and-forget (n'interrompt pas le flux local).
+        /// Subscribes the <see cref="ManagerHubForwarder"/> to all lifecycle
+        /// events in fire-and-forget mode (does not disrupt the local flow).
         /// </summary>
         private void WireHubForwarder()
         {
@@ -372,12 +372,12 @@ namespace XrmFramework.RemoteDebugger.Common
         }
 
         // ════════════════════════════════════════════════════════════════
-        // Journalisation des messages
+        // Message logging
         // ════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Déclenche l'événement <see cref="MessageReceived"/> et sauvegarde le message
-        /// sur disque si <see cref="MessageLogPath"/> est configuré.
+        /// Raises the <see cref="MessageReceived"/> event and saves the message
+        /// to disk if <see cref="MessageLogPath"/> is configured.
         /// </summary>
         private void OnMessageReceived(RemoteDebuggerMessage message)
         {
@@ -387,8 +387,8 @@ namespace XrmFramework.RemoteDebugger.Common
         }
 
         /// <summary>
-        /// Déclenche l'événement <see cref="MessageSent"/> et sauvegarde le message
-        /// sur disque si <see cref="MessageLogPath"/> est configuré.
+        /// Raises the <see cref="MessageSent"/> event and saves the message
+        /// to disk if <see cref="MessageLogPath"/> is configured.
         /// </summary>
         private void OnMessageSent(RemoteDebuggerMessage message)
         {
@@ -398,8 +398,8 @@ namespace XrmFramework.RemoteDebugger.Common
         }
 
         /// <summary>
-        /// Sauvegarde un message dans un fichier JSON horodaté.
-        /// Nom du fichier : <c>{PluginExecutionId}_{direction}_{MessageType}_{timestamp}.json</c>
+        /// Saves a message to a timestamped JSON file.
+        /// File name: <c>{PluginExecutionId}_{direction}_{MessageType}_{timestamp}.json</c>
         /// </summary>
         private void TryLogMessage(RemoteDebuggerMessage message, string direction)
         {
@@ -419,23 +419,23 @@ namespace XrmFramework.RemoteDebugger.Common
             }
             catch
             {
-                // Journalisation non bloquante — ignorer silencieusement les erreurs
+                // Non-blocking logging — silently ignore errors
             }
         }
 
         // ════════════════════════════════════════════════════════════════
-        // Sauvegarde et Replay
+        // Save and Replay
         // ════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Sauvegarde la session d'un ExecutionRecord sur disque.
-        /// Appelé depuis le TUI ([S]) ou automatiquement si SessionSavePath est défini.
+        /// Saves an ExecutionRecord's session to disk.
+        /// Called from the TUI ([S]) or automatically if SessionSavePath is set.
         /// </summary>
         private void SaveSession(ExecutionRecord record)
         {
             if (record?.TestSession == null)
             {
-                _log("Impossible de sauvegarder : pas de session disponible.");
+                _log("Cannot save: no session available.");
                 return;
             }
 
@@ -449,64 +449,64 @@ namespace XrmFramework.RemoteDebugger.Common
             try
             {
                 var filePath = PluginTestSessionRecorder.Save(path, session);
-                _log($"Session sauvegardee : {filePath}  ({session.OrgServiceCalls.Count} appel(s) OrgService)");
+                _log($"Session saved: {filePath}  ({session.OrgServiceCalls.Count} OrgService call(s))");
             }
             catch (Exception ex)
             {
-                _log($"Erreur de sauvegarde : {ex.Message}");
+                _log($"Save error: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Rejoue une exécution enregistrée, en attachant optionnellement le débogueur.
-        /// Appelé depuis le TUI ([R] ou [D]).
+        /// Replays a recorded execution, optionally attaching the debugger.
+        /// Called from the TUI ([R] or [D]).
         /// </summary>
         private void ReplayExecution(ExecutionRecord record, bool debugMode)
         {
             if (record?.TestSession == null)
             {
-                _log("Impossible de rejouer : session non disponible.");
+                _log("Cannot replay: session not available.");
                 return;
             }
 
             if (debugMode)
             {
-                _log($"Attachez le debogueur au PID {System.Diagnostics.Process.GetCurrentProcess().Id}, puis l'execution demarrera.");
+                _log($"Attach the debugger to PID {System.Diagnostics.Process.GetCurrentProcess().Id}, then the execution will start.");
                 System.Diagnostics.Debugger.Launch();
             }
 
             try
             {
-                _log($"Rejouage #{record.Id} ({record.PluginShortName})...");
+                _log($"Replaying #{record.Id} ({record.PluginShortName})...");
                 var output = PluginTestRunner.Run(record.TestSession);
-                _log($"Rejouage #{record.Id} termine — {output.OutputParameters?.Count ?? 0} OutputParam(s), {output.SharedVariables?.Count ?? 0} SharedVar(s).");
+                _log($"Replay #{record.Id} completed — {output.OutputParameters?.Count ?? 0} OutputParam(s), {output.SharedVariables?.Count ?? 0} SharedVar(s).");
             }
             catch (Exception ex)
             {
-                _log($"Rejouage #{record.Id} echoue : {ex.GetType().Name}: {ex.Message}");
+                _log($"Replay #{record.Id} failed: {ex.GetType().Name}: {ex.Message}");
             }
         }
 
         // ════════════════════════════════════════════════════════════════
-        // Navigateur de sessions sauvegardées
+        // Saved session browser
         // ════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Lance le navigateur interactif de sessions de test sauvegardées sur disque.
+        /// Launches the interactive browser for test sessions saved on disk.
         /// <para>
-        /// Affiche une interface console à trois niveaux :
+        /// Displays a three-level console interface:
         /// <list type="bullet">
-        ///   <item>Groupes par <b>CorrelationId</b> — nommés d'après le premier plugin déclenché dans la corrélation.</item>
-        ///   <item>Liste des <b>sessions</b> dans le groupe sélectionné.</item>
-        ///   <item><b>Détail</b> complet d'une session (contexte d'entrée / appels OrgService / contexte de sortie).</item>
+        ///   <item>Groups by <b>CorrelationId</b> — named after the first plugin triggered in the correlation.</item>
+        ///   <item>List of <b>sessions</b> in the selected group.</item>
+        ///   <item>Full <b>detail</b> of a session (input context / OrgService calls / output context).</item>
         /// </list>
         /// </para>
-        /// Raccourcis : [↑↓] naviguer · [Entrée] zoomer · [Échap] remonter ·
-        ///              [R] rejouer · [D] rejouer en debug · [F5] recharger · [Q] quitter.
+        /// Shortcuts: [↑↓] navigate · [Enter] zoom in · [Esc] go back ·
+        ///              [R] replay · [D] replay in debug · [F5] reload · [Q] quit.
         /// </summary>
         /// <param name="sessionPath">
-        ///   Répertoire contenant les fichiers <c>*.pluginsession.json</c>.
-        ///   Utilise <see cref="SessionSavePath"/> si non renseigné.
+        ///   Directory containing the <c>*.pluginsession.json</c> files.
+        ///   Uses <see cref="SessionSavePath"/> if not provided.
         /// </param>
         public void BrowseSessions(string sessionPath = null)
         {
@@ -518,25 +518,25 @@ namespace XrmFramework.RemoteDebugger.Common
                 {
                     if (debugMode)
                     {
-                        _log($"Attachez le debogueur au PID {System.Diagnostics.Process.GetCurrentProcess().Id}, puis l'execution demarrera.");
+                        _log($"Attach the debugger to PID {System.Diagnostics.Process.GetCurrentProcess().Id}, then the execution will start.");
                         System.Diagnostics.Debugger.Launch();
                     }
 
                     try
                     {
                         var output = PluginTestRunner.Run(session);
-                        _log($"Rejouage termine — {output.OutputParameters?.Count ?? 0} OutputParam(s), {output.SharedVariables?.Count ?? 0} SharedVar(s).");
+                        _log($"Replay completed — {output.OutputParameters?.Count ?? 0} OutputParam(s), {output.SharedVariables?.Count ?? 0} SharedVar(s).");
                     }
                     catch (Exception ex)
                     {
-                        _log($"Rejouage echoue : {ex.GetType().Name}: {ex.Message}");
+                        _log($"Replay failed: {ex.GetType().Name}: {ex.Message}");
                     }
                 });
 
             ui.Run();
         }
 
-        // ── Helpers ──────────────────────────────────────────────────────
+        // ── Helpers ───────────────────────────────────────────────────────
 
         private static void AddWorkflowExtension<TService>(
             IServiceProvider provider, WorkflowInvoker invoker)

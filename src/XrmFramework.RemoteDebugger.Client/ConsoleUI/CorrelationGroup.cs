@@ -7,8 +7,8 @@ using System.Collections.Generic;
 namespace XrmFramework.RemoteDebugger.Client.ConsoleUI;
 
 /// <summary>
-/// Groupe de sessions de plugin partageant le même <see cref="CorrelationId"/> Dataverse.
-/// Le groupe est nommé d'après le premier élément de la corrélation :
+/// Group of plugin sessions sharing the same Dataverse <see cref="CorrelationId"/>.
+/// The group is named after the first element of the correlation:
 /// "<c>MessageName · PrimaryEntityName</c>".
 /// </summary>
 public class CorrelationGroup
@@ -21,28 +21,28 @@ public class CorrelationGroup
         Id = System.Threading.Interlocked.Increment(ref _nextId);
     }
 
-    /// <summary>Identifiant séquentiel du groupe (1, 2, 3…).</summary>
+    /// <summary>Sequential identifier of the group (1, 2, 3…).</summary>
     public int Id { get; }
 
-    /// <summary>CorrelationId Dataverse commun à toutes les sessions du groupe.</summary>
+    /// <summary>Dataverse CorrelationId common to all sessions in the group.</summary>
     public Guid CorrelationId { get; }
 
     /// <summary>
-    /// Nom du groupe : "MessageName · PrimaryEntityName" du premier élément de la corrélation.
+    /// Name of the group: "MessageName · PrimaryEntityName" of the first element of the correlation.
     /// </summary>
-    public string Name { get; set; } = "Inconnu";
+    public string Name { get; set; } = "Unknown";
 
     /// <summary>
-    /// Sessions de plugin appartenant à ce groupe, triées par horodatage croissant.
+    /// Plugin sessions belonging to this group, sorted by ascending timestamp.
     /// </summary>
     public List<PluginTestSession> Sessions { get; } = new();
 
-    /// <summary>Date de la première session dans le groupe.</summary>
+    /// <summary>Date of the first session in the group.</summary>
     public DateTime FirstOccurrence { get; set; }
 
-    /// <summary>Date de la dernière session dans le groupe.</summary>
+    /// <summary>Date of the last session in the group.</summary>
     public DateTime LastOccurrence { get; set; }
 
-    /// <summary>Nombre de sessions dans le groupe.</summary>
+    /// <summary>Number of sessions in the group.</summary>
     public int SessionCount => Sessions.Count;
 }

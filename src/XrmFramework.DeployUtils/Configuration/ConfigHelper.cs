@@ -11,24 +11,24 @@ namespace XrmFramework.DeployUtils.Configuration
     public static class ConfigHelper
     {
         /// <summary>
-        ///     Configuration chargée explicitement depuis le dossier <c>Config/</c> d'un projet
-        ///     (via <see cref="UseProjectConfig" />). Si <see langword="null" />, on retombe sur
-        ///     le <see cref="ConfigurationManager" /> applicatif (projets Deploy net462 classiques).
+        ///     Configuration loaded explicitly from a project's <c>Config/</c> folder
+        ///     (via <see cref="UseProjectConfig" />). If <see langword="null" />, falls back to
+        ///     the application's <see cref="ConfigurationManager" /> (classic net462 Deploy projects).
         /// </summary>
         private static System.Configuration.Configuration _projectConfig;
 
         /// <summary>
-        ///     Pointe la lecture de configuration vers <c>Config/xrmFramework.config</c> et
-        ///     <c>Config/connectionStrings.config</c> situés sous <paramref name="projectRoot" />.
+        ///     Points configuration reading to <c>Config/xrmFramework.config</c> and
+        ///     <c>Config/connectionStrings.config</c> located under <paramref name="projectRoot" />.
         /// </summary>
         /// <remarks>
-        ///     Permet à un outil autonome (CLI net10.0) de lire la config du projet consommateur
-        ///     sans dépendre du fichier App.config applicatif. Les deux fragments sont assemblés
-        ///     dans un App.config temporaire chargé via <see cref="ConfigurationManager.OpenMappedExeConfiguration" />
-        ///     — aucun état global ni réflexion.
+        ///     Allows a standalone tool (net10.0 CLI) to read the consumer project's config
+        ///     without depending on the application's App.config file. The two fragments are assembled
+        ///     into a temporary App.config loaded via <see cref="ConfigurationManager.OpenMappedExeConfiguration" />
+        ///     — no global state, no reflection.
         /// </remarks>
-        /// <param name="projectRoot">Racine du projet contenant le dossier <c>Config/</c>.</param>
-        /// <exception cref="FileNotFoundException">Si un des deux fichiers de config est absent.</exception>
+        /// <param name="projectRoot">Root of the project containing the <c>Config/</c> folder.</param>
+        /// <exception cref="FileNotFoundException">If either of the two config files is missing.</exception>
         public static void UseProjectConfig(string projectRoot)
         {
             var configDir = Path.Combine(projectRoot, "Config");
@@ -37,14 +37,14 @@ namespace XrmFramework.DeployUtils.Configuration
 
             if (!File.Exists(xrmConfigPath))
                 throw new FileNotFoundException(
-                    $"Fichier de configuration introuvable : {xrmConfigPath}", xrmConfigPath);
+                    $"Configuration file not found: {xrmConfigPath}", xrmConfigPath);
 
             if (!File.Exists(connectionsPath))
                 throw new FileNotFoundException(
-                    $"Fichier de configuration introuvable : {connectionsPath}", connectionsPath);
+                    $"Configuration file not found: {connectionsPath}", connectionsPath);
 
-            // Les deux fichiers sont des fragments (<xrmFramework .../> et <connectionStrings .../>) :
-            // on les inline dans un App.config complet déclarant la section xrmFramework.
+            // The two files are fragments (<xrmFramework .../> and <connectionStrings .../>):
+            // they are inlined into a full App.config declaring the xrmFramework section.
             var xrmRoot = XDocument.Load(xrmConfigPath).Root;
             var connectionsRoot = XDocument.Load(connectionsPath).Root;
 
@@ -62,7 +62,7 @@ namespace XrmFramework.DeployUtils.Configuration
                 Path.GetTempPath(), $"xrmframework-cli-{Guid.NewGuid():N}.config");
             appConfig.Save(tempConfigPath);
 
-            // Nettoyage best-effort en fin de process (le fichier est lu paresseusement).
+            // Best-effort cleanup at process exit (the file is read lazily).
             AppDomain.CurrentDomain.ProcessExit += (_, _) =>
             {
                 try { File.Delete(tempConfigPath); } catch { /* ignore */ }

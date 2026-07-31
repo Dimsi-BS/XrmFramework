@@ -22,7 +22,7 @@ export abstract class RibbonScript<TTable extends Table> extends RibbonScriptBas
 export abstract class FormScript<TTable extends Table> extends FormScriptBase {
 
     /**
-     * Point d'entrée à appeler dans l'événement OnLoad du formulaire.
+     * Entry point to call from the form's OnLoad event.
      */
     public onLoad(context: Xrm.Events.LoadEventContext): void {
         const utils = new UtilsClass<TTable, Xrm.Events.LoadEventContext>(context);
@@ -30,8 +30,8 @@ export abstract class FormScript<TTable extends Table> extends FormScriptBase {
     }
 
     /**
-     * Permet aux classes filles d'initialiser leur logique spécifique.
-     * Exemples : masquer/afficher des champs, mettre à jour des règles, etc.
+     * Allows derived classes to initialize their specific logic.
+     * Examples: hiding/showing fields, updating rules, etc.
      */
     protected abstract internalOnLoad(utils: UtilsApi<TTable>): void;
 

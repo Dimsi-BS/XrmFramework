@@ -7,26 +7,26 @@ using System.Reflection;
 using SdkLabel = Microsoft.Xrm.Sdk.Label;
 using SdkLocalizedLabel = Microsoft.Xrm.Sdk.LocalizedLabel;
 
-// Même précaution que dans MetadataTableFactory : l'espace de noms XrmFramework déclare ses propres
-// AttributeMetadata / EntityMetadata / OptionMetadata, et les espaces de noms englobants l'emportent
-// sur les directives using. L'alias « Sdk » serait lui aussi capté, par XrmFramework.Sdk.
+// Same precaution as in MetadataTableFactory: the XrmFramework namespace declares its own
+// AttributeMetadata / EntityMetadata / OptionMetadata, and enclosing namespaces take precedence
+// over using directives. The "Sdk" alias would likewise be captured, by XrmFramework.Sdk.
 using DataverseMetadata = Microsoft.Xrm.Sdk.Metadata;
 
 namespace XrmFramework.DeployUtils.Tests.TableSync;
 
 /// <summary>
-/// Fabrique de métadonnées Dataverse pour les tests.
+/// Factory for Dataverse metadata used in tests.
 /// </summary>
 /// <remarks>
-/// La plupart des propriétés du SDK n'exposent qu'un accesseur d'écriture <c>internal</c> : elles
-/// sont normalement alimentées par la désérialisation des réponses du service. Les tests les
-/// affectent donc par réflexion, ce qui évite d'avoir à disposer d'un vrai environnement.
+/// Most SDK properties only expose an <c>internal</c> write accessor: they are normally
+/// populated by deserializing service responses. The tests therefore assign them via
+/// reflection, which avoids having to have a real environment available.
 /// </remarks>
 internal static class MetadataFixtureBuilder
 {
     /// <summary>
-    /// Affecte une propriété quel que soit le niveau d'accès de son accesseur d'écriture, en
-    /// retombant sur le champ de stockage si la propriété n'en déclare aucun.
+    /// Assigns a property regardless of its write accessor's access level, falling back
+    /// to the backing field if the property doesn't declare a settable accessor.
     /// </summary>
     internal static T Set<T>(this T target, string propertyName, object value)
     {
@@ -44,8 +44,8 @@ internal static class MetadataFixtureBuilder
 
         var field = FindBackingField(type, propertyName)
                     ?? throw new InvalidOperationException(
-                        $"Impossible d'affecter « {propertyName} » sur {type.Name} : " +
-                        "ni accesseur d'écriture ni champ de stockage trouvé.");
+                        $"Unable to assign \"{propertyName}\" on {type.Name}: " +
+                        "neither a write accessor nor a backing field was found.");
 
         field.SetValue(target, value);
         return target;
@@ -53,8 +53,8 @@ internal static class MetadataFixtureBuilder
 
     private static FieldInfo? FindBackingField(Type type, string propertyName)
     {
-        // Les types du SDK utilisent tantôt le champ auto-généré « <Prop>k__BackingField »,
-        // tantôt un champ privé nommé « _prop ».
+        // SDK types sometimes use the auto-generated field "<Prop>k__BackingField",
+        // sometimes a private field named "_prop".
         var candidates = new[]
         {
             $"<{propertyName}>k__BackingField",
@@ -76,7 +76,7 @@ internal static class MetadataFixtureBuilder
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Entités
+    // Entities
     // ══════════════════════════════════════════════════════════════════════════
 
     internal static DataverseMetadata.EntityMetadata Entity(
@@ -103,16 +103,16 @@ internal static class MetadataFixtureBuilder
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Attributs
+    // Attributes
     // ══════════════════════════════════════════════════════════════════════════
 
     /// <summary>
-    /// Crée un attribut valide en création, lecture et mise à jour.
+    /// Creates an attribute valid for create, read, and update.
     /// </summary>
     /// <remarks>
-    /// <c>AttributeMetadata</c> est abstraite côté SDK : le type concret est déduit du
-    /// <paramref name="type" /> demandé, afin que les transtypages effectués par la conversion
-    /// (longueur maximale, bornes, comportement de date) trouvent bien ce qu'ils attendent.
+    /// <c>AttributeMetadata</c> is abstract on the SDK side: the concrete type is inferred from
+    /// the requested <paramref name="type" />, so that the casts performed by the conversion
+    /// (max length, bounds, date behavior) find what they expect.
     /// </remarks>
     internal static DataverseMetadata.AttributeMetadata Attribute(
         string logicalName,
@@ -122,8 +122,8 @@ internal static class MetadataFixtureBuilder
         => Configure(CreateConcrete(type), logicalName, schemaName, type, frenchLabel);
 
     /// <summary>
-    /// Variante pour les tests devant manipuler un type concret précis (par exemple pour
-    /// renseigner un <c>OptionSet</c>).
+    /// Variant for tests that need to manipulate a specific concrete type (for example to
+    /// populate an <c>OptionSet</c>).
     /// </summary>
     internal static T Attribute<T>(
         string logicalName,
@@ -178,7 +178,7 @@ internal static class MetadataFixtureBuilder
             .Set(nameof(DataverseMetadata.StringAttributeMetadata.MaxLength), (int?)maxLength);
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Libellés, option sets, clés
+    // Labels, option sets, keys
     // ══════════════════════════════════════════════════════════════════════════
 
     internal static SdkLabel Label(string text, int languageCode = 1036)

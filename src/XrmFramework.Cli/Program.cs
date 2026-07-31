@@ -4,11 +4,11 @@
 using Spectre.Console.Cli;
 using XrmFramework.Cli.Commands;
 
-// Point d'entrée du CLI XrmFramework.
-//   xrmframework tables sync   --dll <chemin.dll> --tables-dir <répertoire> [--clean]
-//   xrmframework tables list   [--prefix <préfixe>] [--filter <texte>] [--custom-only]
-//   xrmframework tables pull   [--table <nom>] [--prefix <préfixe>] [--tables-dir <répertoire>] [--noprompt]
-//   xrmframework deploy plugins --dll <chemin.dll> --project <nom> [--on-premise] [--noprompt]
+// Entry point of the XrmFramework CLI.
+//   xrmframework tables sync   --dll <path.dll> --tables-dir <directory> [--clean]
+//   xrmframework tables list   [--prefix <prefix>] [--filter <text>] [--custom-only]
+//   xrmframework tables pull   [--table <name>] [--prefix <prefix>] [--tables-dir <directory>] [--noprompt]
+//   xrmframework deploy plugins --dll <path.dll> --project <name> [--on-premise] [--noprompt]
 var app = new CommandApp();
 
 app.Configure(config =>
@@ -17,29 +17,29 @@ app.Configure(config =>
 
     config.AddBranch("tables", tables =>
     {
-        tables.SetDescription("Commandes liées aux tables / fichiers .table.");
+        tables.SetDescription("Commands related to tables / .table files.");
 
         tables.AddCommand<TableSyncCommand>("sync")
-              .WithDescription("Synchronise les fichiers .table depuis un assembly contenant des classes [[EntityDefinition]].")
-              .WithExample("tables", "sync", "--dll", "bin/MonProjet.dll", "--tables-dir", "Definitions");
+              .WithDescription("Synchronizes the .table files from an assembly containing [[EntityDefinition]] classes.")
+              .WithExample("tables", "sync", "--dll", "bin/MyProject.dll", "--tables-dir", "Definitions");
 
         tables.AddCommand<TableListCommand>("list")
-              .WithDescription("Liste les tables de l'environnement sélectionné, filtrables par préfixe.")
+              .WithDescription("Lists the tables of the selected environment, filterable by prefix.")
               .WithExample("tables", "list", "--prefix", "ftp_");
 
         tables.AddCommand<TablePullCommand>("pull")
-              .WithDescription("Génère ou met à jour des fichiers .table depuis les métadonnées de l'environnement (par défaut : ceux déjà présents).")
+              .WithDescription("Generates or updates .table files from the environment's metadata (by default: those already present).")
               .WithExample("tables", "pull")
               .WithExample("tables", "pull", "--table", "account,ftp_contrat");
     });
 
     config.AddBranch("deploy", deploy =>
     {
-        deploy.SetDescription("Déploiement de composants vers l'environnement sélectionné (xrmFramework.config).");
+        deploy.SetDescription("Deployment of components to the selected environment (xrmFramework.config).");
 
         deploy.AddCommand<DeployPluginsCommand>("plugins")
-              .WithDescription("Déploie une assembly (plugins, custom APIs, workflows) vers l'environnement sélectionné.")
-              .WithExample("deploy", "plugins", "--dll", "bin/net8.0/MonProjet.Plugins.dll", "--project", "Plugins");
+              .WithDescription("Deploys an assembly (plugins, custom APIs, workflows) to the selected environment.")
+              .WithExample("deploy", "plugins", "--dll", "bin/net8.0/MyProject.Plugins.dll", "--project", "Plugins");
     });
 });
 

@@ -10,11 +10,11 @@ using XrmFramework.DeployUtils.TableSync;
 namespace XrmFramework.DeployUtils.Tests.TableSync;
 
 /// <summary>
-/// Lecture de la sélection portée par le répertoire des <c>.table</c>.
+/// Reading the selection carried by the <c>.table</c> directory.
 /// </summary>
 /// <remarks>
-/// C'est cette liste que <c>tables pull</c> récupère lorsqu'aucune table n'est demandée
-/// explicitement : elle doit refléter le contenu des fichiers, et non leurs noms.
+/// This is the list that <c>tables pull</c> retrieves when no table is explicitly
+/// requested: it must reflect the content of the files, not their names.
 /// </remarks>
 [TestFixture]
 public class TableFileStoreTests
@@ -37,13 +37,13 @@ public class TableFileStoreTests
             if (Directory.Exists(_tablesDir))
                 Directory.Delete(_tablesDir, recursive: true);
         }
-        catch { /* meilleur effort */ }
+        catch { /* best effort */ }
     }
 
     [Test]
     public void ReadTrackedLogicalNames_ReadsFileContent_NotFileName()
     {
-        // Un .table renommé à la main reste le suivi de son entité.
+        // A .table renamed by hand still tracks its entity.
         WriteTable("ContratLocation", "ftp_contrat");
         WriteTable("Account", "account");
 
@@ -60,8 +60,8 @@ public class TableFileStoreTests
 
         var tracked = TableFileStore.ReadTrackedLogicalNames(_tablesDir);
 
-        // Le pseudo-table des option sets globaux ne correspond à aucune entité : le demander
-        // à l'environnement ne produirait qu'un avertissement « table introuvable ».
+        // The pseudo-table for global option sets does not correspond to any entity: requesting
+        // it from the environment would only produce a "table not found" warning.
         Assert.That(tracked, Is.EquivalentTo(new[] { "account" }));
     }
 
@@ -80,7 +80,7 @@ public class TableFileStoreTests
     public void ReadTrackedLogicalNames_IgnoresOtherFiles()
     {
         WriteTable("Account", "account");
-        File.WriteAllText(Path.Combine(_tablesDir, "Account.cs"), "// généré");
+        File.WriteAllText(Path.Combine(_tablesDir, "Account.cs"), "// generated");
 
         var tracked = TableFileStore.ReadTrackedLogicalNames(_tablesDir);
 
@@ -94,7 +94,7 @@ public class TableFileStoreTests
 
         var tracked = TableFileStore.ReadTrackedLogicalNames(_tablesDir);
 
-        // Les noms saisis en ligne de commande ne respectent pas la casse du CRM.
+        // Names typed on the command line do not respect the CRM's casing.
         Assert.That(tracked.Contains("Account"), Is.True);
     }
 

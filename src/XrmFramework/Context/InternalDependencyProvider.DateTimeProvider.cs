@@ -9,9 +9,9 @@ namespace XrmFramework
     {
         static partial void RegisterCustomService(IObjectContainer container)
         {
-            // Enregistre SystemDateTimeProvider comme implémentation par défaut de IDateTimeProvider.
-            // Cette registration peut être surchargée par InitializeDateTimeProvider()
-            // dans le contexte RemoteDebugger pour utiliser FixedDateTimeProvider lors des rejouages.
+            // Registers SystemDateTimeProvider as the default implementation of IDateTimeProvider.
+            // This registration can be overridden by InitializeDateTimeProvider()
+            // in the RemoteDebugger context to use FixedDateTimeProvider during replays.
             container.RegisterInstanceAs<IDateTimeProvider>(SystemDateTimeProvider.Instance);
         }
     }

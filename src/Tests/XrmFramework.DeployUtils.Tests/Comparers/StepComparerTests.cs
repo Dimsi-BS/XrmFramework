@@ -35,7 +35,7 @@ public class StepComparerTests
     }
 
     // ──────────────────────────────────────────────
-    //  Equals — cas positifs
+    //  Equals — positive cases
     // ──────────────────────────────────────────────
 
     [Test]
@@ -54,7 +54,7 @@ public class StepComparerTests
     }
 
     // ──────────────────────────────────────────────
-    //  Equals — cas négatifs
+    //  Equals — negative cases
     // ──────────────────────────────────────────────
 
     [Test]

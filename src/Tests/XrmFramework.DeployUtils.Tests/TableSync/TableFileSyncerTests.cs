@@ -20,7 +20,7 @@ public class TableFileSyncerTests
     [SetUp]
     public void SetUp()
     {
-        // Répertoire isolé par test pour éviter toute contamination croisée.
+        // Directory isolated per test to avoid any cross-contamination.
         _tempDir = Path.Combine(Path.GetTempPath(),
             "XrmFramework.TableSyncTests_" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_tempDir);
@@ -34,7 +34,7 @@ public class TableFileSyncerTests
             if (Directory.Exists(_tempDir))
                 Directory.Delete(_tempDir, recursive: true);
         }
-        catch { /* meilleur effort */ }
+        catch { /* best effort */ }
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -52,7 +52,7 @@ public class TableFileSyncerTests
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Création d'un .table absent
+    // Creating a missing .table
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
@@ -64,7 +64,7 @@ public class TableFileSyncerTests
         syncer.Sync(new[] { def });
 
         var path = Path.Combine(_tempDir, "Contact.table");
-        Assert.IsTrue(File.Exists(path), "Le fichier .table doit être créé.");
+        Assert.IsTrue(File.Exists(path), "The .table file must be created.");
     }
 
     [Test]
@@ -76,7 +76,7 @@ public class TableFileSyncerTests
         var table = LoadTable("Contact");
         Assert.AreEqual(2, table.Columns.Count);
         Assert.IsTrue(table.Columns.All(c => c.Selected),
-            "Toutes les colonnes d'une table nouvellement créée doivent être Selected.");
+            "All columns of a newly created table must be Selected.");
     }
 
     [Test]
@@ -91,13 +91,13 @@ public class TableFileSyncerTests
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Mise à jour d'un .table existant
+    // Updating an existing .table
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
     public void Sync_AddsMissingColumn_WhenAbsentFromExistingTable()
     {
-        // Fichier existant ne contenant que Id ; la Definition ajoute Name.
+        // Existing file containing only Id; the Definition adds Name.
         WriteTable("Contact", BuildTable("contact", "Contact", "contacts",
             new Column { LogicalName = "contactid", Name = "Id", Selected = true }));
 
@@ -119,7 +119,7 @@ public class TableFileSyncerTests
 
         var table = LoadTable("Contact");
         Assert.IsTrue(table.Columns.All(c => c.Selected),
-            "Les colonnes présentes dans la Definition doivent passer à Selected=true.");
+            "Columns present in the Definition must switch to Selected=true.");
     }
 
     [Test]
@@ -139,13 +139,13 @@ public class TableFileSyncerTests
 
         var idCol = LoadTable("Contact").Columns.Single(c => c.LogicalName == "contactid");
         Assert.AreEqual(AttributeTypeCode.Uniqueidentifier, idCol.Type);
-        Assert.AreEqual(1, idCol.Labels.Count, "Les Labels CRM ne doivent pas être perdus.");
+        Assert.AreEqual(1, idCol.Labels.Count, "CRM Labels must not be lost.");
     }
 
     [Test]
     public void Sync_WithoutClean_DoesNotTouchColumnsAbsentFromDefinition()
     {
-        // Colonne "etrangere" présente dans le fichier mais pas dans la Definition.
+        // Column "etrangere" present in the file but not in the Definition.
         WriteTable("Contact", BuildTable("contact", "Contact", "contacts",
             new Column { LogicalName = "contactid", Name = "Id", Selected = true },
             new Column { LogicalName = "etrangere", Name = "Etrangere", Selected = true }));
@@ -154,11 +154,11 @@ public class TableFileSyncerTests
 
         var orphan = LoadTable("Contact").Columns.Single(c => c.LogicalName == "etrangere");
         Assert.IsTrue(orphan.Selected,
-            "Sans --clean, les colonnes hors Definition doivent rester telles quelles.");
+            "Without --clean, columns outside the Definition must be left as-is.");
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Mode --clean : colonnes orphelines dans une table gérée
+    // --clean mode: orphaned columns in a managed table
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
@@ -173,32 +173,32 @@ public class TableFileSyncerTests
         var table = LoadTable("Contact");
         Assert.IsTrue(table.Columns.Single(c => c.LogicalName == "contactid").Selected);
         Assert.IsFalse(table.Columns.Single(c => c.LogicalName == "obsolete").Selected,
-            "Avec --clean, les colonnes hors Definition doivent être de-sélectionnées.");
+            "With --clean, columns outside the Definition must be deselected.");
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Mode --clean : fichiers orphelins (sans Definition correspondante)
+    // --clean mode: orphaned files (without a matching Definition)
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
     public void Sync_Clean_DeletesOrphanedFile_WithoutLabels()
     {
-        // Fichier sans aucune colonne avec Labels → considéré comme entièrement
-        // produit par TableSyncHelper, donc supprimable.
+        // File without any column carrying Labels → considered entirely
+        // produced by TableSyncHelper, hence removable.
         WriteTable("Ghost", BuildTable("ghost", "Ghost", "ghosts",
             new Column { LogicalName = "ghostid", Name = "Id", Selected = true }));
 
         new TableFileSyncer(_tempDir).Sync(new[] { ContactDef() }, clean: true);
 
         Assert.IsFalse(File.Exists(Path.Combine(_tempDir, "Ghost.table")),
-            "Le .table orphelin sans Labels doit être supprimé.");
+            "The orphaned .table without Labels must be deleted.");
     }
 
     [Test]
     public void Sync_Clean_KeepsOrphanedFile_WithLabels()
     {
-        // Fichier ayant au moins une colonne avec Labels → données CRM réelles.
-        // Doit être conservé même si plus aucune Definition ne le référence.
+        // File with at least one column carrying Labels → real CRM data.
+        // Must be kept even if no Definition references it anymore.
         WriteTable("Legacy", BuildTable("legacy", "Legacy", "legacies",
             new Column
             {
@@ -211,7 +211,7 @@ public class TableFileSyncerTests
         new TableFileSyncer(_tempDir).Sync(new[] { ContactDef() }, clean: true);
 
         Assert.IsTrue(File.Exists(Path.Combine(_tempDir, "Legacy.table")),
-            "Un .table orphelin contenant des Labels CRM doit être conservé.");
+            "An orphaned .table containing CRM Labels must be kept.");
     }
 
     [Test]
@@ -237,7 +237,7 @@ public class TableFileSyncerTests
 
         var table = LoadTable("Legacy");
         Assert.IsTrue(table.Columns.All(c => !c.Selected),
-            "Toutes les colonnes d'un .table orphelin conservé doivent être de-sélectionnées.");
+            "All columns of a kept orphaned .table must be deselected.");
     }
 
     [Test]
@@ -249,13 +249,13 @@ public class TableFileSyncerTests
         new TableFileSyncer(_tempDir).Sync(new[] { ContactDef() }, clean: false);
 
         Assert.IsTrue(File.Exists(Path.Combine(_tempDir, "Ghost.table")),
-            "Sans --clean, les fichiers orphelins ne doivent pas être supprimés.");
+            "Without --clean, orphaned files must not be deleted.");
         Assert.IsTrue(LoadTable("Ghost").Columns.Single().Selected,
-            "Sans --clean, les colonnes orphelines ne doivent pas être de-sélectionnées.");
+            "Without --clean, orphaned columns must not be deselected.");
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Tables livrées par le framework (SystemUser, Role, ...)
+    // Tables shipped by the framework (SystemUser, Role, ...)
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
@@ -264,15 +264,15 @@ public class TableFileSyncerTests
         new TableFileSyncer(_tempDir).Sync(new[] { SystemUserDef() });
 
         Assert.IsFalse(File.Exists(Path.Combine(_tempDir, "SystemUser.table")),
-            "Une table livrée par le framework ne doit pas être recréée dans le projet : " +
-            "son .table fait déjà partie du package XrmFramework.");
+            "A table shipped by the framework must not be recreated in the project: " +
+            "its .table is already part of the XrmFramework package.");
     }
 
     [Test]
     public void Sync_UpdatesFrameworkTable_WhenProjectAlreadyTracksIt()
     {
-        // Le projet suit sa propre copie de SystemUser pour y ajouter ses colonnes :
-        // la table redevient alors une table comme les autres.
+        // The project tracks its own copy of SystemUser to add its own columns to it:
+        // the table then becomes a table like any other.
         WriteTable("SystemUser", BuildTable("systemuser", "SystemUser", "systemusers",
             new Column { LogicalName = "systemuserid", Name = "Id", IsLocked = true, Selected = false }));
 
@@ -280,30 +280,30 @@ public class TableFileSyncerTests
 
         var table = LoadTable("SystemUser");
         Assert.IsTrue(table.Columns.Single(c => c.LogicalName == "systemuserid").Selected,
-            "Une colonne référencée par le code doit être activée, même sur une table du framework.");
+            "A column referenced by the code must be activated, even on a framework table.");
         Assert.IsTrue(table.Columns.Any(c => c.LogicalName == "fullname" && c.Selected),
-            "Les colonnes manquantes doivent être ajoutées comme sur n'importe quelle table.");
+            "Missing columns must be added just like on any other table.");
     }
 
     [Test]
     public void Sync_PreservesLockedMarker_OnFrameworkColumn()
     {
-        // "Locked" identifie les colonnes apportées par le framework dans une table que le
-        // projet étend : la synchronisation ne doit pas l'effacer.
+        // "Locked" identifies columns brought in by the framework on a table that the
+        // project extends: synchronization must not erase it.
         WriteTable("SystemUser", BuildTable("systemuser", "SystemUser", "systemusers",
             new Column { LogicalName = "systemuserid", Name = "Id", IsLocked = true, Selected = false }));
 
         new TableFileSyncer(_tempDir).Sync(new[] { SystemUserDef() });
 
         Assert.IsTrue(LoadTable("SystemUser").Columns.Single(c => c.LogicalName == "systemuserid").IsLocked,
-            "Le marqueur Locked du framework doit survivre à la synchronisation.");
+            "The framework's Locked marker must survive synchronization.");
     }
 
     [Test]
     public void Sync_SkipsFrameworkTable_IdentifiedByLogicalName()
     {
-        // Definition portant un autre nom de classe mais visant l'entité du framework :
-        // c'est le nom logique qui tranche.
+        // Definition bearing a different class name but targeting the framework's entity:
+        // the logical name is what decides.
         var renamed = new DefinitionInfo
         {
             TableName = "Utilisateur",
@@ -323,14 +323,14 @@ public class TableFileSyncerTests
         new TableFileSyncer(_tempDir).Sync(new[] { SystemUserDef(), ContactDef() });
 
         Assert.IsTrue(File.Exists(Path.Combine(_tempDir, "Contact.table")),
-            "Le filtrage des tables du framework ne doit pas affecter celles du projet.");
+            "Filtering out framework tables must not affect the project's own tables.");
     }
 
     [Test]
     public void Sync_Clean_TreatsTrackedFrameworkTableLikeAnyOther()
     {
-        // Table du framework suivie par le projet : --clean y de-sélectionne les colonnes
-        // que plus aucune Definition ne référence, comme partout ailleurs.
+        // Framework table tracked by the project: --clean deselects columns that no
+        // Definition references anymore, just like everywhere else.
         WriteTable("SystemUser", BuildTable("systemuser", "SystemUser", "systemusers",
             new Column { LogicalName = "systemuserid", Name = "Id", Selected = true },
             new Column { LogicalName = "obsolete", Name = "Obsolete", Selected = true }));
@@ -359,8 +359,8 @@ public class TableFileSyncerTests
     };
 
     /// <summary>
-    /// Definition d'une table livrée par le framework : elle apparaît dans le DLL du projet
-    /// consommateur parce que le .table du package XrmFramework y est compilé.
+    /// Definition of a table shipped by the framework: it appears in the consuming project's
+    /// DLL because the XrmFramework package's .table is compiled into it.
     /// </summary>
     private static DefinitionInfo SystemUserDef() => new()
     {

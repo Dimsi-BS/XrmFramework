@@ -2,17 +2,17 @@
 
   <PropertyGroup>
     <!--
-      Projet Plugins : contient les plugins et workflows Dataverse.
-      net462 est requis pour l'exécution des plugins dans la sandbox Dataverse.
+      Plugins project: contains the Dataverse plugins and workflows.
+      net462 is required for running plugins in the Dataverse sandbox.
     -->
     <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <!--
-      Référence directe au projet XrmFramework.Plugin (au lieu du package NuGet).
-      Permet le débogage pas-à-pas dans le code du framework.
-      XrmFramework.Plugin inclut déjà les sources de XrmFramework en interne.
+      Direct reference to the XrmFramework.Plugin project (instead of the NuGet package).
+      Allows step-by-step debugging into the framework code.
+      XrmFramework.Plugin already includes the XrmFramework sources internally.
     -->
     <ProjectReference Include="../../src/XrmFramework.Plugin/XrmFramework.Plugin.csproj" />
   </ItemGroup>

@@ -11,36 +11,36 @@ using XrmFramework.RemoteDebugger.Common.ConsoleUI;
 namespace XrmFramework.RemoteDebugger.Client.ManagerHub;
 
 /// <summary>
-/// Transmet les événements d'exécution du débogueur distant vers le Manager
-/// via une connexion SignalR persistante sur le <c>DesktopHub</c>.
+/// Forwards the remote debugger's execution events to the Manager
+/// via a persistent SignalR connection on the <c>DesktopHub</c>.
 /// </summary>
 /// <remarks>
-/// La connexion est établie de façon identique à l'application Desktop :
-/// même URL (<c>ApiUrl/desktopHub</c>), même flux MSAL (silent → interactive),
-/// même scope <c>desktop-connect</c>.
-/// Si la connexion est absente ou échoue, les méthodes sont des no-op
-/// silencieux — le débogueur local continue de fonctionner normalement.
+/// The connection is established identically to the Desktop application:
+/// same URL (<c>ApiUrl/desktopHub</c>), same MSAL flow (silent → interactive),
+/// same <c>desktop-connect</c> scope.
+/// If the connection is absent or fails, the methods are silent
+/// no-ops — the local debugger keeps working normally.
 /// </remarks>
 internal sealed class ManagerHubForwarder : IDisposable
 {
     private readonly HubConnection _connection;
     private readonly Action<string> _log;
 
-    // Suivi des arbres parent/enfant : CorrelationId → (Depth → ExecutionId en cours)
+    // Parent/child tree tracking: CorrelationId → (Depth → current ExecutionId)
     private readonly Dictionary<Guid, Dictionary<int, int>> _correlationTree = new();
     private readonly object _treeLock = new();
 
-    // ── Constructeur ────────────────────────────────────────────────────────
+    // ── Constructor ───────────────────────────────────────────────────────
 
     public ManagerHubForwarder(ManagerHubSettings settings, Action<string> log = null)
     {
         _log = log ?? Console.WriteLine;
 
-        // Même flux d'authentification que l'application Desktop :
-        // AcquireTokenSilent (cache) → AcquireTokenInteractive si nécessaire.
+        // Same authentication flow as the Desktop application:
+        // AcquireTokenSilent (cache) → AcquireTokenInteractive if needed.
         var authService = new ManagerAuthService(settings, _log);
 
-        // URL construite de la même façon que DesktopHubClient :
+        // URL built the same way as DesktopHubClient:
         //   new Uri(new Uri(hubOptions.ApiUrl), "/desktopHub")
         var hubUrl = new Uri(new Uri(settings.ApiUrl), "/desktopHub");
 
@@ -54,49 +54,49 @@ internal sealed class ManagerHubForwarder : IDisposable
 
         _connection.Closed += ex =>
         {
-            _log($"[ManagerHub] Connexion fermée{(ex != null ? $" : {ex.Message}" : "")}");
+            _log($"[ManagerHub] Connection closed{(ex != null ? $": {ex.Message}" : "")}");
             return Task.CompletedTask;
         };
 
         _connection.Reconnecting += ex =>
         {
-            _log($"[ManagerHub] Reconnexion en cours…{(ex != null ? $" ({ex.Message})" : "")}");
+            _log($"[ManagerHub] Reconnecting…{(ex != null ? $" ({ex.Message})" : "")}");
             return Task.CompletedTask;
         };
 
         _connection.Reconnected += _ =>
         {
-            _log("[ManagerHub] Reconnecté au Manager Plugin Monitor.");
+            _log("[ManagerHub] Reconnected to the Manager Plugin Monitor.");
             return Task.CompletedTask;
         };
     }
 
-    // ── Connexion ───────────────────────────────────────────────────────────
+    // ── Connection ────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Établit la connexion vers le DesktopHub du Manager.
-    /// Un échec n'est pas bloquant : un message est loggé et les envois suivants
-    /// seront ignorés silencieusement.
+    /// Establishes the connection to the Manager's DesktopHub.
+    /// A failure is not blocking: a message is logged and subsequent sends
+    /// will be silently ignored.
     /// </summary>
     public async Task ConnectAsync()
     {
         try
         {
             await _connection.StartAsync();
-            _log("[ManagerHub] Connecté au Manager — les exécutions seront visibles dans Plugin Monitor.");
+            _log("[ManagerHub] Connected to the Manager — executions will be visible in Plugin Monitor.");
         }
         catch (Exception ex)
         {
-            _log($"[ManagerHub] Connexion échouée ({ex.Message}). Les événements ne seront pas transmis.");
+            _log($"[ManagerHub] Connection failed ({ex.Message}). Events will not be forwarded.");
         }
     }
 
-    /// <summary>Indique si la connexion SignalR est active.</summary>
+    /// <summary>Indicates whether the SignalR connection is active.</summary>
     public bool IsConnected => _connection.State == HubConnectionState.Connected;
 
-    // ── Événements de cycle de vie ──────────────────────────────────────────
+    // ── Lifecycle events ──────────────────────────────────────────────────
 
-    /// <summary>Transmet le démarrage d'une exécution de plugin.</summary>
+    /// <summary>Forwards the start of a plugin execution.</summary>
     public async Task OnExecutionStartedAsync(ExecutionRecord record)
     {
         if (!IsConnected) return;
@@ -121,11 +121,11 @@ internal sealed class ManagerHubForwarder : IDisposable
         }
         catch (Exception ex)
         {
-            _log($"[ManagerHub] Erreur ForwardPluginExecutionStarted #{record.Id} : {ex.Message}");
+            _log($"[ManagerHub] Error ForwardPluginExecutionStarted #{record.Id}: {ex.Message}");
         }
     }
 
-    /// <summary>Transmet la fin réussie d'une exécution.</summary>
+    /// <summary>Forwards the successful completion of an execution.</summary>
     public async Task OnExecutionCompletedAsync(ExecutionRecord record)
     {
         if (!IsConnected) return;
@@ -143,11 +143,11 @@ internal sealed class ManagerHubForwarder : IDisposable
         }
         catch (Exception ex)
         {
-            _log($"[ManagerHub] Erreur ForwardPluginExecutionCompleted #{record.Id} : {ex.Message}");
+            _log($"[ManagerHub] Error ForwardPluginExecutionCompleted #{record.Id}: {ex.Message}");
         }
     }
 
-    /// <summary>Transmet l'échec d'une exécution.</summary>
+    /// <summary>Forwards the failure of an execution.</summary>
     public async Task OnExecutionFailedAsync(ExecutionRecord record, Exception error)
     {
         if (!IsConnected) return;
@@ -160,16 +160,16 @@ internal sealed class ManagerHubForwarder : IDisposable
             {
                 Id           = record.Id,
                 DurationMs   = (long)(record.Duration?.TotalMilliseconds ?? 0),
-                ErrorMessage = error?.Message ?? "Erreur inconnue"
+                ErrorMessage = error?.Message ?? "Unknown error"
             });
         }
         catch (Exception ex)
         {
-            _log($"[ManagerHub] Erreur ForwardPluginExecutionFailed #{record.Id} : {ex.Message}");
+            _log($"[ManagerHub] Error ForwardPluginExecutionFailed #{record.Id}: {ex.Message}");
         }
     }
 
-    /// <summary>Transmet le démarrage d'un appel OrgService.</summary>
+    /// <summary>Forwards the start of an OrgService call.</summary>
     public async Task OnOrgServiceCallStartedAsync(ExecutionRecord record, OrgServiceCallRecord call)
     {
         if (!IsConnected) return;
@@ -188,11 +188,11 @@ internal sealed class ManagerHubForwarder : IDisposable
         }
         catch (Exception ex)
         {
-            _log($"[ManagerHub] Erreur ForwardOrgServiceCallStarted #{record.Id}/{call.Index} : {ex.Message}");
+            _log($"[ManagerHub] Error ForwardOrgServiceCallStarted #{record.Id}/{call.Index}: {ex.Message}");
         }
     }
 
-    /// <summary>Transmet la fin d'un appel OrgService (succès ou échec).</summary>
+    /// <summary>Forwards the end of an OrgService call (success or failure).</summary>
     public async Task OnOrgServiceCallCompletedAsync(ExecutionRecord record, OrgServiceCallRecord call)
     {
         if (!IsConnected) return;
@@ -212,14 +212,14 @@ internal sealed class ManagerHubForwarder : IDisposable
         }
         catch (Exception ex)
         {
-            _log($"[ManagerHub] Erreur ForwardOrgServiceCallCompleted #{record.Id}/{call.Index} : {ex.Message}");
+            _log($"[ManagerHub] Error ForwardOrgServiceCallCompleted #{record.Id}/{call.Index}: {ex.Message}");
         }
     }
 
-    // ── Suivi parent/enfant ─────────────────────────────────────────────────
+    // ── Parent/child tracking ────────────────────────────────────────────────
     //
-    // Même CorrelationId → table Depth → ExecutionId courant.
-    // Le parent d'une exécution à profondeur N est l'entrée à profondeur N-1.
+    // Same CorrelationId → Depth table → current ExecutionId.
+    // The parent of an execution at depth N is the entry at depth N-1.
 
     private int? ResolveParentAndRegister(ExecutionRecord record)
     {
@@ -257,7 +257,7 @@ internal sealed class ManagerHubForwarder : IDisposable
         }
     }
 
-    // ── IDisposable ─────────────────────────────────────────────────────────
+    // ── IDisposable ───────────────────────────────────────────────────────
 
     public void Dispose()
     {
@@ -266,7 +266,7 @@ internal sealed class ManagerHubForwarder : IDisposable
             if (_connection.State != HubConnectionState.Disconnected)
                 _connection.StopAsync().GetAwaiter().GetResult();
         }
-        catch { /* ignorer les erreurs à la fermeture */ }
+        catch { /* ignore errors on shutdown */ }
         finally
         {
             _connection.DisposeAsync().GetAwaiter().GetResult();

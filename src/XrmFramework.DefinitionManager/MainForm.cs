@@ -30,12 +30,12 @@ namespace XrmFramework.DefinitionManager
         private readonly CoreProjectAttribute _coreProject;
 
         /// <summary>
-        /// Ouvre le DefinitionManager sur le projet Core de la solution.
+        /// Opens the DefinitionManager on the solution's Core project.
         /// </summary>
         /// <param name="coreProjectName">
-        /// Nom de l'assembly du projet Core. Laissé vide, on utilise celui porté par le
-        /// <see cref="CoreProjectAttribute"/> injecté par les props du package (propriété MSBuild
-        /// <c>XrmFrameworkCoreProjectName</c>).
+        /// Name of the Core project's assembly. If left empty, the one carried by the
+        /// <see cref="CoreProjectAttribute"/> injected by the package's props (MSBuild property
+        /// <c>XrmFrameworkCoreProjectName</c>) is used.
         /// </param>
         [MethodImpl(MethodImplOptions.NoInlining)]
         public MainForm(string coreProjectName = "")
@@ -46,7 +46,7 @@ namespace XrmFramework.DefinitionManager
             Initialize();
         }
 
-        [Obsolete("Utilisez MainForm(string). Le type n'a jamais servi que d'ancre pour retrouver l'assembly du projet Core, et typeof(IService) rend la compilation ambiguë (CS0433) dès que XrmFramework.DeployUtils est également référencé.")]
+        [Obsolete("Use MainForm(string). The type only ever served as an anchor for locating the Core project's assembly, and typeof(IService) makes compilation ambiguous (CS0433) as soon as XrmFramework.DeployUtils is also referenced.")]
         [MethodImpl(MethodImplOptions.NoInlining)]
         public MainForm(Type coreProjectType, string coreProjectName = "")
         {
@@ -79,8 +79,8 @@ namespace XrmFramework.DefinitionManager
             if (string.IsNullOrWhiteSpace(assemblyName))
             {
                 throw new InvalidOperationException(
-                    "Impossible de déterminer le projet Core : aucun nom passé au constructeur et aucun CoreProjectAttribute sur l'assembly appelante. "
-                    + "Vérifiez que la propriété MSBuild XrmFrameworkCoreProjectName est définie dans le Directory.Build.props de la solution.");
+                    "Unable to determine the Core project: no name was passed to the constructor and no CoreProjectAttribute was found on the calling assembly. "
+                    + "Check that the MSBuild property XrmFrameworkCoreProjectName is defined in the solution's Directory.Build.props.");
             }
 
             var loaded = AppDomain.CurrentDomain.GetAssemblies()
@@ -98,8 +98,8 @@ namespace XrmFramework.DefinitionManager
             catch (Exception ex)
             {
                 throw new InvalidOperationException(
-                    $"L'assembly du projet Core « {assemblyName} » est introuvable. "
-                    + "Vérifiez que le projet DefinitionManager la référence bien et qu'elle est copiée dans le répertoire de sortie.",
+                    $"The Core project assembly \"{assemblyName}\" could not be found. "
+                    + "Check that the DefinitionManager project references it and that it is copied to the output directory.",
                     ex);
             }
         }

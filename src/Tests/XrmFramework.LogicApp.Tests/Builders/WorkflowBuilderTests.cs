@@ -10,13 +10,13 @@ using XrmFramework.LogicApp.Models.Triggers;
 namespace XrmFramework.LogicApp.Tests.Builders;
 
 /// <summary>
-/// Tests unitaires pour <see cref="WorkflowBuilder"/>.
+/// Unit tests for <see cref="WorkflowBuilder"/>.
 /// </summary>
 [TestFixture]
 public class WorkflowBuilderTests
 {
     // ──────────────────────────────────────────────
-    //  Build — état initial
+    //  Build — initial state
     // ──────────────────────────────────────────────
 
     [Test]

@@ -68,35 +68,35 @@ public partial class RegistrationHelper
         bool isOnPremise,
         string[] args)
     {
-        // ── 1. Parse les args pour extraire les options de déploiement ─────────
+        // ── 1. Parse the args to extract the deployment options ─────────
         var noPrompt = false;
 
         Parser.Default
             .ParseArguments<DeployCommandOptions>(args)
             .WithParsed(opts => noPrompt = opts.NoPrompt)
-            .WithNotParsed(_ => { /* options inconnues ignorées silencieusement */ });
+            .WithNotParsed(_ => { /* unknown options silently ignored */ });
 
-        // L'assembly est résolue à la compilation via le type racine fourni.
+        // The assembly is resolved at compile time via the provided root type.
         var exitCode = RegisterPluginsAndWorkflows(typeof(TPlugin).Assembly, projectName, isOnPremise, noPrompt);
         if (exitCode != 0)
             Environment.Exit(exitCode);
     }
 
     /// <summary>
-    ///     Enregistre l'assembly <paramref name="localDll" /> (plugins, custom APIs, workflows)
-    ///     dans la solution CRM <paramref name="projectName" />.
+    ///     Registers the <paramref name="localDll" /> assembly (plugins, custom APIs, workflows)
+    ///     into the CRM solution <paramref name="projectName" />.
     /// </summary>
     /// <param name="localDll">
-    ///     Assembly à déployer. Doit contenir les types de base XrmFramework (compilés depuis
-    ///     le package source <c>XrmFramework.Plugin</c>) et apparaître dans <c>xrmFramework.config</c>.
+    ///     Assembly to deploy. Must contain the XrmFramework base types (compiled from
+    ///     the <c>XrmFramework.Plugin</c> source package) and appear in <c>xrmFramework.config</c>.
     /// </param>
-    /// <param name="projectName">Nom du projet/solution cible (ex. <c>"MyProject.Plugins"</c>).</param>
-    /// <param name="isOnPremise"><see langword="true" /> pour On-Premises ; sinon Dataverse Online.</param>
-    /// <param name="noPrompt">Mode silencieux : ignore la confirmation interactive (CI/CD).</param>
-    /// <returns>Code de sortie : <c>0</c> succès (ou annulation au prompt), <c>3</c> erreur inattendue.</returns>
+    /// <param name="projectName">Name of the target project/solution (e.g. <c>"MyProject.Plugins"</c>).</param>
+    /// <param name="isOnPremise"><see langword="true" /> for On-Premises; otherwise Dataverse Online.</param>
+    /// <param name="noPrompt">Silent mode: skips the interactive confirmation (CI/CD).</param>
+    /// <returns>Exit code: <c>0</c> success (or cancellation at the prompt), <c>3</c> unexpected error.</returns>
     /// <summary>
-    ///     Surcharge de compatibilité : déduit le chemin de l'assembly chargée (<c>localDll.Location</c>)
-    ///     et délègue à <see cref="RegisterPluginsAndWorkflows(string,string,bool,bool)" />.
+    ///     Compatibility overload: infers the loaded assembly's path (<c>localDll.Location</c>)
+    ///     and delegates to <see cref="RegisterPluginsAndWorkflows(string,string,bool,bool)" />.
     /// </summary>
     public static int RegisterPluginsAndWorkflows(
         Assembly localDll,
@@ -119,7 +119,7 @@ public partial class RegistrationHelper
                 NoPrompt = noPrompt
             };
 
-            // ── Initialise le conteneur DI ─────────────────────────────────────
+            // ── Initialize the DI container ─────────────────────────────────────
             var serviceCollection = DeployServiceCollectionFactory
                 .CreateServiceCollection(projectName, deployOptions);
 
@@ -127,20 +127,20 @@ public partial class RegistrationHelper
 
             var deploySettings = serviceProvider.GetRequiredService<DeploySettings>();
 
-            // ── Affiche le résumé de connexion ─────────────────────────────────
+            // ── Display the connection summary ─────────────────────────────────
             AnsiConsole.WriteLine($"Assembly  : {Path.GetFileNameWithoutExtension(dllPath)}");
-            AnsiConsole.WriteLine($"Cible     : {deploySettings.Url}");
+            AnsiConsole.WriteLine($"Target    : {deploySettings.Url}");
             AnsiConsole.WriteLine($"ClientId  : {deploySettings.ClientId}");
-            AnsiConsole.WriteLine($"OnPremise : {(isOnPremise ? "oui" : "non")}");
+            AnsiConsole.WriteLine($"OnPremise : {(isOnPremise ? "yes" : "no")}");
 
-            // ── Confirmation interactive (sauf mode silencieux) ────────────────
-            if (!deployOptions.NoPrompt && !AnsiConsole.Confirm("Continuer le déploiement ?"))
+            // ── Interactive confirmation (unless silent mode) ────────────────
+            if (!deployOptions.NoPrompt && !AnsiConsole.Confirm("Continue the deployment?"))
             {
                 return 0;
             }
 
-            // ── Connexion et déploiement ───────────────────────────────────────
-            AnsiConsole.WriteLine("Connexion au CRM...");
+            // ── Connection and deployment ───────────────────────────────────────
+            AnsiConsole.WriteLine("Connecting to CRM...");
 
             var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
             solutionContext.InitSolutionContext();
@@ -165,8 +165,8 @@ public partial class RegistrationHelper
     {
         _consoleService.SetStatus("Fetching Local Assembly...");
 
-        // L'inventaire local est obtenu en EXÉCUTANT le code d'enregistrement (constructeurs /
-        // AddSteps) via XrmFramework.PluginInventory : in-process net462, exe net462 hors-process net8.
+        // The local inventory is obtained by EXECUTING the registration code (constructors /
+        // AddSteps) via XrmFramework.PluginInventory: in-process net462, out-of-process net462 exe on net8.
         var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(dllPath);
 
         _consoleService.SetStatus("Fetching Remote Assembly...");

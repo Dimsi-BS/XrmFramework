@@ -11,16 +11,16 @@ namespace XrmFramework
     {
         public LogServiceMethod LogServiceMethod => Logger.LogWithMethodName;
 
-        // Services exposés uniquement par le pipeline d'exécution d'un plugin (via IServiceProvider).
-        // Un ServiceContextBase est construit hors pipeline (à partir d'un IOrganizationService) :
-        // ces services n'y sont pas disponibles.
+        // Services exposed only by a plugin's execution pipeline (via IServiceProvider).
+        // A ServiceContextBase is built outside the pipeline (from an IOrganizationService):
+        // these services are not available there.
         public IServiceEndpointNotificationService NotificationService =>
             throw new NotSupportedException(
-                "NotificationService n'est disponible que dans le pipeline d'exécution d'un plugin, pas dans un ServiceContextBase.");
+                "NotificationService is only available within a plugin's execution pipeline, not in a ServiceContextBase.");
 
         public IManagedIdentityService ManagedIdentityService =>
             throw new NotSupportedException(
-                "ManagedIdentityService n'est disponible que dans le pipeline d'exécution d'un plugin, pas dans un ServiceContextBase.");
+                "ManagedIdentityService is only available within a plugin's execution pipeline, not in a ServiceContextBase.");
 
         public ServiceContextBase(IOrganizationService service)
         {

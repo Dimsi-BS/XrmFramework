@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Outil d'inventaire net462, lancé hors-process par le CLI net8 (commande deploy plugins).
-    Il charge l'assembly plugin, EXÉCUTE les constructeurs (AddSteps) et reflète les types pour
-    produire le manifeste JSON (plugins/steps/workflows/custom APIs) sur la sortie standard.
+    net462 inventory tool, launched out-of-process by the net8 CLI (deploy plugins command).
+    It loads the plugin assembly, EXECUTES the constructors (AddSteps) and reflects over the types
+    to produce the JSON manifest (plugins/steps/workflows/custom APIs) on standard output.
 
-    net462 obligatoire : instancier un plugin exécute du code qui dépend de Microsoft.Xrm.Sdk
-    (net462) — impossible depuis un process net8. Volontairement autonome (aucune référence au
-    reste de la solution) pour rester packageable dans le tool net8 avec une closure minimale.
+    net462 is mandatory: instantiating a plugin executes code that depends on Microsoft.Xrm.Sdk
+    (net462) — impossible from a net8 process. Deliberately self-contained (no reference to the
+    rest of the solution) so it stays packageable in the net8 tool with a minimal closure.
   -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -18,7 +18,7 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
 
-    <!-- Embarqué dans le package du CLI, pas publié comme package autonome. -->
+    <!-- Embedded in the CLI package, not published as a standalone package. -->
     <IsPackable>false</IsPackable>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
 

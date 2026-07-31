@@ -14,11 +14,11 @@ using XrmFramework.DeployUtils.Tests.TableSync.Fixtures;
 namespace XrmFramework.DeployUtils.Tests.TableSync;
 
 /// <summary>
-/// <see cref="FrameworkTableCatalog" /> fige la liste des tables livrées par le framework parce
-/// qu'elle ne peut pas être déduite de l'assembly à l'exécution. Ces tests sont le garde-fou de
-/// cette duplication : ajouter, retirer ou renommer un <c>.table</c> dans
-/// <c>src/XrmFramework/Definitions</c> sans mettre l'inventaire à jour casse le build, plutôt que
-/// de laisser <c>tables sync</c> redéposer silencieusement un doublon chez les consommateurs.
+/// <see cref="FrameworkTableCatalog" /> pins down the list of tables shipped by the framework
+/// because it cannot be inferred from the assembly at runtime. These tests are the safety net
+/// for that duplication: adding, removing, or renaming a <c>.table</c> in
+/// <c>src/XrmFramework/Definitions</c> without updating the inventory breaks the build, rather
+/// than letting <c>tables sync</c> silently redeposit a duplicate at consumers' sites.
 /// </summary>
 [TestFixture]
 public class FrameworkTableCatalogTests
@@ -28,7 +28,7 @@ public class FrameworkTableCatalogTests
                     .Select(path => JsonConvert.DeserializeObject<Table>(File.ReadAllText(path))!)
                     .ToList();
 
-    /// <summary>Rend deux jeux de noms comparables — et lisibles en cas d'échec.</summary>
+    /// <summary>Makes two sets of names comparable — and readable on failure.</summary>
     private static string Normalize(IEnumerable<string> names)
         => string.Join(", ", names.OrderBy(n => n, StringComparer.OrdinalIgnoreCase));
 
@@ -38,7 +38,7 @@ public class FrameworkTableCatalogTests
         Assert.AreEqual(
             Normalize(ShippedTables().Select(t => t.Name)),
             Normalize(FrameworkTableCatalog.TableNames),
-            "L'inventaire des noms de table doit correspondre aux .table livrés par le framework.");
+            "The table name inventory must match the .table files shipped by the framework.");
     }
 
     [Test]
@@ -47,18 +47,18 @@ public class FrameworkTableCatalogTests
         Assert.AreEqual(
             Normalize(ShippedTables().Select(t => t.LogicalName)),
             Normalize(FrameworkTableCatalog.LogicalNames),
-            "L'inventaire des noms logiques doit correspondre aux .table livrés par le framework.");
+            "The logical name inventory must match the .table files shipped by the framework.");
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Reconnaissance
+    // Recognition
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
     public void IsFrameworkTable_MatchesOnTableName_IgnoringCase()
     {
-        // Le fichier livré s'appelle Systemuser.table alors que la table se nomme SystemUser :
-        // la casse ne doit jamais faire la différence.
+        // The shipped file is called Systemuser.table while the table is named SystemUser:
+        // case must never make a difference.
         Assert.IsTrue(FrameworkTableCatalog.IsFrameworkTable("Systemuser", logicalName: null));
         Assert.IsTrue(FrameworkTableCatalog.IsFrameworkTable("SystemUser", logicalName: null));
     }
@@ -79,8 +79,8 @@ public class FrameworkTableCatalogTests
     [Test]
     public void IsFrameworkTable_IgnoresDeployUtilsOwnTables()
     {
-        // Ces .table vivent dans XrmFramework.DeployUtils : ils ne sont pas livrés aux projets
-        // consommateurs, qui doivent donc pouvoir les suivre eux-mêmes.
+        // These .table files live in XrmFramework.DeployUtils: they are not shipped to
+        // consuming projects, which must therefore be able to track them on their own.
         Assert.IsFalse(FrameworkTableCatalog.IsFrameworkTable("WebResource", "webresource"));
         Assert.IsFalse(FrameworkTableCatalog.IsFrameworkTable("Publisher", "publisher"));
     }

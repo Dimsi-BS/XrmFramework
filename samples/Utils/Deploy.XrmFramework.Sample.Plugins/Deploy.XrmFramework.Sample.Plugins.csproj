@@ -2,22 +2,22 @@
 
   <PropertyGroup>
     <!--
-      Outil de déploiement des plugins vers Dataverse.
-      net462 est requis pour la compatibilité avec les SDK Dynamics.
+      Tool for deploying plugins to Dataverse.
+      net462 is required for compatibility with the Dynamics SDKs.
     -->
     <OutputType>Exe</OutputType>
     <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Référence au projet Plugins de cet exemple (pour détecter les plugins à déployer) -->
+    <!-- Reference to this sample's Plugins project (to detect the plugins to deploy) -->
     <ProjectReference Include="$(RootFolder)/XrmFramework.Sample.Plugins/XrmFramework.Sample.Plugins.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <!--
-      Référence directe au projet XrmFramework.DeployUtils (au lieu du package NuGet).
-      Permet le débogage pas-à-pas dans le code de déploiement du framework.
+      Direct reference to the XrmFramework.DeployUtils project (instead of the NuGet package).
+      Allows step-by-step debugging into the framework's deployment code.
     -->
     <ProjectReference Include="../../../src/XrmFramework.DeployUtils/XrmFramework.DeployUtils.csproj" />
   </ItemGroup>

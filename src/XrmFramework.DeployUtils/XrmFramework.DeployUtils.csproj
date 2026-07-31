@@ -45,14 +45,14 @@
     </ItemGroup>
 
     <!--
-      Couche runtime du framework (services, contexte d'exécution, journalisation) :
-      elle n'a de sens que dans une assembly de plugin. Aucun code de DeployUtils ne
-      l'utilise — les générateurs ne manipulent « IService » / « IServiceContext » que
-      sous forme de chaînes, pour émettre du code chez le consommateur.
+      Framework runtime layer (services, execution context, logging):
+      it only makes sense within a plugin assembly. No DeployUtils code
+      uses it — the generators only handle "IService" / "IServiceContext" as
+      strings, in order to emit code on the consumer side.
 
-      L'embarquer ici republiait XrmFramework.IService et une centaine d'autres types du
-      namespace XrmFramework déjà compilés dans le projet Core du consommateur (livré en
-      contentFiles), d'où des CS0433 dans les projets qui référencent les deux.
+      Bundling it here re-published XrmFramework.IService and about a hundred other types
+      from the XrmFramework namespace already compiled in the consumer's Core project (delivered
+      as contentFiles), causing CS0433 errors in projects that reference both.
     -->
     <ItemGroup>
         <Compile Remove="..\XrmFramework\Service\**\*.cs" />
@@ -66,8 +66,8 @@
         <Compile Include="..\XrmFramework.Workflows\**\*.cs" Link="_Imports\XrmFramework.Workflows\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Workflows\EnableRuleProvider\**\*.cs;..\XrmFramework.Workflows\**\CustomWorkflowActivity*.cs;..\XrmFramework.Workflows\obj\**\*.cs;..\XrmFramework.Workflows\RemoteDebugger\RemoteDebugger.Remote\*.cs" />
 
         <!--
-          Idem côté workflows : contexte d'exécution, il dérive de la couche retirée
-          ci-dessus. Le Remove doit suivre l'Include, MSBuild évalue dans l'ordre du fichier.
+          Same on the workflows side: execution context derives from the layer removed
+          above. The Remove must follow the Include, since MSBuild evaluates in file order.
         -->
         <Compile Remove="..\XrmFramework.Workflows\Context\**\*.cs" />
         <Compile Remove="..\XrmFramework.Workflows\RemoteDebugger\LocalWorkflowContext.cs" />
@@ -85,9 +85,9 @@
     </ItemGroup>
 
   <!--
-    Inventaire in-process (net462 uniquement) : on lie le moteur partagé de
-    XrmFramework.PluginInventory. Sur net8/net10 l'inventaire passe par l'exe net462 hors-process
-    (instancier un plugin net462 est impossible depuis net8).
+    In-process inventory (net462 only): links the shared engine from
+    XrmFramework.PluginInventory. On net8/net10 the inventory goes through the out-of-process net462 exe
+    (instantiating a net462 plugin is not possible from net8).
   -->
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <Compile Include="..\XrmFramework.PluginInventory\PluginInventoryEngine.cs" Link="_Imports\PluginInventory\PluginInventoryEngine.cs" />
@@ -95,9 +95,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <!-- XrmTooling 9.1.1.45 requis sur net462 ; version centrale = 9.1.1.65 (OnPremise) -->
+    <!-- XrmTooling 9.1.1.45 required on net462; central version = 9.1.1.65 (OnPremise) -->
     <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" VersionOverride="9.1.1.45" />
-    <!-- DI 3.1.8 requis sur net462 ; version centrale = 10.0.7 -->
+    <!-- DI 3.1.8 required on net462; central version = 10.0.7 -->
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" VersionOverride="3.1.8" />
 
     <Reference Include="System.Configuration" />
@@ -152,9 +152,9 @@
     </ItemGroup>
 
   <!--
-    La synchronisation des fichiers .table est désormais distribuée comme .NET tool
-    autonome (projet XrmFramework.Cli, commande « xrmframework tables sync »).
-    La logique reste hébergée ici (TableSyncHelper / DefinitionAnalyzer / TableFileSyncer).
+    .table file synchronization is now distributed as a standalone .NET tool
+    (XrmFramework.Cli project, "xrmframework tables sync" command).
+    The logic still lives here (TableSyncHelper / DefinitionAnalyzer / TableFileSyncer).
   -->
 
 </Project>

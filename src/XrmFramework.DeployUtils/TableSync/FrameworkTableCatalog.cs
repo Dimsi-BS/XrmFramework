@@ -8,34 +8,34 @@ using System.Linq;
 namespace XrmFramework.DeployUtils.TableSync
 {
     /// <summary>
-    /// Inventaire des tables décrites par les fichiers <c>.table</c> livrés avec le package
-    /// XrmFramework (<c>src/XrmFramework/Definitions</c>).
+    /// Inventory of the tables described by the <c>.table</c> files shipped with the
+    /// XrmFramework package (<c>src/XrmFramework/Definitions</c>).
     ///
-    /// Ces fichiers sont ajoutés en <c>AdditionalFiles</c> au projet consommateur : le
-    /// générateur Roslyn y produit <c>SystemUserDefinition</c>, <c>RoleDefinition</c>, ... qui se
-    /// retrouvent donc dans l'assembly analysé par <c>tables sync</c>. Sans ce filtre, la commande
-    /// déposerait dans le répertoire <c>Definitions</c> du projet des doublons
-    /// (<c>SystemUser.table</c>, <c>Role.table</c>, ...) des fichiers déjà fournis par le framework.
+    /// These files are added as <c>AdditionalFiles</c> to the consumer project: the
+    /// Roslyn generator produces <c>SystemUserDefinition</c>, <c>RoleDefinition</c>, ... from them, which
+    /// therefore end up in the assembly analyzed by <c>tables sync</c>. Without this filter, the command
+    /// would drop duplicates in the project's <c>Definitions</c> directory
+    /// (<c>SystemUser.table</c>, <c>Role.table</c>, ...) of files already provided by the framework.
     ///
-    /// Le filtre ne porte que sur la <b>création</b> : un projet peut légitimement suivre sa propre
-    /// copie d'une table du framework pour y déclarer des colonnes supplémentaires — celles du
-    /// framework y étant marquées <c>"Locked": true</c>. Dès que le fichier existe,
-    /// <see cref="TableFileSyncer"/> le met à jour comme n'importe quel autre.
+    /// The filter only applies to <b>creation</b>: a project may legitimately track its own
+    /// copy of a framework table in order to declare additional columns there — the
+    /// framework's columns being marked <c>"Locked": true</c>. As soon as the file exists,
+    /// <see cref="TableFileSyncer"/> updates it like any other.
     ///
-    /// La liste est figée ici plutôt que déduite par réflexion de l'assembly courant :
-    /// XrmFramework.DeployUtils compile aussi ses propres <c>.table</c> (Publisher,
-    /// SolutionComponent, WebResource, Pluginpackage) qui, eux, ne sont pas livrés aux projets
-    /// consommateurs et doivent donc rester synchronisables.
-    /// <c>FrameworkTableCatalogTests</c> vérifie que cet inventaire correspond exactement aux
-    /// fichiers présents dans le dépôt.
+    /// The list is hard-coded here rather than deduced by reflection over the current assembly:
+    /// XrmFramework.DeployUtils also compiles its own <c>.table</c> files (Publisher,
+    /// SolutionComponent, WebResource, Pluginpackage) which are not shipped to consumer
+    /// projects and must therefore remain synchronizable.
+    /// <c>FrameworkTableCatalogTests</c> verifies that this inventory exactly matches the
+    /// files present in the repository.
     /// </summary>
     public static class FrameworkTableCatalog
     {
         /// <summary>
-        /// Couple (nom de table, nom logique) d'un <c>.table</c> livré par le framework.
-        /// Le nom de table est celui du JSON (<c>Name</c>), pas celui du fichier : c'est lui qui
-        /// donne son nom à la classe générée, donc au <see cref="DefinitionInfo.TableName"/> vu
-        /// par <c>tables sync</c> (<c>Systemuser.table</c> déclare ainsi <c>SystemUser</c>).
+        /// Pair (table name, logical name) of a <c>.table</c> shipped by the framework.
+        /// The table name is the one from the JSON (<c>Name</c>), not the file name: it is the one that
+        /// gives its name to the generated class, and therefore to the <see cref="DefinitionInfo.TableName"/> seen
+        /// by <c>tables sync</c> (<c>Systemuser.table</c> thus declares <c>SystemUser</c>).
         /// </summary>
         private sealed class FrameworkTable
         {
@@ -81,24 +81,24 @@ namespace XrmFramework.DeployUtils.TableSync
         private static readonly HashSet<string> LogicalNamesSet =
             new HashSet<string>(ShippedTables.Select(t => t.LogicalName), StringComparer.OrdinalIgnoreCase);
 
-        /// <summary>Noms de table (<c>Name</c>) des <c>.table</c> livrés par le framework.</summary>
+        /// <summary>Table names (<c>Name</c>) of the <c>.table</c> files shipped by the framework.</summary>
         public static IReadOnlyCollection<string> TableNames => Names;
 
-        /// <summary>Noms logiques (<c>LogName</c>) des <c>.table</c> livrés par le framework.</summary>
+        /// <summary>Logical names (<c>LogName</c>) of the <c>.table</c> files shipped by the framework.</summary>
         public static IReadOnlyCollection<string> LogicalNames => LogicalNamesSet;
 
         /// <summary>
-        /// Vrai si la Definition décrit une table livrée par le framework.
+        /// True if the Definition describes a table shipped by the framework.
         /// </summary>
         public static bool IsFrameworkTable(DefinitionInfo definition)
             => definition != null
             && IsFrameworkTable(definition.TableName, definition.EntityName);
 
         /// <summary>
-        /// Vrai si l'un des identifiants fournis désigne une table livrée par le framework.
-        /// Les deux sont testés indépendamment : un <c>.table</c> renommé côté projet reste
-        /// reconnaissable par son nom logique, et un fichier dont le contenu est illisible reste
-        /// reconnaissable par son nom. <c>null</c> est accepté pour l'identifiant inconnu.
+        /// True if either of the provided identifiers designates a table shipped by the framework.
+        /// Both are tested independently: a <c>.table</c> renamed on the project side remains
+        /// recognizable by its logical name, and a file whose content is unreadable remains
+        /// recognizable by its name. <c>null</c> is accepted for the unknown identifier.
         /// </summary>
         public static bool IsFrameworkTable(string tableName, string logicalName)
             => (!string.IsNullOrEmpty(tableName) && Names.Contains(tableName))

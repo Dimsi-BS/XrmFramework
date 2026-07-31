@@ -7,17 +7,17 @@ using Microsoft.Xrm.Sdk;
 namespace XrmFramework.RemoteDebugger.Common
 {
     /// <summary>
-    /// Implémentation locale de <see cref="ITracingService"/> qui transmet chaque trace
-    /// à un callback fourni à la construction (typiquement <c>ExecutionRecord.AddTraceLog</c>).
-    /// Aucune écriture dans <c>Console</c> — les logs sont capturés dans la session.
+    /// Local implementation of <see cref="ITracingService"/> that forwards each trace
+    /// to a callback provided at construction time (typically <c>ExecutionRecord.AddTraceLog</c>).
+    /// No writes to <c>Console</c> — logs are captured in the session.
     /// </summary>
     public class LocalTracingService : ITracingService
     {
         private readonly Action<string> _sink;
 
         /// <param name="sink">
-        /// Callback appelé pour chaque ligne de trace.
-        /// Si <c>null</c>, les traces sont silencieusement ignorées.
+        /// Callback invoked for each trace line.
+        /// If <c>null</c>, traces are silently ignored.
         /// </param>
         public LocalTracingService(Action<string> sink = null)
         {

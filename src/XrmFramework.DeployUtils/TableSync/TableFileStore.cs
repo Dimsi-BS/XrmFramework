@@ -11,25 +11,25 @@ using CoreTable = XrmFramework.Core.Table;
 namespace XrmFramework.DeployUtils.TableSync
 {
     /// <summary>
-    /// Lecture et écriture des fichiers <c>.table</c>, partagées par toutes les commandes.
+    /// Reading and writing of <c>.table</c> files, shared by all commands.
     /// </summary>
     /// <remarks>
-    /// Les réglages de sérialisation reproduisent exactement ceux du DefinitionManager historique
-    /// (<c>Formatting.Indented</c> + <c>DefaultValueHandling.Ignore</c>) : toute divergence
-    /// produirait des diffs massifs sur des fichiers versionnés.
+    /// The serialization settings exactly reproduce those of the historical DefinitionManager
+    /// (<c>Formatting.Indented</c> + <c>DefaultValueHandling.Ignore</c>): any divergence
+    /// would produce massive diffs on versioned files.
     /// </remarks>
     public static class TableFileStore
     {
-        /// <summary>Extension des fichiers de définition de table.</summary>
+        /// <summary>Extension of table definition files.</summary>
         public const string TableFileExtension = ".table";
 
         /// <summary>
-        /// Nom du fichier rassemblant les option sets globaux. Le générateur de code le reconnaît
-        /// par ce nom exact — le renommer romprait la génération des énumérations partagées.
+        /// Name of the file gathering the global option sets. The code generator recognizes it
+        /// by this exact name — renaming it would break the generation of shared enumerations.
         /// </summary>
         public const string GlobalOptionSetFileName = "OptionSet";
 
-        /// <summary>Nom logique conventionnel du pseudo-table des option sets globaux.</summary>
+        /// <summary>Conventional logical name of the global option sets pseudo-table.</summary>
         public const string GlobalOptionSetLogicalName = "globalEnums";
 
         private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
@@ -43,7 +43,7 @@ namespace XrmFramework.DeployUtils.TableSync
             var json = File.ReadAllText(path);
 
             return JsonConvert.DeserializeObject<CoreTable>(json)
-                   ?? throw new InvalidDataException($"Impossible de désérialiser {path}");
+                   ?? throw new InvalidDataException($"Unable to deserialize {path}");
         }
 
         public static void Save(string path, CoreTable table)
@@ -57,15 +57,15 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         /// <summary>
-        /// Recherche le fichier décrivant une entité en comparant le <c>LogName</c> de son contenu,
-        /// et non son nom de fichier.
+        /// Finds the file describing an entity by comparing the <c>LogName</c> of its content,
+        /// not its file name.
         /// </summary>
         /// <remarks>
-        /// Le nom de fichier dérive du nom C# de la table, que les équipes renomment librement
-        /// (<c>Contrat.table</c> devenu <c>ContratLocation.table</c>). Se fier au nom de fichier
-        /// conduirait à créer un doublon au lieu de mettre à jour le fichier existant.
+        /// The file name derives from the C# name of the table, which teams freely rename
+        /// (<c>Contrat.table</c> becomes <c>ContratLocation.table</c>). Relying on the file name
+        /// would lead to creating a duplicate instead of updating the existing file.
         /// </remarks>
-        /// <returns>Le chemin du fichier, ou <see langword="null" /> si l'entité est inconnue.</returns>
+        /// <returns>The file path, or <see langword="null" /> if the entity is unknown.</returns>
         public static string FindTableFile(string directory, string entityLogicalName)
         {
             if (!Directory.Exists(directory))
@@ -81,8 +81,8 @@ namespace XrmFramework.DeployUtils.TableSync
                 }
                 catch (Exception)
                 {
-                    // Un fichier illisible ne doit pas empêcher de retrouver les autres ;
-                    // il sera signalé au moment où l'on tentera réellement de l'écrire.
+                    // An unreadable file must not prevent finding the others;
+                    // it will be reported when we actually try to write it.
                     continue;
                 }
 
@@ -94,19 +94,19 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         /// <summary>
-        /// Chemin du fichier d'une table à créer, dérivé de son nom C#.
+        /// File path of a table to create, derived from its C# name.
         /// </summary>
         public static string BuildTableFilePath(string directory, string tableName)
             => Path.Combine(directory, tableName + TableFileExtension);
 
         /// <summary>
-        /// Noms logiques des entités déjà suivies par le projet, c'est-à-dire décrites par un
-        /// fichier <c>.table</c> du répertoire.
+        /// Logical names of the entities already tracked by the project, i.e. described by a
+        /// <c>.table</c> file in the directory.
         /// </summary>
         /// <remarks>
-        /// Le pseudo-table des option sets globaux est exclu : il ne correspond à aucune entité de
-        /// l'environnement. Comme pour <see cref="FindTableFile" />, un fichier illisible est ignoré
-        /// plutôt que fatal.
+        /// The global option sets pseudo-table is excluded: it does not correspond to any entity of
+        /// the environment. As with <see cref="FindTableFile" />, an unreadable file is ignored
+        /// rather than fatal.
         /// </remarks>
         public static ISet<string> ReadTrackedLogicalNames(string directory)
         {

@@ -1,14 +1,14 @@
 <Project>
   <PropertyGroup>
-    <!-- Dossier racine de la solution exemple, utilisé par les projets Utils -->
+    <!-- Root folder of the sample solution, used by the Utils projects -->
     <RootFolder>$(MSBuildThisFileDirectory)</RootFolder>
 
     <LangVersion>latest</LangVersion>
 
-    <!-- Nom du projet Core de la solution exemple, utilisé par le DefinitionManager -->
+    <!-- Name of the sample solution's Core project, used by the DefinitionManager -->
     <XrmFrameworkCoreProjectName>XrmFramework.Sample.Core</XrmFrameworkCoreProjectName>
 
-    <!-- Les projets samples gèrent leurs propres versions de dépendances. -->
+    <!-- The sample projects manage their own dependency versions. -->
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
   </PropertyGroup>
 </Project>

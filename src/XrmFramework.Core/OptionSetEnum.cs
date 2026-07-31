@@ -18,9 +18,9 @@ namespace XrmFramework.Core
         public bool HasNullValue { get; set; }
 
         /// <summary>
-        /// Marqueur local des .table internes au framework : l'option set est figé et ne doit pas
-        /// être régénéré. Absent des métadonnées CRM, il n'est jamais produit par une commande de
-        /// génération — il est uniquement relu et réécrit tel quel afin de ne pas être perdu.
+        /// Local marker for the framework's internal .table files: the option set is frozen and must
+        /// not be regenerated. Absent from CRM metadata, it is never produced by a generation
+        /// command — it is only read back and rewritten as-is so it is not lost.
         /// </summary>
         [JsonProperty("Locked")]
         public bool IsLocked { get; set; }

@@ -12,9 +12,9 @@ namespace XrmFramework.DeployUtils.Tests.Importers;
 public class AssemblyImporterTests
 {
     /// <summary>
-    /// <see cref="AssemblyImporter.CreateAssemblyFromLocal(string)" /> doit décrire une assembly
-    /// à partir de son chemin (métadonnées), sans la charger dans le runtime — c'est ce qui permet
-    /// au CLI net8 de décrire une assembly plugin net462.
+    /// <see cref="AssemblyImporter.CreateAssemblyFromLocal(string)" /> must describe an assembly
+    /// from its path (metadata), without loading it into the runtime — this is what allows
+    /// the net8 CLI to describe a net462 plugin assembly.
     /// </summary>
     [Test]
     public void CreateAssemblyFromLocal_ReadsIdentityFromPath()
@@ -26,7 +26,7 @@ public class AssemblyImporterTests
             ? string.Concat(token.Select(b => b.ToString("x2")))
             : "null";
 
-        // Les dépendances ne sont pas utilisées par CreateAssemblyFromLocal.
+        // Dependencies are not used by CreateAssemblyFromLocal.
         var importer = new AssemblyImporter(null, null);
 
         var info = importer.CreateAssemblyFromLocal(assembly.Location);

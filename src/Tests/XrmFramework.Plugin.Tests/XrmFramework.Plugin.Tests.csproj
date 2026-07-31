@@ -27,9 +27,9 @@
 
 
   <!--
-    Sources de tests liées depuis src/Tests/XrmFramework.Tests/.
-    Source unique de vérité : les fichiers ne sont pas dupliqués.
-    Le Link= contrôle l'affichage dans l'IDE.
+    Test sources linked from src/Tests/XrmFramework.Tests/.
+    Single source of truth: the files are not duplicated.
+    The Link= attribute controls how they are displayed in the IDE.
   -->
   <ItemGroup>
     <Compile Include="..\XrmFramework.Tests\**\*.cs"

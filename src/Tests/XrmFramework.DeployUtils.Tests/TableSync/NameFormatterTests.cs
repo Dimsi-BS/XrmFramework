@@ -10,14 +10,14 @@ using XrmFramework.DeployUtils.TableSync;
 namespace XrmFramework.DeployUtils.Tests.TableSync;
 
 /// <summary>
-/// Parité de <see cref="NameFormatter" /> avec le DefinitionManager historique : les noms produits
-/// alimentent du code généré, donc toute dérive casserait la compilation des projets consommateurs.
+/// Parity of <see cref="NameFormatter" /> with the legacy DefinitionManager: the names it
+/// produces feed generated code, so any drift would break the build of consuming projects.
 /// </summary>
 [TestFixture]
 public class NameFormatterTests
 {
     // ══════════════════════════════════════════════════════════════════════════
-    // FormatText — séparateurs et casse
+    // FormatText — separators and casing
     // ══════════════════════════════════════════════════════════════════════════
 
     [TestCase("Nom du contrat", "NomDuContrat")]
@@ -41,8 +41,8 @@ public class NameFormatterTests
     [Test]
     public void FormatText_TreatsNonBreakingSpace_AsSeparator()
     {
-        // Une espace insécable est visuellement indiscernable d'une espace ordinaire ; sans
-        // traitement elle survivrait au découpage et produirait un identifiant C# invalide.
+        // A non-breaking space is visually indistinguishable from an ordinary space; without
+        // handling, it would survive the splitting and produce an invalid C# identifier.
         Assert.AreEqual("NomComplet", NameFormatter.FormatText("Nom complet"));
     }
 
@@ -58,7 +58,7 @@ public class NameFormatterTests
     [Test]
     public void FormatText_LeavesFullyUppercaseWords_Untouched()
     {
-        // Comportement documenté de ToTitleCase, sur lequel s'appuient les noms déjà générés.
+        // Documented behavior of ToTitleCase, which already-generated names rely on.
         Assert.AreEqual("ID", NameFormatter.FormatText("ID"));
         Assert.AreEqual("Id", NameFormatter.FormatText("id"));
     }
@@ -69,7 +69,7 @@ public class NameFormatterTests
         => Assert.AreEqual(input, NameFormatter.FormatText(input!));
 
     // ══════════════════════════════════════════════════════════════════════════
-    // FormatText — invariance culturelle
+    // FormatText — culture invariance
     // ══════════════════════════════════════════════════════════════════════════
 
     [TestCase("fr-FR")]
@@ -77,9 +77,9 @@ public class NameFormatterTests
     [TestCase("tr-TR")]
     public void FormatText_ProducesSameResult_WhateverTheCurrentCulture(string cultureName)
     {
-        // Le turc est le cas critique : sa règle de casse sur le « i » produirait « İd » au lieu
-        // de « Id » si la culture courante était utilisée. Un agent d'intégration continue ne doit
-        // pas générer des noms différents de ceux du poste de développement.
+        // Turkish is the critical case: its casing rule for "i" would produce "İd" instead
+        // of "Id" if the current culture were used. A continuous integration agent must not
+        // generate names different from those on the development machine.
         var previousCulture = Thread.CurrentThread.CurrentCulture;
         try
         {
@@ -105,8 +105,8 @@ public class NameFormatterTests
     [Test]
     public void RemovePrefix_IsCaseInsensitive()
     {
-        // Dataverse expose le SchemaName avec une casse arbitraire (« Ftp_Contrat ») alors que
-        // le customizationprefix de l'éditeur est en minuscules.
+        // Dataverse exposes the SchemaName with arbitrary casing ("Ftp_Contrat") while
+        // the publisher's customizationprefix is lowercase.
         Assert.AreEqual("Contrat", NameFormatter.RemovePrefix("Ftp_Contrat", new[] { "ftp" }));
     }
 
@@ -129,7 +129,7 @@ public class NameFormatterTests
     [Test]
     public void RemovePrefix_DoesNotStrip_WhenNothingWouldRemain()
     {
-        // « ftp_ » seul ne doit pas produire une chaîne vide, qui ferait échouer la mise en majuscule.
+        // "ftp_" alone must not produce an empty string, which would make capitalization fail.
         Assert.AreEqual("Ftp_", NameFormatter.RemovePrefix("ftp_", new[] { "ftp" }));
     }
 

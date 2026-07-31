@@ -1,22 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Projet de tests consommateur — illustre comment utiliser les packages
-    XrmFramework.Plugin.Tests et XrmFramework.Core.Tests pour mesurer
-    la couverture de code du Framework.
+    Consumer test project — demonstrates how to use the XrmFramework.Plugin.Tests
+    and XrmFramework.Core.Tests packages to measure the Framework's
+    code coverage.
 
-    Principe de fonctionnement
+    How it works
     ──────────────────────────
-    XrmFramework.Plugin.Tests et XrmFramework.Core.Tests sont des packages
-    "source-only" : ils embarquent les fichiers .cs de tests dans contentFiles
-    (buildAction=Compile). Ces sources sont donc compilées DANS cet assembly,
-    aux côtés des sources du Framework lui-même (fournies de la même façon par
-    XrmFramework.Plugin / XrmFramework.Core via leur propre contentFiles).
+    XrmFramework.Plugin.Tests and XrmFramework.Core.Tests are "source-only"
+    packages: they ship their test .cs files via contentFiles
+    (buildAction=Compile). These sources are therefore compiled INTO this
+    assembly, alongside the Framework's own sources (provided the same way by
+    XrmFramework.Plugin / XrmFramework.Core via their own contentFiles).
 
-    Résultat : la couverture de code rapportée par coverlet.collector porte
-    directement sur le code du Framework, pas sur un assembly séparé.
+    Result: the code coverage reported by coverlet.collector applies
+    directly to the Framework code, not to a separate assembly.
 
-    Pour lancer les tests et obtenir la couverture :
+    To run the tests and obtain coverage:
       dotnet test --collect:"XPlat Code Coverage"
   -->
 
@@ -27,20 +27,20 @@
 
   <ItemGroup>
     <!--
-      Référence aux packages de tests du Framework.
-      Ces deux packages apportent transitivement :
-        - XrmFramework.Plugin  → sources du Framework Plugin (contentFiles)
-        - XrmFramework.Core    → sources des types de base (contentFiles)
+      Reference to the Framework's test packages.
+      These two packages transitively bring in:
+        - XrmFramework.Plugin  → Framework Plugin sources (contentFiles)
+        - XrmFramework.Core    → base type sources (contentFiles)
         - MSTest.TestFramework, MSTest.TestAdapter
         - Microsoft.NET.Test.Sdk
-        - coverlet.collector (via le fichier .props injecté par NuGet)
+        - coverlet.collector (via the .props file injected by NuGet)
     -->
     <PackageReference Include="XrmFramework.Plugin.Tests" Version="$(XrmFrameworkVersion)" />
     <PackageReference Include="XrmFramework.Tests"   Version="$(XrmFrameworkVersion)" />
 
     <!--
-      Microsoft.NET.Test.Sdk doit être référencé DIRECTEMENT dans le projet
-      de tests pour que le runner de tests soit activé.
+      Microsoft.NET.Test.Sdk must be referenced DIRECTLY in the test
+      project for the test runner to be enabled.
     -->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
   </ItemGroup>

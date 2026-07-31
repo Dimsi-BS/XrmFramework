@@ -9,7 +9,7 @@ using CoreTable = XrmFramework.Core.Table;
 namespace XrmFramework.DeployUtils.TableSync
 {
     /// <summary>
-    /// Résultat de l'écriture d'une table récupérée.
+    /// Result of writing a retrieved table.
     /// </summary>
     public sealed class TablePullOutcome
     {
@@ -22,47 +22,47 @@ namespace XrmFramework.DeployUtils.TableSync
             ColumnsMissingFromCrm = columnsMissingFromCrm;
         }
 
-        /// <summary>Chemin du fichier écrit.</summary>
+        /// <summary>Path of the written file.</summary>
         public string FilePath { get; }
 
-        /// <summary>Vrai si aucun fichier ne décrivait cette entité auparavant.</summary>
+        /// <summary>True if no file previously described this entity.</summary>
         public bool Created { get; }
 
-        /// <summary>Table telle qu'écrite sur disque.</summary>
+        /// <summary>Table as written to disk.</summary>
         public CoreTable Table { get; }
 
         /// <summary>
-        /// Colonnes présentes dans le fichier mais absentes de l'environnement. Elles sont
-        /// conservées : une récupération rafraîchit, elle ne détruit pas.
+        /// Columns present in the file but absent from the environment. They are
+        /// kept: a retrieval refreshes, it does not destroy.
         /// </summary>
         public IReadOnlyList<Column> ColumnsMissingFromCrm { get; }
     }
 
     /// <summary>
-    /// Réconcilie une table fraîchement lue dans le CRM avec le fichier <c>.table</c> versionné,
-    /// puis l'écrit.
+    /// Reconciles a table freshly read from the CRM with the versioned <c>.table</c> file,
+    /// then writes it.
     /// </summary>
     /// <remarks>
-    /// Extrait de la commande afin que celle-ci et les tests exercent exactement le même chemin :
-    /// localisation du fichier, fusion, écriture. Une orchestration recopiée dans les tests serait
-    /// aveugle aux dérives de la commande réelle.
+    /// Extracted from the command so that it and the tests exercise exactly the same path:
+    /// locating the file, merging, writing. An orchestration duplicated in the tests would be
+    /// blind to drifts in the actual command.
     /// </remarks>
     public static class TablePullWriter
     {
         /// <summary>
-        /// Écrit <paramref name="freshTable" /> dans <paramref name="tablesDirectory" /> en
-        /// préservant ce qui appartient au fichier existant (noms C#, sélection, verrous).
+        /// Writes <paramref name="freshTable" /> into <paramref name="tablesDirectory" />, while
+        /// preserving what belongs to the existing file (C# names, selection, locks).
         /// </summary>
         public static TablePullOutcome Write(string tablesDirectory, CoreTable freshTable)
         {
             if (string.IsNullOrWhiteSpace(tablesDirectory))
-                throw new ArgumentException("Le répertoire des .table est obligatoire.", nameof(tablesDirectory));
+                throw new ArgumentException("The .table directory is required.", nameof(tablesDirectory));
 
             if (freshTable == null)
                 throw new ArgumentNullException(nameof(freshTable));
 
-            // Le fichier est retrouvé par son nom logique : son nom de fichier suit le nom C# de la
-            // table, que les équipes renomment librement.
+            // The file is found by its logical name: its file name follows the C# name of the
+            // table, which teams freely rename.
             var path = TableFileStore.FindTableFile(tablesDirectory, freshTable.LogicalName);
             var existing = path == null ? null : TableFileStore.Load(path);
 

@@ -11,7 +11,7 @@ using XrmFramework.LogicApp.Models.Triggers;
 namespace XrmFramework.LogicApp.Tests.Builders;
 
 /// <summary>
-/// Tests unitaires pour <see cref="LogicAppBuilder"/>.
+/// Unit tests for <see cref="LogicAppBuilder"/>.
 /// </summary>
 [TestFixture]
 public class LogicAppBuilderTests
@@ -167,7 +167,7 @@ public class LogicAppBuilderTests
     }
 
     // ──────────────────────────────────────────────
-    //  Build — sans workflow configuré
+    //  Build — without a configured workflow
     // ──────────────────────────────────────────────
 
     [Test]

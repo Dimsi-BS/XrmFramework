@@ -9,39 +9,39 @@ using System.Text;
 namespace XrmFramework.DeployUtils.TableSync;
 
 /// <summary>
-/// Transformation des noms Dataverse (SchemaName, libellés d'options) en identifiants C#.
+/// Transformation of Dataverse names (SchemaName, option labels) into C# identifiers.
 ///
-/// Port de <c>XrmFramework.DefinitionManager.TextHelper</c> et de
-/// <c>DataAccessManager.RemovePrefix</c>, rendu utilisable hors WinForms afin que le CLI
-/// produise exactement les mêmes noms que le DefinitionManager historique.
+/// Port of <c>XrmFramework.DefinitionManager.TextHelper</c> and
+/// <c>DataAccessManager.RemovePrefix</c>, made usable outside WinForms so that the CLI
+/// produces exactly the same names as the historical DefinitionManager.
 /// </summary>
 public static class NameFormatter
 {
     /// <summary>
-    /// Caractères remplacés par une espace avant la mise en PascalCase.
-    /// Les non-ASCII sont écrits en échappement Unicode : l'original comportait des caractères
-    /// invisibles (apostrophes typographiques, espace insécable) qu'un éditeur normalise
-    /// silencieusement, ce qui changerait les noms générés sans que la diff ne le montre.
+    /// Characters replaced by a space before conversion to PascalCase.
+    /// Non-ASCII characters are written as Unicode escapes: the original contained
+    /// invisible characters (typographic apostrophes, non-breaking space) that an editor silently
+    /// normalizes, which would change the generated names without the diff showing it.
     /// </summary>
     private static readonly string[] SeparatorCharacters =
     {
         "'",
-        "\u2018", // apostrophe typographique ouvrante
-        "\u2019", // apostrophe typographique fermante
+        "\u2018", // opening typographic apostrophe
+        "\u2019", // closing typographic apostrophe
         "_", ",", "-", "(", ")", ":", "/", "\\", "&",
-        "\u00a0"  // espace insécable : ressemble à une espace mais n'en est pas une
+        "\u00a0"  // non-breaking space: looks like a space but isn't one
     };
 
     /// <summary>
-    /// Convertit un libellé Dataverse en identifiant C# PascalCase.
+    /// Converts a Dataverse label into a C# PascalCase identifier.
     /// </summary>
     /// <remarks>
-    /// La mise en casse est épinglée sur <see cref="CultureInfo.InvariantCulture" /> alors que
-    /// l'implémentation d'origine utilisait la culture courante : sans cela, le CLI produirait
-    /// des noms différents selon la culture du poste ou de l'agent d'intégration continue.
+    /// Casing is pinned to <see cref="CultureInfo.InvariantCulture" /> whereas
+    /// the original implementation used the current culture: without this, the CLI would produce
+    /// different names depending on the machine's culture or the continuous integration agent's.
     ///
-    /// Conformément au comportement de <see cref="TextInfo.ToTitleCase" />, un mot entièrement
-    /// en majuscules est laissé tel quel (« ID » reste « ID », « id » devient « Id »).
+    /// In accordance with the behavior of <see cref="TextInfo.ToTitleCase" />, a word entirely
+    /// in uppercase is left as-is ("ID" stays "ID", "id" becomes "Id").
     /// </remarks>
     public static string FormatText(string text)
     {
@@ -51,8 +51,8 @@ public static class NameFormatter
         foreach (var separator in SeparatorCharacters)
             text = text.Replace(separator, " ");
 
-        // Ces deux symboles se prononcent : les supprimer produirait des noms ambigus
-        // (« %Remise » et « Remise » donneraient le même identifiant).
+        // These two symbols are pronounced: removing them would produce ambiguous names
+        // ("%Remise" and "Remise" would yield the same identifier).
         text = text.Replace("%", " Pourcent ").Replace("+", " Plus ");
 
         text = RemoveDiacritics(text);
@@ -62,17 +62,17 @@ public static class NameFormatter
     }
 
     /// <summary>
-    /// Retire le préfixe d'éditeur d'un nom de schéma (<c>ftp_contrat</c> → <c>Contrat</c>)
-    /// et force la première lettre en majuscule.
+    /// Removes the publisher prefix from a schema name (<c>ftp_contrat</c> → <c>Contrat</c>)
+    /// and forces the first letter to uppercase.
     /// </summary>
-    /// <param name="name">Nom de schéma Dataverse.</param>
+    /// <param name="name">Dataverse schema name.</param>
     /// <param name="publisherPrefixes">
-    /// Préfixes de personnalisation des éditeurs de l'environnement, sans le séparateur.
+    /// Customization prefixes of the environment's publishers, without the separator.
     /// </param>
     /// <remarks>
-    /// La comparaison est ordinale et insensible à la casse, là où l'implémentation d'origine
-    /// s'appuyait sur un <c>StartsWith</c> culturel et sensible à la casse — donc dépendant de
-    /// la culture du poste et incapable de reconnaître un <c>Ftp_Contrat</c>.
+    /// The comparison is ordinal and case-insensitive, whereas the original implementation
+    /// relied on a culture-sensitive, case-sensitive <c>StartsWith</c> — thus dependent on
+    /// the machine's culture and unable to recognize a <c>Ftp_Contrat</c>.
     /// </remarks>
     public static string RemovePrefix(string name, IEnumerable<string> publisherPrefixes)
     {
@@ -101,7 +101,7 @@ public static class NameFormatter
     }
 
     /// <summary>
-    /// Décompose puis retire les signes diacritiques (« Réf. Société » → « Ref. Societe »).
+    /// Decomposes then removes diacritical marks ("Réf. Société" → "Ref. Societe").
     /// </summary>
     private static string RemoveDiacritics(string text)
     {

@@ -33,8 +33,8 @@ public class AssemblyImporter : IAssemblyImporter
 
     public AssemblyInfo CreateAssemblyFromLocal(string dllPath)
     {
-        // Identité lue depuis les métadonnées (sans charger l'assembly dans le runtime) :
-        // permet à un process net8 de décrire une assembly plugin net462.
+        // Identity read from the metadata (without loading the assembly into the runtime):
+        // allows a net8 process to describe a net462 plugin assembly.
         var an = AssemblyName.GetAssemblyName(dllPath);
 
         var name = an.Name;

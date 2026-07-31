@@ -14,17 +14,17 @@ using System.Linq;
 namespace XrmFramework.Analyzers
 {
     /// <summary>
-    /// XRM0300 — Interdit l'usage direct de <c>DateTime.Now</c> et <c>DateTime.UtcNow</c>
-    /// dans les classes qui héritent de <c>XrmFramework.Plugin</c> ou implémentent
+    /// XRM0300 — Forbids the direct use of <c>DateTime.Now</c> and <c>DateTime.UtcNow</c>
+    /// in classes that inherit from <c>XrmFramework.Plugin</c> or implement
     /// <c>Microsoft.Xrm.Sdk.IPlugin</c>.
-    /// Recommande d'injecter <c>IDateTimeProvider</c> comme paramètre de méthode.
+    /// Recommends injecting <c>IDateTimeProvider</c> as a method parameter.
     /// </summary>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class DateTimeUsageAnalyzer : DiagnosticAnalyzer
     {
         private const string Category = "Usage";
 
-        #region XRM0300 : Utiliser IDateTimeProvider plutôt que DateTime.Now / DateTime.UtcNow
+        #region XRM0300: Use IDateTimeProvider instead of DateTime.Now / DateTime.UtcNow
 
         private static readonly LocalizableString Xrm0300Title =
             new LocalizableResourceString(nameof(Resources.Xrm0300_Title), Resources.ResourceManager, typeof(Resources));
@@ -58,7 +58,7 @@ namespace XrmFramework.Analyzers
             context.ConfigureGeneratedCodeAnalysis(
                 GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
 
-            // On s'accroche sur les accès de membre (DateTime.Now, DateTime.UtcNow)
+            // Hook into member access expressions (DateTime.Now, DateTime.UtcNow)
             context.RegisterSyntaxNodeAction(
                 AnalyzeMemberAccess,
                 SyntaxKind.SimpleMemberAccessExpression);
@@ -68,14 +68,14 @@ namespace XrmFramework.Analyzers
         {
             var memberAccess = (MemberAccessExpressionSyntax)context.Node;
 
-            // Filtre rapide sur le nom du membre avant de toucher au modèle sémantique
+            // Quick filter on the member name before touching the semantic model
             var memberName = memberAccess.Name.Identifier.Text;
             if (memberName != "Now" && memberName != "UtcNow")
             {
                 return;
             }
 
-            // Vérifie via le modèle sémantique que la propriété appartient bien à System.DateTime
+            // Verify via the semantic model that the property actually belongs to System.DateTime
             var symbol = context.SemanticModel.GetSymbolInfo(memberAccess).Symbol;
             if (symbol == null)
             {
@@ -94,7 +94,7 @@ namespace XrmFramework.Analyzers
                 return;
             }
 
-            // Vérifie que l'on se trouve dans une classe plugin
+            // Verify that we are inside a plugin class
             var classDeclaration = memberAccess
                 .Ancestors()
                 .OfType<ClassDeclarationSyntax>()
@@ -116,28 +116,28 @@ namespace XrmFramework.Analyzers
                 return;
             }
 
-            // Construit le texte d'affichage de l'expression complète (ex. "DateTime.Now")
+            // Build the display text of the full expression (e.g. "DateTime.Now")
             var fullExpression = memberAccess.ToFullString().Trim();
 
             var diagnostic = Diagnostic.Create(
                 Xrm0300,
                 memberAccess.GetLocation(),
-                fullExpression,          // {0} — expression utilisée
-                memberName);             // {1} — nom de la propriété (Now / UtcNow)
+                fullExpression,          // {0} — the expression used
+                memberName);             // {1} — the property name (Now / UtcNow)
 
             context.ReportDiagnostic(diagnostic);
         }
 
         /// <summary>
-        /// Retourne <c>true</c> si la classe (ou l'un de ses ancêtres) hérite de
-        /// <c>XrmFramework.Plugin</c> ou implémente <c>Microsoft.Xrm.Sdk.IPlugin</c>.
+        /// Returns <c>true</c> if the class (or one of its ancestors) inherits from
+        /// <c>XrmFramework.Plugin</c> or implements <c>Microsoft.Xrm.Sdk.IPlugin</c>.
         /// </summary>
         private static bool IsPluginOrServiceClass(INamedTypeSymbol classSymbol)
         {
             var current = classSymbol;
             while (current != null)
             {
-                // Hérite directement de XrmFramework.Plugin
+                // Directly inherits from XrmFramework.Plugin
                 if (current.Name == "Plugin" &&
                     current.ContainingNamespace?.ToDisplayString() == "XrmFramework")
                 {
@@ -147,7 +147,7 @@ namespace XrmFramework.Analyzers
                 current = current.BaseType;
             }
 
-            // Implémente Microsoft.Xrm.Sdk.IPlugin
+            // Implements Microsoft.Xrm.Sdk.IPlugin
             return classSymbol.AllInterfaces.Any(i =>
                 (i.Name == "IPlugin" &&
                 i.ContainingNamespace?.ToDisplayString() == "Microsoft.Xrm.Sdk")

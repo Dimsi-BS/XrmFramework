@@ -11,13 +11,13 @@ using XrmFramework.PluginInventory;
 namespace XrmFramework.PluginInventory.Tests;
 
 /// <summary>
-/// Exerce le vrai moteur d'inventaire (<see cref="PluginInventoryEngine" />) contre des plugins
-/// stub, en l'exécutant sur l'assembly de test elle-même. Couvre :
+/// Exercises the real inventory engine (<see cref="PluginInventoryEngine" />) against stub
+/// plugins, running it on the test assembly itself. Covers:
 /// <list type="bullet">
-///   <item>la découverte des plugins (public + internal) et l'exclusion des non-plugins ;</item>
-///   <item>la transcription fidèle des steps (message/stage/mode, images, filtering, ordre…) ;</item>
-///   <item>les custom APIs (binding, traitement autorisé, arguments typés) et les workflows ;</item>
-///   <item>le round-trip producteur → <see cref="PluginInventoryReader" /> (consommateur réel).</item>
+///   <item>plugin discovery (public + internal) and exclusion of non-plugins;</item>
+///   <item>faithful transcription of steps (message/stage/mode, images, filtering, order…);</item>
+///   <item>custom APIs (binding, allowed processing, typed arguments) and workflows;</item>
+///   <item>the producer → <see cref="PluginInventoryReader" /> round-trip (real consumer).</item>
 /// </list>
 /// </summary>
 [TestFixture]
@@ -39,7 +39,7 @@ public class PluginInventoryEngineTests
     [OneTimeTearDown]
     public void Cleanup() => _doc?.Dispose();
 
-    // ── Helpers JSON ────────────────────────────────────────────────────────
+    // ── JSON helpers ────────────────────────────────────────────────────────
 
     private static JsonElement Plugin(string fullName) =>
         _root.GetProperty("plugins").EnumerateArray().Single(p => p.GetProperty("fullName").GetString() == fullName);
@@ -53,7 +53,7 @@ public class PluginInventoryEngineTests
     private static string[] StrArray(JsonElement e, string prop) =>
         e.GetProperty(prop).EnumerateArray().Select(x => x.GetString()).ToArray();
 
-    // ── Découverte des plugins ──────────────────────────────────────────────
+    // ── Plugin discovery ────────────────────────────────────────────────────
 
     [Test]
     public void Inventories_Public_And_Internal_Plugins_And_Ignores_Others()
@@ -63,10 +63,10 @@ public class PluginInventoryEngineTests
 
         Assert.That(fullNames, Does.Contain("Sample.AccountPlugin"));
         Assert.That(fullNames, Does.Contain("Sample.HiddenPlugin")); // internal
-        Assert.That(fullNames, Has.Length.EqualTo(2));               // NotAPlugin exclu
+        Assert.That(fullNames, Has.Length.EqualTo(2));               // NotAPlugin excluded
     }
 
-    // ── Steps : transcription fidèle (le moteur lit le vrai Step) ────────────
+    // ── Steps: faithful transcription (the engine reads the real Step) ──────
 
     [Test]
     public void Step_Create_IsTranscribed_WithPreImage_AndPostImageAllAttributes()
@@ -137,7 +137,7 @@ public class PluginInventoryEngineTests
             Assert.That(input.GetProperty("typeFullName").GetString(), Is.EqualTo("System.String"));
             Assert.That(input.GetProperty("isEnum").GetBoolean(), Is.False);
             Assert.That(input.GetProperty("isOptional").GetBoolean(), Is.True);
-            Assert.That(input.GetProperty("displayName").GetString(), Is.EqualTo("Le nom"));
+            Assert.That(input.GetProperty("displayName").GetString(), Is.EqualTo("The name"));
 
             Assert.That(output.GetProperty("isInArgument").GetBoolean(), Is.False);
             Assert.That(output.GetProperty("typeFullName").GetString(), Is.EqualTo("System.Int32"));
@@ -161,7 +161,7 @@ public class PluginInventoryEngineTests
         });
     }
 
-    // ── Round-trip producteur → consommateur réel (PluginInventoryReader) ─────
+    // ── Producer → real consumer round-trip (PluginInventoryReader) ─────────
 
     [Test]
     public void RoundTrip_ThroughPluginInventoryReader_MapsTheRealModel()

@@ -11,7 +11,7 @@ namespace XrmFramework.Sample.Plugins
 
         public void MaMethode(IPluginContext context)
         {
-            // throw new InvalidPluginExecutionException("Une erreur s'est produite dans le plugin de test.");
-            Console.WriteLine("MaMethode a été exécutée avec succès !");
+            // throw new InvalidPluginExecutionException("An error occurred in the test plugin.");
+            Console.WriteLine("MaMethode was executed successfully!");
         }
 }

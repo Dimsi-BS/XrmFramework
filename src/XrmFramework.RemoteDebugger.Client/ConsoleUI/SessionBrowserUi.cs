@@ -17,34 +17,34 @@ using XrmFramework.RemoteDebugger.Common.ConsoleUI;
 namespace XrmFramework.RemoteDebugger.Client.ConsoleUI;
 
 /// <summary>
-/// Interface console (TUI) pour naviguer dans les sessions de test sauvegardées sur disque.
+/// Console interface (TUI) for browsing test sessions saved on disk.
 /// <para>
-/// Navigation à trois niveaux :
+/// Three-level navigation:
 /// <list type="bullet">
-///   <item><b>Niveau 1 — Corrélations</b> : groupes de sessions partageant le même CorrelationId.</item>
-///   <item><b>Niveau 2 — Sessions</b>     : liste des fichiers dans une corrélation sélectionnée.</item>
-///   <item><b>Niveau 3 — Détail</b>       : contexte complet d'une session (entrée / OrgService / sortie).</item>
+///   <item><b>Level 1 — Correlations</b>: groups of sessions sharing the same CorrelationId.</item>
+///   <item><b>Level 2 — Sessions</b>    : list of files in a selected correlation.</item>
+///   <item><b>Level 3 — Detail</b>      : full context of a session (input / OrgService / output).</item>
 /// </list>
 /// </para>
-/// Raccourcis clavier :
+/// Keyboard shortcuts:
 /// <list type="bullet">
-///   <item>[Up/Down] Naviguer dans la liste courante</item>
-///   <item>[Entrée]  Descendre d'un niveau</item>
-///   <item>[Echap]   Remonter d'un niveau</item>
-///   <item>[R]       Rejouer la session sans débogueur</item>
-///   <item>[D]       Rejouer en mode debug (attacher le débogueur)</item>
-///   <item>[F5]      Recharger les fichiers depuis le disque</item>
-///   <item>[Q]       Quitter</item>
+///   <item>[Up/Down] Navigate the current list</item>
+///   <item>[Enter]   Go down one level</item>
+///   <item>[Esc]     Go up one level</item>
+///   <item>[R]       Replay the session without the debugger</item>
+///   <item>[D]       Replay in debug mode (attach the debugger)</item>
+///   <item>[F5]      Reload the files from disk</item>
+///   <item>[Q]       Quit</item>
 /// </list>
 /// </summary>
 public class SessionBrowserUi
 {
-    // ── Vues ─────────────────────────────────────────────────────────────
+    // ── Views ─────────────────────────────────────────────────────────────
     private enum View { Correlations, Sessions, Detail }
 
     private View _currentView = View.Correlations;
 
-    // ── Données ───────────────────────────────────────────────────────────
+    // ── Data ──────────────────────────────────────────────────────────────
     private List<CorrelationGroup> _groups = new();
     private int _groupIndex;
     private int _sessionIndex;
@@ -52,26 +52,26 @@ public class SessionBrowserUi
     private readonly string _sessionPath;
     private readonly Action<PluginTestSession, bool> _onReplay;
 
-    // ── Verrou & journal ──────────────────────────────────────────────────
+    // ── Lock & log ──────────────────────────────────────────────────────────
     private readonly object _lock = new();
     private readonly List<string> _logs = new();
     private const int MaxLogs = 6;
 
-    // ── Cycle de vie ──────────────────────────────────────────────────────
+    // ── Lifecycle ─────────────────────────────────────────────────────────
     private CancellationTokenSource _cts;
 
     private const string AppTitle = "XrmFramework Session Browser";
 
     // ════════════════════════════════════════════════════════════════════
-    // Constructeur
+    // Constructor
     // ════════════════════════════════════════════════════════════════════
 
     /// <param name="sessionPath">
-    ///   Répertoire contenant les fichiers <c>*.pluginsession.json</c>.
+    ///   Directory containing the <c>*.pluginsession.json</c> files.
     /// </param>
     /// <param name="onReplay">
-    ///   Callback appelé lorsque l'utilisateur lance un rejouage.
-    ///   Si <c>null</c>, le rejouage est effectué localement via <see cref="PluginTestRunner"/>.
+    ///   Callback invoked when the user starts a replay.
+    ///   If <c>null</c>, the replay is performed locally via <see cref="PluginTestRunner"/>.
     /// </param>
     public SessionBrowserUi(string sessionPath, Action<PluginTestSession, bool> onReplay = null)
     {
@@ -80,24 +80,24 @@ public class SessionBrowserUi
     }
 
     // ════════════════════════════════════════════════════════════════════
-    // Entrée principale
+    // Main entry point
     // ════════════════════════════════════════════════════════════════════
 
     /// <summary>
-    /// Lance l'interface console. Bloque jusqu'à ce que l'utilisateur quitte avec [Q].
+    /// Starts the console interface. Blocks until the user quits with [Q].
     /// </summary>
     public void Run()
     {
         _cts = new CancellationTokenSource();
 
-        // Charger les sessions avant de démarrer l'interface
+        // Load the sessions before starting the interface
         Reload();
 
-        // Masquer le curseur avant le démarrage de l'interface.
+        // Hide the cursor before the interface starts.
         AnsiConsole.Cursor.Hide();
 
-        // Démarrer la boucle de rendu dans un thread séparé.
-        // En cas d'échec fatal du rendu, on annule le token pour sortir proprement.
+        // Start the render loop on a separate thread.
+        // On a fatal render failure, cancel the token to exit cleanly.
         var renderTask = Task.Run(async () =>
         {
             try
@@ -106,12 +106,12 @@ public class SessionBrowserUi
             }
             catch (OperationCanceledException)
             {
-                // Annulation normale — pas d'erreur.
+                // Normal cancellation — not an error.
             }
             catch (Exception ex)
             {
-                // Echec critique : logguer et débloquer la boucle clavier
-                AddLog($"[red bold]Erreur rendu critique : {Markup.Escape(ex.GetType().Name)}[/]");
+                // Critical failure: log it and unblock the keyboard loop
+                AddLog($"[red bold]Critical render error: {Markup.Escape(ex.GetType().Name)}[/]");
                 AddLog($"[red]{Markup.Escape(ex.Message.Split('\n')[0])}[/]");
                 _cts.Cancel();
             }
@@ -119,22 +119,22 @@ public class SessionBrowserUi
 
         try
         {
-            // Lire le clavier dans le thread principal (bloque jusqu'à [Q])
+            // Read the keyboard on the main thread (blocks until [Q])
             RunKeyboardLoop();
         }
         finally
         {
-            // Attendre la fin propre du rendu
+            // Wait for the render loop to finish cleanly
             _cts.Cancel();
             try { renderTask.GetAwaiter().GetResult(); }
-            catch { /* déjà géré dans la tâche */ }
+            catch { /* already handled in the task */ }
 
             AnsiConsole.Cursor.Show();
             AnsiConsole.Clear();
         }
     }
 
-    // ── Chargement ────────────────────────────────────────────────────────
+    // ── Loading ───────────────────────────────────────────────────────────
 
     private void Reload()
     {
@@ -146,7 +146,7 @@ public class SessionBrowserUi
         catch (Exception ex)
         {
             loaded = new List<CorrelationGroup>();
-            AddLog($"[red]Erreur de chargement : {Markup.Escape(ex.Message)}[/]");
+            AddLog($"[red]Loading error: {Markup.Escape(ex.Message)}[/]");
         }
 
         lock (_lock)
@@ -157,17 +157,17 @@ public class SessionBrowserUi
 
         var total = loaded.Sum(g => g.SessionCount);
         AddLog(
-            $"[grey]Repertoire :[/] [cyan]{Markup.Escape(_sessionPath)}[/]  " +
+            $"[grey]Directory:[/] [cyan]{Markup.Escape(_sessionPath)}[/]  " +
             $"[grey]|[/] [white]{total}[/] [grey]session(s) / [/][white]{loaded.Count}[/] [grey]correlation(s)[/]");
     }
 
     // ════════════════════════════════════════════════════════════════════
-    // Boucle de rendu (thread séparé)
+    // Render loop (separate thread)
     // ════════════════════════════════════════════════════════════════════
 
     private async Task RunRenderLoopAsync()
     {
-        await AnsiConsole.Live(new Text("Initialisation…"))
+        await AnsiConsole.Live(new Text("Initializing…"))
             .AutoClear(false)
             .Overflow(VerticalOverflow.Ellipsis)
             .Cropping(VerticalOverflowCropping.Bottom)
@@ -191,13 +191,13 @@ public class SessionBrowserUi
                         await Task.Delay(200, _cts.Token);
                     }
                     catch (OperationCanceledException) { break; }
-                    catch { /* ne jamais faire crasher le rendu */ }
+                    catch { /* never let the render crash */ }
                 }
             });
     }
 
     // ════════════════════════════════════════════════════════════════════
-    // Boucle clavier (thread principal)
+    // Keyboard loop (main thread)
     // ════════════════════════════════════════════════════════════════════
 
     private void RunKeyboardLoop()
@@ -317,7 +317,7 @@ public class SessionBrowserUi
         }
     }
 
-    // ── Rejouage ──────────────────────────────────────────────────────────
+    // ── Replay ────────────────────────────────────────────────────────────
 
     private void LaunchReplay(PluginTestSession session, bool debugMode)
     {
@@ -325,7 +325,7 @@ public class SessionBrowserUi
             ? ExtractShortTypeName(session.InputContext.TypeAssemblyQualifiedName)
             : "plugin";
 
-        AddLog($"[yellow]Rejouage de {Markup.Escape(pluginName)}{(debugMode ? " (debug)" : "")} lance...[/]");
+        AddLog($"[yellow]Replaying {Markup.Escape(pluginName)}{(debugMode ? " (debug)" : "")} launched...[/]");
 
         if (_onReplay != null)
         {
@@ -337,7 +337,7 @@ public class SessionBrowserUi
         {
             if (debugMode)
             {
-                AddLog($"[yellow]Attachez le debogueur au PID {Process.GetCurrentProcess().Id}...[/]");
+                AddLog($"[yellow]Attach the debugger to PID {Process.GetCurrentProcess().Id}...[/]");
                 Debugger.Launch();
             }
 
@@ -345,18 +345,18 @@ public class SessionBrowserUi
             {
                 var result = PluginTestRunner.Run(session);
                 AddLog(
-                    $"[green]Rejouage termine[/] [grey]--[/] " +
+                    $"[green]Replay completed[/] [grey]--[/] " +
                     $"[white]{result.OutputParameters?.Count ?? 0}[/] [grey]OutputParam(s)[/]");
             }
             catch (Exception ex)
             {
-                AddLog($"[red]Rejouage echoue : {Markup.Escape(ex.Message)}[/]");
+                AddLog($"[red]Replay failed: {Markup.Escape(ex.Message)}[/]");
             }
         });
     }
 
     // ════════════════════════════════════════════════════════════════════
-    // Sélection courante
+    // Current selection
     // ════════════════════════════════════════════════════════════════════
 
     private bool TryGetSelectedGroup(out CorrelationGroup group)
@@ -383,7 +383,7 @@ public class SessionBrowserUi
     }
 
     // ════════════════════════════════════════════════════════════════════
-    // Vue 1 — Liste des corrélations
+    // View 1 — Correlation list
     // ════════════════════════════════════════════════════════════════════
 
     private IRenderable BuildCorrelationsView()
@@ -400,7 +400,7 @@ public class SessionBrowserUi
 
         rows.Add(BuildCorrelationTable());
         rows.Add(BuildLogPanel());
-        rows.Add(new Rule("[grey][[Up/Down]] Nav   [[Entree]] Ouvrir   [[F5]] Recharger   [[Q]] Quitter[/]")
+        rows.Add(new Rule("[grey][[Up/Down]] Nav   [[Enter]] Open   [[F5]] Reload   [[Q]] Quit[/]")
             .Border(BoxBorder.None)
             .RuleStyle(Style.Parse("grey")));
 
@@ -414,16 +414,16 @@ public class SessionBrowserUi
             .BorderColor(Color.Grey37)
             .AddColumn(new TableColumn("[grey]#[/]").RightAligned().Width(4))
             .AddColumn(new TableColumn("[white]Correlation[/]").Width(28))
-            .AddColumn(new TableColumn("[grey]Nb[/]").Centered().Width(4))
-            .AddColumn(new TableColumn("[white]Premiere[/]").Width(17))
-            .AddColumn(new TableColumn("[white]Derniere[/]").Width(17))
+            .AddColumn(new TableColumn("[grey]Cnt[/]").Centered().Width(4))
+            .AddColumn(new TableColumn("[white]First[/]").Width(17))
+            .AddColumn(new TableColumn("[white]Last[/]").Width(17))
             .AddColumn(new TableColumn("[grey]CorrelId[/]").Width(10));
 
         if (_groups.Count == 0)
         {
             table.AddRow(
                 new Markup("[grey]-[/]"),
-                new Markup("[grey]Aucune session trouvee. Appuyez sur [[F5]] pour recharger.[/]"),
+                new Markup("[grey]No sessions found. Press [[F5]] to reload.[/]"),
                 new Text(""), new Text(""), new Text(""), new Text(""));
             return table;
         }
@@ -456,7 +456,7 @@ public class SessionBrowserUi
     }
 
     // ════════════════════════════════════════════════════════════════════
-    // Vue 2 — Sessions dans une corrélation
+    // View 2 — Sessions within a correlation
     // ════════════════════════════════════════════════════════════════════
 
     private IRenderable BuildSessionsView(CorrelationGroup group)
@@ -474,7 +474,7 @@ public class SessionBrowserUi
 
         rows.Add(BuildSessionTable(group));
         rows.Add(BuildLogPanel());
-        rows.Add(new Rule("[grey][[Echap]] Retour   [[Up/Down]] Nav   [[Entree]] Detail   [[R]] Rejouer   [[D]] Debug   [[Q]] Quitter[/]")
+        rows.Add(new Rule("[grey][[Esc]] Back   [[Up/Down]] Nav   [[Enter]] Detail   [[R]] Replay   [[D]] Debug   [[Q]] Quit[/]")
             .Border(BoxBorder.None)
             .RuleStyle(Style.Parse("grey")));
 
@@ -489,9 +489,9 @@ public class SessionBrowserUi
             .AddColumn(new TableColumn("[grey]#[/]").RightAligned().Width(4))
             .AddColumn(new TableColumn("[white]Plugin[/]").Width(20))
             .AddColumn(new TableColumn("[white]Message[/]").Width(12))
-            .AddColumn(new TableColumn("[white]Entite[/]").Width(18))
+            .AddColumn(new TableColumn("[white]Entity[/]").Width(18))
             .AddColumn(new TableColumn("[grey]CRM[/]").Centered().Width(5))
-            .AddColumn(new TableColumn("[white]Horodatage[/]").Width(17));
+            .AddColumn(new TableColumn("[white]Timestamp[/]").Width(17));
 
         for (var i = 0; i < group.Sessions.Count; i++)
         {
@@ -518,7 +518,7 @@ public class SessionBrowserUi
     }
 
     // ════════════════════════════════════════════════════════════════════
-    // Vue 3 — Détail d'une session
+    // View 3 — Session detail
     // ════════════════════════════════════════════════════════════════════
 
     private IRenderable BuildDetailView(PluginTestSession session)
@@ -546,7 +546,7 @@ public class SessionBrowserUi
         if (session.OutputContext != null)
             rows.Add(BuildOutputContextPanel(session.OutputContext));
 
-        rows.Add(new Rule("[grey][[Echap]] Retour   [[R]] Rejouer   [[D]] Debug   [[Q]] Quitter[/]")
+        rows.Add(new Rule("[grey][[Esc]] Back   [[R]] Replay   [[D]] Debug   [[Q]] Quit[/]")
             .Border(BoxBorder.None)
             .RuleStyle(Style.Parse("grey")));
 
@@ -580,7 +580,7 @@ public class SessionBrowserUi
         }
 
         return new Panel(new Markup(sb.ToString().TrimEnd()))
-            .Header("[deepskyblue1] Contexte d entree [/]")
+            .Header("[deepskyblue1] Input Context [/]")
             .BorderColor(Color.DeepSkyBlue1)
             .Padding(1, 0);
     }
@@ -591,8 +591,8 @@ public class SessionBrowserUi
 
         if (calls == null || calls.Count == 0)
         {
-            return new Panel(new Markup("[grey](aucun appel OrgService enregistre)[/]"))
-                .Header("[blue] Appels OrgService (0) [/]")
+            return new Panel(new Markup("[grey](no OrgService call recorded)[/]"))
+                .Header("[blue] OrgService Calls (0) [/]")
                 .BorderColor(Color.Blue)
                 .Padding(1, 0);
         }
@@ -608,7 +608,7 @@ public class SessionBrowserUi
         }
 
         return new Panel(new Markup(sb.ToString().TrimEnd()))
-            .Header($"[blue] Appels OrgService ({calls.Count}) [/]")
+            .Header($"[blue] OrgService Calls ({calls.Count}) [/]")
             .BorderColor(Color.Blue)
             .Padding(1, 0);
     }
@@ -625,7 +625,7 @@ public class SessionBrowserUi
         }
         else
         {
-            sb.AppendLine("  [grey]OutputParameters : (aucun)[/]");
+            sb.AppendLine("  [grey]OutputParameters: (none)[/]");
         }
 
         if (ctx.SharedVariables?.Count > 0)
@@ -645,13 +645,13 @@ public class SessionBrowserUi
         }
 
         return new Panel(new Markup(sb.ToString().TrimEnd()))
-            .Header("[green] Contexte de sortie [/]")
+            .Header("[green] Output Context [/]")
             .BorderColor(Color.Green)
             .Padding(1, 0);
     }
 
     // ════════════════════════════════════════════════════════════════════
-    // Helpers de formatage
+    // Formatting helpers
     // ════════════════════════════════════════════════════════════════════
 
     private static string FormatEntityColumn(RemoteDebugExecutionContext ctx)
@@ -695,10 +695,10 @@ public class SessionBrowserUi
     }
 
     // ════════════════════════════════════════════════════════════════════
-    // Journal
+    // Log
     // ════════════════════════════════════════════════════════════════════
 
-    /// <summary>Ajoute un message horodaté au journal interne.</summary>
+    /// <summary>Adds a timestamped message to the internal log.</summary>
     public void AddLog(string markupMessage)
     {
         var timestamp = DateTime.Now.ToString("HH:mm:ss");
@@ -713,7 +713,7 @@ public class SessionBrowserUi
     private IRenderable BuildLogPanel()
     {
         var recent  = _logs.Skip(Math.Max(0, _logs.Count - MaxLogs)).ToList();
-        var content = recent.Count > 0 ? string.Join("\n", recent) : "[grey](aucun log)[/]";
+        var content = recent.Count > 0 ? string.Join("\n", recent) : "[grey](no log)[/]";
 
         return new Panel(new Markup(content))
             .Header("[grey] Logs [/]")

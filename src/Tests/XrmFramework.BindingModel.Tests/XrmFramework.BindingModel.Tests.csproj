@@ -14,8 +14,8 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />
-    <!-- Remonte le plancher transitif de System.Private.DataContractSerialization 4.3.0
-         (chaîne Dataverse.Client) — CVE-2019-0820 (High), corrigé en 4.3.1. -->
+    <!-- Raises the transitive floor of System.Private.DataContractSerialization 4.3.0
+         (Dataverse.Client chain) — CVE-2019-0820 (High), fixed in 4.3.1. -->
     <PackageReference Include="System.Text.RegularExpressions" />
     <PackageReference Include="coverlet.collector" />
   </ItemGroup>

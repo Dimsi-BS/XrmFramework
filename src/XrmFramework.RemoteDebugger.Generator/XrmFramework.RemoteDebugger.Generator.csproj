@@ -7,16 +7,16 @@
 
     <!-- Roslyn source generator configuration -->
     <IsRoslynComponent>true</IsRoslynComponent>
-    <!-- Ne pas inclure la sortie de build dans le package NuGet lui-même,
-         l'assembly est référencé comme analyzer/generator -->
+    <!-- Do not include the build output in the NuGet package itself,
+         the assembly is referenced as an analyzer/generator -->
     <IncludeBuildOutput>false</IncludeBuildOutput>
 
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>XrmFramework.RemoteDebugger.Generator</PackageId>
     <Description>
-      Roslyn source generator pour XrmFramework RemoteDebugger.
-      Lit les fichiers .pluginsession.json enregistrés lors des sessions de débogage distant
-      et génère automatiquement les méthodes de tests unitaires xUnit avec Verify.
+      Roslyn source generator for XrmFramework RemoteDebugger.
+      Reads .pluginsession.json files recorded during remote debugging sessions
+      and automatically generates xUnit unit test methods using Verify.
     </Description>
 
     <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>

@@ -12,21 +12,21 @@ using XrmFramework.DeployUtils.TableSync;
 namespace XrmFramework.DeployUtils.Tests.TableSync;
 
 /// <summary>
-/// Règles de fusion appliquées lors d'une récupération depuis le CRM : ce qui devient un
-/// identifiant C# appartient au fichier versionné, ce qui décrit la table appartient au CRM.
+/// Merge rules applied during a pull from the CRM: whatever becomes a C# identifier
+/// belongs to the versioned file, whatever describes the table belongs to the CRM.
 /// </summary>
 [TestFixture]
 public class TablePullMergeTests
 {
     // ══════════════════════════════════════════════════════════════════════════
-    // Ce qui appartient au fichier
+    // What belongs to the file
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
     public void Merge_KeepsHandRenamedColumnName_OverCrmSchemaName()
     {
-        // L'équipe a renommé « FtpNumeroContrat » en « NumeroContrat » ; le code compilé référence
-        // ce nom. Le reprendre depuis le CRM casserait la compilation à chaque récupération.
+        // The team renamed "FtpNumeroContrat" to "NumeroContrat"; the compiled code references
+        // this name. Picking it back up from the CRM would break the build on every pull.
         var existing = Table("ftp_contrat", "Contrat",
             Column("ftp_numerocontrat", "NumeroContrat", AttributeTypeCode.String));
 
@@ -50,14 +50,14 @@ public class TablePullMergeTests
         var merged = TableMerger.Merge(existing, fresh);
 
         Assert.IsTrue(merged.Columns.Single().Selected,
-            "Une colonne activée ne doit jamais être rétrogradée par une récupération.");
+            "An activated column must never be downgraded by a pull.");
     }
 
     [Test]
     public void Merge_KeepsExistingDeselection_WhenColumnWasDeliberatelyDisabled()
     {
-        // createdon est sélectionnée d'office à la création ; si l'équipe l'a désactivée,
-        // la récupération ne doit pas la réactiver.
+        // createdon is selected by default on creation; if the team deactivated it,
+        // the pull must not reactivate it.
         var existing = Table("account", "Account",
             Column("createdon", "CreatedOn", AttributeTypeCode.DateTime, selected: false));
 
@@ -93,13 +93,13 @@ public class TablePullMergeTests
 
         var merged = TableMerger.Merge(existing, fresh);
 
-        Assert.AreEqual("ContratLocation", merged.Name, "Le nom de type C# appartient au fichier.");
+        Assert.AreEqual("ContratLocation", merged.Name, "The C# type name belongs to the file.");
         Assert.IsTrue(merged.IsLocked);
-        Assert.AreEqual("ftp_contrats", merged.CollectionName, "Le nom de collection vient du CRM.");
+        Assert.AreEqual("ftp_contrats", merged.CollectionName, "The collection name comes from the CRM.");
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Ce qui appartient au CRM
+    // What belongs to the CRM
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
@@ -118,7 +118,7 @@ public class TablePullMergeTests
         Assert.AreEqual(AttributeTypeCode.Memo, column.Type);
         Assert.AreEqual(500, column.StringLength);
         Assert.AreEqual(AttributeCapabilities.Read | AttributeCapabilities.Update, column.Capabilities);
-        Assert.AreEqual(1, column.Labels.Count, "Les libellés doivent être rafraîchis depuis le CRM.");
+        Assert.AreEqual(1, column.Labels.Count, "Labels must be refreshed from the CRM.");
     }
 
     [Test]
@@ -137,14 +137,14 @@ public class TablePullMergeTests
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Colonnes disparues du CRM
+    // Columns that disappeared from the CRM
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
     public void Merge_KeepsColumnsMissingFromCrm()
     {
-        // « pull » rafraîchit, il ne détruit pas : la désélection des orphelines relève
-        // de « tables sync --clean ».
+        // "pull" refreshes, it does not destroy: deselecting orphans is the job
+        // of "tables sync --clean".
         var existing = Table("account", "Account",
             Column("name", "Name", AttributeTypeCode.String),
             Column("ftp_supprimee", "Supprimee", AttributeTypeCode.String, selected: true));
@@ -154,7 +154,7 @@ public class TablePullMergeTests
         var merged = TableMerger.Merge(existing, fresh);
 
         var orphan = merged.Columns.SingleOrDefault(c => c.LogicalName == "ftp_supprimee");
-        Assert.IsNotNull(orphan, "Une colonne absente du CRM doit être conservée.");
+        Assert.IsNotNull(orphan, "A column absent from the CRM must be kept.");
         Assert.IsTrue(orphan!.Selected);
     }
 
@@ -191,16 +191,16 @@ public class TablePullMergeTests
         var merged = TableMerger.Merge(existing, fresh);
 
         var merges = merged.Enums.Single();
-        Assert.AreEqual("StatutCompte", merges.Name, "Le nom du type énuméré appartient au fichier.");
+        Assert.AreEqual("StatutCompte", merges.Name, "The enum type name belongs to the file.");
         Assert.AreEqual("Actif", merges.Values.Single(v => v.Value == 1).Name,
-            "Les membres sont rapprochés par valeur, seule donnée stable.");
+            "Members are matched by value, the only stable piece of data.");
     }
 
     [Test]
     public void MergeGlobalOptionSets_IsAdditive_AndKeepsUnrelatedEnums()
     {
-        // Récupérer une seule table ne doit jamais retirer les option sets globaux
-        // référencés par les autres tables du projet.
+        // Pulling a single table must never remove global option sets
+        // referenced by the project's other tables.
         var existing = new Table { LogicalName = "globalEnums", Name = "OptionSet" };
         existing.Enums.Add(Enumeration("ftp_devise", "Devise", (1, "Euro")));
         existing.Enums.Add(Enumeration("ftp_pays", "Pays", (1, "France")));
@@ -209,11 +209,11 @@ public class TablePullMergeTests
 
         var merged = TableMerger.MergeGlobalOptionSets(existing, fresh);
 
-        Assert.AreEqual(2, merged.Enums.Count, "L'option set non concerné doit survivre.");
+        Assert.AreEqual(2, merged.Enums.Count, "The unrelated option set must survive.");
 
         var devise = merged.Enums.Single(e => e.LogicalName == "ftp_devise");
-        Assert.AreEqual("Devise", devise.Name, "Le nom retenu reste celui du fichier.");
-        Assert.AreEqual(2, devise.Values.Count, "Les valeurs sont rafraîchies depuis le CRM.");
+        Assert.AreEqual("Devise", devise.Name, "The retained name remains the one from the file.");
+        Assert.AreEqual(2, devise.Values.Count, "Values are refreshed from the CRM.");
     }
 
     [Test]
@@ -229,7 +229,7 @@ public class TablePullMergeTests
 
         Assert.AreEqual(new[] { "ftp_alpha", "ftp_zebre" },
             merged.Enums.Select(e => e.LogicalName).ToArray(),
-            "Un ordre instable produirait des diffs parasites à chaque exécution.");
+            "An unstable order would produce spurious diffs on every run.");
     }
 
     [Test]
@@ -241,14 +241,14 @@ public class TablePullMergeTests
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Localisation du fichier cible
+    // Locating the target file
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
     public void FindTableFile_MatchesOnLogicalName_NotOnFileName()
     {
-        // Le fichier a été renommé à la main en même temps que le nom de type C#.
-        // Se fier au nom de fichier créerait un doublon au lieu de mettre à jour l'existant.
+        // The file was renamed by hand along with the C# type name.
+        // Relying on the file name would create a duplicate instead of updating the existing one.
         var directory = Path.Combine(Path.GetTempPath(), "XrmFramework.StoreTests_" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(directory);
 
@@ -262,7 +262,7 @@ public class TablePullMergeTests
         }
         finally
         {
-            try { Directory.Delete(directory, recursive: true); } catch { /* meilleur effort */ }
+            try { Directory.Delete(directory, recursive: true); } catch { /* best effort */ }
         }
     }
 

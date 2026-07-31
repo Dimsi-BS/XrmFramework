@@ -1,9 +1,9 @@
 <Project>
 
   <!--
-    Ce fichier est injecté dans le projet consommateur par NuGet.
-    Il configure coverlet.collector avec PrivateAssets=all pour qu'il ne soit pas
-    propagé comme dépendance transitive du projet consommateur.
+    This file is injected into the consuming project by NuGet.
+    It configures coverlet.collector with PrivateAssets=all so that it is not
+    propagated as a transitive dependency of the consuming project.
   -->
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0">

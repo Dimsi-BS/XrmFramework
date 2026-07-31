@@ -24,13 +24,13 @@ internal partial class AssemblyFactory : IAssemblyFactory
 
 	public IAssemblyContext CreateFromLocalAssemblyContext(string dllPath)
 	{
-		// Inventaire par EXÉCUTION du code d'enregistrement (constructeurs / AddSteps), via le
-		// moteur partagé XrmFramework.PluginInventory : in-process sur net462, hors-process
-		// (exe net462) depuis net8/net10. Le résultat est le même schéma JSON que le reader consomme.
+		// Inventory by EXECUTING the registration code (constructors / AddSteps), via the
+		// shared XrmFramework.PluginInventory engine: in-process on net462, out-of-process
+		// (net462 exe) from net8/net10. The result is the same JSON schema the reader consumes.
 		var json = GetManifestJson(dllPath);
 		if (string.IsNullOrEmpty(json))
 			throw new InvalidOperationException(
-				$"L'inventaire de l'assembly '{dllPath}' est vide. Vérifiez que la DLL est bien une assembly plugin XrmFramework.");
+				$"The inventory of assembly '{dllPath}' is empty. Verify that the DLL is indeed an XrmFramework plugin assembly.");
 
 		var localAssembly = new AssemblyContext
 		{
@@ -43,7 +43,7 @@ internal partial class AssemblyFactory : IAssemblyFactory
 		foreach (var workflow in PluginInventoryReader.ReadWorkflows(json))
 			localAssembly.AddChild(workflow);
 
-		// Le préfixe du publisher (environnement connecté) entre dans le UniqueName des custom APIs.
+		// The publisher's prefix (connected environment) is used in the UniqueName of custom APIs.
 		var prefix = _solutionContext.Publisher.CustomizationPrefix;
 		foreach (var customApi in PluginInventoryReader.ReadCustomApis(json, prefix))
 			localAssembly.AddChild(customApi);
@@ -54,10 +54,10 @@ internal partial class AssemblyFactory : IAssemblyFactory
 	private static string GetManifestJson(string dllPath)
 	{
 #if NET462_OR_GREATER
-		// Déjà sous .NET Framework : on instancie les plugins in-process.
+		// Already on .NET Framework: plugins are instantiated in-process.
 		return PluginInventory.PluginInventoryEngine.BuildManifestJson(dllPath);
 #else
-		// net8/net10 : délégué à l'exe net462 (impossible d'instancier un plugin net462 ici).
+		// net8/net10: delegated to the net462 exe (instantiating a net462 plugin here is impossible).
 		return PluginInventoryProcessRunner.Run(dllPath);
 #endif
 	}

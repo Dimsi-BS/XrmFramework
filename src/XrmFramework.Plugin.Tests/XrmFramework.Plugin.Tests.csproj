@@ -1,16 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Projet source pour le package NuGet XrmFramework.Plugin.Tests.
+    Source project for the XrmFramework.Plugin.Tests NuGet package.
 
-    Ce projet remplit deux rôles :
-      1. Compiler les sources de tests pour vérifier qu'elles compilent correctement
-         contre la version courante de XrmFramework.Plugin.
-      2. Générer le package NuGet qui embarque ces sources comme contentFiles,
-         permettant aux consommateurs de mesurer la couverture de code du Framework.
+    This project serves two purposes:
+      1. Compile the test sources to verify that they build correctly
+         against the current version of XrmFramework.Plugin.
+      2. Generate the NuGet package that embeds these sources as contentFiles,
+         allowing consumers to measure the Framework's code coverage.
 
-    IMPORTANT : Ce projet N'EST PAS un runner de tests (IsTestProject=false).
-    Pour exécuter les tests localement, utilisez src/Tests/XrmFramework.Plugin.Tests/.
+    IMPORTANT: This project is NOT a test runner (IsTestProject=false).
+    To run the tests locally, use src/Tests/XrmFramework.Plugin.Tests/.
   -->
 
   <PropertyGroup>
@@ -27,25 +27,25 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
 
     <!--
-      Ce projet compile les tests pour validation, mais n'est pas un projet de test exécutable.
-      Le runner de tests est src/Tests/XrmFramework.Plugin.Tests/.
+      This project compiles the tests for validation purposes, but is not a runnable test project.
+      The test runner is src/Tests/XrmFramework.Plugin.Tests/.
     -->
     <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
   <!--
-    Référence au projet Framework pour compilation locale.
-    Lors de la consommation du package NuGet, cette référence est remplacée
-    par la dépendance déclarée dans le .nuspec (XrmFramework.Plugin).
+    Reference to the Framework project for local compilation.
+    When the NuGet package is consumed, this reference is replaced
+    by the dependency declared in the .nuspec (XrmFramework.Plugin).
   -->
   <ItemGroup>
     <ProjectReference Include="..\XrmFramework.Plugin\XrmFramework.Plugin.csproj" />
   </ItemGroup>
 
   <!--
-    Dépendances NUnit nécessaires pour compiler les sources de tests.
-    PrivateAssets=all sur le SDK et l'adapter : ils ne doivent pas apparaître
-    dans les dépendances transitives du package généré (géré via nuspec).
+    NUnit dependencies required to compile the test sources.
+    PrivateAssets=all on the SDK and the adapter: they must not appear
+    in the generated package's transitive dependencies (handled via nuspec).
   -->
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk">
@@ -58,9 +58,9 @@
   </ItemGroup>
 
   <!--
-    Sources de tests liées depuis src/Tests/XrmFramework.Plugin.Tests/.
-    Source unique de vérité : les fichiers ne sont pas dupliqués.
-    Le Link= contrôle l'affichage dans l'IDE.
+    Test sources linked from src/Tests/XrmFramework.Plugin.Tests/.
+    Single source of truth: the files are not duplicated.
+    The Link= attribute controls how they are displayed in the IDE.
   -->
   <ItemGroup>
     <Compile Include="..\Tests\XrmFramework.Plugin.Tests\**\*.cs"
