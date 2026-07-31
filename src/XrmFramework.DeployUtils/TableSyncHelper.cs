@@ -98,7 +98,10 @@ namespace XrmFramework.DeployUtils
         /// </returns>
         public static int Sync(string dllPath, string tablesDirectory, bool clean)
         {
-            AnsiConsole.MarkupLine("[bold]XrmFramework · migration of definitions from 2.* to 3.1+[/]");
+            // Messages this tool composes itself stay ASCII: they must survive any console, even
+            // one whose font has no glyph for a nicer character. Data it merely relays (CRM labels,
+            // paths) is another matter, and is what the UTF-8 output encoding set in the CLI covers.
+            AnsiConsole.MarkupLine("[bold]XrmFramework - migration of definitions from 2.* to 3.1+[/]");
             AnsiConsole.MarkupLine($"  DLL       : [cyan]{dllPath}[/]");
             AnsiConsole.MarkupLine($"  Directory : [cyan]{tablesDirectory}[/]");
             AnsiConsole.MarkupLine($"  Clean mode: [cyan]{(clean ? "yes" : "no")}[/]");

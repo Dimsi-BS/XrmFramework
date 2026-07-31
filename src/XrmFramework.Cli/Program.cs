@@ -1,6 +1,7 @@
 // Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Text;
 using Spectre.Console.Cli;
 using XrmFramework.Cli.Commands;
 
@@ -9,6 +10,24 @@ using XrmFramework.Cli.Commands;
 //   xrmframework tables list   [--prefix <prefix>] [--filter <text>] [--custom-only]
 //   xrmframework tables pull   [--table <name>] [--prefix <prefix>] [--tables-dir <directory>] [--noprompt]
 //   xrmframework deploy plugins --dll <path.dll> --project <name> [--on-premise] [--noprompt]
+
+// A Windows console still starts on a legacy code page (CP850 / CP1252). Those cover Western
+// European letters, so accents survive them, but anything outside their 256 slots does not:
+// arrows, box-drawing beyond the few they carry, and every Dataverse display name written in a
+// script they do not cover (Greek, Polish, Turkish...) come out as "?" or mojibake. Spectre draws
+// its tables and rules with box-drawing characters, so this affects the tool's own chrome too.
+//
+// Setting the encoding is the fix; stripping characters from the source is not, since the labels
+// come from the environment. It throws when no console is attached (output redirected to a file
+// or a CI log): there is no code page to set then, and the default UTF-8 stream already applies.
+try
+{
+    Console.OutputEncoding = Encoding.UTF8;
+}
+catch (IOException)
+{
+}
+
 var app = new CommandApp();
 
 app.Configure(config =>
