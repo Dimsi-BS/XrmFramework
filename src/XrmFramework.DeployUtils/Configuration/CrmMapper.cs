@@ -250,11 +250,11 @@ public class CrmMapper : ICrmMapper
             Version          = src.Version,
             Description      = src.Description,
             IsolationMode    = src.IsolationMode != null
-                                   ? (ModeDIsolation) src.IsolationMode.Value
-                                   : ModeDIsolation.Sandbox,
+                                   ? (IsolationMode) src.IsolationMode.Value
+                                   : IsolationMode.Sandbox,
             SourceType       = src.SourceType != null
-                                   ? (TypeDeSource) src.SourceType.Value
-                                   : TypeDeSource.Database
+                                   ? (SourceType) src.SourceType.Value
+                                   : SourceType.Database
             // Content is not mapped from remote (no need to round-trip it)
         };
     }

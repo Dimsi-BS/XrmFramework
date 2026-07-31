@@ -429,11 +429,11 @@
   "Enums": [
     {
       "LogName": "workflow|businessprocesstype",
-      "Name": "TypeDeProcessusDEntreprise",
+      "Name": "BusinessProcessType",
       "Locked": true,
       "Values": [
         {
-          "Name": "FluxDEntreprise",
+          "Name": "BusinessFlow",
           "Labels": [
             {
               "Label": "Flux d'entreprise",
@@ -443,7 +443,7 @@
         },
         {
           "Value": 1,
-          "Name": "FluxDeTaches",
+          "Name": "TaskFlow",
           "Labels": [
             {
               "Label": "Flux de tâches",
@@ -455,7 +455,7 @@
     },
     {
       "LogName": "workflow|category",
-      "Name": "Categorie",
+      "Name": "Category",
       "Locked": true,
       "Values": [
         {
@@ -469,7 +469,7 @@
         },
         {
           "Value": 1,
-          "Name": "BoiteDeDialogue",
+          "Name": "Dialog",
           "Labels": [
             {
               "Label": "Boîte de dialogue",
@@ -479,7 +479,7 @@
         },
         {
           "Value": 2,
-          "Name": "RegleMetier",
+          "Name": "BusinessRule",
           "Labels": [
             {
               "Label": "Règle métier",
@@ -499,7 +499,7 @@
         },
         {
           "Value": 4,
-          "Name": "FluxDesProcessusDEntreprise",
+          "Name": "BusinessProcessFlow",
           "Labels": [
             {
               "Label": "Flux des processus d'entreprise",
@@ -519,7 +519,7 @@
         },
         {
           "Value": 9000,
-          "Name": "FluxDeLAPIDeClientWeb",
+          "Name": "WebClientApiFlow",
           "Labels": [
             {
               "Label": "Flux de l’API de client Web",
@@ -529,7 +529,7 @@
         },
         {
           "Value": 6,
-          "Name": "FluxDeBureau",
+          "Name": "DesktopFlow",
           "Labels": [
             {
               "Label": "Flux de bureau",
@@ -545,7 +545,7 @@
       "Locked": true,
       "Values": [
         {
-          "Name": "Origine",
+          "Name": "Background",
           "Labels": [
             {
               "Label": "Origine",
@@ -555,7 +555,7 @@
         },
         {
           "Value": 1,
-          "Name": "EnTempsReel",
+          "Name": "RealTime",
           "Labels": [
             {
               "Label": "En temps réel",
@@ -567,12 +567,12 @@
     },
     {
       "LogName": "workflow|scope",
-      "Name": "Etendue",
+      "Name": "Scope",
       "Locked": true,
       "Values": [
         {
           "Value": 1,
-          "Name": "Utilisateur",
+          "Name": "User",
           "Labels": [
             {
               "Label": "Utilisateur",
@@ -582,7 +582,7 @@
         },
         {
           "Value": 2,
-          "Name": "Division",
+          "Name": "BusinessUnit",
           "Labels": [
             {
               "Label": "Division",
@@ -592,7 +592,7 @@
         },
         {
           "Value": 3,
-          "Name": "DivisMereSousDivisions",
+          "Name": "ParentChildBusinessUnits",
           "Labels": [
             {
               "Label": "Divis. mère : sous-divisions",
@@ -602,7 +602,7 @@
         },
         {
           "Value": 4,
-          "Name": "Organisation",
+          "Name": "Organization",
           "Labels": [
             {
               "Label": "Organisation",
@@ -619,7 +619,7 @@
       "Locked": true,
       "Values": [
         {
-          "Name": "Brouillon",
+          "Name": "Draft",
           "Labels": [
             {
               "Label": "Brouillon",
@@ -629,7 +629,7 @@
         },
         {
           "Value": 1,
-          "Name": "Active",
+          "Name": "Activated",
           "Labels": [
             {
               "Label": "Activé",
@@ -639,7 +639,7 @@
         },
         {
           "Value": 2,
-          "Name": "Suspendu",
+          "Name": "Suspended",
           "Labels": [
             {
               "Label": "Suspendu",
@@ -656,7 +656,7 @@
       "Values": [
         {
           "Value": 1,
-          "Name": "Brouillon",
+          "Name": "Draft",
           "Labels": [
             {
               "Label": "Brouillon",
@@ -666,7 +666,7 @@
         },
         {
           "Value": 2,
-          "Name": "Active",
+          "Name": "Activated",
           "Labels": [
             {
               "Label": "Activé",
@@ -713,7 +713,7 @@
         },
         {
           "Value": 3,
-          "Name": "Modele",
+          "Name": "Template",
           "Labels": [
             {
               "Label": "Modèle",
@@ -726,7 +726,7 @@
     },
     {
       "LogName": "workflow|uiflowtype",
-      "Name": "TypeDeFluxDeBureau",
+      "Name": "DesktopFlowType",
       "Locked": true,
       "Values": [
         {
@@ -740,7 +740,7 @@
           ]
         },
         {
-          "Name": "EnregistreurWindowsV1",
+          "Name": "WindowsRecorderV1",
           "Labels": [
             {
               "Label": "Enregistreur Windows (V1)",

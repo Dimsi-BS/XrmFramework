@@ -4028,7 +4028,7 @@
   "Enums": [
     {
       "LogName": "businessunit|address1_addresstypecode",
-      "Name": "BusinessUnitAdresse1TypeDAdresse",
+      "Name": "BusinessUnitAddress1AddressType",
       "Locked": true,
       "Values": [
         {
@@ -4046,7 +4046,7 @@
     },
     {
       "LogName": "businessunit|address1_shippingmethodcode",
-      "Name": "BusinessUnitAdresse1ModeDeLivraison",
+      "Name": "BusinessUnitAddress1ShippingMethod",
       "Locked": true,
       "Values": [
         {
@@ -4064,7 +4064,7 @@
     },
     {
       "LogName": "businessunit|address2_addresstypecode",
-      "Name": "BusinessUnitAdresse2TypeDAdresse",
+      "Name": "BusinessUnitAddress2AddressType",
       "Locked": true,
       "Values": [
         {
@@ -4082,7 +4082,7 @@
     },
     {
       "LogName": "businessunit|address2_shippingmethodcode",
-      "Name": "BusinessUnitAdresse2ModeDeLivraison",
+      "Name": "BusinessUnitAddress2ShippingMethod",
       "Locked": true,
       "Values": [
         {

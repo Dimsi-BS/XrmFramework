@@ -131,7 +131,7 @@ xrmframework tables sync --dll bin/Release/net8.0/MyProject.Plugins.dll \
 #### Naming the option sets and their members
 
 A `.table` records an option set's logical name, which comes from the CRM; the `Name` under which
-it is compiled is a project decision — teams rename `workflow_runas` into `UtilisateurExecutant`
+it is compiled is a project decision — teams rename `workflow_runas` into `RunAsUser`
 and their code depends on it. The same holds one level down: the generator derives each member's
 name from its CRM label and strips the diacritics (`Modèle` becomes `Modele`), but those get
 renamed too, and every `MyEnum.EnCours` in the project compiles against the result. Under 2.\*

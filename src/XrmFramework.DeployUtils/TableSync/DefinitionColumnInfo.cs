@@ -36,7 +36,7 @@ namespace XrmFramework.DeployUtils.TableSync
 
         /// <summary>
         /// C# name of the enum declared by <c>[OptionSet(typeof(...))]</c> on the field
-        /// (e.g. "UtilisateurExecutant"), or <see langword="null" /> if the column carries no option set.
+        /// (e.g. "RunAsUser"), or <see langword="null" /> if the column carries no option set.
         /// </summary>
         /// <remarks>
         /// This is an identifier the project's code depends on, and teams rename it freely — the CRM

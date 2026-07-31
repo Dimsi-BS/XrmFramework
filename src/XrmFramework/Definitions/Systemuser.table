@@ -29758,10 +29758,10 @@
   "Enums": [
     {
       "LogName": "systemuser|accessmode",
-      "Name": "ModeDAcces",
+      "Name": "AccessMode",
       "Values": [
         {
-          "Name": "LectureEcriture",
+          "Name": "ReadWrite",
           "Labels": [
             {
               "Label": "Lecture-écriture",
@@ -29771,7 +29771,7 @@
         },
         {
           "Value": 1,
-          "Name": "Administrateur",
+          "Name": "Administrative",
           "Labels": [
             {
               "Label": "Administrateur",
@@ -29781,7 +29781,7 @@
         },
         {
           "Value": 2,
-          "Name": "Lecture",
+          "Name": "Read",
           "Labels": [
             {
               "Label": "Lecture",
@@ -29791,7 +29791,7 @@
         },
         {
           "Value": 3,
-          "Name": "UtilisateurDeSupport",
+          "Name": "SupportUser",
           "Labels": [
             {
               "Label": "Utilisateur de support",
@@ -29801,7 +29801,7 @@
         },
         {
           "Value": 4,
-          "Name": "NonInteractif",
+          "Name": "NonInteractive",
           "Labels": [
             {
               "Label": "Non interactif",
@@ -29811,7 +29811,7 @@
         },
         {
           "Value": 5,
-          "Name": "AdministrateurDelegue",
+          "Name": "DelegatedAdmin",
           "Labels": [
             {
               "Label": "Administrateur délégué",
@@ -29823,11 +29823,11 @@
     },
     {
       "LogName": "systemuser|address1_addresstypecode",
-      "Name": "SystemUserAdresse1TypeDAdresse",
+      "Name": "SystemUserAddress1AddressType",
       "Values": [
         {
           "Value": 1,
-          "Name": "ValeurParDefaut",
+          "Name": "DefaultValue",
           "Labels": [
             {
               "Label": "Valeur par défaut",
@@ -29840,11 +29840,11 @@
     },
     {
       "LogName": "systemuser|address1_shippingmethodcode",
-      "Name": "SystemUserAdresse1ModeDeLivraison",
+      "Name": "SystemUserAddress1ShippingMethod",
       "Values": [
         {
           "Value": 1,
-          "Name": "ValeurParDefaut",
+          "Name": "DefaultValue",
           "Labels": [
             {
               "Label": "Valeur par défaut",
@@ -29857,11 +29857,11 @@
     },
     {
       "LogName": "systemuser|address2_addresstypecode",
-      "Name": "SystemUserAdresse2TypeDAdresse",
+      "Name": "SystemUserAddress2AddressType",
       "Values": [
         {
           "Value": 1,
-          "Name": "ValeurParDefaut",
+          "Name": "DefaultValue",
           "Labels": [
             {
               "Label": "Valeur par défaut",
@@ -29874,11 +29874,11 @@
     },
     {
       "LogName": "systemuser|address2_shippingmethodcode",
-      "Name": "SystemUserAdresse2ModeDeLivraison",
+      "Name": "SystemUserAddress2ShippingMethod",
       "Values": [
         {
           "Value": 1,
-          "Name": "ValeurParDefaut",
+          "Name": "DefaultValue",
           "Labels": [
             {
               "Label": "Valeur par défaut",
@@ -29926,10 +29926,10 @@
     },
     {
       "LogName": "systemuser|caltype",
-      "Name": "TypesDeLicencesDAccesClient",
+      "Name": "ClientAccessLicenseType",
       "Values": [
         {
-          "Name": "Professionnel",
+          "Name": "Professional",
           "Labels": [
             {
               "Label": "Professionnel",
@@ -29939,7 +29939,7 @@
         },
         {
           "Value": 1,
-          "Name": "Administrateur",
+          "Name": "Administrative",
           "Labels": [
             {
               "Label": "Administrateur",
@@ -29949,7 +29949,7 @@
         },
         {
           "Value": 2,
-          "Name": "Base",
+          "Name": "Basic",
           "Labels": [
             {
               "Label": "Base",
@@ -29979,7 +29979,7 @@
         },
         {
           "Value": 5,
-          "Name": "Essentiel",
+          "Name": "Essential",
           "Labels": [
             {
               "Label": "Essentiel",
@@ -29999,7 +29999,7 @@
         },
         {
           "Value": 7,
-          "Name": "Entreprise",
+          "Name": "Enterprise",
           "Labels": [
             {
               "Label": "Entreprise",
@@ -30009,7 +30009,7 @@
         },
         {
           "Value": 8,
-          "Name": "AppareilEntreprise",
+          "Name": "DeviceEnterprise",
           "Labels": [
             {
               "Label": "Appareil - Entreprise",
@@ -30019,7 +30019,7 @@
         },
         {
           "Value": 9,
-          "Name": "Ventes",
+          "Name": "Sales",
           "Labels": [
             {
               "Label": "Ventes",
@@ -30086,13 +30086,13 @@
     },
     {
       "LogName": "systemuser|emailrouteraccessapproval",
-      "Name": "IndiqueSiLAdresseDeMessagerieEstApprouveePourChaqueBoiteAuxLettresPourLeTraitementDuCourrierElectroniqueViaLaSynchronisationCoteServeurOuEMailRouter",
+      "Name": "EmailRouterAccessApproval",
 
       "Locked": true,
 
       "Values": [
         {
-          "Name": "Vide",
+          "Name": "Empty",
           "Labels": [
             {
               "Label": "Vide",
@@ -30102,7 +30102,7 @@
         },
         {
           "Value": 1,
-          "Name": "Approuve",
+          "Name": "Approved",
           "Labels": [
             {
               "Label": "Approuvé",
@@ -30112,7 +30112,7 @@
         },
         {
           "Value": 2,
-          "Name": "ApprobationEnAttente",
+          "Name": "PendingApproval",
           "Labels": [
             {
               "Label": "Approbation en attente",
@@ -30122,7 +30122,7 @@
         },
         {
           "Value": 3,
-          "Name": "Rejete",
+          "Name": "Rejected",
           "Labels": [
             {
               "Label": "Rejeté",
@@ -30134,10 +30134,10 @@
     },
     {
       "LogName": "systemuser|incomingemaildeliverymethod",
-      "Name": "ModeDeDistributionDesCourriersElectroniquesEntrants",
+      "Name": "IncomingEmailDeliveryMethod",
       "Values": [
         {
-          "Name": "AucunE",
+          "Name": "None",
           "Labels": [
             {
               "Label": "Aucun(e)",
@@ -30147,7 +30147,7 @@
         },
         {
           "Value": 1,
-          "Name": "MicrosoftDynamics365PourOutlook",
+          "Name": "MicrosoftDynamics365ForOutlook",
           "Labels": [
             {
               "Label": "Microsoft Dynamics 365 pour Outlook",
@@ -30157,7 +30157,7 @@
         },
         {
           "Value": 2,
-          "Name": "SynchronisationCoteServeurOuEMailRouter",
+          "Name": "ServerSideSyncOrEmailRouter",
           "Labels": [
             {
               "Label": "Synchronisation côté serveur ou E-mail Router",
@@ -30167,7 +30167,7 @@
         },
         {
           "Value": 3,
-          "Name": "BoiteAuxLettresDeTransfert",
+          "Name": "ForwardMailbox",
           "Labels": [
             {
               "Label": "Boîte aux lettres de transfert",
