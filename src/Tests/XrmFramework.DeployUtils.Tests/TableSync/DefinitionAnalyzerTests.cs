@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using XrmFramework.DeployUtils.TableSync;
 using XrmFramework.DeployUtils.Tests.TableSync.Fixtures;
 
@@ -131,6 +132,34 @@ public class DefinitionAnalyzerTests
 
         Assert.IsNull(def.Columns.Single(c => c.Name == "Name").OptionSetName);
         Assert.IsNull(def.Columns.Single(c => c.Name == "Id").OptionSetName);
+    }
+
+    [Test]
+    public void ExtractDefinitions_ExtractsOptionSetMembers_WithTheirValues()
+    {
+        var status = GetOurDefinition("TableSyncTestOptionSet").Columns.Single(c => c.Name == "StatusCode");
+
+        var members = status.OptionSetValues.Select(v => $"{v.Value}:{v.Name}").ToList();
+
+        CollectionAssert.AreEqual(new[] { "1:EnCours", "2:Termine", "3:Modele" }, members,
+            "Member names are what MyEnum.EnCours compiles against; the value is the CRM key.");
+    }
+
+    [Test]
+    public void ExtractDefinitions_KeepsMembersInDeclarationOrder()
+    {
+        var global = GetOurDefinition("TableSyncTestOptionSet").Columns.Single(c => c.Name == "GlobalPick");
+
+        Assert.AreEqual("Null", global.OptionSetValues[0].Name,
+            "The synthetic Null member comes first: order is what tells it apart from a real option 0.");
+    }
+
+    [Test]
+    public void ExtractDefinitions_OptionSetValuesIsEmpty_WhenColumnHasNoOptionSet()
+    {
+        var def = GetOurDefinition("TableSyncTestOptionSet");
+
+        CollectionAssert.IsEmpty(def.Columns.Single(c => c.Name == "Name").OptionSetValues);
     }
 
     // ──────────────────────────────────────────────────────────────────────────

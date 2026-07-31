@@ -135,16 +135,26 @@ namespace XrmFramework.DeployUtils.Tests.TableSync.Fixtures
     // decision the CRM knows nothing about, and must be recovered from the assembly.
     // ──────────────────────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Members renamed by hand: the generator would have derived "Actif"/"Modele" from the CRM
+    /// labels, and the project's code compiles against these names instead.
+    /// </summary>
     public enum TableSyncTestRenamedStatus
     {
-        Active = 0,
-        Inactive = 1
+        EnCours = 1,
+        Termine = 2,
+        Modele = 3
     }
 
+    /// <summary>
+    /// Allows an empty value: the generator prepends a synthetic "Null = 0" that mirrors
+    /// HasNullValue rather than any CRM option.
+    /// </summary>
     public enum TableSyncTestRenamedGlobal
     {
-        Yes = 0,
-        No = 1
+        Null = 0,
+        Oui = 1,
+        Non = 2
     }
 
     [EntityDefinition]

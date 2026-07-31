@@ -1,8 +1,28 @@
 // Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+
 namespace XrmFramework.DeployUtils.TableSync
 {
+    /// <summary>
+    /// One member of an option set enum, as it is declared in the analyzed assembly.
+    /// </summary>
+    public sealed class DefinitionOptionSetValue
+    {
+        /// <summary>Numeric value of the member — the key the CRM option is matched on.</summary>
+        public int Value { get; }
+
+        /// <summary>C# name of the member, e.g. "EnCours".</summary>
+        public string Name { get; }
+
+        public DefinitionOptionSetValue(int value, string name)
+        {
+            Value = value;
+            Name = name;
+        }
+    }
+
     /// <summary>
     /// Represents a column extracted from a *Definition class via reflection.
     /// </summary>
@@ -25,11 +45,24 @@ namespace XrmFramework.DeployUtils.TableSync
         /// </remarks>
         public string OptionSetName { get; }
 
-        public DefinitionColumnInfo(string logicalName, string name, string optionSetName = null)
+        /// <summary>
+        /// Members of that enum, in declaration order. Empty when the column carries no option set.
+        /// </summary>
+        /// <remarks>
+        /// Same reasoning as <see cref="OptionSetName" />, one level down: the generator derives a
+        /// member name from the CRM label (<c>Modèle</c> becomes <c>Modele</c>), but teams rename
+        /// them, and every <c>MyEnum.EnCours</c> in the project's code depends on the result. The
+        /// numeric value is the stable key the CRM option is matched on.
+        /// </remarks>
+        public IReadOnlyList<DefinitionOptionSetValue> OptionSetValues { get; }
+
+        public DefinitionColumnInfo(string logicalName, string name, string optionSetName = null,
+                                    IReadOnlyList<DefinitionOptionSetValue> optionSetValues = null)
         {
             LogicalName = logicalName;
             Name = name;
             OptionSetName = optionSetName;
+            OptionSetValues = optionSetValues ?? new List<DefinitionOptionSetValue>();
         }
     }
 }
