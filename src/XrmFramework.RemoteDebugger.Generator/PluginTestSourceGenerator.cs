@@ -154,7 +154,7 @@ namespace XrmFramework.RemoteDebugger.Generator
 
         /// <summary>
         /// Generates the test method name from the file name.
-        /// Example: AccountPlugin_20241201_143022_a1b2c3d4 → Session_20241201_143022_a1b2c3d4
+        /// Example: AccountPlugin_20241201_143022_a1b2c3d4 -> Session_20241201_143022_a1b2c3d4
         /// </summary>
         private static string ExtractTestMethodName(string fileName)
         {

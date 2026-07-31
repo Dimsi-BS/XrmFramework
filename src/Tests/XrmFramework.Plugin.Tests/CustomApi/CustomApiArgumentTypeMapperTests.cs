@@ -15,7 +15,7 @@ namespace XrmFramework.Tests.Plugin;
 public class CustomApiArgumentTypeMapperTests
 {
     // ──────────────────────────────────────────────
-    //  Known types → correct mapping
+    //  Known types -> correct mapping
     // ──────────────────────────────────────────────
 
     [Test]
@@ -136,7 +136,7 @@ public class CustomApiArgumentTypeMapperTests
     }
 
     // ──────────────────────────────────────────────
-    //  Enum → Picklist (special case)
+    //  Enum -> Picklist (special case)
     // ──────────────────────────────────────────────
 
     [Test]
@@ -159,7 +159,7 @@ public class CustomApiArgumentTypeMapperTests
     }
 
     // ──────────────────────────────────────────────
-    //  Unknown type → String + returns false
+    //  Unknown type -> String + returns false
     // ──────────────────────────────────────────────
 
     [Test]

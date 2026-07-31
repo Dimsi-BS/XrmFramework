@@ -100,8 +100,8 @@ namespace XrmFramework.Analyzers
                 bool hasPrimaryCtor = classDecl.ParameterList != null;
 
                 string title = hasPrimaryCtor
-                    ? $"Add IDateTimeProvider to primary constructor → {DefaultFieldName}.{memberName}"
-                    : $"Inject IDateTimeProvider into constructor → {DefaultFieldName}.{memberName}";
+                    ? $"Add IDateTimeProvider to primary constructor -> {DefaultFieldName}.{memberName}"
+                    : $"Inject IDateTimeProvider into constructor -> {DefaultFieldName}.{memberName}";
 
                 context.RegisterCodeFix(
                     CodeAction.Create(
@@ -210,7 +210,7 @@ namespace XrmFramework.Analyzers
                                   ?? DefaultFieldName;
             bool   needNewField = existingField == null;
 
-            // 1. Replace DateTime.Now/UtcNow → _dateTimeProvider.Now/UtcNow
+            // 1. Replace DateTime.Now/UtcNow -> _dateTimeProvider.Now/UtcNow
             var newRoot = root.ReplaceNode(memberAccess, BuildMemberAccess(fieldName, memberName, memberAccess));
 
             if (!needNewField)
@@ -280,7 +280,7 @@ namespace XrmFramework.Analyzers
                                   ?? DefaultFieldName;
             bool   needNewField = existingField == null;
 
-            // 1. Replace DateTime.Now/UtcNow → _dateTimeProvider.Now/UtcNow
+            // 1. Replace DateTime.Now/UtcNow -> _dateTimeProvider.Now/UtcNow
             var newRoot = root.ReplaceNode(memberAccess, BuildMemberAccess(fieldName, memberName, memberAccess));
 
             if (!needNewField)

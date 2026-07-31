@@ -15,7 +15,7 @@ namespace XrmFramework.DeployUtils.Tests.TableSync;
 
 /// <summary>
 /// Survival of the selection across a pull, verified <b>end to end</b>: Dataverse metadata
-/// → conversion → merge → write to disk → re-read.
+/// -> conversion -> merge -> write to disk -> re-read.
 /// </summary>
 /// <remarks>
 /// The tests in <see cref="TablePullMergeTests" /> cover the in-memory merge; these cover

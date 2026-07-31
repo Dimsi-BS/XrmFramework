@@ -21,7 +21,7 @@ namespace XrmFramework.PluginInventory
     ///
     /// This code is shared (linked source):
     /// <list type="bullet">
-    ///   <item>executed out-of-process by the net462 tool (net8 CLI → deploy plugins);</item>
+    ///   <item>executed out-of-process by the net462 tool (net8 CLI -> deploy plugins);</item>
     ///   <item>executed in-process by the net462 DeployUtils (legacy deployment program).</item>
     /// </list>
     /// </summary>
@@ -72,7 +72,7 @@ namespace XrmFramework.PluginInventory
                 if (!type.IsClass || type.IsAbstract)
                     continue;
 
-                // Order matters: a CustomApi derives from Plugin → test it first.
+                // Order matters: a CustomApi derives from Plugin -> test it first.
                 if (InheritsFrom(type, WorkflowTypeName))
                 {
                     workflows.Add(ExtractWorkflow(type));
@@ -161,7 +161,7 @@ namespace XrmFramework.PluginInventory
             }
             catch
             {
-                // DisplayName not resolvable → fall back to the type name.
+                // DisplayName not resolvable -> fall back to the type name.
             }
 
             if (string.IsNullOrEmpty(displayName))

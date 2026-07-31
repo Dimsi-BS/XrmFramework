@@ -16,7 +16,7 @@ namespace XrmFramework.RemoteDebugger.Client.ManagerHub;
 /// </summary>
 /// <remarks>
 /// The connection is established identically to the Desktop application:
-/// same URL (<c>ApiUrl/desktopHub</c>), same MSAL flow (silent → interactive),
+/// same URL (<c>ApiUrl/desktopHub</c>), same MSAL flow (silent -> interactive),
 /// same <c>desktop-connect</c> scope.
 /// If the connection is absent or fails, the methods are silent
 /// no-ops — the local debugger keeps working normally.
@@ -26,7 +26,7 @@ internal sealed class ManagerHubForwarder : IDisposable
     private readonly HubConnection _connection;
     private readonly Action<string> _log;
 
-    // Parent/child tree tracking: CorrelationId → (Depth → current ExecutionId)
+    // Parent/child tree tracking: CorrelationId -> (Depth -> current ExecutionId)
     private readonly Dictionary<Guid, Dictionary<int, int>> _correlationTree = new();
     private readonly object _treeLock = new();
 
@@ -37,7 +37,7 @@ internal sealed class ManagerHubForwarder : IDisposable
         _log = log ?? Console.WriteLine;
 
         // Same authentication flow as the Desktop application:
-        // AcquireTokenSilent (cache) → AcquireTokenInteractive if needed.
+        // AcquireTokenSilent (cache) -> AcquireTokenInteractive if needed.
         var authService = new ManagerAuthService(settings, _log);
 
         // URL built the same way as DesktopHubClient:
@@ -218,7 +218,7 @@ internal sealed class ManagerHubForwarder : IDisposable
 
     // ── Parent/child tracking ────────────────────────────────────────────────
     //
-    // Same CorrelationId → Depth table → current ExecutionId.
+    // Same CorrelationId -> Depth table -> current ExecutionId.
     // The parent of an execution at depth N is the entry at depth N-1.
 
     private int? ResolveParentAndRegister(ExecutionRecord record)

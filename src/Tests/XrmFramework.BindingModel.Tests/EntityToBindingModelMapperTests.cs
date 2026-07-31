@@ -11,7 +11,7 @@ using XrmFramework.BindingModel.Tests.Fakes;
 namespace XrmFramework.BindingModel.Tests
 {
     /// <summary>
-    /// Unit tests for the Entity → IBindingModel mapping path
+    /// Unit tests for the Entity -> IBindingModel mapping path
     /// (exercised through <see cref="BindingModelHelper.ToBindingModel{T}(Entity)"/>).
     /// </summary>
     [TestFixture]

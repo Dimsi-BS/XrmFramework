@@ -29,8 +29,8 @@
     <!--
       Reference to the Framework's test packages.
       These two packages transitively bring in:
-        - XrmFramework.Plugin  → Framework Plugin sources (contentFiles)
-        - XrmFramework.Core    → base type sources (contentFiles)
+        - XrmFramework.Plugin  -> Framework Plugin sources (contentFiles)
+        - XrmFramework.Core    -> base type sources (contentFiles)
         - MSTest.TestFramework, MSTest.TestAdapter
         - Microsoft.NET.Test.Sdk
         - coverlet.collector (via the .props file injected by NuGet)

@@ -247,7 +247,7 @@ namespace XrmFramework.RemoteDebugger.Common
 
                 if (!pluginFound)
                 {
-                    // ── Type unknown locally → return the context unchanged ──
+                    // ── Type unknown locally -> return the context unchanged ──
                     // Mark the record as completed to stop the timer in the TUI.
                     record.Complete(remoteContext);
                     ExecutionCompleted?.Invoke(record);

@@ -62,7 +62,7 @@ public static class NameFormatter
     }
 
     /// <summary>
-    /// Removes the publisher prefix from a schema name (<c>ftp_contrat</c> → <c>Contrat</c>)
+    /// Removes the publisher prefix from a schema name (<c>ftp_contrat</c> -> <c>Contrat</c>)
     /// and forces the first letter to uppercase.
     /// </summary>
     /// <param name="name">Dataverse schema name.</param>
@@ -101,7 +101,7 @@ public static class NameFormatter
     }
 
     /// <summary>
-    /// Decomposes then removes diacritical marks ("Réf. Société" → "Ref. Societe").
+    /// Decomposes then removes diacritical marks ("Réf. Société" -> "Ref. Societe").
     /// </summary>
     private static string RemoveDiacritics(string text)
     {

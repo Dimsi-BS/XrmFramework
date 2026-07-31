@@ -193,7 +193,7 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
         foreach (var na in mappingAttr.NamedArguments)
             if (na.Key == "IsValidForUpdate" && na.Value.Value is bool b) { isValidForUpdate = b; break; }
 
-        // ── Resolve column field → [AttributeMetadata] + [CrmLookup] ─────────
+        // ── Resolve column field -> [AttributeMetadata] + [CrmLookup] ─────────
         IFieldSymbol? columnField = null;
         if (mappingAttr.ApplicationSyntaxReference?.GetSyntax(ct) is AttributeSyntax attrSyn)
         {

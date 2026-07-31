@@ -26,7 +26,7 @@ namespace XrmFramework.Analyzers
 
         /// <summary>
         /// Builds the documentation URL surfaced by the IDE (the diagnostic's <c>helpLinkUri</c>)
-        /// for the given rule id, e.g. <c>HelpLink("XRM0010")</c> →
+        /// for the given rule id, e.g. <c>HelpLink("XRM0010")</c> ->
         /// <c>.../docs/Analyzers.md#xrm0010</c>.
         /// </summary>
         public static string HelpLink(string ruleId) => $"{HelpLinkBase}#{ruleId.ToLowerInvariant()}";

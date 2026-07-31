@@ -17,7 +17,7 @@ namespace XrmFramework.PluginInventory.Tests;
 ///   <item>plugin discovery (public + internal) and exclusion of non-plugins;</item>
 ///   <item>faithful transcription of steps (message/stage/mode, images, filtering, order…);</item>
 ///   <item>custom APIs (binding, allowed processing, typed arguments) and workflows;</item>
-///   <item>the producer → <see cref="PluginInventoryReader" /> round-trip (real consumer).</item>
+///   <item>the producer -> <see cref="PluginInventoryReader" /> round-trip (real consumer).</item>
 /// </list>
 /// </summary>
 [TestFixture]
@@ -161,7 +161,7 @@ public class PluginInventoryEngineTests
         });
     }
 
-    // ── Producer → real consumer round-trip (PluginInventoryReader) ─────────
+    // ── Producer -> real consumer round-trip (PluginInventoryReader) ─────────
 
     [Test]
     public void RoundTrip_ThroughPluginInventoryReader_MapsTheRealModel()
