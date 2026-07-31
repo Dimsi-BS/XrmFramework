@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
       <TargetFrameworks>$(XrmFramework_Runtime_TFM)</TargetFrameworks>
@@ -152,9 +152,10 @@
     </ItemGroup>
 
   <!--
-    .table file synchronization is now distributed as a standalone .NET tool
+    The 2.* -> 3.1+ definitions migration is distributed as a standalone .NET tool
     (XrmFramework.Cli project, "xrmframework tables sync" command).
-    The logic still lives here (TableSyncHelper / DefinitionAnalyzer / TableFileSyncer).
+    The logic still lives here (TableSyncHelper / DefinitionAnalyzer / TableFileSyncer /
+    DefinitionFileMigrator).
   -->
 
 </Project>

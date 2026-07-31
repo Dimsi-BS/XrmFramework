@@ -42,7 +42,7 @@
     <file src="build\**\*" target="build/" />
 
     <!--
-      .table synchronization is distributed separately as a .NET tool
+      The 2.* -> 3.1+ definitions migration is distributed separately as a .NET tool
       (XrmFramework.Cli package, "xrmframework tables sync" command).
       This package no longer bundles a tools/ folder.
     -->

@@ -163,10 +163,40 @@ namespace XrmFramework.DeployUtils.TableSync
                 }
 
                 if (!string.IsNullOrEmpty(logicalName))
-                    columns.Add(new DefinitionColumnInfo(logicalName, field.Name));
+                    columns.Add(new DefinitionColumnInfo(logicalName, field.Name, ExtractOptionSetName(field)));
             }
 
             return columns;
+        }
+
+        /// <summary>
+        /// Reads the enum name from <c>[OptionSet(typeof(SomeEnum))]</c> carried by a column constant.
+        /// </summary>
+        /// <remarks>
+        /// Like the rest of this analyzer, the attribute is matched by simple name so that several
+        /// versions of XrmFramework can coexist in the load context. The argument is a
+        /// <see cref="Type" />, whose resolution may fail if the enum lives in an assembly that could
+        /// not be loaded — in that case the column simply carries no option set name.
+        /// </remarks>
+        private static string ExtractOptionSetName(FieldInfo field)
+        {
+            try
+            {
+                foreach (var attribute in field.GetCustomAttributesData())
+                {
+                    if (attribute.AttributeType.Name != "OptionSetAttribute"
+                        || attribute.ConstructorArguments.Count < 1)
+                        continue;
+
+                    return (attribute.ConstructorArguments[0].Value as Type)?.Name;
+                }
+            }
+            catch
+            {
+                // Unresolvable attribute or type: not worth failing the whole migration for.
+            }
+
+            return null;
         }
     }
 }

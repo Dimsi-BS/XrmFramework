@@ -5,7 +5,7 @@ using Spectre.Console.Cli;
 using XrmFramework.Cli.Commands;
 
 // Entry point of the XrmFramework CLI.
-//   xrmframework tables sync   --dll <path.dll> --tables-dir <directory> [--clean]
+//   xrmframework tables sync   --dll <path.dll> --tables-dir <directory> [--clean]   (2.* -> 3.1+ migration)
 //   xrmframework tables list   [--prefix <prefix>] [--filter <text>] [--custom-only]
 //   xrmframework tables pull   [--table <name>] [--prefix <prefix>] [--tables-dir <directory>] [--noprompt]
 //   xrmframework deploy plugins --dll <path.dll> --project <name> [--on-premise] [--noprompt]
@@ -20,7 +20,7 @@ app.Configure(config =>
         tables.SetDescription("Commands related to tables / .table files.");
 
         tables.AddCommand<TableSyncCommand>("sync")
-              .WithDescription("Synchronizes the .table files from an assembly containing [[EntityDefinition]] classes.")
+              .WithDescription("Migrates definitions from XrmFramework 2.* to 3.1+: updates the .table files from a 2.* assembly, then cleans up the *Definition.cs files. Run once.")
               .WithExample("tables", "sync", "--dll", "bin/MyProject.dll", "--tables-dir", "Definitions");
 
         tables.AddCommand<TableListCommand>("list")

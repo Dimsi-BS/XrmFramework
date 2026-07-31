@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using XrmFramework.Core;
 using XrmFramework.DeployUtils.TableSync;
 
@@ -183,7 +184,7 @@ public class TableFileSyncerTests
     [Test]
     public void Sync_Clean_DeletesOrphanedFile_WithoutLabels()
     {
-        // File without any column carrying Labels → considered entirely
+        // File without any column carrying Labels -> considered entirely
         // produced by TableSyncHelper, hence removable.
         WriteTable("Ghost", BuildTable("ghost", "Ghost", "ghosts",
             new Column { LogicalName = "ghostid", Name = "Id", Selected = true }));
@@ -197,7 +198,7 @@ public class TableFileSyncerTests
     [Test]
     public void Sync_Clean_KeepsOrphanedFile_WithLabels()
     {
-        // File with at least one column carrying Labels → real CRM data.
+        // File with at least one column carrying Labels -> real CRM data.
         // Must be kept even if no Definition references it anymore.
         WriteTable("Legacy", BuildTable("legacy", "Legacy", "legacies",
             new Column
@@ -343,8 +344,207 @@ public class TableFileSyncerTests
     }
 
     // ══════════════════════════════════════════════════════════════════════════
+    // Option set names read from [OptionSet(typeof(...))]
+    // ══════════════════════════════════════════════════════════════════════════
+
+    [Test]
+    public void Sync_AppliesOptionSetName_ToLocalOptionSet()
+    {
+        WriteTable("Contact", TableWithLocalOptionSet(currentName: "contact_statuscode"));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("ContactStatus") });
+
+        var optionSet = LoadTable("Contact").Enums.Single();
+        Assert.AreEqual("ContactStatus", optionSet.Name,
+            "The C# name found on the column must be carried over to the option set it points at.");
+    }
+
+    [Test]
+    public void Sync_PreservesOptionSetValues_WhenRenaming()
+    {
+        WriteTable("Contact", TableWithLocalOptionSet(currentName: "contact_statuscode"));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("ContactStatus") });
+
+        var optionSet = LoadTable("Contact").Enums.Single();
+        Assert.AreEqual("contact|statuscode", optionSet.LogicalName, "The CRM key must not move.");
+        Assert.AreEqual(1, optionSet.Values.Count, "Renaming must not drop the members.");
+    }
+
+    [Test]
+    public void Sync_AppliesOptionSetName_ToGlobalOptionSetInItsOwnFile()
+    {
+        // A global option set is not in the table that uses it: it lives in OptionSet.table.
+        WriteTable("Contact", TableWithColumnPointingAt("tabsync_yesno"));
+        WriteTable("OptionSet", GlobalOptionSetTable(
+            new OptionSetEnum { LogicalName = "tabsync_yesno", Name = "tabsync_yesno", IsGlobal = true }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("YesNo") });
+
+        Assert.AreEqual("YesNo", LoadTable("OptionSet").Enums.Single().Name);
+    }
+
+    [Test]
+    public void Sync_AppliesOptionSetName_ToBothCopies_WhenAGlobalIsMirroredInItsTable()
+    {
+        // The 2.* DefinitionManager kept in a table's own Enums every option set one of its columns
+        // referenced — globals included — while also writing the globals to OptionSet.table. Both
+        // copies reach the generator, so renaming only one leaves the other to contradict it.
+        var contact = TableWithColumnPointingAt("tabsync_yesno");
+        contact.Enums.Add(new OptionSetEnum
+        {
+            LogicalName = "tabsync_yesno",
+            Name = "tabsync_yesno",
+            IsGlobal = true
+        });
+        WriteTable("Contact", contact);
+
+        WriteTable("OptionSet", GlobalOptionSetTable(
+            new OptionSetEnum { LogicalName = "tabsync_yesno", Name = "tabsync_yesno", IsGlobal = true }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("YesNo") });
+
+        Assert.AreEqual("YesNo", LoadTable("Contact").Enums.Single().Name,
+            "The copy held by the table must be renamed.");
+        Assert.AreEqual("YesNo", LoadTable("OptionSet").Enums.Single().Name,
+            "The shared copy must be renamed too, and its file written back.");
+    }
+
+    [Test]
+    public void Sync_DoesNotRenameLockedOptionSet()
+    {
+        // "Locked" marks the option sets shipped by the framework: their name belongs to the
+        // package's own generated code.
+        WriteTable("Contact", TableWithColumnPointingAt("tabsync_yesno"));
+        WriteTable("OptionSet", GlobalOptionSetTable(new OptionSetEnum
+        {
+            LogicalName = "tabsync_yesno",
+            Name = "FrameworkYesNo",
+            IsGlobal = true,
+            IsLocked = true
+        }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("YesNo") });
+
+        Assert.AreEqual("FrameworkYesNo", LoadTable("OptionSet").Enums.Single().Name);
+    }
+
+    [Test]
+    public void Sync_LeavesOptionSetAlone_WhenColumnCarriesNoAttribute()
+    {
+        WriteTable("Contact", TableWithLocalOptionSet(currentName: "contact_statuscode"));
+
+        // Same column, but the code declares no [OptionSet].
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet(null) });
+
+        Assert.AreEqual("contact_statuscode", LoadTable("Contact").Enums.Single().Name);
+    }
+
+    [Test]
+    public void Sync_LeavesOptionSetAlone_WhenColumnIsNewAndCarriesNoCrmMetadata()
+    {
+        // A column created by the migration has no EnumName yet: there is no option set to name.
+        WriteTable("Contact", BuildTable("contact", "Contact", "contacts"));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDefWithOptionSet("ContactStatus") });
+
+        CollectionAssert.IsEmpty(LoadTable("Contact").Enums,
+            "Naming an option set that the .table does not describe would invent an empty enum.");
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // The global option sets pseudo-table
+    // ══════════════════════════════════════════════════════════════════════════
+
+    [Test]
+    public void Sync_Clean_KeepsGlobalOptionSetTable()
+    {
+        // OptionSet.table describes no entity, so no Definition claims it, and it holds no column
+        // to vouch for its content: both orphan heuristics would condemn it.
+        WriteTable("OptionSet", GlobalOptionSetTable(
+            new OptionSetEnum { LogicalName = "tabsync_yesno", Name = "YesNo", IsGlobal = true }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDef() }, clean: true);
+
+        Assert.IsTrue(File.Exists(Path.Combine(_tempDir, "OptionSet.table")),
+            "Deleting the global option sets would take every shared enum of the project with it.");
+        Assert.AreEqual(1, LoadTable("OptionSet").Enums.Count);
+    }
+
+    [Test]
+    public void Sync_Clean_StillDeletesARealTableNamedOptionSet()
+    {
+        // Identification goes by logical name, not by file name: a genuine entity that happens to
+        // be called OptionSet is treated like any other orphan.
+        WriteTable("OptionSet", BuildTable("ftp_optionset", "OptionSet", "ftp_optionsets",
+            new Column { LogicalName = "ftp_optionsetid", Name = "Id", Selected = true }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDef() }, clean: true);
+
+        Assert.IsFalse(File.Exists(Path.Combine(_tempDir, "OptionSet.table")));
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
     // Helpers
     // ══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>Contact whose StatusCode column declares <c>[OptionSet(typeof(...))]</c>.</summary>
+    private static DefinitionInfo ContactDefWithOptionSet(string optionSetName) => new()
+    {
+        TableName = "Contact",
+        EntityName = "contact",
+        EntityCollectionName = "contacts",
+        Columns = new List<DefinitionColumnInfo>
+        {
+            new("contactid", "Id"),
+            new("statuscode", "StatusCode", optionSetName)
+        }
+    };
+
+    /// <summary>Contact.table whose statuscode column points at a local option set.</summary>
+    private static Table TableWithLocalOptionSet(string currentName)
+    {
+        var table = BuildTable("contact", "Contact", "contacts",
+            new Column
+            {
+                LogicalName = "statuscode",
+                Name = "StatusCode",
+                Selected = true,
+                EnumName = "contact|statuscode"
+            });
+
+        var optionSet = new OptionSetEnum { LogicalName = "contact|statuscode", Name = currentName };
+        optionSet.Values.Add(new OptionSetEnumValue { Name = "Active", Value = 0 });
+        table.Enums.Add(optionSet);
+
+        return table;
+    }
+
+    /// <summary>Contact.table whose statuscode column points at an option set declared elsewhere.</summary>
+    private static Table TableWithColumnPointingAt(string enumLogicalName)
+        => BuildTable("contact", "Contact", "contacts",
+            new Column
+            {
+                LogicalName = "statuscode",
+                Name = "StatusCode",
+                Selected = true,
+                EnumName = enumLogicalName
+            });
+
+    /// <summary>The OptionSet.table pseudo-table: no entity, no column, only shared enums.</summary>
+    private static Table GlobalOptionSetTable(params OptionSetEnum[] optionSets)
+    {
+        var table = new Table
+        {
+            LogicalName = TableFileStore.GlobalOptionSetLogicalName,
+            Name = TableFileStore.GlobalOptionSetFileName
+        };
+
+        foreach (var optionSet in optionSets)
+            table.Enums.Add(optionSet);
+
+        return table;
+    }
 
     private static DefinitionInfo ContactDef() => new()
     {
