@@ -53,7 +53,7 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
     <PackageReference Include="Microsoft.Azure.Relay" />
     <PackageReference Include="Microsoft.Identity.Client" />
-    <!-- TUI interactive — interface console moderne pour le débogueur distant -->
+    <!-- Interactive TUI — modern console interface for the remote debugger -->
     <PackageReference Include="Spectre.Console" />
   </ItemGroup>
 

@@ -14,15 +14,15 @@ using DataverseMetadata = Microsoft.Xrm.Sdk.Metadata;
 namespace XrmFramework.DeployUtils.Tests.TableSync;
 
 /// <summary>
-/// Survie de la sélection à une récupération, vérifiée <b>de bout en bout</b> : métadonnées
-/// Dataverse → conversion → fusion → écriture sur disque → relecture.
+/// Survival of the selection across a pull, verified <b>end to end</b>: Dataverse metadata
+/// → conversion → merge → write to disk → re-read.
 /// </summary>
 /// <remarks>
-/// Les tests de <see cref="TablePullMergeTests" /> couvrent la fusion en mémoire ; ceux-ci
-/// couvrent ce qui atteint réellement le fichier versionné. La distinction n'est pas théorique :
-/// la sérialisation omet les valeurs par défaut, donc <c>Select</c> disparaît du JSON dès qu'il
-/// vaut <c>false</c>. Ils passent par <see cref="TablePullWriter" />, c'est-à-dire exactement le
-/// chemin qu'emprunte la commande.
+/// The tests in <see cref="TablePullMergeTests" /> cover the in-memory merge; these cover
+/// what actually reaches the versioned file. The distinction is not theoretical:
+/// serialization omits default values, so <c>Select</c> disappears from the JSON as soon as
+/// it is <c>false</c>. They go through <see cref="TablePullWriter" />, i.e. exactly the
+/// path the command takes.
 /// </remarks>
 [TestFixture]
 public class TablePullPersistenceTests
@@ -47,35 +47,35 @@ public class TablePullPersistenceTests
             if (Directory.Exists(_tablesDir))
                 Directory.Delete(_tablesDir, recursive: true);
         }
-        catch { /* meilleur effort */ }
+        catch { /* best effort */ }
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Survie de la sélection
+    // Survival of the selection
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
     public void Pull_KeepsColumnSelected_WhenTeamActivatedIt()
     {
-        // Première récupération : ftp_commentaire n'est pas activée par défaut.
+        // First pull: ftp_commentaire is not activated by default.
         Pull(Contrat());
         Assert.IsFalse(LoadTable().Columns.Single(c => c.LogicalName == "ftp_commentaire").Selected);
 
-        // L'équipe l'active — soit à la main, soit via « tables sync » parce que le code la référence.
+        // The team activates it — either by hand, or via "tables sync" because the code references it.
         Activate("ftp_commentaire");
 
-        // Seconde récupération : la sélection doit survivre.
+        // Second pull: the selection must survive.
         Pull(Contrat());
 
         Assert.IsTrue(LoadTable().Columns.Single(c => c.LogicalName == "ftp_commentaire").Selected,
-            "Une colonne activée doit survivre à une récupération.");
+            "An activated column must survive a pull.");
     }
 
     [Test]
     public void Pull_WritesSelectTrue_IntoJson()
     {
-        // Contrôle sur le JSON réel et non sur le modèle objet : la sérialisation omet les valeurs
-        // par défaut, un Select mal positionné disparaîtrait donc silencieusement du fichier.
+        // Check against the actual JSON rather than the object model: serialization omits
+        // default values, so a mis-set Select would silently disappear from the file.
         Pull(Contrat());
         Activate("ftp_commentaire");
         Pull(Contrat());
@@ -84,7 +84,7 @@ public class TablePullPersistenceTests
             .Single(c => (string?)c["LogName"] == "ftp_commentaire");
 
         Assert.AreEqual(true, (bool?)colonne["Select"],
-            "Le fichier écrit doit porter \"Select\": true.");
+            "The written file must carry \"Select\": true.");
     }
 
     [Test]
@@ -93,20 +93,20 @@ public class TablePullPersistenceTests
         Pull(Contrat());
         Activate("ftp_commentaire");
 
-        // La colonne disparaît de l'environnement : une récupération rafraîchit, elle ne détruit pas.
+        // The column disappears from the environment: a pull refreshes, it does not destroy.
         Pull(ContratSansCommentaire());
 
         var orpheline = LoadTable().Columns.SingleOrDefault(c => c.LogicalName == "ftp_commentaire");
 
-        Assert.IsNotNull(orpheline, "La colonne absente du CRM doit être conservée.");
-        Assert.IsTrue(orpheline!.Selected, "Et conserver sa sélection.");
+        Assert.IsNotNull(orpheline, "The column absent from the CRM must be kept.");
+        Assert.IsTrue(orpheline!.Selected, "And keep its selection.");
     }
 
     [Test]
     public void Pull_DoesNotReactivate_DeliberatelyDeselectedSystemColumn()
     {
-        // createdon est activée d'office à la création ; si l'équipe la désactive,
-        // une récupération ne doit pas revenir sur cette décision.
+        // createdon is activated by default on creation; if the team deactivates it,
+        // a pull must not reverse that decision.
         Pull(Contrat());
         Deactivate("createdon");
 
@@ -121,13 +121,13 @@ public class TablePullPersistenceTests
         Pull(Contrat());
         Activate("ftp_commentaire");
 
-        // L'équipe renomme le type C# et le fichier ; le rapprochement se fait sur le LogName.
+        // The team renames the C# type and the file; the match is made on LogName.
         RenameTableFile("ContratDeLocation");
 
         Pull(Contrat());
 
         Assert.AreEqual(1, Directory.GetFiles(_tablesDir, "*.table").Length,
-            "Le fichier renommé doit être mis à jour, pas dupliqué.");
+            "The renamed file must be updated, not duplicated.");
         Assert.IsTrue(LoadTable().Columns.Single(c => c.LogicalName == "ftp_commentaire").Selected);
     }
 
@@ -147,14 +147,14 @@ public class TablePullPersistenceTests
         Pull(Contrat());
 
         Assert.AreEqual(apresPremier, File.ReadAllText(TableFilePath()),
-            "Une seconde récupération identique doit produire une diff vide.");
+            "A second, identical pull must produce an empty diff.");
     }
 
     // ══════════════════════════════════════════════════════════════════════════
     // Helpers
     // ══════════════════════════════════════════════════════════════════════════
 
-    /// <summary>Exécute le chemin réel de la commande : conversion, fusion, écriture.</summary>
+    /// <summary>Executes the command's actual path: conversion, merge, write.</summary>
     private void Pull(DataverseMetadata.EntityMetadata entity)
         => TablePullWriter.Write(_tablesDir, MetadataTableFactory.Convert(entity, Prefixes).Table);
 
@@ -188,7 +188,7 @@ public class TablePullPersistenceTests
         TableFileStore.Save(TableFileStore.BuildTableFilePath(_tablesDir, newName), table);
     }
 
-    // ── Métadonnées simulées ──────────────────────────────────────────────────
+    // ── Simulated metadata ────────────────────────────────────────────────────
 
     private static DataverseMetadata.EntityMetadata Contrat()
         => Entity("ftp_contrat", "ftp_Contrat", "ftp_contratid", "ftp_nom",

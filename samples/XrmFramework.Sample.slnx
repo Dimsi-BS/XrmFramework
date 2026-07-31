@@ -1,17 +1,17 @@
 <Solution>
   <!--
-    Solution exemple pour XrmFramework.
-    Référence les PROJETS sources du framework (au lieu des packages NuGet)
-    afin de permettre le débogage pas-à-pas dans le code du framework.
+    Sample solution for XrmFramework.
+    References the framework's source PROJECTS (instead of the NuGet packages)
+    to allow step-by-step debugging into the framework code.
 
-    Structure :
-      /Sample/           → Projets de l'exemple (Core + Plugins)
-      /Sample/Utils/     → Outils utilitaires (déploiement, débogage distant, DefinitionManager)
-      /Framework/        → Projets sources du framework (pour navigation et débogage)
+    Structure:
+      /Sample/           → Sample projects (Core + Plugins)
+      /Sample/Utils/     → Utility tools (deployment, remote debugging, DefinitionManager)
+      /Framework/        → Framework source projects (for navigation and debugging)
   -->
 
   <!-- ═══════════════════════════════════════════════════
-       PROJETS EXEMPLE
+       SAMPLE PROJECTS
        ═══════════════════════════════════════════════════ -->
   <Folder Name="/Sample/">
     <Project Path="XrmFramework.Sample.Core/XrmFramework.Sample.Core.csproj" />
@@ -24,7 +24,7 @@
   </Folder>
 
   <!-- ═══════════════════════════════════════════════════
-       OUTILS UTILITAIRES
+       UTILITY TOOLS
        ═══════════════════════════════════════════════════ -->
   <Folder Name="/Sample/Utils/">
     <Project Path="Utils/DefinitionManager/DefinitionManager.csproj" />
@@ -33,9 +33,9 @@
   </Folder>
 
   <!-- ═══════════════════════════════════════════════════
-       PROJETS SOURCES DU FRAMEWORK (pour débogage)
-       Ces projets sont inclus pour permettre la navigation
-       dans le code source et le débogage pas-à-pas.
+       FRAMEWORK SOURCE PROJECTS (for debugging)
+       These projects are included to allow navigation
+       through the source code and step-by-step debugging.
        ═══════════════════════════════════════════════════ -->
   <Folder Name="/Framework/">
     <Project Path="../src/XrmFramework.Core/XrmFramework.Core.csproj" />

@@ -11,18 +11,18 @@ using XrmFramework.RemoteDebugger.Client.ConsoleUI;
 namespace XrmFramework.RemoteDebugger.Client;
 
 /// <summary>
-/// Charge les fichiers <c>.pluginsession.json</c> depuis un répertoire et les regroupe
-/// par <c>CorrelationId</c> Dataverse pour alimenter le <see cref="SessionBrowserUi"/>.
+/// Loads <c>.pluginsession.json</c> files from a directory and groups them
+/// by Dataverse <c>CorrelationId</c> to feed the <see cref="SessionBrowserUi"/>.
 /// </summary>
 public static class SessionLoader
 {
     /// <summary>
-    /// Lit tous les fichiers <c>*.pluginsession.json</c> du répertoire indiqué,
-    /// les regroupe par <c>CorrelationId</c> et retourne la liste de groupes triée
-    /// par date de première occurrence (la plus récente en premier).
+    /// Reads all <c>*.pluginsession.json</c> files from the given directory,
+    /// groups them by <c>CorrelationId</c> and returns the list of groups sorted
+    /// by first-occurrence date (most recent first).
     /// </summary>
-    /// <param name="directory">Répertoire contenant les fichiers de sessions.</param>
-    /// <returns>Liste de groupes de corrélation (vide si le répertoire n'existe pas).</returns>
+    /// <param name="directory">Directory containing the session files.</param>
+    /// <returns>List of correlation groups (empty if the directory does not exist).</returns>
     public static List<CorrelationGroup> LoadCorrelationGroups(string directory)
     {
         if (!Directory.Exists(directory))
@@ -32,7 +32,7 @@ public static class SessionLoader
         return BuildCorrelationGroups(sessions);
     }
 
-    // ── Chargement des fichiers ──────────────────────────────────────────
+    // ── File loading ──────────────────────────────────────────────────────
 
     private static List<PluginTestSession> LoadSessions(string directory)
     {
@@ -54,16 +54,16 @@ public static class SessionLoader
             }
             catch
             {
-                // Ignorer les fichiers corrompus ou illisibles
+                // Ignore corrupted or unreadable files
             }
         }
 
-        // Trier par horodatage croissant afin que le premier élément
-        // de chaque corrélation corresponde bien au premier événement déclenché.
+        // Sort by ascending timestamp so that the first element
+        // of each correlation corresponds to the first event triggered.
         return sessions.OrderBy(s => s.Timestamp).ToList();
     }
 
-    // ── Construction des groupes ─────────────────────────────────────────
+    // ── Group construction ────────────────────────────────────────────────
 
     private static List<CorrelationGroup> BuildCorrelationGroups(List<PluginTestSession> sessions)
     {
@@ -78,7 +78,7 @@ public static class SessionLoader
                 group = new CorrelationGroup(correlationId);
                 groupDict[correlationId] = group;
 
-                // Le nom du groupe est dérivé du premier élément de la corrélation.
+                // The group name is derived from the first element of the correlation.
                 var ctx = session.InputContext;
                 if (ctx != null)
                 {
@@ -94,7 +94,7 @@ public static class SessionLoader
             group.LastOccurrence = session.Timestamp;
         }
 
-        // Les groupes les plus récents apparaissent en premier dans l'interface.
+        // The most recent groups appear first in the interface.
         return groupDict.Values
             .OrderByDescending(g => g.FirstOccurrence)
             .ToList();

@@ -6,8 +6,8 @@ using System.Text;
 
 namespace XrmFramework.PluginInventory
 {
-    // Modèles internes + sérialisation JSON à la main (aucune dépendance).
-    // Le schéma émis ici est exactement celui lu par
+    // Internal models + hand-rolled JSON serialization (no dependency).
+    // The schema emitted here is exactly the one read by
     // XrmFramework.DeployUtils.Factories.PluginInventoryReader.
 
     internal sealed class PluginInfo

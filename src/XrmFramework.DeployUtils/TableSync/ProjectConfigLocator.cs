@@ -9,7 +9,7 @@ using System.Xml.Linq;
 namespace XrmFramework.DeployUtils.TableSync;
 
 /// <summary>
-/// Emplacements résolus pour un projet consommateur du framework.
+/// Locations resolved for a consumer project of the framework.
 /// </summary>
 public sealed class ProjectConfigLocation
 {
@@ -20,27 +20,27 @@ public sealed class ProjectConfigLocation
     }
 
     /// <summary>
-    /// Racine de la solution : le dossier contenant <c>Config/xrmFramework.config</c>.
-    /// C'est la valeur à passer à <see cref="Configuration.ConfigHelper.UseProjectConfig" />.
+    /// Solution root: the folder containing <c>Config/xrmFramework.config</c>.
+    /// This is the value to pass to <see cref="Configuration.ConfigHelper.UseProjectConfig" />.
     /// </summary>
     public string ProjectRoot { get; }
 
     /// <summary>
-    /// Répertoire <c>Definitions</c> du projet Core, ou <see langword="null" /> s'il n'a pas pu
-    /// être déduit — auquel cas l'appelant doit exiger une option explicite.
+    /// <c>Definitions</c> directory of the Core project, or <see langword="null" /> if it could not
+    /// be inferred — in which case the caller must require an explicit option.
     /// </summary>
     public string TablesDirectory { get; }
 }
 
 /// <summary>
-/// Localise la configuration XrmFramework d'un projet en remontant l'arborescence depuis le
-/// répertoire courant, afin que le CLI puisse être lancé depuis n'importe quel sous-répertoire
-/// de la solution consommatrice.
+/// Locates a project's XrmFramework configuration by walking up the directory tree from the
+/// current directory, so that the CLI can be launched from any subdirectory
+/// of the consumer solution.
 /// </summary>
 /// <remarks>
-/// Reproduit sans MSBuild la résolution utilisée par le DefinitionManager, qui reçoit
-/// <c>$(RootFolder)/$(XrmFrameworkCoreProjectName)</c> via un attribut d'assembly injecté à la
-/// compilation (cf. <c>XrmFramework.DefinitionManager.props</c>).
+/// Reproduces without MSBuild the resolution used by the DefinitionManager, which receives
+/// <c>$(RootFolder)/$(XrmFrameworkCoreProjectName)</c> via an assembly attribute injected at
+/// compile time (see <c>XrmFramework.DefinitionManager.props</c>).
 /// </remarks>
 public static class ProjectConfigLocator
 {
@@ -51,25 +51,25 @@ public static class ProjectConfigLocator
     private const string DefinitionsDirectoryName = "Definitions";
 
     /// <summary>
-    /// Remonte depuis <paramref name="startDirectory" /> jusqu'à trouver la racine de solution.
+    /// Walks up from <paramref name="startDirectory" /> until it finds the solution root.
     /// </summary>
     /// <returns>
-    /// Les emplacements résolus, ou <see langword="null" /> si aucune configuration n'a été
-    /// trouvée jusqu'à la racine du volume.
+    /// The resolved locations, or <see langword="null" /> if no configuration was
+    /// found up to the volume root.
     /// </returns>
     public static ProjectConfigLocation Locate(string startDirectory)
     {
         if (string.IsNullOrWhiteSpace(startDirectory))
-            throw new ArgumentException("Le répertoire de départ est obligatoire.", nameof(startDirectory));
+            throw new ArgumentException("The starting directory is required.", nameof(startDirectory));
 
         var directory = new DirectoryInfo(Path.GetFullPath(startDirectory));
 
         while (directory != null)
         {
-            // La découverte ne teste que xrmFramework.config : connectionStrings.config contient
-            // des secrets et se trouve gitignoré dans les solutions générées, donc absent d'un
-            // clone frais. L'exiger ici ferait remonter « configuration introuvable » au lieu de
-            // laisser ConfigHelper signaler précisément le fichier manquant.
+            // Discovery only tests for xrmFramework.config: connectionStrings.config contains
+            // secrets and is gitignored in generated solutions, so it is absent from a
+            // fresh clone. Requiring it here would surface "configuration not found" instead of
+            // letting ConfigHelper precisely report the missing file.
             if (File.Exists(Path.Combine(directory.FullName, ConfigDirectoryName, XrmFrameworkConfigFileName)))
                 return new ProjectConfigLocation(directory.FullName, ResolveTablesDirectory(directory.FullName));
 
@@ -80,10 +80,10 @@ public static class ProjectConfigLocator
     }
 
     /// <summary>
-    /// Déduit le répertoire <c>Definitions</c> à partir de la propriété MSBuild
-    /// <c>XrmFrameworkCoreProjectName</c> déclarée dans le <c>Directory.Build.props</c> racine.
+    /// Infers the <c>Definitions</c> directory from the MSBuild property
+    /// <c>XrmFrameworkCoreProjectName</c> declared in the root <c>Directory.Build.props</c>.
     /// </summary>
-    /// <returns>Le chemin, ou <see langword="null" /> si la déduction échoue.</returns>
+    /// <returns>The path, or <see langword="null" /> if inference fails.</returns>
     private static string ResolveTablesDirectory(string projectRoot)
     {
         var coreProjectName = ReadCoreProjectName(Path.Combine(projectRoot, DirectoryBuildPropsFileName));
@@ -93,9 +93,9 @@ public static class ProjectConfigLocator
 
         var coreProjectDirectory = Path.Combine(projectRoot, coreProjectName.Trim());
 
-        // Le dossier Definitions peut ne pas exister encore (aucune table récupérée à ce jour) ;
-        // en revanche, un projet Core absent signale une propriété obsolète qu'il vaut mieux ne
-        // pas suivre silencieusement.
+        // The Definitions folder may not exist yet (no table retrieved so far);
+        // however, a missing Core project signals a stale property that is better not
+        // followed silently.
         if (!Directory.Exists(coreProjectDirectory))
             return null;
 
@@ -111,8 +111,8 @@ public static class ProjectConfigLocator
         {
             var root = XDocument.Load(propsPath).Root;
 
-            // Les fichiers MSBuild du dépôt sont écrits sans espace de noms ; on compare donc
-            // sur le nom local pour rester tolérant si un xmlns venait à être ajouté.
+            // The repository's MSBuild files are written without a namespace; comparison is
+            // therefore done on the local name to remain tolerant if an xmlns were ever added.
             return root?.Descendants()
                 .Where(e => e.Name.LocalName == CoreProjectNamePropertyName)
                 .Select(e => e.Value)
@@ -120,8 +120,8 @@ public static class ProjectConfigLocator
         }
         catch (System.Xml.XmlException)
         {
-            // Un Directory.Build.props illisible ne doit pas faire échouer la commande :
-            // l'appelant retombe sur l'option explicite.
+            // An unreadable Directory.Build.props must not fail the command:
+            // the caller falls back to the explicit option.
             return null;
         }
     }

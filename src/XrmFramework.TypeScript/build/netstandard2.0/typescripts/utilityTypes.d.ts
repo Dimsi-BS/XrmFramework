@@ -73,7 +73,7 @@ type AttributeTypeFromColumnName<
 
 type QueryResultTableObject<TableDefinition extends Table> = Partial<QueryResultObjectFromCols<TableDefinition>>;
 
-/* Génère un type objet avec clés = LogName et valeurs mappées */
+/* Generates an object type with keys = LogName and mapped values */
 type QueryResultObjectFromCols<TableDefinition extends Table, C = ColDef<TableDefinition>> =
     { [K in C as NameFromCol<TableDefinition, K["LogName"], K["Type"]>]: (QueryTypeFromCol<TableDefinition, K>) };
 

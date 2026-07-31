@@ -221,7 +221,7 @@ namespace XrmFramework.BindingModel
                 var errorContent = new StringBuilder();
                 foreach (var errorMessage in jobResult.ErrorMessages)
                 {
-                    errorContent.AppendLine($"====> requête {errorMessage.Key} : {errorMessage.Value}\r\n");
+                    errorContent.AppendLine($"====> request {errorMessage.Key}: {errorMessage.Value}\r\n");
                 }
                 throw new Exception(errorContent.ToString());
             }
@@ -341,7 +341,7 @@ namespace XrmFramework.BindingModel
                         RecordResponse(res, ref createdRecord, ref updatedRecord);
                     }
 
-                    var errorMessage = errorCount == 0 ? string.Empty : $" ({errorCount} erreurs)";
+                    var errorMessage = errorCount == 0 ? string.Empty : $" ({errorCount} errors)";
                     var remainingTime = TimeSpan.FromMilliseconds(
                         (stopwatch.ElapsedMilliseconds * _objects.Count / (offset + multipleRequest.Requests.Count))
                         - stopwatch.ElapsedMilliseconds);

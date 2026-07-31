@@ -65,7 +65,7 @@ namespace XrmFramework.Sdk.Queries
                 }
                 catch (KeyNotFoundException)
                 {
-                    // définition non trouvée
+                    // definition not found
                 }
             }
         }

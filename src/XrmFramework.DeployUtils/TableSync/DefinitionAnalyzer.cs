@@ -11,29 +11,29 @@ using System.Reflection;
 namespace XrmFramework.DeployUtils.TableSync
 {
     /// <summary>
-    /// Charge un assembly par réflexion et extrait les informations de toutes les classes
-    /// décorées par [EntityDefinition].
+    /// Loads an assembly via reflection and extracts the information from all classes
+    /// decorated with [EntityDefinition].
     /// </summary>
     public static class DefinitionAnalyzer
     {
         /// <summary>
-        /// Charge le DLL indiqué et retourne les <see cref="DefinitionInfo"/> trouvées.
+        /// Loads the specified DLL and returns the <see cref="DefinitionInfo"/> found.
         /// </summary>
-        /// <param name="dllPath">Chemin complet vers le .dll à analyser.</param>
+        /// <param name="dllPath">Full path to the .dll to analyze.</param>
         public static IReadOnlyList<DefinitionInfo> ExtractDefinitions(string dllPath)
         {
             if (!File.Exists(dllPath))
-                throw new FileNotFoundException($"DLL introuvable : {dllPath}", dllPath);
+                throw new FileNotFoundException($"DLL not found: {dllPath}", dllPath);
 
-            // LoadFrom charge l'assembly dans le contexte courant.
-            // Les types des attributs sont identifiés par nom (pas par référence de type)
-            // pour éviter les conflits de version.
+            // LoadFrom loads the assembly into the current context.
+            // Attribute types are identified by name (not by type reference)
+            // to avoid version conflicts.
             var assembly = Assembly.LoadFrom(dllPath);
             return ExtractDefinitions(assembly);
         }
 
         /// <summary>
-        /// Extrait les <see cref="DefinitionInfo"/> d'un assembly déjà chargé.
+        /// Extracts the <see cref="DefinitionInfo"/> from an already loaded assembly.
         /// </summary>
         public static IReadOnlyList<DefinitionInfo> ExtractDefinitions(Assembly assembly)
         {
@@ -46,8 +46,8 @@ namespace XrmFramework.DeployUtils.TableSync
             }
             catch (ReflectionTypeLoadException ex)
             {
-                // Certains types peuvent échouer si leurs dépendances sont absentes.
-                // On travaille avec les types qui ont pu être chargés.
+                // Some types may fail to load if their dependencies are missing.
+                // We work with the types that could be loaded.
                 types = Array.FindAll(ex.Types, t => t != null);
             }
 
@@ -56,7 +56,7 @@ namespace XrmFramework.DeployUtils.TableSync
                 if (!HasAttribute(type, "EntityDefinitionAttribute"))
                     continue;
 
-                // EntityName est la propriété clé — sans elle, pas de .table correspondant.
+                // EntityName is the key property — without it, there's no matching .table.
                 var entityNameField = type.GetField("EntityName",
                     BindingFlags.Public | BindingFlags.Static);
 
@@ -78,7 +78,7 @@ namespace XrmFramework.DeployUtils.TableSync
                 if (string.IsNullOrEmpty(entityName))
                     continue;
 
-                // Nom de la table = nom de la classe sans le suffixe "Definition"
+                // Table name = class name without the "Definition" suffix
                 var typeName = type.Name;
                 var tableName = typeName.EndsWith("Definition")
                     ? typeName.Substring(0, typeName.Length - "Definition".Length)
@@ -95,7 +95,7 @@ namespace XrmFramework.DeployUtils.TableSync
                             ? collectionField.GetRawConstantValue() as string
                             : collectionField.GetValue(null) as string;
                     }
-                    catch { /* optionnel */ }
+                    catch { /* optional */ }
                 }
 
                 result.Add(new DefinitionInfo
@@ -114,15 +114,15 @@ namespace XrmFramework.DeployUtils.TableSync
         // ──────────────────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Vérifie la présence d'un attribut par son nom de classe (sans résolution de type),
-        /// ce qui évite les conflits si plusieurs versions de XrmFramework coexistent.
+        /// Checks for the presence of an attribute by its class name (without type resolution),
+        /// which avoids conflicts if several versions of XrmFramework coexist.
         /// </summary>
         private static bool HasAttribute(Type type, string attributeSimpleName)
             => type.GetCustomAttributesData()
                    .Any(a => a.AttributeType.Name == attributeSimpleName);
 
         /// <summary>
-        /// Retourne true si [GeneratedCode("XrmFramework", "2.0")] est présent sur le type.
+        /// Returns true if [GeneratedCode("XrmFramework", "2.0")] is present on the type.
         /// </summary>
         private static bool IsGeneratedByXrmFramework(Type type)
             => type.GetCustomAttributesData()
@@ -134,7 +134,7 @@ namespace XrmFramework.DeployUtils.TableSync
                                  StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
-        /// Extrait les paires (LogicalName, CSharpName) depuis la nested class "Columns".
+        /// Extracts the (LogicalName, CSharpName) pairs from the nested "Columns" class.
         /// </summary>
         private static IReadOnlyList<DefinitionColumnInfo> ExtractColumns(Type definitionType)
         {
@@ -148,7 +148,7 @@ namespace XrmFramework.DeployUtils.TableSync
 
             foreach (var field in columnsType.GetFields(BindingFlags.Public | BindingFlags.Static))
             {
-                // On ne veut que les constantes de type string.
+                // We only want string-type constants.
                 if (!field.IsLiteral || field.FieldType.FullName != "System.String")
                     continue;
 

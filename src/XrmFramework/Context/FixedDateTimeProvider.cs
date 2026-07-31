@@ -6,20 +6,20 @@ using System;
 namespace XrmFramework
 {
     /// <summary>
-    /// Implémentation de <see cref="IDateTimeProvider"/> qui retourne une date fixe.
-    /// Utilisée lors du rejouage des sessions de test pour garantir la reproductibilité
-    /// des calculs de dates relatives (ex : "ajouter 3 jours à maintenant").
+    /// Implementation of <see cref="IDateTimeProvider"/> that returns a fixed date.
+    /// Used when replaying test sessions to guarantee the reproducibility of
+    /// relative date calculations (e.g. "add 3 days to now").
     /// </summary>
     public class FixedDateTimeProvider : IDateTimeProvider
     {
         private readonly DateTime _utcNow;
 
         /// <summary>
-        /// Initialise le fournisseur avec la date d'exécution enregistrée.
+        /// Initializes the provider with the recorded execution date.
         /// </summary>
         /// <param name="executionDate">
-        /// Date d'exécution originale. Peut être locale ou UTC ;
-        /// elle est normalisée en UTC en interne.
+        /// Original execution date. Can be local or UTC;
+        /// it is normalized to UTC internally.
         /// </param>
         public FixedDateTimeProvider(DateTime executionDate)
         {
@@ -29,11 +29,11 @@ namespace XrmFramework
         }
 
         /// <inheritdoc />
-        /// <remarks>Retourne l'heure locale correspondant à la date d'exécution enregistrée.</remarks>
+        /// <remarks>Returns the local time corresponding to the recorded execution date.</remarks>
         public DateTime Now => _utcNow.ToLocalTime();
 
         /// <inheritdoc />
-        /// <remarks>Retourne la date UTC d'exécution enregistrée.</remarks>
+        /// <remarks>Returns the recorded UTC execution date.</remarks>
         public DateTime UtcNow => _utcNow;
     }
 }

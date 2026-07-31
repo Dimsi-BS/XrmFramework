@@ -11,8 +11,8 @@
     <PropertyGroup>
         <DefineConstants>$(DefineConstants);CORE_PROJECT;ON_PREMISE</DefineConstants>
 
-        <!-- Le client Dataverse est retiré ci-dessus : on court-circuite la détection de XrmFramework.targets
-             pour ne pas dépendre de l'ordre d'import des .props de packages. -->
+        <!-- The Dataverse client is removed above: we short-circuit detection from XrmFramework.targets
+             so we don't depend on the import order of package .props files. -->
         <XrmFramework_HasDataverseClient>false</XrmFramework_HasDataverseClient>
     </PropertyGroup>
 </Project>

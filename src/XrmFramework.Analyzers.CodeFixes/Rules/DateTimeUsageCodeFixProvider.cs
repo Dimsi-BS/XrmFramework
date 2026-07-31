@@ -15,30 +15,30 @@ using System.Threading.Tasks;
 namespace XrmFramework.Analyzers
 {
     /// <summary>
-    /// Code fix pour XRM0300.
+    /// Code fix for XRM0300.
     /// <list type="bullet">
     ///   <item>
     ///     <term>Plugin / IPlugin</term>
     ///     <description>
-    ///       Ajoute <c>IDateTimeProvider dateTimeProvider</c> comme paramètre de la méthode
-    ///       contenante et remplace <c>DateTime.Now/UtcNow</c> par <c>dateTimeProvider.Now/UtcNow</c>.
+    ///       Adds <c>IDateTimeProvider dateTimeProvider</c> as a parameter of the containing
+    ///       method and replaces <c>DateTime.Now/UtcNow</c> with <c>dateTimeProvider.Now/UtcNow</c>.
     ///     </description>
     ///   </item>
     ///   <item>
-    ///     <term>IService — constructeur classique</term>
+    ///     <term>IService — regular constructor</term>
     ///     <description>
-    ///       Ajoute <c>IDateTimeProvider dateTimeProvider</c> au constructeur, crée le champ
-    ///       <c>private readonly IDateTimeProvider _dateTimeProvider;</c>, assigne dans le corps
-    ///       du constructeur et remplace <c>DateTime.Now/UtcNow</c> par <c>_dateTimeProvider.Now/UtcNow</c>.
+    ///       Adds <c>IDateTimeProvider dateTimeProvider</c> to the constructor, creates the field
+    ///       <c>private readonly IDateTimeProvider _dateTimeProvider;</c>, assigns it in the
+    ///       constructor body, and replaces <c>DateTime.Now/UtcNow</c> with <c>_dateTimeProvider.Now/UtcNow</c>.
     ///     </description>
     ///   </item>
     ///   <item>
     ///     <term>IService — primary constructor</term>
     ///     <description>
-    ///       Ajoute <c>IDateTimeProvider dateTimeProvider</c> au <c>ParameterList</c> de la classe,
-    ///       crée le champ avec initialisation inline
+    ///       Adds <c>IDateTimeProvider dateTimeProvider</c> to the class's <c>ParameterList</c>,
+    ///       creates the field with an inline initializer
     ///       <c>private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;</c>
-    ///       et remplace <c>DateTime.Now/UtcNow</c> par <c>_dateTimeProvider.Now/UtcNow</c>.
+    ///       and replaces <c>DateTime.Now/UtcNow</c> with <c>_dateTimeProvider.Now/UtcNow</c>.
     ///     </description>
     ///   </item>
     /// </list>
@@ -80,7 +80,7 @@ namespace XrmFramework.Analyzers
                 .FirstOrDefault();
             if (memberAccess == null) return;
 
-            var memberName = memberAccess.Name.Identifier.Text; // "Now" ou "UtcNow"
+            var memberName = memberAccess.Name.Identifier.Text; // "Now" or "UtcNow"
 
             var classDecl = memberAccess
                 .Ancestors()
@@ -100,8 +100,8 @@ namespace XrmFramework.Analyzers
                 bool hasPrimaryCtor = classDecl.ParameterList != null;
 
                 string title = hasPrimaryCtor
-                    ? $"Ajouter IDateTimeProvider au primary constructor → {DefaultFieldName}.{memberName}"
-                    : $"Injecter IDateTimeProvider dans le constructeur → {DefaultFieldName}.{memberName}";
+                    ? $"Add IDateTimeProvider to primary constructor → {DefaultFieldName}.{memberName}"
+                    : $"Inject IDateTimeProvider into constructor → {DefaultFieldName}.{memberName}";
 
                 context.RegisterCodeFix(
                     CodeAction.Create(
@@ -116,7 +116,7 @@ namespace XrmFramework.Analyzers
             {
                 context.RegisterCodeFix(
                     CodeAction.Create(
-                        title: $"Utiliser IDateTimeProvider.{memberName} (paramètre de méthode)",
+                        title: $"Use IDateTimeProvider.{memberName} (method parameter)",
                         createChangedDocument: ct =>
                             ApplyPluginFixAsync(
                                 context.Document, root, memberAccess, memberName, ct),
@@ -125,7 +125,7 @@ namespace XrmFramework.Analyzers
             }
         }
 
-        // ── Plugin fix : paramètre de méthode ────────────────────────────────
+        // ── Plugin fix: method parameter ────────────────────────────────
 
         private static Task<Document> ApplyPluginFixAsync(
             Document document,
@@ -168,7 +168,7 @@ namespace XrmFramework.Analyzers
             return Task.FromResult(document.WithSyntaxRoot(newRoot));
         }
 
-        // ── Service fix : dispatche selon le type de constructeur ─────────────
+        // ── Service fix: dispatch based on constructor type ─────────────
 
         private static Task<Document> ApplyServiceFixAsync(
             Document document,
@@ -185,10 +185,10 @@ namespace XrmFramework.Analyzers
 
         // ── Service fix — primary constructor ─────────────────────────────────
         //
-        //  Avant :
+        //  Before:
         //    public class MyService(IServiceContext context) : DefaultService(context) { ... }
         //
-        //  Après :
+        //  After:
         //    public class MyService(IServiceContext context, IDateTimeProvider dateTimeProvider)
         //        : DefaultService(context)
         //    {
@@ -204,36 +204,36 @@ namespace XrmFramework.Analyzers
             ClassDeclarationSyntax classDeclaration,
             CancellationToken _)
         {
-            // Cherche un champ IDateTimeProvider déjà existant
+            // Look for an already existing IDateTimeProvider field
             var existingField = FindExistingProviderField(classDeclaration);
             string fieldName    = existingField?.Declaration.Variables.First().Identifier.Text
                                   ?? DefaultFieldName;
             bool   needNewField = existingField == null;
 
-            // 1. Remplace DateTime.Now/UtcNow → _dateTimeProvider.Now/UtcNow
+            // 1. Replace DateTime.Now/UtcNow → _dateTimeProvider.Now/UtcNow
             var newRoot = root.ReplaceNode(memberAccess, BuildMemberAccess(fieldName, memberName, memberAccess));
 
             if (!needNewField)
                 return Task.FromResult(document.WithSyntaxRoot(newRoot));
 
-            // 2. Retrouve la classe dans le nouveau root
+            // 2. Find the class again in the new root
             var updatedClass = FindUpdatedClass(newRoot, classDeclaration);
             if (updatedClass == null) return Task.FromResult(document.WithSyntaxRoot(newRoot));
 
-            // Vérifie si le primary constructor a déjà un paramètre IDateTimeProvider
+            // Check whether the primary constructor already has an IDateTimeProvider parameter
             var existingPrimaryParam = FindExistingProviderParam(updatedClass.ParameterList!);
             string paramName  = existingPrimaryParam?.Identifier.Text ?? DefaultParamName;
             bool   needsParam = existingPrimaryParam == null;
 
-            // 3. Construit le champ avec initialisation inline :
+            // 3. Build the field with an inline initializer:
             //      private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;
             var newFieldDecl = BuildReadonlyFieldWithInitializer(DefaultFieldName, paramName);
 
-            // 4. Insère le champ en première position dans les membres de la classe
+            // 4. Insert the field as the first member of the class
             var newMembers = updatedClass.Members.Insert(0, newFieldDecl);
             var newClass   = updatedClass.WithMembers(newMembers);
 
-            // 5. Si nécessaire, ajoute le paramètre au ParameterList de la classe
+            // 5. If necessary, add the parameter to the class's ParameterList
             if (needsParam)
             {
                 newClass = newClass.WithParameterList(
@@ -244,16 +244,16 @@ namespace XrmFramework.Analyzers
             return Task.FromResult(document.WithSyntaxRoot(newRoot));
         }
 
-        // ── Service fix — constructeur classique ──────────────────────────────
+        // ── Service fix — regular constructor ──────────────────────────────
         //
-        //  Avant :
+        //  Before:
         //    public class MyService : DefaultService
         //    {
         //        public MyService(IServiceContext context) : base(context) { }
         //        ...
         //    }
         //
-        //  Après :
+        //  After:
         //    public class MyService : DefaultService
         //    {
         //        private readonly IDateTimeProvider _dateTimeProvider;
@@ -274,19 +274,19 @@ namespace XrmFramework.Analyzers
             ClassDeclarationSyntax classDeclaration,
             CancellationToken _)
         {
-            // Cherche un champ IDateTimeProvider déjà existant
+            // Look for an already existing IDateTimeProvider field
             var existingField = FindExistingProviderField(classDeclaration);
             string fieldName    = existingField?.Declaration.Variables.First().Identifier.Text
                                   ?? DefaultFieldName;
             bool   needNewField = existingField == null;
 
-            // 1. Remplace DateTime.Now/UtcNow → _dateTimeProvider.Now/UtcNow
+            // 1. Replace DateTime.Now/UtcNow → _dateTimeProvider.Now/UtcNow
             var newRoot = root.ReplaceNode(memberAccess, BuildMemberAccess(fieldName, memberName, memberAccess));
 
             if (!needNewField)
                 return Task.FromResult(document.WithSyntaxRoot(newRoot));
 
-            // 2. Retrouve la classe dans le nouveau root
+            // 2. Find the class again in the new root
             var updatedClass = FindUpdatedClass(newRoot, classDeclaration);
             if (updatedClass == null) return Task.FromResult(document.WithSyntaxRoot(newRoot));
 
@@ -304,7 +304,7 @@ namespace XrmFramework.Analyzers
                 ConstructorDeclarationSyntax newCtor;
                 if (existingCtorParam != null)
                 {
-                    // Paramètre déjà présent : ajoute uniquement l'assignation
+                    // Parameter already present: only add the assignment
                     newCtor = AppendAssignment(ctor, DefaultFieldName, existingCtorParam.Identifier.Text);
                 }
                 else
@@ -314,7 +314,7 @@ namespace XrmFramework.Analyzers
                     newCtor = AppendAssignment(newCtor, DefaultFieldName, DefaultParamName);
                 }
 
-                // Insère le champ juste avant le constructeur
+                // Insert the field just before the constructor
                 int ctorIndex = updatedClass.Members.IndexOf(ctor);
                 newMembers = updatedClass.Members
                     .Replace(ctor, newCtor)
@@ -322,7 +322,7 @@ namespace XrmFramework.Analyzers
             }
             else
             {
-                // Pas de constructeur : on ajoute uniquement le champ
+                // No constructor: only add the field
                 newMembers = updatedClass.Members.Insert(0, newFieldDecl);
             }
 
@@ -366,8 +366,8 @@ namespace XrmFramework.Analyzers
                         .WithTrailingTrivia(SyntaxFactory.Space));
 
         /// <summary>
-        /// Construit <c>private readonly IDateTimeProvider _dateTimeProvider;</c>
-        /// (sans initialiseur — pour les constructeurs classiques).
+        /// Builds <c>private readonly IDateTimeProvider _dateTimeProvider;</c>
+        /// (without initializer — for regular constructors).
         /// </summary>
         private static FieldDeclarationSyntax BuildReadonlyField(string fieldName)
             => SyntaxFactory
@@ -386,8 +386,8 @@ namespace XrmFramework.Analyzers
                 .WithTrailingTrivia(SyntaxFactory.ElasticCarriageReturnLineFeed);
 
         /// <summary>
-        /// Construit <c>private readonly IDateTimeProvider _dateTimeProvider = {paramName};</c>
-        /// (avec initialiseur inline — pour les primary constructors).
+        /// Builds <c>private readonly IDateTimeProvider _dateTimeProvider = {paramName};</c>
+        /// (with inline initializer — for primary constructors).
         /// </summary>
         private static FieldDeclarationSyntax BuildReadonlyFieldWithInitializer(string fieldName, string paramName)
             => SyntaxFactory

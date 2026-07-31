@@ -6,7 +6,7 @@ using XrmFramework.Workflow;
 
 namespace Sample
 {
-    /// <summary>Plugin public : 2 steps couvrant images, filtering, ordre, impersonation, config.</summary>
+    /// <summary>Public plugin: 2 steps covering images, filtering, order, impersonation, config.</summary>
     public class AccountPlugin : Plugin
     {
         public AccountPlugin(string unsecuredConfig, string securedConfig) : base(unsecuredConfig, securedConfig) { }
@@ -48,7 +48,7 @@ namespace Sample
         public void OnUpdate() { }
     }
 
-    /// <summary>Plugin internal : doit tout de même être inventorié (cas réel des samples).</summary>
+    /// <summary>Internal plugin: must still be inventoried (real-world case from the samples).</summary>
     internal class HiddenPlugin : Plugin
     {
         public HiddenPlugin(string unsecuredConfig, string securedConfig) : base(unsecuredConfig, securedConfig) { }
@@ -70,34 +70,34 @@ namespace Sample
         public void OnDelete() { }
     }
 
-    /// <summary>Custom API : binding, traitement autorisé, arguments in/out (dont entier).</summary>
+    /// <summary>Custom API: binding, allowed processing, in/out arguments (including an integer).</summary>
     [CustomApi(CustomApiBindingType.Entity,
         DisplayName = "Do The Thing",
-        Description = "Fait la chose",
+        Description = "Does the thing",
         BoundEntityLogicalName = "account",
         AllowedCustomProcessing = AllowedCustomProcessingStep.AsyncOnly,
         IsFunction = false)]
     public sealed class DoTheThing : CustomApi
     {
-        [CustomApiInput(DisplayName = "Le nom", IsOptional = true)]
+        [CustomApiInput(DisplayName = "The name", IsOptional = true)]
         public CustomApiInArgument<string> Name { get; set; }
 
         [CustomApiOutput]
         public CustomApiOutArgument<int> Count { get; set; }
     }
 
-    /// <summary>Workflow avec DisplayName explicite.</summary>
+    /// <summary>Workflow with an explicit DisplayName.</summary>
     public class GreetingWorkflow : CustomWorkflowActivity
     {
         public GreetingWorkflow() => DisplayName = "Say Hello";
     }
 
-    /// <summary>Workflow sans DisplayName : repli attendu sur le nom du type.</summary>
+    /// <summary>Workflow without a DisplayName: expected to fall back to the type name.</summary>
     public class NamelessWorkflow : CustomWorkflowActivity
     {
     }
 
-    /// <summary>Type non-XrmFramework : doit être ignoré par l'inventaire.</summary>
+    /// <summary>Non-XrmFramework type: must be ignored by the inventory.</summary>
     public class NotAPlugin
     {
     }

@@ -12,17 +12,17 @@ using System.Text;
 namespace XrmFramework.PluginInventory
 {
     /// <summary>
-    /// Moteur d'inventaire : charge une assembly plugin XrmFramework, EXÉCUTE le code
-    /// d'enregistrement (constructeurs / AddSteps) et reflète les types pour produire le
-    /// manifeste JSON (plugins/steps/workflows/custom APIs).
+    /// Inventory engine: loads an XrmFramework plugin assembly, EXECUTES the registration
+    /// code (constructors / AddSteps) and reflects over the types to produce the JSON
+    /// manifest (plugins/steps/workflows/custom APIs).
     ///
-    /// Le schéma émis est exactement celui lu par
+    /// The emitted schema is exactly the one read by
     /// <c>XrmFramework.DeployUtils.Factories.PluginInventoryReader</c>.
     ///
-    /// Ce code est partagé (source liée) :
+    /// This code is shared (linked source):
     /// <list type="bullet">
-    ///   <item>exécuté hors-process par l'outil net462 (CLI net8 → deploy plugins) ;</item>
-    ///   <item>exécuté in-process par DeployUtils net462 (programme de déploiement legacy).</item>
+    ///   <item>executed out-of-process by the net462 tool (net8 CLI → deploy plugins);</item>
+    ///   <item>executed in-process by the net462 DeployUtils (legacy deployment program).</item>
     /// </list>
     /// </summary>
     internal static class PluginInventoryEngine
@@ -37,13 +37,13 @@ namespace XrmFramework.PluginInventory
         private const BindingFlags Instance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
         /// <summary>
-        /// Charge l'assembly située à <paramref name="dllPath" /> et renvoie le manifeste JSON.
+        /// Loads the assembly located at <paramref name="dllPath" /> and returns the JSON manifest.
         /// </summary>
         public static string BuildManifestJson(string dllPath)
         {
             var fullPath = Path.GetFullPath(dllPath);
 
-            // Les dépendances du plugin (Microsoft.Xrm.Sdk, etc.) résident à côté de la DLL.
+            // The plugin's dependencies (Microsoft.Xrm.Sdk, etc.) live next to the DLL.
             var probeDir = Path.GetDirectoryName(fullPath);
             ResolveEventHandler resolver = (_, e) => ResolveFromProbeDir(probeDir, e.Name);
             AppDomain.CurrentDomain.AssemblyResolve += resolver;
@@ -64,15 +64,15 @@ namespace XrmFramework.PluginInventory
             var workflows = new List<WorkflowInfo>();
             var customApis = new List<CustomApiInfo>();
 
-            // Classification par héritage sur le NOM COMPLET du type de base : robuste que les
-            // types de base XrmFramework soient compilés dans l'assembly (package source) ou
-            // fournis par un XrmFramework.Plugin.dll référencé (ProjectReference).
+            // Classification by inheritance on the FULL NAME of the base type: robust whether
+            // the XrmFramework base types are compiled into the assembly (source package) or
+            // provided by a referenced XrmFramework.Plugin.dll (ProjectReference).
             foreach (var type in GetLoadableTypes(assembly))
             {
                 if (!type.IsClass || type.IsAbstract)
                     continue;
 
-                // Ordre important : un CustomApi dérive de Plugin → le tester avant.
+                // Order matters: a CustomApi derives from Plugin → test it first.
                 if (InheritsFrom(type, WorkflowTypeName))
                 {
                     workflows.Add(ExtractWorkflow(type));
@@ -101,8 +101,8 @@ namespace XrmFramework.PluginInventory
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // Plugins : on instancie (le ctor déclenche AddSteps) et on lit les vrais Step.
-        // Toute la logique d'images / filtering de Step.cs est donc appliquée nativement.
+        // Plugins: instantiate (the ctor triggers AddSteps) and read the real Steps.
+        // All the image/filtering logic from Step.cs is thus applied natively.
         // ──────────────────────────────────────────────────────────────────────
 
         private static PluginInfo ExtractPlugin(Type type)
@@ -115,7 +115,7 @@ namespace XrmFramework.PluginInventory
             catch (Exception ex)
             {
                 throw new InvalidOperationException(
-                    $"Échec d'instanciation du plugin '{type.FullName}' : {Flatten(ex)}", ex);
+                    $"Failed to instantiate plugin '{type.FullName}': {Flatten(ex)}", ex);
             }
 
             var steps = new List<StepInfo>();
@@ -148,7 +148,7 @@ namespace XrmFramework.PluginInventory
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // Workflows : on instancie et on lit DisplayName (repli sur le nom court du type).
+        // Workflows: instantiate and read DisplayName (fall back to the type's short name).
         // ──────────────────────────────────────────────────────────────────────
 
         private static WorkflowInfo ExtractWorkflow(Type type)
@@ -161,7 +161,7 @@ namespace XrmFramework.PluginInventory
             }
             catch
             {
-                // DisplayName non résoluble → repli sur le nom du type.
+                // DisplayName not resolvable → fall back to the type name.
             }
 
             if (string.IsNullOrEmpty(displayName))
@@ -171,8 +171,8 @@ namespace XrmFramework.PluginInventory
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // Custom APIs : purement déclaratif (attributs + types des propriétés),
-        // pas besoin d'instancier. Le schéma porte typeFullName + isEnum.
+        // Custom APIs: purely declarative (attributes + property types),
+        // no need to instantiate. The schema carries typeFullName + isEnum.
         // ──────────────────────────────────────────────────────────────────────
 
         private static CustomApiInfo ExtractCustomApi(Type type)
@@ -206,7 +206,7 @@ namespace XrmFramework.PluginInventory
                 if (argAttr == null)
                     continue;
 
-                // Type générique T de CustomApiIn/OutArgument<T>.
+                // Generic type T of CustomApiIn/OutArgument<T>.
                 var typeArg = prop.PropertyType.IsGenericType
                     ? prop.PropertyType.GetGenericArguments().FirstOrDefault()
                     : null;
@@ -233,12 +233,12 @@ namespace XrmFramework.PluginInventory
 
         private static object Instantiate(Type type)
         {
-            // Plugin / CustomApi : ctor (unsecuredConfig, securedConfig) appelé avec (null, null).
+            // Plugin / CustomApi: ctor (unsecuredConfig, securedConfig) invoked with (null, null).
             var ctor = type.GetConstructor(Instance, null, new[] { typeof(string), typeof(string) }, null);
             if (ctor != null)
                 return ctor.Invoke(new object[] { null, null });
 
-            // Sinon ctor sans paramètre (workflows), public ou non.
+            // Otherwise parameterless ctor (workflows), public or not.
             return Activator.CreateInstance(type, nonPublic: true);
         }
 
@@ -288,10 +288,10 @@ namespace XrmFramework.PluginInventory
             }
             catch (ReflectionTypeLoadException ex)
             {
-                // Surfacer les causes de chargement (deps manquantes à côté de la DLL) sans bloquer
-                // l'inventaire des types qui ont pu être chargés.
+                // Surface load failures (missing deps next to the DLL) without blocking the
+                // inventory of the types that could be loaded.
                 foreach (var le in ex.LoaderExceptions ?? Array.Empty<Exception>())
-                    Console.Error.WriteLine("Avertissement chargement de type : " + Flatten(le));
+                    Console.Error.WriteLine("Type load warning: " + Flatten(le));
                 return ex.Types.Where(t => t != null);
             }
         }

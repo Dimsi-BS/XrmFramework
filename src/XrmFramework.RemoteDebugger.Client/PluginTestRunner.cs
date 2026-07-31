@@ -14,30 +14,30 @@ using XrmFramework.RemoteDebugger.Common.ConsoleUI;
 namespace XrmFramework.RemoteDebugger.Client;
 
 /// <summary>
-/// Exécute un plugin Dynamics 365 à partir d'une session de test enregistrée,
-/// en rejouant tous les appels au service d'organisation CRM depuis les réponses enregistrées.
-/// Aucune connexion réseau n'est requise.
+/// Executes a Dynamics 365 plugin from a recorded test session,
+/// replaying all calls to the CRM organization service from the recorded responses.
+/// No network connection is required.
 /// </summary>
 /// <remarks>
-/// Cette classe est conçue pour être utilisée par les tests unitaires générés automatiquement
-/// par <c>XrmFramework.RemoteDebugger.Generator</c>.
+/// This class is designed to be used by the unit tests automatically generated
+/// by <c>XrmFramework.RemoteDebugger.Generator</c>.
 /// </remarks>
 public static class PluginTestRunner
 {
     /// <summary>
-    /// Exécute le plugin décrit dans le JSON de session et retourne le contexte d'exécution
-    /// modifié (avec les OutputParameters, SharedVariables, etc. mis à jour).
-    /// Tous les appels au service d'organisation CRM sont rejoués depuis les réponses enregistrées.
+    /// Executes the plugin described in the session JSON and returns the modified
+    /// execution context (with OutputParameters, SharedVariables, etc. updated).
+    /// All calls to the CRM organization service are replayed from the recorded responses.
     /// </summary>
-    /// <param name="sessionJson">Contenu JSON d'une <see cref="PluginTestSession"/>.</param>
+    /// <param name="sessionJson">JSON content of a <see cref="PluginTestSession"/>.</param>
     /// <returns>
-    /// Le contexte d'exécution après l'exécution du plugin.
-    /// Ce contexte peut être comparé via Verify pour créer un test snapshot.
+    /// The execution context after the plugin has executed.
+    /// This context can be compared via Verify to create a test snapshot.
     /// </returns>
-    /// <exception cref="ArgumentNullException">Si <paramref name="sessionJson"/> est null.</exception>
+    /// <exception cref="ArgumentNullException">If <paramref name="sessionJson"/> is null.</exception>
     /// <exception cref="InvalidOperationException">
-    /// Si le JSON est invalide, si le type du plugin ne peut pas être résolu,
-    /// ou si le plugin effectue plus d'appels OrgService qu'il n'en a été enregistré.
+    /// If the JSON is invalid, if the plugin type cannot be resolved,
+    /// or if the plugin makes more OrgService calls than were recorded.
     /// </exception>
     public static RemoteDebugExecutionContext RunFromJson(string sessionJson)
     {
@@ -48,16 +48,16 @@ public static class PluginTestRunner
             RemoteDebuggerSettings.JsonSerializerSettings);
 
         if (session == null)
-            throw new InvalidOperationException("Impossible de désérialiser la session de test plugin.");
+            throw new InvalidOperationException("Unable to deserialize the plugin test session.");
 
         return Run(session);
     }
 
     /// <summary>
-    /// Exécute le plugin décrit dans la session et retourne le contexte d'exécution modifié.
+    /// Executes the plugin described in the session and returns the modified execution context.
     /// </summary>
-    /// <param name="session">La session de test à rejouer.</param>
-    /// <returns>Le contexte d'exécution après l'exécution du plugin.</returns>
+    /// <param name="session">The test session to replay.</param>
+    /// <returns>The execution context after the plugin has executed.</returns>
     public static RemoteDebugExecutionContext Run(PluginTestSession session)
     {
         if (session == null) throw new ArgumentNullException(nameof(session));
@@ -65,17 +65,17 @@ public static class PluginTestRunner
         var callIndex = 0;
         var inputContext = session.InputContext;
 
-        // Injecter la date d'exécution originale dans le contexte.
-        // Cela déclenche InitializeDateTimeProvider() dans LocalContext, qui substitue
-        // SystemDateTimeProvider par FixedDateTimeProvider(session.ExecutionDate).
-        // Résultat : clock.UtcNow retourne la même valeur qu'au moment de l'enregistrement,
-        // rendant reproductibles les calculs de dates relatives (ex : clock.UtcNow.AddDays(30)).
+        // Inject the original execution date into the context.
+        // This triggers InitializeDateTimeProvider() in LocalContext, which substitutes
+        // SystemDateTimeProvider with FixedDateTimeProvider(session.ExecutionDate).
+        // Result: clock.UtcNow returns the same value as at recording time,
+        // making relative date calculations reproducible (e.g. clock.UtcNow.AddDays(30)).
         if (session.ExecutionDate != default)
         {
             inputContext.ExecutionDate = session.ExecutionDate;
         }
 
-        // Configurer le provider de services avec un OrgService qui rejoue les réponses enregistrées
+        // Configure the service provider with an OrgService that replays the recorded responses
         var serviceProvider = new LocalServiceProvider(inputContext);
 
         serviceProvider.RequestSent += request =>
@@ -83,14 +83,14 @@ public static class PluginTestRunner
             if (callIndex >= session.OrgServiceCalls.Count)
             {
                 throw new InvalidOperationException(
-                    $"Appel OrgService inattendu #{callIndex + 1}. " +
-                    $"Seulement {session.OrgServiceCalls.Count} appel(s) ont été enregistrés dans cette session. " +
-                    $"Le comportement du plugin a peut-être changé depuis l'enregistrement.");
+                    $"Unexpected OrgService call #{callIndex + 1}. " +
+                    $"Only {session.OrgServiceCalls.Count} call(s) were recorded in this session. " +
+                    $"The plugin's behavior may have changed since the recording.");
             }
 
             var recorded = session.OrgServiceCalls[callIndex++];
 
-            // Retourner la réponse enregistrée comme RemoteDebuggerMessage
+            // Return the recorded response as a RemoteDebuggerMessage
             return new RemoteDebuggerMessage
             {
                 MessageType = RemoteDebuggerMessageType.Response,
@@ -99,14 +99,14 @@ public static class PluginTestRunner
             };
         };
 
-        // Résoudre le type du plugin (supprimer Version/PublicKeyToken pour la portabilité)
+        // Resolve the plugin type (remove Version/PublicKeyToken for portability)
         var pluginType = ResolvePluginType(inputContext.TypeAssemblyQualifiedName);
 
         if (pluginType == null)
         {
             throw new InvalidOperationException(
-                $"Impossible de résoudre le type du plugin '{inputContext.TypeAssemblyQualifiedName}'. " +
-                "Assurez-vous que l'assembly du plugin est référencé par le projet de test.");
+                $"Unable to resolve the plugin type '{inputContext.TypeAssemblyQualifiedName}'. " +
+                "Make sure the plugin's assembly is referenced by the test project.");
         }
 
         if (inputContext.IsWorkflowContext)
@@ -126,7 +126,7 @@ public static class PluginTestRunner
         if (string.IsNullOrEmpty(assemblyQualifiedName))
             return null;
 
-        // Supprimer les tokens Version et PublicKey pour permettre la portabilité entre versions
+        // Remove the Version and PublicKey tokens to allow portability across versions
         var parts = assemblyQualifiedName
             .Split(new[] { ", " }, StringSplitOptions.RemoveEmptyEntries)
             .Where(p => !p.StartsWith("Version=") && !p.StartsWith("PublicKeyToken=") && !p.StartsWith("Culture="))

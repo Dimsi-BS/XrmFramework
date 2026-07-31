@@ -4,12 +4,12 @@
 namespace XrmFramework
 {
     /// <summary>
-    /// Interface marqueur pour les services internes XrmFramework injectables
-    /// comme paramètres de méthodes de plugins et d'activités workflow.
+    /// Marker interface for internal XrmFramework services that can be injected
+    /// as parameters of plugin methods and workflow activities.
     /// <para>
-    /// Tout service implémentant cette interface peut être déclaré comme paramètre
-    /// d'une méthode de plugin ou d'activité custom workflow et sera résolu
-    /// automatiquement depuis le conteneur de dépendances.
+    /// Any service implementing this interface can be declared as a parameter
+    /// of a plugin method or custom workflow activity and will be resolved
+    /// automatically from the dependency container.
     /// </para>
     /// <example>
     /// <code>

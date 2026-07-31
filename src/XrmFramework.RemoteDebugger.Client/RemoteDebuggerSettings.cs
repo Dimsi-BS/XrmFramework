@@ -7,15 +7,15 @@ using XrmFramework.RemoteDebugger;
 namespace XrmFramework.RemoteDebugger.Client;
 
 /// <summary>
-/// Paramètres partagés du débogueur distant, notamment les réglages de sérialisation JSON
-/// utilisés pour persister et restaurer les sessions de test de plugins.
+/// Shared settings for the remote debugger, notably the JSON serialization settings
+/// used to persist and restore plugin test sessions.
 /// </summary>
 public static class RemoteDebuggerSettings
 {
     /// <summary>
-    /// Paramètres de sérialisation JSON communs à tout le débogueur distant.
-    /// Utilise <see cref="RemoteDebuggerContractResolver"/> pour gérer correctement
-    /// les types CRM (Entity, AttributeCollection, OrganizationRequest, etc.).
+    /// JSON serialization settings common to the whole remote debugger.
+    /// Uses <see cref="RemoteDebuggerContractResolver"/> to correctly handle
+    /// CRM types (Entity, AttributeCollection, OrganizationRequest, etc.).
     /// </summary>
     public static readonly JsonSerializerSettings JsonSerializerSettings = new()
     {

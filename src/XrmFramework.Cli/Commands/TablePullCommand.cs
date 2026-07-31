@@ -8,33 +8,33 @@ using XrmFramework.DeployUtils.TableSync;
 namespace XrmFramework.Cli.Commands;
 
 /// <summary>
-/// Commande <c>xrmframework tables pull</c> : génère ou met à jour les fichiers <c>.table</c> à
-/// partir des métadonnées de l'environnement sélectionné. Sans <c>--table</c> ni <c>--prefix</c>,
-/// rafraîchit toutes les tables déjà suivies par le projet.
-/// La logique vit dans <see cref="CrmTableHelper.Pull" />.
+/// <c>xrmframework tables pull</c> command: generates or updates the <c>.table</c> files from
+/// the selected environment's metadata. Without <c>--table</c> or <c>--prefix</c>,
+/// refreshes all tables already tracked by the project.
+/// The logic lives in <see cref="CrmTableHelper.Pull" />.
 /// </summary>
 public sealed class TablePullCommand : Command<TablePullCommand.Settings>
 {
     public sealed class Settings : CommandSettings
     {
         [CommandOption("-t|--table <NAME>")]
-        [System.ComponentModel.Description("Nom logique d'une table à récupérer. Option répétable, et accepte une liste séparée par des virgules. Par défaut : toutes les tables ayant déjà un fichier .table.")]
+        [System.ComponentModel.Description("Logical name of a table to retrieve. Repeatable option, and accepts a comma-separated list. Default: all tables that already have a .table file.")]
         public string[]? Tables { get; init; }
 
         [CommandOption("--prefix <PREFIX>")]
-        [System.ComponentModel.Description("Récupère en outre toutes les tables dont le nom logique commence par ce préfixe.")]
+        [System.ComponentModel.Description("Also retrieves all tables whose logical name starts with this prefix.")]
         public string? Prefix { get; init; }
 
         [CommandOption("--tables-dir <DIRECTORY>")]
-        [System.ComponentModel.Description("Répertoire des fichiers .table (défaut : le dossier Definitions du projet Core).")]
+        [System.ComponentModel.Description("Directory for the .table files (default: the Core project's Definitions folder).")]
         public string? TablesDirectory { get; init; }
 
         [CommandOption("--project-root <DIR>")]
-        [System.ComponentModel.Description("Racine contenant le dossier Config/ (défaut : recherche en remontant depuis le dossier courant).")]
+        [System.ComponentModel.Description("Root containing the Config/ folder (default: search by walking up from the current folder).")]
         public string? ProjectRoot { get; init; }
 
         [CommandOption("-n|--noprompt")]
-        [System.ComponentModel.Description("Mode silencieux : ignore la confirmation (CI/CD).")]
+        [System.ComponentModel.Description("Silent mode: skips the confirmation (CI/CD).")]
         public bool NoPrompt { get; init; }
     }
 

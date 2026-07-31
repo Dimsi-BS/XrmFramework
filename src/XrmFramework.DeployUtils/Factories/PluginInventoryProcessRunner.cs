@@ -10,13 +10,13 @@ using System.Text;
 namespace XrmFramework.DeployUtils.Factories
 {
     /// <summary>
-    ///     Lance l'outil d'inventaire net462 (<c>XrmFramework.PluginInventory.exe</c>) hors-process et
-    ///     récupère le manifeste JSON sur sa sortie standard.
+    ///     Launches the net462 inventory tool (<c>XrmFramework.PluginInventory.exe</c>) out-of-process and
+    ///     retrieves the JSON manifest from its standard output.
     /// </summary>
     /// <remarks>
-    ///     Indispensable depuis un process net8/net10 : instancier un plugin net462 (pour exécuter son
-    ///     enregistrement de steps) exige le runtime .NET Framework. Le déploiement n'est donc possible
-    ///     que sous Windows (ou via un lanceur Mono en développement, cf. variables d'environnement).
+    ///     Essential from a net8/net10 process: instantiating a net462 plugin (to execute its
+    ///     step registration) requires the .NET Framework runtime. Deployment is therefore only possible
+    ///     on Windows (or via a Mono launcher in development, see environment variables).
     /// </remarks>
     internal static class PluginInventoryProcessRunner
     {
@@ -36,8 +36,8 @@ namespace XrmFramework.DeployUtils.Factories
                 StandardErrorEncoding = new UTF8Encoding(false),
             };
 
-            // Sous Windows, l'exe net462 s'exécute directement. En dev (macOS/Linux), un lanceur
-            // (ex. "mono") peut être fourni via XRMFRAMEWORK_INVENTORY_LAUNCHER.
+            // On Windows, the net462 exe runs directly. In dev (macOS/Linux), a launcher
+            // (e.g. "mono") can be provided via XRMFRAMEWORK_INVENTORY_LAUNCHER.
             var launcher = Environment.GetEnvironmentVariable("XRMFRAMEWORK_INVENTORY_LAUNCHER");
             if (!string.IsNullOrWhiteSpace(launcher))
             {
@@ -52,9 +52,9 @@ namespace XrmFramework.DeployUtils.Factories
             psi.ArgumentList.Add(dllPath);
 
             using var process = Process.Start(psi)
-                ?? throw new InvalidOperationException($"Impossible de démarrer '{psi.FileName}'.");
+                ?? throw new InvalidOperationException($"Unable to start '{psi.FileName}'.");
 
-            // Lecture asynchrone des deux flux pour éviter tout interblocage de buffer.
+            // Asynchronous reading of both streams to avoid any buffer deadlock.
             var stdoutTask = process.StandardOutput.ReadToEndAsync();
             var stderrTask = process.StandardError.ReadToEndAsync();
             process.WaitForExit();
@@ -64,9 +64,9 @@ namespace XrmFramework.DeployUtils.Factories
 
             if (process.ExitCode != 0)
                 throw new InvalidOperationException(
-                    $"L'inventaire des plugins ({ExeFileName}) a échoué (code {process.ExitCode}).{Environment.NewLine}{stderr}");
+                    $"The plugin inventory ({ExeFileName}) failed (code {process.ExitCode}).{Environment.NewLine}{stderr}");
 
-            // Avertissements éventuels (ex. dépendances manquantes) sans échec.
+            // Possible warnings (e.g. missing dependencies) without failure.
             if (!string.IsNullOrWhiteSpace(stderr))
                 Console.Error.WriteLine(stderr);
 
@@ -75,25 +75,25 @@ namespace XrmFramework.DeployUtils.Factories
 
         private static string LocateExe()
         {
-            // 1) Override explicite.
+            // 1) Explicit override.
             var overridePath = Environment.GetEnvironmentVariable("XRMFRAMEWORK_INVENTORY_EXE");
             if (!string.IsNullOrWhiteSpace(overridePath) && File.Exists(overridePath))
                 return overridePath;
 
-            // 2) Embarqué à côté du tool, sous inventory/.
+            // 2) Embedded next to the tool, under inventory/.
             var candidate = Path.Combine(AppContext.BaseDirectory, "inventory", ExeFileName);
             if (File.Exists(candidate))
                 return candidate;
 
-            // 3) Repli : à la racine du tool.
+            // 3) Fallback: at the tool's root.
             candidate = Path.Combine(AppContext.BaseDirectory, ExeFileName);
             if (File.Exists(candidate))
                 return candidate;
 
             throw new FileNotFoundException(
-                $"Outil d'inventaire introuvable ({ExeFileName}). Attendu sous " +
-                $"'{Path.Combine(AppContext.BaseDirectory, "inventory")}'. Définissez la variable " +
-                "d'environnement XRMFRAMEWORK_INVENTORY_EXE pour pointer vers l'exécutable net462.");
+                $"Inventory tool not found ({ExeFileName}). Expected under " +
+                $"'{Path.Combine(AppContext.BaseDirectory, "inventory")}'. Set the " +
+                "XRMFRAMEWORK_INVENTORY_EXE environment variable to point to the net462 executable.");
         }
     }
 }

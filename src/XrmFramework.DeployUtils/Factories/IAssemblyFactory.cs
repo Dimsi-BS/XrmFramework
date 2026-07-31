@@ -10,13 +10,13 @@ namespace XrmFramework.DeployUtils.Factories;
 public partial interface IAssemblyFactory
 {
     /// <summary>
-    ///     Construit l'<see cref="IAssemblyContext" /> local en INVENTORIANT l'assembly située à
-    ///     <paramref name="dllPath" /> : exécution réelle du code d'enregistrement (constructeurs /
-    ///     AddSteps) via XrmFramework.PluginInventory (in-process net462, ou exe net462 hors-process
-    ///     depuis net8/net10).
+    ///     Builds the local <see cref="IAssemblyContext" /> by INVENTORYING the assembly located at
+    ///     <paramref name="dllPath" />: actual execution of the registration code (constructors /
+    ///     AddSteps) via XrmFramework.PluginInventory (in-process net462, or out-of-process net462 exe
+    ///     from net8/net10).
     /// </summary>
-    /// <param name="dllPath">Chemin de l'assembly plugin locale à inventorier.</param>
-    /// <returns><see cref="IAssemblyContext" /> reconstruit depuis l'inventaire.</returns>
+    /// <param name="dllPath">Path to the local plugin assembly to inventory.</param>
+    /// <returns><see cref="IAssemblyContext" /> rebuilt from the inventory.</returns>
     IAssemblyContext CreateFromLocalAssemblyContext(string dllPath);
 
     /// <summary>

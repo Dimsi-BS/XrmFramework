@@ -15,7 +15,7 @@ using XrmFramework.LogicApp.Serialization;
 namespace XrmFramework.LogicApp.Tests.Serialization;
 
 /// <summary>
-/// Tests unitaires pour <see cref="LogicAppSerializer"/>.
+/// Unit tests for <see cref="LogicAppSerializer"/>.
 /// </summary>
 [TestFixture]
 public class LogicAppSerializerTests
@@ -35,7 +35,7 @@ public class LogicAppSerializerTests
         var json = LogicAppSerializer.SerializeConsumption(workflow);
 
         Assert.IsFalse(string.IsNullOrWhiteSpace(json));
-        // Doit être du JSON valide
+        // Must be valid JSON
         var parsed = JObject.Parse(json);
         Assert.IsNotNull(parsed);
     }
@@ -51,7 +51,7 @@ public class LogicAppSerializerTests
         var json = LogicAppSerializer.SerializeConsumption(workflow);
         var parsed = JObject.Parse(json);
 
-        Assert.IsTrue(parsed.ContainsKey("definition"), "Le JSON doit contenir la clé 'definition'.");
+        Assert.IsTrue(parsed.ContainsKey("definition"), "The JSON must contain the 'definition' key.");
     }
 
     [Test]
@@ -64,9 +64,9 @@ public class LogicAppSerializerTests
 
         var json = LogicAppSerializer.SerializeConsumption(workflow);
 
-        // Le JSON indenté contient des sauts de ligne
+        // Indented JSON contains line breaks
         Assert.IsTrue(json.Contains(Environment.NewLine) || json.Contains("\n"),
-            "Le JSON par défaut doit être indenté.");
+            "The default JSON must be indented.");
     }
 
     [Test]
@@ -80,9 +80,9 @@ public class LogicAppSerializerTests
 
         var json = LogicAppSerializer.SerializeConsumption(workflow);
 
-        // Les valeurs null ne doivent pas apparaître (NullValueHandling.Ignore)
+        // Null values must not appear (NullValueHandling.Ignore)
         Assert.IsFalse(json.Contains("\"parameters\": null"),
-            "Les clés null ne doivent pas être incluses dans le JSON.");
+            "Null keys must not be included in the JSON.");
     }
 
     [Test]
@@ -95,8 +95,8 @@ public class LogicAppSerializerTests
 
         var json = LogicAppSerializer.SerializeConsumption(workflow);
 
-        // Les propriétés doivent être en camelCase
-        Assert.IsTrue(json.Contains("\"definition\""), "Les propriétés doivent être en camelCase.");
+        // Properties must be in camelCase
+        Assert.IsTrue(json.Contains("\"definition\""), "Properties must be in camelCase.");
     }
 
     // ──────────────────────────────────────────────
@@ -128,12 +128,12 @@ public class LogicAppSerializerTests
         var json = LogicAppSerializer.SerializeStandard(workflow);
         var parsed = JObject.Parse(json);
 
-        Assert.IsTrue(parsed.ContainsKey("kind"), "Le JSON Standard doit contenir la clé 'kind'.");
+        Assert.IsTrue(parsed.ContainsKey("kind"), "The Standard JSON must contain the 'kind' key.");
         Assert.AreEqual("Stateful", parsed["kind"]!.Value<string>());
     }
 
     // ──────────────────────────────────────────────
-    //  Serialize (générique)
+    //  Serialize (generic)
     // ──────────────────────────────────────────────
 
     [Test]
@@ -169,7 +169,7 @@ public class LogicAppSerializerTests
         {
             LogicAppSerializer.WriteConsumption(workflow, outputPath);
 
-            Assert.IsTrue(File.Exists(outputPath), "Le fichier doit être créé.");
+            Assert.IsTrue(File.Exists(outputPath), "The file must be created.");
             var content = File.ReadAllText(outputPath);
             var parsed = JObject.Parse(content);
             Assert.IsNotNull(parsed["definition"]);
@@ -198,8 +198,8 @@ public class LogicAppSerializerTests
         {
             var writtenPath = LogicAppSerializer.WriteStandard(workflow, "MyWorkflow", outputDir);
 
-            Assert.IsTrue(File.Exists(writtenPath), "Le fichier workflow.json doit être créé.");
-            Assert.IsTrue(writtenPath.EndsWith("workflow.json"), "Le fichier doit s'appeler workflow.json.");
+            Assert.IsTrue(File.Exists(writtenPath), "The workflow.json file must be created.");
+            Assert.IsTrue(writtenPath.EndsWith("workflow.json"), "The file must be named workflow.json.");
 
             var content = File.ReadAllText(writtenPath);
             var parsed = JObject.Parse(content);
@@ -233,7 +233,7 @@ public class LogicAppSerializerTests
     }
 
     // ──────────────────────────────────────────────
-    //  Settings personnalisés
+    //  Custom settings
     // ──────────────────────────────────────────────
 
     [Test]
@@ -248,7 +248,7 @@ public class LogicAppSerializerTests
 
         var json = LogicAppSerializer.SerializeConsumption(workflow, compactSettings);
 
-        // Le JSON compact ne contient pas de sauts de ligne
-        Assert.IsFalse(json.Contains("\n"), "Avec Formatting.None, le JSON ne doit pas être indenté.");
+        // Compact JSON does not contain line breaks
+        Assert.IsFalse(json.Contains("\n"), "With Formatting.None, the JSON must not be indented.");
     }
 }

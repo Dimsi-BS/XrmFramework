@@ -12,8 +12,8 @@ using CoreAttributeTypeCode = XrmFramework.AttributeTypeCode;
 namespace XrmFramework.DeployUtils.Tests.TableSync;
 
 /// <summary>
-/// Conversion des métadonnées Dataverse en <see cref="Table" />. Ces règles doivent rester
-/// identiques à celles du DefinitionManager historique : le code généré en dépend.
+/// Conversion of Dataverse metadata into a <see cref="Table" />. These rules must remain
+/// identical to those of the legacy DefinitionManager: generated code depends on them.
 /// </summary>
 [TestFixture]
 public class MetadataTableFactoryTests
@@ -21,7 +21,7 @@ public class MetadataTableFactoryTests
     private static readonly string[] Prefixes = { "ftp" };
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Identité de la table
+    // Table identity
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
@@ -37,13 +37,13 @@ public class MetadataTableFactoryTests
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Colonnes
+    // Columns
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
     public void Convert_NamesPrimaryIdColumn_Id()
     {
-        // Convention sur laquelle repose tout le code généré, quel que soit le nom de schéma.
+        // Convention that all generated code relies on, regardless of the schema name.
         var entity = Entity("ftp_contrat", "ftp_Contrat", "ftp_contratid",
             attributes: Attribute("ftp_contratid", "ftp_ContratId",
                 DataverseMetadata.AttributeTypeCode.Uniqueidentifier));
@@ -98,7 +98,7 @@ public class MetadataTableFactoryTests
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Filtrage des attributs
+    // Attribute filtering
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
@@ -117,7 +117,7 @@ public class MetadataTableFactoryTests
     [Test]
     public void Convert_SkipsEntityNameDiscriminators()
     {
-        // Compagnon textuel d'un lookup polymorphe : inexploitable en tant que colonne.
+        // Textual companion of a polymorphic lookup: unusable as a column.
         var entity = Entity("ftp_contrat", "ftp_Contrat", "ftp_contratid",
             attributes: Attribute("regardingobjecttypecode", "RegardingObjectTypeCode",
                 DataverseMetadata.AttributeTypeCode.EntityName));
@@ -137,7 +137,7 @@ public class MetadataTableFactoryTests
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Politique de sélection
+    // Selection policy
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
@@ -152,13 +152,13 @@ public class MetadataTableFactoryTests
 
         var columns = MetadataTableFactory.Convert(entity, Prefixes).Table.Columns;
 
-        Assert.IsTrue(columns.Single(c => c.LogicalName == "ftp_contratid").Selected, "clé primaire");
-        Assert.IsTrue(columns.Single(c => c.LogicalName == "ftp_nom").Selected, "colonne de nom");
+        Assert.IsTrue(columns.Single(c => c.LogicalName == "ftp_contratid").Selected, "primary key");
+        Assert.IsTrue(columns.Single(c => c.LogicalName == "ftp_nom").Selected, "name column");
         Assert.IsTrue(columns.Single(c => c.LogicalName == "createdon").Selected, "createdon");
         Assert.IsTrue(columns.Single(c => c.LogicalName == "modifiedon").Selected, "modifiedon");
 
         Assert.IsFalse(columns.Single(c => c.LogicalName == "ftp_commentaire").Selected,
-            "Une colonne ordinaire reste inactive : c'est tables sync qui l'active quand le code la référence.");
+            "An ordinary column stays inactive: it is tables sync that activates it once the code references it.");
     }
 
     [Test]
@@ -174,11 +174,11 @@ public class MetadataTableFactoryTests
             .Single(c => c.LogicalName == "ftp_reference");
 
         Assert.IsTrue(column.Selected,
-            "Sans elle, le code généré ne pourrait pas exprimer la clé alternative.");
+            "Without it, the generated code could not express the alternate key.");
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Clés alternatives
+    // Alternate keys
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
@@ -215,7 +215,7 @@ public class MetadataTableFactoryTests
 
         var local = result.Table.Enums.Single();
         Assert.AreEqual("ftp_contrat|ftp_type", local.LogicalName,
-            "Un option set local est cantonné à « entité|attribut » pour éviter les collisions.");
+            "A local option set is scoped to \"entity|attribute\" to avoid collisions.");
         Assert.AreEqual("TypeDeContrat", local.Name);
         Assert.AreEqual(new[] { "Location", "Vente" }, local.Values.Select(v => v.Name).ToArray());
         Assert.AreEqual("ftp_contrat|ftp_type", result.Table.Columns.Single().EnumName);
@@ -233,7 +233,7 @@ public class MetadataTableFactoryTests
         var result = MetadataTableFactory.Convert(entity, Prefixes);
 
         Assert.AreEqual(0, result.Table.Enums.Count,
-            "Un option set global n'est jamais écrit dans le .table de l'entité.");
+            "A global option set is never written into the entity's .table.");
         Assert.AreEqual("ftp_deviseglobale", result.GlobalEnums.Single().LogicalName);
         Assert.IsTrue(result.GlobalEnums.Single().IsGlobal);
     }
@@ -253,7 +253,7 @@ public class MetadataTableFactoryTests
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // Relations
+    // Relationships
     // ══════════════════════════════════════════════════════════════════════════
 
     [Test]
@@ -313,7 +313,7 @@ public class MetadataTableFactoryTests
 
         var relation = MetadataTableFactory.Convert(entity, Prefixes).Table.ManyToManyRelationships.Single();
 
-        Assert.AreEqual("ftp_tag", relation.EntityName, "On retient toujours le bout opposé.");
+        Assert.AreEqual("ftp_tag", relation.EntityName, "We always retain the opposite end.");
         Assert.AreEqual("ftp_tagid", relation.LookupFieldName);
     }
 }

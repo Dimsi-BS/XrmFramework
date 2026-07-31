@@ -16,8 +16,8 @@
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="Newtonsoft.Json" />
-    <!-- Remonte le plancher transitif de System.Private.DataContractSerialization 4.3.0
-         (chaîne Dataverse.Client) — CVE-2019-0820 (High), corrigé en 4.3.1. -->
+    <!-- Raises the transitive floor of System.Private.DataContractSerialization 4.3.0
+         (Dataverse.Client chain) — CVE-2019-0820 (High), fixed in 4.3.1. -->
     <PackageReference Include="System.Text.RegularExpressions" />
     <PackageReference Include="coverlet.collector">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -30,9 +30,9 @@
   </ItemGroup>
 
   <!--
-    Sources de tests liées depuis src/Tests/XrmFramework.Tests/.
-    Source unique de vérité : les fichiers ne sont pas dupliqués.
-    Le Link= contrôle l'affichage dans l'IDE.
+    Test sources linked from src/Tests/XrmFramework.Tests/.
+    Single source of truth: the files are not duplicated.
+    The Link= controls how they are displayed in the IDE.
   -->
   <ItemGroup>
     <Compile Include="..\XrmFramework.Tests\**\*.cs"
@@ -40,9 +40,9 @@
              Exclude="..\XrmFramework.Tests\obj\**;..\XrmFramework.Tests\bin\**" />
 
     <!--
-      DeployUtils n'embarque plus la couche runtime du framework (Service/, Context/) :
-      les tests correspondants n'ont plus de sujet ici. Ils restent exécutés par
-      XrmFramework.Tests, sur le projet XrmFramework lui-même.
+      DeployUtils no longer bundles the framework's runtime layer (Service/, Context/):
+      the corresponding tests no longer have a subject here. They still run as part of
+      XrmFramework.Tests, against the XrmFramework project itself.
     -->
     <Compile Remove="..\XrmFramework.Tests\Service\**\*.cs" />
     <Compile Remove="..\XrmFramework.Tests\Context\**\*.cs" />

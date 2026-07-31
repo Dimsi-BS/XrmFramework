@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <!--
-      Outil graphique (WinForms) pour générer les fichiers de définition d'entités.
-      net472 est requis par XrmFramework.DefinitionManager (WinForms).
+      Graphical tool (WinForms) for generating entity definition files.
+      net472 is required by XrmFramework.DefinitionManager (WinForms).
     -->
     <OutputType>WinExe</OutputType>
     <TargetFramework>net472</TargetFramework>
@@ -11,14 +11,14 @@
 
   <ItemGroup>
     <!--
-      Référence directe au projet XrmFramework.DefinitionManager (au lieu du package NuGet).
-      Ce projet référence lui-même XrmFramework.Core et XrmFramework.DeployUtils.
+      Direct reference to the XrmFramework.DefinitionManager project (instead of the NuGet package).
+      This project itself references XrmFramework.Core and XrmFramework.DeployUtils.
     -->
     <ProjectReference Include="../../../src/XrmFramework.DefinitionManager/XrmFramework.DefinitionManager.csproj" />
     <ProjectReference Include="..\..\XrmFramework.Sample.Core\XrmFramework.Sample.Core.csproj" />
   </ItemGroup>
 
 
-  <!-- samples/Directory.Build.props est importé automatiquement par MSBuild (remontée d'arborescence). -->
+  <!-- samples/Directory.Build.props is automatically imported by MSBuild (directory tree walk-up). -->
   <Import Project="../../../src/XrmFramework.DefinitionManager/build/net462/XrmFramework.DefinitionManager.props" />
 </Project>

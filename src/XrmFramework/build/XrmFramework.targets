@@ -1,16 +1,16 @@
 <Project>
     <!--
-      Détection du package Microsoft.PowerPlatform.Dataverse.Client dans le projet en cours de compilation.
+      Detects the Microsoft.PowerPlatform.Dataverse.Client package in the project being compiled.
 
-      Le package XrmFramework livre ses sources en contentFiles : elles sont donc compilées dans le projet
-      consommateur, qui ne référence pas toujours le client Dataverse (projet plugin net462, projet Core
-      On-Premise via Microsoft.CrmSdk.XrmTooling.CoreAssembly, ...). Le code qui dépend de
-      IOrganizationServiceAsync / IOrganizationServiceAsync2 est encadré par « #if DATAVERSE_CLIENT ».
+      The XrmFramework package ships its sources as contentFiles: they are therefore compiled into the
+      consuming project, which does not always reference the Dataverse client (net462 plugin project,
+      On-Premise Core project via Microsoft.CrmSdk.XrmTooling.CoreAssembly, ...). Code that depends on
+      IOrganizationServiceAsync / IOrganizationServiceAsync2 is guarded by "#if DATAVERSE_CLIENT".
 
-      La détection se fait dans une cible : MSBuild n'autorise les références d'items (@(PackageReference))
-      que dans les cibles, pas au moment de l'évaluation des PropertyGroup. Définir
-      XrmFramework_HasDataverseClient à true ou false dans le csproj (ou dans un Directory.Build.props)
-      court-circuite la détection.
+      Detection happens in a target: MSBuild only allows item references (@(PackageReference))
+      inside targets, not during PropertyGroup evaluation. Setting
+      XrmFramework_HasDataverseClient to true or false in the csproj (or in a Directory.Build.props)
+      short-circuits the detection.
     -->
     <Target Name="XrmFramework_DetectDataverseClient" BeforeTargets="CoreCompile">
         <PropertyGroup>

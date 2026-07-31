@@ -1,9 +1,9 @@
 // Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-// Types « stub » net8 reproduisant la FORME des types XrmFramework lus par le moteur d'inventaire
-// (réflexion par nom). On ne stube QUE ce qui est absent de DeployUtils : Stages/Modes/Messages et
-// les attributs cœur proviennent du vrai XrmFramework (référencé via DeployUtils).
+// net8 "stub" types reproducing the SHAPE of the XrmFramework types read by the inventory engine
+// (reflection by name). We stub ONLY what is missing from DeployUtils: Stages/Modes/Messages and
+// the core attributes come from the real XrmFramework (referenced via DeployUtils).
 
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using System.Reflection;
 
 namespace XrmFramework
 {
-    /// <summary>Stub de <c>XrmFramework.Step</c> : porte exactement les propriétés lues par le moteur.</summary>
+    /// <summary>Stub of <c>XrmFramework.Step</c>: carries exactly the properties read by the engine.</summary>
     public sealed class Step
     {
         public Messages Message { get; set; }
@@ -31,7 +31,7 @@ namespace XrmFramework
         public string UnsecureConfig { get; set; }
     }
 
-    /// <summary>Stub de <c>XrmFramework.Plugin</c> : le ctor déclenche AddSteps comme le vrai.</summary>
+    /// <summary>Stub of <c>XrmFramework.Plugin</c>: the ctor triggers AddSteps just like the real one.</summary>
     public abstract class Plugin
     {
         private readonly List<Step> _steps = new();
@@ -90,7 +90,7 @@ namespace XrmFramework
     // ReSharper disable once UnusedTypeParameter
     public sealed class CustomApiOutArgument<T> { }
 
-    /// <summary>Stub de <c>XrmFramework.CustomApi</c> : le moteur ne l'instancie pas (réflexion de type seule).</summary>
+    /// <summary>Stub of <c>XrmFramework.CustomApi</c>: the engine does not instantiate it (type reflection only).</summary>
     public abstract class CustomApi : Plugin
     {
         protected CustomApi() : base(null, null) { }
@@ -101,7 +101,7 @@ namespace XrmFramework
 
 namespace XrmFramework.Workflow
 {
-    /// <summary>Stub de <c>XrmFramework.Workflow.CustomWorkflowActivity</c> (DisplayName lu par le moteur).</summary>
+    /// <summary>Stub of <c>XrmFramework.Workflow.CustomWorkflowActivity</c> (DisplayName read by the engine).</summary>
     public abstract class CustomWorkflowActivity
     {
         public string DisplayName { get; set; }

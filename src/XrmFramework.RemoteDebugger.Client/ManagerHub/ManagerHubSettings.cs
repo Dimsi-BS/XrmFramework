@@ -4,38 +4,38 @@
 namespace XrmFramework.RemoteDebugger.Client.ManagerHub;
 
 /// <summary>
-/// Paramètres de connexion au Manager (Plugin Monitor) pour le RemoteDebugger.
-/// Calqué sur le modèle <c>HubOptions</c> + configuration MSAL de l'application Desktop.
+/// Manager (Plugin Monitor) connection settings for the RemoteDebugger.
+/// Modeled after the <c>HubOptions</c> pattern + MSAL configuration of the Desktop application.
 /// </summary>
 /// <remarks>
-/// Si ces paramètres sont renseignés dans
+/// When these settings are populated on
 /// <see cref="XrmFramework.RemoteDebugger.Common.RemoteDebugger{T}"/>,
-/// les événements d'exécution sont transmis en temps réel à l'interface Plugin Monitor
-/// via le DesktopHub du Manager, avec la même authentification Azure AD que le Desktop.
+/// execution events are forwarded in real time to the Plugin Monitor interface
+/// via the Manager's DesktopHub, using the same Azure AD authentication as the Desktop.
 /// </remarks>
 public class ManagerHubSettings
 {
     /// <summary>
-    /// URL de base de l'API Manager.
-    /// Exemple : <c>https://manager.example.com</c> ou <c>https://localhost:5001</c>
-    /// Identique à la propriété <c>ApiUrl</c> de <c>HubOptions</c> dans l'application Desktop.
+    /// Base URL of the Manager API.
+    /// Example: <c>https://manager.example.com</c> or <c>https://localhost:5001</c>
+    /// Identical to the <c>ApiUrl</c> property of <c>HubOptions</c> in the Desktop application.
     /// </summary>
     public string ApiUrl { get; set; }
 
     /// <summary>
-    /// ClientId de l'application Azure AD (MSAL <c>PublicClientApplication</c>).
-    /// Identique à la variable d'environnement utilisateur <c>ClientId</c> lue par le Desktop.
+    /// ClientId of the Azure AD application (MSAL <c>PublicClientApplication</c>).
+    /// Identical to the <c>ClientId</c> user environment variable read by the Desktop.
     /// </summary>
     public string ClientId { get; set; }
 
     /// <summary>
-    /// TenantId (ou nom de domaine) Azure AD.
-    /// Identique à la variable d'environnement utilisateur <c>Tenant</c> lue par le Desktop.
+    /// Azure AD TenantId (or domain name).
+    /// Identical to the <c>Tenant</c> user environment variable read by the Desktop.
     /// </summary>
     public string Tenant { get; set; }
 
     /// <summary>
-    /// Indique si les paramètres sont suffisants pour établir la connexion.
+    /// Indicates whether the settings are sufficient to establish the connection.
     /// </summary>
     public bool IsConfigured =>
         !string.IsNullOrWhiteSpace(ApiUrl) &&
@@ -43,8 +43,8 @@ public class ManagerHubSettings
         !string.IsNullOrWhiteSpace(Tenant);
 
     /// <summary>
-    /// Crée une instance pré-remplie depuis les variables d'environnement utilisateur
-    /// <c>ClientId</c> et <c>Tenant</c> — les mêmes que celles utilisées par le Desktop.
+    /// Creates a pre-filled instance from the <c>ClientId</c> and <c>Tenant</c> user
+    /// environment variables — the same ones used by the Desktop.
     /// </summary>
     public static ManagerHubSettings FromEnvironment(string apiUrl) => new()
     {

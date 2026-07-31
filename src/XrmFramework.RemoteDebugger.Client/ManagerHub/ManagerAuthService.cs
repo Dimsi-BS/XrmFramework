@@ -11,31 +11,31 @@ using Microsoft.Identity.Client;
 namespace XrmFramework.RemoteDebugger.Client.ManagerHub;
 
 /// <summary>
-/// Service d'authentification MSAL pour le RemoteDebugger.
-/// Reproduit fidèlement le flux de l'application Desktop :
+/// MSAL authentication service for the RemoteDebugger.
+/// Faithfully reproduces the Desktop application's flow:
 /// <list type="number">
-///   <item>Tentative silencieuse depuis le cache (<see cref="IPublicClientApplication.AcquireTokenSilent"/>).</item>
-///   <item>Si le cache est vide ou expiré, ouverture d'un sélecteur de compte Azure (<see cref="Prompt.SelectAccount"/>).</item>
+///   <item>Silent attempt from the cache (<see cref="IPublicClientApplication.AcquireTokenSilent"/>).</item>
+///   <item>If the cache is empty or expired, opens an Azure account picker (<see cref="Prompt.SelectAccount"/>).</item>
 /// </list>
-/// Le cache est persisté dans <c>%LOCALAPPDATA%\xrmFramework\debugger.msalcache.bin3</c>
-/// (chiffré avec DPAPI sur Windows, fichier brut sur les autres plateformes).
+/// The cache is persisted in <c>%LOCALAPPDATA%\xrmFramework\debugger.msalcache.bin3</c>
+/// (encrypted with DPAPI on Windows, plain file on other platforms).
 /// </summary>
 internal sealed class ManagerAuthService
 {
-    // ── Constantes ──────────────────────────────────────────────────────────
+    // ── Constants ─────────────────────────────────────────────────────────
 
-    /// <summary>Scope identique à celui utilisé par l'application Desktop.</summary>
+    /// <summary>Scope identical to the one used by the Desktop application.</summary>
     private static readonly string[] Scopes = { "api://xrmFramework-manager-api/desktop-connect" };
 
-    /// <summary>Redirect URI — même valeur que le Desktop.</summary>
+    /// <summary>Redirect URI — same value as the Desktop.</summary>
     private const string RedirectUri = "http://localhost";
 
-    // ── État ────────────────────────────────────────────────────────────────
+    // ── State ─────────────────────────────────────────────────────────────
 
     private readonly IPublicClientApplication _clientApp;
     private readonly Action<string> _log;
 
-    // ── Constructeur ────────────────────────────────────────────────────────
+    // ── Constructor ───────────────────────────────────────────────────────
 
     public ManagerAuthService(ManagerHubSettings settings, Action<string> log = null)
     {
@@ -47,23 +47,23 @@ internal sealed class ManagerAuthService
             .WithAuthority(AzureCloudInstance.AzurePublic, settings.Tenant)
             .Build();
 
-        // Persistance du cache de tokens (même principe que TokenCacheHelper du Desktop)
+        // Token cache persistence (same principle as the Desktop's TokenCacheHelper)
         EnableTokenCacheSerialization(_clientApp.UserTokenCache);
     }
 
-    // ── API publique ────────────────────────────────────────────────────────
+    // ── Public API ────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Obtient un token d'accès valide pour le Manager.
-    /// Tente d'abord le cache silencieux ; affiche le sélecteur de compte si nécessaire.
-    /// Retourne <c>null</c> si l'authentification échoue (erreur loggée).
+    /// Obtains a valid access token for the Manager.
+    /// First tries the silent cache; shows the account picker if needed.
+    /// Returns <c>null</c> if authentication fails (error logged).
     /// </summary>
     public async Task<string> AcquireTokenAsync()
     {
         var accounts = await _clientApp.GetAccountsAsync();
         var firstAccount = accounts.FirstOrDefault();
 
-        // 1. Tentative silencieuse (cache)
+        // 1. Silent attempt (cache)
         try
         {
             var result = await _clientApp
@@ -74,18 +74,18 @@ internal sealed class ManagerAuthService
         }
         catch (MsalUiRequiredException)
         {
-            // Cache vide ou expiré → login interactif
+            // Cache empty or expired → interactive login
         }
         catch (Exception ex)
         {
-            _log($"[ManagerHub] Erreur d'authentification silencieuse : {ex.Message}");
+            _log($"[ManagerHub] Silent authentication error: {ex.Message}");
             return null;
         }
 
-        // 2. Login interactif — identique au Desktop (sélecteur de compte)
+        // 2. Interactive login — identical to the Desktop (account picker)
         try
         {
-            _log("[ManagerHub] Authentification requise — ouverture du sélecteur de compte Azure…");
+            _log("[ManagerHub] Authentication required — opening the Azure account picker…");
 
             var result = await _clientApp
                 .AcquireTokenInteractive(Scopes)
@@ -93,22 +93,22 @@ internal sealed class ManagerAuthService
                 .WithPrompt(Prompt.SelectAccount)
                 .ExecuteAsync();
 
-            _log($"[ManagerHub] Authentifié en tant que {result.Account?.Username}.");
+            _log($"[ManagerHub] Authenticated as {result.Account?.Username}.");
             return result.AccessToken;
         }
         catch (Exception ex)
         {
-            _log($"[ManagerHub] Authentification interactive échouée : {ex.Message}");
+            _log($"[ManagerHub] Interactive authentication failed: {ex.Message}");
             return null;
         }
     }
 
-    // ── Cache de tokens ─────────────────────────────────────────────────────
+    // ── Token cache ───────────────────────────────────────────────────────
 
     /// <summary>
-    /// Chemin du fichier de cache MSAL du RemoteDebugger.
-    /// Distinct du cache Desktop (assemblies différents), mais dans le même
-    /// répertoire utilisateur pour rester cohérent.
+    /// Path of the RemoteDebugger's MSAL cache file.
+    /// Distinct from the Desktop cache (different assemblies), but in the same
+    /// user directory for consistency.
     /// </summary>
     internal static string CacheFilePath { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -140,7 +140,7 @@ internal sealed class ManagerAuthService
             }
             catch
             {
-                // Cache illisible ou corrompu : on repart de zéro
+                // Unreadable or corrupted cache: start fresh
                 args.TokenCache.DeserializeMsalV3(null);
             }
         }
@@ -162,12 +162,12 @@ internal sealed class ManagerAuthService
             }
             catch
             {
-                // Échec de persistance non bloquant
+                // Non-blocking persistence failure
             }
         }
     }
 
-    // ── Chiffrement DPAPI (Windows) / identité (autres plateformes) ─────────
+    // ── DPAPI encryption (Windows) / identity (other platforms) ─────────────
 
     private static byte[] Protect(byte[] data)
     {
@@ -176,7 +176,7 @@ internal sealed class ManagerAuthService
             return System.Security.Cryptography.ProtectedData.Protect(
                 data, null, System.Security.Cryptography.DataProtectionScope.CurrentUser);
 #endif
-        return data; // Autres plateformes : fichier non chiffré
+        return data; // Other platforms: unencrypted file
     }
 
     private static byte[] Unprotect(byte[] data)

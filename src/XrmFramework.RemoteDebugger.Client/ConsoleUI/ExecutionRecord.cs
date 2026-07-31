@@ -9,21 +9,21 @@ using XrmFramework.RemoteDebugger.Common.ConsoleUI;
 namespace XrmFramework.RemoteDebugger.Client.ConsoleUI;
 
 /// <summary>
-/// Statut d'une exécution de plugin dans le débogueur distant.
+/// Status of a plugin execution in the remote debugger.
 /// </summary>
 public enum ExecutionStatus
 {
-    /// <summary>Exécution en cours.</summary>
+    /// <summary>Execution in progress.</summary>
     Running,
-    /// <summary>Exécution terminée avec succès.</summary>
+    /// <summary>Execution completed successfully.</summary>
     Succeeded,
-    /// <summary>Exécution terminée avec une erreur.</summary>
+    /// <summary>Execution completed with an error.</summary>
     Failed
 }
 
 /// <summary>
-/// Représente une exécution de plugin ou d'activité workflow suivie par le débogueur distant.
-/// Contient toutes les informations nécessaires pour afficher, analyser et rejouer l'exécution.
+/// Represents a plugin or workflow activity execution tracked by the remote debugger.
+/// Contains all the information needed to display, analyze, and replay the execution.
 /// </summary>
 public class ExecutionRecord
 {
@@ -37,64 +37,64 @@ public class ExecutionRecord
         StartTime = DateTime.Now;
         Status = ExecutionStatus.Running;
 
-        // Extraire le nom court du plugin
+        // Extract the plugin's short name
         PluginShortName = ExtractShortTypeName(inputContext.TypeAssemblyQualifiedName);
     }
 
-    /// <summary>Identifiant séquentiel de l'exécution (1, 2, 3...).</summary>
+    /// <summary>Sequential identifier of the execution (1, 2, 3...).</summary>
     public int Id { get; }
 
-    /// <summary>Nom court du type de plugin (sans namespace ni info d'assembly).</summary>
+    /// <summary>Short name of the plugin type (without namespace or assembly info).</summary>
     public string PluginShortName { get; }
 
-    /// <summary>Nom du message CRM (Create, Update, Delete...).</summary>
+    /// <summary>Name of the CRM message (Create, Update, Delete...).</summary>
     public string MessageName => InputContext.MessageName ?? "";
 
-    /// <summary>Nom logique de l'entité principale.</summary>
+    /// <summary>Logical name of the primary entity.</summary>
     public string PrimaryEntityName => InputContext.PrimaryEntityName ?? "";
 
-    /// <summary>ID de l'entité principale.</summary>
+    /// <summary>ID of the primary entity.</summary>
     public Guid PrimaryEntityId => InputContext.PrimaryEntityId;
 
-    /// <summary>Statut actuel de l'exécution.</summary>
+    /// <summary>Current status of the execution.</summary>
     public ExecutionStatus Status { get; private set; }
 
-    /// <summary>Heure de début de l'exécution.</summary>
+    /// <summary>Start time of the execution.</summary>
     public DateTime StartTime { get; }
 
-    /// <summary>Durée totale (null si encore en cours).</summary>
+    /// <summary>Total duration (null if still running).</summary>
     public TimeSpan? Duration { get; private set; }
 
-    /// <summary>Contexte d'entrée (snapshot avant exécution du plugin).</summary>
+    /// <summary>Input context (snapshot before the plugin executes).</summary>
     public RemoteDebugExecutionContext InputContext { get; }
 
-    /// <summary>Contexte de sortie (après exécution du plugin), null si encore en cours.</summary>
+    /// <summary>Output context (after the plugin executes), null if still running.</summary>
     public RemoteDebugExecutionContext OutputContext { get; private set; }
 
-    /// <summary>Exception levée lors de l'exécution, null si succès.</summary>
+    /// <summary>Exception raised during execution, null on success.</summary>
     public Exception Error { get; private set; }
 
-    /// <summary>Liste des appels OrgService effectués pendant l'exécution.</summary>
+    /// <summary>List of OrgService calls made during the execution.</summary>
     public IReadOnlyList<OrgServiceCallRecord> OrgServiceCalls => _orgServiceCalls;
     private readonly List<OrgServiceCallRecord> _orgServiceCalls = new();
 
-    /// <summary>Logs de tracing émis par le plugin via <c>ITracingService.Trace</c>.</summary>
+    /// <summary>Trace logs emitted by the plugin via <c>ITracingService.Trace</c>.</summary>
     public IReadOnlyList<string> TraceLogs => _traceLogs;
     private readonly List<string> _traceLogs = new();
 
     /// <summary>
-    /// Session de test complète pour rejouer cette exécution.
-    /// Disponible uniquement après la fin de l'exécution.
+    /// Complete test session for replaying this execution.
+    /// Available only after the execution has completed.
     /// </summary>
     public PluginTestSession TestSession { get; private set; }
 
     /// <summary>
-    /// Durée affichée (en cours ou terminée).
+    /// Displayed duration (running or completed).
     /// </summary>
     public TimeSpan ElapsedTime => Duration ?? (DateTime.Now - StartTime);
 
     /// <summary>
-    /// Nombre d'appels OrgService effectués (y compris ceux en cours).
+    /// Number of OrgService calls made (including ones still running).
     /// </summary>
     public int OrgServiceCallCount
     {
@@ -102,8 +102,8 @@ public class ExecutionRecord
     }
 
     /// <summary>
-    /// Ajoute une ligne de trace émise par le plugin via <c>ITracingService</c>.
-    /// Appelé depuis le callback passé à <c>LocalServiceProvider</c>.
+    /// Adds a trace line emitted by the plugin via <c>ITracingService</c>.
+    /// Called from the callback passed to <c>LocalServiceProvider</c>.
     /// </summary>
     internal void AddTraceLog(string message)
     {
@@ -114,7 +114,7 @@ public class ExecutionRecord
     }
 
     /// <summary>
-    /// Crée un nouvel appel OrgService et l'ajoute à la liste.
+    /// Creates a new OrgService call and adds it to the list.
     /// </summary>
     internal OrgServiceCallRecord BeginOrgServiceCall(string requestJson)
     {
@@ -128,7 +128,7 @@ public class ExecutionRecord
     }
 
     /// <summary>
-    /// Marque l'exécution comme terminée avec succès et construit la session de test.
+    /// Marks the execution as completed successfully and builds the test session.
     /// </summary>
     internal void Complete(RemoteDebugExecutionContext outputContext)
     {
@@ -140,7 +140,7 @@ public class ExecutionRecord
     }
 
     /// <summary>
-    /// Marque l'exécution comme échouée.
+    /// Marks the execution as failed.
     /// </summary>
     internal void Fail(Exception error)
     {
@@ -150,11 +150,11 @@ public class ExecutionRecord
     }
 
     /// <summary>
-    /// Construit la session de test à partir des données enregistrées.
+    /// Builds the test session from the recorded data.
     /// </summary>
     private void BuildTestSession()
     {
-        // Copie profonde du contexte d'entrée via JSON round-trip
+        // Deep copy of the input context via JSON round-trip
         RemoteDebugExecutionContext inputCopy;
         try
         {
@@ -172,8 +172,8 @@ public class ExecutionRecord
             PluginTypeAssemblyQualifiedName = InputContext.TypeAssemblyQualifiedName,
             Timestamp = StartTime,
             SessionId = Guid.NewGuid(),
-            // Heure UTC du début de l'exécution : utilisée lors du rejouage pour
-            // injecter FixedDateTimeProvider et rendre reproductibles les dates relatives.
+            // UTC time of the start of the execution: used during replay to
+            // inject FixedDateTimeProvider and make relative dates reproducible.
             ExecutionDate = StartTime.Kind == DateTimeKind.Utc ? StartTime : StartTime.ToUniversalTime(),
             InputContext = inputCopy,
             OutputContext = OutputContext
@@ -197,7 +197,7 @@ public class ExecutionRecord
         TestSession = session;
     }
 
-    /// <summary>Extrait le nom simple du type depuis le nom qualifié complet.</summary>
+    /// <summary>Extracts the simple type name from the fully qualified name.</summary>
     private static string ExtractShortTypeName(string assemblyQualifiedName)
     {
         if (string.IsNullOrEmpty(assemblyQualifiedName)) return "UnknownPlugin";
@@ -218,10 +218,10 @@ public class PluginTestSession
 {
     public string PluginTypeAssemblyQualifiedName { get; set; }
 
-    /// <summary>Horodatage de l'exécution (heure locale), utilisé pour nommer le fichier de session.</summary>
+    /// <summary>Timestamp of the execution (local time), used to name the session file.</summary>
     public DateTime Timestamp { get; set; } = DateTime.Now;
 
-    /// <summary>Identifiant unique de la session, utilisé pour distinguer plusieurs sessions du même plugin.</summary>
+    /// <summary>Unique identifier of the session, used to distinguish multiple sessions of the same plugin.</summary>
     public Guid SessionId { get; set; } = Guid.NewGuid();
 
     public DateTime ExecutionDate { get; set; }
@@ -233,8 +233,8 @@ public class PluginTestSession
     public IList<RecordedOrgServiceCall> OrgServiceCalls { get; set; } = new List<RecordedOrgServiceCall>();
 
     /// <summary>
-    /// Logs émis par le plugin via <c>ITracingService.Trace</c> pendant l'exécution.
-    /// Conservés dans la session pour analyse et rejouage.
+    /// Logs emitted by the plugin via <c>ITracingService.Trace</c> during the execution.
+    /// Kept in the session for analysis and replay.
     /// </summary>
     public IList<string> TraceLogs { get; set; } = new List<string>();
 }

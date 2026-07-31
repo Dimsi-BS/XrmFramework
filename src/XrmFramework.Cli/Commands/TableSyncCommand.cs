@@ -9,35 +9,35 @@ using XrmFramework.DeployUtils;
 namespace XrmFramework.Cli.Commands;
 
 /// <summary>
-/// Commande <c>xrmframework tables sync</c> : synchronise les fichiers <c>.table</c>
-/// d'un répertoire à partir des classes <c>[EntityDefinition]</c> d'un assembly.
-/// La logique réelle vit dans <see cref="TableSyncHelper.Sync(string, string, bool)"/>.
+/// <c>xrmframework tables sync</c> command: synchronizes the <c>.table</c> files
+/// of a directory from the <c>[EntityDefinition]</c> classes of an assembly.
+/// The actual logic lives in <see cref="TableSyncHelper.Sync(string, string, bool)"/>.
 /// </summary>
 public sealed class TableSyncCommand : Command<TableSyncCommand.Settings>
 {
     public sealed class Settings : CommandSettings
     {
-        // Attributs qualifiés complètement : un global using MSTest (transitive via
-        // DeployUtils) rend [Description] ambigu avec UnitTesting.DescriptionAttribute.
+        // Fully qualified attributes: a global MSTest using (transitive via
+        // DeployUtils) makes [Description] ambiguous with UnitTesting.DescriptionAttribute.
         [CommandOption("--dll <PATH>")]
-        [System.ComponentModel.Description("Chemin vers le DLL à analyser (contient des classes *Definition avec [[EntityDefinition]]).")]
+        [System.ComponentModel.Description("Path to the DLL to analyze (contains *Definition classes with [[EntityDefinition]]).")]
         public string? DllPath { get; init; }
 
         [CommandOption("--tables-dir <DIRECTORY>")]
-        [System.ComponentModel.Description("Répertoire contenant les fichiers .table à mettre à jour ou créer.")]
+        [System.ComponentModel.Description("Directory containing the .table files to update or create.")]
         public string? TablesDirectory { get; init; }
 
         [CommandOption("--clean")]
-        [System.ComponentModel.Description("Met Select=false sur les colonnes orphelines et supprime les .table entièrement générés sans donnée CRM.")]
+        [System.ComponentModel.Description("Sets Select=false on orphaned columns and deletes .table files entirely generated with no CRM data.")]
         public bool Clean { get; init; }
 
         public override ValidationResult Validate()
         {
             if (string.IsNullOrWhiteSpace(DllPath))
-                return ValidationResult.Error("L'option --dll est obligatoire.");
+                return ValidationResult.Error("The --dll option is required.");
 
             if (string.IsNullOrWhiteSpace(TablesDirectory))
-                return ValidationResult.Error("L'option --tables-dir est obligatoire.");
+                return ValidationResult.Error("The --tables-dir option is required.");
 
             return ValidationResult.Success();
         }

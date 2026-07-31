@@ -6,19 +6,19 @@ using System;
 namespace XrmFramework
 {
     /// <summary>
-    /// Fournit l'heure courante. Injectable comme paramètre de méthode dans les plugins
-    /// et activités custom workflow pour permettre des tests unitaires déterministes.
+    /// Provides the current time. Injectable as a method parameter in plugins
+    /// and custom workflow activities to enable deterministic unit tests.
     /// <para>
-    /// En production, retourne l'heure système réelle. En rejouage de session de test,
-    /// retourne la date d'exécution enregistrée, ce qui rend reproductibles les calculs
-    /// de dates relatives (ex : "ajouter 3 jours à maintenant").
+    /// In production, returns the real system time. During test session replay,
+    /// returns the recorded execution date, which makes relative date calculations
+    /// reproducible (e.g. "add 3 days to now").
     /// </para>
     /// <example>
-    /// Au lieu de :
+    /// Instead of:
     /// <code>
     /// var expiryDate = DateTime.UtcNow.AddDays(30);
     /// </code>
-    /// Utiliser :
+    /// Use:
     /// <code>
     /// public void HandleCreate(IPluginContext context, IDateTimeProvider clock)
     /// {
@@ -30,14 +30,14 @@ namespace XrmFramework
     public interface IDateTimeProvider : IXrmFrameworkService
     {
         /// <summary>
-        /// Retourne la date et l'heure locales courantes.
-        /// Équivalent déterministe de <see cref="DateTime.Now"/>.
+        /// Returns the current local date and time.
+        /// Deterministic equivalent of <see cref="DateTime.Now"/>.
         /// </summary>
         DateTime Now { get; }
 
         /// <summary>
-        /// Retourne la date et l'heure UTC courantes.
-        /// Équivalent déterministe de <see cref="DateTime.UtcNow"/>.
+        /// Returns the current UTC date and time.
+        /// Deterministic equivalent of <see cref="DateTime.UtcNow"/>.
         /// </summary>
         DateTime UtcNow { get; }
     }

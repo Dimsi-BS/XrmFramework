@@ -1,31 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    CLI XrmFramework distribué comme .NET tool (dotnet tool install).
-    Façade Spectre.Console.Cli au-dessus de la logique hébergée dans
+    XrmFramework CLI distributed as a .NET tool (dotnet tool install).
+    Spectre.Console.Cli facade on top of the logic hosted in
     XrmFramework.DeployUtils (TableSyncHelper, DefinitionAnalyzer, TableFileSyncer).
 
-    Installation :  dotnet tool install XrmFramework.Cli (en global ou en local)
-    Invocation   :  xrmframework tables sync (options dll / tables-dir / clean)
+    Installation:  dotnet tool install XrmFramework.Cli (globally or locally)
+    Invocation  :  xrmframework tables sync (dll / tables-dir / clean options)
   -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <!-- Les .NET tools exigent un TFM unique — on cible net10.0 (LTS courant). -->
+    <!-- .NET tools require a single TFM — targeting net10.0 (current LTS). -->
     <TargetFramework>net10.0</TargetFramework>
 
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 
-    <!-- Packaging en tant que .NET tool : PackAsTool règle PackageType=DotnetTool
-         et range la sortie (closure incluse) sous tools/net10.0/any/. -->
+    <!-- Packaging as a .NET tool: PackAsTool sets PackageType=DotnetTool
+         and places the output (closure included) under tools/net10.0/any/. -->
     <PackageId>XrmFramework.Cli</PackageId>
     <IsPackable>true</IsPackable>
-    <!-- La pipeline (NugetPackages-Azure.yml) ne fait que « dotnet build » : sans cette propriété
-         le .nupkg du CLI n'est jamais généré ni recopié dans GeneratedNuGetPackages. -->
+    <!-- The pipeline (NugetPackages-Azure.yml) only runs "dotnet build": without this property
+         the CLI's .nupkg is never generated nor copied into GeneratedNuGetPackages. -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>xrmframework</ToolCommandName>
-    <PackageDescription>CLI XrmFramework : synchronisation des fichiers .table et utilitaires de développement Dynamics 365 / Dataverse.</PackageDescription>
+    <PackageDescription>XrmFramework CLI: .table file synchronization and Dynamics 365 / Dataverse development utilities.</PackageDescription>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -40,9 +40,9 @@
     <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj" />
 
     <!--
-      Outil d'inventaire net462 : référencé uniquement pour l'ordre de build (pas de dépendance de
-      code ; le CLI le lance hors-process). SkipGetTargetFrameworkProperties évite la négociation
-      de TFM net8 ↔ net462.
+      net462 inventory tool: referenced only for build ordering (no code dependency;
+      the CLI launches it out-of-process). SkipGetTargetFrameworkProperties avoids the TFM
+      negotiation between net8 and net462.
     -->
     <ProjectReference Include="..\XrmFramework.PluginInventory\XrmFramework.PluginInventory.csproj"
                       ReferenceOutputAssembly="false"
@@ -51,11 +51,11 @@
   </ItemGroup>
 
   <!--
-    Embarque l'exe d'inventaire net462 sous inventory/ : copié à côté du tool (résolu via
-    AppContext.BaseDirectory). PackAsTool empaquette la sortie de publication sous
-    tools/net10.0/any/, donc CopyToOutputDirectory suffit — une inclusion Pack explicite
-    ferait doublon (NU5118).
-    Le helper n'a aucune dépendance tierce (BCL + framework GAC) → seul l'exe est nécessaire.
+    Embeds the net462 inventory exe under inventory/: copied next to the tool (resolved via
+    AppContext.BaseDirectory). PackAsTool packages the publish output under
+    tools/net10.0/any/, so CopyToOutputDirectory is enough — an explicit Pack inclusion
+    would create a duplicate (NU5118).
+    The helper has no third-party dependency (BCL + framework GAC) → only the exe is needed.
   -->
   <ItemGroup>
     <None Include="..\XrmFramework.PluginInventory\bin\$(Configuration)\net462\XrmFramework.PluginInventory.exe"

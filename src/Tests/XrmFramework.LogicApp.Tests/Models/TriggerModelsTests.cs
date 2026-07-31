@@ -8,7 +8,7 @@ using XrmFramework.LogicApp.Models.Triggers;
 namespace XrmFramework.LogicApp.Tests.Models;
 
 /// <summary>
-/// Tests unitaires pour les modèles de triggers Logic App.
+/// Unit tests for Logic App trigger models.
 /// </summary>
 [TestFixture]
 public class TriggerModelsTests

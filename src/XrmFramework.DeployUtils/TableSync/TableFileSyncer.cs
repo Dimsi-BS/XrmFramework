@@ -14,8 +14,8 @@ namespace XrmFramework.DeployUtils.TableSync
 {
 
 /// <summary>
-/// Synchronise les fichiers .table d'un répertoire avec les informations
-/// extraites des classes *Definition d'un assembly.
+/// Synchronizes the .table files of a directory with the information
+/// extracted from the *Definition classes of an assembly.
 /// </summary>
 public sealed class TableFileSyncer
 {
@@ -31,32 +31,32 @@ public sealed class TableFileSyncer
     {
         if (!Directory.Exists(tablesDirectory))
             throw new DirectoryNotFoundException(
-                $"Répertoire .table introuvable : {tablesDirectory}");
+                $"Table directory not found: {tablesDirectory}");
 
         _tablesDirectory = tablesDirectory;
     }
 
     // ──────────────────────────────────────────────────────────────────────────
-    // Point d'entrée principal
+    // Main entry point
     // ──────────────────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Synchronise les fichiers .table selon les <paramref name="definitions"/> fournies.
+    /// Synchronizes the .table files according to the provided <paramref name="definitions"/>.
     /// </summary>
-    /// <param name="definitions">Infos extraites du DLL par <see cref="DefinitionAnalyzer"/>.</param>
+    /// <param name="definitions">Information extracted from the DLL by <see cref="DefinitionAnalyzer"/>.</param>
     /// <param name="clean">
-    ///   Si true, met Select=false sur les colonnes absentes de toute Definition
-    ///   et supprime les .table entièrement créés par l'outil (aucune donnée CRM réelle).
+    ///   If true, sets Select=false on columns absent from any Definition
+    ///   and deletes .table files entirely created by the tool (no real CRM data).
     /// </param>
     /// <remarks>
-    ///   Les tables livrées par le framework (voir <see cref="FrameworkTableCatalog"/>) ne sont
-    ///   jamais créées ici — leur .table appartient au package XrmFramework — mais restent mises
-    ///   à jour lorsque le projet en suit déjà une copie.
+    ///   Tables shipped by the framework (see <see cref="FrameworkTableCatalog"/>) are
+    ///   never created here — their .table belongs to the XrmFramework package — but are still kept
+    ///   up to date when the project already tracks a copy of them.
     /// </remarks>
     public void Sync(IReadOnlyList<DefinitionInfo> definitions, bool clean = false)
     {
-        // Index des logical names sélectionnés par entité, utilisé en mode --clean
-        // pour identifier les colonnes qui n'appartiennent plus à aucune Definition.
+        // Index of logical names selected per entity, used in --clean mode
+        // to identify columns that no longer belong to any Definition.
         var selectedByTable = definitions.GroupBy(d => d.TableName).ToDictionary(
             g => g.Key,
             g => new HashSet<string>(
@@ -64,21 +64,21 @@ public sealed class TableFileSyncer
                      StringComparer.OrdinalIgnoreCase),
             StringComparer.OrdinalIgnoreCase);
 
-        AnsiConsole.MarkupLine($"[bold]{definitions.Count}[/] classe(s) Definition trouvée(s) dans le DLL.");
+        AnsiConsole.MarkupLine($"[bold]{definitions.Count}[/] Definition class(es) found in the DLL.");
 
         var skippedFrameworkTables = new List<string>();
 
-        // 1. Mettre à jour / créer les .table pour chaque Definition
+        // 1. Update / create the .table files for each Definition
         foreach (var def in definitions)
         {
             var tablePath = TablePath(def.TableName);
 
-            // Les .table des tables livrées par le framework (SystemUser, Role, ...) font partie
-            // du package XrmFramework : ils sont compilés dans le projet consommateur, donc leurs
-            // Definitions apparaissent dans le DLL analysé. En déposer une copie ici produirait un
-            // doublon. Dès lors que le fichier existe en revanche, le projet a délibérément choisi
-            // de suivre la table pour l'enrichir de ses propres colonnes — celles du framework y
-            // étant marquées "Locked": true — et elle est alors synchronisée comme les autres.
+            // The .table files for tables shipped by the framework (SystemUser, Role, ...) are part
+            // of the XrmFramework package: they are compiled into the consumer project, so their
+            // Definitions appear in the analyzed DLL. Dropping a copy here would produce a
+            // duplicate. However, once the file exists, the project has deliberately chosen
+            // to track the table in order to enrich it with its own columns — the framework's
+            // columns being marked "Locked": true — and it is then synchronized like the others.
             if (!File.Exists(tablePath) && FrameworkTableCatalog.IsFrameworkTable(def))
             {
                 skippedFrameworkTables.Add(def.TableName);
@@ -90,11 +90,11 @@ public sealed class TableFileSyncer
 
         if (skippedFrameworkTables.Count > 0)
             AnsiConsole.MarkupLine(
-                $"[grey]Ignorée(s)[/] [bold]{skippedFrameworkTables.Count}[/] table(s) livrée(s) par le " +
-                "framework et non suivie(s) par le projet : " +
+                $"[grey]Skipped[/] [bold]{skippedFrameworkTables.Count}[/] table(s) shipped by the " +
+                "framework and not tracked by the project: " +
                 string.Join(", ", skippedFrameworkTables.OrderBy(n => n, StringComparer.OrdinalIgnoreCase)));
 
-        // 2. Mode --clean : traiter les .table sans Definition correspondante
+        // 2. --clean mode: process .table files with no matching Definition
         if (clean)
         {
             CleanOrphanedTableFiles(selectedByTable);
@@ -102,7 +102,7 @@ public sealed class TableFileSyncer
     }
 
     // ──────────────────────────────────────────────────────────────────────────
-    // Synchronisation d'une Definition vers son .table
+    // Synchronizing a Definition to its .table
     // ──────────────────────────────────────────────────────────────────────────
 
     private void SyncDefinition(DefinitionInfo def, string tablePath)
@@ -123,7 +123,7 @@ public sealed class TableFileSyncer
 
             if (existing == null)
             {
-                // Colonne absente du .table → création minimale
+                // Column absent from the .table → minimal creation
                 var newCol = new Column
                 {
                     LogicalName = colInfo.LogicalName,
@@ -139,23 +139,23 @@ public sealed class TableFileSyncer
                 existing.Name = colInfo.Name;
                 updated++;
             }
-            // Si déjà Selected=true : rien à faire
+            // If already Selected=true: nothing to do
         }
 
         SaveTable(tablePath, table);
 
         if (isNew)
             AnsiConsole.MarkupLine(
-                $"[green]Créé[/]    {def.TableName}.table " +
-                $"([bold]{def.Columns.Count}[/] colonne(s))");
+                $"[green]Created[/]    {def.TableName}.table " +
+                $"([bold]{def.Columns.Count}[/] column(s))");
         else
             AnsiConsole.MarkupLine(
-                $"[blue]Mis à jour[/] {def.TableName}.table " +
-                $"(+{added} créée(s), {updated} activée(s))");
+                $"[blue]Updated[/] {def.TableName}.table " +
+                $"(+{added} created, {updated} activated)");
     }
 
     // ──────────────────────────────────────────────────────────────────────────
-    // Mode --clean
+    // --clean mode
     // ──────────────────────────────────────────────────────────────────────────
 
     private void CleanOrphanedTableFiles(
@@ -163,7 +163,7 @@ public sealed class TableFileSyncer
     {
         var allTableFiles = Directory.GetFiles(_tablesDirectory, "*.table");
 
-        // Ensemble des noms gérés par les Definitions du DLL
+        // Set of names managed by the DLL's Definitions
         var managedNames = new HashSet<string>(selectedByTable.Keys, StringComparer.OrdinalIgnoreCase);
 
         foreach (var tableFile in allTableFiles)
@@ -172,19 +172,19 @@ public sealed class TableFileSyncer
 
             if (managedNames.Contains(tableName))
             {
-                // Ce fichier est géré → de-sélectionner les colonnes absentes de la Definition
+                // This file is managed → de-select the columns absent from the Definition
                 DeSelectOrphanColumns(tableFile, tableName, selectedByTable[tableName]);
             }
             else
             {
-                // Aucune Definition correspondante dans le DLL → supprimer si outil-généré
+                // No matching Definition in the DLL → delete if tool-generated
                 HandleFullyOrphanedFile(tableFile, tableName);
             }
         }
     }
 
     /// <summary>
-    /// Met Select=false sur les colonnes d'un .table géré qui ne sont plus dans sa Definition.
+    /// Sets Select=false on the columns of a managed .table that are no longer in its Definition.
     /// </summary>
     private void DeSelectOrphanColumns(string tableFile, string tableName,
         HashSet<string> definitionLogicalNames)
@@ -205,34 +205,34 @@ public sealed class TableFileSyncer
         {
             SaveTable(tableFile, table);
             AnsiConsole.MarkupLine(
-                $"[yellow]Nettoyé[/]  {tableName}.table " +
-                $"([bold]{deSelected}[/] colonne(s) de-sélectionnée(s))");
+                $"[yellow]Cleaned[/]  {tableName}.table " +
+                $"([bold]{deSelected}[/] column(s) de-selected)");
         }
     }
 
     /// <summary>
-    /// Traite un .table sans Definition correspondante :
-    /// supprime si entièrement outil-généré (aucune colonne avec des Labels CRM),
-    /// sinon de-sélectionne toutes les colonnes et conserve le fichier.
+    /// Processes a .table with no matching Definition:
+    /// deletes it if entirely tool-generated (no column with CRM Labels),
+    /// otherwise de-selects all columns and keeps the file.
     /// </summary>
     private void HandleFullyOrphanedFile(string tableFile, string tableName)
     {
         var table = LoadTable(tableFile);
 
-        // Heuristique "outil-généré" : aucune colonne n'a de Labels (données CRM réelles).
-        // Un .table produit par le DefinitionManager a toujours des Labels sur ses colonnes.
+        // "Tool-generated" heuristic: no column has Labels (real CRM data).
+        // A .table produced by the DefinitionManager always has Labels on its columns.
         var hasRealCrmData = table.Columns.Any(c => c.Labels.Count > 0);
 
         if (!hasRealCrmData)
         {
             File.Delete(tableFile);
             AnsiConsole.MarkupLine(
-                $"[red]Supprimé[/] {tableName}.table " +
-                "(aucune Definition, aucune donnée CRM réelle)");
+                $"[red]Deleted[/] {tableName}.table " +
+                "(no Definition, no real CRM data)");
         }
         else
         {
-            // Fichier avec données CRM → conserver mais tout de-sélectionner
+            // File with CRM data → keep it but de-select everything
             var deSelected = 0;
             foreach (var col in table.Columns.Where(c => c.Selected))
             {
@@ -244,8 +244,8 @@ public sealed class TableFileSyncer
             {
                 SaveTable(tableFile, table);
                 AnsiConsole.MarkupLine(
-                    $"[yellow]Conservé[/] {tableName}.table " +
-                    $"(aucune Definition — {deSelected} colonne(s) de-sélectionnée(s))");
+                    $"[yellow]Kept[/] {tableName}.table " +
+                    $"(no Definition — {deSelected} column(s) de-selected)");
             }
         }
     }
@@ -268,7 +268,7 @@ public sealed class TableFileSyncer
     {
         var json = File.ReadAllText(path);
         return JsonConvert.DeserializeObject<CoreTable>(json)
-               ?? throw new InvalidDataException($"Impossible de désérialiser {path}");
+               ?? throw new InvalidDataException($"Unable to deserialize {path}");
     }
 
     private static void SaveTable(string path, CoreTable table)

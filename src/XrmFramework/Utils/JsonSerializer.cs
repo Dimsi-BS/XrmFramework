@@ -65,7 +65,7 @@ using Newtonsoft.Json;
             }
             catch (Exception e) when (e is JsonSerializationException || e is JsonReaderException)
             {
-                throw new InvalidPluginExecutionException($"Erreur de désérialisation : {serialized}\r\n{e.Message}");
+                throw new InvalidPluginExecutionException($"Deserialization error: {serialized}\r\n{e.Message}");
             }
 #endif
 
@@ -132,7 +132,7 @@ using Newtonsoft.Json;
             }
             catch (JsonSerializationException e)
             {
-                throw new InvalidPluginExecutionException($"Erreur de sérialisation : {deserialized}\r\n{e.Message}");
+                throw new InvalidPluginExecutionException($"Serialization error: {deserialized}\r\n{e.Message}");
             }
 #endif
         }

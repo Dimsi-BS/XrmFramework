@@ -19,22 +19,22 @@ namespace XrmFramework.DeployUtils.Configuration;
 internal static class DeployServiceCollectionFactory
 {
     /// <summary>
-    ///     Construit un <see cref="DeploySettings" /> à partir de la configuration et des options
-    ///     de déploiement, puis configure le conteneur DI.
+    ///     Builds a <see cref="DeploySettings" /> from the configuration and deployment
+    ///     options, then configures the DI container.
     /// </summary>
     /// <param name="projectName">
-    ///     Nom du projet tel que déclaré dans <c>xrmFramework.config</c>.
-    ///     Utilisé pour résoudre le nom de la solution CRM cible.
+    ///     Project name as declared in <c>xrmFramework.config</c>.
+    ///     Used to resolve the name of the target CRM solution.
     /// </param>
     /// <param name="deployOptions">
-    ///     Options de déploiement (OnPremise, mode silencieux, etc.) transmises par
+    ///     Deployment options (OnPremise, silent mode, etc.) passed by
     ///     <see cref="RegistrationHelper.RegisterPluginsAndWorkflows{TPlugin}" />.
     /// </param>
     public static IServiceCollection CreateServiceCollection(string projectName, DeployOptions deployOptions)
     {
-        // ── Lecture de la configuration ────────────────────────────────────────
-        // Passe par ConfigHelper pour honorer une éventuelle config de projet chargée
-        // explicitement via ConfigHelper.UseProjectConfig (cas du CLI autonome).
+        // ── Reading the configuration ────────────────────────────────────────
+        // Goes through ConfigHelper to honor any project configuration loaded
+        // explicitly via ConfigHelper.UseProjectConfig (standalone CLI case).
         var xrmSection       = ConfigHelper.GetSection();
         var connectionString = ConfigHelper.GetSelectedConnectionString();
 
@@ -45,7 +45,7 @@ internal static class DeployServiceCollectionFactory
         if (projectConfig == null)
         {
             AnsiConsole.MarkupLine(
-                $"[red]Le projet «{projectName}» est introuvable dans xrmFramework.config.[/]");
+                $"[red]Project \"{projectName}\" not found in xrmFramework.config.[/]");
             System.Environment.Exit(1);
         }
 
@@ -56,7 +56,7 @@ internal static class DeployServiceCollectionFactory
             IsOnPremise             = deployOptions.IsOnPremise
         };
 
-        // ── Configuration du conteneur DI ─────────────────────────────────────
+        // ── DI container configuration ─────────────────────────────────────
         return new ServiceCollection()
             .InitServiceCollection()
             .AddScoped<IAssemblyExporter, AssemblyExporter>()
@@ -65,17 +65,17 @@ internal static class DeployServiceCollectionFactory
             {
                 var settings = sp.GetRequiredService<DeploySettings>();
 #if NET462_OR_GREATER
-                // net462 : CrmServiceClient supporte Online et On-Premises (NTLM/AD/OAuth).
+                // net462: CrmServiceClient supports Online and On-Premises (NTLM/AD/OAuth).
                 return new Microsoft.Xrm.Tooling.Connector.CrmServiceClient(settings.ConnectionString);
 #else
-                // net8+ : ServiceClient (Dataverse) supporte Online et On-Premises via OAuth.
+                // net8+: ServiceClient (Dataverse) supports Online and On-Premises via OAuth.
                 return new Microsoft.PowerPlatform.Dataverse.Client.ServiceClient(settings.ConnectionString);
 #endif
             });
     }
 
     /// <summary>
-    ///     Enregistre les services de base communs à toutes les configurations de déploiement.
+    ///     Registers the base services common to all deployment configurations.
     /// </summary>
     public static IServiceCollection InitServiceCollection(this IServiceCollection serviceCollection)
       => serviceCollection

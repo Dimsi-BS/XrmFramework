@@ -1,4 +1,4 @@
-# Pipeline de build + tests + packaging NuGet
+# Build + test + NuGet packaging pipeline
 
 trigger:
  branches:
@@ -19,8 +19,8 @@ steps:
 - checkout: self
   fetchDepth: 0
 
-# Garantit des SDK compatibles avec les TFM ciblés (net8.0 / net10.0) et le format .slnx
-# (compris à partir du SDK 9.0.200). net462 se construit via les reference assemblies.
+# Ensures SDKs compatible with the targeted TFMs (net8.0 / net10.0) and the .slnx format
+# (understood starting with SDK 9.0.200). net462 builds via the reference assemblies.
 - task: UseDotNet@2
   displayName: 'Install .NET 8 SDK'
   inputs:
@@ -36,7 +36,7 @@ steps:
 - powershell: |
     $versionJson = Get-Content "$(Build.SourcesDirectory)/version.json" -Raw | ConvertFrom-Json
     if ("$(Build.SourceBranch)" -eq "refs/heads/main" -and $versionJson.version -notmatch "-beta") {
-      Write-Error "La branche main doit produire une version beta. Version actuelle: $($versionJson.version)"
+      Write-Error "The main branch must produce a beta version. Current version: $($versionJson.version)"
       exit 1
     }
   displayName: 'Validate beta version on main'
@@ -45,9 +45,9 @@ steps:
   displayName: Build
   workingDirectory: src
 
-# command: 'test' publie automatiquement les résultats (.trx / VSTest) via publishTestResults.
-# dotnet test produit du .trx, PAS du NUnit TEST-*.xml — d'où l'absence de la tâche
-# PublishTestResults@2 (qui cherchait à tort des **/TEST-*.xml en format NUnit).
+# command: 'test' automatically publishes the results (.trx / VSTest) via publishTestResults.
+# dotnet test produces .trx, NOT NUnit TEST-*.xml — hence the absence of the
+# PublishTestResults@2 task (which was incorrectly looking for **/TEST-*.xml in NUnit format).
 - task: DotNetCoreCLI@2
   displayName: Test
   inputs:

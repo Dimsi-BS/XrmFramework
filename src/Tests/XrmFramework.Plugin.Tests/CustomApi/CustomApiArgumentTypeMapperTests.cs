@@ -9,13 +9,13 @@ using NUnit.Framework;
 namespace XrmFramework.Tests.Plugin;
 
 /// <summary>
-/// Tests unitaires pour <see cref="CustomApiArgumentTypeMapper"/>.
+/// Unit tests for <see cref="CustomApiArgumentTypeMapper"/>.
 /// </summary>
 [TestFixture]
 public class CustomApiArgumentTypeMapperTests
 {
     // ──────────────────────────────────────────────
-    //  Types connus → mapping correct
+    //  Known types → correct mapping
     // ──────────────────────────────────────────────
 
     [Test]
@@ -136,7 +136,7 @@ public class CustomApiArgumentTypeMapperTests
     }
 
     // ──────────────────────────────────────────────
-    //  Enum → Picklist (cas spécial)
+    //  Enum → Picklist (special case)
     // ──────────────────────────────────────────────
 
     [Test]
@@ -159,7 +159,7 @@ public class CustomApiArgumentTypeMapperTests
     }
 
     // ──────────────────────────────────────────────
-    //  Type inconnu → String + retour false
+    //  Unknown type → String + returns false
     // ──────────────────────────────────────────────
 
     [Test]

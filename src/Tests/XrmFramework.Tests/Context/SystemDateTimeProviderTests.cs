@@ -72,7 +72,7 @@ namespace XrmFramework.Tests.Context
         }
 
         // ────────────────────────────────────────────────────────────
-        //  Implémente IDateTimeProvider
+        //  Implements IDateTimeProvider
         // ────────────────────────────────────────────────────────────
 
         [Test]

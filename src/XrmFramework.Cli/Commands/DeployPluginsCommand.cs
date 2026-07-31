@@ -11,47 +11,47 @@ using XrmFramework.DeployUtils.Configuration;
 namespace XrmFramework.Cli.Commands;
 
 /// <summary>
-/// Commande <c>xrmframework deploy plugins</c> : déploie une assembly XrmFramework
-/// (plugins, custom APIs, workflows) vers l'environnement sélectionné dans
-/// <c>Config/xrmFramework.config</c>. Délègue à
+/// <c>xrmframework deploy plugins</c> command: deploys an XrmFramework assembly
+/// (plugins, custom APIs, workflows) to the environment selected in
+/// <c>Config/xrmFramework.config</c>. Delegates to
 /// <see cref="RegistrationHelper.RegisterPluginsAndWorkflows(string, string, bool, bool)" />.
-/// L'inventaire est produit en exécutant le code d'enregistrement via l'outil net462
-/// <c>XrmFramework.PluginInventory</c> (le déploiement requiert .NET Framework / Windows).
+/// The inventory is produced by executing the registration code via the net462 tool
+/// <c>XrmFramework.PluginInventory</c> (deployment requires .NET Framework / Windows).
 /// </summary>
 public sealed class DeployPluginsCommand : Command<DeployPluginsCommand.Settings>
 {
     public sealed class Settings : CommandSettings
     {
         [CommandOption("--dll <PATH>")]
-        [System.ComponentModel.Description("Assembly net462 du projet plugin à déployer (plugins, custom APIs, workflows).")]
+        [System.ComponentModel.Description("net462 assembly of the plugin project to deploy (plugins, custom APIs, workflows).")]
         public string? DllPath { get; init; }
 
         [CommandOption("--project <NAME>")]
-        [System.ComponentModel.Description("Nom du projet tel que déclaré dans xrmFramework.config (ex. Plugins).")]
+        [System.ComponentModel.Description("Project name as declared in xrmFramework.config (e.g. Plugins).")]
         public string? Project { get; init; }
 
         [CommandOption("--project-root <DIR>")]
-        [System.ComponentModel.Description("Racine du projet contenant le dossier Config/ (défaut : dossier courant).")]
+        [System.ComponentModel.Description("Project root containing the Config/ folder (default: current folder).")]
         public string ProjectRoot { get; init; } = ".";
 
         [CommandOption("--on-premise")]
-        [System.ComponentModel.Description("Cible un CRM On-Premises (défaut : Dataverse Online).")]
+        [System.ComponentModel.Description("Targets an On-Premises CRM (default: Dataverse Online).")]
         public bool OnPremise { get; init; }
 
         [CommandOption("-n|--noprompt")]
-        [System.ComponentModel.Description("Mode silencieux : ignore la confirmation de connexion (CI/CD).")]
+        [System.ComponentModel.Description("Silent mode: skips the connection confirmation (CI/CD).")]
         public bool NoPrompt { get; init; }
 
         public override ValidationResult Validate()
         {
             if (string.IsNullOrWhiteSpace(DllPath))
-                return ValidationResult.Error("L'option --dll est obligatoire.");
+                return ValidationResult.Error("The --dll option is required.");
 
             if (!File.Exists(DllPath))
-                return ValidationResult.Error($"Assembly introuvable : {DllPath}");
+                return ValidationResult.Error($"Assembly not found: {DllPath}");
 
             if (string.IsNullOrWhiteSpace(Project))
-                return ValidationResult.Error("L'option --project est obligatoire.");
+                return ValidationResult.Error("The --project option is required.");
 
             return ValidationResult.Success();
         }
@@ -59,11 +59,11 @@ public sealed class DeployPluginsCommand : Command<DeployPluginsCommand.Settings
 
     protected override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        // 1. Pointe la config vers Config/ de la racine projet.
+        // 1. Points the config to the project root's Config/.
         ConfigHelper.UseProjectConfig(Path.GetFullPath(settings.ProjectRoot));
 
-        // 2. Déploie : l'assembly n'est PAS chargée dans ce process net8 ; son chemin est transmis
-        //    à l'outil d'inventaire net462 (et ses métadonnées lues sans chargement runtime).
+        // 2. Deploys: the assembly is NOT loaded in this net8 process; its path is passed
+        //    to the net462 inventory tool (and its metadata read without runtime loading).
         return RegistrationHelper.RegisterPluginsAndWorkflows(
             Path.GetFullPath(settings.DllPath!), settings.Project!, settings.OnPremise, settings.NoPrompt);
     }

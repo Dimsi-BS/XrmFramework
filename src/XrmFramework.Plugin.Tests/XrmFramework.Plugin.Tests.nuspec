@@ -7,11 +7,11 @@
     <authors>$author$</authors>
     <owners>$owner$</owners>
     <description>
-      Sources de tests unitaires pour XrmFramework.Plugin.
-      Référencer ce package dans votre projet de tests pour compiler les tests du Framework
-      directement dans votre assembly et mesurer la couverture de code du Framework lui-même.
-      Les fichiers .cs sont embarqués en tant que contentFiles (buildAction=Compile) :
-      ils s'ajoutent à la compilation du projet consommateur sans DLL supplémentaire.
+      Unit test sources for XrmFramework.Plugin.
+      Reference this package in your test project to compile the Framework's tests
+      directly into your assembly and measure the Framework's own code coverage.
+      The .cs files are embedded as contentFiles (buildAction=Compile):
+      they are added to the consuming project's compilation without an extra DLL.
     </description>
     <summary>Unit test sources for XrmFramework.Plugin — enables code coverage measurement of the framework itself.</summary>
     <language>en-US</language>
@@ -20,14 +20,14 @@
     <tags>Dynamics365 CRM DynamicsCrm Dataverse PowerApps Tests Coverage</tags>
     <copyright>$copyright$</copyright>
     <!--
-      developmentDependency=true : ce package est une dépendance de développement uniquement.
-      Il ne sera pas propagé comme dépendance transitive si le consommateur publie son propre package.
+      developmentDependency=true: this package is a development-only dependency.
+      It will not be propagated as a transitive dependency if the consumer publishes their own package.
     -->
     <developmentDependency>true</developmentDependency>
 
     <!--
-      Déclaration explicite du buildAction pour que NuGet traite tous les .cs
-      comme des items <Compile> dans le projet consommateur (SDK-style et packages.config).
+      Explicit buildAction declaration so that NuGet treats all .cs files
+      as <Compile> items in the consuming project (SDK-style and packages.config).
     -->
     <contentFiles>
       <files include="**/*.cs" buildAction="Compile" />
@@ -35,16 +35,16 @@
 
     <dependencies>
       <group targetFramework="net462">
-        <!-- Version fixée à celle du package : les tests doivent correspondre exactement au Framework -->
+        <!-- Version pinned to the package's own version: the tests must match the Framework exactly -->
         <dependency id="XrmFramework.Plugin" version="[$version$]" />
-        <!-- Infrastructure de tests NUnit -->
+        <!-- NUnit test infrastructure -->
         <dependency id="Microsoft.NET.Test.Sdk" version="$Ver_NETTestSdk$" />
-        <!-- NUnit 4.5.1 : version minimale déclarée pour compatibilité consommateurs. -->
+        <!-- NUnit 4.5.1: minimum version declared for consumer compatibility. -->
         <dependency id="NUnit"                  version="4.5.1" />
         <dependency id="NUnit3TestAdapter"       version="$Ver_NUnit3Adapter$" />
         <!--
-          coverlet.collector est géré via le fichier build/net462/XrmFramework.Plugin.Tests.props
-          avec PrivateAssets=all pour éviter la propagation transitive.
+          coverlet.collector is managed via the build/net462/XrmFramework.Plugin.Tests.props file
+          with PrivateAssets=all to avoid transitive propagation.
         -->
       </group>
     </dependencies>
@@ -52,25 +52,25 @@
 
   <files>
     <!--
-      Sources de tests embarquées comme contentFiles.
-      Cible : contentFiles/cs/any/__Tests/XrmFramework.Plugin.Tests/
-      NuGet les ajoutera comme <Compile> dans le projet consommateur,
-      aux côtés des sources du Framework (contentFiles de XrmFramework.Plugin).
-      La couverture de code portera donc sur les deux ensembles de sources.
+      Test sources embedded as contentFiles.
+      Target: contentFiles/cs/any/__Tests/XrmFramework.Plugin.Tests/
+      NuGet will add them as <Compile> in the consuming project,
+      alongside the Framework's own sources (contentFiles from XrmFramework.Plugin).
+      Code coverage will therefore cover both sets of sources.
     -->
     <file src="..\Tests\XrmFramework.Plugin.Tests\**\*.cs"
           target="contentFiles\cs\any\__Tests\XrmFramework.Plugin.Tests"
           exclude="..\Tests\XrmFramework.Plugin.Tests\obj\**;..\Tests\XrmFramework.Plugin.Tests\bin\**;**\AssemblyInfo.cs" />
 
     <!--
-      Placeholder lib : package source uniquement, pas d'assembly compilé fourni.
-      Le fichier _._  indique à NuGet que net462 est supporté sans DLL.
+      Placeholder lib: source-only package, no compiled assembly provided.
+      The _._  file tells NuGet that net462 is supported without a DLL.
     -->
     <file src="lib\net462\_._" target="lib\net462" />
 
     <!--
-      Fichier .props injecté par NuGet dans le projet consommateur :
-      ajoute coverlet.collector avec PrivateAssets=all.
+      .props file injected by NuGet into the consuming project:
+      adds coverlet.collector with PrivateAssets=all.
     -->
     <file src="build\**\*" target="build" />
   </files>

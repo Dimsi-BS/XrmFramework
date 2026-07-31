@@ -9,17 +9,17 @@ using Microsoft.CodeAnalysis.CSharp;
 namespace XrmFramework.Generators.Tests;
 
 /// <summary>
-/// Utilitaires partagés pour les tests de générateurs de source Roslyn.
+/// Shared utilities for Roslyn source generator tests.
 /// </summary>
 public static class TestHelper
 {
     /// <summary>
-    /// Compile le code source fourni, exécute le générateur <typeparamref name="TGenerator"/>
-    /// et vérifie la sortie par snapshot avec Verify.
+    /// Compiles the given source code, runs the <typeparamref name="TGenerator"/> generator,
+    /// and verifies the output as a snapshot with Verify.
     /// </summary>
-    /// <typeparam name="TGenerator">Type du générateur incrémental à tester.</typeparam>
-    /// <param name="source">Code source C# servant de compilation d'entrée.</param>
-    /// <param name="additionalTexts">Fichiers additionnels passés au générateur (ex. .pluginsession.json).</param>
+    /// <typeparam name="TGenerator">Type of the incremental generator to test.</typeparam>
+    /// <param name="source">C# source code used as the input compilation.</param>
+    /// <param name="additionalTexts">Additional files passed to the generator (e.g. .pluginsession.json).</param>
     public static Task Verify<TGenerator>(
         string source,
         params (string path, string content)[] additionalTexts)
@@ -57,7 +57,7 @@ public static class TestHelper
     }
 
     // ──────────────────────────────────────────────
-    //  Helper : AdditionalText en mémoire
+    //  Helper: in-memory AdditionalText
     // ──────────────────────────────────────────────
 
     private sealed class InMemoryAdditionalText : Microsoft.CodeAnalysis.AdditionalText

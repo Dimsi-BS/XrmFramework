@@ -245,7 +245,7 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 
 			sb.AppendLine("}");
 
-			//On crée le chemin pour cette table
+			// Build the path for this table
 
 			productionContext.AddSource($"{table.Name}.table.cs", sb.ToString());
 		}

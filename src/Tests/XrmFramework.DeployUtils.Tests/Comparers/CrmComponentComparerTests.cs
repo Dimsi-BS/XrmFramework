@@ -85,7 +85,7 @@ public class CrmComponentComparerTests
     }
 
     // ──────────────────────────────────────────────
-    //  Equals — types différents
+    //  Equals — different types
     // ──────────────────────────────────────────────
 
     [Test]

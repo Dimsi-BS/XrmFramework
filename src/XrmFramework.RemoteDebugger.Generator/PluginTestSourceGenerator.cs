@@ -12,49 +12,49 @@ using System.Text;
 namespace XrmFramework.RemoteDebugger.Generator
 {
     /// <summary>
-    /// Générateur de source Roslyn qui lit les fichiers <c>.pluginsession.json</c>
-    /// enregistrés lors des sessions de débogage distant et génère automatiquement
-    /// des méthodes de tests unitaires xUnit avec Verify.
+    /// Roslyn source generator that reads <c>.pluginsession.json</c> files
+    /// recorded during remote debugging sessions and automatically generates
+    /// xUnit unit test methods using Verify.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Pour activer ce générateur dans un projet de test, ajoutez :
+    /// To enable this generator in a test project, add:
     /// <code>
     /// &lt;ItemGroup&gt;
-    ///   &lt;!-- Référencer le générateur comme analyzer --&gt;
+    ///   &lt;!-- Reference the generator as an analyzer --&gt;
     ///   &lt;ProjectReference Include="..\XrmFramework.RemoteDebugger.Generator\..."
     ///                     OutputItemType="Analyzer"
     ///                     ReferenceOutputAssembly="false" /&gt;
     ///
-    ///   &lt;!-- Fournir les fichiers de session au générateur --&gt;
+    ///   &lt;!-- Provide the session files to the generator --&gt;
     ///   &lt;AdditionalFiles Include="PluginTestSessions\*.pluginsession.json" /&gt;
     /// &lt;/ItemGroup&gt;
     /// </code>
     /// </para>
     /// <para>
-    /// Le projet de test doit également référencer :
+    /// The test project must also reference:
     /// <list type="bullet">
-    ///   <item><description><c>XrmFramework.RemoteDebugger.Client</c> (pour <c>PluginTestRunner</c>)</description></item>
-    ///   <item><description><c>Verify.Xunit</c> ou <c>Verify.MSTest</c></description></item>
-    ///   <item><description>L'assembly du plugin à tester</description></item>
+    ///   <item><description><c>XrmFramework.RemoteDebugger.Client</c> (for <c>PluginTestRunner</c>)</description></item>
+    ///   <item><description><c>Verify.Xunit</c> or <c>Verify.MSTest</c></description></item>
+    ///   <item><description>The assembly of the plugin under test</description></item>
     /// </list>
     /// </para>
     /// </remarks>
     [Generator]
     public class PluginTestSourceGenerator : IIncrementalGenerator
     {
-        /// <summary>Extension des fichiers de session de test plugin.</summary>
+        /// <summary>Extension of plugin test session files.</summary>
         private const string SessionFileExtension = ".pluginsession.json";
 
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            // Sélectionner tous les AdditionalFiles dont l'extension est .pluginsession.json
+            // Select all AdditionalFiles whose extension is .pluginsession.json
             var sessionFiles = context.AdditionalTextsProvider
                 .Where(text => text.Path.EndsWith(
                     SessionFileExtension,
                     StringComparison.OrdinalIgnoreCase));
 
-            // Lire le contenu de chaque fichier
+            // Read the content of each file
             var sessionContents = sessionFiles
                 .Select(static (text, ct) => new SessionFileInfo(
                     path: text.Path,
@@ -63,7 +63,7 @@ namespace XrmFramework.RemoteDebugger.Generator
                 .Where(static s => !string.IsNullOrWhiteSpace(s.Content))
                 .Collect();
 
-            // Générer le code source pour tous les fichiers de session
+            // Generate the source code for all session files
             context.RegisterSourceOutput(sessionContents, GenerateTestClasses);
         }
 
@@ -74,8 +74,8 @@ namespace XrmFramework.RemoteDebugger.Generator
             if (sessionFiles.IsDefaultOrEmpty)
                 return;
 
-            // Grouper les sessions par nom de plugin
-            // Format du nom de fichier : {NomPlugin}_{yyyyMMdd_HHmmss}_{shortId}.pluginsession.json
+            // Group sessions by plugin name
+            // File name format: {PluginName}_{yyyyMMdd_HHmmss}_{shortId}.pluginsession.json
             var groups = new Dictionary<string, List<SessionFileInfo>>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var session in sessionFiles)
@@ -91,13 +91,13 @@ namespace XrmFramework.RemoteDebugger.Generator
                 list.Add(session);
             }
 
-            // Générer une classe de test par plugin
+            // Generate one test class per plugin
             foreach (var kvp in groups)
             {
                 var pluginName = kvp.Key;
                 var sessions = kvp.Value;
 
-                // Trier par nom de fichier (ordre chronologique)
+                // Sort by file name (chronological order)
                 sessions.Sort((a, b) => string.Compare(a.FileName, b.FileName, StringComparison.OrdinalIgnoreCase));
 
                 var source = GenerateTestClass(pluginName, sessions);
@@ -108,18 +108,18 @@ namespace XrmFramework.RemoteDebugger.Generator
         }
 
         /// <summary>
-        /// Extrait le nom du plugin depuis le nom du fichier de session.
-        /// Format attendu : {NomPlugin}_{yyyyMMdd_HHmmss}_{shortId}.pluginsession.json
+        /// Extracts the plugin name from the session file name.
+        /// Expected format: {PluginName}_{yyyyMMdd_HHmmss}_{shortId}.pluginsession.json
         /// </summary>
         private static string ExtractPluginName(string fileName)
         {
-            // Retirer l'extension
+            // Strip the extension
             var nameWithoutExt = fileName.EndsWith(SessionFileExtension, StringComparison.OrdinalIgnoreCase)
                 ? fileName.Substring(0, fileName.Length - SessionFileExtension.Length)
                 : fileName;
 
-            // Le nom du plugin est tout ce qui précède le premier '_' suivi d'un chiffre
-            // (début du timestamp yyyyMMdd)
+            // The plugin name is everything before the first '_' followed by a digit
+            // (start of the yyyyMMdd timestamp)
             var underscoreIndex = IndexOfTimestampSeparator(nameWithoutExt);
 
             return underscoreIndex > 0
@@ -128,7 +128,7 @@ namespace XrmFramework.RemoteDebugger.Generator
         }
 
         /// <summary>
-        /// Trouve l'index du '_' qui précède la partie timestamp (8 chiffres).
+        /// Finds the index of the '_' that precedes the timestamp part (8 digits).
         /// </summary>
         private static int IndexOfTimestampSeparator(string name)
         {
@@ -136,7 +136,7 @@ namespace XrmFramework.RemoteDebugger.Generator
             {
                 if (name[i] == '_' && i + 9 <= name.Length)
                 {
-                    // Vérifier que les 8 caractères suivants sont des chiffres (yyyyMMdd)
+                    // Check that the next 8 characters are digits (yyyyMMdd)
                     var isTimestamp = true;
                     for (int j = i + 1; j <= i + 8 && j < name.Length; j++)
                     {
@@ -153,8 +153,8 @@ namespace XrmFramework.RemoteDebugger.Generator
         }
 
         /// <summary>
-        /// Génère le nom de la méthode de test depuis le nom du fichier.
-        /// Exemple : AccountPlugin_20241201_143022_a1b2c3d4 → Session_20241201_143022_a1b2c3d4
+        /// Generates the test method name from the file name.
+        /// Example: AccountPlugin_20241201_143022_a1b2c3d4 → Session_20241201_143022_a1b2c3d4
         /// </summary>
         private static string ExtractTestMethodName(string fileName)
         {
@@ -171,7 +171,7 @@ namespace XrmFramework.RemoteDebugger.Generator
         }
 
         /// <summary>
-        /// Transforme une chaîne en identifiant C# valide.
+        /// Turns a string into a valid C# identifier.
         /// </summary>
         private static string MakeValidIdentifier(string s)
         {
@@ -184,14 +184,14 @@ namespace XrmFramework.RemoteDebugger.Generator
         }
 
         /// <summary>
-        /// Échappe une chaîne pour l'utiliser dans un verbatim string C# (@"...").
-        /// Les guillemets doubles sont doublés.
+        /// Escapes a string for use inside a C# verbatim string (@"...").
+        /// Double quotes are doubled.
         /// </summary>
         private static string EscapeVerbatimString(string s)
             => s.Replace("\"", "\"\"");
 
         /// <summary>
-        /// Génère le code source complet d'une classe de tests pour un plugin donné.
+        /// Generates the complete source code of a test class for a given plugin.
         /// </summary>
         private static string GenerateTestClass(
             string pluginName,
@@ -202,9 +202,9 @@ namespace XrmFramework.RemoteDebugger.Generator
             var sb = new StringBuilder();
 
             sb.AppendLine("// <auto-generated/>");
-            sb.AppendLine("// Généré par XrmFramework.RemoteDebugger.Generator");
-            sb.AppendLine("// Ne pas modifier ce fichier manuellement.");
-            sb.AppendLine("// Pour régénérer, relancez simplement la compilation après modification des fichiers .pluginsession.json.");
+            sb.AppendLine("// Generated by XrmFramework.RemoteDebugger.Generator");
+            sb.AppendLine("// Do not modify this file manually.");
+            sb.AppendLine("// To regenerate, simply rebuild after modifying the .pluginsession.json files.");
             sb.AppendLine();
             sb.AppendLine("using System.Threading.Tasks;");
             sb.AppendLine("using VerifyXunit;");
@@ -214,9 +214,9 @@ namespace XrmFramework.RemoteDebugger.Generator
             sb.AppendLine("namespace XrmFramework.RemoteDebugger.Generated");
             sb.AppendLine("{");
             sb.AppendLine("    /// <summary>");
-            sb.AppendLine($"    /// Tests unitaires générés automatiquement pour <c>{pluginName}</c>.");
-            sb.AppendLine("    /// Chaque méthode rejoue une session de débogage distant enregistrée");
-            sb.AppendLine("    /// et vérifie que le contexte de sortie correspond au snapshot Verify.");
+            sb.AppendLine($"    /// Automatically generated unit tests for <c>{pluginName}</c>.");
+            sb.AppendLine("    /// Each method replays a recorded remote debugging session");
+            sb.AppendLine("    /// and verifies that the output context matches the Verify snapshot.");
             sb.AppendLine("    /// </summary>");
             sb.AppendLine("    [UsesVerify]");
             sb.AppendLine($"    public class {className}");
@@ -228,22 +228,22 @@ namespace XrmFramework.RemoteDebugger.Generator
                 var escapedJson = EscapeVerbatimString(session.Content);
 
                 sb.AppendLine($"        /// <summary>");
-                sb.AppendLine($"        /// Rejoue la session enregistrée depuis le fichier : {session.FileName}");
+                sb.AppendLine($"        /// Replays the recorded session from file: {session.FileName}");
                 sb.AppendLine($"        /// </summary>");
                 sb.AppendLine("        [Fact]");
                 sb.AppendLine($"        public async Task {methodName}()");
                 sb.AppendLine("        {");
-                sb.AppendLine("            // JSON de la session enregistrée lors du débogage distant");
-                sb.AppendLine("            // (intégré directement pour éviter toute dépendance aux fichiers externes)");
+                sb.AppendLine("            // JSON of the session recorded during remote debugging");
+                sb.AppendLine("            // (embedded directly to avoid any dependency on external files)");
                 sb.AppendLine($"            const string sessionJson = @\"{escapedJson}\";");
                 sb.AppendLine();
-                sb.AppendLine("            // Exécuter le plugin avec le contexte d'entrée enregistré,");
-                sb.AppendLine("            // en rejouant tous les appels CRM depuis les réponses enregistrées.");
+                sb.AppendLine("            // Run the plugin with the recorded input context,");
+                sb.AppendLine("            // replaying all CRM calls from the recorded responses.");
                 sb.AppendLine("            var outputContext = PluginTestRunner.RunFromJson(sessionJson);");
                 sb.AppendLine();
-                sb.AppendLine("            // Vérifier le contexte de sortie via un snapshot Verify.");
-                sb.AppendLine("            // Lors du premier lancement, le fichier .verified.txt est créé.");
-                sb.AppendLine("            // Les exécutions suivantes vérifient que la sortie n'a pas changé.");
+                sb.AppendLine("            // Verify the output context via a Verify snapshot.");
+                sb.AppendLine("            // On first run, the .verified.txt file is created.");
+                sb.AppendLine("            // Subsequent runs verify that the output hasn't changed.");
                 sb.AppendLine("            await Verifier.Verify(outputContext)");
                 sb.AppendLine($"                .UseDirectory(\"TestData\")");
                 sb.AppendLine($"                .UseFileName(\"{MakeValidIdentifier(session.FileName.Replace(SessionFileExtension, string.Empty))}\");");
@@ -257,7 +257,7 @@ namespace XrmFramework.RemoteDebugger.Generator
             return sb.ToString();
         }
 
-        /// <summary>Représente les informations d'un fichier de session.</summary>
+        /// <summary>Represents the information of a session file.</summary>
         private readonly struct SessionFileInfo(string path, string fileName, string content)
         {
             public string Path { get; } = path;

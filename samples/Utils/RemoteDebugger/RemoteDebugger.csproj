@@ -2,23 +2,23 @@
 
   <PropertyGroup>
     <!--
-      Client de débogage distant : intercepte les appels de plugins depuis Dataverse
-      et les redirige vers la machine de développement pour le débogage en mode local.
-      net462 est requis pour la compatibilité avec les SDK Dynamics.
+      Remote debugging client: intercepts plugin calls from Dataverse
+      and redirects them to the development machine for local debugging.
+      net462 is required for compatibility with the Dynamics SDKs.
     -->
     <OutputType>Exe</OutputType>
     <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Référence au projet Plugins de cet exemple (pour résoudre les types de plugins à déboguer) -->
+    <!-- Reference to this sample's Plugins project (to resolve the plugin types to debug) -->
     <ProjectReference Include="$(RootFolder)/XrmFramework.Sample.Plugins/XrmFramework.Sample.Plugins.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <!--
-      Référence directe au projet XrmFramework.RemoteDebugger.Client (au lieu du package NuGet).
-      Permet le débogage pas-à-pas dans le code du client de débogage distant.
+      Direct reference to the XrmFramework.RemoteDebugger.Client project (instead of the NuGet package).
+      Allows step-by-step debugging into the remote debugging client code.
     -->
     <ProjectReference Include="../../../src/XrmFramework.RemoteDebugger.Client/XrmFramework.RemoteDebugger.Client.csproj" />
   </ItemGroup>

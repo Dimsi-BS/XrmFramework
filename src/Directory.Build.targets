@@ -1,16 +1,16 @@
 <Project>
   <!--
-    Détection du package Microsoft.PowerPlatform.Dataverse.Client dans le projet en cours de compilation.
+    Detection of the Microsoft.PowerPlatform.Dataverse.Client package in the project currently being built.
 
-    Les sources de XrmFramework sont liées (<Compile Include="..\XrmFramework\**\*.cs" />) dans des projets
-    qui ne référencent pas tous ce package : XrmFramework.Workflows et XrmFramework.DeployUtils (net462)
-    passent par Microsoft.CrmSdk.XrmTooling.CoreAssembly, XrmFramework.Plugin n'a que le SDK Core, et la
-    déclinaison On-Premise le retire explicitement. Le code qui dépend de IOrganizationServiceAsync /
-    IOrganizationServiceAsync2 est donc encadré par « #if DATAVERSE_CLIENT ».
+    XrmFramework sources are linked (<Compile Include="..\XrmFramework\**\*.cs" />) into projects that
+    don't all reference this package: XrmFramework.Workflows and XrmFramework.DeployUtils (net462)
+    go through Microsoft.CrmSdk.XrmTooling.CoreAssembly, XrmFramework.Plugin only has the Core SDK, and the
+    On-Premise flavor explicitly removes it. Code that depends on IOrganizationServiceAsync /
+    IOrganizationServiceAsync2 is therefore wrapped in "#if DATAVERSE_CLIENT".
 
-    La détection se fait dans une cible : MSBuild n'autorise les références d'items (@(PackageReference))
-    que dans les cibles, pas au moment de l'évaluation des PropertyGroup. Un projet peut court-circuiter la
-    détection en définissant lui-même XrmFramework_HasDataverseClient à true ou false.
+    Detection happens in a target: MSBuild only allows item references (@(PackageReference))
+    inside targets, not at PropertyGroup evaluation time. A project can short-circuit
+    detection by defining XrmFramework_HasDataverseClient itself as true or false.
   -->
   <Target Name="XrmFramework_DetectDataverseClient" BeforeTargets="CoreCompile">
     <PropertyGroup>
@@ -32,7 +32,7 @@
 
       <NuspecProperties>$(NuspecProperties);XrmFramework_FullFramework_Runtime_TFM=$(XrmFramework_FullFramework_Runtime_TFM)</NuspecProperties>
 
-      <!-- Versions des dépendances tierces — source unique de vérité : Directory.Packages.props -->
+      <!-- Third-party dependency versions — single source of truth: Directory.Packages.props -->
       <NuspecProperties>$(NuspecProperties);Ver_DataverseClient=$(Ver_DataverseClient)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);Ver_CrmSdkCoreAssemblies=$(Ver_CrmSdkCoreAssemblies)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);Ver_CrmSdkWorkflow=$(Ver_CrmSdkWorkflow)</NuspecProperties>

@@ -10,33 +10,33 @@ using CoreTable = XrmFramework.Core.Table;
 namespace XrmFramework.DeployUtils.TableSync
 {
     /// <summary>
-    /// Fusionne les métadonnées fraîchement lues dans le CRM avec le contenu d'un <c>.table</c>
-    /// déjà versionné.
+    /// Merges metadata freshly read from the CRM with the content of an already versioned
+    /// <c>.table</c> file.
     /// </summary>
     /// <remarks>
-    /// Principe directeur : <b>tout ce qui devient un identifiant C# appartient au fichier, tout
-    /// ce qui décrit la table appartient au CRM.</b>
+    /// Guiding principle: <b>everything that becomes a C# identifier belongs to the file, everything
+    /// that describes the table belongs to the CRM.</b>
     ///
-    /// Les noms (<c>Name</c>) alimentent le code généré et sont fréquemment ajustés à la main
-    /// (<c>ftp_numeroContrat</c> renommé <c>NumeroContrat</c>). Les écraser avec le
-    /// <c>SchemaName</c> du CRM casserait la compilation du projet consommateur à chaque
-    /// récupération. À l'inverse, types, libellés, capacités et bornes sont précisément ce que
-    /// l'on vient rafraîchir.
+    /// The names (<c>Name</c>) feed the generated code and are frequently adjusted by hand
+    /// (<c>ftp_numeroContrat</c> renamed to <c>NumeroContrat</c>). Overwriting them with the CRM's
+    /// <c>SchemaName</c> would break the consumer project's compilation on every
+    /// retrieval. Conversely, types, labels, capabilities and bounds are precisely what
+    /// we are refreshing.
     ///
-    /// Cette fusion n'utilise volontairement ni <see cref="CoreTable.MergeTo" /> ni
-    /// <see cref="ColumnCollection" />.Add : leurs règles de rapprochement, pensées pour la
-    /// sélection dans l'ancien outil graphique, écrasent des métadonnées et écartent
-    /// silencieusement certaines colonnes.
+    /// This merge deliberately uses neither <see cref="CoreTable.MergeTo" /> nor
+    /// <see cref="ColumnCollection" />.Add: their reconciliation rules, designed for
+    /// selection in the old graphical tool, overwrite metadata and silently discard
+    /// certain columns.
     /// </remarks>
     public static class TableMerger
     {
         /// <summary>
-        /// Produit la table à écrire à partir de l'existant et des métadonnées CRM.
+        /// Produces the table to write from the existing content and the CRM metadata.
         /// </summary>
         /// <param name="existing">
-        /// Contenu du <c>.table</c> versionné, ou <see langword="null" /> à la première récupération.
+        /// Content of the versioned <c>.table</c>, or <see langword="null" /> on the first retrieval.
         /// </param>
-        /// <param name="fresh">Table construite depuis les métadonnées Dataverse.</param>
+        /// <param name="fresh">Table built from the Dataverse metadata.</param>
         public static CoreTable Merge(CoreTable existing, CoreTable fresh)
         {
             if (fresh == null)
@@ -50,7 +50,7 @@ namespace XrmFramework.DeployUtils.TableSync
                 LogicalName = fresh.LogicalName,
                 CollectionName = fresh.CollectionName,
 
-                // Nom de type C# et marqueur local : propriété du fichier.
+                // C# type name and local marker: property of the file.
                 Name = string.IsNullOrEmpty(existing.Name) ? fresh.Name : existing.Name,
                 IsLocked = existing.IsLocked
             };
@@ -59,8 +59,8 @@ namespace XrmFramework.DeployUtils.TableSync
             MergeKeys(existing, fresh, merged);
             MergeEnums(existing, fresh, merged);
 
-            // Les relations sont identifiées par leur propre nom : un renommage manuel les rendrait
-            // impossibles à rapprocher. Elles sont donc reprises telles quelles depuis le CRM.
+            // Relationships are identified by their own name: a manual rename would make them
+            // impossible to reconcile. They are therefore taken as-is from the CRM.
             merged.OneToManyRelationships.AddRange(fresh.OneToManyRelationships);
             merged.ManyToOneRelationships.AddRange(fresh.ManyToOneRelationships);
             merged.ManyToManyRelationships.AddRange(fresh.ManyToManyRelationships);
@@ -69,7 +69,7 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // Colonnes
+        // Columns
         // ──────────────────────────────────────────────────────────────────────
 
         private static void MergeColumns(CoreTable existing, CoreTable fresh, CoreTable merged)
@@ -86,7 +86,7 @@ namespace XrmFramework.DeployUtils.TableSync
             {
                 if (existingColumns.TryGetValue(freshColumn.LogicalName, out var existingColumn))
                 {
-                    // Nom C#, sélection et verrou proviennent du fichier ; tout le reste du CRM.
+                    // C# name, selection and lock come from the file; everything else from the CRM.
                     freshColumn.Name = existingColumn.Name;
                     freshColumn.Selected = existingColumn.Selected;
                     freshColumn.IsLocked = existingColumn.IsLocked;
@@ -95,14 +95,14 @@ namespace XrmFramework.DeployUtils.TableSync
                 merged.Columns.Add(freshColumn);
             }
 
-            // Une colonne supprimée dans l'environnement est conservée : « pull » rafraîchit, il ne
-            // détruit pas. C'est « tables sync --clean » qui gère la désélection des orphelines.
+            // A column deleted in the environment is kept: "pull" refreshes, it does not
+            // destroy. It is "tables sync --clean" that handles de-selecting orphans.
             foreach (var orphan in existing.Columns.Where(c => !freshLogicalNames.Contains(c.LogicalName)))
                 merged.Columns.Add(orphan);
         }
 
         /// <summary>
-        /// Colonnes présentes dans le fichier mais absentes des métadonnées CRM.
+        /// Columns present in the file but absent from the CRM metadata.
         /// </summary>
         public static IReadOnlyList<Column> GetColumnsMissingFromCrm(CoreTable existing, CoreTable fresh)
         {
@@ -118,7 +118,7 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // Clés alternatives
+        // Alternate keys
         // ──────────────────────────────────────────────────────────────────────
 
         private static void MergeKeys(CoreTable existing, CoreTable fresh, CoreTable merged)
@@ -134,7 +134,7 @@ namespace XrmFramework.DeployUtils.TableSync
                     && existingKeys.TryGetValue(freshKey.LogicalName, out var existingKey)
                     && !string.IsNullOrEmpty(existingKey.Name))
                 {
-                    // Le nom de la clé devient une constante C# : il reste au fichier.
+                    // The key's name becomes a C# constant: it stays with the file.
                     freshKey.Name = existingKey.Name;
                 }
 
@@ -172,9 +172,9 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         /// <summary>
-        /// Reporte sur un option set fraîchement lu les éléments appartenant au fichier : son nom de
-        /// type C#, son verrou, et le nom de chacun de ses membres (rapprochés par valeur numérique,
-        /// seule donnée stable — le libellé CRM peut changer sans que le code doive suivre).
+        /// Applies to a freshly read option set the elements belonging to the file: its C# type
+        /// name, its lock, and the name of each of its members (matched by numeric value,
+        /// the only stable data — the CRM label may change without the code needing to follow).
         /// </summary>
         internal static void MergeEnum(OptionSetEnum existingEnum, OptionSetEnum freshEnum)
         {
@@ -198,15 +198,15 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // Option sets globaux
+        // Global option sets
         // ──────────────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Fusionne des option sets globaux dans le pseudo-table <c>OptionSet.table</c>.
+        /// Merges global option sets into the <c>OptionSet.table</c> pseudo-table.
         /// </summary>
         /// <remarks>
-        /// Les option sets globaux sont partagés par toutes les tables : récupérer une seule entité
-        /// ne doit jamais retirer ceux que les autres référencent. La fusion est donc purement
+        /// Global option sets are shared by all tables: retrieving a single entity
+        /// must never remove those referenced by others. The merge is therefore purely
         /// additive.
         /// </remarks>
         public static CoreTable MergeGlobalOptionSets(
@@ -246,8 +246,8 @@ namespace XrmFramework.DeployUtils.TableSync
             foreach (var untouched in existingEnums.Values.Where(e => !refreshed.Contains(e.LogicalName)))
                 merged.Enums.Add(untouched);
 
-            // Ordre stable : le fichier est versionné, un ordre dépendant de la table récupérée
-            // produirait des diffs parasites à chaque exécution.
+            // Stable order: the file is versioned, an order dependent on the retrieved table
+            // would produce spurious diffs on every run.
             var ordered = merged.Enums.OrderBy(e => e.LogicalName, StringComparer.OrdinalIgnoreCase).ToList();
             merged.Enums.Clear();
             merged.Enums.AddRange(ordered);

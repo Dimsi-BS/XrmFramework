@@ -7,18 +7,18 @@ using System.IO;
 namespace XrmFramework.DeployUtils.Tests.TableSync.Fixtures;
 
 /// <summary>
-/// Localisation des fichiers du dépôt depuis le répertoire de sortie des tests, pour les
-/// tests qui s'exécutent sur les ressources réellement livrées par le framework.
+/// Locates repository files from the test output directory, for tests that run
+/// against resources actually shipped by the framework.
 /// </summary>
 public static class RepositoryPaths
 {
-    /// <summary>Répertoire des fichiers .table livrés avec le package XrmFramework.</summary>
+    /// <summary>Directory of .table files shipped with the XrmFramework package.</summary>
     public static string ShippedDefinitionsDirectory
         => FindDirectory(Path.Combine("src", "XrmFramework", "Definitions"));
 
     /// <summary>
-    /// Remonte depuis le répertoire de sortie des tests jusqu'à trouver la racine du dépôt,
-    /// identifiée par la présence du chemin relatif recherché.
+    /// Walks up from the test output directory until it finds the repository root,
+    /// identified by the presence of the sought-after relative path.
     /// </summary>
     public static string FindDirectory(string relativePath)
     {
@@ -34,6 +34,6 @@ public static class RepositoryPaths
         }
 
         throw new DirectoryNotFoundException(
-            $"Impossible de localiser « {relativePath} » en remontant depuis {AppContext.BaseDirectory}.");
+            $"Unable to locate \"{relativePath}\" while walking up from {AppContext.BaseDirectory}.");
     }
 }

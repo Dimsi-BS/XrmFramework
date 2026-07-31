@@ -11,14 +11,14 @@ using XrmFramework.DeployUtils.Model.Interfaces;
 namespace XrmFramework.DeployUtils.Factories
 {
     /// <summary>
-    ///     Désérialise le JSON d'inventaire produit par <c>XrmFramework.PluginInventory</c> (qui exécute
-    ///     le code d'enregistrement des plugins) et le mappe vers le modèle de déploiement
+    ///     Deserializes the inventory JSON produced by <c>XrmFramework.PluginInventory</c> (which executes
+    ///     the plugin registration code) and maps it to the deployment model
     ///     (<see cref="Plugin" />, <see cref="Step" />, <see cref="CustomApi" />).
     /// </summary>
     public static class PluginInventoryReader
     {
         /// <summary>
-        ///     Désérialise le manifeste JSON et mappe les plugins (et leurs steps) vers le modèle.
+        ///     Deserializes the JSON manifest and maps the plugins (and their steps) to the model.
         /// </summary>
         public static IReadOnlyList<Plugin> ReadPlugins(string manifestJson)
         {
@@ -32,7 +32,7 @@ namespace XrmFramework.DeployUtils.Factories
         }
 
         /// <summary>
-        ///     Désérialise le manifeste et mappe les workflows vers le modèle (forme « plugin workflow »).
+        ///     Deserializes the manifest and maps the workflows to the model ("plugin workflow" form).
         /// </summary>
         public static IReadOnlyList<Plugin> ReadWorkflows(string manifestJson)
         {
@@ -46,12 +46,12 @@ namespace XrmFramework.DeployUtils.Factories
         }
 
         /// <summary>
-        ///     Désérialise le manifeste et mappe les custom APIs (et leurs arguments) vers le modèle.
+        ///     Deserializes the manifest and maps the custom APIs (and their arguments) to the model.
         /// </summary>
-        /// <param name="manifestJson">Le manifeste JSON.</param>
+        /// <param name="manifestJson">The JSON manifest.</param>
         /// <param name="customizationPrefix">
-        ///     Préfixe de personnalisation du publisher (résolu depuis l'environnement connecté) ;
-        ///     entre dans le <see cref="CustomApi.UniqueName" /> (<c>prefix_name</c>).
+        ///     Publisher customization prefix (resolved from the connected environment);
+        ///     used in <see cref="CustomApi.UniqueName" /> (<c>prefix_name</c>).
         /// </param>
         public static IReadOnlyList<CustomApi> ReadCustomApis(string manifestJson, string customizationPrefix)
         {
@@ -65,7 +65,7 @@ namespace XrmFramework.DeployUtils.Factories
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // Mapping DTO → modèle (réplique FromXrmFrameworkPlugin / FromXrmFrameworkStep)
+        // DTO → model mapping (replicates FromXrmFrameworkPlugin / FromXrmFrameworkStep)
         // ──────────────────────────────────────────────────────────────────────
 
         private static Plugin MapPlugin(PluginDto dto)
@@ -126,7 +126,7 @@ namespace XrmFramework.DeployUtils.Factories
             return lastDot < 0 ? fullName : fullName.Substring(lastDot + 1);
         }
 
-        // ── Custom API (réplique FromXrmFrameworkCustomApi / FromXrmFrameworkArgument) ──
+        // ── Custom API (replicates FromXrmFrameworkCustomApi / FromXrmFrameworkArgument) ──
 
         private static CustomApi MapCustomApi(CustomApiDto dto, string prefix)
         {
@@ -180,13 +180,13 @@ namespace XrmFramework.DeployUtils.Factories
             };
         }
 
-        // Les enums custom API (CustomApiArgumentType / CustomApiBindingType /
-        // AllowedCustomProcessingStep) ne sont pas compilés dans DeployUtils — comme
-        // FromXrmFrameworkCustomApi (qui passe par dynamic), on travaille avec leurs valeurs int.
+        // The custom API enums (CustomApiArgumentType / CustomApiBindingType /
+        // AllowedCustomProcessingStep) are not compiled into DeployUtils — like
+        // FromXrmFrameworkCustomApi (which goes through dynamic), we work with their int values.
 
         /// <summary>
-        ///     Mappe un nom de type .NET (et son caractère enum) vers la valeur int d'un
-        ///     <c>CustomApiArgumentType</c>. Réplique <c>CustomApiArgumentTypeMapper</c> par nom.
+        ///     Maps a .NET type name (and its enum-ness) to the int value of a
+        ///     <c>CustomApiArgumentType</c>. Replicates <c>CustomApiArgumentTypeMapper</c> by name.
         /// </summary>
         private static int ResolveArgumentType(string typeFullName, bool isEnum)
         {
@@ -207,7 +207,7 @@ namespace XrmFramework.DeployUtils.Factories
                 case "System.String": return 10;                         // String
                 case "System.String[]": return 11;                       // StringArray
                 case "System.Guid": return 12;                           // Guid
-                default: return 10;                                      // non mappé → String (sérialisé)
+                default: return 10;                                      // unmapped → String (serialized)
             }
         }
 
@@ -232,7 +232,7 @@ namespace XrmFramework.DeployUtils.Factories
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // DTO (schéma du manifeste)
+        // DTO (manifest schema)
         // ──────────────────────────────────────────────────────────────────────
 
         private sealed class ManifestDto

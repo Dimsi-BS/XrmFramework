@@ -11,9 +11,9 @@ namespace XrmFramework
         EntityReference BusinessUnitRef { get; }
 
         /// <summary>
-        /// Fournisseur de date/heure. À utiliser à la place de <see cref="System.DateTime.UtcNow"/>
-        /// et <see cref="System.DateTime.Now"/> pour garantir la reproductibilité lors du rejouage
-        /// de sessions de test.
+        /// Date/time provider. Use instead of <see cref="System.DateTime.UtcNow"/>
+        /// and <see cref="System.DateTime.Now"/> to guarantee reproducibility when
+        /// replaying test sessions.
         /// </summary>
         IDateTimeProvider Clock { get; }
 

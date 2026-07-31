@@ -7,18 +7,18 @@ using NUnit.Framework;
 namespace XrmFramework.Tests.Plugin;
 
 /// <summary>
-/// Tests unitaires pour la mécanique d'enregistrement des steps (<see cref="Plugin.AddStep"/>)
-/// et l'initialisation du plugin (<see cref="Plugin"/>).
+/// Unit tests for the step registration mechanism (<see cref="Plugin.AddStep"/>)
+/// and plugin initialization (<see cref="Plugin"/>).
 /// </summary>
 [TestFixture]
 public class PluginStepRegistrationTests
 {
     // ──────────────────────────────────────────────
-    //  Plugin concret minimal pour les tests
+    //  Minimal concrete plugin for the tests
     // ──────────────────────────────────────────────
 
     /// <summary>
-    /// Plugin minimal avec un step Create sur l'entité Contact.
+    /// Minimal plugin with a Create step on the Contact entity.
     /// </summary>
     private sealed class ContactCreatePlugin(string? unsecuredConfig = null, string? securedConfig = null)
         : XrmFramework.Plugin(unsecuredConfig, securedConfig)
@@ -32,7 +32,7 @@ public class PluginStepRegistrationTests
     }
 
     /// <summary>
-    /// Plugin avec plusieurs steps pour tester l'accumulation.
+    /// Plugin with several steps to test accumulation.
     /// </summary>
     private sealed class MultiStepPlugin() : XrmFramework.Plugin(null, null)
     {
@@ -47,7 +47,7 @@ public class PluginStepRegistrationTests
     }
 
     /// <summary>
-    /// Plugin dont la méthode de step est privée (doit échouer à l'enregistrement).
+    /// Plugin whose step method is private (registration must fail).
     /// </summary>
     private sealed class PrivateMethodPlugin() : XrmFramework.Plugin(null, null, delayStepRegistration: true)
     {
@@ -62,7 +62,7 @@ public class PluginStepRegistrationTests
     }
 
     // ──────────────────────────────────────────────
-    //  Initialisation du plugin
+    //  Plugin initialization
     // ──────────────────────────────────────────────
 
     [Test]
@@ -82,7 +82,7 @@ public class PluginStepRegistrationTests
     }
 
     // ──────────────────────────────────────────────
-    //  Enregistrement des steps
+    //  Step registration
     // ──────────────────────────────────────────────
 
     [Test]

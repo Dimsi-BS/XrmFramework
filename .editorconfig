@@ -29,7 +29,7 @@ indent_size = 2
 [*.md]
 trim_trailing_whitespace = false
 
-# Les .sln (format hérité Microsoft) requièrent CRLF
+# .sln files (legacy Microsoft format) require CRLF
 [*.sln]
 end_of_line = crlf
 

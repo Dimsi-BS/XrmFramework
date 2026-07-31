@@ -9,31 +9,31 @@ namespace XrmFramework.RemoteDebugger.Common
     public interface IRemoteDebuggerMessageManager
     {
         /// <summary>
-        /// Événement déclenché à chaque réception d'un contexte d'exécution depuis le cloud.
+        /// Event raised each time an execution context is received from the cloud.
         /// </summary>
         event Action<RemoteDebugExecutionContext> ContextReceived;
 
-        /// <summary>Envoie un message sans attendre de réponse.</summary>
+        /// <summary>Sends a message without waiting for a response.</summary>
         Task SendMessage(RemoteDebuggerMessage message);
 
-        /// <summary>Envoie un message et attend la réponse correspondante.</summary>
+        /// <summary>Sends a message and waits for the corresponding response.</summary>
         Task<RemoteDebuggerMessage> SendMessageWithResponse(RemoteDebuggerMessage message);
 
         /// <summary>
-        /// Ouvre la connexion au relay Azure et bloque jusqu'à ce que l'utilisateur
-        /// appuie sur Entrée dans la console. Méthode historique pour usage sans TUI.
+        /// Opens the connection to the Azure relay and blocks until the user
+        /// presses Enter in the console. Legacy method for use without the TUI.
         /// </summary>
         void RunAndBlock();
 
         /// <summary>
-        /// Ouvre la connexion au relay Azure sans bloquer.
-        /// À utiliser avec <see cref="CloseAsync"/> pour gérer le cycle de vie manuellement
-        /// (par exemple lors de l'utilisation du TUI interactif).
+        /// Opens the connection to the Azure relay without blocking.
+        /// To be used with <see cref="CloseAsync"/> to manage the lifecycle manually
+        /// (for example when using the interactive TUI).
         /// </summary>
         Task OpenAsync();
 
         /// <summary>
-        /// Ferme la connexion au relay Azure.
+        /// Closes the connection to the Azure relay.
         /// </summary>
         Task CloseAsync();
     }

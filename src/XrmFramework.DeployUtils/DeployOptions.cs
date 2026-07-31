@@ -4,20 +4,20 @@
 namespace XrmFramework.DeployUtils;
 
 /// <summary>
-/// Options de déploiement transmises au pipeline par
+/// Deployment options passed to the pipeline by
 /// <see cref="RegistrationHelper.RegisterPluginsAndWorkflows{TPlugin}" />.
 /// </summary>
 public sealed class DeployOptions
 {
     /// <summary>
-    /// Indique si la cible est un CRM On-Premises.
+    /// Indicates whether the target is an On-Premises CRM.
     /// </summary>
     public bool IsOnPremise { get; set; }
 
     /// <summary>
-    /// Lorsque <see langword="true" />, la confirmation interactive de connexion au CRM
-    /// est ignorée. À utiliser dans les pipelines CI/CD ou les scripts non-interactifs.
-    /// Équivalent à l'option <c>--noprompt</c> / <c>-n</c> en ligne de commande.
+    /// When <see langword="true" />, the interactive CRM connection confirmation
+    /// is skipped. To be used in CI/CD pipelines or non-interactive scripts.
+    /// Equivalent to the <c>--noprompt</c> / <c>-n</c> command-line option.
     /// </summary>
     public bool NoPrompt { get; set; }
 }

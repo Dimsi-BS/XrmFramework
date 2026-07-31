@@ -333,7 +333,7 @@ parameter**; for services it injects the provider through the **constructor** (o
 **primary constructor**) and creates the backing field, then rewrites the call to
 `_dateTimeProvider.Now` / `.UtcNow`.
 
-**Message:** `Remplacer '{0}' par IDateTimeProvider.{1} — injecter IDateTimeProvider comme paramètre de méthode`
+**Message:** `Replace '{0}' with IDateTimeProvider.{1} — inject IDateTimeProvider as a method parameter`
 
 ---
 

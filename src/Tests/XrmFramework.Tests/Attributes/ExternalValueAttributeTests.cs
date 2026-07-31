@@ -10,7 +10,7 @@ namespace XrmFramework.Tests.Attributes
     public class ExternalValueAttributeTests
     {
         // ────────────────────────────────────────────────────────────
-        //  Constructeur et propriétés
+        //  Constructor and properties
         // ────────────────────────────────────────────────────────────
 
         [Test]
@@ -28,7 +28,7 @@ namespace XrmFramework.Tests.Attributes
         }
 
         // ────────────────────────────────────────────────────────────
-        //  Réflexion — attribut appliqué sur un champ d'enum
+        //  Reflection — attribute applied to an enum field
         // ────────────────────────────────────────────────────────────
 
         private enum PaymentMethod

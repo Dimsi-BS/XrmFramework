@@ -92,7 +92,7 @@ public static class IOrganizationServiceExtensions_RetrieveAll
         {
             ec = await retrieveMultiple(query);
             Debug.WriteLine(
-                $"Récupération de la page {query.PageInfo?.PageNumber} de {query.PageInfo?.Count} enregistrements.");
+                $"Retrieving page {query.PageInfo?.PageNumber} of {query.PageInfo?.Count} records.");
 
             result.AddRange(ec.Entities);
 

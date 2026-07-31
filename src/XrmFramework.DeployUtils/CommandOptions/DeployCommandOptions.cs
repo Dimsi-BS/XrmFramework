@@ -6,21 +6,21 @@ using CommandLine;
 namespace XrmFramework.DeployUtils.CommandOptions;
 
 /// <summary>
-/// Options de ligne de commande pour le déploiement de plugins/workflows.
+/// Command-line options for deploying plugins/workflows.
 /// </summary>
 /// <example>
-/// Utilisation typique dans Program.cs :
+/// Typical usage in Program.cs:
 /// <code>
 /// RegistrationHelper.RegisterPluginsAndWorkflows&lt;XrmFramework.Plugin&gt;("MyProject", false, args);
 /// </code>
-/// Options disponibles :
+/// Available options:
 /// <code>
-///   -n / --noprompt   Exécution silencieuse : ignore la confirmation de connexion au CRM (ex: CI/CD).
+///   -n / --noprompt   Silent run: skips the CRM connection confirmation (e.g. CI/CD).
 /// </code>
 /// </example>
 public class DeployCommandOptions
 {
     [Option('n', "noprompt", Required = false, Default = false,
-        HelpText = "Mode silencieux : passe la confirmation de connexion au CRM sans prompt interactif. Utile en CI/CD.")]
+        HelpText = "Silent mode: skips the CRM connection confirmation without an interactive prompt. Useful in CI/CD.")]
     public bool NoPrompt { get; set; }
 }

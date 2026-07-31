@@ -11,15 +11,15 @@ using XrmFramework.RemoteDebugger.Generator;
 namespace XrmFramework.Generators.Tests;
 
 /// <summary>
-/// Tests du générateur de source <see cref="PluginTestSourceGenerator"/>.
-/// Utilise Verify pour comparer la sortie générée avec des snapshots.
+/// Tests for the <see cref="PluginTestSourceGenerator"/> source generator.
+/// Uses Verify to compare the generated output against snapshots.
 /// </summary>
 
 [TestFixture]
 public class PluginTestSourceGeneratorTests
 {
     // ──────────────────────────────────────────────
-    //  Sans fichiers .pluginsession.json
+    //  Without .pluginsession.json files
     // ──────────────────────────────────────────────
 
     [Test]
@@ -31,7 +31,7 @@ public class PluginTestSourceGeneratorTests
     }
 
     // ──────────────────────────────────────────────
-    //  Avec un fichier .pluginsession.json minimal
+    //  With a minimal .pluginsession.json file
     // ──────────────────────────────────────────────
 
     [Test]
@@ -39,7 +39,7 @@ public class PluginTestSourceGeneratorTests
     {
         const string source = "// empty";
 
-        // JSON minimal simulant une session de débogage distant capturée
+        // Minimal JSON simulating a captured remote debugging session
         const string sessionJson = """
             {
               "pluginTypeName": "MyPlugin",
@@ -59,7 +59,7 @@ public class PluginTestSourceGeneratorTests
     }
 
     // ──────────────────────────────────────────────
-    //  Compilation sans erreurs
+    //  Compilation without errors
     // ──────────────────────────────────────────────
 
     [Test]

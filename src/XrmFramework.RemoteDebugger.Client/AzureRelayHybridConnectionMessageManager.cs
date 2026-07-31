@@ -93,7 +93,7 @@ namespace XrmFramework.RemoteDebugger.Client
                 }
                 catch (Exception)
                 {
-                    // erreur ignorée
+                    // error ignored
                 }
 
             }

@@ -8,13 +8,13 @@ using NUnit.Framework;
 namespace XrmFramework.Tests.Plugin;
 
 /// <summary>
-/// Tests unitaires pour <see cref="StepConfiguration"/>.
+/// Unit tests for <see cref="StepConfiguration"/>.
 /// </summary>
 [TestFixture]
 public class StepConfigurationTests
 {
     // ──────────────────────────────────────────────
-    //  Initialisation par défaut
+    //  Default initialization
     // ──────────────────────────────────────────────
 
     [Test]
@@ -52,7 +52,7 @@ public class StepConfigurationTests
     }
 
     // ──────────────────────────────────────────────
-    //  Sérialisation JSON
+    //  JSON serialization
     // ──────────────────────────────────────────────
 
     [Test]
@@ -74,8 +74,8 @@ public class StepConfigurationTests
 
         var json = JsonConvert.SerializeObject(config);
 
-        Assert.IsTrue(json.Contains("OnCreate"), "JSON doit contenir 'OnCreate'");
-        Assert.IsTrue(json.Contains("OnUpdate"), "JSON doit contenir 'OnUpdate'");
+        Assert.IsTrue(json.Contains("OnCreate"), "JSON must contain 'OnCreate'");
+        Assert.IsTrue(json.Contains("OnUpdate"), "JSON must contain 'OnUpdate'");
     }
 
     [Test]
@@ -86,7 +86,7 @@ public class StepConfigurationTests
         var json = JsonConvert.SerializeObject(config);
 
         Assert.IsTrue(json.Contains("\"configuration\""),
-            "Doit utiliser le nom de propriété JSON 'configuration'.");
+            "Must use the JSON property name 'configuration'.");
         Assert.IsTrue(json.Contains("myconf"));
     }
 
@@ -98,7 +98,7 @@ public class StepConfigurationTests
         var json = JsonConvert.SerializeObject(config);
 
         Assert.IsTrue(json.Contains("\"relName\""),
-            "Doit utiliser le nom de propriété JSON 'relName'.");
+            "Must use the JSON property name 'relName'.");
         Assert.IsTrue(json.Contains("myrel"));
     }
 
@@ -111,7 +111,7 @@ public class StepConfigurationTests
         var json = JsonConvert.SerializeObject(config);
 
         Assert.IsTrue(json.Contains("\"registeredMethods\""),
-            "Doit utiliser le nom de propriété JSON 'registeredMethods'.");
+            "Must use the JSON property name 'registeredMethods'.");
     }
 
     [Test]
@@ -123,12 +123,12 @@ public class StepConfigurationTests
         var json = JsonConvert.SerializeObject(config);
 
         Assert.IsTrue(json.Contains("\"bannedMethods\""),
-            "Doit utiliser le nom de propriété JSON 'bannedMethods'.");
+            "Must use the JSON property name 'bannedMethods'.");
         Assert.IsTrue(json.Contains("BannedMethod"));
     }
 
     // ──────────────────────────────────────────────
-    //  Désérialisation JSON
+    //  JSON deserialization
     // ──────────────────────────────────────────────
 
     [Test]

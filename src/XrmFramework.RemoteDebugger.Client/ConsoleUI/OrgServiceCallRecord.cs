@@ -7,8 +7,8 @@ using System.Text.RegularExpressions;
 namespace XrmFramework.RemoteDebugger.Common.ConsoleUI
 {
     /// <summary>
-    /// Représente un appel enregistré au service d'organisation CRM
-    /// effectué pendant l'exécution d'un plugin.
+    /// Represents a recorded call to the CRM organization service
+    /// made during a plugin's execution.
     /// </summary>
     public class OrgServiceCallRecord
     {
@@ -28,42 +28,42 @@ namespace XrmFramework.RemoteDebugger.Common.ConsoleUI
             ParseRequestInfo(requestJson);
         }
 
-        /// <summary>Numéro séquentiel de l'appel dans l'exécution (1-based).</summary>
+        /// <summary>Sequential number of the call within the execution (1-based).</summary>
         public int Index { get; set; }
 
-        /// <summary>JSON brut de la requête OrganizationRequest.</summary>
+        /// <summary>Raw JSON of the OrganizationRequest.</summary>
         public string RequestJson { get; }
 
-        /// <summary>JSON brut de la réponse OrganizationResponse.</summary>
+        /// <summary>Raw JSON of the OrganizationResponse.</summary>
         public string ResponseJson { get; private set; }
 
-        /// <summary>Nom du message CRM (Retrieve, Create, Update, Delete, Execute...).</summary>
+        /// <summary>Name of the CRM message (Retrieve, Create, Update, Delete, Execute...).</summary>
         public string RequestType { get; private set; } = "Execute";
 
-        /// <summary>Nom logique de l'entité cible (si applicable).</summary>
+        /// <summary>Logical name of the target entity (if applicable).</summary>
         public string EntityLogicalName { get; private set; } = "";
 
-        /// <summary>ID de l'entité cible (si applicable).</summary>
+        /// <summary>ID of the target entity (if applicable).</summary>
         public Guid EntityId { get; private set; }
 
-        /// <summary>Heure de début de l'appel.</summary>
+        /// <summary>Start time of the call.</summary>
         public DateTime StartTime { get; }
 
-        /// <summary>Durée de l'appel (null si en cours).</summary>
+        /// <summary>Duration of the call (null if still running).</summary>
         public TimeSpan? Duration { get; private set; }
 
-        /// <summary>Indique si l'appel s'est terminé avec succès.</summary>
+        /// <summary>Indicates whether the call completed successfully.</summary>
         public bool? Success { get; private set; }
 
-        /// <summary>Message d'erreur si l'appel a échoué.</summary>
+        /// <summary>Error message if the call failed.</summary>
         public string ErrorMessage { get; private set; }
 
-        /// <summary>Indique si l'appel est encore en cours.</summary>
+        /// <summary>Indicates whether the call is still running.</summary>
         public bool IsRunning => !Duration.HasValue;
 
         internal void Complete(string responseJson)
         {
-            // Idempotent : un appel ne peut se terminer qu'une seule fois
+            // Idempotent: a call can only complete once
             if (Duration.HasValue) return;
             ResponseJson = responseJson;
             Duration = DateTime.Now - StartTime;
@@ -80,7 +80,7 @@ namespace XrmFramework.RemoteDebugger.Common.ConsoleUI
         }
 
         /// <summary>
-        /// Retourne une description courte pour affichage : "Retrieve contact (3f4a…)"
+        /// Returns a short description for display: "Retrieve contact (3f4a…)"
         /// </summary>
         public string GetShortDescription()
         {
@@ -106,21 +106,21 @@ namespace XrmFramework.RemoteDebugger.Common.ConsoleUI
         {
             if (string.IsNullOrEmpty(json)) return;
 
-            // Extraire le RequestName (ex: "Retrieve", "Create", "Update", "Delete")
+            // Extract the RequestName (e.g. "Retrieve", "Create", "Update", "Delete")
             var nameMatch = RequestNameRegex.Match(json);
             if (nameMatch.Success)
             {
                 RequestType = nameMatch.Groups[1].Value;
             }
 
-            // Extraire le LogicalName de l'entité cible
+            // Extract the LogicalName of the target entity
             var entityMatch = LogicalNameRegex.Match(json);
             if (entityMatch.Success)
             {
                 EntityLogicalName = entityMatch.Groups[1].Value;
             }
 
-            // Extraire l'ID de l'entité
+            // Extract the entity ID
             var idMatch = EntityIdRegex.Match(json);
             if (idMatch.Success && Guid.TryParse(idMatch.Groups[1].Value, out var id))
             {

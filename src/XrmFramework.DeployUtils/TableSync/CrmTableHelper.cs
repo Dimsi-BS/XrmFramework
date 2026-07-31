@@ -18,25 +18,25 @@ using DataverseMetadata = Microsoft.Xrm.Sdk.Metadata;
 namespace XrmFramework.DeployUtils.TableSync
 {
     /// <summary>
-    /// Commandes connectées à l'environnement : lister les tables et récupérer leurs métadonnées
-    /// sous forme de fichiers <c>.table</c>.
+    /// Commands connected to the environment: list tables and retrieve their metadata
+    /// as <c>.table</c> files.
     /// </summary>
     /// <remarks>
-    /// Conformément au contrat du CLI, ces points d'entrée retournent un code de sortie et
-    /// n'appellent jamais <c>Environment.Exit</c>.
+    /// In accordance with the CLI contract, these entry points return an exit code and
+    /// never call <c>Environment.Exit</c>.
     /// </remarks>
     public static class CrmTableHelper
     {
-        /// <summary>Succès.</summary>
+        /// <summary>Success.</summary>
         public const int ExitSuccess = 0;
 
-        /// <summary>Aucune table ne correspond aux critères demandés.</summary>
+        /// <summary>No table matches the requested criteria.</summary>
         public const int ExitNoMatch = 1;
 
-        /// <summary>Configuration ou répertoire introuvable.</summary>
+        /// <summary>Configuration or directory not found.</summary>
         public const int ExitNotFound = 2;
 
-        /// <summary>Erreur inattendue.</summary>
+        /// <summary>Unexpected error.</summary>
         public const int ExitError = 3;
 
         // ══════════════════════════════════════════════════════════════════════
@@ -44,12 +44,12 @@ namespace XrmFramework.DeployUtils.TableSync
         // ══════════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Affiche les tables de l'environnement sélectionné, filtrables par préfixe.
+        /// Displays the tables of the selected environment, filterable by prefix.
         /// </summary>
-        /// <param name="projectRoot">Racine explicite, ou <see langword="null" /> pour la découvrir.</param>
-        /// <param name="prefix">Ne retenir que les noms logiques commençant par ce préfixe.</param>
-        /// <param name="filter">Sous-chaîne recherchée dans le nom logique ou le libellé.</param>
-        /// <param name="customOnly">Ne retenir que les tables personnalisées.</param>
+        /// <param name="projectRoot">Explicit root, or <see langword="null" /> to discover it.</param>
+        /// <param name="prefix">Only keep logical names starting with this prefix.</param>
+        /// <param name="filter">Substring searched for in the logical name or the label.</param>
+        /// <param name="customOnly">Only keep custom tables.</param>
         public static int List(string projectRoot, string prefix, string filter, bool customOnly)
         {
             try
@@ -59,7 +59,7 @@ namespace XrmFramework.DeployUtils.TableSync
                     return ExitNotFound;
 
                 var connectionString = ResolveConnectionString(location.ProjectRoot, out var url);
-                AnsiConsole.MarkupLine($"Environnement : [cyan]{Markup.Escape(url ?? "inconnu")}[/]");
+                AnsiConsole.MarkupLine($"Environment: [cyan]{Markup.Escape(url ?? "unknown")}[/]");
                 AnsiConsole.WriteLine();
 
                 var service = Connect(connectionString);
@@ -71,14 +71,14 @@ namespace XrmFramework.DeployUtils.TableSync
 
                 if (entities.Count == 0)
                 {
-                    AnsiConsole.MarkupLine("[yellow]Aucune table ne correspond aux critères.[/]");
+                    AnsiConsole.MarkupLine("[yellow]No table matches the criteria.[/]");
                     return ExitNoMatch;
                 }
 
                 RenderEntityTable(entities, location.TablesDirectory);
 
                 AnsiConsole.WriteLine();
-                AnsiConsole.MarkupLine($"[bold]{entities.Count}[/] table(s) trouvée(s).");
+                AnsiConsole.MarkupLine($"[bold]{entities.Count}[/] table(s) found.");
                 return ExitSuccess;
             }
             catch (Exception ex)
@@ -90,14 +90,14 @@ namespace XrmFramework.DeployUtils.TableSync
         private static void RenderEntityTable(
             IList<DataverseMetadata.EntityMetadata> entities, string tablesDirectory)
         {
-            // Signale ce qui est déjà suivi dans le projet : c'est l'information qui manque le plus
-            // au moment de choisir quoi récupérer.
+            // Flags what is already tracked in the project: it's the information most needed
+            // when deciding what to retrieve.
             var trackedLogicalNames = TableFileStore.ReadTrackedLogicalNames(tablesDirectory);
 
             var grid = new Spectre.Console.Table().Border(TableBorder.Rounded);
-            grid.AddColumn("Nom logique");
-            grid.AddColumn("Libellé");
-            grid.AddColumn("Perso.");
+            grid.AddColumn("Logical name");
+            grid.AddColumn("Label");
+            grid.AddColumn("Custom");
             grid.AddColumn(".table");
 
             foreach (var entity in entities)
@@ -107,8 +107,8 @@ namespace XrmFramework.DeployUtils.TableSync
                 grid.AddRow(
                     Markup.Escape(entity.LogicalName ?? string.Empty),
                     Markup.Escape(entity.DisplayName?.UserLocalizedLabel?.Label ?? string.Empty),
-                    entity.IsCustomEntity.GetValueOrDefault() ? "oui" : "",
-                    isTracked ? "[green]oui[/]" : "");
+                    entity.IsCustomEntity.GetValueOrDefault() ? "yes" : "",
+                    isTracked ? "[green]yes[/]" : "");
             }
 
             AnsiConsole.Write(grid);
@@ -119,14 +119,14 @@ namespace XrmFramework.DeployUtils.TableSync
         // ══════════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Génère ou met à jour les fichiers <c>.table</c> des entités demandées, ou de toutes
-        /// celles déjà suivies par le projet si aucun critère n'est donné.
+        /// Generates or updates the <c>.table</c> files for the requested entities, or for all
+        /// entities already tracked by the project if no criteria are given.
         /// </summary>
-        /// <param name="projectRoot">Racine explicite, ou <see langword="null" /> pour la découvrir.</param>
-        /// <param name="tablesDirectory">Répertoire cible, ou <see langword="null" /> pour le déduire.</param>
-        /// <param name="tableNames">Noms logiques explicitement demandés.</param>
-        /// <param name="prefix">Récupère en outre toutes les tables commençant par ce préfixe.</param>
-        /// <param name="noPrompt">Ignore la confirmation interactive.</param>
+        /// <param name="projectRoot">Explicit root, or <see langword="null" /> to discover it.</param>
+        /// <param name="tablesDirectory">Target directory, or <see langword="null" /> to infer it.</param>
+        /// <param name="tableNames">Explicitly requested logical names.</param>
+        /// <param name="prefix">Also retrieves all tables starting with this prefix.</param>
+        /// <param name="noPrompt">Skips the interactive confirmation.</param>
         public static int Pull(
             string projectRoot,
             string tablesDirectory,
@@ -144,16 +144,16 @@ namespace XrmFramework.DeployUtils.TableSync
                 if (string.IsNullOrWhiteSpace(targetDirectory))
                 {
                     AnsiConsole.MarkupLine(
-                        "[red]Impossible de déduire le répertoire des .table.[/] " +
-                        "Déclarez [cyan]XrmFrameworkCoreProjectName[/] dans le Directory.Build.props " +
-                        "de la racine, ou passez [cyan]--tables-dir[/].");
+                        "[red]Unable to infer the .table directory.[/] " +
+                        "Declare [cyan]XrmFrameworkCoreProjectName[/] in the root's " +
+                        "Directory.Build.props, or pass [cyan]--tables-dir[/].");
                     return ExitNotFound;
                 }
 
                 var connectionString = ResolveConnectionString(location.ProjectRoot, out var url);
 
-                AnsiConsole.MarkupLine($"Environnement : [cyan]{Markup.Escape(url ?? "inconnu")}[/]");
-                AnsiConsole.MarkupLine($"Répertoire    : [cyan]{Markup.Escape(targetDirectory)}[/]");
+                AnsiConsole.MarkupLine($"Environment: [cyan]{Markup.Escape(url ?? "unknown")}[/]");
+                AnsiConsole.MarkupLine($"Directory     : [cyan]{Markup.Escape(targetDirectory)}[/]");
 
                 var selection = ResolveSelection(targetDirectory, tableNames, prefix);
                 if (selection == null)
@@ -164,18 +164,18 @@ namespace XrmFramework.DeployUtils.TableSync
                 var requested = ResolveRequestedEntities(service, selection, prefix, out var unknown);
 
                 foreach (var name in unknown)
-                    AnsiConsole.MarkupLine($"[yellow]Table introuvable dans l'environnement :[/] {Markup.Escape(name)}");
+                    AnsiConsole.MarkupLine($"[yellow]Table not found in the environment:[/] {Markup.Escape(name)}");
 
                 if (requested.Count == 0)
                 {
-                    AnsiConsole.MarkupLine("[yellow]Aucune table à récupérer.[/]");
+                    AnsiConsole.MarkupLine("[yellow]No table to retrieve.[/]");
                     return ExitNoMatch;
                 }
 
                 AnsiConsole.MarkupLine($"Tables        : [cyan]{requested.Count}[/]");
                 AnsiConsole.WriteLine();
 
-                if (!noPrompt && !AnsiConsole.Confirm("Récupérer les métadonnées de ces tables ?"))
+                if (!noPrompt && !AnsiConsole.Confirm("Retrieve the metadata for these tables?"))
                     return ExitSuccess;
 
                 Directory.CreateDirectory(targetDirectory);
@@ -196,11 +196,11 @@ namespace XrmFramework.DeployUtils.TableSync
 
                 if (failures > 0)
                 {
-                    AnsiConsole.MarkupLine($"[red]{failures}[/] table(s) en échec.");
+                    AnsiConsole.MarkupLine($"[red]{failures}[/] table(s) failed.");
                     return ExitError;
                 }
 
-                AnsiConsole.MarkupLine("[green]Récupération terminée.[/]");
+                AnsiConsole.MarkupLine("[green]Retrieval complete.[/]");
                 return ExitSuccess;
             }
             catch (Exception ex)
@@ -210,16 +210,16 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         /// <summary>
-        /// Détermine les noms logiques à demander à l'environnement. Sans critère, la sélection est
-        /// celle du projet lui-même : toutes les tables déjà décrites par un <c>.table</c>.
+        /// Determines the logical names to request from the environment. Without criteria, the selection
+        /// defaults to the project itself: all the tables already described by a <c>.table</c>.
         /// </summary>
         /// <remarks>
-        /// Résolu <b>avant</b> la connexion : un répertoire vide est une erreur de la ligne de
-        /// commande, inutile d'authentifier l'utilisateur pour la lui signaler.
+        /// Resolved <b>before</b> the connection: an empty directory is a command-line
+        /// error, no need to authenticate the user just to report it.
         /// </remarks>
         /// <returns>
-        /// Les noms à demander, ou <see langword="null" /> si rien n'est sélectionnable — le message
-        /// correspondant a alors déjà été affiché.
+        /// The names to request, or <see langword="null" /> if nothing is selectable — the corresponding
+        /// message has then already been displayed.
         /// </returns>
         private static IList<string> ResolveSelection(
             string targetDirectory, IEnumerable<string> tableNames, string prefix)
@@ -236,12 +236,12 @@ namespace XrmFramework.DeployUtils.TableSync
             if (tracked.Count == 0)
             {
                 AnsiConsole.MarkupLine(
-                    "[yellow]Aucun fichier .table dans ce répertoire.[/] Indiquez les tables à " +
-                    "récupérer via [cyan]--table[/] ou [cyan]--prefix[/].");
+                    "[yellow]No .table file in this directory.[/] Specify the tables to " +
+                    "retrieve via [cyan]--table[/] or [cyan]--prefix[/].");
                 return null;
             }
 
-            AnsiConsole.MarkupLine("Sélection     : [cyan]tables déjà suivies par le projet[/]");
+            AnsiConsole.MarkupLine("Selection     : [cyan]tables already tracked by the project[/]");
 
             return tracked;
         }
@@ -265,17 +265,17 @@ namespace XrmFramework.DeployUtils.TableSync
                 var fileName = Path.GetFileName(outcome.FilePath);
                 if (outcome.Created)
                     AnsiConsole.MarkupLine(
-                        $"[green]Créé[/]       {Markup.Escape(fileName)} " +
-                        $"([bold]{outcome.Table.Columns.Count}[/] colonne(s))");
+                        $"[green]Created[/]    {Markup.Escape(fileName)} " +
+                        $"([bold]{outcome.Table.Columns.Count}[/] column(s))");
                 else
                     AnsiConsole.MarkupLine(
-                        $"[blue]Mis à jour[/] {Markup.Escape(fileName)} " +
-                        $"([bold]{outcome.Table.Columns.Count}[/] colonne(s))");
+                        $"[blue]Updated[/] {Markup.Escape(fileName)} " +
+                        $"([bold]{outcome.Table.Columns.Count}[/] column(s))");
 
                 if (outcome.ColumnsMissingFromCrm.Count > 0)
                     AnsiConsole.MarkupLine(
-                        $"           [yellow]{outcome.ColumnsMissingFromCrm.Count} colonne(s) absente(s) " +
-                        "de l'environnement, conservée(s) :[/] " +
+                        $"           [yellow]{outcome.ColumnsMissingFromCrm.Count} column(s) missing " +
+                        "from the environment, kept:[/] " +
                         Markup.Escape(string.Join(", ",
                             outcome.ColumnsMissingFromCrm.Select(c => c.LogicalName))));
 
@@ -283,9 +283,9 @@ namespace XrmFramework.DeployUtils.TableSync
             }
             catch (Exception ex)
             {
-                // Une table en échec ne doit pas interrompre les autres.
+                // A failing table must not stop the others.
                 AnsiConsole.MarkupLine(
-                    $"[red]Échec[/]      {Markup.Escape(logicalName)} : {Markup.Escape(ex.Message)}");
+                    $"[red]Failed[/]     {Markup.Escape(logicalName)}: {Markup.Escape(ex.Message)}");
                 return false;
             }
         }
@@ -304,17 +304,17 @@ namespace XrmFramework.DeployUtils.TableSync
             TableFileStore.Save(path, merged);
 
             AnsiConsole.MarkupLine(
-                $"[blue]Mis à jour[/] {Markup.Escape(Path.GetFileName(path))} " +
-                $"([bold]{merged.Enums.Count}[/] option set(s) global(aux))");
+                $"[blue]Updated[/] {Markup.Escape(Path.GetFileName(path))} " +
+                $"([bold]{merged.Enums.Count}[/] global option set(s))");
         }
 
         // ══════════════════════════════════════════════════════════════════════
-        // Accès aux métadonnées
+        // Metadata access
         // ══════════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Liste les entités sans leurs attributs : bien plus rapide que la récupération complète,
-        /// et suffisant pour lister ou résoudre un préfixe.
+        /// Lists entities without their attributes: much faster than a full retrieval,
+        /// and sufficient for listing or resolving a prefix.
         /// </summary>
         private static IList<DataverseMetadata.EntityMetadata> RetrieveEntityList(IOrganizationService service)
         {
@@ -343,8 +343,8 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         /// <summary>
-        /// Préfixes de personnalisation déclarés par les éditeurs de l'environnement, utilisés pour
-        /// dériver les noms C# depuis les noms de schéma.
+        /// Customization prefixes declared by the environment's publishers, used to
+        /// derive C# names from schema names.
         /// </summary>
         private static IList<string> RetrievePublisherPrefixes(IOrganizationService service)
         {
@@ -355,16 +355,16 @@ namespace XrmFramework.DeployUtils.TableSync
                           .Select(e => e.GetAttributeValue<string>("customizationprefix"))
                           .Where(p => !string.IsNullOrWhiteSpace(p))
                           .Distinct(StringComparer.OrdinalIgnoreCase)
-                          // Le préfixe le plus long d'abord : « ftpx_ » doit être testé avant « ftp_ »,
-                          // sinon un nom serait tronqué par le mauvais préfixe.
+                          // Longest prefix first: "ftpx_" must be tested before "ftp_",
+                          // otherwise a name would be truncated by the wrong prefix.
                           .OrderByDescending(p => p.Length)
                           .ThenBy(p => p, StringComparer.OrdinalIgnoreCase)
                           .ToList();
         }
 
         /// <summary>
-        /// Construit la liste des noms logiques à récupérer, en validant les noms explicites contre
-        /// l'environnement afin de signaler les fautes de frappe plutôt que d'échouer table par table.
+        /// Builds the list of logical names to retrieve, validating the explicit names against
+        /// the environment in order to flag typos rather than failing table by table.
         /// </summary>
         private static IList<string> ResolveRequestedEntities(
             IOrganizationService service,
@@ -396,7 +396,7 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         /// <summary>
-        /// Accepte indifféremment l'option répétée et les listes séparées par des virgules.
+        /// Accepts equally the repeated option and comma-separated lists.
         /// </summary>
         internal static IEnumerable<string> SplitNames(IEnumerable<string> values)
             => (values ?? Enumerable.Empty<string>())
@@ -425,7 +425,7 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         // ══════════════════════════════════════════════════════════════════════
-        // Configuration et connexion
+        // Configuration and connection
         // ══════════════════════════════════════════════════════════════════════
 
         private static ProjectConfigLocation ResolveLocation(string projectRoot)
@@ -435,13 +435,13 @@ namespace XrmFramework.DeployUtils.TableSync
                 var explicitRoot = Path.GetFullPath(projectRoot);
                 var located = ProjectConfigLocator.Locate(explicitRoot);
 
-                // Avec une racine explicite, on n'accepte pas de remonter : l'utilisateur a désigné
-                // un emplacement précis et doit être averti s'il ne contient pas la configuration.
+                // With an explicit root, we do not allow walking up: the user has designated
+                // a specific location and must be warned if it does not contain the configuration.
                 if (located == null || !string.Equals(located.ProjectRoot.TrimEnd(Path.DirectorySeparatorChar),
                         explicitRoot.TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase))
                 {
                     AnsiConsole.MarkupLine(
-                        $"[red]Aucun Config/xrmFramework.config dans[/] {Markup.Escape(explicitRoot)}");
+                        $"[red]No Config/xrmFramework.config in[/] {Markup.Escape(explicitRoot)}");
                     return null;
                 }
 
@@ -454,21 +454,21 @@ namespace XrmFramework.DeployUtils.TableSync
             if (discovered == null)
             {
                 AnsiConsole.MarkupLine(
-                    "[red]Configuration XrmFramework introuvable.[/] Aucun " +
-                    "[cyan]Config/xrmFramework.config[/] trouvé en remontant depuis " +
-                    $"{Markup.Escape(current)}. Utilisez [cyan]--project-root[/] pour la désigner.");
+                    "[red]XrmFramework configuration not found.[/] No " +
+                    "[cyan]Config/xrmFramework.config[/] found while walking up from " +
+                    $"{Markup.Escape(current)}. Use [cyan]--project-root[/] to designate it.");
             }
 
             return discovered;
         }
 
         /// <summary>
-        /// Charge la configuration du projet et en extrait la chaîne de connexion sélectionnée.
+        /// Loads the project configuration and extracts the selected connection string from it.
         /// </summary>
         /// <remarks>
-        /// Volontairement séparé de <see cref="Connect" /> : le client Dataverse se connecte dans
-        /// son constructeur, donc l'URL cible doit être affichée <b>avant</b>. Sinon un échec
-        /// d'authentification laisse l'utilisateur sans savoir quel environnement était visé.
+        /// Deliberately separated from <see cref="Connect" />: the Dataverse client connects in
+        /// its constructor, so the target URL must be displayed <b>before</b>. Otherwise an
+        /// authentication failure leaves the user unaware of which environment was targeted.
         /// </remarks>
         private static string ResolveConnectionString(string projectRoot, out string url)
         {
@@ -478,10 +478,10 @@ namespace XrmFramework.DeployUtils.TableSync
 
             if (string.IsNullOrWhiteSpace(connectionString))
                 throw new InvalidOperationException(
-                    "La connexion sélectionnée dans xrmFramework.config n'a pas de chaîne " +
-                    "correspondante dans connectionStrings.config.");
+                    "The connection selected in xrmFramework.config has no matching " +
+                    "string in connectionStrings.config.");
 
-            // On n'expose jamais la chaîne complète : elle contient le secret client.
+            // The full string is never exposed: it contains the client secret.
             url = new DeploySettings { ConnectionString = connectionString }.Url;
 
             return connectionString;
@@ -496,12 +496,12 @@ namespace XrmFramework.DeployUtils.TableSync
             {
                 case FileNotFoundException fileNotFound:
                     AnsiConsole.MarkupLine(
-                        $"[red]Fichier introuvable :[/] {Markup.Escape(fileNotFound.FileName ?? fileNotFound.Message)}");
+                        $"[red]File not found:[/] {Markup.Escape(fileNotFound.FileName ?? fileNotFound.Message)}");
                     return ExitNotFound;
 
                 case DirectoryNotFoundException directoryNotFound:
                     AnsiConsole.MarkupLine(
-                        $"[red]Répertoire introuvable :[/] {Markup.Escape(directoryNotFound.Message)}");
+                        $"[red]Directory not found:[/] {Markup.Escape(directoryNotFound.Message)}");
                     return ExitNotFound;
 
                 default:

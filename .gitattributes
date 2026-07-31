@@ -1,8 +1,8 @@
-# Normalise toutes les fins de ligne dans le repo en LF.
-# Le working tree est écrit en LF aussi bien sur macOS que sur Windows
-# (Visual Studio, Rider, dotnet CLI gèrent LF sans problème depuis VS 2017+).
-# Ce fichier prend le pas sur core.autocrlf — il est inutile (et déconseillé)
-# de configurer autocrlf en plus.
+# Normalizes all line endings in the repo to LF.
+# The working tree is written in LF on both macOS and Windows
+# (Visual Studio, Rider, and the dotnet CLI have handled LF fine since VS 2017+).
+# This file takes precedence over core.autocrlf — there is no need (and it is not
+# recommended) to also configure autocrlf.
 
 * text=auto eol=lf
 
@@ -24,8 +24,8 @@
 *.runsettings text eol=lf
 
 # ---------- Solutions ----------
-# Les .sln (format hérité) requièrent CRLF, certains outils MS s'y cassent
-# les dents en LF. Le format .slnx (XML, plus récent) tolère LF.
+# .sln files (legacy format) require CRLF; some MS tools choke on LF.
+# The .slnx format (XML, newer) tolerates LF.
 *.sln       text eol=crlf
 *.slnx      text eol=lf
 
@@ -37,7 +37,7 @@
 *.psd1      text eol=lf
 *.sh        text eol=lf
 
-# ---------- Données / config ----------
+# ---------- Data / config ----------
 *.json      text eol=lf
 *.yml       text eol=lf
 *.yaml      text eol=lf
@@ -66,7 +66,7 @@
 *.markdown  text eol=lf
 *.txt       text eol=lf
 
-# ---------- Fichiers métiers XrmFramework ----------
+# ---------- XrmFramework business files ----------
 *.table     text eol=lf
 *.model     text eol=lf
 

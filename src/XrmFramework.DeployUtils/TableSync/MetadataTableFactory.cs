@@ -9,16 +9,16 @@ using CoreTable = XrmFramework.Core.Table;
 using CoreLocalizedLabel = XrmFramework.Core.LocalizedLabel;
 using SdkLabel = Microsoft.Xrm.Sdk.Label;
 
-// L'espace de noms XrmFramework déclare ses propres AttributeMetadata, EntityMetadata et
-// OptionMetadata. Comme les espaces de noms englobants l'emportent sur les directives using,
-// un « using Microsoft.Xrm.Sdk.Metadata » serait silencieusement ignoré pour ces trois types.
-// L'alias d'espace de noms rend l'origine explicite à chaque usage.
+// The XrmFramework namespace declares its own AttributeMetadata, EntityMetadata and
+// OptionMetadata. Since enclosing namespaces take precedence over using directives,
+// a "using Microsoft.Xrm.Sdk.Metadata" would be silently ignored for these three types.
+// The namespace alias makes the origin explicit at every use.
 using DataverseMetadata = Microsoft.Xrm.Sdk.Metadata;
 
 namespace XrmFramework.DeployUtils.TableSync
 {
     /// <summary>
-    /// Résultat de la conversion d'une entité Dataverse.
+    /// Result of converting a Dataverse entity.
     /// </summary>
     public sealed class MetadataConversionResult
     {
@@ -28,31 +28,31 @@ namespace XrmFramework.DeployUtils.TableSync
             GlobalEnums = globalEnums;
         }
 
-        /// <summary>Table convertie, option sets locaux inclus.</summary>
+        /// <summary>Converted table, including local option sets.</summary>
         public CoreTable Table { get; }
 
         /// <summary>
-        /// Option sets globaux référencés par l'entité. Ils ne sont jamais écrits dans le .table de
-        /// l'entité mais rassemblés dans le fichier <c>OptionSet.table</c> partagé.
+        /// Global option sets referenced by the entity. They are never written to the entity's
+        /// .table but gathered in the shared <c>OptionSet.table</c> file.
         /// </summary>
         public IReadOnlyList<OptionSetEnum> GlobalEnums { get; }
     }
 
     /// <summary>
-    /// Convertit les métadonnées Dataverse d'une entité en <see cref="CoreTable" />.
+    /// Converts an entity's Dataverse metadata into a <see cref="CoreTable" />.
     /// </summary>
     /// <remarks>
-    /// Extraction de la partie pure de <c>DefinitionManager.DataAccessManager.DoRetrieveEntities</c>,
-    /// qui construisait en parallèle le modèle WinForms et le modèle <c>XrmFramework.Core</c> ;
-    /// seul le second est conservé ici, ce qui rend la conversion utilisable sans interface
-    /// graphique et testable.
+    /// Extraction of the pure part of <c>DefinitionManager.DataAccessManager.DoRetrieveEntities</c>,
+    /// which used to build the WinForms model and the <c>XrmFramework.Core</c> model in parallel;
+    /// only the latter is kept here, which makes the conversion usable without a graphical
+    /// interface and testable.
     /// </remarks>
     public static class MetadataTableFactory
     {
         /// <summary>
-        /// Colonnes systèmes systématiquement sélectionnées à la création d'un .table : elles sont
-        /// utilisées par la quasi-totalité des plugins, et les activer une par une via
-        /// <c>tables sync</c> serait une friction inutile.
+        /// System columns systematically selected when creating a .table: they are
+        /// used by nearly all plugins, and activating them one by one via
+        /// <c>tables sync</c> would be needless friction.
         /// </summary>
         private static readonly HashSet<string> AlwaysSelectedColumns =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -64,12 +64,12 @@ namespace XrmFramework.DeployUtils.TableSync
             };
 
         /// <summary>
-        /// Convertit une entité et ses attributs, relations, clés alternatives et option sets.
+        /// Converts an entity along with its attributes, relationships, alternate keys and option sets.
         /// </summary>
         /// <param name="entity">
-        /// Métadonnées récupérées avec <c>EntityFilters.Entity | Attributes | Relationships</c>.
+        /// Metadata retrieved with <c>EntityFilters.Entity | Attributes | Relationships</c>.
         /// </param>
-        /// <param name="publisherPrefixes">Préfixes d'éditeur à retirer des noms de schéma.</param>
+        /// <param name="publisherPrefixes">Publisher prefixes to strip from schema names.</param>
         public static MetadataConversionResult Convert(
             DataverseMetadata.EntityMetadata entity, IEnumerable<string> publisherPrefixes)
         {
@@ -94,7 +94,7 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // Clés alternatives
+        // Alternate keys
         // ──────────────────────────────────────────────────────────────────────
 
         private static void AddKeys(DataverseMetadata.EntityMetadata entity, CoreTable table)
@@ -104,7 +104,7 @@ namespace XrmFramework.DeployUtils.TableSync
 
             foreach (var key in entity.Keys)
             {
-                // Certains noms logiques remontent entourés de guillemets selon la version du SDK.
+                // Some logical names come back wrapped in quotes depending on the SDK version.
                 var logicalName = key.LogicalName?.Trim('"');
 
                 var newKey = new Key
@@ -121,7 +121,7 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // Relations
+        // Relationships
         // ──────────────────────────────────────────────────────────────────────
 
         private static void AddRelationships(DataverseMetadata.EntityMetadata entity, CoreTable table)
@@ -152,8 +152,8 @@ namespace XrmFramework.DeployUtils.TableSync
 
             foreach (var relationship in entity.ManyToManyRelationships ?? new DataverseMetadata.ManyToManyRelationshipMetadata[0])
             {
-                // Une relation N-N est symétrique : on retient toujours le bout opposé à l'entité
-                // courante, y compris pour une auto-relation où les deux bouts sont identiques.
+                // An N-N relationship is symmetric: we always retain the end opposite to the
+                // current entity, including for a self-relationship where both ends are identical.
                 var isEntity1 = string.Equals(relationship.Entity1LogicalName, entity.LogicalName,
                     StringComparison.OrdinalIgnoreCase);
 
@@ -171,7 +171,7 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // Colonnes et option sets
+        // Columns and option sets
         // ──────────────────────────────────────────────────────────────────────
 
         private static IReadOnlyList<OptionSetEnum> AddColumns(
@@ -179,8 +179,8 @@ namespace XrmFramework.DeployUtils.TableSync
         {
             var globalEnums = new List<OptionSetEnum>();
 
-            // Les colonnes participant à une clé alternative sont sélectionnées d'office :
-            // sans elles, le code généré ne peut pas exprimer la clé.
+            // Columns participating in an alternate key are automatically selected:
+            // without them, the generated code cannot express the key.
             var keyFieldNames = new HashSet<string>(
                 table.Keys.SelectMany(k => k.FieldNames), StringComparer.OrdinalIgnoreCase);
 
@@ -200,9 +200,9 @@ namespace XrmFramework.DeployUtils.TableSync
                 {
                     var optionSetEnum = BuildEnum(entity, table, attributeMetadata, attributeType, out enumLogicalName);
 
-                    // Un option set dépourvu de libellé dans la langue de l'utilisateur ne peut pas
-                    // produire de nom de type C# : l'attribut entier est écarté, comme le faisait
-                    // le DefinitionManager.
+                    // An option set with no label in the user's language cannot
+                    // produce a C# type name: the whole attribute is discarded, as the
+                    // DefinitionManager used to do.
                     if (optionSetEnum == null)
                         continue;
 
@@ -225,9 +225,9 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         /// <summary>
-        /// Écarte les attributs inexploitables : sans aucune validité CRUD, discriminants de lookup
-        /// polymorphe (<c>EntityName</c>) et attributs dérivés d'un autre (<c>AttributeOf</c>,
-        /// typiquement les compagnons de valeur formatée).
+        /// Discards unusable attributes: those with no CRUD validity at all, polymorphic lookup
+        /// discriminators (<c>EntityName</c>), and attributes derived from another one (<c>AttributeOf</c>,
+        /// typically formatted-value companions).
         /// </summary>
         private static bool IsConvertible(DataverseMetadata.AttributeMetadata attributeMetadata)
         {
@@ -266,8 +266,8 @@ namespace XrmFramework.DeployUtils.TableSync
 
             var isGlobal = optionSet.IsGlobal.GetValueOrDefault();
 
-            // Un option set local est identifié par « entité|attribut » : deux entités peuvent
-            // définir des choix homonymes sans collision dans le fichier partagé.
+            // A local option set is identified by "entity|attribute": two entities can
+            // define choices with the same name without collision in the shared file.
             var logicalName = isGlobal
                 ? optionSet.Name
                 : entity.LogicalName + "|" + attributeMetadata.LogicalName;
@@ -290,8 +290,8 @@ namespace XrmFramework.DeployUtils.TableSync
                 LogicalName = logicalName,
                 Name = name,
                 IsGlobal = isGlobal,
-                // Un Picklist dont aucune option ne vaut 0 peut être nul côté CRM : le type C#
-                // généré doit alors exposer une valeur nulle explicite.
+                // A Picklist with no option valued at 0 can be null on the CRM side: the generated
+                // C# type must then expose an explicit null value.
                 HasNullValue = attributeType == DataverseMetadata.AttributeTypeCode.Picklist
                                && (optionSet.Options?.All(o => o.Value.GetValueOrDefault() != 0) ?? false)
             };
@@ -300,7 +300,7 @@ namespace XrmFramework.DeployUtils.TableSync
             {
                 var optionLabel = GetUserLabel(option.Label);
 
-                // Sans libellé utilisateur, aucun nom de membre d'énumération ne peut être produit.
+                // Without a user label, no enumeration member name can be produced.
                 if (string.IsNullOrEmpty(optionLabel))
                     continue;
 
@@ -329,8 +329,8 @@ namespace XrmFramework.DeployUtils.TableSync
         {
             var primaryType = GetPrimaryType(entity, attributeMetadata);
 
-            // La clé primaire est toujours exposée sous le nom « Id », quel que soit son nom de
-            // schéma : c'est la convention sur laquelle s'appuie le code généré.
+            // The primary key is always exposed under the name "Id", regardless of its
+            // schema name: this is the convention the generated code relies on.
             var name = primaryType == PrimaryType.Id
                 ? "Id"
                 : NameFormatter.RemovePrefix(attributeMetadata.SchemaName, prefixes);
@@ -362,10 +362,10 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         /// <summary>
-        /// Politique de sélection appliquée aux colonnes nouvellement découvertes : le minimum
-        /// exploitable. Les autres colonnes sont bien écrites dans le .table avec toutes leurs
-        /// métadonnées, mais restent inactives jusqu'à ce que <c>tables sync</c> les active parce
-        /// que le code les référence — ce qui évite de générer des milliers de constantes inutiles.
+        /// Selection policy applied to newly discovered columns: the usable minimum.
+        /// The other columns are indeed written to the .table with all their
+        /// metadata, but remain inactive until <c>tables sync</c> activates them because
+        /// the code references them — which avoids generating thousands of useless constants.
         /// </summary>
         private static bool IsSelectedByDefault(
             DataverseMetadata.AttributeMetadata attributeMetadata, PrimaryType primaryType, HashSet<string> keyFieldNames)
@@ -391,8 +391,8 @@ namespace XrmFramework.DeployUtils.TableSync
         {
             var capabilities = AttributeCapabilities.None;
 
-            // Contrairement aux autres indicateurs, celui-ci est une propriété managée (elle peut
-            // être verrouillée par une solution) et non un simple booléen nullable.
+            // Unlike the other flags, this one is a managed property (it can
+            // be locked by a solution) rather than a plain nullable boolean.
             if (attributeMetadata.IsValidForAdvancedFind?.Value == true)
                 capabilities |= AttributeCapabilities.AdvancedFind;
 
@@ -423,9 +423,9 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         /// <summary>
-        /// Reporte les bornes numériques déclarées côté CRM, qui alimentent l'attribut
-        /// <c>[Range]</c> du code généré. Le générateur exige les deux bornes : elles sont donc
-        /// toujours renseignées ensemble ou laissées nulles ensemble.
+        /// Carries over the numeric bounds declared on the CRM side, which feed the generated
+        /// code's <c>[Range]</c> attribute. The generator requires both bounds: they are therefore
+        /// always set together or left null together.
         /// </summary>
         private static void ApplyRange(
             Column column, DataverseMetadata.AttributeMetadata attributeMetadata, DataverseMetadata.AttributeTypeCode attributeType)
@@ -472,15 +472,15 @@ namespace XrmFramework.DeployUtils.TableSync
             if (value == nameof(DateTimeBehavior.TimeZoneIndependent))
                 return DateTimeBehavior.TimeZoneIndependent;
 
-            // Échouer bruyamment plutôt que d'étiqueter la colonne avec un comportement erroné,
-            // qui produirait des conversions de fuseau silencieusement fausses dans les plugins.
+            // Fail loudly rather than label the column with an incorrect behavior,
+            // which would produce silently wrong timezone conversions in the plugins.
             throw new NotSupportedException(
-                $"Comportement de date/heure inconnu « {value} » sur l'attribut " +
-                $"« {attributeMetadata.LogicalName} ».");
+                $"Unknown date/time behavior \"{value}\" on attribute " +
+                $"\"{attributeMetadata.LogicalName}\".");
         }
 
         // ──────────────────────────────────────────────────────────────────────
-        // Libellés
+        // Labels
         // ──────────────────────────────────────────────────────────────────────
 
         private static void AddLabels(SdkLabel label, ICollection<CoreLocalizedLabel> target)
