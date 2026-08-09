@@ -375,6 +375,73 @@ public class TableCollectionTests
         Assert.IsTrue(_tableCollection.Contains(emptyTable));
     }
 
+    // ══════════════════════════════════════════════════════════════════════════
+    // Option sets of a table declared twice
+    // ══════════════════════════════════════════════════════════════════════════
+
+    [Test]
+    public void Add_DuplicateTable_MergesOptionSetsTheOtherCopyDeclaresAlone()
+    {
+        // A table shipped by the framework and tracked again by the project: the project's copy
+        // selects a Picklist column and declares the option set behind it. Merging the column
+        // without its option set would generate it with no [OptionSet] attribute and no enum.
+        _table1.Enums.Add(new OptionSetEnum { LogicalName = "account|accountcategorycode", Name = "AccountCategory" });
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.Columns.Add(new Column
+        {
+            LogicalName = "invitestatuscode", Name = "InviteStatusCode",
+            Selected = true, EnumName = "account|invitestatuscode"
+        });
+        projectCopy.Enums.Add(new OptionSetEnum { LogicalName = "account|invitestatuscode", Name = "InviteStatus" });
+
+        _tableCollection.Add(_table1);
+        _tableCollection.Add(projectCopy);
+
+        var merged = _tableCollection.Single(t => t.LogicalName == "account");
+
+        Assert.AreEqual(2, merged.Enums.Count);
+        Assert.IsTrue(merged.Enums.Any(e => e.LogicalName == "account|accountcategorycode"));
+        Assert.IsTrue(merged.Enums.Any(e => e.LogicalName == "account|invitestatuscode"),
+            "The option set referenced by the merged column must come along with it.");
+    }
+
+    [Test]
+    public void Add_DuplicateTable_KeepsTheOptionSetAlreadyInPlace_OnConflict()
+    {
+        // Both copies declare the same option set under different C# names. The merge is additive:
+        // the copy loaded first wins, so a rename applied to only one file stays without effect.
+        _table1.Enums.Add(new OptionSetEnum { LogicalName = "systemuser|accessmode", Name = "AccessMode" });
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.Enums.Add(new OptionSetEnum { LogicalName = "SystemUser|AccessMode", Name = "ModeDAcces" });
+
+        _tableCollection.Add(_table1);
+        _tableCollection.Add(projectCopy);
+
+        var merged = _tableCollection.Single(t => t.LogicalName == "account");
+
+        Assert.AreEqual(1, merged.Enums.Count);
+        Assert.AreEqual("AccessMode", merged.Enums[0].Name);
+    }
+
+    [Test]
+    public void Add_DuplicateTable_MergesOptionSets_WhateverTheLoadingOrder()
+    {
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.Enums.Add(new OptionSetEnum { LogicalName = "account|invitestatuscode", Name = "InviteStatus" });
+
+        _table1.Enums.Add(new OptionSetEnum { LogicalName = "account|accountcategorycode", Name = "AccountCategory" });
+
+        // Reversed order: the project's copy is the one the collection keeps.
+        _tableCollection.Add(projectCopy);
+        _tableCollection.Add(_table1);
+
+        var merged = _tableCollection.Single(t => t.LogicalName == "account");
+
+        Assert.AreEqual(2, merged.Enums.Count);
+    }
+
     [Test]
     public void MergeTo_NullExistingTable_DoesNotThrow()
     {

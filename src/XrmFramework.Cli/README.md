@@ -264,6 +264,13 @@ The inventory lives in
 [`FrameworkTableCatalog`](../XrmFramework.DeployUtils/TableSync/FrameworkTableCatalog.cs); a
 test verifies that it matches exactly the `.table` files in `src/XrmFramework/Definitions`.
 
+> Both copies reach the generator — `XrmFramework.props` declares the package's `.table` files as
+> `AdditionalFiles` before the project's own — and it folds them into a **single** `*Definition`
+> class. That merge is additive: it takes the union of the columns and of the option sets, so a
+> column selected only in the project's copy keeps the `enum` it references. On a conflict the
+> file loaded first wins, which is the package's; renaming an option set both files declare
+> therefore has to be done in both.
+
 `OptionSet.table` is a case of its own: it describes no entity, so no `*Definition` class ever
 claims it, and it holds no column. Under `--clean` both orphan heuristics used to condemn it — it
 is now recognized by its `globalEnums` logical name and left alone. A genuine table that happens
