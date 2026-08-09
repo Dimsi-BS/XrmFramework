@@ -30061,7 +30061,7 @@
     },
     {
       "LogName": "systemuser|deletedstate",
-      "Name": "DeleteState",
+      "Name": "SystemUserDeleteState",
       "Values": [
         {
           "Name": "NotDeleted",
@@ -30086,7 +30086,7 @@
     },
     {
       "LogName": "systemuser|emailrouteraccessapproval",
-      "Name": "EmailRouterAccessApproval",
+      "Name": "SystemUserEmailRouterAccessApproval",
 
       "Locked": true,
 
@@ -30134,7 +30134,7 @@
     },
     {
       "LogName": "systemuser|incomingemaildeliverymethod",
-      "Name": "IncomingEmailDeliveryMethod",
+      "Name": "SystemUserIncomingEmailDeliveryMethod",
       "Values": [
         {
           "Name": "None",

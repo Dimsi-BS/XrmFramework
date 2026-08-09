@@ -429,7 +429,7 @@
   "Enums": [
     {
       "LogName": "workflow|businessprocesstype",
-      "Name": "BusinessProcessType",
+      "Name": "WorkflowBusinessProcessType",
       "Locked": true,
       "Values": [
         {
@@ -455,7 +455,7 @@
     },
     {
       "LogName": "workflow|category",
-      "Name": "Category",
+      "Name": "WorkflowCategory",
       "Locked": true,
       "Values": [
         {
@@ -541,7 +541,7 @@
     },
     {
       "LogName": "workflow|mode",
-      "Name": "Mode",
+      "Name": "WorkflowMode",
       "Locked": true,
       "Values": [
         {
@@ -567,7 +567,7 @@
     },
     {
       "LogName": "workflow|scope",
-      "Name": "Scope",
+      "Name": "WorkflowScope",
       "Locked": true,
       "Values": [
         {
