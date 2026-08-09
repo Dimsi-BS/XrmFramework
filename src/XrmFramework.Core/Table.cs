@@ -41,11 +41,47 @@ namespace XrmFramework.Core
         [JsonIgnore]
         public bool Selected { get; set; }
 
+        /// <summary>
+        /// Folds this table into <paramref name="existingEntity" />, the copy the
+        /// <see cref="TableCollection" /> already holds for the same logical name.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// A table shipped by the framework and tracked again by the project is declared twice: the
+        /// package's <c>.table</c> and the project's own copy. Only the first one loaded survives in the
+        /// collection, so whatever the other one brings has to be folded into it — its columns, and the
+        /// option sets those columns reference.
+        /// </para>
+        /// <para>
+        /// Merging the columns alone left a column selected only in the project's copy pointing at an
+        /// option set nobody declared any more: the generator emitted it without its <c>[OptionSet]</c>
+        /// attribute, and emitted no <c>enum</c> for it.
+        /// </para>
+        /// <para>
+        /// The merge is additive, and on a conflict the copy already in place wins: an option set both
+        /// files declare keeps the name and the members of the one loaded first. A rename applied to a
+        /// single copy therefore stays without effect — rename it in both.
+        /// </para>
+        /// </remarks>
         public void MergeTo(Table existingEntity)
         {
-            if (existingEntity != null)
+            if (existingEntity == null)
             {
-                Columns.ToList().ForEach(existingEntity.Columns.Add);
+                return;
+            }
+
+            Columns.ToList().ForEach(existingEntity.Columns.Add);
+
+            foreach (var optionSet in Enums)
+            {
+                if (optionSet?.LogicalName == null
+                    || existingEntity.Enums.Any(e => string.Equals(e.LogicalName, optionSet.LogicalName,
+                                                                   StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+
+                existingEntity.Enums.Add(optionSet);
             }
         }
 
