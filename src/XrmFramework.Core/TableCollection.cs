@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,6 +8,16 @@ namespace XrmFramework.Core
     public class TableCollection : ICollection<Table>
     {
         private readonly ISet<Table> _tables = new SortedSet<Table>();
+
+        /// <summary>
+        /// The table declared under <paramref name="logicalName" />, or <see langword="null" /> when
+        /// the compilation knows nothing of it.
+        /// </summary>
+        public Table Get(string logicalName)
+        => string.IsNullOrEmpty(logicalName)
+               ? null
+               : _tables.FirstOrDefault(t => string.Equals(t.LogicalName, logicalName,
+                                                           StringComparison.OrdinalIgnoreCase));
 
         public void Add(Table table)
         {

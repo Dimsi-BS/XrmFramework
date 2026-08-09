@@ -65,6 +65,11 @@ namespace XrmFramework.Core
         /// <c>.table</c> takes effect. Should both copies — or neither — select the column, the copy
         /// already in place wins. The members always stay those of that same copy.
         /// </para>
+        /// <para>
+        /// Relationships are folded in the same way, so that <see cref="RelationSelector" /> decides on
+        /// the union of what both copies declare: the project's copy of <c>account</c> knows the 1:N
+        /// towards a table the framework's copy never heard of, and the other way around.
+        /// </para>
         /// </remarks>
         public void MergeTo(Table existingEntity)
         {
@@ -100,6 +105,35 @@ namespace XrmFramework.Core
                 {
                     existingOptionSet.Name = optionSet.Name;
                 }
+            }
+
+            MergeRelations(ManyToOneRelationships, existingEntity.ManyToOneRelationships);
+            MergeRelations(OneToManyRelationships, existingEntity.OneToManyRelationships);
+            MergeRelations(ManyToManyRelationships, existingEntity.ManyToManyRelationships);
+        }
+
+        /// <summary>
+        /// Adds to <paramref name="existingRelations" /> the relationships it does not already know.
+        /// </summary>
+        /// <remarks>
+        /// A relationship is identified by its schema name, which belongs to the CRM and no project
+        /// renames — unlike a table, a column or an option set, there is nothing to arbitrate here, so
+        /// the copy already in place is simply kept.
+        /// </remarks>
+        private static void MergeRelations(List<Relation> relations, List<Relation> existingRelations)
+        {
+            var knownNames = new HashSet<string>(existingRelations.Where(r => !string.IsNullOrEmpty(r?.Name))
+                                                                 .Select(r => r.Name),
+                                                 StringComparer.OrdinalIgnoreCase);
+
+            foreach (var relation in relations)
+            {
+                if (string.IsNullOrEmpty(relation?.Name) || !knownNames.Add(relation.Name))
+                {
+                    continue;
+                }
+
+                existingRelations.Add(relation);
             }
         }
 

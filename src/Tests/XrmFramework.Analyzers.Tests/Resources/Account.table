@@ -14,7 +14,8 @@
           "LangId": 1036
         }
       ],
-      "EnumName": "account|accountcategorycode"
+      "EnumName": "account|accountcategorycode",
+      "Select": true
     },
     {
       "LogName": "accountid",
@@ -27,7 +28,8 @@
           "Label": "Compte",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
     {
       "LogName": "accountnumber",
@@ -133,7 +135,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 160
+      "StrLen": 160,
+      "Select": true
     }
   ],
   "NtoN": [

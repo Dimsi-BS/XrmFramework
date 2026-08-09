@@ -183,9 +183,12 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 						sb.AppendLine("}");
 					}
 
-					AddRelations(sb, tables, table, table.ManyToOneRelationships, "ManyToOneRelationships");
-					AddRelations(sb, tables, table, table.ManyToManyRelationships, "ManyToManyRelationships");
-					AddRelations(sb, tables, table, table.OneToManyRelationships, "OneToManyRelationships");
+					AddRelations(sb, tables, table, RelationSelector.ManyToOne(table),
+					             "ManyToOneRelationships", lookupCarriedByTable: true);
+					AddRelations(sb, tables, table, RelationSelector.ManyToMany(tables, table),
+					             "ManyToManyRelationships", lookupCarriedByTable: false);
+					AddRelations(sb, tables, table, RelationSelector.OneToMany(tables, table),
+					             "OneToManyRelationships", lookupCarriedByTable: false);
 				}
 
 				sb.AppendLine("}");
@@ -296,88 +299,58 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 		sb.AppendLine("/// </summary>");
 	}
 
-	private void AddRelations(IndentedStringBuilder sb, TableCollection tables, Table table, List<Relation> relations,
-	                          string relationType)
+	/// <summary>
+	/// Writes the nested class holding the constants of one family of relationships.
+	/// </summary>
+	/// <param name="relations">
+	/// The relationships <see cref="RelationSelector" /> kept for this family — an empty list writes
+	/// nothing at all, not even the class.
+	/// </param>
+	/// <param name="lookupCarriedByTable">
+	/// Whether the lookup column the relationships rest on belongs to <paramref name="table" /> — it
+	/// does for N:1 — or to the table at the other end.
+	/// </param>
+	private void AddRelations(IndentedStringBuilder sb, TableCollection tables, Table table,
+	                          IReadOnlyList<Relation> relations, string relationType,
+	                          bool lookupCarriedByTable)
 	{
-		if (relations.Any())
+		if (relations.Count == 0)
 		{
-			sb.AppendLine($"public static class {relationType}");
-			sb.AppendLine("{");
-			using (sb.Indent())
-			{
-				foreach (var relationship in relations)
-				{
-					if (relationType != "ManyToOneRelationships")
-						if (!tables.Any(t => t.LogicalName == relationship.EntityName))
-							continue;
-					sb.Append("[Relationship(");
-					var targetTable = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
-					if (targetTable != null)
-						sb.Append($"{targetTable.Name}Definition.EntityName");
-					else
-						sb.Append($"\"{relationship.EntityName}\"");
-
-					sb.Append($", EntityRole.{relationship.Role}, \"{relationship.NavigationPropertyName}\", ");
-
-
-					if (relationType == "ManyToOneRelationships")
-					{
-						if (relationship.Role == EntityRole.Referencing)
-						{
-							var rc = table.Columns.FirstOrDefault(
-								col => col.LogicalName == relationship.LookupFieldName);
-
-							if (rc != null && rc.Selected)
-								sb.Append($"{table.Name}Definition.Columns.{rc.Name}");
-							else
-								sb.Append($"\"{relationship.LookupFieldName}\"");
-						}
-						else
-						{
-							var rc = table.Columns.FirstOrDefault(
-								col => col.LogicalName == relationship.LookupFieldName);
-
-
-							if (rc != null)
-								sb.Append($"{table.Name}Definition.Columns.{rc.Name}");
-							else
-								sb.Append($"\"{relationship.LookupFieldName}\"");
-						}
-
-						sb.AppendLine(")]");
-						sb.AppendLine($"public const string {relationship.Name} = \"{relationship.Name}\";");
-					}
-					else
-					{
-						if (relationship.Role == EntityRole.Referencing)
-						{
-							var tb = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
-							var rc = tb?.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
-
-							if (rc != null && rc.Selected && tb != null)
-								sb.Append($"{tb.Name}Definition.Columns.{rc.Name}");
-							else
-								sb.Append($"\"{relationship.LookupFieldName}\"");
-						}
-						else
-						{
-							var tb = tables.FirstOrDefault(t => t.LogicalName == relationship.EntityName);
-
-							var rc = tb?.Columns.FirstOrDefault(col => col.LogicalName == relationship.LookupFieldName);
-
-							if (rc != null && rc.Selected && tb != null)
-								sb.Append($"{tb.Name}Definition.Columns.{rc.Name}");
-							else
-								sb.Append($"\"{relationship.LookupFieldName}\"");
-						}
-
-						sb.AppendLine(")]");
-						sb.AppendLine($"public const string {relationship.Name} = \"{relationship.Name}\";");
-					}
-				}
-			}
-
-			sb.AppendLine("}");
+			return;
 		}
+
+		sb.AppendLine($"public static class {relationType}");
+		sb.AppendLine("{");
+		using (sb.Indent())
+		{
+			foreach (var relationship in relations)
+			{
+				var targetTable = tables.Get(relationship.EntityName);
+
+				sb.Append("[Relationship(");
+				sb.Append(targetTable != null
+					          ? $"{targetTable.Name}Definition.EntityName"
+					          : $"\"{relationship.EntityName}\"");
+
+				sb.Append($", EntityRole.{relationship.Role}, \"{relationship.NavigationPropertyName}\", ");
+
+				// The lookup is named through the constant of the column bearing it, as long as that
+				// column is generated. A N:N rests on an intersect table no project declares: its
+				// lookup stays a literal.
+				var lookupTable = lookupCarriedByTable ? table : targetTable;
+				var lookupColumn = lookupTable?.Columns.FirstOrDefault(
+					col => string.Equals(col.LogicalName, relationship.LookupFieldName,
+					                     StringComparison.OrdinalIgnoreCase));
+
+				sb.Append(lookupColumn is { Selected: true }
+					          ? $"{lookupTable!.Name}Definition.Columns.{lookupColumn.Name}"
+					          : $"\"{relationship.LookupFieldName}\"");
+
+				sb.AppendLine(")]");
+				sb.AppendLine($"public const string {relationship.Name} = \"{relationship.Name}\";");
+			}
+		}
+
+		sb.AppendLine("}");
 	}
 }
