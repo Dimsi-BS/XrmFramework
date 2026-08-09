@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
@@ -13,7 +14,7 @@ namespace XrmFramework.DeployUtils.Tests.TableSync;
 
 /// <summary>
 /// File-level side of the 2.* -> 3.1 migration: which <c>*Definition.cs</c> gets deleted, which becomes
-/// a <c>.partial.cs</c>, and which is deliberately left alone.
+/// a <c>.partial.cs</c>, and which is deliberately left alone — <c>OptionSetDefinitions.cs</c> included.
 /// </summary>
 [TestFixture]
 public class DefinitionFileMigratorTests
@@ -236,8 +237,117 @@ public class DefinitionFileMigratorTests
     }
 
     // ══════════════════════════════════════════════════════════════════════════
+    // OptionSetDefinitions.cs
+    // ══════════════════════════════════════════════════════════════════════════
+
+    [Test]
+    public void Migrate_DeletesOptionSetDefinitions_WhenEveryEnumIsRegenerated()
+    {
+        WriteTable(BuildTable("Contact", "contact",
+            new Column { LogicalName = "statuscode", Name = "StatusCode", Selected = true, EnumName = "contact_statuscode" },
+            optionSet: new OptionSetEnum { LogicalName = "contact_statuscode", Name = "ContactStatus" }));
+
+        WriteCs("ContactDefinition.cs", GeneratedOnly("ContactDefinition", "contact"));
+        WriteCs(OptionSetFileName, OptionSetDefinitions("ContactStatus"));
+
+        var skipped = new DefinitionFileMigrator(_tempDir).Migrate();
+
+        Assert.AreEqual(0, skipped);
+        Assert.IsFalse(File.Exists(Path.Combine(_tempDir, OptionSetFileName)),
+            "The generator re-emits every enum of the file: it has nothing left to hold.");
+    }
+
+    [Test]
+    public void Migrate_TrimsOptionSetDefinitions_WhenAnEnumIsNotRegenerated()
+    {
+        // Only the enum behind a selected column is re-emitted; the other one still backs the code.
+        var table = BuildTable("Contact", "contact");
+        table.Columns.Add(new Column
+        {
+            LogicalName = "statuscode", Name = "StatusCode", Selected = true, EnumName = "contact_statuscode"
+        });
+        table.Columns.Add(new Column
+        {
+            LogicalName = "gendercode", Name = "GenderCode", Selected = false, EnumName = "contact_gendercode"
+        });
+        table.Enums.Add(new OptionSetEnum { LogicalName = "contact_statuscode", Name = "ContactStatus" });
+        table.Enums.Add(new OptionSetEnum { LogicalName = "contact_gendercode", Name = "ContactGender" });
+
+        WriteTable(table);
+        WriteCs(OptionSetFileName, OptionSetDefinitions("ContactStatus", "ContactGender"));
+
+        var skipped = new DefinitionFileMigrator(_tempDir).Migrate();
+
+        Assert.AreEqual(0, skipped);
+
+        var text = File.ReadAllText(Path.Combine(_tempDir, OptionSetFileName));
+        StringAssert.Contains("enum ContactGender", text);
+        StringAssert.DoesNotContain("enum ContactStatus", text);
+        StringAssert.Contains("namespace MyProject.Core", text,
+            "What survives is what the generator does not emit: it stays where the code expects it.");
+    }
+
+    [Test]
+    public void Migrate_LeavesOptionSetDefinitionsAlone_WhenNoEnumIsRegenerated()
+    {
+        // No .table declares these option sets: deleting the file would drop the enums altogether.
+        WriteTable("Contact", "contact");
+        WriteCs(OptionSetFileName, OptionSetDefinitions("ContactStatus"));
+
+        var skipped = new DefinitionFileMigrator(_tempDir).Migrate();
+
+        Assert.AreEqual(1, skipped);
+        StringAssert.Contains("enum ContactStatus",
+            File.ReadAllText(Path.Combine(_tempDir, OptionSetFileName)));
+    }
+
+    [Test]
+    public void Migrate_DeletesOptionSetDefinitions_EvenWhenNoDefinitionFileIsLeft()
+    {
+        // A directory already migrated except for this file: the pass must still run.
+        WriteTable(BuildTable("Contact", "contact",
+            new Column { LogicalName = "statuscode", Name = "StatusCode", Selected = true, EnumName = "contact_statuscode" },
+            optionSet: new OptionSetEnum { LogicalName = "contact_statuscode", Name = "ContactStatus" }));
+
+        WriteCs(OptionSetFileName, OptionSetDefinitions("ContactStatus"));
+
+        new DefinitionFileMigrator(_tempDir).Migrate();
+
+        Assert.IsFalse(File.Exists(Path.Combine(_tempDir, OptionSetFileName)));
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
     // Helpers
     // ══════════════════════════════════════════════════════════════════════════
+
+    private const string OptionSetFileName = "OptionSetDefinitions.cs";
+
+    /// <summary>Reproduces what the 2.* DefinitionManager wrote into OptionSetDefinitions.cs.</summary>
+    private static string OptionSetDefinitions(params string[] enumNames)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine("using System.ComponentModel;");
+        sb.AppendLine("using XrmFramework;");
+        sb.AppendLine();
+        sb.AppendLine("namespace MyProject.Core");
+        sb.AppendLine("{");
+
+        foreach (var enumName in enumNames)
+        {
+            sb.AppendLine();
+            sb.AppendLine($"    [OptionSetDefinition(\"{enumName.ToLowerInvariant()}\")]");
+            sb.AppendLine($"    public enum {enumName}");
+            sb.AppendLine("    {");
+            sb.AppendLine("        [Description(\"Active\")]");
+            sb.AppendLine("        Active = 1,");
+            sb.AppendLine("    }");
+        }
+
+        sb.AppendLine("}");
+
+        return sb.ToString();
+    }
 
     private static string GeneratedOnly(string className, string logicalName) => $$"""
         using System.CodeDom.Compiler;

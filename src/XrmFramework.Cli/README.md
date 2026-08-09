@@ -224,9 +224,23 @@ An already-migrated `*Definition.partial.cs` is never taken as input, so re-runn
 is harmless. The exit code stays `0` when files are skipped, but the summary line says how many —
 review them by hand.
 
-> **Not covered:** `OptionSetDefinitions.cs`, the separate file the 2.\* DefinitionManager wrote
-> for global option sets. Its name does not end in `Definition.cs`, so the migration leaves it
-> alone; delete it by hand once the generator emits its enums.
+#### `OptionSetDefinitions.cs`
+
+The 2.\* DefinitionManager gathered every option set enum into a single file of its own. It holds
+no Definition class, so it goes through a pass of its own, on the same rule as the enums found
+inside a `*Definition.cs`: an enum the generator re-emits is dropped, one that no **selected**
+column references is kept.
+
+| What remains in the file | Outcome |
+|---|---|
+| Nothing — every enum is regenerated | the file is **deleted** |
+| Enums the generator does not emit | the file is **trimmed in place**, keeping only those |
+
+A trimmed file stays in the project's own namespace: what survives is precisely what the
+generator does *not* emit, so moving it to `XrmFramework` would only break the references to it.
+
+The file is **left alone**, and reported, when none of its enums is regenerated — the signature of
+a wrong `--tables-dir`, or of `.table` files declaring no selected option set column.
 
 Implementation: [`DefinitionFileMigrator`](../XrmFramework.DeployUtils/TableSync/DefinitionFileMigrator.cs)
 + [`DefinitionSourceRewriter`](../XrmFramework.DeployUtils/TableSync/DefinitionSourceRewriter.cs)

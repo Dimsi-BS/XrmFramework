@@ -32,12 +32,23 @@ namespace XrmFramework.DeployUtils.TableSync
     /// when the generator really will produce a replacement. A <c>*Definition.cs</c> with no <c>.table</c>
     /// behind it is reported and left alone: deleting it would drop the definition altogether.
     /// </para>
+    /// <para>
+    /// <c>OptionSetDefinitions.cs</c>, the separate file 2.* wrote for the option set enums, goes the
+    /// same way: the enums the generator re-emits are stripped, and the file is deleted once nothing
+    /// is left in it.
+    /// </para>
     /// </remarks>
     public sealed class DefinitionFileMigrator
     {
         private const string DefinitionSuffix = "Definition";
         private const string CSharpExtension = ".cs";
         private const string PartialExtension = ".partial.cs";
+
+        /// <summary>
+        /// The file the 2.* DefinitionManager wrote all the option set enums into, next to the
+        /// <c>*Definition.cs</c> files.
+        /// </summary>
+        private const string OptionSetFileName = "OptionSetDefinitions" + CSharpExtension;
 
         private readonly string _definitionsDirectory;
 
@@ -55,31 +66,38 @@ namespace XrmFramework.DeployUtils.TableSync
         // ──────────────────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Migrates every <c>*Definition.cs</c> of the directory. Returns the number of files skipped,
-        /// which is what the caller needs to warn about a partial migration.
+        /// Migrates every <c>*Definition.cs</c> of the directory, plus its <c>OptionSetDefinitions.cs</c>.
+        /// Returns the number of files skipped, which is what the caller needs to warn about a partial
+        /// migration.
         /// </summary>
         public int Migrate()
         {
-            var files = Directory
-                .GetFiles(_definitionsDirectory, "*" + CSharpExtension)
+            var csFiles = Directory.GetFiles(_definitionsDirectory, "*" + CSharpExtension);
+
+            var files = csFiles
                 .Where(IsDefinitionFile)
                 .OrderBy(Path.GetFileName, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            if (files.Count == 0)
+            var optionSetFile = csFiles.FirstOrDefault(
+                path => string.Equals(Path.GetFileName(path), OptionSetFileName, StringComparison.OrdinalIgnoreCase));
+
+            if (files.Count == 0 && optionSetFile == null)
             {
                 AnsiConsole.MarkupLine(
                     "[grey]No *Definition.cs to migrate: the directory already holds only .table files.[/]");
                 return 0;
             }
 
-            AnsiConsole.MarkupLine($"[bold]{files.Count}[/] *Definition.cs file(s) inherited from version 2.*.");
+            if (files.Count > 0)
+                AnsiConsole.MarkupLine($"[bold]{files.Count}[/] *Definition.cs file(s) inherited from version 2.*.");
 
             var tables = LoadTables();
             var generatedEnums = CollectGeneratedEnumNames(tables);
 
             var deleted = 0;
             var rewritten = 0;
+            var trimmed = 0;
             var skipped = 0;
 
             foreach (var file in files)
@@ -90,8 +108,12 @@ namespace XrmFramework.DeployUtils.TableSync
                 skipped++;
             }
 
+            if (optionSetFile != null && !MigrateOptionSetFile(optionSetFile, generatedEnums, ref deleted, ref trimmed))
+                skipped++;
+
             AnsiConsole.MarkupLine(
                 $"  [bold]{deleted}[/] file(s) deleted, [bold]{rewritten}[/] converted to .partial.cs" +
+                (trimmed > 0 ? $", [bold]{trimmed}[/] trimmed in place" : string.Empty) +
                 (skipped > 0 ? $", [yellow]{skipped}[/] left untouched" : string.Empty) + ".");
 
             return skipped;
@@ -160,6 +182,69 @@ namespace XrmFramework.DeployUtils.TableSync
             AnsiConsole.MarkupLine(
                 $"[blue]Converted[/] {Markup.Escape(fileName)} -> {Markup.Escape(className + PartialExtension)} " +
                 $"([bold]{result.KeptMembers.Count}[/] member(s) kept: " +
+                $"{Markup.Escape(string.Join(", ", result.KeptMembers.ToArray()))})");
+
+            return true;
+        }
+
+        /// <summary>
+        /// Migrates <c>OptionSetDefinitions.cs</c>: the enums the generator re-emits are dropped, and the
+        /// file with them once nothing is left. Returns false when it was left untouched.
+        /// </summary>
+        /// <remarks>
+        /// Unlike a <c>*Definition.cs</c>, this file is backed by no single <c>.table</c> — it gathers the
+        /// option sets of the whole directory — so what vouches for it is the set of enums the generator
+        /// will emit. When that set is empty, nothing here is regenerated and the file is left alone
+        /// rather than deleted: this is the signature of a wrong directory, or of <c>.table</c> files that
+        /// declare no selected option set column.
+        /// </remarks>
+        private static bool MigrateOptionSetFile(string file, ICollection<string> generatedEnums,
+                                                 ref int deleted, ref int trimmed)
+        {
+            var fileName = Path.GetFileName(file);
+
+            string source;
+            try
+            {
+                source = File.ReadAllText(file);
+            }
+            catch (IOException ex)
+            {
+                Skipped(fileName, ex.Message);
+                return false;
+            }
+
+            var result = DefinitionSourceRewriter.RewriteOptionSets(source, generatedEnums);
+
+            if (result.Outcome == DefinitionRewriteOutcome.Skipped)
+            {
+                Skipped(fileName, result.Reason);
+                return false;
+            }
+
+            if (result.Outcome == DefinitionRewriteOutcome.Delete)
+            {
+                File.Delete(file);
+                deleted++;
+                AnsiConsole.MarkupLine(
+                    $"[red]Deleted[/] {Markup.Escape(fileName)} " +
+                    "(option set enums entirely regenerated from the .table files)");
+                return true;
+            }
+
+            if (result.RemovedEnums.Count == 0)
+            {
+                Skipped(fileName, "no enum of this file is regenerated from the .table files");
+                return false;
+            }
+
+            File.WriteAllText(file, result.NewText, DetectEncoding(file));
+            trimmed++;
+
+            AnsiConsole.MarkupLine(
+                $"[blue]Trimmed[/] {Markup.Escape(fileName)} " +
+                $"([bold]{result.RemovedEnums.Count}[/] enum(s) removed, " +
+                $"[bold]{result.KeptMembers.Count}[/] kept: " +
                 $"{Markup.Escape(string.Join(", ", result.KeptMembers.ToArray()))})");
 
             return true;
