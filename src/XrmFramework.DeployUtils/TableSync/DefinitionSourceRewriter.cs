@@ -67,6 +67,10 @@ namespace XrmFramework.DeployUtils.TableSync
     /// <c>[GeneratedCode]</c> / <c>[EntityDefinition]</c> / <c>[ExcludeFromCodeCoverage]</c> — so that
     /// it merges with the generated part instead of colliding with it.
     /// </para>
+    /// <para>
+    /// <see cref="RewriteOptionSets"/> covers the other file 2.* wrote, <c>OptionSetDefinitions.cs</c>,
+    /// which holds enums and no Definition class.
+    /// </para>
     /// </remarks>
     public static class DefinitionSourceRewriter
     {
@@ -121,33 +125,14 @@ namespace XrmFramework.DeployUtils.TableSync
 
             var result = new DefinitionRewriteResult();
 
-            var topLevel = CSharpMemberReader.ReadMembers(source, 0, source.Length);
-            if (topLevel == null)
-                return Skip(result, "unreadable C# source");
-
             // 1. Locate the scope holding the Definition class: a block namespace, a file-scoped
             //    namespace, or the file itself.
-            CSharpMember namespaceMember = null;
-            foreach (var member in topLevel)
-                if (string.Equals(member.Keyword, "namespace", StringComparison.Ordinal))
-                {
-                    namespaceMember = member;
-                    break;
-                }
-
+            CSharpMember namespaceMember;
             IList<CSharpMember> scopeMembers;
 
-            if (namespaceMember != null && namespaceMember.BodyStart >= 0)
-            {
-                scopeMembers = CSharpMemberReader.ReadMembers(source, namespaceMember.BodyStart, namespaceMember.BodyEnd);
-                if (scopeMembers == null)
-                    return Skip(result, "unreadable namespace body");
-            }
-            else
-            {
-                // File-scoped namespace or no namespace at all: the members sit at the top level.
-                scopeMembers = topLevel;
-            }
+            var unreadable = ReadScope(source, out namespaceMember, out scopeMembers);
+            if (unreadable != null)
+                return Skip(result, unreadable);
 
             // 2. Locate the Definition class.
             var target = FindDefinitionClass(scopeMembers, definitionClassName);
@@ -234,7 +219,103 @@ namespace XrmFramework.DeployUtils.TableSync
             return result;
         }
 
+        /// <summary>
+        /// Strips from <c>OptionSetDefinitions.cs</c> — the separate file the 2.* DefinitionManager
+        /// wrote for the option set enums — everything the 3.1 generator re-emits.
+        /// </summary>
+        /// <remarks>
+        /// That file holds no Definition class, only namespace-level enums, so it goes through its own
+        /// pass. Only the enums the generator really re-emits are dropped: one that no selected column
+        /// references is not regenerated, and the code still needs it. When nothing survives, the file
+        /// as a whole is <see cref="DefinitionRewriteOutcome.Delete"/>d.
+        /// </remarks>
+        /// <param name="source">Content of the <c>OptionSetDefinitions.cs</c> file.</param>
+        /// <param name="generatedEnumNames">
+        /// Names of the option set enums the generator will emit for this directory's <c>.table</c> files.
+        /// </param>
+        public static DefinitionRewriteResult RewriteOptionSets(
+            string source, ICollection<string> generatedEnumNames)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+            var result = new DefinitionRewriteResult();
+
+            CSharpMember namespaceMember;
+            IList<CSharpMember> scopeMembers;
+
+            var unreadable = ReadScope(source, out namespaceMember, out scopeMembers);
+            if (unreadable != null)
+                return Skip(result, unreadable);
+
+            var edits = new List<Edit>();
+
+            foreach (var member in scopeMembers)
+            {
+                if (string.Equals(member.Keyword, "using", StringComparison.Ordinal)) continue;
+                if (string.Equals(member.Keyword, "namespace", StringComparison.Ordinal)) continue;
+
+                if (string.Equals(member.Keyword, "enum", StringComparison.Ordinal)
+                    && generatedEnumNames != null && generatedEnumNames.Contains(member.Name))
+                {
+                    edits.Add(Edit.Delete(member.FullStart, member.End));
+                    result.RemovedEnums.Add(member.Name);
+                    continue;
+                }
+
+                result.KeptMembers.Add(Describe(member));
+            }
+
+            if (result.KeptMembers.Count == 0)
+            {
+                result.Outcome = DefinitionRewriteOutcome.Delete;
+                return result;
+            }
+
+            // What survives is precisely what the generator does *not* emit, so it stays in the
+            // project's own namespace: moving it to XrmFramework would break every reference to it.
+            result.Outcome = DefinitionRewriteOutcome.Rewrite;
+            result.NewText = ApplyEdits(source, edits);
+            return result;
+        }
+
         // ──────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Reads the members of the scope holding the file's types: the body of a block namespace, or
+        /// the file itself when the namespace is file-scoped or absent.
+        /// </summary>
+        /// <returns>The reason to leave the file alone, or <c>null</c> when it was read reliably.</returns>
+        private static string ReadScope(string source, out CSharpMember namespaceMember,
+                                        out IList<CSharpMember> scopeMembers)
+        {
+            namespaceMember = null;
+            scopeMembers = null;
+
+            var topLevel = CSharpMemberReader.ReadMembers(source, 0, source.Length);
+            if (topLevel == null)
+                return "unreadable C# source";
+
+            foreach (var member in topLevel)
+                if (string.Equals(member.Keyword, "namespace", StringComparison.Ordinal))
+                {
+                    namespaceMember = member;
+                    break;
+                }
+
+            if (namespaceMember != null && namespaceMember.BodyStart >= 0)
+            {
+                scopeMembers = CSharpMemberReader.ReadMembers(source, namespaceMember.BodyStart, namespaceMember.BodyEnd);
+                if (scopeMembers == null)
+                    return "unreadable namespace body";
+            }
+            else
+            {
+                // File-scoped namespace or no namespace at all: the members sit at the top level.
+                scopeMembers = topLevel;
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// Locates the class to migrate among <paramref name="scopeMembers"/>.
