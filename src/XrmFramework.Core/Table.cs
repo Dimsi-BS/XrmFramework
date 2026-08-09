@@ -58,9 +58,12 @@ namespace XrmFramework.Core
         /// attribute, and emitted no <c>enum</c> for it.
         /// </para>
         /// <para>
-        /// The merge is additive, and on a conflict the copy already in place wins: an option set both
-        /// files declare keeps the name and the members of the one loaded first. A rename applied to a
-        /// single copy therefore stays without effect — rename it in both.
+        /// The merge is additive. When both files declare the same option set, its C# name comes from
+        /// the copy that selects the column carrying it: only selected columns are generated, so those
+        /// are the only option sets whose name the copy in question actually depends on. Everywhere
+        /// else the name belongs to the consuming project, and a rename applied to its own
+        /// <c>.table</c> takes effect. Should both copies — or neither — select the column, the copy
+        /// already in place wins. The members always stay those of that same copy.
         /// </para>
         /// </remarks>
         public void MergeTo(Table existingEntity)
@@ -70,20 +73,44 @@ namespace XrmFramework.Core
                 return;
             }
 
+            // Read on both sides before the columns are merged: ColumnCollection.Add propagates a
+            // selection onto the copy it keeps, after which both sides look selected.
+            var selectedByExisting = SelectedOptionSets(existingEntity);
+            var selectedByThis = SelectedOptionSets(this);
+
             Columns.ToList().ForEach(existingEntity.Columns.Add);
 
             foreach (var optionSet in Enums)
             {
-                if (optionSet?.LogicalName == null
-                    || existingEntity.Enums.Any(e => string.Equals(e.LogicalName, optionSet.LogicalName,
-                                                                   StringComparison.OrdinalIgnoreCase)))
+                if (optionSet?.LogicalName == null)
                 {
                     continue;
                 }
 
-                existingEntity.Enums.Add(optionSet);
+                var existingOptionSet = existingEntity.Enums.FirstOrDefault(
+                    e => string.Equals(e.LogicalName, optionSet.LogicalName, StringComparison.OrdinalIgnoreCase));
+
+                if (existingOptionSet == null)
+                {
+                    existingEntity.Enums.Add(optionSet);
+                }
+                else if (!string.IsNullOrEmpty(optionSet.Name)
+                         && selectedByThis.Contains(optionSet.LogicalName)
+                         && !selectedByExisting.Contains(optionSet.LogicalName))
+                {
+                    existingOptionSet.Name = optionSet.Name;
+                }
             }
         }
+
+        /// <summary>
+        /// Logical names of the option sets carried by a selected column of <paramref name="table" />,
+        /// the only ones this copy of the table has a say in the naming of.
+        /// </summary>
+        private static HashSet<string> SelectedOptionSets(Table table)
+        => new HashSet<string>(table.Columns.Where(c => c.Selected && !string.IsNullOrEmpty(c.EnumName))
+                                            .Select(c => c.EnumName),
+                               StringComparer.OrdinalIgnoreCase);
 
         public int CompareTo(Table other)
         {

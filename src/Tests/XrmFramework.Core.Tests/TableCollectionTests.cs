@@ -409,12 +409,92 @@ public class TableCollectionTests
     [Test]
     public void Add_DuplicateTable_KeepsTheOptionSetAlreadyInPlace_OnConflict()
     {
-        // Both copies declare the same option set under different C# names. The merge is additive:
-        // the copy loaded first wins, so a rename applied to only one file stays without effect.
+        // Both copies declare the same option set under different C# names, neither on a column it
+        // selects: nothing designates a winner, so the copy loaded first keeps the naming.
         _table1.Enums.Add(new OptionSetEnum { LogicalName = "systemuser|accessmode", Name = "AccessMode" });
 
         var projectCopy = new Table { LogicalName = "account", Name = "Account" };
         projectCopy.Enums.Add(new OptionSetEnum { LogicalName = "SystemUser|AccessMode", Name = "ModeDAcces" });
+
+        _tableCollection.Add(_table1);
+        _tableCollection.Add(projectCopy);
+
+        var merged = _tableCollection.Single(t => t.LogicalName == "account");
+
+        Assert.AreEqual(1, merged.Enums.Count);
+        Assert.AreEqual("AccessMode", merged.Enums[0].Name);
+    }
+
+    [Test]
+    public void Add_DuplicateTable_TakesTheNameOfTheCopySelectingTheColumn_OnConflict()
+    {
+        // The framework ships the column but selects it nowhere, so it never generates the enum and
+        // no framework code names it: the project's own name is the one the compilation runs on.
+        _table1.Columns.Add(new Column
+        {
+            LogicalName = "caltype", Name = "CALType", EnumName = "account|caltype"
+        });
+        _table1.Enums.Add(new OptionSetEnum { LogicalName = "account|caltype", Name = "ClientAccessLicenseType" });
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.Columns.Add(new Column
+        {
+            LogicalName = "caltype", Name = "CALType", Selected = true, EnumName = "account|caltype"
+        });
+        projectCopy.Enums.Add(new OptionSetEnum { LogicalName = "account|caltype", Name = "CALTypes" });
+
+        _tableCollection.Add(_table1);
+        _tableCollection.Add(projectCopy);
+
+        var merged = _tableCollection.Single(t => t.LogicalName == "account");
+
+        Assert.AreEqual(1, merged.Enums.Count);
+        Assert.AreEqual("CALTypes", merged.Enums[0].Name);
+    }
+
+    [Test]
+    public void Add_DuplicateTable_TakesTheNameOfTheCopySelectingTheColumn_WhateverTheLoadingOrder()
+    {
+        _table1.Columns.Add(new Column
+        {
+            LogicalName = "caltype", Name = "CALType", EnumName = "account|caltype"
+        });
+        _table1.Enums.Add(new OptionSetEnum { LogicalName = "account|caltype", Name = "ClientAccessLicenseType" });
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.Columns.Add(new Column
+        {
+            LogicalName = "caltype", Name = "CALType", Selected = true, EnumName = "account|caltype"
+        });
+        projectCopy.Enums.Add(new OptionSetEnum { LogicalName = "account|caltype", Name = "CALTypes" });
+
+        // Reversed order: the project's copy is the one the collection keeps.
+        _tableCollection.Add(projectCopy);
+        _tableCollection.Add(_table1);
+
+        var merged = _tableCollection.Single(t => t.LogicalName == "account");
+
+        Assert.AreEqual(1, merged.Enums.Count);
+        Assert.AreEqual("CALTypes", merged.Enums[0].Name);
+    }
+
+    [Test]
+    public void Add_DuplicateTable_KeepsTheNameWhenTheCopyInPlaceSelectsTheColumn()
+    {
+        // accessmode is one of the columns the framework selects: it generates AccessMode and its own
+        // code refers to it under that name, so a rename in the project's copy must not reach it.
+        _table1.Columns.Add(new Column
+        {
+            LogicalName = "accessmode", Name = "AccessMode", Selected = true, EnumName = "account|accessmode"
+        });
+        _table1.Enums.Add(new OptionSetEnum { LogicalName = "account|accessmode", Name = "AccessMode" });
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.Columns.Add(new Column
+        {
+            LogicalName = "accessmode", Name = "AccessMode", Selected = true, EnumName = "account|accessmode"
+        });
+        projectCopy.Enums.Add(new OptionSetEnum { LogicalName = "account|accessmode", Name = "ModeDAcces" });
 
         _tableCollection.Add(_table1);
         _tableCollection.Add(projectCopy);
