@@ -522,6 +522,70 @@ public class TableCollectionTests
         Assert.AreEqual(2, merged.Enums.Count);
     }
 
+    // ══════════════════════════════════════════════════════════════════════════
+    // Relationships of a table declared twice
+    // ══════════════════════════════════════════════════════════════════════════
+
+    [Test]
+    public void Add_DuplicateTable_MergesRelationships()
+    {
+        // The framework's copy of the table knows the relationships the framework itself needs; the
+        // project's copy, retrieved later, knows those of its own model. Selecting a lookup must find
+        // the relationship behind it whichever of the two files declares it.
+        _table1.ManyToOneRelationships.Add(new Relation
+        {
+            Name = "business_unit_accounts", EntityName = "businessunit", LookupFieldName = "owningbusinessunit"
+        });
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.ManyToOneRelationships.Add(new Relation
+        {
+            Name = "account_primary_contact", EntityName = "contact", LookupFieldName = "primarycontactid"
+        });
+        projectCopy.OneToManyRelationships.Add(new Relation
+        {
+            Name = "contact_customer_accounts", EntityName = "contact",
+            Role = EntityRole.Referenced, LookupFieldName = "parentcustomerid"
+        });
+        projectCopy.ManyToManyRelationships.Add(new Relation { Name = "accountleads_association", EntityName = "lead" });
+
+        _tableCollection.Add(_table1);
+        _tableCollection.Add(projectCopy);
+
+        var merged = _tableCollection.Single(t => t.LogicalName == "account");
+
+        Assert.AreEqual(2, merged.ManyToOneRelationships.Count);
+        Assert.IsTrue(merged.ManyToOneRelationships.Any(r => r.Name == "business_unit_accounts"));
+        Assert.IsTrue(merged.ManyToOneRelationships.Any(r => r.Name == "account_primary_contact"));
+        Assert.AreEqual(1, merged.OneToManyRelationships.Count);
+        Assert.AreEqual(1, merged.ManyToManyRelationships.Count);
+    }
+
+    [Test]
+    public void Add_DuplicateTable_KeepsTheRelationshipAlreadyInPlace()
+    {
+        // A relationship is identified by its schema name, which comes from the CRM and which no
+        // project renames: two copies declaring it describe the same thing.
+        _table1.ManyToOneRelationships.Add(new Relation
+        {
+            Name = "business_unit_accounts", EntityName = "businessunit", LookupFieldName = "owningbusinessunit"
+        });
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.ManyToOneRelationships.Add(new Relation
+        {
+            Name = "Business_Unit_Accounts", EntityName = "businessunit", LookupFieldName = "owningbusinessunit"
+        });
+
+        _tableCollection.Add(_table1);
+        _tableCollection.Add(projectCopy);
+
+        var merged = _tableCollection.Single(t => t.LogicalName == "account");
+
+        Assert.AreEqual(1, merged.ManyToOneRelationships.Count);
+        Assert.AreEqual("business_unit_accounts", merged.ManyToOneRelationships[0].Name);
+    }
+
     [Test]
     public void MergeTo_NullExistingTable_DoesNotThrow()
     {

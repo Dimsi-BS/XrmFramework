@@ -26,7 +26,8 @@
           "Label": "Contrat de Location",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
     {
       "LogName": "ftp_locataire",
@@ -38,7 +39,8 @@
           "Label": "Locataire",
           "LangId": 1036
         }
-      ]
+      ],
+      "Select": true
     },
     {
       "LogName": "ftp_loyer",
@@ -52,7 +54,8 @@
         }
       ],
       "MinRange": 0.0,
-      "MaxRange": 2000.0
+      "MaxRange": 2000.0,
+      "Select": true
     },
     {
       "LogName": "ftp_name",
@@ -66,7 +69,8 @@
           "LangId": 1036
         }
       ],
-      "StrLen": 100
+      "StrLen": 100,
+      "Select": true
     }
   ],
   "NtoN": [],
