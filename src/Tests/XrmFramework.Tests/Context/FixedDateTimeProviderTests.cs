@@ -75,6 +75,40 @@ namespace XrmFramework.Tests.Context
         }
 
         // ────────────────────────────────────────────────────────────
+        //  Today — local day of the fixed date, at midnight
+        // ────────────────────────────────────────────────────────────
+
+        [Test]
+        public void Today_ReturnsLocalDateWithoutTimeComponent()
+        {
+            var utcDate  = new DateTime(2024, 6, 15, 12, 30, 45, DateTimeKind.Utc);
+            var provider = new FixedDateTimeProvider(utcDate);
+
+            Assert.AreEqual(utcDate.ToLocalTime().Date, provider.Today);
+            Assert.AreEqual(TimeSpan.Zero, provider.Today.TimeOfDay);
+        }
+
+        [Test]
+        public void Today_MatchesTheDateOfNow()
+        {
+            var utcDate  = new DateTime(2024, 6, 15, 12, 30, 45, DateTimeKind.Utc);
+            var provider = new FixedDateTimeProvider(utcDate);
+
+            Assert.AreEqual(provider.Now.Date, provider.Today);
+        }
+
+        [Test]
+        public void Today_CalledMultipleTimes_ReturnsSameValue()
+        {
+            var utcDate  = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var provider = new FixedDateTimeProvider(utcDate);
+
+            var first  = provider.Today;
+            var second = provider.Today;
+            Assert.AreEqual(first, second);
+        }
+
+        // ────────────────────────────────────────────────────────────
         //  Use for deterministic relative date calculations
         // ────────────────────────────────────────────────────────────
 

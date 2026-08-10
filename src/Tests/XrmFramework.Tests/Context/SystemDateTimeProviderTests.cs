@@ -72,6 +72,31 @@ namespace XrmFramework.Tests.Context
         }
 
         // ────────────────────────────────────────────────────────────
+        //  Today
+        // ────────────────────────────────────────────────────────────
+
+        [Test]
+        public void Today_HasNoTimeComponent()
+        {
+            var value = SystemDateTimeProvider.Instance.Today;
+
+            Assert.AreEqual(TimeSpan.Zero, value.TimeOfDay);
+            Assert.AreEqual(DateTimeKind.Local, value.Kind);
+        }
+
+        [Test]
+        public void Today_IsTheLocalDateOfNow()
+        {
+            var before = DateTime.Today;
+            var value  = SystemDateTimeProvider.Instance.Today;
+            var after  = DateTime.Today;
+
+            // Tolerates the midnight rollover between the two reads
+            Assert.IsTrue(value == before || value == after,
+                $"Expected Today to be {before:d} or {after:d}, got {value:d}");
+        }
+
+        // ────────────────────────────────────────────────────────────
         //  Implements IDateTimeProvider
         // ────────────────────────────────────────────────────────────
 
@@ -81,6 +106,7 @@ namespace XrmFramework.Tests.Context
             IDateTimeProvider provider = SystemDateTimeProvider.Instance;
             Assert.IsNotNull(provider.UtcNow);
             Assert.IsNotNull(provider.Now);
+            Assert.IsNotNull(provider.Today);
         }
 
         [Test]

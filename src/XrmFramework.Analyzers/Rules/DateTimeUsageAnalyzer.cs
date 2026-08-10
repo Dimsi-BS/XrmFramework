@@ -14,9 +14,9 @@ using System.Linq;
 namespace XrmFramework.Analyzers
 {
     /// <summary>
-    /// XRM0300 — Forbids the direct use of <c>DateTime.Now</c> and <c>DateTime.UtcNow</c>
-    /// in classes that inherit from <c>XrmFramework.Plugin</c> or implement
-    /// <c>Microsoft.Xrm.Sdk.IPlugin</c>.
+    /// XRM0300 — Forbids the direct use of <c>DateTime.Now</c>, <c>DateTime.UtcNow</c>
+    /// and <c>DateTime.Today</c> in classes that inherit from <c>XrmFramework.Plugin</c>
+    /// or implement <c>Microsoft.Xrm.Sdk.IPlugin</c>.
     /// Recommends injecting <c>IDateTimeProvider</c> as a method parameter.
     /// </summary>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -24,7 +24,7 @@ namespace XrmFramework.Analyzers
     {
         private const string Category = "Usage";
 
-        #region XRM0300: Use IDateTimeProvider instead of DateTime.Now / DateTime.UtcNow
+        #region XRM0300: Use IDateTimeProvider instead of DateTime.Now / DateTime.UtcNow / DateTime.Today
 
         private static readonly LocalizableString Xrm0300Title =
             new LocalizableResourceString(nameof(Resources.Xrm0300_Title), Resources.ResourceManager, typeof(Resources));
@@ -58,7 +58,7 @@ namespace XrmFramework.Analyzers
             context.ConfigureGeneratedCodeAnalysis(
                 GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
 
-            // Hook into member access expressions (DateTime.Now, DateTime.UtcNow)
+            // Hook into member access expressions (DateTime.Now, DateTime.UtcNow, DateTime.Today)
             context.RegisterSyntaxNodeAction(
                 AnalyzeMemberAccess,
                 SyntaxKind.SimpleMemberAccessExpression);
@@ -70,7 +70,7 @@ namespace XrmFramework.Analyzers
 
             // Quick filter on the member name before touching the semantic model
             var memberName = memberAccess.Name.Identifier.Text;
-            if (memberName != "Now" && memberName != "UtcNow")
+            if (memberName != "Now" && memberName != "UtcNow" && memberName != "Today")
             {
                 return;
             }
@@ -123,7 +123,7 @@ namespace XrmFramework.Analyzers
                 Xrm0300,
                 memberAccess.GetLocation(),
                 fullExpression,          // {0} — the expression used
-                memberName);             // {1} — the property name (Now / UtcNow)
+                memberName);             // {1} — the property name (Now / UtcNow / Today)
 
             context.ReportDiagnostic(diagnostic);
         }

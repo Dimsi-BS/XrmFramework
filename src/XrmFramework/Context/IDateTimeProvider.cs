@@ -40,5 +40,11 @@ namespace XrmFramework
         /// Deterministic equivalent of <see cref="DateTime.UtcNow"/>.
         /// </summary>
         DateTime UtcNow { get; }
+
+        /// <summary>
+        /// Returns the current local date, with the time component set to 00:00:00.
+        /// Deterministic equivalent of <see cref="DateTime.Today"/>.
+        /// </summary>
+        DateTime Today { get; }
     }
 }

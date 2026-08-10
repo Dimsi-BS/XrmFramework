@@ -35,5 +35,9 @@ namespace XrmFramework
         /// <inheritdoc />
         /// <remarks>Returns the recorded UTC execution date.</remarks>
         public DateTime UtcNow => _utcNow;
+
+        /// <inheritdoc />
+        /// <remarks>Returns the local day of the recorded execution date, at midnight.</remarks>
+        public DateTime Today => _utcNow.ToLocalTime().Date;
     }
 }

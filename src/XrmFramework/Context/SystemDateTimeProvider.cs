@@ -19,5 +19,8 @@ namespace XrmFramework
 
         /// <inheritdoc />
         public DateTime UtcNow => DateTime.UtcNow;
+
+        /// <inheritdoc />
+        public DateTime Today => DateTime.Today;
     }
 }
