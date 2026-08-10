@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+
+  <!--
+    Restricts the Microsoft "Code coverage" collector to the framework's own assemblies.
+
+    Without this file the collector is opt-out: it instruments EVERY managed module loaded
+    into the test host for which it can find symbols, minus a small built-in blocklist
+    (vstest.console, testhost, datacollector, microsoft.visualstudio.*).
+    Third-party packages that ship an embedded PDB (<DebugType>embedded</DebugType>) therefore
+    end up in the report — Argon (via Verify.NUnit), Spectre.Console, Microsoft.Testing.Platform
+    and the MSTest 4.x adapters accounted for ~47.000 of the 103.390 reported lines,
+    while Newtonsoft.Json or NUnit (no embedded PDB) never showed up.
+
+    Wired into the pipeline through the "settings" switch, see NugetPackages-Azure.yml.
+  -->
+
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="Code Coverage">
+        <Configuration>
+          <CodeCoverage>
+
+            <ModulePaths>
+              <!--
+                As soon as an <Include> section exists, ONLY the matching modules are
+                instrumented. Every project of XrmFramework.slnx is named XrmFramework*,
+                so a single rule is enough.
+
+                The leading .*\\ anchors the pattern on the file name: matching anywhere in
+                the path would make the rule match every module whenever the repository is
+                cloned into a folder called XrmFramework (the local dev case).
+              -->
+              <Include>
+                <ModulePath>.*\\XrmFramework[^\\]*\.dll$</ModulePath>
+              </Include>
+
+              <!--
+                Exclude wins over Include.
+
+                Test assemblies would otherwise inflate the ratio with their own ~99% coverage.
+                Nothing shipped is lost here: the XrmFramework.Tests and XrmFramework.Plugin.Tests
+                packages distribute .cs sources as contentFiles (lib/net462/_._ placeholder),
+                never a *.Tests.dll.
+              -->
+              <Exclude>
+                <ModulePath>.*\.Tests\.dll$</ModulePath>
+              </Exclude>
+            </ModulePaths>
+
+            <!-- Source generators and analyzers run in child processes (csc, MSBuild nodes). -->
+            <CollectFromChildProcesses>True</CollectFromChildProcesses>
+            <CollectAspDotNet>False</CollectAspDotNet>
+
+          </CodeCoverage>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+
+</RunSettings>
