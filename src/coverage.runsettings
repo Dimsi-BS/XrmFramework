@@ -48,6 +48,30 @@
               </Exclude>
             </ModulePaths>
 
+            <!--
+              Two third-party libraries are vendored as source rather than referenced as
+              packages, so they are compiled into our own assemblies and no ModulePath rule can
+              reach them:
+                - Newtonsoft.Json, in XrmFramework.Plugin (a net462 plugin cannot resolve an
+                  assembly reference at runtime in the sandbox) — 64.000 of the 66.700 lines of
+                  that assembly are third party;
+                - BoDi, the IoC container in XrmFramework/Utils — 1.086 lines, compiled into
+                  XrmFramework.dll and into every assembly linking its sources.
+
+              Sources rules match the source file paths recorded in the PDB, which is the only
+              angle left. Those paths are normalized: ContinuousIntegrationBuild=true in
+              src/Directory.Build.props turns on DeterministicSourcePaths alongside SourceLink,
+              so the PDB stores /_/src/XrmFramework.Plugin/NewtonSoft.Json/... with forward
+              slashes rather than an absolute path. Both separators are accepted so the rule
+              survives a build with determinism turned off.
+            -->
+            <Sources>
+              <Exclude>
+                <Source>.*[\\/]NewtonSoft\.Json[\\/].*</Source>
+                <Source>.*[\\/]BoDi\.cs$</Source>
+              </Exclude>
+            </Sources>
+
             <!-- Source generators and analyzers run in child processes (csc, MSBuild nodes). -->
             <CollectFromChildProcesses>True</CollectFromChildProcesses>
             <CollectAspDotNet>False</CollectAspDotNet>
