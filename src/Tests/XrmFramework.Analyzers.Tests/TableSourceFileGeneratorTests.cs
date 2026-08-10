@@ -190,6 +190,211 @@ public class TableSourceFileGeneratorTests
         StringAssert.DoesNotContain("OneToManyRelationships", generated["Account.table.cs"]);
     }
 
+    // ══════════════════════════════════════════════════════════════════════════
+    // Alternate keys
+    // ══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// The framework's copy of <c>systemuser</c>, carrying the single alternate key the framework
+    /// itself needs.
+    /// </summary>
+    private const string FrameworkSystemUserKeyTable = """
+        {
+          "LogName": "systemuser", "Name": "SystemUser", "CollName": "systemusers",
+          "Cols": [
+            { "LogName": "systemuserid", "Name": "Id", "Type": "Uniqueidentifier", "PrimaryType": "Id", "Select": true },
+            { "LogName": "azureactivedirectoryobjectid", "Name": "AzureActiveDirectoryObjectId", "Type": "Uniqueidentifier", "Select": true }
+          ],
+          "Keys": [
+            { "LogicalName": "aadobjectid", "Name": "AADObjectid", "FieldNames": [ "azureactivedirectoryobjectid" ] }
+          ]
+        }
+        """;
+
+    /// <summary>
+    /// The project's own copy of the same table: it tracks the keys of its model, and knows the
+    /// framework's one as well since both come from the same environment.
+    /// </summary>
+    private const string ProjectSystemUserKeyTable = """
+        {
+          "LogName": "systemuser", "Name": "SystemUser", "CollName": "systemusers",
+          "Cols": [
+            { "LogName": "eco_reference", "Name": "Ref", "Type": "String", "Select": true }
+          ],
+          "Keys": [
+            { "LogicalName": "eco_reference", "Name": "Reference", "FieldNames": [ "eco_reference" ] },
+            { "LogicalName": "aadobjectid", "Name": "AADObjectid", "FieldNames": [ "azureactivedirectoryobjectid" ] }
+          ]
+        }
+        """;
+
+    /// <summary>
+    /// A single Definition class comes out of both files, so <c>AlternateKeyNames</c> has to hold the
+    /// keys of either copy: the project's own keys used to vanish behind the framework's.
+    /// </summary>
+    [TestCase(true, TestName = "KeysOfBothCopies_AreGenerated_FrameworkFileFirst")]
+    [TestCase(false, TestName = "KeysOfBothCopies_AreGenerated_ProjectFileFirst")]
+    public void KeysOfBothCopies_AreGenerated(bool frameworkFileFirst)
+    {
+        var framework = ("Framework/Systemuser.table", FrameworkSystemUserKeyTable);
+        var project = ("Model/Definitions/SystemUser.table", ProjectSystemUserKeyTable);
+
+        var generated = TestHelper.Generate<TableSourceFileGenerator>(
+            frameworkFileFirst ? new[] { framework, project } : new[] { project, framework });
+
+        var systemUser = generated["SystemUser.table.cs"];
+
+        StringAssert.Contains("public const string Reference = \"eco_reference\";", systemUser,
+            "A key declared by the project's copy alone must reach the definition.");
+        StringAssert.Contains("public const string AADObjectid = \"aadobjectid\";", systemUser,
+            "Merging must not cost the framework's copy its own key either.");
+
+        // The key both copies declare is one key, and one constant.
+        Assert.AreEqual(1, CountOccurrences(systemUser, "public const string AADObjectid = "));
+    }
+
+    [Test]
+    public void AKeyAnnotatesTheColumnsItRestsOn()
+    {
+        var generated = TestHelper.Generate<TableSourceFileGenerator>(
+            ("Framework/Systemuser.table", FrameworkSystemUserKeyTable),
+            ("Model/Definitions/SystemUser.table", ProjectSystemUserKeyTable));
+
+        var systemUser = generated["SystemUser.table.cs"];
+
+        StringAssert.Contains("[AlternateKey(AlternateKeyNames.Reference)]", systemUser);
+        StringAssert.Contains("[AlternateKey(AlternateKeyNames.AADObjectid)]", systemUser);
+    }
+
+    /// <summary>
+    /// Two keys named alike would declare the constant twice, and a key naming itself nowhere would
+    /// declare it against nothing. Neither may reach the generated code, whatever the
+    /// <c>.table</c> holds.
+    /// </summary>
+    [Test]
+    public void OnlyTheKeysTheGeneratedCodeCanStandFor_AreEmitted()
+    {
+        const string table = """
+            {
+              "LogName": "account", "Name": "Account", "CollName": "accounts",
+              "Cols": [
+                { "LogName": "accountid", "Name": "Id", "Type": "Uniqueidentifier", "PrimaryType": "Id", "Select": true },
+                { "LogName": "eco_reference", "Name": "Ref", "Type": "String", "Select": true }
+              ],
+              "Keys": [
+                { "LogicalName": "eco_reference", "Name": "Reference", "FieldNames": [ "eco_reference" ] },
+                { "LogicalName": "eco_reference_v2", "Name": "Reference", "FieldNames": [ "eco_reference" ] },
+                { "FieldNames": [ "eco_reference" ] },
+                { "LogicalName": "eco_unnamed", "FieldNames": [ "eco_reference" ] }
+              ]
+            }
+            """;
+
+        var account = TestHelper.Generate<TableSourceFileGenerator>(
+            ("Model/Definitions/Account.table", table))["Account.table.cs"];
+        var keyNames = AlternateKeyNamesOf(account);
+
+        Assert.AreEqual(1, CountOccurrences(keyNames, "public const string Reference = "),
+            "The second key claiming the Reference constant would not compile.");
+
+        // A key the file leaves unnamed still gets a constant, under its logical name.
+        StringAssert.Contains("public const string eco_unnamed = \"eco_unnamed\";", keyNames);
+        StringAssert.Contains("[AlternateKey(AlternateKeyNames.eco_unnamed)]", account);
+
+        // Of the four keys declared, only these two can be stood for.
+        Assert.AreEqual(2, CountOccurrences(keyNames, "public const string "),
+            "A key with neither name stands for nothing the CRM can be queried on.");
+
+        // No attribute may name a constant the class does not declare.
+        StringAssert.DoesNotContain("[AlternateKey(AlternateKeyNames.)]", account);
+    }
+
+    /// <summary>
+    /// A <c>.table</c> written before <c>Key.LogicalName</c> existed carries the logical name in
+    /// <c>Name</c>. The constant used to come out of one property and its value out of the other,
+    /// so such a key generated <c>public const string eco_reference = ""</c> — a name the CRM
+    /// matches nothing on.
+    /// </summary>
+    [Test]
+    public void AKeyDeclaredTheOldWay_KeepsItsLogicalName()
+    {
+        const string framework = """
+            {
+              "LogName": "team", "Name": "Team", "CollName": "teams",
+              "Cols": [
+                { "LogName": "teamid", "Name": "Id", "Type": "Uniqueidentifier", "PrimaryType": "Id", "Select": true },
+                { "LogName": "azureactivedirectoryobjectid", "Name": "AzureActiveDirectoryObjectId", "Type": "Uniqueidentifier", "Select": true }
+              ],
+              "Keys": [
+                { "LogicalName": "aadobjectid", "Name": "AADObjectid", "FieldNames": [ "azureactivedirectoryobjectid" ] }
+              ]
+            }
+            """;
+
+        const string project = """
+            {
+              "LogName": "team", "Name": "Team", "CollName": "teams",
+              "Cols": [
+                { "LogName": "eco_reference", "Name": "Ref", "Type": "String", "Select": true }
+              ],
+              "Keys": [
+                { "Name": "aadobjectid", "FieldNames": [ "azureactivedirectoryobjectid" ] },
+                { "Name": "eco_reference", "FieldNames": [ "eco_reference" ] }
+              ]
+            }
+            """;
+
+        var team = TestHelper.Generate<TableSourceFileGenerator>(
+            ("Framework/Team.table", framework),
+            ("Model/Definitions/Team.table", project))["Team.table.cs"];
+
+        StringAssert.Contains("public const string eco_reference = \"eco_reference\";", team,
+            "The old format holds the logical name in Name: the constant must take its value from there.");
+        StringAssert.Contains("[AlternateKey(AlternateKeyNames.eco_reference)]", team);
+
+        // Both files declare the aadobjectid key, one under each format: it is one key.
+        Assert.AreEqual(1, CountOccurrences(team, "= \"aadobjectid\";"));
+        StringAssert.Contains("public const string AADObjectid = \"aadobjectid\";", team);
+    }
+
+    [Test]
+    public void ATableWithoutKeys_HasNoAlternateKeyNamesClass()
+    {
+        var generated = TestHelper.Generate<TableSourceFileGenerator>(
+            ("Model/Definitions/Account.table", AccountTable));
+
+        StringAssert.DoesNotContain("AlternateKeyNames", generated["Account.table.cs"]);
+    }
+
+    /// <summary>
+    /// The body of the generated <c>AlternateKeyNames</c> class, so that a count of constants is not
+    /// thrown off by those of <c>Columns</c> — a key and the column it rests on often bear the same
+    /// name.
+    /// </summary>
+    private static string AlternateKeyNamesOf(string source)
+    {
+        var start = source.IndexOf("class AlternateKeyNames", StringComparison.Ordinal);
+        Assert.Greater(start, 0, "No AlternateKeyNames class was generated.");
+
+        var end = source.IndexOf("public static class", start, StringComparison.Ordinal);
+
+        return end < 0 ? source.Substring(start) : source.Substring(start, end - start);
+    }
+
+    private static int CountOccurrences(string source, string value)
+    {
+        var count = 0;
+
+        for (var index = source.IndexOf(value, StringComparison.Ordinal);
+             index >= 0;
+             index = source.IndexOf(value, index + value.Length, StringComparison.Ordinal))
+        {
+            count++;
+        }
+
+        return count;
+    }
+
     /// <summary>
     /// The framework's copy of <c>systemuser</c>, which selects the lookup, and the project's copy,
     /// which declares the relationship behind it — neither file holds both.

@@ -232,6 +232,43 @@ public class TablePullMergeTests
             "An unstable order would produce spurious diffs on every run.");
     }
 
+    // ══════════════════════════════════════════════════════════════════════════
+    // Alternate keys
+    // ══════════════════════════════════════════════════════════════════════════
+
+    [Test]
+    public void Merge_KeepsHandRenamedKeyName_OverTheNameDerivedFromTheLabel()
+    {
+        var existing = Table("ftp_contrat", "Contrat");
+        existing.Keys.Add(new Key { LogicalName = "ftp_reference_key", Name = "Reference" });
+
+        var fresh = Table("ftp_contrat", "Contrat");
+        fresh.Keys.Add(new Key { LogicalName = "ftp_reference_key", Name = "ReferenceLookupKey" });
+
+        var merged = TableMerger.Merge(existing, fresh);
+
+        Assert.AreEqual("Reference", merged.Keys.Single().Name);
+    }
+
+    [Test]
+    public void Merge_RecognizesAKeyDeclaredTheOldWay()
+    {
+        // A file written before Key.LogicalName existed holds the logical name in Name. Matching on
+        // LogicalName alone left it unrecognized, and the pull renamed the constant the project
+        // compiles against.
+        var existing = Table("ftp_contrat", "Contrat");
+        existing.Keys.Add(new Key { Name = "ftp_reference_key" });
+
+        var fresh = Table("ftp_contrat", "Contrat");
+        fresh.Keys.Add(new Key { LogicalName = "ftp_reference_key", Name = "ReferenceLookupKey" });
+
+        var merged = TableMerger.Merge(existing, fresh);
+
+        Assert.AreEqual("ftp_reference_key", merged.Keys.Single().Name);
+        Assert.AreEqual("ftp_reference_key", merged.Keys.Single().LogicalName,
+            "The pull is what fills in the logical name the old format never wrote.");
+    }
+
     [Test]
     public void Merge_ReturnsFreshTable_WhenNoExistingFile()
     {

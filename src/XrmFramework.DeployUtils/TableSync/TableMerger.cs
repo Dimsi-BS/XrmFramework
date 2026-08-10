@@ -121,21 +121,27 @@ namespace XrmFramework.DeployUtils.TableSync
         // Alternate keys
         // ──────────────────────────────────────────────────────────────────────
 
+        /// <remarks>
+        /// Keys are reconciled on <see cref="Key.EffectiveLogicalName" />, so that a file written
+        /// before <see cref="Key.LogicalName" /> existed — the logical name sat in
+        /// <see cref="Key.Name" /> back then — is recognized rather than treated as declaring no key
+        /// at all, which would rename every one of its constants on the first pull.
+        /// </remarks>
         private static void MergeKeys(CoreTable existing, CoreTable fresh, CoreTable merged)
         {
             var existingKeys = existing.Keys
-                .Where(k => k.LogicalName != null)
-                .GroupBy(k => k.LogicalName, StringComparer.OrdinalIgnoreCase)
+                .Where(k => !string.IsNullOrEmpty(k.EffectiveLogicalName))
+                .GroupBy(k => k.EffectiveLogicalName, StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
             foreach (var freshKey in fresh.Keys)
             {
-                if (freshKey.LogicalName != null
-                    && existingKeys.TryGetValue(freshKey.LogicalName, out var existingKey)
-                    && !string.IsNullOrEmpty(existingKey.Name))
+                if (!string.IsNullOrEmpty(freshKey.EffectiveLogicalName)
+                    && existingKeys.TryGetValue(freshKey.EffectiveLogicalName, out var existingKey)
+                    && !string.IsNullOrEmpty(existingKey.MemberName))
                 {
                     // The key's name becomes a C# constant: it stays with the file.
-                    freshKey.Name = existingKey.Name;
+                    freshKey.Name = existingKey.MemberName;
                 }
 
                 merged.Keys.Add(freshKey);

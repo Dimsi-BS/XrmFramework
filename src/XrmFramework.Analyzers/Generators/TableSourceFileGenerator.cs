@@ -62,6 +62,7 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 			var sb = new IndentedStringBuilder();
 
 			var scopedEnums = table.Enums.Union(tables.SelectMany(t => t.Enums.Where(e => e.IsGlobal))).ToList();
+			var keys = SelectKeys(table);
 
 			sb.AppendLine("using System;");
 			sb.AppendLine("using System.CodeDom.Compiler;");
@@ -152,11 +153,9 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 							if (col is { MinRange: not null, MaxRange: not null })
 								sb.AppendLine($"[Range({col.MinRange.Value}, {col.MaxRange.Value})]");
 
-							if (table.Keys != null)
-								foreach (var key in table.Keys)
-									if (key.FieldNames.Find(n => n == col.LogicalName) != null)
-										// Write a corresponding line
-										sb.AppendLine($"[AlternateKey(AlternateKeyNames.{key.Name})]");
+							foreach (var key in keys)
+								if (key.Covers(col.LogicalName))
+									sb.AppendLine($"[AlternateKey(AlternateKeyNames.{key.MemberName})]");
 
 							if (col.Type == AttributeTypeCode.DateTime)
 								sb.AppendLine($"[DateTimeBehavior(DateTimeBehavior.{col.DateTimeBehavior.GetValueOrDefault()})]");
@@ -168,7 +167,7 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 					sb.AppendLine("}");
 
 
-					if (table.Keys != null && table.Keys.Any())
+					if (keys.Count > 0)
 					{
 						sb.AppendLine(
 							"[SuppressMessage(\"Microsoft.Design\", \"CA1034:NestedTypesShouldNotBeVisible\")]");
@@ -176,8 +175,8 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 						sb.AppendLine("{");
 						using (sb.Indent())
 						{
-							foreach (var key in table.Keys)
-								sb.AppendLine($"public const string {key.Name} = \"{key.LogicalName}\";\r\n");
+							foreach (var key in keys)
+								sb.AppendLine($"public const string {key.MemberName} = \"{key.LogicalName}\";\r\n");
 						}
 
 						sb.AppendLine("}");
@@ -252,6 +251,75 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 
 			productionContext.AddSource($"{table.Name}.table.cs", sb.ToString());
 		}
+	}
+
+
+	/// <summary>
+	/// One alternate key as the generated code expresses it: the constant standing for it inside
+	/// <c>AlternateKeyNames</c>, and the columns it rests on.
+	/// </summary>
+	private sealed class GeneratedKey
+	{
+		private readonly HashSet<string> _fieldNames;
+
+		public GeneratedKey(string memberName, string logicalName, IEnumerable<string> fieldNames)
+		{
+			MemberName = memberName;
+			LogicalName = logicalName;
+			_fieldNames = new HashSet<string>(fieldNames.Where(f => !string.IsNullOrEmpty(f)),
+			                                  StringComparer.OrdinalIgnoreCase);
+		}
+
+		/// <summary>Name of the constant, which both the class and the <c>[AlternateKey]</c> attributes use.</summary>
+		public string MemberName { get; }
+
+		/// <summary>Value of the constant: the name the CRM knows the key under.</summary>
+		public string LogicalName { get; }
+
+		/// <summary>Whether the key rests on the given column, and therefore annotates it.</summary>
+		public bool Covers(string columnLogicalName)
+		=> !string.IsNullOrEmpty(columnLogicalName) && _fieldNames.Contains(columnLogicalName);
+	}
+
+	/// <summary>
+	/// The alternate keys of <paramref name="table" /> the generated code can stand for.
+	/// </summary>
+	/// <remarks>
+	/// <para>
+	/// A key naming itself nowhere designates nothing the CRM can be queried on, and a constant
+	/// claimed twice does not compile: both are left out rather than emitted. Deciding this once,
+	/// here, is what keeps the <c>[AlternateKey]</c> attributes naming constants the class really
+	/// declares — the two used to walk <c>Table.Keys</c> on their own.
+	/// </para>
+	/// <para>
+	/// A file older than <see cref="Key.LogicalName" /> carries that name in <see cref="Key.Name" />
+	/// instead, so both fall back on each other: emitting the constant from one and its value from
+	/// the other used to give such a key an empty logical name, which the CRM matches nothing on.
+	/// </para>
+	/// </remarks>
+	private static IReadOnlyList<GeneratedKey> SelectKeys(Table table)
+	{
+		var keys = new List<GeneratedKey>();
+
+		if (table.Keys == null)
+		{
+			return keys;
+		}
+
+		var claimedNames = new HashSet<string>(StringComparer.Ordinal);
+
+		foreach (var key in table.Keys)
+		{
+			if (string.IsNullOrEmpty(key?.EffectiveLogicalName) || !claimedNames.Add(key.MemberName))
+			{
+				continue;
+			}
+
+			keys.Add(new GeneratedKey(key.MemberName, key.EffectiveLogicalName,
+			                          key.FieldNames ?? Enumerable.Empty<string>()));
+		}
+
+		return keys;
 	}
 
 
