@@ -41,6 +41,24 @@ public class TableFileStoreTests
     }
 
     [Test]
+    public void Save_DoesNotWriteTheNamesADeclaredOneStandsIn_For()
+    {
+        // Key.EffectiveLogicalName and Key.MemberName read the two declared properties: writing
+        // them out would add a field to every versioned .table, and make each one disagree with
+        // itself the day a key is renamed.
+        var table = new Table { LogicalName = "ftp_contrat", Name = "Contrat" };
+        table.Keys.Add(new Key { LogicalName = "ftp_reference_key", Name = "Reference" });
+
+        var path = Path.Combine(_tablesDir, "Contrat.table");
+        TableFileStore.Save(path, table);
+
+        var content = File.ReadAllText(path);
+
+        Assert.That(content, Does.Not.Contain(nameof(Key.EffectiveLogicalName)));
+        Assert.That(content, Does.Not.Contain(nameof(Key.MemberName)));
+    }
+
+    [Test]
     public void ReadTrackedLogicalNames_ReadsFileContent_NotFileName()
     {
         // A .table renamed by hand still tracks its entity.

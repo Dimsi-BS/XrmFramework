@@ -70,6 +70,12 @@ namespace XrmFramework.Core
         /// the union of what both copies declare: the project's copy of <c>account</c> knows the 1:N
         /// towards a table the framework's copy never heard of, and the other way around.
         /// </para>
+        /// <para>
+        /// Alternate keys likewise. Leaving them out gave the copy loaded first the last word on the
+        /// whole <c>AlternateKeyNames</c> class: the framework ships <c>systemuser</c> with the one key
+        /// it needs, and every key the project tracked on its own copy disappeared from the generated
+        /// code.
+        /// </para>
         /// </remarks>
         public void MergeTo(Table existingEntity)
         {
@@ -107,9 +113,55 @@ namespace XrmFramework.Core
                 }
             }
 
+            MergeKeys(Keys, existingEntity.Keys);
+
             MergeRelations(ManyToOneRelationships, existingEntity.ManyToOneRelationships);
             MergeRelations(OneToManyRelationships, existingEntity.OneToManyRelationships);
             MergeRelations(ManyToManyRelationships, existingEntity.ManyToManyRelationships);
+        }
+
+        /// <summary>
+        /// Adds to <paramref name="existingKeys" /> the alternate keys it does not already know.
+        /// </summary>
+        /// <remarks>
+        /// A key is identified by its logical name, which is the one the CRM is queried on and which
+        /// no project renames: two copies declaring it describe the same key. The copy already in
+        /// place therefore keeps the C# name it gives it — the code shipped alongside that copy
+        /// already refers to it under that name — and only what it leaves empty is taken from the
+        /// other copy.
+        /// </remarks>
+        private static void MergeKeys(ICollection<Key> keys, ICollection<Key> existingKeys)
+        {
+            foreach (var key in keys)
+            {
+                if (string.IsNullOrEmpty(key?.EffectiveLogicalName))
+                {
+                    continue;
+                }
+
+                var existingKey = existingKeys.FirstOrDefault(
+                    k => string.Equals(k?.EffectiveLogicalName, key.EffectiveLogicalName,
+                                       StringComparison.OrdinalIgnoreCase));
+
+                if (existingKey == null)
+                {
+                    existingKeys.Add(key);
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(existingKey.Name))
+                {
+                    existingKey.Name = key.Name;
+                }
+
+                // The columns a key rests on come from the CRM as well. A copy listing none is simply
+                // older than the other, and keeping it as is would cost those columns the
+                // [AlternateKey] attribute standing for the key.
+                if (existingKey.FieldNames.Count == 0)
+                {
+                    existingKey.FieldNames.AddRange(key.FieldNames);
+                }
+            }
         }
 
         /// <summary>

@@ -586,6 +586,125 @@ public class TableCollectionTests
         Assert.AreEqual("business_unit_accounts", merged.ManyToOneRelationships[0].Name);
     }
 
+    // ══════════════════════════════════════════════════════════════════════════
+    // Alternate keys of a table declared twice
+    // ══════════════════════════════════════════════════════════════════════════
+
+    [Test]
+    public void Add_DuplicateTable_MergesTheKeysTheOtherCopyDeclaresAlone()
+    {
+        // The framework ships systemuser with the single key it needs; the project tracks the same
+        // table and knows the keys of its own model. Both have to reach AlternateKeyNames.
+        _table1.Keys.Add(new Key { LogicalName = "aadobjectid", Name = "AADObjectid" });
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.Keys.Add(new Key { LogicalName = "eco_reference", Name = "Reference" });
+
+        _tableCollection.Add(_table1);
+        _tableCollection.Add(projectCopy);
+
+        var merged = _tableCollection.Single(t => t.LogicalName == "account");
+
+        Assert.AreEqual(2, merged.Keys.Count);
+        Assert.IsTrue(merged.Keys.Any(k => k.Name == "AADObjectid"));
+        Assert.IsTrue(merged.Keys.Any(k => k.Name == "Reference"),
+            "A key declared by the project's copy alone must survive the merge.");
+    }
+
+    [Test]
+    public void Add_DuplicateTable_MergesKeys_WhateverTheLoadingOrder()
+    {
+        _table1.Keys.Add(new Key { LogicalName = "aadobjectid", Name = "AADObjectid" });
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.Keys.Add(new Key { LogicalName = "eco_reference", Name = "Reference" });
+
+        // Reversed order: the project's copy is the one the collection keeps.
+        _tableCollection.Add(projectCopy);
+        _tableCollection.Add(_table1);
+
+        var merged = _tableCollection.Single(t => t.LogicalName == "account");
+
+        Assert.AreEqual(2, merged.Keys.Count);
+    }
+
+    [Test]
+    public void Add_DuplicateTable_KeepsTheKeyAlreadyInPlace()
+    {
+        // A key is identified by the logical name the CRM is queried on: two copies declaring it
+        // describe the same key, and the code shipped with the copy in place names it already.
+        _table1.Keys.Add(new Key { LogicalName = "aadobjectid", Name = "AADObjectid" });
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.Keys.Add(new Key { LogicalName = "AADObjectId", Name = "AzureAdObjectId" });
+
+        _tableCollection.Add(_table1);
+        _tableCollection.Add(projectCopy);
+
+        var merged = _tableCollection.Single(t => t.LogicalName == "account");
+
+        Assert.AreEqual(1, merged.Keys.Count);
+        Assert.AreEqual("AADObjectid", merged.Keys.Single().Name);
+    }
+
+    [Test]
+    public void Add_DuplicateTable_TakesTheColumnsOfTheOtherCopy_WhenTheKeyInPlaceListsNone()
+    {
+        // Without the columns it rests on, the key annotates nothing: the copy in place is simply
+        // older than the other, and the columns come from the CRM anyway.
+        _table1.Keys.Add(new Key { LogicalName = "eco_reference", Name = "Reference" });
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        var projectKey = new Key { LogicalName = "eco_reference", Name = "Reference" };
+        projectKey.FieldNames.Add("eco_reference");
+        projectCopy.Keys.Add(projectKey);
+
+        _tableCollection.Add(_table1);
+        _tableCollection.Add(projectCopy);
+
+        var merged = _tableCollection.Single(t => t.LogicalName == "account");
+
+        Assert.AreEqual(1, merged.Keys.Count);
+        Assert.AreEqual("eco_reference", merged.Keys.Single().FieldNames.Single());
+    }
+
+    [Test]
+    public void Add_DuplicateTable_IgnoresAKeyNamedNowhere()
+    {
+        _table1.Keys.Add(new Key { LogicalName = "aadobjectid", Name = "AADObjectid" });
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.Keys.Add(new Key());
+
+        _tableCollection.Add(_table1);
+        _tableCollection.Add(projectCopy);
+
+        var merged = _tableCollection.Single(t => t.LogicalName == "account");
+
+        Assert.AreEqual(1, merged.Keys.Count);
+    }
+
+    [Test]
+    public void Add_DuplicateTable_RecognizesAKeyDeclaredTheOldWay()
+    {
+        // A .table written before Key.LogicalName existed carries the logical name in Name. Both
+        // copies below declare the very same key, and must not end up declaring it twice.
+        _table1.Keys.Add(new Key { LogicalName = "aadobjectid_membershiptype", Name = "AADObjectidWithMembershiptype" });
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.Keys.Add(new Key { Name = "aadobjectid_membershiptype" });
+        projectCopy.Keys.Add(new Key { Name = "eco_reference" });
+
+        _tableCollection.Add(_table1);
+        _tableCollection.Add(projectCopy);
+
+        var merged = _tableCollection.Single(t => t.LogicalName == "account");
+
+        Assert.AreEqual(2, merged.Keys.Count);
+        Assert.IsTrue(merged.Keys.Any(k => k.MemberName == "AADObjectidWithMembershiptype"));
+        Assert.IsTrue(merged.Keys.Any(k => k.EffectiveLogicalName == "eco_reference"));
+    }
+
     [Test]
     public void MergeTo_NullExistingTable_DoesNotThrow()
     {
