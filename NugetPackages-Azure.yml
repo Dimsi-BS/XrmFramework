@@ -48,12 +48,16 @@ steps:
 # command: 'test' automatically publishes the results (.trx / VSTest) via publishTestResults.
 # dotnet test produces .trx, NOT NUnit TEST-*.xml — hence the absence of the
 # PublishTestResults@2 task (which was incorrectly looking for **/TEST-*.xml in NUnit format).
+#
+# --settings scopes the coverage collector to the XrmFramework assemblies. Without it the
+# collector instruments every dependency shipping an embedded PDB (Argon, Spectre.Console,
+# Microsoft.Testing.Platform, MSTest 4.x), which drowns the ratio in third-party code.
 - task: DotNetCoreCLI@2
   displayName: Test
   inputs:
     command: 'test'
     projects: 'src/XrmFramework.slnx'
-    arguments: '--configuration $(buildConfiguration) --logger trx --collect "Code coverage"'
+    arguments: '--configuration $(buildConfiguration) --logger trx --collect "Code coverage" --settings $(Build.SourcesDirectory)/src/coverage.runsettings'
     publishTestResults: true
 
 - task: CopyFiles@2
