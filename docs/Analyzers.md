@@ -295,9 +295,9 @@ public partial class AccountModel : IBindingModel { ... }
 
 ### XRM0300
 
-**Use `IDateTimeProvider` instead of `DateTime.Now` / `DateTime.UtcNow`** · Category `Usage` · Severity 🔴 **Error** · Code fix: *Inject IDateTimeProvider*
+**Use `IDateTimeProvider` instead of `DateTime.Now` / `DateTime.UtcNow` / `DateTime.Today`** · Category `Usage` · Severity 🔴 **Error** · Code fix: *Inject IDateTimeProvider*
 
-Direct use of `DateTime.Now` or `DateTime.UtcNow` inside a class that derives from
+Direct use of `DateTime.Now`, `DateTime.UtcNow` or `DateTime.Today` inside a class that derives from
 `XrmFramework.Plugin`, implements `Microsoft.Xrm.Sdk.IPlugin`, or implements
 `XrmFramework.IService`. Reading the ambient clock directly makes the code
 non-deterministic: unit tests can't pin the time, and **Remote Debugger session replay**
@@ -331,7 +331,7 @@ public class AccountService : DefaultService, IAccountService
 The code fix adapts to the target: for plugins it adds an `IDateTimeProvider` **method
 parameter**; for services it injects the provider through the **constructor** (or the
 **primary constructor**) and creates the backing field, then rewrites the call to
-`_dateTimeProvider.Now` / `.UtcNow`.
+`_dateTimeProvider.Now` / `.UtcNow` / `.Today`.
 
 **Message:** `Replace '{0}' with IDateTimeProvider.{1} — inject IDateTimeProvider as a method parameter`
 

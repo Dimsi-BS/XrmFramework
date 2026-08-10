@@ -331,8 +331,8 @@ namespace XrmFramework.Analyzers {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Use IDateTimeProvider instead of DateTime.Now or DateTime.UtcNow
-        ///   to enable deterministic tests and session replay.
+        ///   Looks up a localized string similar to Use IDateTimeProvider instead of DateTime.Now, DateTime.UtcNow
+        ///   or DateTime.Today to enable deterministic tests and session replay.
         /// </summary>
         internal static string Xrm0300_Description {
             get {
@@ -351,7 +351,7 @@ namespace XrmFramework.Analyzers {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Use IDateTimeProvider instead of DateTime.Now / DateTime.UtcNow.
+        ///   Looks up a localized string similar to Use IDateTimeProvider instead of DateTime.Now / DateTime.UtcNow / DateTime.Today.
         /// </summary>
         internal static string Xrm0300_Title {
             get {

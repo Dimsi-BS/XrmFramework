@@ -208,12 +208,12 @@
     <value>Use Definition class .EntityName in CrmEntityAttribute declaration</value>
   </data>
   <data name="Xrm0300_Description" xml:space="preserve">
-    <value>Use IDateTimeProvider instead of DateTime.Now or DateTime.UtcNow to enable deterministic tests and session replay.</value>
+    <value>Use IDateTimeProvider instead of DateTime.Now, DateTime.UtcNow or DateTime.Today to enable deterministic tests and session replay.</value>
   </data>
   <data name="Xrm0300_MessageFormat" xml:space="preserve">
     <value>Replace '{0}' with IDateTimeProvider.{1} — inject IDateTimeProvider as a method parameter</value>
   </data>
   <data name="Xrm0300_Title" xml:space="preserve">
-    <value>Use IDateTimeProvider instead of DateTime.Now / DateTime.UtcNow</value>
+    <value>Use IDateTimeProvider instead of DateTime.Now / DateTime.UtcNow / DateTime.Today</value>
   </data>
 </root>

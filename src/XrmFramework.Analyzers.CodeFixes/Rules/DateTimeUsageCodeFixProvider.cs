@@ -21,7 +21,7 @@ namespace XrmFramework.Analyzers
     ///     <term>Plugin / IPlugin</term>
     ///     <description>
     ///       Adds <c>IDateTimeProvider dateTimeProvider</c> as a parameter of the containing
-    ///       method and replaces <c>DateTime.Now/UtcNow</c> with <c>dateTimeProvider.Now/UtcNow</c>.
+    ///       method and replaces <c>DateTime.Now/UtcNow/Today</c> with <c>dateTimeProvider.Now/UtcNow/Today</c>.
     ///     </description>
     ///   </item>
     ///   <item>
@@ -29,7 +29,7 @@ namespace XrmFramework.Analyzers
     ///     <description>
     ///       Adds <c>IDateTimeProvider dateTimeProvider</c> to the constructor, creates the field
     ///       <c>private readonly IDateTimeProvider _dateTimeProvider;</c>, assigns it in the
-    ///       constructor body, and replaces <c>DateTime.Now/UtcNow</c> with <c>_dateTimeProvider.Now/UtcNow</c>.
+    ///       constructor body, and replaces <c>DateTime.Now/UtcNow/Today</c> with <c>_dateTimeProvider.Now/UtcNow/Today</c>.
     ///     </description>
     ///   </item>
     ///   <item>
@@ -38,7 +38,7 @@ namespace XrmFramework.Analyzers
     ///       Adds <c>IDateTimeProvider dateTimeProvider</c> to the class's <c>ParameterList</c>,
     ///       creates the field with an inline initializer
     ///       <c>private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;</c>
-    ///       and replaces <c>DateTime.Now/UtcNow</c> with <c>_dateTimeProvider.Now/UtcNow</c>.
+    ///       and replaces <c>DateTime.Now/UtcNow/Today</c> with <c>_dateTimeProvider.Now/UtcNow/Today</c>.
     ///     </description>
     ///   </item>
     /// </list>
@@ -80,7 +80,7 @@ namespace XrmFramework.Analyzers
                 .FirstOrDefault();
             if (memberAccess == null) return;
 
-            var memberName = memberAccess.Name.Identifier.Text; // "Now" or "UtcNow"
+            var memberName = memberAccess.Name.Identifier.Text; // "Now", "UtcNow" or "Today"
 
             var classDecl = memberAccess
                 .Ancestors()
@@ -210,7 +210,7 @@ namespace XrmFramework.Analyzers
                                   ?? DefaultFieldName;
             bool   needNewField = existingField == null;
 
-            // 1. Replace DateTime.Now/UtcNow -> _dateTimeProvider.Now/UtcNow
+            // 1. Replace DateTime.Now/UtcNow/Today -> _dateTimeProvider.Now/UtcNow/Today
             var newRoot = root.ReplaceNode(memberAccess, BuildMemberAccess(fieldName, memberName, memberAccess));
 
             if (!needNewField)
@@ -280,7 +280,7 @@ namespace XrmFramework.Analyzers
                                   ?? DefaultFieldName;
             bool   needNewField = existingField == null;
 
-            // 1. Replace DateTime.Now/UtcNow -> _dateTimeProvider.Now/UtcNow
+            // 1. Replace DateTime.Now/UtcNow/Today -> _dateTimeProvider.Now/UtcNow/Today
             var newRoot = root.ReplaceNode(memberAccess, BuildMemberAccess(fieldName, memberName, memberAccess));
 
             if (!needNewField)

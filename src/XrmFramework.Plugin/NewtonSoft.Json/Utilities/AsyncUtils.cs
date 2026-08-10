@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 // Copyright (c) 2007 James Newton-King
 //
 // Permission is hereby granted, free of charge, to any person
@@ -99,7 +99,8 @@ namespace Newtonsoft.Json.Utilities
 #if NETCOREAPP2_0
             return task.IsCompletedSucessfully;
 #else
-            return task.Status == TaskStatus.RanToCompletion;
+            // ReSharper disable once RedundantNameQualifier
+            return task.Status == System.Threading.Tasks.TaskStatus.RanToCompletion;
 #endif
         }
     }
