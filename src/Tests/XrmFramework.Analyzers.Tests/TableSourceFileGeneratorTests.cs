@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 using System;
@@ -112,6 +113,64 @@ public class TableSourceFileGeneratorTests
         StringAssert.Contains("[OptionSet(typeof(AccessMode))]", systemUser,
             "Merging must not cost the framework's copy its own option sets either.");
         StringAssert.Contains("public enum AccessMode", systemUser);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // One table, several names: XRM1001
+    // ══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// The two copies of a table are folded on its CRM logical name, but each distinct <c>Name</c>
+    /// still makes the generator emit its own definition class, splitting the table's columns and
+    /// option sets between them. Nothing downstream can recover from that, so the build stops.
+    /// </summary>
+    [Test]
+    public void ATableDeclaredUnderTwoNames_FailsTheBuild()
+    {
+        // Exactly what a project upgrading to 3.1 hits on the global option sets: the package ships
+        // OptionSet.table, the project kept OptionSets.table, and two classes come out of it.
+        var diagnostics = TestHelper.Diagnose<TableSourceFileGenerator>(
+            ("Framework/OptionSet.table", """{ "LogName": "globalEnums", "Name": "OptionSet" }"""),
+            ("Model/Definitions/OptionSets.table", """{ "LogName": "globalEnums", "Name": "OptionSets" }"""));
+
+        var conflict = diagnostics.Single(d => d.Id == "XRM1001");
+
+        Assert.AreEqual(DiagnosticSeverity.Error, conflict.Severity);
+
+        var message = conflict.GetMessage();
+        StringAssert.Contains("globalEnums", message);
+        StringAssert.Contains("\"OptionSet\" (OptionSet.table)", message,
+            "Naming the file is what makes the conflict actionable.");
+        StringAssert.Contains("\"OptionSets\" (OptionSets.table)", message);
+    }
+
+    /// <summary>
+    /// Two names differing by case alone are two C# identifiers, hence two classes: the same
+    /// conflict, and reported as one.
+    /// </summary>
+    [Test]
+    public void NamesDifferingByCaseAlone_AreAConflictToo()
+    {
+        var diagnostics = TestHelper.Diagnose<TableSourceFileGenerator>(
+            ("Framework/Systemuser.table", """{ "LogName": "systemuser", "Name": "Systemuser" }"""),
+            ("Model/Definitions/SystemUser.table", """{ "LogName": "systemuser", "Name": "SystemUser" }"""));
+
+        Assert.AreEqual(1, diagnostics.Count(d => d.Id == "XRM1001"));
+    }
+
+    /// <summary>
+    /// The package names its own <c>.table</c> files and no project can rename them, so differing
+    /// file names are the normal state of affairs. Only the <c>Name</c> they carry has to agree.
+    /// </summary>
+    [Test]
+    public void TwoCopiesUnderDifferentFileNames_AgreeingOnTheName_AreNoConflict()
+    {
+        var diagnostics = TestHelper.Diagnose<TableSourceFileGenerator>(
+            ("Framework/Systemuser.table", FrameworkSystemUserTable),
+            ("Model/Definitions/SystemUser.table", ProjectSystemUserTable));
+
+        Assert.IsEmpty(diagnostics.Where(d => d.Id == "XRM1001"),
+            "Aligning file names is not something a project can do, nor does it need to.");
     }
 
     // ══════════════════════════════════════════════════════════════════════════

@@ -17,6 +17,7 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 			context.AdditionalTextsProvider
 			   .Where(a => a.Path.EndsWith(".table"))
 			   .Select((text, cancellationToken) => (name: Path.GetFileNameWithoutExtension(text.Path),
+				                  path: text.Path,
 				                  content: text.GetText(cancellationToken)!.ToString()))
 			   .Collect();
 
@@ -27,6 +28,7 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 			var (_, tablesValues) = compilationTables;
 
 			var tables = new TableCollection();
+			var declarations = new List<(string Path, Table Table)>();
 
 			try
 			{
@@ -36,13 +38,16 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 					{
 						var table = JsonConvert.DeserializeObject<Table>(tuple.content);
 
+						declarations.Add((tuple.path, table));
 						tables.Add(table);
 					}
 					catch (Exception e)
 					{
-						
+
 					}
 				}
+
+				ReportNameConflicts(productionContext, declarations);
 
 				WriteTables(productionContext, tables);
 			}
@@ -52,6 +57,63 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 			}
 		});
 	}
+
+	/// <summary>
+	/// Reports the tables several <c>.table</c> files declare under different names.
+	/// </summary>
+	/// <remarks>
+	/// <para>
+	/// A table legitimately comes in two copies, one shipped by the framework package and one the
+	/// project keeps to enrich it, and <see cref="Table.MergeTo" /> folds them on the CRM logical
+	/// name. The C# name is the one thing that fold cannot reconcile: each distinct
+	/// <c>Name</c> makes this generator emit its own definition class, so the project ends up with
+	/// two classes for one table — <c>OptionSetDefinition</c> and <c>OptionSetsDefinition</c>, say —
+	/// each holding the half of the columns and option sets its own copy declared.
+	/// </para>
+	/// <para>
+	/// The two copies may perfectly well live in files named differently: the package names its own
+	/// and no project can rename them. Only the <c>Name</c> they carry has to agree.
+	/// </para>
+	/// </remarks>
+	private static void ReportNameConflicts(
+		SourceProductionContext productionContext, List<(string Path, Table Table)> declarations)
+	{
+		var byLogicalName = declarations
+			.Where(d => d.Table?.LogicalName != null && d.Table.Name != null)
+			.GroupBy(d => d.Table.LogicalName, StringComparer.OrdinalIgnoreCase);
+
+		foreach (var group in byLogicalName)
+		{
+			// Ordinal: two names differing by case alone are two different C# identifiers, hence two
+			// classes, which is precisely the conflict being reported.
+			var named = group.GroupBy(d => d.Table.Name, StringComparer.Ordinal)
+			                 .OrderBy(g => g.Key, StringComparer.Ordinal)
+			                 .ToList();
+
+			if (named.Count < 2)
+			{
+				continue;
+			}
+
+			productionContext.ReportDiagnostic(Diagnostic.Create(
+				ConflictingTableNames,
+				location: null,
+				group.Key,
+				string.Join(", ", named.Select(g => $"\"{g.Key}\" ({string.Join(", ", g.Select(d => Path.GetFileName(d.Path)))})"))));
+		}
+	}
+
+	private static readonly DiagnosticDescriptor ConflictingTableNames = new(
+		id: "XRM1001",
+		title: "Conflicting names for one table",
+		messageFormat: "The table '{0}' is declared with several different \"Name\" values: {1}. "
+		             + "Each one makes the generator emit its own definition class, splitting the "
+		             + "table's columns between them. Give every .table declaring '{0}' the same "
+		             + "\"Name\" — the one the project's code already refers to.",
+		category: "XrmFramework.Generators",
+		defaultSeverity: DiagnosticSeverity.Error,
+		isEnabledByDefault: true,
+		helpLinkUri: DiagnosticIds.HelpLink("XRM1001"));
 
 	private void WriteTables(SourceProductionContext productionContext, TableCollection tables)
 	{

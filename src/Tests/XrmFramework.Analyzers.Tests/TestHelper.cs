@@ -24,6 +24,26 @@ namespace XrmFramework.Analyzers.Tests
         public static IReadOnlyDictionary<string, string> Generate<TGenerator>(
             params (string path, string content)[] additionalTexts)
             where TGenerator : IIncrementalGenerator, new()
+            => Run<TGenerator>(additionalTexts)
+               .Results
+               .SelectMany(result => result.GeneratedSources)
+               .ToDictionary(source => source.HintName, source => source.SourceText.ToString());
+
+        /// <summary>
+        /// Runs <typeparamref name="TGenerator"/> over the given AdditionalTexts and hands back the
+        /// diagnostics it reported — what a generator says about input it refuses to work from.
+        /// </summary>
+        public static IReadOnlyList<Diagnostic> Diagnose<TGenerator>(
+            params (string path, string content)[] additionalTexts)
+            where TGenerator : IIncrementalGenerator, new()
+            => Run<TGenerator>(additionalTexts)
+               .Results
+               .SelectMany(result => result.Diagnostics)
+               .ToList();
+
+        private static GeneratorDriverRunResult Run<TGenerator>(
+            (string path, string content)[] additionalTexts)
+            where TGenerator : IIncrementalGenerator, new()
         {
             CSharpCompilation compilation = CSharpCompilation.Create(
                 assemblyName: "Tests",
@@ -36,15 +56,11 @@ namespace XrmFramework.Analyzers.Tests
             var additionalFiles = ImmutableArray.CreateRange(
                 additionalTexts.Select(a => (AdditionalText)new TableAdditionalText(a.path, a.content)));
 
-            var driver = CSharpGeneratorDriver
-                .Create(new TGenerator())
-                .AddAdditionalTexts(additionalFiles)
-                .RunGenerators(compilation);
-
-            return driver.GetRunResult()
-                         .Results
-                         .SelectMany(result => result.GeneratedSources)
-                         .ToDictionary(source => source.HintName, source => source.SourceText.ToString());
+            return CSharpGeneratorDriver
+                   .Create(new TGenerator())
+                   .AddAdditionalTexts(additionalFiles)
+                   .RunGenerators(compilation)
+                   .GetRunResult();
         }
 
 
