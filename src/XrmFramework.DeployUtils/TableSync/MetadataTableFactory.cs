@@ -198,7 +198,8 @@ namespace XrmFramework.DeployUtils.TableSync
 
                 if (IsEnumAttribute(attributeType, isMultiSelect))
                 {
-                    var optionSetEnum = BuildEnum(entity, table, attributeMetadata, attributeType, out enumLogicalName);
+                    var optionSetEnum = BuildEnum(entity, table, attributeMetadata, attributeType, isMultiSelect,
+                                                  out enumLogicalName);
 
                     // An option set with no label in the user's language cannot
                     // produce a C# type name: the whole attribute is discarded, as the
@@ -208,8 +209,18 @@ namespace XrmFramework.DeployUtils.TableSync
 
                     if (optionSetEnum.IsGlobal)
                     {
-                        if (globalEnums.All(e => e.LogicalName != optionSetEnum.LogicalName))
+                        var known = globalEnums.FirstOrDefault(
+                            e => string.Equals(e.LogicalName, optionSetEnum.LogicalName,
+                                               StringComparison.OrdinalIgnoreCase));
+
+                        // Two columns of the same entity may rest on the same global choice. They
+                        // describe one and the same option set, so the nullability either of them
+                        // establishes is kept — see TableMerger.MergeGlobalOptionSets, which does
+                        // the same across entities.
+                        if (known == null)
                             globalEnums.Add(optionSetEnum);
+                        else
+                            known.HasNullValue |= optionSetEnum.HasNullValue;
                     }
                     else
                     {
@@ -256,6 +267,7 @@ namespace XrmFramework.DeployUtils.TableSync
             CoreTable table,
             DataverseMetadata.AttributeMetadata attributeMetadata,
             DataverseMetadata.AttributeTypeCode attributeType,
+            bool isMultiSelect,
             out string enumLogicalName)
         {
             enumLogicalName = null;
@@ -290,9 +302,11 @@ namespace XrmFramework.DeployUtils.TableSync
                 LogicalName = logicalName,
                 Name = name,
                 IsGlobal = isGlobal,
-                // A Picklist with no option valued at 0 can be null on the CRM side: the generated
-                // C# type must then expose an explicit null value.
-                HasNullValue = attributeType == DataverseMetadata.AttributeTypeCode.Picklist
+                // A choice with no option valued at 0 can be null on the CRM side: the generated
+                // C# type must then expose an explicit null value. A multi-select choice qualifies
+                // just as much — an empty one is null too — and it reaches us as a Virtual
+                // attribute, which is why the type alone cannot answer for it.
+                HasNullValue = (attributeType == DataverseMetadata.AttributeTypeCode.Picklist || isMultiSelect)
                                && (optionSet.Options?.All(o => o.Value.GetValueOrDefault() != 0) ?? false)
             };
 

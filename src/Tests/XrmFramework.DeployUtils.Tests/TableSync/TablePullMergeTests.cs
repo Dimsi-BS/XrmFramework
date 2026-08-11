@@ -217,6 +217,24 @@ public class TablePullMergeTests
     }
 
     [Test]
+    public void MergeGlobalOptionSets_KeepsTheNullabilityAnyCopyEstablishes()
+    {
+        // The same global choice reached through two columns. Only one of the copies carries the
+        // flag — a multi-select column reaches us as a Virtual attribute, which used to answer
+        // "no null value" whatever the options say. Keeping the first copy alone made the
+        // generated enum depend on the order the retrieval walked the columns in.
+        var withoutFlag = Enumeration("ftp_canal", "Canal", (100, "Direct"));
+        var withFlag = Enumeration("ftp_canal", "Canal", (100, "Direct"));
+        withFlag.HasNullValue = true;
+
+        var merged = TableMerger.MergeGlobalOptionSets(null, new[] { withoutFlag, withFlag });
+
+        Assert.AreEqual(1, merged.Enums.Count, "The two copies describe one and the same choice.");
+        Assert.IsTrue(merged.Enums.Single().HasNullValue,
+            "The choice has no option valued 0: the generated enum needs its explicit Null member.");
+    }
+
+    [Test]
     public void MergeGlobalOptionSets_OrdersEnumsDeterministically()
     {
         var fresh = new[]
