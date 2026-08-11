@@ -236,20 +236,31 @@ namespace XrmFramework.DeployUtils.TableSync
                 .GroupBy(e => e.LogicalName, StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
-            var refreshed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var refreshed = new Dictionary<string, OptionSetEnum>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var freshEnum in freshEnums ?? Enumerable.Empty<OptionSetEnum>())
             {
-                if (freshEnum.LogicalName == null || !refreshed.Add(freshEnum.LogicalName))
+                if (freshEnum.LogicalName == null)
                     continue;
+
+                if (refreshed.TryGetValue(freshEnum.LogicalName, out var kept))
+                {
+                    // The same global option set reached through a second column. Both copies
+                    // describe the same CRM choice, so the nullability one of them establishes
+                    // holds for the other: keeping only the first would make the flag depend on
+                    // which column the retrieval happened to walk first.
+                    kept.HasNullValue |= freshEnum.HasNullValue;
+                    continue;
+                }
 
                 if (existingEnums.TryGetValue(freshEnum.LogicalName, out var existingEnum))
                     MergeEnum(existingEnum, freshEnum);
 
+                refreshed.Add(freshEnum.LogicalName, freshEnum);
                 merged.Enums.Add(freshEnum);
             }
 
-            foreach (var untouched in existingEnums.Values.Where(e => !refreshed.Contains(e.LogicalName)))
+            foreach (var untouched in existingEnums.Values.Where(e => !refreshed.ContainsKey(e.LogicalName)))
                 merged.Enums.Add(untouched);
 
             // Stable order: the file is versioned, an order dependent on the retrieved table

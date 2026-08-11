@@ -239,6 +239,44 @@ public class MetadataTableFactoryTests
     }
 
     [Test]
+    public void Convert_MarksMultiSelectChoice_WithNoOptionValuedZero_AsNullable()
+    {
+        // A multi-select choice reaches us as a Virtual attribute, so the attribute type alone
+        // cannot tell it apart from the other virtual columns. Left out of the nullability test,
+        // it produced an enum with no Null member — yet an empty multi-select is null all the
+        // same, and the code naming Null stopped compiling.
+        var multiSelect = Attribute<DataverseMetadata.MultiSelectPicklistAttributeMetadata>(
+                "ftp_canaux", "ftp_Canaux", DataverseMetadata.AttributeTypeCode.Virtual)
+            .Set(nameof(DataverseMetadata.MultiSelectPicklistAttributeMetadata.OptionSet),
+                OptionSet("ftp_canal", isGlobal: true, "Canal",
+                    Option(116390000, "Direct"), Option(116390001, "Indirect")));
+
+        var entity = Entity("ftp_contrat", "ftp_Contrat", "ftp_contratid", attributes: multiSelect);
+
+        var result = MetadataTableFactory.Convert(entity, Prefixes);
+
+        Assert.IsTrue(result.GlobalEnums.Single().HasNullValue,
+            "No option is valued 0: the generated enum must expose an explicit Null member.");
+    }
+
+    [Test]
+    public void Convert_LeavesMultiSelectChoice_HoldingOptionZero_NotNullable()
+    {
+        // The option valued 0 already occupies the slot a synthetic Null would take.
+        var multiSelect = Attribute<DataverseMetadata.MultiSelectPicklistAttributeMetadata>(
+                "ftp_canaux", "ftp_Canaux", DataverseMetadata.AttributeTypeCode.Virtual)
+            .Set(nameof(DataverseMetadata.MultiSelectPicklistAttributeMetadata.OptionSet),
+                OptionSet("ftp_canal", isGlobal: true, "Canal",
+                    Option(0, "Aucun"), Option(1, "Direct")));
+
+        var entity = Entity("ftp_contrat", "ftp_Contrat", "ftp_contratid", attributes: multiSelect);
+
+        var result = MetadataTableFactory.Convert(entity, Prefixes);
+
+        Assert.IsFalse(result.GlobalEnums.Single().HasNullValue);
+    }
+
+    [Test]
     public void Convert_NamesStateAndStatusOptionSets_AfterTable()
     {
         var state = Attribute<DataverseMetadata.StateAttributeMetadata>("statecode", "StateCode", DataverseMetadata.AttributeTypeCode.State)
