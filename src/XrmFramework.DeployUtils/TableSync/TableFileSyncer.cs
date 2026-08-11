@@ -62,16 +62,25 @@ public sealed class TableFileSyncer
     /// </remarks>
     public void Sync(IReadOnlyList<DefinitionInfo> definitions, bool clean = false)
     {
+        // One entry per table, whatever the number of classes describing it.
+        var tables = FoldPerTable(definitions);
+
         // Index of logical names selected per entity, used in --clean mode
-        // to identify columns that no longer belong to any Definition.
-        var selectedByTable = definitions.GroupBy(d => d.TableName).ToDictionary(
+        // to identify columns that no longer belong to any Definition. Keyed on the .table's own
+        // name, the one CleanOrphanedTableFiles matches the files on disk against, and grouped
+        // ignoring case as the dictionary it feeds does.
+        var selectedByTable = tables.GroupBy(d => d.TableName, StringComparer.OrdinalIgnoreCase).ToDictionary(
             g => g.Key,
             g => new HashSet<string>(
                      g.SelectMany(d => d.Columns.Select(c => c.LogicalName)),
                      StringComparer.OrdinalIgnoreCase),
             StringComparer.OrdinalIgnoreCase);
 
-        AnsiConsole.MarkupLine($"[bold]{definitions.Count}[/] Definition class(es) found in the DLL.");
+        AnsiConsole.MarkupLine(
+            $"[bold]{definitions.Count}[/] Definition class(es) found in the DLL"
+            + (tables.Count == definitions.Count
+                   ? "."
+                   : $", describing [bold]{tables.Count}[/] table(s)."));
 
         var skippedFrameworkTables = new List<string>();
 
@@ -79,8 +88,8 @@ public sealed class TableFileSyncer
         // means reaching outside the table being synchronized.
         var globalOptionSets = LoadGlobalOptionSets();
 
-        // 1. Update / create the .table files for each Definition
-        foreach (var def in definitions)
+        // 1. Update / create the .table files for each table
+        foreach (var def in tables)
         {
             var tablePath = TablePath(def.TableName);
 
@@ -113,6 +122,104 @@ public sealed class TableFileSyncer
             CleanOrphanedTableFiles(selectedByTable);
         }
     }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Folding the classes describing one table
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Folds the definitions describing the same table into a single one, and refuses to proceed
+    /// when they disagree on the name that table should carry.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Mid-migration a table is described twice in the analyzed DLL: by the versioned
+    /// <c>*Definition.cs</c> the 2.* tool wrote, and by the class the generator now emits from the
+    /// <c>.table</c>. Left apart, the two took turns writing the same file, the last one through
+    /// deciding its <c>Name</c> — and therefore the name of the class the generator would emit next
+    /// run — on nothing better than the order the types came back from reflection.
+    /// </para>
+    /// <para>
+    /// A table is identified by its CRM logical name, which no project renames; the C# name is
+    /// exactly what the two copies may disagree on. Nothing here can tell which of the two the
+    /// project meant: both carry <c>[GeneratedCode("XrmFramework", "2.0")]</c>, the 3.1 generator
+    /// emitting the very same attribute as the 2.* tool, so the only thing separating them is a
+    /// namespace this tool never sees. Rather than pick one and rename a definition out from under
+    /// every call site, the sync stops and says what it found.
+    /// </para>
+    /// <para>
+    /// Copies that do agree are folded: the file is then written once, and the columns of each are
+    /// kept — a column only one of them declares is referenced by the compiled code all the same.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="DefinitionNameConflictException">
+    /// At least two definitions describe one table under different names.
+    /// </exception>
+    private static IReadOnlyList<DefinitionInfo> FoldPerTable(IReadOnlyList<DefinitionInfo> definitions)
+    {
+        var folded = new List<DefinitionInfo>();
+        var conflicts = new List<DefinitionNameConflict>();
+
+        foreach (var group in definitions.GroupBy(TableIdentity, StringComparer.OrdinalIgnoreCase))
+        {
+            var copies = group.ToList();
+
+            if (copies.Count == 1)
+            {
+                folded.Add(copies[0]);
+                continue;
+            }
+
+            // Ordinal, and deliberately so: two names differing by case alone are two different C#
+            // identifiers, and that is the very disagreement this refuses to arbitrate.
+            var names = copies.Select(d => d.TableName)
+                              .Distinct(StringComparer.Ordinal)
+                              .OrderBy(n => n, StringComparer.Ordinal)
+                              .ToList();
+
+            if (names.Count > 1)
+            {
+                conflicts.Add(new DefinitionNameConflict(copies[0].EntityName, names));
+                continue;
+            }
+
+            var columns = new List<DefinitionColumnInfo>();
+            var known = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var column in copies.SelectMany(d => d.Columns))
+            {
+                if (column?.LogicalName != null && known.Add(column.LogicalName))
+                    columns.Add(column);
+            }
+
+            folded.Add(new DefinitionInfo
+            {
+                TableName = copies[0].TableName,
+                EntityName = copies.Select(d => d.EntityName).FirstOrDefault(n => !string.IsNullOrEmpty(n))
+                             ?? string.Empty,
+                EntityCollectionName =
+                    copies.Select(d => d.EntityCollectionName).FirstOrDefault(n => !string.IsNullOrEmpty(n)),
+                Columns = columns,
+                IsFullyGenerated = copies.All(d => d.IsFullyGenerated)
+            });
+        }
+
+        // Every conflict at once: the fix is one edit per table, and reporting them one run at a
+        // time would turn a single pass into as many round trips.
+        if (conflicts.Count > 0)
+            throw new DefinitionNameConflictException(conflicts);
+
+        return folded;
+    }
+
+    /// <summary>
+    /// What makes two definitions describe the same table: the CRM logical name, or the C# name when
+    /// the logical name could not be read — so that such a definition does not swallow the others.
+    /// </summary>
+    private static string TableIdentity(DefinitionInfo def)
+        => string.IsNullOrEmpty(def.EntityName)
+               ? "name:" + def.TableName
+               : "logical:" + def.EntityName;
 
     // ──────────────────────────────────────────────────────────────────────────
     // Synchronizing a Definition to its .table

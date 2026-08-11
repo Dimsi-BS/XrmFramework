@@ -177,6 +177,102 @@ public class TableFileSyncerTests
             "With --clean, columns outside the Definition must be deselected.");
     }
 
+    [Test]
+    public void Sync_TakesTwoTables_WhoseNamesDifferByCaseAlone()
+    {
+        // Two distinct CRM tables whose C# names collide once case is set aside. The index of
+        // selected columns is keyed on that name and grouped case-insensitively, as the dictionary
+        // it builds is: grouping case-sensitively instead produced two keys the dictionary then
+        // rejected as one duplicate, aborting the sync on an ArgumentException.
+        var upper = ContactDef();
+
+        var lower = SystemUserDef();
+        lower.TableName = "contact";
+
+        Assert.DoesNotThrow(
+            () => new TableFileSyncer(_tempDir).Sync(new[] { upper, lower }, clean: true));
+    }
+
+    [TestCase(false, TestName = "Sync_RefusesTwoNamesForOneTable_HandWrittenCopyFirst")]
+    [TestCase(true, TestName = "Sync_RefusesTwoNamesForOneTable_GeneratedCopyFirst")]
+    public void Sync_RefusesTwoNamesForOneTable(bool generatedFirst)
+    {
+        // Which of the two names the project meant cannot be told from here: both classes carry
+        // [GeneratedCode("XrmFramework", "2.0")], the 3.1 generator emitting the very same attribute
+        // as the 2.* tool, and the namespace that would separate them never reaches this far.
+        // Electing one would rename a definition out from under its call sites, so the sync stops —
+        // and stops whatever order reflection hands the types back in.
+        var handWritten = SystemUserDef();
+
+        var generated = SystemUserDef();
+        generated.TableName = "Systemuser";
+
+        var definitions = generatedFirst
+            ? new[] { generated, handWritten }
+            : new[] { handWritten, generated };
+
+        WriteTable("SystemUser", BuildTable("systemuser", "Systemuser", "systemusers",
+            new Column { LogicalName = "systemuserid", Name = "Id", Selected = true }));
+
+        var conflict = Assert.Throws<DefinitionNameConflictException>(
+            () => new TableFileSyncer(_tempDir).Sync(definitions));
+
+        Assert.AreEqual("systemuser", conflict!.Conflicts.Single().LogicalName);
+        Assert.AreEqual(new[] { "SystemUser", "Systemuser" },
+            conflict.Conflicts.Single().Names.ToArray(),
+            "Both names are reported, so one run tells the reader everything to fix.");
+
+        Assert.AreEqual("Systemuser", LoadTable("SystemUser").Name,
+            "Refusing means refusing before writing: the file is left exactly as it was.");
+    }
+
+    [Test]
+    public void Sync_ReportsEveryNameConflict_InOneRun()
+    {
+        // The fix is one edit per table. Failing on the first would turn a single pass into as many
+        // round trips as there are tables to align.
+        var contact = ContactDef();
+        var otherContact = ContactDef();
+        otherContact.TableName = "Kontakt";
+
+        var systemUser = SystemUserDef();
+        var otherSystemUser = SystemUserDef();
+        otherSystemUser.TableName = "Systemuser";
+
+        var conflict = Assert.Throws<DefinitionNameConflictException>(
+            () => new TableFileSyncer(_tempDir).Sync(
+                new[] { contact, otherContact, systemUser, otherSystemUser }));
+
+        Assert.AreEqual(new[] { "contact", "systemuser" },
+            conflict!.Conflicts.Select(c => c.LogicalName).OrderBy(n => n).ToArray());
+        Assert.IsFalse(Directory.EnumerateFiles(_tempDir, "*.table").Any(),
+            "Nothing is written when the run cannot be trusted to write the right thing.");
+    }
+
+    [Test]
+    public void Sync_FoldsTheCopiesOfOneTable_WhenTheyAgreeOnItsName()
+    {
+        // Same table, same name, two classes: the versioned *Definition.cs and the generated one.
+        // Nothing to settle, so the file is written once and neither copy's columns are lost.
+        var first = SystemUserDef();
+
+        var second = SystemUserDef();
+        second.Columns = new List<DefinitionColumnInfo> { new("domainname", "DomainName") };
+
+        WriteTable("SystemUser", BuildTable("systemuser", "SystemUser", "systemusers",
+            new Column { LogicalName = "systemuserid", Name = "Id", Selected = true },
+            new Column { LogicalName = "domainname", Name = "DomainName" },
+            new Column { LogicalName = "obsolete", Name = "Obsolete", Selected = true }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { first, second }, clean: true);
+
+        var table = LoadTable("SystemUser");
+        Assert.AreEqual("SystemUser", table.Name);
+        Assert.IsTrue(table.Columns.Single(c => c.LogicalName == "domainname").Selected,
+            "A column only the second copy declares is referenced by the code all the same.");
+        Assert.IsFalse(table.Columns.Single(c => c.LogicalName == "obsolete").Selected);
+    }
+
     // ══════════════════════════════════════════════════════════════════════════
     // --clean mode: orphaned files (without a matching Definition)
     // ══════════════════════════════════════════════════════════════════════════

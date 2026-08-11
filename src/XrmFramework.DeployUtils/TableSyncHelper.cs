@@ -143,6 +143,14 @@ namespace XrmFramework.DeployUtils
 
                 return 0;
             }
+            catch (DefinitionNameConflictException ex)
+            {
+                // The assembly says two things at once and only the project can settle it: the
+                // message is written for a reader, so it goes out as-is rather than as a trace.
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine($"[red]{Markup.Escape(ex.Message)}[/]");
+                return 2;
+            }
             catch (FileNotFoundException ex)
             {
                 AnsiConsole.MarkupLine($"[red]File not found:[/] {ex.FileName}");
