@@ -94,6 +94,7 @@ AddStep(Stages.PostOperation, Messages.Update, Modes.Synchronous, AccountDefinit
 | [XRM0014](#xrm0014) | `AddStep` must be called from `AddSteps` | Syntax | 🔴 Error | — |
 | [XRM0200](#xrm0200) | Use `…Definition.EntityName` in `[CrmEntity]` | Syntax | 🔴 Error | — |
 | [XRM0300](#xrm0300) | Use `IDateTimeProvider` instead of `DateTime.Now` | Usage | 🔴 Error | ✅ *Inject IDateTimeProvider* |
+| [XRM1001](#xrm1001) | Conflicting names for one table | XrmFramework.Generators | 🔴 Error | — |
 | [XRM1002](#xrm1002) | EnumGenerator failure | XrmFramework.Generators | 🔴 Error | — |
 | [XRM2001](#xrm2001) | MappingGenerator failure | XrmFramework.Generators | 🟡 Warning | — |
 
@@ -343,6 +344,31 @@ These are not static-analysis rules: they are emitted by the XrmFramework **sour
 generators** when they fail to produce generated code. They almost always point at a
 malformed declaration the generator could not handle; the `{1}` placeholder carries the
 underlying exception message.
+
+### XRM1001
+
+**Conflicting names for one table** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+Several `.table` files declare the same CRM table — the same `LogName` — under different
+`Name` values.
+
+A table legitimately comes in two copies: the one the XrmFramework package ships and the
+one the project keeps in order to enrich it with its own columns. Those two are folded on
+the logical name, and their columns, alternate keys, option sets and relationships are
+merged. The `Name` is the one thing that fold cannot reconcile: the generator emits **one
+definition class per distinct name**, so the project ends up with two classes for one
+table, each holding only the half its own copy declared — `OptionSetDefinition` and
+`OptionSetsDefinition`, for instance, or `SystemUserDefinition` and
+`SystemuserDefinition`, two names differing by case being two C# identifiers.
+
+Give every `.table` declaring the table the same `Name`: the one the project's code
+already refers to. Renaming the other way round would rename the definition class out
+from under every call site.
+
+The **file names** need not match, and the rule does not ask them to — the package names
+its own files and no project can rename them. Only the `Name` inside has to agree.
+
+**Message:** `The table '{0}' is declared with several different "Name" values: {1}. …`
 
 ### XRM1002
 
