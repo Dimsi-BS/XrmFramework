@@ -35,7 +35,8 @@ namespace XrmFramework.DeployUtils.TableSync
         /// Pair (table name, logical name) of a <c>.table</c> shipped by the framework.
         /// The table name is the one from the JSON (<c>Name</c>), not the file name: it is the one that
         /// gives its name to the generated class, and therefore to the <see cref="DefinitionInfo.TableName"/> seen
-        /// by <c>tables sync</c> (<c>Systemuser.table</c> thus declares <c>SystemUser</c>).
+        /// by <c>tables sync</c> (<c>EnvironmentVariableDefinition.table</c> thus declares
+        /// <c>EnvironmentVariable</c>).
         /// </summary>
         private sealed class FrameworkTable
         {
@@ -59,7 +60,7 @@ namespace XrmFramework.DeployUtils.TableSync
             new FrameworkTable("DebugSession",                        "dimsi_debugsession"),
             new FrameworkTable("EnvironmentVariable",                 "environmentvariabledefinition"),
             new FrameworkTable("EnvironmentVariableValue",            "environmentvariablevalue"),
-            new FrameworkTable("OptionSet",                           "globalEnums"),
+            new FrameworkTable("OptionSets",                          "globalEnums"),
             new FrameworkTable("PluginAssembly",                      "pluginassembly"),
             new FrameworkTable("PluginType",                          "plugintype"),
             new FrameworkTable("Role",                                "role"),

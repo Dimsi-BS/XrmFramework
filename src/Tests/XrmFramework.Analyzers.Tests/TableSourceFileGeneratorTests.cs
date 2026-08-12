@@ -431,10 +431,11 @@ public class TableSourceFileGeneratorTests
     public void ATableDeclaredUnderTwoNames_FailsTheBuild()
     {
         // Exactly what a project upgrading to 3.1 hits on the global option sets: the package ships
-        // OptionSet.table, the project kept OptionSets.table, and two classes come out of it.
+        // OptionSets.table, the project kept the OptionSet.table an older sync wrote, and two
+        // classes come out of it.
         var diagnostics = TestHelper.Diagnose<TableSourceFileGenerator>(
-            ("Framework/OptionSet.table", """{ "LogName": "globalEnums", "Name": "OptionSet" }"""),
-            ("Model/Definitions/OptionSets.table", """{ "LogName": "globalEnums", "Name": "OptionSets" }"""));
+            ("Framework/OptionSets.table", """{ "LogName": "globalEnums", "Name": "OptionSets" }"""),
+            ("Model/Definitions/OptionSet.table", """{ "LogName": "globalEnums", "Name": "OptionSet" }"""));
 
         var conflict = diagnostics.Single(d => d.Id == "XRM1001");
 

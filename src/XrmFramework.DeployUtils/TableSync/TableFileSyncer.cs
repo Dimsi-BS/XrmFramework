@@ -298,7 +298,7 @@ public sealed class TableFileSyncer
     /// <para>
     /// The same option set can be recorded <b>twice</b>: the 2.* DefinitionManager kept in a table's
     /// own <c>Enums</c> every option set one of its columns referenced — globals included — while also
-    /// writing the globals to <c>OptionSet.table</c>. Both copies reach the generator, which unions
+    /// writing the globals to <c>OptionSets.table</c>. Both copies reach the generator, which unions
     /// them, so both have to be renamed: stopping at the first one found would leave the other holding
     /// the old name.
     /// </para>
@@ -433,7 +433,7 @@ public sealed class TableFileSyncer
     }
 
     /// <summary>
-    /// The <c>OptionSet.table</c> pseudo-table, loaded once and written back only if a name changed.
+    /// The <c>OptionSets.table</c> pseudo-table, loaded once and written back only if a name changed.
     /// </summary>
     private sealed class GlobalOptionSetTable
     {

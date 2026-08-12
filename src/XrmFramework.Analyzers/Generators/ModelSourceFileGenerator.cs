@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 using XrmFramework.Core;
@@ -50,7 +50,7 @@ namespace XrmFramework.Analyzers.Generators
                         }
                         else if (tuple.name.Contains(".table"))
                         {
-                            if (tuple.name == "OptionSet.table")
+                            if (tuple.name == "OptionSets.table")
                             {
                                 globalEnums = JsonConvert.DeserializeObject<Table>(tuple.content);
                             }
