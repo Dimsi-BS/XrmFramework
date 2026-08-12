@@ -33,7 +33,7 @@ namespace XrmFramework.DeployUtils.TableSync
 
         /// <summary>
         /// Global option sets referenced by the entity. They are never written to the entity's
-        /// .table but gathered in the shared <c>OptionSet.table</c> file.
+        /// .table but gathered in the shared <c>OptionSets.table</c> file.
         /// </summary>
         public IReadOnlyList<OptionSetEnum> GlobalEnums { get; }
     }

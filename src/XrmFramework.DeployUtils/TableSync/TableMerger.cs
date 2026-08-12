@@ -208,7 +208,7 @@ namespace XrmFramework.DeployUtils.TableSync
         // ──────────────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Merges global option sets into the <c>OptionSet.table</c> pseudo-table.
+        /// Merges global option sets into the <c>OptionSets.table</c> pseudo-table.
         /// </summary>
         /// <remarks>
         /// Global option sets are shared by all tables: retrieving a single entity

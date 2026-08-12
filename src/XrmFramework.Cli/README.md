@@ -142,12 +142,12 @@ the enum's name, and its members read off the type itself — and applies them t
 column points at (matched on the column's `EnumName`) — **in every file that records it**:
 
 - in the table's own `Enums`;
-- and in `OptionSet.table`, where shared option sets live — that file is loaded once and rewritten
+- and in `OptionSets.table`, where shared option sets live — that file is loaded once and rewritten
   only if a name actually changed.
 
 Both, not the first one found. The 2.\* DefinitionManager kept in a table's `Enums` every option
 set one of its columns referenced, *globals included*, while also writing the globals to
-`OptionSet.table`. The generator unions the two, so a rename applied to only one copy would be
+`OptionSets.table`. The generator unions the two, so a rename applied to only one copy would be
 contradicted by the other.
 
 Members are matched on their **numeric value**, which is the stable CRM key — never on their
@@ -280,7 +280,7 @@ test verifies that it matches exactly the `.table` files in `src/XrmFramework/De
 > file loaded first wins, which is the package's; renaming an option set both files declare
 > therefore has to be done in both.
 
-`OptionSet.table` is a case of its own: it describes no entity, so no `*Definition` class ever
+`OptionSets.table` is a case of its own: it describes no entity, so no `*Definition` class ever
 claims it, and it holds no column. Under `--clean` both orphan heuristics used to condemn it — it
 is now recognized by its `globalEnums` logical name and left alone. A genuine table that happens
 to be *named* `OptionSet` is still processed like any other.
@@ -350,7 +350,7 @@ to re-enumerate the project's tables.
 
 - The selection is read from the files, by their `LogName`: a renamed `.table` file remains
   tracked.
-- `OptionSet.table` (global option sets) is excluded — it doesn't correspond to any CRM
+- `OptionSets.table` (global option sets) is excluded — it doesn't correspond to any CRM
   entity, but is still populated by the tables fetched.
 - A `.table` file whose entity no longer exists in the environment is **reported and skipped**,
   without interrupting the others; the file is not deleted.
@@ -406,7 +406,7 @@ Other guarantees:
 - A column present in the file but **absent from the environment** is kept and reported.
   `pull` refreshes, it does not destroy; deselecting orphaned columns is a separate decision
   (`tables sync --clean` does it during a 2.\* migration).
-- **Global** option sets are merged in a purely additive way in `OptionSet.table`: fetching a
+- **Global** option sets are merged in a purely additive way in `OptionSets.table`: fetching a
   single table never removes the ones referenced by others.
 - The operation is **idempotent**: a second `pull` on the same table produces an empty diff.
 

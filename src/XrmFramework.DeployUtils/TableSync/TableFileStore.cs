@@ -27,7 +27,7 @@ namespace XrmFramework.DeployUtils.TableSync
         /// Name of the file gathering the global option sets. The code generator recognizes it
         /// by this exact name — renaming it would break the generation of shared enumerations.
         /// </summary>
-        public const string GlobalOptionSetFileName = "OptionSet";
+        public const string GlobalOptionSetFileName = "OptionSets";
 
         /// <summary>Conventional logical name of the global option sets pseudo-table.</summary>
         public const string GlobalOptionSetLogicalName = "globalEnums";
