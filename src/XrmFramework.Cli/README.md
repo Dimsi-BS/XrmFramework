@@ -242,6 +242,15 @@ generator does *not* emit, so moving it to `XrmFramework` would only break the r
 The file is **left alone**, and reported, when none of its enums is regenerated — the signature of
 a wrong `--tables-dir`, or of `.table` files declaring no selected option set column.
 
+An enum only counts as regenerated once the `.table` files **name** the option set behind it: a
+nameless option set produces no enum. This is why the `.table` synchronization runs first — on a
+directory it has not been through, this pass keeps enums the generator will later emit, and the
+project ends up with the same type declared twice.
+
+What the generator emits is not decided here: both read
+[`OptionSetSelection`](../XrmFramework.Core/OptionSetSelection.cs), so this pass cannot delete an
+enum the generator then declines to emit.
+
 Implementation: [`DefinitionFileMigrator`](../XrmFramework.DeployUtils/TableSync/DefinitionFileMigrator.cs)
 + [`DefinitionSourceRewriter`](../XrmFramework.DeployUtils/TableSync/DefinitionSourceRewriter.cs)
 + [`CSharpMemberReader`](../XrmFramework.DeployUtils/TableSync/CSharpMemberReader.cs).

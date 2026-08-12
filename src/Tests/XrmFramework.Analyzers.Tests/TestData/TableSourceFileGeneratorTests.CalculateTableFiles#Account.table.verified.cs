@@ -58,25 +58,4 @@ namespace XrmFramework
         [Description("Standard")]
         Standard = 2,
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

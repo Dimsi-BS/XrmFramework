@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Spectre.Console;
+using XrmFramework.Core;
 using CoreTable = XrmFramework.Core.Table;
 
 namespace XrmFramework.DeployUtils.TableSync
@@ -304,33 +305,12 @@ namespace XrmFramework.DeployUtils.TableSync
         /// Names of the option set enums <c>TableSourceFileGenerator</c> will emit for these tables.
         /// </summary>
         /// <remarks>
-        /// The generator only emits an enum when a <b>selected</b> column references it — global option
-        /// sets across all tables, local ones within their own table. An enum no column uses is therefore
-        /// not regenerated, and the corresponding C# enum must be kept.
+        /// Deciding this here on its own is what made the migration delete enums the generator then
+        /// declined to emit: the two readings of "the generator regenerates it" have to be one, so
+        /// <see cref="OptionSetSelection" /> answers for both.
         /// </remarks>
         private static ICollection<string> CollectGeneratedEnumNames(IDictionary<string, CoreTable> tables)
-        {
-            var names = new HashSet<string>(StringComparer.Ordinal);
-            var all = tables.Values.ToList();
-
-            foreach (var table in all)
-                foreach (var optionSet in table.Enums)
-                {
-                    if (string.IsNullOrEmpty(optionSet.Name))
-                        continue;
-
-                    var scope = optionSet.IsGlobal ? all : new List<CoreTable> { table };
-
-                    if (scope.Any(t => t.Columns.Any(
-                            c => c.Selected
-                              && string.Equals(c.EnumName, optionSet.LogicalName, StringComparison.OrdinalIgnoreCase))))
-                    {
-                        names.Add(optionSet.Name);
-                    }
-                }
-
-            return names;
-        }
+        => OptionSetSelection.Of(tables.Values).Names;
 
         /// <summary>
         /// Reuses the source file's encoding so that migration alone does not add or drop a BOM.
