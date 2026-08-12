@@ -23,6 +23,8 @@ expected all surface as a build diagnostic with a one-click fix where possible.
   - [XRM0300](#xrm0300)
 - [Source generator diagnostics](#source-generator-diagnostics)
   - [XRM1002](#xrm1002)
+  - [XRM1003](#xrm1003)
+  - [XRM1004](#xrm1004)
   - [XRM2001](#xrm2001)
 - [Reserved identifiers](#reserved-identifiers)
 
@@ -96,6 +98,8 @@ AddStep(Stages.PostOperation, Messages.Update, Modes.Synchronous, AccountDefinit
 | [XRM0300](#xrm0300) | Use `IDateTimeProvider` instead of `DateTime.Now` | Usage | 🔴 Error | ✅ *Inject IDateTimeProvider* |
 | [XRM1001](#xrm1001) | Conflicting names for one table | XrmFramework.Generators | 🔴 Error | — |
 | [XRM1002](#xrm1002) | EnumGenerator failure | XrmFramework.Generators | 🔴 Error | — |
+| [XRM1003](#xrm1003) | Conflicting names for one option set | XrmFramework.Generators | 🔴 Error | — |
+| [XRM1004](#xrm1004) | Option set member the enum cannot declare | XrmFramework.Generators | 🔴 Error | — |
 | [XRM2001](#xrm2001) | MappingGenerator failure | XrmFramework.Generators | 🟡 Warning | — |
 
 ---
@@ -379,6 +383,46 @@ with `[EnumGeneration]`. Check the decorated enum/class for an unsupported membe
 the message includes the failing type and the exception detail.
 
 **Message:** `Could not generate Items collection for '{0}': {1}`
+
+### XRM1003
+
+**Conflicting names for one option set** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+Several `.table` files give one `Name` to option sets that are not the same option set — different
+`LogName` values — and a selected column carries each of them.
+
+An option set becomes an enum only when a **selected** column carries it: global option sets across
+every table, local ones within the table declaring them. One C# name yields one enum, so of two
+option sets sharing a name only the first is declared, and the columns carrying the other are typed
+on an enum holding members they never had — `Classement` standing for `lead|leadqualitycode` while
+`opportunity|opportunityratingcode` is attributed to it as well.
+
+The names reach the `.table` files derived from the CRM labels, which repeat across tables: the 2.*
+DefinitionManager settled it by suffixing the table name — `SourceDuProspectOnContact`,
+`SourceDuProspectOnDemande`. Do the same in the `.table` files the message names, and nowhere else:
+the name belongs to the project's own code, so nothing picks another one on its behalf.
+
+An option set no selected column carries is **not** reported: it becomes no enum, and shares nothing.
+
+**Message:** `The name '{0}' stands for several different option sets: {1}. …`
+
+### XRM1004
+
+**Option set member the enum cannot declare** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+A member of an option set has a name the generated enum cannot carry — either it yields no C#
+identifier at all, or another member of the same option set already goes by it.
+
+Member names reach the `.table` derived from their CRM label, so they carry whatever the label held
+and an identifier cannot. Characters an identifier does not admit are dropped —
+`PourInvest.Jeanbrun` is declared `PourInvestJeanbrun`, and `[Description]` keeps the name as the
+`.table` spells it. What that cannot settle is two labels landing on one identifier: `Web` for both
+option 2 and option 8. The member is then left out, since declaring it twice would not compile and
+keeping either one silently would map one CRM value onto the other.
+
+Rename the member in the `.table` file declaring the option set — that name belongs to the project.
+
+**Message:** `The option set '{0}' cannot declare the member '{1}' ({2}): {3}. …`
 
 ### XRM2001
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
+using System.Text;
 using XrmFramework.Core;
 
 namespace XrmFramework.Analyzers.Generators;
@@ -117,13 +118,20 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 
 	private void WriteTables(SourceProductionContext productionContext, TableCollection tables)
 	{
-		var alreadyCreatedEnums = new HashSet<string>();
-		
+		var optionSets = OptionSetSelection.Of(tables);
+
+		ReportOptionSetNameConflicts(productionContext, optionSets);
+
 		foreach (var table in tables)
 		{
 			var sb = new IndentedStringBuilder();
 
-			var scopedEnums = table.Enums.Union(tables.SelectMany(t => t.Enums.Where(e => e.IsGlobal))).ToList();
+			// An option set no .table ever named is no type: a column carrying it must be emitted
+			// without its [OptionSet] attribute rather than attributed to typeof().
+			var scopedEnums = table.Enums
+			                       .Union(tables.SelectMany(t => t.Enums.Where(e => e.IsGlobal)))
+			                       .Where(e => !string.IsNullOrEmpty(e.Name))
+			                       .ToList();
 			var keys = SelectKeys(table);
 
 			sb.AppendLine("using System;");
@@ -254,57 +262,10 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 
 				sb.AppendLine("}");
 
-				if (table.Enums.Any())
-					foreach (var ose in table.Enums)
-					{
-						if (!alreadyCreatedEnums.Add(ose.Name))
-						{
-							continue;
-						}
-
-						if (ose.IsGlobal && tables.All(t => t.Columns.All(c =>
-							    c.EnumName != ose.LogicalName || (c.EnumName == ose.LogicalName && !c.Selected))))
-						{
-							continue;
-						}
-
-						sb.AppendLine();
-						if (ose.IsGlobal)
-						{
-							sb.AppendLine($"[OptionSetDefinition(\"{ose.LogicalName}\")]");
-						}
-						else
-						{
-							var referencedColumn =
-								table.Columns.FirstOrDefault(col => col.EnumName == ose.LogicalName);
-
-							if (referencedColumn == null || !referencedColumn.Selected) continue;
-
-							sb.AppendLine(string.Format(
-								              "[OptionSetDefinition({0}Definition.EntityName, {0}Definition.Columns.{1})]",
-								              table.Name, referencedColumn.Name));
-						}
-
-						sb.AppendLine($"public enum {ose.Name}");
-						sb.AppendLine("{");
-
-						using (sb.Indent())
-						{
-							if (ose.HasNullValue) sb.AppendLine("Null = 0,");
-
-							foreach (var val in ose.Values)
-							{
-								sb.AppendLine($"[Description(\"{val.Name}\")]");
-
-								if (!string.IsNullOrEmpty(val.ExternalValue))
-									sb.AppendLine($"[ExternalValue(\"{val.ExternalValue}\")]");
-
-								sb.AppendLine($"{val.Name} = {val.Value},");
-							}
-						}
-
-						sb.AppendLine("}");
-					}
+				foreach (var declared in optionSets.In(table))
+				{
+					WriteOptionSet(productionContext, sb, table, declared);
+				}
 			}
 
 			sb.AppendLine("}");
@@ -314,6 +275,164 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 			productionContext.AddSource($"{table.Name}.table.cs", sb.ToString());
 		}
 	}
+
+	// ──────────────────────────────────────────────────────────────────────────
+	// Option sets
+	// ──────────────────────────────────────────────────────────────────────────
+
+	/// <summary>
+	/// Writes the enum standing for one option set, and its <c>[OptionSetDefinition]</c> attribute.
+	/// </summary>
+	/// <remarks>
+	/// Which option sets get here — and which table's file each one lands in — is
+	/// <see cref="OptionSetSelection" />'s business, not this method's.
+	/// </remarks>
+	private static void WriteOptionSet(SourceProductionContext productionContext, IndentedStringBuilder sb,
+	                                   Table table, GeneratedOptionSet declared)
+	{
+		var optionSet = declared.OptionSet;
+
+		sb.AppendLine();
+
+		if (declared.Column == null)
+		{
+			sb.AppendLine($"[OptionSetDefinition(\"{optionSet.LogicalName}\")]");
+		}
+		else
+		{
+			sb.AppendLine(string.Format(
+				              "[OptionSetDefinition({0}Definition.EntityName, {0}Definition.Columns.{1})]",
+				              table.Name, declared.Column.Name));
+		}
+
+		sb.AppendLine($"public enum {optionSet.Name}");
+		sb.AppendLine("{");
+
+		using (sb.Indent())
+		{
+			var claimed = new HashSet<string>(StringComparer.Ordinal);
+
+			if (optionSet.HasNullValue)
+			{
+				claimed.Add("Null");
+				sb.AppendLine("Null = 0,");
+			}
+
+			foreach (var val in optionSet.Values)
+			{
+				var member = MemberName(val.Name);
+
+				if (member == null)
+				{
+					ReportUndeclarableMember(productionContext, optionSet, val,
+					                         "its name yields no C# identifier");
+					continue;
+				}
+
+				if (!claimed.Add(member))
+				{
+					ReportUndeclarableMember(productionContext, optionSet, val,
+					                         $"another member is already declared as '{member}'");
+					continue;
+				}
+
+				sb.AppendLine($"[Description(\"{Literal(val.Name)}\")]");
+
+				if (!string.IsNullOrEmpty(val.ExternalValue))
+					sb.AppendLine($"[ExternalValue(\"{Literal(val.ExternalValue)}\")]");
+
+				sb.AppendLine($"{member} = {val.Value},");
+			}
+		}
+
+		sb.AppendLine("}");
+	}
+
+	/// <summary>
+	/// The C# identifier standing for an option set member, or <see langword="null" /> when its name
+	/// holds nothing an identifier can be made of.
+	/// </summary>
+	/// <remarks>
+	/// The name reaches the <c>.table</c> derived from the member's CRM label, so it carries whatever
+	/// that label held and an identifier cannot — a dot, a space, an apostrophe. The 2.*
+	/// DefinitionManager dropped those when it wrote the enum by hand; emitting the name as it stands
+	/// makes the compiler read <c>PourInvest.Jeanbrun</c> as two members, the first of which the next
+	/// such name declares again.
+	/// </remarks>
+	private static string MemberName(string name)
+	{
+		if (string.IsNullOrEmpty(name))
+		{
+			return null;
+		}
+
+		var identifier = new StringBuilder(name.Length);
+
+		foreach (var c in name)
+		{
+			if (char.IsLetterOrDigit(c) || c == '_')
+				identifier.Append(c);
+		}
+
+		if (identifier.Length == 0)
+		{
+			return null;
+		}
+
+		// A name starting with a digit is still no identifier once stripped of the rest.
+		if (char.IsDigit(identifier[0]))
+			identifier.Insert(0, '_');
+
+		return identifier.ToString();
+	}
+
+	/// <summary>Escapes what goes inside the string literal of a generated attribute.</summary>
+	private static string Literal(string value)
+	=> value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+
+	private static void ReportUndeclarableMember(SourceProductionContext productionContext,
+	                                             OptionSetEnum optionSet, OptionSetEnumValue value,
+	                                             string reason)
+	=> productionContext.ReportDiagnostic(Diagnostic.Create(
+		   UndeclarableOptionSetMember, location: null,
+		   optionSet.Name, value.Name, value.Value, reason));
+
+	private static void ReportOptionSetNameConflicts(SourceProductionContext productionContext,
+	                                                 OptionSetSelection optionSets)
+	{
+		foreach (var conflict in optionSets.Conflicts)
+		{
+			productionContext.ReportDiagnostic(Diagnostic.Create(
+				ConflictingOptionSetNames,
+				location: null,
+				conflict.Name,
+				string.Join(", ", conflict.Claims.Select(
+					            c => $"\"{c.OptionSet.LogicalName}\" ({c.Table.Name})"))));
+		}
+	}
+
+	private static readonly DiagnosticDescriptor ConflictingOptionSetNames = new(
+		id: "XRM1003",
+		title: "Conflicting names for one option set",
+		messageFormat: "The name '{0}' stands for several different option sets: {1}. Only the first "
+		             + "becomes an enum, so the columns carrying the others are typed on members they "
+		             + "do not hold. Give each option set a \"Name\" of its own in the .table files "
+		             + "declaring them.",
+		category: "XrmFramework.Generators",
+		defaultSeverity: DiagnosticSeverity.Error,
+		isEnabledByDefault: true,
+		helpLinkUri: DiagnosticIds.HelpLink("XRM1003"));
+
+	private static readonly DiagnosticDescriptor UndeclarableOptionSetMember = new(
+		id: "XRM1004",
+		title: "Option set member the enum cannot declare",
+		messageFormat: "The option set '{0}' cannot declare the member '{1}' ({2}): {3}. The member is "
+		             + "left out of the generated enum — rename it in the .table file declaring the "
+		             + "option set.",
+		category: "XrmFramework.Generators",
+		defaultSeverity: DiagnosticSeverity.Error,
+		isEnabledByDefault: true,
+		helpLinkUri: DiagnosticIds.HelpLink("XRM1004"));
 
 
 	/// <summary>

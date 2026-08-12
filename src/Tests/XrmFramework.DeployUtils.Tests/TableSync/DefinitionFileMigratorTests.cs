@@ -301,6 +301,85 @@ public class DefinitionFileMigratorTests
             File.ReadAllText(Path.Combine(_tempDir, OptionSetFileName)));
     }
 
+    /// <summary>
+    /// Two tables name their own option set alike, and only the second selects the column carrying
+    /// it. The generator declares it once, for that second table — so the enum goes.
+    /// </summary>
+    /// <remarks>
+    /// This migration and the generator each used to read "the generator regenerates it" their own
+    /// way, and this is where the two parted: the migration deleted the enum on the grounds that a
+    /// selected column carried it somewhere, while the generator let the first table claim the name
+    /// and then declined to emit anything under it. The project was left with columns typed on an
+    /// enum no file declared. Both now answer to <c>OptionSetSelection</c>.
+    /// </remarks>
+    [Test]
+    public void Migrate_TrimsAnEnumTwoTablesNameAlike_WhenOneOfThemSelectsIt()
+    {
+        var account = BuildTable("Account", "account");
+        account.Columns.Add(new Column
+        {
+            LogicalName = "preferredappointmenttimecode", Name = "PreferredAppointmentTimeCode",
+            Selected = false, EnumName = "account|preferredappointmenttimecode"
+        });
+        account.Enums.Add(new OptionSetEnum
+        {
+            LogicalName = "account|preferredappointmenttimecode", Name = "HeurePrivilegiee"
+        });
+
+        var contact = BuildTable("Contact", "contact");
+        contact.Columns.Add(new Column
+        {
+            LogicalName = "preferredappointmenttimecode", Name = "PreferredAppointmentTimeCode",
+            Selected = true, EnumName = "contact|preferredappointmenttimecode"
+        });
+        contact.Enums.Add(new OptionSetEnum
+        {
+            LogicalName = "contact|preferredappointmenttimecode", Name = "HeurePrivilegiee"
+        });
+
+        WriteTable(account);
+        WriteTable(contact);
+        WriteCs(OptionSetFileName, OptionSetDefinitions("HeurePrivilegiee"));
+
+        new DefinitionFileMigrator(_tempDir).Migrate();
+
+        Assert.IsFalse(File.Exists(Path.Combine(_tempDir, OptionSetFileName)),
+            "Contact selects the column: the generator declares the enum, so the file may go.");
+    }
+
+    /// <summary>
+    /// The same two tables, neither selecting the column: no enum comes out of the generator, and
+    /// deleting the hand-written one would drop it altogether.
+    /// </summary>
+    [Test]
+    public void Migrate_KeepsAnEnumTwoTablesNameAlike_WhenNeitherSelectsIt()
+    {
+        foreach (var name in new[] { "Account", "Contact" })
+        {
+            var table = BuildTable(name, name.ToLowerInvariant());
+            table.Columns.Add(new Column
+            {
+                LogicalName = "preferredappointmenttimecode", Name = "PreferredAppointmentTimeCode",
+                Selected = false, EnumName = $"{name.ToLowerInvariant()}|preferredappointmenttimecode"
+            });
+            table.Enums.Add(new OptionSetEnum
+            {
+                LogicalName = $"{name.ToLowerInvariant()}|preferredappointmenttimecode",
+                Name = "HeurePrivilegiee"
+            });
+
+            WriteTable(table);
+        }
+
+        WriteCs(OptionSetFileName, OptionSetDefinitions("HeurePrivilegiee"));
+
+        var skipped = new DefinitionFileMigrator(_tempDir).Migrate();
+
+        Assert.AreEqual(1, skipped);
+        StringAssert.Contains("enum HeurePrivilegiee",
+            File.ReadAllText(Path.Combine(_tempDir, OptionSetFileName)));
+    }
+
     [Test]
     public void Migrate_DeletesOptionSetDefinitions_EvenWhenNoDefinitionFileIsLeft()
     {

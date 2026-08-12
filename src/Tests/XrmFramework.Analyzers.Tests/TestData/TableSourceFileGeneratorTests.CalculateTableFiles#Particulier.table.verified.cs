@@ -44,6 +44,4 @@ namespace XrmFramework
             public const string ftp_ContratdeLocation_Locataire_ftp_Parti = "ftp_ContratdeLocation_Locataire_ftp_Parti";
         }
     }
-
-
 }
