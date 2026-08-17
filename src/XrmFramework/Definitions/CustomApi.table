@@ -480,55 +480,6 @@
   "NtoN": [],
   "OneToN": [
     {
-      "Name": "customapi_SyncErrors",
-      "Etn": "syncerror",
-      "Role": "Referenced",
-      "NavPropName": "customapi_SyncErrors",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "customapi_AsyncOperations",
-      "Etn": "asyncoperation",
-      "Role": "Referenced",
-      "NavPropName": "customapi_AsyncOperations",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "customapi_MailboxTrackingFolders",
-      "Etn": "mailboxtrackingfolder",
-      "Role": "Referenced",
-      "NavPropName": "customapi_MailboxTrackingFolders",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "customapi_UserEntityInstanceDatas",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "customapi_UserEntityInstanceDatas",
-      "LookName": "objectid"
-    },
-    {
-      "Name": "customapi_ProcessSession",
-      "Etn": "processsession",
-      "Role": "Referenced",
-      "NavPropName": "customapi_ProcessSession",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "customapi_BulkDeleteFailures",
-      "Etn": "bulkdeletefailure",
-      "Role": "Referenced",
-      "NavPropName": "customapi_BulkDeleteFailures",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "customapi_PrincipalObjectAttributeAccesses",
-      "Etn": "principalobjectattributeaccess",
-      "Role": "Referenced",
-      "NavPropName": "customapi_PrincipalObjectAttributeAccesses",
-      "LookName": "objectid"
-    },
-    {
       "Name": "customapi_customapirequestparameter",
       "Etn": "customapirequestparameter",
       "Role": "Referenced",
@@ -541,13 +492,6 @@
       "Role": "Referenced",
       "NavPropName": "CustomAPIResponseProperties",
       "LookName": "customapiid"
-    },
-    {
-      "Name": "catalogassignment_customapi",
-      "Etn": "catalogassignment",
-      "Role": "Referenced",
-      "NavPropName": "CatalogAssignments",
-      "LookName": "object"
     }
   ],
   "NToOne": [
@@ -586,12 +530,6 @@
       "Etn": "team",
       "NavPropName": "owningteam",
       "LookName": "owningteam"
-    },
-    {
-      "Name": "owner_customapi",
-      "Etn": "owner",
-      "NavPropName": "ownerid",
-      "LookName": "ownerid"
     },
     {
       "Name": "business_unit_customapi",

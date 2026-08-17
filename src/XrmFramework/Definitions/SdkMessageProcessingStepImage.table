@@ -293,15 +293,7 @@
     }
   ],
   "NtoN": [],
-  "OneToN": [
-    {
-      "Name": "userentityinstancedata_sdkmessageprocessingstepimage",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "userentityinstancedata_sdkmessageprocessingstepimage",
-      "LookName": "objectid"
-    }
-  ],
+  "OneToN": [],
   "NToOne": [
     {
       "Name": "lk_sdkmessageprocessingstepimage_createdonbehalfby",
@@ -326,12 +318,6 @@
       "Etn": "systemuser",
       "NavPropName": "createdby",
       "LookName": "createdby"
-    },
-    {
-      "Name": "organization_sdkmessageprocessingstepimage",
-      "Etn": "organization",
-      "NavPropName": "organizationid",
-      "LookName": "organizationid"
     },
     {
       "Name": "modifiedby_sdkmessageprocessingstepimage",

@@ -372,70 +372,14 @@
       "Select": true
     }
   ],
-  "NtoN": [
-    {
-      "Name": "appactionrule_webresource_scripts",
-      "Etn": "appactionrule",
-      "NavPropName": "appactionrule_webresource_scripts",
-      "LookName": "appactionruleid"
-    }
-  ],
+  "NtoN": [],
   "OneToN": [
-    {
-      "Name": "webresource_savedqueryvisualizations",
-      "Etn": "savedqueryvisualization",
-      "Role": "Referenced",
-      "NavPropName": "webresource_savedqueryvisualizations",
-      "LookName": "webresourceid"
-    },
-    {
-      "Name": "userentityinstancedata_webresource",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "userentityinstancedata_webresource",
-      "LookName": "objectid"
-    },
     {
       "Name": "solution_configuration_webresource",
       "Etn": "solution",
       "Role": "Referenced",
       "NavPropName": "solution_configuration_webresource",
       "LookName": "configurationpageid"
-    },
-    {
-      "Name": "webresource_userqueryvisualizations",
-      "Etn": "userqueryvisualization",
-      "Role": "Referenced",
-      "NavPropName": "webresource_userqueryvisualizations",
-      "LookName": "webresourceid"
-    },
-    {
-      "Name": "lk_theme_logoid",
-      "Etn": "theme",
-      "Role": "Referenced",
-      "NavPropName": "lk_theme_logoid",
-      "LookName": "logoid"
-    },
-    {
-      "Name": "webresource_FileAttachments",
-      "Etn": "fileattachment",
-      "Role": "Referenced",
-      "NavPropName": "webresource_FileAttachments",
-      "LookName": "objectid"
-    },
-    {
-      "Name": "webresource_appaction_iconwebresourceid",
-      "Etn": "appaction",
-      "Role": "Referenced",
-      "NavPropName": "webresource_appaction_iconwebresourceid",
-      "LookName": "iconwebresourceid"
-    },
-    {
-      "Name": "webresource_appaction_onclickeventjavascriptwebresourceid",
-      "Etn": "appaction",
-      "Role": "Referenced",
-      "NavPropName": "webresource_appaction_onclickeventjavascriptwebresourceid",
-      "LookName": "onclickeventjavascriptwebresourceid"
     }
   ],
   "NToOne": [
@@ -462,24 +406,6 @@
       "Etn": "systemuser",
       "NavPropName": "modifiedby",
       "LookName": "modifiedby"
-    },
-    {
-      "Name": "webresource_organization",
-      "Etn": "organization",
-      "NavPropName": "organizationid",
-      "LookName": "organizationid"
-    },
-    {
-      "Name": "FileAttachment_WebResource_ContentFileRef",
-      "Etn": "fileattachment",
-      "NavPropName": "ContentFileRef",
-      "LookName": "contentfileref"
-    },
-    {
-      "Name": "FileAttachment_WebResource_ContentJsonFileRef",
-      "Etn": "fileattachment",
-      "NavPropName": "ContentJsonFileRef",
-      "LookName": "contentjsonfileref"
     }
   ],
   "Keys": [],

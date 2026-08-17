@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/SolutionItems/" />
   <Folder Name="/SolutionItems/Build/">
+    <File Path="../Directory.Packages.props" />
     <File Path="../version.json" />
     <File Path="Build/Versioning.targets" />
     <File Path="Directory.Build.props" />
@@ -12,12 +13,12 @@
     <Project Path="Tests/XrmFramework.Core.Tests/XrmFramework.Core.Tests.csproj" />
     <Project Path="Tests/XrmFramework.DeployUtils.Tests/XrmFramework.DeployUtils.Tests.csproj" />
     <Project Path="Tests/XrmFramework.Generators.Tests/XrmFramework.Generators.Tests.csproj" />
-    <Project Path="Tests/XrmFramework.PluginInventory.Tests/XrmFramework.PluginInventory.Tests.csproj" />
     <Project Path="Tests/XrmFramework.Plugin.Tests/XrmFramework.Plugin.Tests.csproj" />
+    <Project Path="Tests/XrmFramework.PluginInventory.Tests/XrmFramework.PluginInventory.Tests.csproj" />
     <Project Path="Tests/XrmFramework.Tests/XrmFramework.Tests.csproj" />
   </Folder>
-  <Project Path="XrmFramework.Analyzers/XrmFramework.Analyzers.csproj" />
   <Project Path="XrmFramework.Analyzers.CodeFixes/XrmFramework.Analyzers.CodeFixes.csproj" />
+  <Project Path="XrmFramework.Analyzers/XrmFramework.Analyzers.csproj" />
   <Project Path="XrmFramework.Cli/XrmFramework.Cli.csproj" />
   <Project Path="XrmFramework.Core/XrmFramework.Core.csproj" />
   <Project Path="XrmFramework.CoreProject.OnPremise/XrmFramework.CoreProject.OnPremise.csproj" />

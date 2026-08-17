@@ -357,14 +357,7 @@
       "Labels": []
     }
   ],
-  "NtoN": [
-    {
-      "Name": "package_solution",
-      "Etn": "package",
-      "NavPropName": "package_solution",
-      "LookName": "packageid"
-    }
-  ],
+  "NtoN": [],
   "OneToN": [
     {
       "Name": "solution_solutioncomponent",
@@ -374,20 +367,6 @@
       "LookName": "solutionid"
     },
     {
-      "Name": "solution_base_dependencynode",
-      "Etn": "dependencynode",
-      "Role": "Referenced",
-      "NavPropName": "solution_base_dependencynode",
-      "LookName": "basesolutionid"
-    },
-    {
-      "Name": "solution_top_dependencynode",
-      "Etn": "dependencynode",
-      "Role": "Referenced",
-      "NavPropName": "solution_top_dependencynode",
-      "LookName": "topsolutionid"
-    },
-    {
       "Name": "solution_parent_solution",
       "Etn": "solution",
       "Role": "Referenced",
@@ -395,66 +374,10 @@
       "LookName": "parentsolutionid"
     },
     {
-      "Name": "Solution_SyncErrors",
-      "Etn": "syncerror",
-      "Role": "Referenced",
-      "NavPropName": "Solution_SyncErrors",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "userentityinstancedata_solution",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "userentityinstancedata_solution",
-      "LookName": "objectid"
-    },
-    {
-      "Name": "FileAttachment_Solution",
-      "Etn": "fileattachment",
-      "Role": "Referenced",
-      "NavPropName": "regardingobjectid_fileattachment_solution",
-      "LookName": "objectid"
-    },
-    {
-      "Name": "FK_CanvasApp_Solution",
-      "Etn": "canvasapp",
-      "Role": "Referenced",
-      "NavPropName": "FK_CanvasApp_Solution",
-      "LookName": "solutionid"
-    },
-    {
-      "Name": "solution_fieldpermission",
-      "Etn": "fieldpermission",
-      "Role": "Referenced",
-      "NavPropName": "solution_fieldpermission",
-      "LookName": "solutionid"
-    },
-    {
-      "Name": "solution_fieldsecurityprofile",
-      "Etn": "fieldsecurityprofile",
-      "Role": "Referenced",
-      "NavPropName": "solution_fieldsecurityprofile",
-      "LookName": "solutionid"
-    },
-    {
-      "Name": "solution_privilege",
-      "Etn": "privilege",
-      "Role": "Referenced",
-      "NavPropName": "solution_privilege",
-      "LookName": "solutionid"
-    },
-    {
       "Name": "solution_role",
       "Etn": "role",
       "Role": "Referenced",
       "NavPropName": "solution_role",
-      "LookName": "solutionid"
-    },
-    {
-      "Name": "solution_roleprivileges",
-      "Etn": "roleprivileges",
-      "Role": "Referenced",
-      "NavPropName": "solution_roleprivileges",
       "LookName": "solutionid"
     }
   ],
@@ -490,12 +413,6 @@
       "LookName": "modifiedonbehalfby"
     },
     {
-      "Name": "organization_solution",
-      "Etn": "organization",
-      "NavPropName": "organizationid",
-      "LookName": "organizationid"
-    },
-    {
       "Name": "lk_solutionbase_createdonbehalfby",
       "Etn": "systemuser",
       "NavPropName": "createdonbehalfby",
@@ -506,12 +423,6 @@
       "Etn": "publisher",
       "NavPropName": "publisherid",
       "LookName": "publisherid"
-    },
-    {
-      "Name": "fileattachment_solution_fileid",
-      "Etn": "fileattachment",
-      "NavPropName": "fileid",
-      "LookName": "fileid"
     }
   ],
   "Keys": [],

@@ -1,6 +1,6 @@
 {
   "LogName": "pluginpackage",
-  "Name": "Pluginpackage",
+  "Name": "PluginPackage",
   "CollName": "pluginpackages",
   "Cols": [
     {
@@ -368,55 +368,6 @@
   "NtoN": [],
   "OneToN": [
     {
-      "Name": "pluginpackage_SyncErrors",
-      "Etn": "syncerror",
-      "Role": "Referenced",
-      "NavPropName": "pluginpackage_SyncErrors",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "pluginpackage_AsyncOperations",
-      "Etn": "asyncoperation",
-      "Role": "Referenced",
-      "NavPropName": "pluginpackage_AsyncOperations",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "pluginpackage_MailboxTrackingFolders",
-      "Etn": "mailboxtrackingfolder",
-      "Role": "Referenced",
-      "NavPropName": "pluginpackage_MailboxTrackingFolders",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "pluginpackage_UserEntityInstanceDatas",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "pluginpackage_UserEntityInstanceDatas",
-      "LookName": "objectid"
-    },
-    {
-      "Name": "pluginpackage_BulkDeleteFailures",
-      "Etn": "bulkdeletefailure",
-      "Role": "Referenced",
-      "NavPropName": "pluginpackage_BulkDeleteFailures",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "pluginpackage_PrincipalObjectAttributeAccesses",
-      "Etn": "principalobjectattributeaccess",
-      "Role": "Referenced",
-      "NavPropName": "pluginpackage_PrincipalObjectAttributeAccesses",
-      "LookName": "objectid"
-    },
-    {
-      "Name": "pluginpackage_FileAttachments",
-      "Etn": "fileattachment",
-      "Role": "Referenced",
-      "NavPropName": "pluginpackage_FileAttachments",
-      "LookName": "objectid"
-    },
-    {
       "Name": "pluginpackage_pluginassembly",
       "Etn": "pluginassembly",
       "Role": "Referenced",
@@ -448,12 +399,6 @@
       "Etn": "systemuser",
       "NavPropName": "modifiedonbehalfby",
       "LookName": "modifiedonbehalfby"
-    },
-    {
-      "Name": "organization_pluginpackage",
-      "Etn": "organization",
-      "NavPropName": "organizationid",
-      "LookName": "organizationid"
     },
     {
       "Name": "FileAttachment_pluginpackage_FileId",

@@ -345,31 +345,10 @@
       "LookName": "sdkmessageid"
     },
     {
-      "Name": "userentityinstancedata_sdkmessage",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "userentityinstancedata_sdkmessage",
-      "LookName": "objectid"
-    },
-    {
       "Name": "sdkmessageid_sdkmessagefilter",
       "Etn": "sdkmessagefilter",
       "Role": "Referenced",
       "NavPropName": "sdkmessageid_sdkmessagefilter",
-      "LookName": "sdkmessageid"
-    },
-    {
-      "Name": "message_sdkmessagepair",
-      "Etn": "sdkmessagepair",
-      "Role": "Referenced",
-      "NavPropName": "message_sdkmessagepair",
-      "LookName": "sdkmessageid"
-    },
-    {
-      "Name": "sdkmessageid_workflow_dependency",
-      "Etn": "workflowdependency",
-      "Role": "Referenced",
-      "NavPropName": "sdkmessageid_workflow_dependency",
       "LookName": "sdkmessageid"
     },
     {
@@ -378,13 +357,6 @@
       "Role": "Referenced",
       "NavPropName": "CustomAPIId",
       "LookName": "sdkmessageid"
-    },
-    {
-      "Name": "sdkmessage_serviceplanmapping",
-      "Etn": "serviceplanmapping",
-      "Role": "Referenced",
-      "NavPropName": "sdkmessage_serviceplanmapping",
-      "LookName": "sdkmessage"
     }
   ],
   "NToOne": [
@@ -405,12 +377,6 @@
       "Etn": "systemuser",
       "NavPropName": "createdonbehalfby",
       "LookName": "createdonbehalfby"
-    },
-    {
-      "Name": "organization_sdkmessage",
-      "Etn": "organization",
-      "NavPropName": "organizationid",
-      "LookName": "organizationid"
     },
     {
       "Name": "modifiedby_sdkmessage",

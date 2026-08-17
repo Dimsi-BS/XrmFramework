@@ -85,28 +85,10 @@
       "LookName": "systemuserid"
     },
     {
-      "Name": "roleprivileges_association",
-      "Etn": "privilege",
-      "NavPropName": "roleprivileges",
-      "LookName": "privilegeid"
-    },
-    {
-      "Name": "appmoduleroles_association",
-      "Etn": "appmodule",
-      "NavPropName": "appmoduleroles",
-      "LookName": "appmoduleid"
-    },
-    {
       "Name": "teamroles_association",
       "Etn": "team",
       "NavPropName": "teamroles",
       "LookName": "teamid"
-    },
-    {
-      "Name": "applicationuserrole",
-      "Etn": "applicationuser",
-      "NavPropName": "applicationuserrole",
-      "LookName": "applicationuserid"
     }
   ],
   "OneToN": [
@@ -118,46 +100,11 @@
       "LookName": "parentroleid"
     },
     {
-      "Name": "Role_AsyncOperations",
-      "Etn": "asyncoperation",
-      "Role": "Referenced",
-      "NavPropName": "Role_AsyncOperations",
-      "LookName": "regardingobjectid"
-    },
-    {
       "Name": "role_parent_root_role",
       "Etn": "role",
       "Role": "Referenced",
       "NavPropName": "role_parent_root_role",
       "LookName": "parentrootroleid"
-    },
-    {
-      "Name": "Role_BulkDeleteFailures",
-      "Etn": "bulkdeletefailure",
-      "Role": "Referenced",
-      "NavPropName": "Role_BulkDeleteFailures",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "Role_SyncErrors",
-      "Etn": "syncerror",
-      "Role": "Referenced",
-      "NavPropName": "Role_SyncErrors",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "userentityinstancedata_role",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "userentityinstancedata_role",
-      "LookName": "objectid"
-    },
-    {
-      "Name": "lk_msdyn_roleid",
-      "Etn": "msdyn_actioncardrolesetting",
-      "Role": "Referenced",
-      "NavPropName": "msdyn_role_msdyn_actioncardrolesetting",
-      "LookName": "msdyn_roleid"
     }
   ],
   "NToOne": [
@@ -172,12 +119,6 @@
       "Etn": "role",
       "NavPropName": "parentroleid",
       "LookName": "parentroleid"
-    },
-    {
-      "Name": "organization_roles",
-      "Etn": "organization",
-      "NavPropName": "organizationid_organization",
-      "LookName": "organizationid"
     },
     {
       "Name": "business_unit_roles",

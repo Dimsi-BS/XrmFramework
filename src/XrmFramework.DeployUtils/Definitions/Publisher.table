@@ -798,53 +798,11 @@
   "NtoN": [],
   "OneToN": [
     {
-      "Name": "Publisher_PublisherAddress",
-      "Etn": "publisheraddress",
-      "Role": "Referenced",
-      "NavPropName": "Publisher_PublisherAddress",
-      "LookName": "parentid"
-    },
-    {
-      "Name": "Publisher_DuplicateBaseRecord",
-      "Etn": "duplicaterecord",
-      "Role": "Referenced",
-      "NavPropName": "Publisher_DuplicateBaseRecord",
-      "LookName": "baserecordid"
-    },
-    {
-      "Name": "Publisher_DuplicateMatchingRecord",
-      "Etn": "duplicaterecord",
-      "Role": "Referenced",
-      "NavPropName": "Publisher_DuplicateMatchingRecord",
-      "LookName": "duplicaterecordid"
-    },
-    {
       "Name": "publisher_solution",
       "Etn": "solution",
       "Role": "Referenced",
       "NavPropName": "publisher_solution",
       "LookName": "publisherid"
-    },
-    {
-      "Name": "Publisher_SyncErrors",
-      "Etn": "syncerror",
-      "Role": "Referenced",
-      "NavPropName": "Publisher_SyncErrors",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "publisher_appmodule",
-      "Etn": "appmodule",
-      "Role": "Referenced",
-      "NavPropName": "publisher_appmodule",
-      "LookName": "publisherid"
-    },
-    {
-      "Name": "userentityinstancedata_publisher",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "userentityinstancedata_publisher",
-      "LookName": "objectid"
     }
   ],
   "NToOne": [
@@ -859,18 +817,6 @@
       "Etn": "systemuser",
       "NavPropName": "modifiedby",
       "LookName": "modifiedby"
-    },
-    {
-      "Name": "lk_publisher_entityimage",
-      "Etn": "imagedescriptor",
-      "NavPropName": "entityimageid_imagedescriptor",
-      "LookName": "entityimageid"
-    },
-    {
-      "Name": "organization_publisher",
-      "Etn": "organization",
-      "NavPropName": "organizationid",
-      "LookName": "organizationid"
     },
     {
       "Name": "lk_publisherbase_modifiedonbehalfby",
