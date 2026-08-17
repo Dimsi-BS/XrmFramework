@@ -19,7 +19,7 @@
     <!-- ═══════════════════════════════════════════════════════════
          Microsoft Dataverse / CRM SDK
          ═══════════════════════════════════════════════════════════ -->
-    <Ver_DataverseClient>1.2.10</Ver_DataverseClient>
+    <Ver_DataverseClient>1.2.26</Ver_DataverseClient>
     <Ver_CrmSdkCoreAssemblies>9.0.2.60</Ver_CrmSdkCoreAssemblies>
     <Ver_CrmSdkWorkflow>9.0.2.60</Ver_CrmSdkWorkflow>
     <!-- Default version (OnPremise). DeployUtils/net462 uses 9.1.1.45 via VersionOverride. -->
@@ -34,7 +34,7 @@
          Microsoft Extensions
          ═══════════════════════════════════════════════════════════ -->
     <!-- Default net8+/net10+. DeployUtils/net462 uses 3.1.8 via VersionOverride. -->
-    <Ver_ExtDependencyInjection>10.0.7</Ver_ExtDependencyInjection>
+    <Ver_ExtDependencyInjection>10.0.10</Ver_ExtDependencyInjection>
 
     <!-- ═══════════════════════════════════════════════════════════
          System packages
@@ -75,7 +75,7 @@
          Build tools
          ═══════════════════════════════════════════════════════════ -->
     <Ver_MSBuildFramework>18.4.0</Ver_MSBuildFramework>
-    <Ver_NerdbankGitVersioning>3.9.50</Ver_NerdbankGitVersioning>
+    <Ver_NerdbankGitVersioning>3.10.91</Ver_NerdbankGitVersioning>
     <Ver_NetFrameworkRefAssemblies>1.0.3</Ver_NetFrameworkRefAssemblies>
     <Ver_SourceLinkGitHub>8.0.0</Ver_SourceLinkGitHub>
 

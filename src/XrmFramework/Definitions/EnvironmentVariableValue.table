@@ -39,71 +39,7 @@
 
   ],
   "NtoN": [],
-  "OneToN": [
-    {
-      "Name": "environmentvariablevalue_SyncErrors",
-      "Etn": "syncerror",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariablevalue_SyncErrors",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "environmentvariablevalue_DuplicateMatchingRecord",
-      "Etn": "duplicaterecord",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariablevalue_DuplicateMatchingRecord",
-      "LookName": "duplicaterecordid"
-    },
-    {
-      "Name": "environmentvariablevalue_DuplicateBaseRecord",
-      "Etn": "duplicaterecord",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariablevalue_DuplicateBaseRecord",
-      "LookName": "baserecordid"
-    },
-    {
-      "Name": "environmentvariablevalue_AsyncOperations",
-      "Etn": "asyncoperation",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariablevalue_AsyncOperations",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "environmentvariablevalue_MailboxTrackingFolders",
-      "Etn": "mailboxtrackingfolder",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariablevalue_MailboxTrackingFolders",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "environmentvariablevalue_UserEntityInstanceDatas",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariablevalue_UserEntityInstanceDatas",
-      "LookName": "objectid"
-    },
-    {
-      "Name": "environmentvariablevalue_ProcessSession",
-      "Etn": "processsession",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariablevalue_ProcessSession",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "environmentvariablevalue_BulkDeleteFailures",
-      "Etn": "bulkdeletefailure",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariablevalue_BulkDeleteFailures",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "environmentvariablevalue_PrincipalObjectAttributeAccesses",
-      "Etn": "principalobjectattributeaccess",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariablevalue_PrincipalObjectAttributeAccesses",
-      "LookName": "objectid"
-    }
-  ],
+  "OneToN": [],
   "NToOne": [
     {
       "Name": "lk_environmentvariablevalue_createdby",
@@ -140,12 +76,6 @@
       "Etn": "team",
       "NavPropName": "owningteam",
       "LookName": "owningteam"
-    },
-    {
-      "Name": "owner_environmentvariablevalue",
-      "Etn": "owner",
-      "NavPropName": "ownerid",
-      "LookName": "ownerid"
     },
     {
       "Name": "business_unit_environmentvariablevalue",

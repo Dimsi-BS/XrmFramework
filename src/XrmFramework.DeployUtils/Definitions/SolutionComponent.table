@@ -176,13 +176,6 @@
   "NtoN": [],
   "OneToN": [
     {
-      "Name": "userentityinstancedata_solutioncomponent",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "userentityinstancedata_solutioncomponent",
-      "LookName": "objectid"
-    },
-    {
       "Name": "solutioncomponent_parent_solutioncomponent",
       "Etn": "solutioncomponent",
       "Role": "Referenced",

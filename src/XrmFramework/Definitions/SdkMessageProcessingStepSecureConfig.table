@@ -17,13 +17,6 @@
   "NtoN": [],
   "OneToN": [
     {
-      "Name": "userentityinstancedata_sdkmessageprocessingstepsecureconfig",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "userentityinstancedata_sdkmessageprocessingstepsecureconfig",
-      "LookName": "objectid"
-    },
-    {
       "Name": "sdkmessageprocessingstepsecureconfigid_sdkmessageprocessingstep",
       "Etn": "sdkmessageprocessingstep",
       "Role": "Referenced",
@@ -49,12 +42,6 @@
       "Etn": "systemuser",
       "NavPropName": "modifiedonbehalfby",
       "LookName": "modifiedonbehalfby"
-    },
-    {
-      "Name": "organization_sdkmessageprocessingstepsecureconfig",
-      "Etn": "organization",
-      "NavPropName": "organizationid",
-      "LookName": "organizationid"
     },
     {
       "Name": "createdby_sdkmessageprocessingstepsecureconfig",

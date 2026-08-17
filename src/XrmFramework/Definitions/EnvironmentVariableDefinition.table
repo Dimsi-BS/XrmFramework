@@ -101,84 +101,8 @@
       "Select": true
     }
   ],
-  "NtoN": [
-    {
-      "Name": "bot_environmentvariabledefinition",
-      "Etn": "bot",
-      "NavPropName": "bot_environmentvariabledefinition",
-      "LookName": "botid"
-    },
-    {
-      "Name": "botcomponent_environmentvariabledefinition",
-      "Etn": "botcomponent",
-      "NavPropName": "botcomponent_environmentvariabledefinition",
-      "LookName": "botcomponentid"
-    }
-  ],
+  "NtoN": [],
   "OneToN": [
-    {
-      "Name": "environmentvariabledefinition_SyncErrors",
-      "Etn": "syncerror",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariabledefinition_SyncErrors",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "environmentvariabledefinition_DuplicateMatchingRecord",
-      "Etn": "duplicaterecord",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariabledefinition_DuplicateMatchingRecord",
-      "LookName": "duplicaterecordid"
-    },
-    {
-      "Name": "environmentvariabledefinition_DuplicateBaseRecord",
-      "Etn": "duplicaterecord",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariabledefinition_DuplicateBaseRecord",
-      "LookName": "baserecordid"
-    },
-    {
-      "Name": "environmentvariabledefinition_AsyncOperations",
-      "Etn": "asyncoperation",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariabledefinition_AsyncOperations",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "environmentvariabledefinition_MailboxTrackingFolders",
-      "Etn": "mailboxtrackingfolder",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariabledefinition_MailboxTrackingFolders",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "environmentvariabledefinition_UserEntityInstanceDatas",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariabledefinition_UserEntityInstanceDatas",
-      "LookName": "objectid"
-    },
-    {
-      "Name": "environmentvariabledefinition_ProcessSession",
-      "Etn": "processsession",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariabledefinition_ProcessSession",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "environmentvariabledefinition_BulkDeleteFailures",
-      "Etn": "bulkdeletefailure",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariabledefinition_BulkDeleteFailures",
-      "LookName": "regardingobjectid"
-    },
-    {
-      "Name": "environmentvariabledefinition_PrincipalObjectAttributeAccesses",
-      "Etn": "principalobjectattributeaccess",
-      "Role": "Referenced",
-      "NavPropName": "environmentvariabledefinition_PrincipalObjectAttributeAccesses",
-      "LookName": "objectid"
-    },
     {
       "Name": "envdefinition_envdefinition",
       "Etn": "environmentvariabledefinition",
@@ -230,12 +154,6 @@
       "Etn": "team",
       "NavPropName": "owningteam",
       "LookName": "owningteam"
-    },
-    {
-      "Name": "owner_environmentvariabledefinition",
-      "Etn": "owner",
-      "NavPropName": "ownerid",
-      "LookName": "ownerid"
     },
     {
       "Name": "business_unit_environmentvariabledefinition",

@@ -445,13 +445,6 @@
       "Role": "Referenced",
       "NavPropName": "pluginassembly_plugintype",
       "LookName": "pluginassemblyid"
-    },
-    {
-      "Name": "userentityinstancedata_pluginassembly",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "userentityinstancedata_pluginassembly",
-      "LookName": "objectid"
     }
   ],
   "NToOne": [
@@ -466,12 +459,6 @@
       "Etn": "systemuser",
       "NavPropName": "createdby",
       "LookName": "createdby"
-    },
-    {
-      "Name": "organization_pluginassembly",
-      "Etn": "organization",
-      "NavPropName": "organizationid",
-      "LookName": "organizationid"
     },
     {
       "Name": "lk_pluginassembly_modifiedonbehalfby",
@@ -490,12 +477,6 @@
       "Etn": "pluginpackage",
       "NavPropName": "PackageId",
       "LookName": "packageid"
-    },
-    {
-      "Name": "managedidentity_PluginAssembly",
-      "Etn": "managedidentity",
-      "NavPropName": "managedidentityid",
-      "LookName": "managedidentityid"
     }
   ],
   "Keys": [],

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using XrmFramework.BindingModel;
@@ -9,13 +9,13 @@ namespace XrmFramework.DeployUtils.Model;
 /// <summary>
 ///     Metadata of a Nuget Package
 /// </summary>
-[CrmEntity(PluginpackageDefinition.EntityName)]
+[CrmEntity(PluginPackageDefinition.EntityName)]
 public class PluginPackage : BaseCrmComponent, IBindingModel, IAssemblyComponent
 {
-	[CrmMapping(PluginpackageDefinition.Columns.Name)]
+	[CrmMapping(PluginPackageDefinition.Columns.Name)]
 	public string Name { get; set; }
 
-	[CrmMapping(PluginpackageDefinition.Columns.Version)]
+	[CrmMapping(PluginPackageDefinition.Columns.Version)]
 	public string Version { get; set; }
 
 	public byte[] Content { get; set; }

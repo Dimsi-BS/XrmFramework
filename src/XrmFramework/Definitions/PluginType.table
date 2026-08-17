@@ -365,32 +365,11 @@
       "LookName": "eventhandler"
     },
     {
-      "Name": "plugintype_plugintypestatistic",
-      "Etn": "plugintypestatistic",
-      "Role": "Referenced",
-      "NavPropName": "plugintype_plugintypestatistic",
-      "LookName": "plugintypeid"
-    },
-    {
-      "Name": "userentityinstancedata_plugintype",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "userentityinstancedata_plugintype",
-      "LookName": "objectid"
-    },
-    {
       "Name": "plugintypeid_sdkmessageprocessingstep",
       "Etn": "sdkmessageprocessingstep",
       "Role": "Referenced",
       "NavPropName": "plugintypeid_sdkmessageprocessingstep",
       "LookName": "plugintypeid"
-    },
-    {
-      "Name": "plugin_type_service",
-      "Etn": "service",
-      "Role": "Referenced",
-      "NavPropName": "plugin_type_service",
-      "LookName": "strategyid"
     },
     {
       "Name": "plugintype_customapi",
@@ -412,12 +391,6 @@
       "Etn": "systemuser",
       "NavPropName": "createdonbehalfby",
       "LookName": "createdonbehalfby"
-    },
-    {
-      "Name": "organization_plugintype",
-      "Etn": "organization",
-      "NavPropName": "organizationid",
-      "LookName": "organizationid"
     },
     {
       "Name": "modifiedby_plugintype",

@@ -268,20 +268,6 @@
       "Role": "Referenced",
       "NavPropName": "sdkmessagefilterid_sdkmessageprocessingstep",
       "LookName": "sdkmessagefilterid"
-    },
-    {
-      "Name": "userentityinstancedata_sdkmessagefilter",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "userentityinstancedata_sdkmessagefilter",
-      "LookName": "objectid"
-    },
-    {
-      "Name": "sdkmessagefilter_internalcatalogassignment",
-      "Etn": "internalcatalogassignment",
-      "Role": "Referenced",
-      "NavPropName": "InternalCatalogAssignmentId",
-      "LookName": "object"
     }
   ],
   "NToOne": [
@@ -308,12 +294,6 @@
       "Etn": "systemuser",
       "NavPropName": "createdonbehalfby",
       "LookName": "createdonbehalfby"
-    },
-    {
-      "Name": "organization_sdkmessagefilter",
-      "Etn": "organization",
-      "NavPropName": "organizationid",
-      "LookName": "organizationid"
     },
     {
       "Name": "lk_sdkmessagefilter_modifiedonbehalfby",

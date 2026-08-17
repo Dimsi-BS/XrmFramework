@@ -493,25 +493,11 @@
   "NtoN": [],
   "OneToN": [
     {
-      "Name": "SdkMessageProcessingStep_AsyncOperations",
-      "Etn": "asyncoperation",
-      "Role": "Referenced",
-      "NavPropName": "SdkMessageProcessingStep_AsyncOperations",
-      "LookName": "owningextensionid"
-    },
-    {
       "Name": "sdkmessageprocessingstepid_sdkmessageprocessingstepimage",
       "Etn": "sdkmessageprocessingstepimage",
       "Role": "Referenced",
       "NavPropName": "sdkmessageprocessingstepid_sdkmessageprocessingstepimage",
       "LookName": "sdkmessageprocessingstepid"
-    },
-    {
-      "Name": "userentityinstancedata_sdkmessageprocessingstep",
-      "Etn": "userentityinstancedata",
-      "Role": "Referenced",
-      "NavPropName": "userentityinstancedata_sdkmessageprocessingstep",
-      "LookName": "objectid"
     }
   ],
   "NToOne": [
@@ -538,12 +524,6 @@
       "Etn": "systemuser",
       "NavPropName": "createdonbehalfby",
       "LookName": "createdonbehalfby"
-    },
-    {
-      "Name": "organization_sdkmessageprocessingstep",
-      "Etn": "organization",
-      "NavPropName": "organizationid",
-      "LookName": "organizationid"
     },
     {
       "Name": "impersonatinguserid_sdkmessageprocessingstep",
