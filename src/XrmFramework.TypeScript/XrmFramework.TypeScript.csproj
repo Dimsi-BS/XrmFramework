@@ -6,6 +6,11 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Version consumed by build/netstandard2.0/XrmFramework.TypeScript.props -->
+    <XrmFrameworkShippedVersion Include="Ver_TypeScriptMSBuild" Value="$(Ver_TypeScriptMSBuild)" />
+  </ItemGroup>
+
     <PropertyGroup>
 
         <AssemblyName>XrmFramework.TypeScript</AssemblyName>

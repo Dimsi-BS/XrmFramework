@@ -23,6 +23,7 @@
                 <dependency id="System.Net.Http" version="$Ver_SysNetHttp$"/>
                 <dependency id="Microsoft.CSharp" version="$Ver_MicrosoftCSharp$"/>
                 <dependency id="System.Configuration.ConfigurationManager" version="$Ver_SysConfigurationManager$"/>
+                <dependency id="Microsoft.CrmSdk.XrmTooling.CoreAssembly" version="$Ver_CrmSdkXrmTooling$"/>
                 <dependency id="XrmFramework.Analyzers" version="[$version$]"/>
             </group>
             <group targetFramework="net8.0">
