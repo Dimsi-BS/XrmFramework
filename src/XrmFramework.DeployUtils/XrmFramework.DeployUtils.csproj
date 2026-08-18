@@ -153,7 +153,7 @@
 
   <!--
     The 2.* -> 3.1+ definitions migration is distributed as a standalone .NET tool
-    (XrmFramework.Cli project, "xrmframework tables sync" command).
+    (XrmFramework.Cli project, "xrmframework migrate sync-tables" command).
     The logic still lives here (TableSyncHelper / DefinitionAnalyzer / TableFileSyncer /
     DefinitionFileMigrator).
   -->

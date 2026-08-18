@@ -1,4 +1,4 @@
-﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Microsoft.Xrm.Sdk;
@@ -9,13 +9,6 @@ namespace XrmFramework
     {
         EntityReference UserRef { get; }
         EntityReference BusinessUnitRef { get; }
-
-        /// <summary>
-        /// Date/time provider. Use instead of <see cref="System.DateTime.UtcNow"/>
-        /// and <see cref="System.DateTime.Now"/> to guarantee reproducibility when
-        /// replaying test sessions.
-        /// </summary>
-        IDateTimeProvider Clock { get; }
 
         T GetInputParameter<T>(InputParameters parameterName);
         void SetInputParameter<T>(InputParameters parameterName, T parameterValue);

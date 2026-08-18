@@ -52,7 +52,7 @@ namespace XrmFramework.DeployUtils.TableSync
         /// <summary>
         /// System columns systematically selected when creating a .table: they are
         /// used by nearly all plugins, and activating them one by one via
-        /// <c>tables sync</c> would be needless friction.
+        /// <c>migrate sync-tables</c> would be needless friction.
         /// </summary>
         private static readonly HashSet<string> AlwaysSelectedColumns =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -378,7 +378,7 @@ namespace XrmFramework.DeployUtils.TableSync
         /// <summary>
         /// Selection policy applied to newly discovered columns: the usable minimum.
         /// The other columns are indeed written to the .table with all their
-        /// metadata, but remain inactive until <c>tables sync</c> activates them because
+        /// metadata, but remain inactive until <c>migrate sync-tables</c> activates them because
         /// the code references them — which avoids generating thousands of useless constants.
         /// </summary>
         private static bool IsSelectedByDefault(

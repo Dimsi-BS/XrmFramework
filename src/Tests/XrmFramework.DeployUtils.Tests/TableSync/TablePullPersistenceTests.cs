@@ -61,7 +61,7 @@ public class TablePullPersistenceTests
         Pull(Contrat());
         Assert.IsFalse(LoadTable().Columns.Single(c => c.LogicalName == "ftp_commentaire").Selected);
 
-        // The team activates it — either by hand, or via "tables sync" because the code references it.
+        // The team activates it — either by hand, or via "migrate sync-tables" because the code references it.
         Activate("ftp_commentaire");
 
         // Second pull: the selection must survive.

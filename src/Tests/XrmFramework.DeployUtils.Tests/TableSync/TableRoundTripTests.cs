@@ -16,7 +16,7 @@ namespace XrmFramework.DeployUtils.Tests.TableSync;
 /// <summary>
 /// Safety net for the fidelity of a .table file's load -> rewrite cycle.
 ///
-/// Any command that updates an existing .table (tables sync, tables pull) deserializes it
+/// Any command that updates an existing .table (migrate sync-tables, tables pull) deserializes it
 /// then reserializes it: a JSON property not modeled in <see cref="Table" /> or
 /// <see cref="Column" /> would be silently destroyed in the process. These tests run against
 /// the .table files actually shipped by the framework, which are the richest corpus

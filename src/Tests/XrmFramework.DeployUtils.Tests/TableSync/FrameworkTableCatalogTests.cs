@@ -18,7 +18,7 @@ namespace XrmFramework.DeployUtils.Tests.TableSync;
 /// because it cannot be inferred from the assembly at runtime. These tests are the safety net
 /// for that duplication: adding, removing, or renaming a <c>.table</c> in
 /// <c>src/XrmFramework/Definitions</c> without updating the inventory breaks the build, rather
-/// than letting <c>tables sync</c> silently redeposit a duplicate at consumers' sites.
+/// than letting <c>migrate sync-tables</c> silently redeposit a duplicate at consumers' sites.
 /// </summary>
 [TestFixture]
 public class FrameworkTableCatalogTests

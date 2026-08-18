@@ -13,7 +13,7 @@ namespace XrmFramework.DeployUtils.TableSync
     ///
     /// These files are added as <c>AdditionalFiles</c> to the consumer project: the
     /// Roslyn generator produces <c>SystemUserDefinition</c>, <c>RoleDefinition</c>, ... from them, which
-    /// therefore end up in the assembly analyzed by <c>tables sync</c>. Without this filter, the command
+    /// therefore end up in the assembly analyzed by <c>migrate sync-tables</c>. Without this filter, the command
     /// would drop duplicates in the project's <c>Definitions</c> directory
     /// (<c>SystemUser.table</c>, <c>Role.table</c>, ...) of files already provided by the framework.
     ///
@@ -35,7 +35,7 @@ namespace XrmFramework.DeployUtils.TableSync
         /// Pair (table name, logical name) of a <c>.table</c> shipped by the framework.
         /// The table name is the one from the JSON (<c>Name</c>), not the file name: it is the one that
         /// gives its name to the generated class, and therefore to the <see cref="DefinitionInfo.TableName"/> seen
-        /// by <c>tables sync</c> (<c>EnvironmentVariableDefinition.table</c> thus declares
+        /// by <c>migrate sync-tables</c> (<c>EnvironmentVariableDefinition.table</c> thus declares
         /// <c>EnvironmentVariable</c>).
         /// </summary>
         private sealed class FrameworkTable

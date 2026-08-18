@@ -144,7 +144,7 @@ public class TablePullMergeTests
     public void Merge_KeepsColumnsMissingFromCrm()
     {
         // "pull" refreshes, it does not destroy: deselecting orphans is the job
-        // of "tables sync --clean".
+        // of "migrate sync-tables --clean".
         var existing = Table("account", "Account",
             Column("name", "Name", AttributeTypeCode.String),
             Column("ftp_supprimee", "Supprimee", AttributeTypeCode.String, selected: true));

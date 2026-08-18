@@ -96,7 +96,7 @@ namespace XrmFramework.DeployUtils.TableSync
             }
 
             // A column deleted in the environment is kept: "pull" refreshes, it does not
-            // destroy. It is "tables sync --clean" that handles de-selecting orphans.
+            // destroy. It is "migrate sync-tables --clean" that handles de-selecting orphans.
             foreach (var orphan in existing.Columns.Where(c => !freshLogicalNames.Contains(c.LogicalName)))
                 merged.Columns.Add(orphan);
         }

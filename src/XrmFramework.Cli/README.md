@@ -51,7 +51,7 @@ read from the **`Config/`** folder at the project root:
 | `Config/connectionStrings.config` | Defines the named connection strings (Dataverse / On-Premises). |
 
 `selectedConnection` points to an entry in `connectionStrings.config`: this is
-**the target environment**. The `tables sync` migration, on the other hand, does **not** need
+**the target environment**. The `migrate sync-tables` migration, on the other hand, does **not** need
 a connection (it works solely from a local assembly and the files on disk).
 
 ### Automatic configuration discovery
@@ -77,7 +77,188 @@ DefinitionManager. Failing that, `--tables-dir` becomes mandatory.
 
 ## Commands
 
-### `xrmframework tables sync` ✅ *(available)* — migration from 2.\* to 3.1+
+### `xrmframework tables list` ✅ *(available)*
+
+Lists the tables of the selected environment. The `.table` column indicates which ones are
+already tracked in the project — the information most needed when deciding what to fetch.
+
+```bash
+xrmframework tables list [--prefix <prefix>] [--filter <text>] [--custom-only] [--project-root <dir>]
+```
+
+| Option | Required | Description |
+|---|:---:|---|
+| `--prefix <PREFIX>` | ❌ | Only keeps tables whose **logical name** starts with this prefix (e.g. `ftp_`). |
+| `--filter <TEXT>` | ❌ | Only keeps tables whose logical name **or display name** contains this text. |
+| `--custom-only` | ❌ | Only keeps custom tables. |
+| `--project-root <DIR>` | ❌ | Root containing `Config/` (default: search upward from the current folder). |
+
+**Example**
+
+```bash
+xrmframework tables list --prefix ftp_
+```
+
+Metadata is retrieved without attributes (`EntityFilters.Entity`), which makes the command
+noticeably faster than a full retrieval.
+
+### `xrmframework tables pull` ✅ *(available)*
+
+Generates or updates `.table` files from the environment's metadata: types, localized labels,
+capabilities, bounds, relationships, alternate keys, and option sets. This is the headless
+equivalent of the **DefinitionManager** (WinForms `net462`), usable in CI.
+
+```bash
+xrmframework tables pull [--table <names>] [--prefix <prefix>] [--tables-dir <dir>] [--project-root <dir>] [-n]
+```
+
+| Option | Required | Description |
+|---|:---:|---|
+| `-t`, `--table <NAME>` | ❌ | Logical name of a table. **Repeatable** option that also accepts a comma-separated list. |
+| `--prefix <PREFIX>` | ❌ | Additionally fetches all tables whose logical name starts with this prefix. |
+| `--tables-dir <DIRECTORY>` | ❌ | Target directory (default: the Core project's `Definitions` folder, inferred from the configuration). |
+| `--project-root <DIR>` | ❌ | Root containing `Config/` (default: search upward from the current folder). |
+| `-n`, `--noprompt` | ❌ | Silent mode: skips the confirmation (CI/CD). |
+
+#### Default selection: already-tracked tables
+
+Without `--table` or `--prefix`, `pull` refreshes **all the tables already described by a
+`.table` file** in the target directory — a bulk update after a model change, without having
+to re-enumerate the project's tables.
+
+- The selection is read from the files, by their `LogName`: a renamed `.table` file remains
+  tracked.
+- `OptionSets.table` (global option sets) is excluded — it doesn't correspond to any CRM
+  entity, but is still populated by the tables fetched.
+- A `.table` file whose entity no longer exists in the environment is **reported and skipped**,
+  without interrupting the others; the file is not deleted.
+- If the directory contains no `.table` files, the command stops with code `1` **before
+  connecting**: there's nothing to fetch, so there's no point authenticating for nothing.
+
+**Examples**
+
+```bash
+xrmframework tables pull --noprompt
+```
+
+```bash
+xrmframework tables pull --table account,ftp_contrat --noprompt
+```
+
+#### Column selection
+
+When a `.table` is **created**, only the directly usable columns are activated
+(`Select: true`):
+
+- the primary key, the name column, and the image column (`PrimaryType`);
+- columns participating in an alternate key;
+- `createdon`, `modifiedon`, `statecode`, `statuscode`.
+
+All other columns are indeed **written with their full metadata**, but remain inactive — this
+avoids generating thousands of useless constants. Activating one is a deliberate act: set
+`Select: true` in the `.table` (via the DefinitionManager, by hand, or with the upcoming
+`tables columns`). On a project coming from 2.\*, the initial activation is done in bulk by the
+`migrate sync-tables` migration, which reads it from the existing code.
+
+#### Merge rules for an existing file
+
+> **What becomes a C# identifier belongs to the file; what describes the table belongs to the
+> CRM.**
+
+| Element | Source of truth |
+|---|---|
+| `Name` (table, column, key, option set and its members) | **the file** — manually renamed, compiled code depends on it |
+| `Select` | **the file** — never downgraded |
+| `Locked` | **the file** — local marker, absent from the CRM |
+| `Type`, `PrimaryType`, `Capa`, `Labels`, `StrLen`, `MinRange`, `MaxRange`, `DatBehav`, `IsMultiSelect`, `EnumName`, relationships | **the CRM** |
+
+Other guarantees:
+
+- **A column already selected stays selected.** `pull` never downgrades a `Select: true`, and
+  never re-activates a column that was deliberately deactivated — including `createdon` and
+  the like, even though they are activated by default on creation. This guarantee is verified
+  end-to-end (metadata -> merge -> write -> re-read) by `TablePullPersistenceTests`.
+- The target file is located by its **`LogName`**, not by its file name: a table whose `Name`
+  was manually renamed (`Contract.table` -> `ContractLocation.table`) is correctly updated
+  instead of being duplicated — the selection also survives this renaming.
+- A column present in the file but **absent from the environment** is kept and reported.
+  `pull` refreshes, it does not destroy; deselecting orphaned columns is a separate decision
+  (`migrate sync-tables --clean` does it during a 2.\* migration).
+- **Global** option sets are merged in a purely additive way in `OptionSets.table`: fetching a
+  single table never removes the ones referenced by others.
+- The operation is **idempotent**: a second `pull` on the same table produces an empty diff.
+
+**Exit codes** (common to `list` and `pull`)
+
+| Code | Meaning |
+|:---:|---|
+| `0` | Success (including cancellation at the confirmation prompt). |
+| `1` | No table matches the criteria. |
+| `2` | Configuration or directory not found. |
+| `3` | Unexpected error, or at least one table failed. |
+| `-1` | Argument validation error (Spectre). |
+
+Implementation: [`CrmTableHelper`](../XrmFramework.DeployUtils/TableSync/CrmTableHelper.cs)
+-> [`ProjectConfigLocator`](../XrmFramework.DeployUtils/TableSync/ProjectConfigLocator.cs)
++ [`MetadataTableFactory`](../XrmFramework.DeployUtils/TableSync/MetadataTableFactory.cs)
++ [`TableMerger`](../XrmFramework.DeployUtils/TableSync/TableMerger.cs)
++ [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs).
+
+### `xrmframework deploy plugins` ✅ *(available)*
+
+Deploys an XrmFramework assembly — **plugins, custom APIs, and workflows** — to the
+environment selected in `Config/xrmFramework.config`.
+
+```bash
+xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <dir>] [--on-premise] [--noprompt]
+```
+
+| Option | Required | Description |
+|---|:---:|---|
+| `--dll <PATH>` | ✅ | Plugin project assembly (`net462`, the one registered in Dataverse). |
+| `--project <NAME>` | ✅ | Project name as declared in `xrmFramework.config` (e.g. `Plugins`). |
+| `--project-root <DIR>` | ❌ | Root containing the `Config/` folder (default: current folder). |
+| `--on-premise` | ❌ | Targets an On-Premises CRM (default: Dataverse Online). |
+| `-n`, `--noprompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). |
+
+> **How it works — inventory via actual code execution.** A plugin is `net462`, this tool is
+> `net10.0`: it therefore cannot instantiate the plugin's types itself. It delegates to the
+> **`XrmFramework.PluginInventory`** tool (a `net462` executable, embedded under `inventory/`),
+> which loads the assembly, **executes the constructors (`AddSteps`)**, and reflects over the
+> types, then returns the JSON manifest (plugins / steps / workflows / custom APIs) on its
+> standard output.
+>
+> Consequences:
+> - Step registration is **entirely free-form**: loops, conditions, computed values,
+>   configuration… since the real code runs (no static analysis constraints).
+> - Deployment requires the **.NET Framework runtime** (Windows). For cross-platform
+>   development, a launcher can be provided via the `XRMFRAMEWORK_INVENTORY_LAUNCHER`
+>   environment variable (e.g. `mono`); `XRMFRAMEWORK_INVENTORY_EXE` allows pointing to an
+>   alternative inventory executable.
+
+**Example**
+
+```bash
+xrmframework deploy plugins --dll bin/Release/net462/MyProject.Plugins.dll \
+                            --project MyProject.Plugins \
+                            --noprompt
+```
+
+**Exit codes**
+
+| Code | Meaning |
+|:---:|---|
+| `0` | Success (or cancellation at the confirmation prompt). |
+| `1` | Project missing from `xrmFramework.config`. |
+| `3` | Unexpected error (inventory, connection, deployment…). |
+| `255` | Argument validation error (Spectre). |
+
+Implementation: [`RegistrationHelper.RegisterPluginsAndWorkflows`](../XrmFramework.DeployUtils/RegistrationHelper.cs)
+-> inventory [`XrmFramework.PluginInventory`](../XrmFramework.PluginInventory/PluginInventoryEngine.cs)
+-> [`PluginInventoryReader`](../XrmFramework.DeployUtils/Factories/PluginInventoryReader.cs)
++ [`ConfigHelper.UseProjectConfig`](../XrmFramework.DeployUtils/Configuration/ConfigHelper.cs).
+
+### `xrmframework migrate sync-tables` ✅ *(available)* — migration from 2.\* to 3.1+
 
 **This is a migration tool, meant to be run once**, when upgrading a project from XrmFramework
 2.\* to 3.1 or above. It is not a routine command: afterwards, `tables pull` and the source
@@ -95,7 +276,7 @@ Roslyn generator emits the `*Definition` class at compile time from the `.table`
 checked-in `.cs` is no longer a source — it is a duplicate of generated code, and the project
 does not build until it is dealt with.
 
-`tables sync` performs that hand-over in one pass:
+`migrate sync-tables` performs that hand-over in one pass:
 
 1. it reflects over the **assembly last compiled under 2.\***, whose `*Definition` classes record
    which columns the project's code actually uses, and under which name each option set is
@@ -108,7 +289,7 @@ What travels in step 2 is precisely what the CRM cannot tell you: **C# identifie
 code depends on.** Everything else is metadata `tables pull` can fetch back at any time.
 
 ```bash
-xrmframework tables sync --dll <path.dll> --tables-dir <directory> [--clean]
+xrmframework migrate sync-tables --dll <path.dll> --tables-dir <directory> [--clean]
 ```
 
 | Option | Required | Description |
@@ -120,9 +301,9 @@ xrmframework tables sync --dll <path.dll> --tables-dir <directory> [--clean]
 **Example**
 
 ```bash
-xrmframework tables sync --dll bin/Release/net8.0/MyProject.Plugins.dll \
-                         --tables-dir ../MyProject.Core/Definitions \
-                         --clean
+xrmframework migrate sync-tables --dll bin/Release/net8.0/MyProject.Plugins.dll \
+                                 --tables-dir ../MyProject.Core/Definitions \
+                                 --clean
 ```
 
 > ⚠️ The command **deletes and renames source files** in `--tables-dir` (see below). Run it on a
@@ -299,187 +480,6 @@ Implementation: [`TableSyncHelper.Sync`](../XrmFramework.DeployUtils/TableSyncHe
 + [`TableFileSyncer`](../XrmFramework.DeployUtils/TableSync/TableFileSyncer.cs)
 + [`DefinitionFileMigrator`](../XrmFramework.DeployUtils/TableSync/DefinitionFileMigrator.cs).
 
-### `xrmframework tables list` ✅ *(available)*
-
-Lists the tables of the selected environment. The `.table` column indicates which ones are
-already tracked in the project — the information most needed when deciding what to fetch.
-
-```bash
-xrmframework tables list [--prefix <prefix>] [--filter <text>] [--custom-only] [--project-root <dir>]
-```
-
-| Option | Required | Description |
-|---|:---:|---|
-| `--prefix <PREFIX>` | ❌ | Only keeps tables whose **logical name** starts with this prefix (e.g. `ftp_`). |
-| `--filter <TEXT>` | ❌ | Only keeps tables whose logical name **or display name** contains this text. |
-| `--custom-only` | ❌ | Only keeps custom tables. |
-| `--project-root <DIR>` | ❌ | Root containing `Config/` (default: search upward from the current folder). |
-
-**Example**
-
-```bash
-xrmframework tables list --prefix ftp_
-```
-
-Metadata is retrieved without attributes (`EntityFilters.Entity`), which makes the command
-noticeably faster than a full retrieval.
-
-### `xrmframework tables pull` ✅ *(available)*
-
-Generates or updates `.table` files from the environment's metadata: types, localized labels,
-capabilities, bounds, relationships, alternate keys, and option sets. This is the headless
-equivalent of the **DefinitionManager** (WinForms `net462`), usable in CI.
-
-```bash
-xrmframework tables pull [--table <names>] [--prefix <prefix>] [--tables-dir <dir>] [--project-root <dir>] [-n]
-```
-
-| Option | Required | Description |
-|---|:---:|---|
-| `-t`, `--table <NAME>` | ❌ | Logical name of a table. **Repeatable** option that also accepts a comma-separated list. |
-| `--prefix <PREFIX>` | ❌ | Additionally fetches all tables whose logical name starts with this prefix. |
-| `--tables-dir <DIRECTORY>` | ❌ | Target directory (default: the Core project's `Definitions` folder, inferred from the configuration). |
-| `--project-root <DIR>` | ❌ | Root containing `Config/` (default: search upward from the current folder). |
-| `-n`, `--noprompt` | ❌ | Silent mode: skips the confirmation (CI/CD). |
-
-#### Default selection: already-tracked tables
-
-Without `--table` or `--prefix`, `pull` refreshes **all the tables already described by a
-`.table` file** in the target directory — a bulk update after a model change, without having
-to re-enumerate the project's tables.
-
-- The selection is read from the files, by their `LogName`: a renamed `.table` file remains
-  tracked.
-- `OptionSets.table` (global option sets) is excluded — it doesn't correspond to any CRM
-  entity, but is still populated by the tables fetched.
-- A `.table` file whose entity no longer exists in the environment is **reported and skipped**,
-  without interrupting the others; the file is not deleted.
-- If the directory contains no `.table` files, the command stops with code `1` **before
-  connecting**: there's nothing to fetch, so there's no point authenticating for nothing.
-
-**Examples**
-
-```bash
-xrmframework tables pull --noprompt
-```
-
-```bash
-xrmframework tables pull --table account,ftp_contrat --noprompt
-```
-
-#### Column selection
-
-When a `.table` is **created**, only the directly usable columns are activated
-(`Select: true`):
-
-- the primary key, the name column, and the image column (`PrimaryType`);
-- columns participating in an alternate key;
-- `createdon`, `modifiedon`, `statecode`, `statuscode`.
-
-All other columns are indeed **written with their full metadata**, but remain inactive — this
-avoids generating thousands of useless constants. Activating one is a deliberate act: set
-`Select: true` in the `.table` (via the DefinitionManager, by hand, or with the upcoming
-`tables columns`). On a project coming from 2.\*, the initial activation is done in bulk by the
-`tables sync` migration, which reads it from the existing code.
-
-#### Merge rules for an existing file
-
-> **What becomes a C# identifier belongs to the file; what describes the table belongs to the
-> CRM.**
-
-| Element | Source of truth |
-|---|---|
-| `Name` (table, column, key, option set and its members) | **the file** — manually renamed, compiled code depends on it |
-| `Select` | **the file** — never downgraded |
-| `Locked` | **the file** — local marker, absent from the CRM |
-| `Type`, `PrimaryType`, `Capa`, `Labels`, `StrLen`, `MinRange`, `MaxRange`, `DatBehav`, `IsMultiSelect`, `EnumName`, relationships | **the CRM** |
-
-Other guarantees:
-
-- **A column already selected stays selected.** `pull` never downgrades a `Select: true`, and
-  never re-activates a column that was deliberately deactivated — including `createdon` and
-  the like, even though they are activated by default on creation. This guarantee is verified
-  end-to-end (metadata -> merge -> write -> re-read) by `TablePullPersistenceTests`.
-- The target file is located by its **`LogName`**, not by its file name: a table whose `Name`
-  was manually renamed (`Contract.table` -> `ContractLocation.table`) is correctly updated
-  instead of being duplicated — the selection also survives this renaming.
-- A column present in the file but **absent from the environment** is kept and reported.
-  `pull` refreshes, it does not destroy; deselecting orphaned columns is a separate decision
-  (`tables sync --clean` does it during a 2.\* migration).
-- **Global** option sets are merged in a purely additive way in `OptionSets.table`: fetching a
-  single table never removes the ones referenced by others.
-- The operation is **idempotent**: a second `pull` on the same table produces an empty diff.
-
-**Exit codes** (common to `list` and `pull`)
-
-| Code | Meaning |
-|:---:|---|
-| `0` | Success (including cancellation at the confirmation prompt). |
-| `1` | No table matches the criteria. |
-| `2` | Configuration or directory not found. |
-| `3` | Unexpected error, or at least one table failed. |
-| `-1` | Argument validation error (Spectre). |
-
-Implementation: [`CrmTableHelper`](../XrmFramework.DeployUtils/TableSync/CrmTableHelper.cs)
--> [`ProjectConfigLocator`](../XrmFramework.DeployUtils/TableSync/ProjectConfigLocator.cs)
-+ [`MetadataTableFactory`](../XrmFramework.DeployUtils/TableSync/MetadataTableFactory.cs)
-+ [`TableMerger`](../XrmFramework.DeployUtils/TableSync/TableMerger.cs)
-+ [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs).
-
-### `xrmframework deploy plugins` ✅ *(available)*
-
-Deploys an XrmFramework assembly — **plugins, custom APIs, and workflows** — to the
-environment selected in `Config/xrmFramework.config`.
-
-```bash
-xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <dir>] [--on-premise] [--noprompt]
-```
-
-| Option | Required | Description |
-|---|:---:|---|
-| `--dll <PATH>` | ✅ | Plugin project assembly (`net462`, the one registered in Dataverse). |
-| `--project <NAME>` | ✅ | Project name as declared in `xrmFramework.config` (e.g. `Plugins`). |
-| `--project-root <DIR>` | ❌ | Root containing the `Config/` folder (default: current folder). |
-| `--on-premise` | ❌ | Targets an On-Premises CRM (default: Dataverse Online). |
-| `-n`, `--noprompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). |
-
-> **How it works — inventory via actual code execution.** A plugin is `net462`, this tool is
-> `net10.0`: it therefore cannot instantiate the plugin's types itself. It delegates to the
-> **`XrmFramework.PluginInventory`** tool (a `net462` executable, embedded under `inventory/`),
-> which loads the assembly, **executes the constructors (`AddSteps`)**, and reflects over the
-> types, then returns the JSON manifest (plugins / steps / workflows / custom APIs) on its
-> standard output.
->
-> Consequences:
-> - Step registration is **entirely free-form**: loops, conditions, computed values,
->   configuration… since the real code runs (no static analysis constraints).
-> - Deployment requires the **.NET Framework runtime** (Windows). For cross-platform
->   development, a launcher can be provided via the `XRMFRAMEWORK_INVENTORY_LAUNCHER`
->   environment variable (e.g. `mono`); `XRMFRAMEWORK_INVENTORY_EXE` allows pointing to an
->   alternative inventory executable.
-
-**Example**
-
-```bash
-xrmframework deploy plugins --dll bin/Release/net462/MyProject.Plugins.dll \
-                            --project MyProject.Plugins \
-                            --noprompt
-```
-
-**Exit codes**
-
-| Code | Meaning |
-|:---:|---|
-| `0` | Success (or cancellation at the confirmation prompt). |
-| `1` | Project missing from `xrmFramework.config`. |
-| `3` | Unexpected error (inventory, connection, deployment…). |
-| `255` | Argument validation error (Spectre). |
-
-Implementation: [`RegistrationHelper.RegisterPluginsAndWorkflows`](../XrmFramework.DeployUtils/RegistrationHelper.cs)
--> inventory [`XrmFramework.PluginInventory`](../XrmFramework.PluginInventory/PluginInventoryEngine.cs)
--> [`PluginInventoryReader`](../XrmFramework.DeployUtils/Factories/PluginInventoryReader.cs)
-+ [`ConfigHelper.UseProjectConfig`](../XrmFramework.DeployUtils/Configuration/ConfigHelper.cs).
-
 ---
 
 ## Roadmap
@@ -489,18 +489,21 @@ Target command tree (✅ exist, 🚧 are upcoming):
 ```
 xrmframework
 ├── tables
-│   ├── sync           ✅  migration 2.* -> 3.1+, run once         (offline)
 │   ├── list           ✅  lists the tables of the environment    (connected)
 │   ├── pull           ✅  .table ← Dataverse metadata            (connected)
 │   └── columns        🚧  adds / modifies columns of one or more tables
-└── deploy
-    ├── plugins        ✅  deploys a plugins / custom API / workflow assembly
-    └── webresources   🚧  deploys the webresources
+├── deploy
+│   ├── plugins        ✅  deploys a plugins / custom API / workflow assembly
+│   └── webresources   🚧  deploys the webresources
+└── migrate
+    ├── sync-tables    ✅  migration 2.* -> 3.1+, run once         (offline)
+    └── clock          🚧  DateTime.Now -> IDateTimeProvider in services / plugins
 ```
 
-`sync` stands apart: it is the one-shot upgrade path from 2.\*, not part of the day-to-day loop.
-Routine work is `pull` (rich metadata from the environment) plus column selection in the
-`.table` — which `tables columns` will make scriptable.
+`migrate` stands apart from `tables` and `deploy`: its commands rewrite the project's own
+sources once and are not part of the day-to-day loop — `sync-tables` is the upgrade path
+from 2.\*. Routine work is `pull` (rich metadata from the environment) plus column selection
+in the `.table` — which `tables columns` will make scriptable.
 
 > `deploy plugins` inventories the `net462` plugin assembly by **executing its registration
 > code** via the `XrmFramework.PluginInventory` tool (embedded `net462` executable) — step
@@ -510,7 +513,7 @@ Routine work is `pull` (rich metadata from the environment) plus column selectio
 ### 🚧 `tables columns` — add / modify columns
 
 Manual editing of `.table` files to activate or adjust columns without going through either an
-assembly (`tables sync`) or the environment (`tables pull`). Anticipated verbs (to be
+assembly (`migrate sync-tables`) or the environment (`tables pull`). Anticipated verbs (to be
 finalized): `tables columns add` / `tables columns set`. Will reuse
 [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs) for reading and
 writing.
@@ -521,6 +524,17 @@ writing.
 Deploys the webresources from a project folder to the `SelectedConnection` environment. Will
 rely on [`WebResourceHelper.SyncWebResources`](../XrmFramework.DeployUtils/WebResourceHelper.cs)
 (existing options: `-p/--path`, `-n/--noprompt`).
+
+
+### 🚧 `migrate clock` — inject the clock instead of reading `DateTime`
+
+Rewrites the direct `DateTime.Now` / `DateTime.UtcNow` / `DateTime.Today` reads in the services and
+plugins into an injected [`IDateTimeProvider`](../XrmFramework/Context/IDateTimeProvider.cs)
+parameter — the only shape the framework offers, and what lets those code paths be replayed against
+a [`FixedDateTimeProvider`](../XrmFramework/Context/FixedDateTimeProvider.cs).
+[XRM0300](../../docs/Analyzers.md#xrm0300) already forbids the direct reads and ships the code fix
+for one occurrence; what the command adds is applying it in bulk to a project being upgraded. Verb
+name to be finalized.
 
 ---
 
@@ -556,7 +570,7 @@ To add a command:
 dotnet build src/XrmFramework.Cli -c Release
 
 # run without packaging
-dotnet run --project src/XrmFramework.Cli -- tables sync --dll <dll> --tables-dir <dir>
+dotnet run --project src/XrmFramework.Cli -- migrate sync-tables --dll <dll> --tables-dir <dir>
 
 # package the tool locally and inspect it
 dotnet pack src/XrmFramework.Cli -c Release -o ./nupkg

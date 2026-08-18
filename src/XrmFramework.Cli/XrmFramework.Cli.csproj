@@ -7,7 +7,7 @@
     DefinitionFileMigrator).
 
     Installation:  dotnet tool install XrmFramework.Cli (globally or locally)
-    Invocation  :  xrmframework tables sync (dll / tables-dir / clean options)
+    Invocation  :  xrmframework migrate sync-tables (dll / tables-dir / clean options)
                    -> one-shot migration of the definitions from 2.* to 3.1+
   -->
   <PropertyGroup>
