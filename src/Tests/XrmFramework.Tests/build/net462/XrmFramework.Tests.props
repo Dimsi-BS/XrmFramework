@@ -1,4 +1,6 @@
-<Project>
+﻿<Project>
+
+  <Import Project="$(MSBuildThisFileDirectory)XrmFrameworkVersions.props" />
 
   <!--
     This file is injected into the consuming project by NuGet.
@@ -6,7 +8,7 @@
     propagated as a transitive dependency of the consuming project.
   -->
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="6.0.0">
+    <PackageReference Include="coverlet.collector" Version="$(XrmFrameworkVer_CoverletCollector)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

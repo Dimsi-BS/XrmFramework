@@ -6,10 +6,6 @@
         <None Remove="**\*.table" />
         <AdditionalFiles Include="**/*.table" />
         <Compile Remove="Generated\**" />
-
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
-
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
 
     <PropertyGroup Condition="'$(XrmFrameworkShowGeneratedFiles)' == 'true'">

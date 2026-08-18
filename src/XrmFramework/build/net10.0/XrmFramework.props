@@ -1,8 +1,18 @@
-﻿<Project>
+<Project>
     <Import Project="../XrmFramework.props" />
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.2.10" Exclude="Build,Analyzers"/>
-        <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.2.10" Exclude="Build,Analyzers"/>
-    </ItemGroup>
+    <PropertyGroup>
+        <!--
+          Microsoft.PowerPlatform.Dataverse.Client(.Dynamics) is declared by the net10.0
+          dependency group in XrmFramework.nuspec, so the consuming project already resolves it.
+          It is not restated as a PackageReference here: this file ships verbatim (no $token$
+          substitution), so any version written here silently drifts from Directory.Packages.props.
+
+          The dependency group guarantees the package for this target framework, so we state the
+          result of the XrmFramework.targets detection directly: a transitive dependency never
+          appears in @(PackageReference), so the detection alone would leave DATAVERSE_CLIENT
+          undefined and drop the async APIs. Setting the property in the csproj still wins.
+        -->
+        <XrmFramework_HasDataverseClient Condition="'$(XrmFramework_HasDataverseClient)' == ''">true</XrmFramework_HasDataverseClient>
+    </PropertyGroup>
 </Project>

@@ -1,4 +1,4 @@
-<Solution>
+﻿<Solution>
   <Folder Name="/SolutionItems/" />
   <Folder Name="/SolutionItems/Build/">
     <File Path="../Directory.Packages.props" />
@@ -7,6 +7,7 @@
     <File Path="Directory.Build.props" />
     <File Path="Directory.Build.targets" />
   </Folder>
+  <Folder Name="/SolutionItems/Scripts/" />
   <Folder Name="/Tests/">
     <Project Path="Tests/XrmFramework.Analyzers.Tests/XrmFramework.Analyzers.Tests.csproj" />
     <Project Path="Tests/XrmFramework.BindingModel.Tests/XrmFramework.BindingModel.Tests.csproj" />
@@ -25,6 +26,7 @@
   <Project Path="XrmFramework.CoreProject/XrmFramework.CoreProject.csproj" />
   <Project Path="XrmFramework.DefinitionManager/XrmFramework.DefinitionManager.csproj" />
   <Project Path="XrmFramework.DeployUtils/XrmFramework.DeployUtils.csproj" />
+  <Project Path="XrmFramework.Plugin.Tests/XrmFramework.Plugin.Tests.csproj" />
   <Project Path="XrmFramework.Plugin/XrmFramework.Plugin.csproj" />
   <Project Path="XrmFramework.PluginInventory/XrmFramework.PluginInventory.csproj" />
   <Project Path="XrmFramework.RemoteDebugger.Client/XrmFramework.RemoteDebugger.Client.csproj" />

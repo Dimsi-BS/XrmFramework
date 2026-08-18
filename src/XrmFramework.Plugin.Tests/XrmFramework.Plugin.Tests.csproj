@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <!--
     Source project for the XrmFramework.Plugin.Tests NuGet package.
@@ -20,6 +20,10 @@
     <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
 
     <!-- Packaging -->
+    <!-- Required: referencing Microsoft.NET.Test.Sdk turns IsPackable off by default,
+         which silently skipped Pack even with GeneratePackageOnBuild below. -->
+    <IsPackable>true</IsPackable>
+
     <PackageId>XrmFramework.Plugin.Tests</PackageId>
     <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.Plugin.Tests.nuspec</NuspecFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -32,6 +36,11 @@
     -->
     <IsTestProject>false</IsTestProject>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Version consumed by build/**/*.props -->
+    <XrmFrameworkShippedVersion Include="Ver_CoverletCollector" Value="$(Ver_CoverletCollector)" />
+  </ItemGroup>
 
   <!--
     Reference to the Framework project for local compilation.

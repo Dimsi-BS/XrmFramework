@@ -1,8 +1,4 @@
 ﻿<Project>
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-  </ItemGroup>
-
     <ItemGroup>
         <PackageReference Remove="Microsoft.PowerPlatform.Dataverse.Client" />
         <PackageReference Remove="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" />
