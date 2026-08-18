@@ -26,11 +26,14 @@
       The files are listed one by one on purpose. The wildcard that stood here also swept in the
       .pdb and the .deps.json, and a deps.json in the analyzer folder is at best useless to the
       hosts that load it.
+
+      Newtonsoft.Json.dll is deliberately absent. Roslyn runs analyzers in an isolated
+      AssemblyLoadContext that does not probe their directory, so a loose copy here would never be
+      found; XrmFramework.Analyzers embeds it as a manifest resource and DependencyLoader serves it
+      from there. A clean build puts no such file in either output directory anyway: the wildcard
+      only ever picked one up on a developer machine whose bin still held one from an earlier build.
     -->
     <file src="bin\$config$\netstandard2.0\XrmFramework.Analyzers.dll" target="analyzers\dotnet\cs" />
     <file src="bin\$config$\netstandard2.0\XrmFramework.Analyzers.CodeFixes.dll" target="analyzers\dotnet\cs" />
-
-    <!-- Resolved by DependencyLoader; also embedded in the analyzer itself for dev builds. -->
-    <file src="bin\$config$\netstandard2.0\Newtonsoft.Json.dll" target="analyzers\dotnet\cs" />
   </files>
 </package>
