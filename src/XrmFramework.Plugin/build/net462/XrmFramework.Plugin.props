@@ -15,9 +15,6 @@
   <ItemGroup>
     <Compile Include="$(RootFolder)\$(XrmFrameworkCoreProjectName)\**\*.cs" Exclude="$(RootFolder)\$(XrmFrameworkCoreProjectName)\obj\**;$(RootFolder)\$(XrmFrameworkCoreProjectName)\bin\**" Link="__Imports\$(XrmFrameworkCoreProjectName)\%(RecursiveDir)%(Filename)%(Extension)" />
       <AdditionalFiles Include="$(RootFolder)\$(XrmFrameworkCoreProjectName)\**\*.table" Exclude="$(RootFolder)\$(XrmFrameworkCoreProjectName)\obj\**;$(RootFolder)\$(XrmFrameworkCoreProjectName)\bin\**" Link="__Imports\$(XrmFrameworkCoreProjectName)\%(RecursiveDir)%(Filename)%(Extension)" />
-
-    <PackageReference Remove="Newtonsoft.Json" />
-    <PackageReference Remove="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
 
   <ItemGroup>
