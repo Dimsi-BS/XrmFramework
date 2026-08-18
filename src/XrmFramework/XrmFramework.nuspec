@@ -29,11 +29,13 @@
             <group targetFramework="net8.0">
                 <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="$Ver_DataverseClient$" exclude="Build,Analyzers"/>
                 <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="$Ver_DataverseClient$" exclude="Build,Analyzers"/>
+                <dependency id="Newtonsoft.Json" version="$Ver_NewtonsoftJson$"/>
                 <dependency id="XrmFramework.Analyzers" version="[$version$]"/>
             </group>
             <group targetFramework="net10.0">
                 <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="$Ver_DataverseClient$" exclude="Build,Analyzers"/>
                 <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="$Ver_DataverseClient$" exclude="Build,Analyzers"/>
+                <dependency id="Newtonsoft.Json" version="$Ver_NewtonsoftJson$"/>
                 <dependency id="XrmFramework.Analyzers" version="[$version$]"/>
             </group>
         </dependencies>
