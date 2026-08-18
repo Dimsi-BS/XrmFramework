@@ -1,4 +1,4 @@
-// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
@@ -6,10 +6,10 @@ using Spectre.Console.Cli;
 using XrmFramework.Cli.Commands;
 
 // Entry point of the XrmFramework CLI.
-//   xrmframework tables sync   --dll <path.dll> --tables-dir <directory> [--clean]   (2.* -> 3.1+ migration)
-//   xrmframework tables list   [--prefix <prefix>] [--filter <text>] [--custom-only]
-//   xrmframework tables pull   [--table <name>] [--prefix <prefix>] [--tables-dir <directory>] [--noprompt]
-//   xrmframework deploy plugins --dll <path.dll> --project <name> [--on-premise] [--noprompt]
+//   xrmframework tables list          [--prefix <prefix>] [--filter <text>] [--custom-only]
+//   xrmframework tables pull          [--table <name>] [--prefix <prefix>] [--tables-dir <directory>] [--noprompt]
+//   xrmframework deploy plugins       --dll <path.dll> --project <name> [--on-premise] [--noprompt]
+//   xrmframework migrate sync-tables  --dll <path.dll> --tables-dir <directory> [--clean]   (2.* -> 3.1+ migration)
 
 // A Windows console still starts on a legacy code page (CP850 / CP1252). Those cover Western
 // European letters, so accents survive them, but anything outside their 256 slots does not:
@@ -38,10 +38,6 @@ app.Configure(config =>
     {
         tables.SetDescription("Commands related to tables / .table files.");
 
-        tables.AddCommand<TableSyncCommand>("sync")
-              .WithDescription("Migrates definitions from XrmFramework 2.* to 3.1+: updates the .table files from a 2.* assembly, then cleans up the *Definition.cs files. Run once.")
-              .WithExample("tables", "sync", "--dll", "bin/MyProject.dll", "--tables-dir", "Definitions");
-
         tables.AddCommand<TableListCommand>("list")
               .WithDescription("Lists the tables of the selected environment, filterable by prefix.")
               .WithExample("tables", "list", "--prefix", "ftp_");
@@ -59,6 +55,17 @@ app.Configure(config =>
         deploy.AddCommand<DeployPluginsCommand>("plugins")
               .WithDescription("Deploys an assembly (plugins, custom APIs, workflows) to the selected environment.")
               .WithExample("deploy", "plugins", "--dll", "bin/net8.0/MyProject.Plugins.dll", "--project", "Plugins");
+    });
+
+    // One-shot upgrades, as opposed to the day-to-day loop the other branches serve: each command
+    // here rewrites the project's own sources once, and has no reason to be run again afterwards.
+    config.AddBranch("migrate", migrate =>
+    {
+        migrate.SetDescription("One-shot migrations of a project's sources. Run once, then commit.");
+
+        migrate.AddCommand<MigrateSyncTablesCommand>("sync-tables")
+               .WithDescription("Migrates definitions from XrmFramework 2.* to 3.1+: updates the .table files from a 2.* assembly, then cleans up the *Definition.cs files. Run once.")
+               .WithExample("migrate", "sync-tables", "--dll", "bin/MyProject.dll", "--tables-dir", "Definitions");
     });
 });
 

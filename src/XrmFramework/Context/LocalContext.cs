@@ -1,4 +1,4 @@
-﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using BoDi;
@@ -102,10 +102,6 @@ namespace XrmFramework
         {
             Logger.LogError(e, "ERROR");
         }
-
-
-        /// <inheritdoc />
-        public IDateTimeProvider Clock => ObjectContainer.Resolve<IDateTimeProvider>();
 
         public void DumpLog() => Logger.DumpLog();
 

@@ -158,7 +158,7 @@ public class MetadataTableFactoryTests
         Assert.IsTrue(columns.Single(c => c.LogicalName == "modifiedon").Selected, "modifiedon");
 
         Assert.IsFalse(columns.Single(c => c.LogicalName == "ftp_commentaire").Selected,
-            "An ordinary column stays inactive: it is tables sync that activates it once the code references it.");
+            "An ordinary column stays inactive: it is migrate sync-tables that activates it once the code references it.");
     }
 
     [Test]

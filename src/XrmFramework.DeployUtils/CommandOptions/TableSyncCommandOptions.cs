@@ -6,7 +6,7 @@ using CommandLine;
 namespace XrmFramework.DeployUtils.CommandOptions;
 
 /// <summary>
-/// Options of the 2.* -> 3.1+ definitions migration (<c>xrmframework tables sync</c>).
+/// Options of the 2.* -> 3.1+ definitions migration (<c>xrmframework migrate sync-tables</c>).
 /// </summary>
 public class TableSyncCommandOptions
 {

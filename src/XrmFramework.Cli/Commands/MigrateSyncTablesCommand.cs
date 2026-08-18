@@ -9,8 +9,8 @@ using XrmFramework.DeployUtils;
 namespace XrmFramework.Cli.Commands;
 
 /// <summary>
-/// <c>xrmframework tables sync</c> command: one-shot migration of a project's definitions from
-/// XrmFramework 2.* to 3.1 or above.
+/// <c>xrmframework migrate sync-tables</c> command: one-shot migration of a project's definitions
+/// from XrmFramework 2.* to 3.1 or above.
 /// </summary>
 /// <remarks>
 /// It updates the <c>.table</c> files from the <c>[EntityDefinition]</c> classes of the assembly last
@@ -18,7 +18,7 @@ namespace XrmFramework.Cli.Commands;
 /// everything the 3.1 source generator now emits.
 /// The actual logic lives in <see cref="TableSyncHelper.Sync(string, string, bool)"/>.
 /// </remarks>
-public sealed class TableSyncCommand : Command<TableSyncCommand.Settings>
+public sealed class MigrateSyncTablesCommand : Command<MigrateSyncTablesCommand.Settings>
 {
     public sealed class Settings : CommandSettings
     {
