@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -7,6 +7,18 @@
     <!-- Roslyn component: DLL must not be compiled into consuming assemblies -->
     <IsRoslynComponent>true</IsRoslynComponent>
     <IncludeBuildOutput>false</IncludeBuildOutput>
+
+    <!--
+      This project produces the XrmFramework.Analyzers package, even though it is not the analyzer
+      project. It references the analyzer for DiagnosticIds, so it builds last, and only its output
+      directory holds both assemblies; packing from the analyzer project ran too early and shipped
+      no code fix at all. The reverse reference would be a cycle. See the nuspec next to this file.
+
+      No PackageId is set: giving this project the id of an existing project makes NuGet restore
+      fail with "Ambiguous project name". The package identity comes from the nuspec's own <id>.
+    -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <NuspecFile>$(MSBuildThisFileDirectory)XrmFramework.Analyzers.nuspec</NuspecFile>
 
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -28,14 +40,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Pack the DLL into the NuGet analyzer slot alongside XrmFramework.Analyzers.dll -->
-    <None Include="$(OutputPath)\$(AssemblyName).dll"
-          Pack="true"
-          PackagePath="analyzers/dotnet/cs"
-          Visible="false" />
   </ItemGroup>
 
 </Project>
