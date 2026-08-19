@@ -496,12 +496,11 @@ xrmframework
 │   ├── plugins        ✅  deploys a plugins / custom API / workflow assembly
 │   └── webresources   🚧  deploys the webresources
 └── migrate
-    ├── sync-tables    ✅  migration 2.* -> 3.1+, run once         (offline)
-    └── clock          🚧  DateTime.Now -> IDateTimeProvider in services / plugins
+    └── sync-tables    ✅  migration 2.* -> 3.1+, run once         (offline)
 ```
 
-`migrate` stands apart from `tables` and `deploy`: its commands rewrite the project's own
-sources once and are not part of the day-to-day loop — `sync-tables` is the upgrade path
+`migrate` stands apart from `tables` and `deploy`: its command rewrites the project's own
+sources once and is not part of the day-to-day loop — `sync-tables` is the upgrade path
 from 2.\*. Routine work is `pull` (rich metadata from the environment) plus column selection
 in the `.table` — which `tables columns` will make scriptable.
 
@@ -524,17 +523,6 @@ writing.
 Deploys the webresources from a project folder to the `SelectedConnection` environment. Will
 rely on [`WebResourceHelper.SyncWebResources`](../XrmFramework.DeployUtils/WebResourceHelper.cs)
 (existing options: `-p/--path`, `-n/--noprompt`).
-
-
-### 🚧 `migrate clock` — inject the clock instead of reading `DateTime`
-
-Rewrites the direct `DateTime.Now` / `DateTime.UtcNow` / `DateTime.Today` reads in the services and
-plugins into an injected [`IDateTimeProvider`](../XrmFramework/Context/IDateTimeProvider.cs)
-parameter — the only shape the framework offers, and what lets those code paths be replayed against
-a [`FixedDateTimeProvider`](../XrmFramework/Context/FixedDateTimeProvider.cs).
-[XRM0300](../../docs/Analyzers.md#xrm0300) already forbids the direct reads and ships the code fix
-for one occurrence; what the command adds is applying it in bulk to a project being upgraded. Verb
-name to be finalized.
 
 ---
 
