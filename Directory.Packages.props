@@ -22,7 +22,7 @@
     <Ver_DataverseClient>1.2.26</Ver_DataverseClient>
     <Ver_CrmSdkCoreAssemblies>9.0.2.60</Ver_CrmSdkCoreAssemblies>
     <Ver_CrmSdkWorkflow>9.0.2.60</Ver_CrmSdkWorkflow>
-    <!-- Default version (OnPremise). DeployUtils/net462 uses 9.1.1.45 via VersionOverride. -->
+    <!-- Used by CoreProject.OnPremise and by DeployUtils/net462 (CrmServiceClient). -->
     <Ver_CrmSdkXrmTooling>9.1.1.65</Ver_CrmSdkXrmTooling>
 
     <!-- ═══════════════════════════════════════════════════════════

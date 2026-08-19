@@ -95,8 +95,13 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-    <!-- XrmTooling 9.1.1.45 required on net462; central version = 9.1.1.65 (OnPremise) -->
-    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" VersionOverride="9.1.1.45" />
+    <!--
+      CrmServiceClient (net462 connection, on-premise included) and the Microsoft.Xrm.Sdk.Workflow
+      types used by the linked XrmFramework.Workflows sources. Both are declared in the net462
+      group of the nuspec: the packaged assembly references them, consumers must restore them.
+    -->
+    <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" />
+    <PackageReference Include="Microsoft.CrmSdk.Workflow" />
     <!-- DI 3.1.8 required on net462; central version = 10.0.7 -->
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" VersionOverride="3.1.8" />
 
