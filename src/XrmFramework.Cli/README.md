@@ -118,7 +118,7 @@ xrmframework tables pull [--table <names>] [--prefix <prefix>] [--tables-dir <di
 | `--prefix <PREFIX>` | ❌ | Additionally fetches all tables whose logical name starts with this prefix. |
 | `--tables-dir <DIRECTORY>` | ❌ | Target directory (default: the Core project's `Definitions` folder, inferred from the configuration). |
 | `--project-root <DIR>` | ❌ | Root containing `Config/` (default: search upward from the current folder). |
-| `-n`, `--noprompt` | ❌ | Silent mode: skips the confirmation (CI/CD). |
+| `-n`, `--noprompt`, `-NoPrompt` | ❌ | Silent mode: skips the confirmation (CI/CD). |
 
 #### Default selection: already-tracked tables
 
@@ -219,7 +219,7 @@ xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <d
 | `--project <NAME>` | ✅ | Project name as declared in `xrmFramework.config` (e.g. `Plugins`). |
 | `--project-root <DIR>` | ❌ | Root containing the `Config/` folder (default: current folder). |
 | `--on-premise` | ❌ | Targets an On-Premises CRM (default: Dataverse Online). |
-| `-n`, `--noprompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). |
+| `-n`, `--noprompt`, `-NoPrompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). `-NoPrompt` (any casing) is kept for backward compatibility with the deployment scripts written against that spelling. |
 
 > **How it works — inventory via actual code execution.** A plugin is `net462`, this tool is
 > `net10.0`: it therefore cannot instantiate the plugin's types itself. It delegates to the

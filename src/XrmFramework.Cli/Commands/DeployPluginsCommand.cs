@@ -38,8 +38,11 @@ public sealed class DeployPluginsCommand : Command<DeployPluginsCommand.Settings
         [System.ComponentModel.Description("Targets an On-Premises CRM (default: Dataverse Online).")]
         public bool OnPremise { get; init; }
 
+        // -NoPrompt is accepted too, for the scripts written against that spelling: Program.cs
+        // rewrites it to --noprompt before Spectre parses, a short option name being limited to
+        // one character.
         [CommandOption("-n|--noprompt")]
-        [System.ComponentModel.Description("Silent mode: skips the connection confirmation (CI/CD).")]
+        [System.ComponentModel.Description("Silent mode: skips the connection confirmation (CI/CD). Also accepts -NoPrompt.")]
         public bool NoPrompt { get; init; }
 
         public override ValidationResult Validate()
