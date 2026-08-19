@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>XrmFramework.Plugin</id>
@@ -21,7 +21,7 @@
   </metadata>
 
   <files>
-    <file src="**\*.cs" target="contentFiles/cs/any/__Imports/XrmFramework.Plugin" exclude="obj\**;**\AssemblyInfo.cs" />
+    <file src="**\*.cs" target="contentFiles/cs/any/__Imports/XrmFramework.Plugin" exclude="obj\**;**\AssemblyInfos.cs" />
     <file src="build\**\*" target="build/" />
 
     <file src="lib\**" target="lib" />
