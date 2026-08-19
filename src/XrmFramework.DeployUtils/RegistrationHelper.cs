@@ -60,7 +60,10 @@ public partial class RegistrationHelper
     ///     Command-line arguments forwarded from <c>Program.cs</c>.
     ///     Supported options:
     ///     <list type="bullet">
-    ///         <item><c>-n</c> / <c>--noprompt</c> — skip the interactive connection confirmation (CI/CD mode).</item>
+    ///         <item>
+    ///             <c>-n</c> / <c>--noprompt</c> / <c>-NoPrompt</c> — skip the interactive connection
+    ///             confirmation (CI/CD mode).
+    ///         </item>
     ///     </list>
     /// </param>
     public static void RegisterPluginsAndWorkflows<TPlugin>(
@@ -72,7 +75,7 @@ public partial class RegistrationHelper
         var noPrompt = false;
 
         Parser.Default
-            .ParseArguments<DeployCommandOptions>(args)
+            .ParseArguments<DeployCommandOptions>(CommandLineAliases.NormalizeNoPrompt(args))
             .WithParsed(opts => noPrompt = opts.NoPrompt)
             .WithNotParsed(_ => { /* unknown options silently ignored */ });
 

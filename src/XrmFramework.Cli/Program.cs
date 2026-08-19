@@ -4,6 +4,7 @@
 using System.Text;
 using Spectre.Console.Cli;
 using XrmFramework.Cli.Commands;
+using XrmFramework.DeployUtils.CommandOptions;
 
 // Entry point of the XrmFramework CLI.
 //   xrmframework tables list          [--prefix <prefix>] [--filter <text>] [--custom-only]
@@ -69,4 +70,7 @@ app.Configure(config =>
     });
 });
 
-return app.Run(args);
+// Backward compatibility: existing deployment scripts and pipelines pass -NoPrompt, but Spectre reads
+// a single dash as a group of one-letter switches (-N -o -P ...) and refuses to declare a short option
+// longer than one character, so the token is translated before parsing rather than declared.
+return app.Run(CommandLineAliases.NormalizeNoPrompt(args));

@@ -33,6 +33,7 @@ public sealed class TablePullCommand : Command<TablePullCommand.Settings>
         [System.ComponentModel.Description("Root containing the Config/ folder (default: search by walking up from the current folder).")]
         public string? ProjectRoot { get; init; }
 
+        // -NoPrompt is accepted too for backward compatibility, rewritten to --noprompt in Program.cs.
         [CommandOption("-n|--noprompt")]
         [System.ComponentModel.Description("Silent mode: skips the confirmation (CI/CD).")]
         public bool NoPrompt { get; init; }
