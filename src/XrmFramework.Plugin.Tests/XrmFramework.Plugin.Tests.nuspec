@@ -60,7 +60,7 @@
     -->
     <file src="..\Tests\XrmFramework.Plugin.Tests\**\*.cs"
           target="contentFiles\cs\any\__Tests\XrmFramework.Plugin.Tests"
-          exclude="..\Tests\XrmFramework.Plugin.Tests\obj\**;..\Tests\XrmFramework.Plugin.Tests\bin\**;**\AssemblyInfo.cs" />
+          exclude="..\Tests\XrmFramework.Plugin.Tests\obj\**;..\Tests\XrmFramework.Plugin.Tests\bin\**;**\AssemblyInfos.cs" />
 
     <!--
       Placeholder lib: source-only package, no compiled assembly provided.

@@ -64,8 +64,7 @@
     -->
     <file src="**\*.cs"
           target="contentFiles\cs\any\__Tests\XrmFramework.Tests"
-          exclude="obj\**;bin\**;**\AssemblyInfo.cs" />
-
+          exclude="obj\**;bin\**;**\AssemblyInfos.cs" />
     <!--
       Lib placeholders: source-only package, no compiled assembly provided.
     -->
