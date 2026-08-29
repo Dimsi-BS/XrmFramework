@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
     <Import Project="$(MSBuildThisFileDirectory)XrmFrameworkVersions.props" />
 
     <ItemGroup>
@@ -7,5 +7,19 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="dist\**" />
+    <Compile Remove="xrmFramework\**" />
+    <Content Remove="dist\**" />
+    <Content Remove="xrmFramework\**" />
+    <EmbeddedResource Remove="dist\**" />
+    <EmbeddedResource Remove="xrmFramework\**" />
+    <None Remove="dist\**" />
+    <None Remove="xrmFramework\**" />
+    <TypeScriptCompile Remove="dist\**" />
+    <TypeScriptCompile Remove="node_modules\**" />
+    <TypeScriptCompile Remove="xrmFramework\**" />
+  </ItemGroup>
 
 </Project>
