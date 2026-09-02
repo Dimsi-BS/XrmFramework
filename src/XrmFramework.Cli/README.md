@@ -51,17 +51,17 @@ read from the **`Config/`** folder at the project root:
 | `Config/connectionStrings.config` | Defines the named connection strings (Dataverse / On-Premises). |
 
 `selectedConnection` points to an entry in `connectionStrings.config`: this is
-**the target environment**. `migrate sync-tables` and `tables columns`, on the other hand, do
-**not** need a connection — they work solely from local files (and, for `migrate sync-tables`,
-an assembly).
+**the target environment**. `migrate sync-tables`, `tables columns` and `tables optionsets`, on
+the other hand, do **not** need a connection — they work solely from local files (and, for
+`migrate sync-tables`, an assembly).
 
 ### Automatic configuration discovery
 
-`tables list`, `tables pull` and `tables columns` **walk up the directory tree** from the current
-folder until they find a `Config/xrmFramework.config`: the CLI can therefore be launched from any
-subdirectory of the solution (including a `bin/Debug`). `--project-root` bypasses this search.
-`tables columns` never connects to the environment, but still needs this discovery to locate the
-`.table` files.
+`tables list`, `tables pull`, `tables columns` and `tables optionsets` **walk up the directory
+tree** from the current folder until they find a `Config/xrmFramework.config`: the CLI can
+therefore be launched from any subdirectory of the solution (including a `bin/Debug`).
+`--project-root` bypasses this search. `tables columns` and `tables optionsets` never connect to
+the environment, but still need this discovery to locate the `.table` files.
 
 At the root thus found, the CLI reads `Directory.Build.props` to extract
 `XrmFrameworkCoreProjectName`, which gives it the default `.table` directory:
@@ -298,6 +298,87 @@ xrmframework tables columns set --table ftp_contrat --column ftp_datefin --name 
 Implementation: [`ColumnHelper`](../XrmFramework.DeployUtils/TableSync/ColumnHelper.cs)
 -> [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs)
 + [`ProjectConfigLocator`](../XrmFramework.DeployUtils/TableSync/ProjectConfigLocator.cs).
+
+### `xrmframework tables optionsets` ✅ *(available)* — rename option sets and their members
+
+The companion of `tables columns` for option sets: renames an option set's C# name and/or one
+of its member's name in a `.table` file — entirely offline, same as `tables columns`. Two verbs:
+
+```
+xrmframework tables optionsets list [--option <logicalname>] [--filter <text>] [--global-only]
+xrmframework tables optionsets set  --option <logicalname> [--name <newname>] [--value <n> --value-name <newname>]
+```
+
+Both also accept `--tables-dir <DIRECTORY>` and `--project-root <DIR>`, same meaning as on
+`tables pull`.
+
+#### Why a rename must reach every copy
+
+An option set's logical name is unique, but its **declaration** is not: the historical
+DefinitionManager kept in a table's own `Enums` every option set one of its columns
+referenced — global ones included — while also writing the globals to `OptionSets.table` (see
+[Merge rules for an existing file](#merge-rules-for-an-existing-file)). A global option set
+shared by several tables is therefore typically declared **several times over**. `set` looks it
+up by logical name across every local `.table` file (`OptionSets.table` included) and renames
+**every** copy it finds in one pass — the same reconciliation `migrate sync-tables` performs
+when recovering names from a 2.\* assembly (see
+[`TableFileSyncer.ApplyOptionSetName`](../XrmFramework.DeployUtils/TableSync/TableFileSyncer.cs)).
+Renaming only the first copy found would leave the others to disagree, and `tables optionsets
+list`'s overview flags exactly that drift as a `(mismatch)`.
+
+A copy marked `"Locked": true` — the framework package's own option sets — is left untouched and
+reported instead: its name belongs to the package's generated code.
+
+#### `list` — see what's tracked
+
+Without `--option`: one row per distinct option set found locally (logical name, C# name,
+whether it's global, whether it's locked, member count, and which `.table` file(s) declare it).
+With `--option <logicalname>`: the members of that one option set (value, C# name, external
+value), plus the C# name as recorded by each declaring file.
+
+| Option | Required | Description |
+|---|:---:|---|
+| `-o`, `--option <LOGICALNAME>` | ❌ | Drills into that option set's members instead of the overview. |
+| `--filter <TEXT>` | ❌ | Overview only: keeps option sets whose logical name or C# name contains this text. |
+| `--global-only` | ❌ | Overview only: keeps global option sets. |
+
+```bash
+xrmframework tables optionsets list --option ftp_contrat_statut
+```
+
+#### `set` — rename the option set and/or one member
+
+| Option | Required | Description |
+|---|:---:|---|
+| `-o`, `--option <LOGICALNAME>` | ✅ | Option set to edit. |
+| `--name <NEWNAME>` | ❌ | Renames the option set's C# name, in every declaring file. |
+| `--value <NUMBER>` | ⚠️ | Numeric value of the member to rename. Requires `--value-name`. |
+| `--value-name <NEWNAME>` | ⚠️ | New C# name for the member designated by `--value`. |
+
+At least one of `--name` or the `--value`/`--value-name` pair is required.
+
+```bash
+xrmframework tables optionsets set --option ftp_contrat_statut --name StatutContrat
+```
+
+```bash
+xrmframework tables optionsets set --option ftp_contrat_statut --value 1 --value-name EnCours
+```
+
+**Exit codes** (both verbs)
+
+| Code | Meaning |
+|:---:|---|
+| `0` | Success (including "nothing to do": already in the requested state, or a member not found — reported, not fatal). |
+| `1` | The option set is not declared in any local `.table` file. |
+| `2` | Configuration or `.table` directory not found. |
+| `3` | Unexpected error. |
+| `-1` / `255` | Argument validation error (Spectre). |
+
+Implementation: [`OptionSetHelper`](../XrmFramework.DeployUtils/TableSync/OptionSetHelper.cs)
+-> [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs)
++ [`ColumnHelper`](../XrmFramework.DeployUtils/TableSync/ColumnHelper.cs) (shared local file
+resolution).
 
 ### `xrmframework deploy plugins` ✅ *(available)*
 
@@ -586,10 +667,13 @@ xrmframework
 ├── tables
 │   ├── list           ✅  lists the tables of the environment    (connected)
 │   ├── pull           ✅  .table ← Dataverse metadata            (connected)
-│   └── columns
-│       ├── list       ✅  lists the columns already tracked      (offline)
-│       ├── add        ✅  activates columns                     (offline)
-│       └── set        ✅  renames a column / toggles selection   (offline)
+│   ├── columns
+│   │   ├── list       ✅  lists the columns already tracked      (offline)
+│   │   ├── add        ✅  activates columns                     (offline)
+│   │   └── set        ✅  renames a column / toggles selection   (offline)
+│   └── optionsets
+│       ├── list       ✅  lists option sets / their members      (offline)
+│       └── set        ✅  renames an option set / a member       (offline)
 ├── deploy
 │   ├── plugins        ✅  deploys a plugins / custom API / workflow assembly
 │   └── webresources   🚧  deploys the webresources
@@ -599,8 +683,9 @@ xrmframework
 
 `migrate` stands apart from `tables` and `deploy`: its command rewrites the project's own
 sources once and is not part of the day-to-day loop — `sync-tables` is the upgrade path
-from 2.\*. Routine work is `pull` (rich metadata from the environment) plus column selection
-in the `.table`, which `tables columns` makes scriptable.
+from 2.\*. Routine work is `pull` (rich metadata from the environment) plus the local edits
+`tables columns` and `tables optionsets` make scriptable: column selection and C# naming in the
+`.table`.
 
 > `deploy plugins` inventories the `net462` plugin assembly by **executing its registration
 > code** via the `XrmFramework.PluginInventory` tool (embedded `net462` executable) — step
