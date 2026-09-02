@@ -389,7 +389,9 @@ namespace XrmFramework.DeployUtils.TableSync
         // Local file resolution
         // ══════════════════════════════════════════════════════════════════════
 
-        private static string ResolveTablesDirectory(string projectRoot, string tablesDirectory, out int errorCode)
+        /// <remarks>Internal: also reused by <see cref="OptionSetHelper" />, which resolves the
+        /// same project root but edits option sets rather than columns.</remarks>
+        internal static string ResolveTablesDirectory(string projectRoot, string tablesDirectory, out int errorCode)
         {
             errorCode = ExitSuccess;
 
@@ -422,11 +424,19 @@ namespace XrmFramework.DeployUtils.TableSync
         }
 
         /// <summary>
-        /// Loads every local <c>.table</c> file, excluding the global option sets pseudo-table
-        /// (it describes no entity — see <see cref="TableFileStore.GlobalOptionSetLogicalName" />).
-        /// An unreadable file is skipped rather than fatal, as elsewhere in <see cref="TableFileStore" />.
+        /// Loads every local <c>.table</c> file. An unreadable file is skipped rather than fatal,
+        /// as elsewhere in <see cref="TableFileStore" />.
         /// </summary>
-        private static List<(string Path, CoreTable Table)> LoadLocalTables(string directory)
+        /// <param name="includeGlobalOptionSets">
+        /// <see langword="false" /> (columns commands) excludes the global option sets
+        /// pseudo-table: it describes no entity, so it never carries a column to edit or list. A
+        /// column-oriented caller would otherwise have to special-case it on every call site.
+        /// <see langword="true" /> (<see cref="OptionSetHelper" />) keeps it: that pseudo-table is
+        /// precisely where the global option sets it edits live.
+        /// </param>
+        /// <remarks>Internal: shared with <see cref="OptionSetHelper" />.</remarks>
+        internal static List<(string Path, CoreTable Table)> LoadLocalTables(
+            string directory, bool includeGlobalOptionSets = false)
         {
             var result = new List<(string, CoreTable)>();
 
@@ -443,8 +453,9 @@ namespace XrmFramework.DeployUtils.TableSync
                     continue;
                 }
 
-                if (string.Equals(table.LogicalName, TableFileStore.GlobalOptionSetLogicalName,
-                                  StringComparison.OrdinalIgnoreCase))
+                if (!includeGlobalOptionSets
+                    && string.Equals(table.LogicalName, TableFileStore.GlobalOptionSetLogicalName,
+                                     StringComparison.OrdinalIgnoreCase))
                     continue;
 
                 result.Add((path, table));

@@ -7,13 +7,15 @@ using XrmFramework.Cli.Commands;
 using XrmFramework.DeployUtils.CommandOptions;
 
 // Entry point of the XrmFramework CLI.
-//   xrmframework tables list          [--prefix <prefix>] [--filter <text>] [--custom-only]
-//   xrmframework tables pull          [--table <name>] [--prefix <prefix>] [--tables-dir <directory>] [--noprompt]
-//   xrmframework tables columns list  [--table <name>] [--prefix <prefix>] [--filter <text>] [--unselected-only]
-//   xrmframework tables columns add   --table <name> --column <name> | --all [--noprompt]
-//   xrmframework tables columns set   --table <name> --column <name> [--name <newname>] [--select|--deselect]
-//   xrmframework deploy plugins       --dll <path.dll> --project <name> [--on-premise] [--noprompt]
-//   xrmframework migrate sync-tables  --dll <path.dll> --tables-dir <directory> [--clean]   (2.* -> 3.1+ migration)
+//   xrmframework tables list            [--prefix <prefix>] [--filter <text>] [--custom-only]
+//   xrmframework tables pull            [--table <name>] [--prefix <prefix>] [--tables-dir <directory>] [--noprompt]
+//   xrmframework tables columns list    [--table <name>] [--prefix <prefix>] [--filter <text>] [--unselected-only]
+//   xrmframework tables columns add     --table <name> --column <name> | --all [--noprompt]
+//   xrmframework tables columns set     --table <name> --column <name> [--name <newname>] [--select|--deselect]
+//   xrmframework tables optionsets list [--option <logicalname>] [--filter <text>] [--global-only]
+//   xrmframework tables optionsets set  --option <logicalname> [--name <newname>] [--value <n> --value-name <newname>]
+//   xrmframework deploy plugins         --dll <path.dll> --project <name> [--on-premise] [--noprompt]
+//   xrmframework migrate sync-tables    --dll <path.dll> --tables-dir <directory> [--clean]   (2.* -> 3.1+ migration)
 
 // A Windows console still starts on a legacy code page (CP850 / CP1252). Those cover Western
 // European letters, so accents survive them, but anything outside their 256 slots does not:
@@ -66,6 +68,21 @@ app.Configure(config =>
             columns.AddCommand<TableColumnsSetCommand>("set")
                    .WithDescription("Renames a column's C# name and/or toggles its selection in a .table file.")
                    .WithExample("tables", "columns", "set", "--table", "ftp_contrat", "--column", "ftp_datedebut", "--name", "DateDebut");
+        });
+
+        tables.AddBranch("optionsets", optionsets =>
+        {
+            optionsets.SetDescription("Local edits to .table files: rename an option set and/or its members without going through the environment or an assembly.");
+
+            optionsets.AddCommand<TableOptionSetsListCommand>("list")
+                      .WithDescription("Lists the option sets tracked locally, or the members of one given via --option.")
+                      .WithExample("tables", "optionsets", "list")
+                      .WithExample("tables", "optionsets", "list", "--option", "ftp_contrat_statut");
+
+            optionsets.AddCommand<TableOptionSetsSetCommand>("set")
+                      .WithDescription("Renames an option set's C# name and/or one of its member's name, in every .table file that declares it.")
+                      .WithExample("tables", "optionsets", "set", "--option", "ftp_contrat_statut", "--name", "StatutContrat")
+                      .WithExample("tables", "optionsets", "set", "--option", "ftp_contrat_statut", "--value", "1", "--value-name", "EnCours");
         });
     });
 
