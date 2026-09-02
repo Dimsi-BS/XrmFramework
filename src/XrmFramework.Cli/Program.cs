@@ -9,6 +9,9 @@ using XrmFramework.DeployUtils.CommandOptions;
 // Entry point of the XrmFramework CLI.
 //   xrmframework tables list          [--prefix <prefix>] [--filter <text>] [--custom-only]
 //   xrmframework tables pull          [--table <name>] [--prefix <prefix>] [--tables-dir <directory>] [--noprompt]
+//   xrmframework tables columns list  [--table <name>] [--prefix <prefix>] [--filter <text>] [--unselected-only]
+//   xrmframework tables columns add   --table <name> --column <name> | --all [--noprompt]
+//   xrmframework tables columns set   --table <name> --column <name> [--name <newname>] [--select|--deselect]
 //   xrmframework deploy plugins       --dll <path.dll> --project <name> [--on-premise] [--noprompt]
 //   xrmframework migrate sync-tables  --dll <path.dll> --tables-dir <directory> [--clean]   (2.* -> 3.1+ migration)
 
@@ -47,6 +50,23 @@ app.Configure(config =>
               .WithDescription("Generates or updates .table files from the environment's metadata (by default: those already present).")
               .WithExample("tables", "pull")
               .WithExample("tables", "pull", "--table", "account,ftp_contrat");
+
+        tables.AddBranch("columns", columns =>
+        {
+            columns.SetDescription("Local edits to .table files: activate or adjust columns without going through the environment or an assembly.");
+
+            columns.AddCommand<TableColumnsListCommand>("list")
+                   .WithDescription("Lists the columns already tracked in a .table file, selected or not.")
+                   .WithExample("tables", "columns", "list", "--table", "ftp_contrat");
+
+            columns.AddCommand<TableColumnsAddCommand>("add")
+                   .WithDescription("Activates columns (Select: true) in one or more .table files.")
+                   .WithExample("tables", "columns", "add", "--table", "ftp_contrat", "--column", "ftp_datedebut,ftp_datefin");
+
+            columns.AddCommand<TableColumnsSetCommand>("set")
+                   .WithDescription("Renames a column's C# name and/or toggles its selection in a .table file.")
+                   .WithExample("tables", "columns", "set", "--table", "ftp_contrat", "--column", "ftp_datedebut", "--name", "DateDebut");
+        });
     });
 
     config.AddBranch("deploy", deploy =>

@@ -51,14 +51,17 @@ read from the **`Config/`** folder at the project root:
 | `Config/connectionStrings.config` | Defines the named connection strings (Dataverse / On-Premises). |
 
 `selectedConnection` points to an entry in `connectionStrings.config`: this is
-**the target environment**. The `migrate sync-tables` migration, on the other hand, does **not** need
-a connection (it works solely from a local assembly and the files on disk).
+**the target environment**. `migrate sync-tables` and `tables columns`, on the other hand, do
+**not** need a connection — they work solely from local files (and, for `migrate sync-tables`,
+an assembly).
 
 ### Automatic configuration discovery
 
-`tables list` and `tables pull` **walk up the directory tree** from the current folder until
-they find a `Config/xrmFramework.config`: the CLI can therefore be launched from any
+`tables list`, `tables pull` and `tables columns` **walk up the directory tree** from the current
+folder until they find a `Config/xrmFramework.config`: the CLI can therefore be launched from any
 subdirectory of the solution (including a `bin/Debug`). `--project-root` bypasses this search.
+`tables columns` never connects to the environment, but still needs this discovery to locate the
+`.table` files.
 
 At the root thus found, the CLI reads `Directory.Build.props` to extract
 `XrmFrameworkCoreProjectName`, which gives it the default `.table` directory:
@@ -203,6 +206,98 @@ Implementation: [`CrmTableHelper`](../XrmFramework.DeployUtils/TableSync/CrmTabl
 + [`MetadataTableFactory`](../XrmFramework.DeployUtils/TableSync/MetadataTableFactory.cs)
 + [`TableMerger`](../XrmFramework.DeployUtils/TableSync/TableMerger.cs)
 + [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs).
+
+### `xrmframework tables columns` ✅ *(available)* — local edits to `.table` files
+
+Activates or adjusts columns already present in a `.table` file **without going through either
+an assembly (`migrate sync-tables`) or the environment (`tables pull`)** — entirely offline,
+reading and writing only via [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs).
+Three verbs:
+
+```
+xrmframework tables columns list  [--table <names>] [--prefix <prefix>] [--filter <text>] [--unselected-only]
+xrmframework tables columns add   --table <names> | --prefix <prefix>  --column <names> | --all  [-n]
+xrmframework tables columns set   --table <name> --column <name> [--name <newname>] [--select | --deselect]
+```
+
+All three also accept `--tables-dir <DIRECTORY>` and `--project-root <DIR>`, same meaning as on
+`tables pull`.
+
+#### `list` — see what's already tracked
+
+Prints, per table, every column the `.table` file already knows about (`tables pull` writes
+the full metadata for **all** columns, selected or not — see
+[Column selection](#column-selection)). This is how you find the logical names to pass to `add`.
+
+| Option | Required | Description |
+|---|:---:|---|
+| `-t`, `--table <NAME>` | ❌ | Table to inspect. Repeatable, comma-separated. Default: every table already tracked (having a `.table` file). |
+| `--prefix <PREFIX>` | ❌ | Also inspects every tracked table whose logical name starts with this prefix. |
+| `--filter <TEXT>` | ❌ | Only keeps columns whose logical name or C# name contains this text. |
+| `--unselected-only` | ❌ | Only keeps columns not yet activated — the candidates for `add`. |
+
+```bash
+xrmframework tables columns list --table ftp_contrat --unselected-only
+```
+
+#### `add` — activate columns
+
+Sets `Select: true` on the requested columns. Unlike `list`, it **mutates files**, so it never
+defaults to the whole project: `--table` or `--prefix` is required, and so is `--column` or
+`--all`.
+
+| Option | Required | Description |
+|---|:---:|---|
+| `-t`, `--table <NAME>` | ⚠️ | Table(s) to edit. Repeatable, comma-separated. Required unless `--prefix` is given. |
+| `--prefix <PREFIX>` | ⚠️ | Also edits every tracked table whose logical name starts with this prefix. |
+| `-c`, `--column <NAME>` | ⚠️ | Column(s) to activate. Repeatable, comma-separated. Required unless `--all` is given. |
+| `--all` | ⚠️ | Activates every column not yet selected, instead of an explicit `--column` list. |
+| `-n`, `--noprompt` | ❌ | Silent mode: skips the confirmation (CI/CD). |
+
+A column already selected is left untouched (no-op, not an error); a requested column absent
+from the file is reported and the others still proceed.
+
+```bash
+xrmframework tables columns add --table ftp_contrat --column ftp_datedebut,ftp_datefin --noprompt
+```
+
+```bash
+# Activate the same audit column across every ftp_-prefixed table already tracked.
+xrmframework tables columns add --prefix ftp_ --column createdby
+```
+
+#### `set` — rename or toggle a single column
+
+Renames a column's C# `Name` and/or flips its `Select` flag. `--table` accepts either the
+logical name or the file's C# `Name`, for convenience.
+
+| Option | Required | Description |
+|---|:---:|---|
+| `-t`, `--table <NAME>` | ✅ | Table to edit (logical name or C# name). |
+| `-c`, `--column <NAME>` | ✅ | Logical name of the column to edit. |
+| `--name <NEWNAME>` | ❌ | Renames the column's C# name. Rejected if another column in the same table already has that name. |
+| `--select` | ❌ | Activates the column. Mutually exclusive with `--deselect`. |
+| `--deselect` | ❌ | Deactivates the column. Mutually exclusive with `--select`. |
+
+At least one of `--name`, `--select` or `--deselect` is required.
+
+```bash
+xrmframework tables columns set --table ftp_contrat --column ftp_datefin --name DateFinContrat
+```
+
+**Exit codes** (all three verbs)
+
+| Code | Meaning |
+|:---:|---|
+| `0` | Success (including "nothing to do": already in the requested state). |
+| `1` | No table or column matches the criteria. |
+| `2` | Configuration or `.table` directory not found. |
+| `3` | Unexpected error, or `set --name` collides with another column's C# name. |
+| `-1` / `255` | Argument validation error (Spectre). |
+
+Implementation: [`ColumnHelper`](../XrmFramework.DeployUtils/TableSync/ColumnHelper.cs)
+-> [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs)
++ [`ProjectConfigLocator`](../XrmFramework.DeployUtils/TableSync/ProjectConfigLocator.cs).
 
 ### `xrmframework deploy plugins` ✅ *(available)*
 
@@ -491,7 +586,10 @@ xrmframework
 ├── tables
 │   ├── list           ✅  lists the tables of the environment    (connected)
 │   ├── pull           ✅  .table ← Dataverse metadata            (connected)
-│   └── columns        🚧  adds / modifies columns of one or more tables
+│   └── columns
+│       ├── list       ✅  lists the columns already tracked      (offline)
+│       ├── add        ✅  activates columns                     (offline)
+│       └── set        ✅  renames a column / toggles selection   (offline)
 ├── deploy
 │   ├── plugins        ✅  deploys a plugins / custom API / workflow assembly
 │   └── webresources   🚧  deploys the webresources
@@ -502,21 +600,12 @@ xrmframework
 `migrate` stands apart from `tables` and `deploy`: its command rewrites the project's own
 sources once and is not part of the day-to-day loop — `sync-tables` is the upgrade path
 from 2.\*. Routine work is `pull` (rich metadata from the environment) plus column selection
-in the `.table` — which `tables columns` will make scriptable.
+in the `.table`, which `tables columns` makes scriptable.
 
 > `deploy plugins` inventories the `net462` plugin assembly by **executing its registration
 > code** via the `XrmFramework.PluginInventory` tool (embedded `net462` executable) — step
 > registration therefore remains completely free-form (loops, conditions…). Requires the .NET
 > Framework runtime (Windows).
-
-### 🚧 `tables columns` — add / modify columns
-
-Manual editing of `.table` files to activate or adjust columns without going through either an
-assembly (`migrate sync-tables`) or the environment (`tables pull`). Anticipated verbs (to be
-finalized): `tables columns add` / `tables columns set`. Will reuse
-[`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs) for reading and
-writing.
-
 
 ### 🚧 `deploy webresources` — deploy the webresources
 

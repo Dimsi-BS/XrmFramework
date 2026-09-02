@@ -428,7 +428,9 @@ namespace XrmFramework.DeployUtils.TableSync
         // Configuration and connection
         // ══════════════════════════════════════════════════════════════════════
 
-        private static ProjectConfigLocation ResolveLocation(string projectRoot)
+        /// <remarks>Internal: also reused by <see cref="ColumnHelper" />, which resolves the same
+        /// project root but never connects to the environment.</remarks>
+        internal static ProjectConfigLocation ResolveLocation(string projectRoot)
         {
             if (!string.IsNullOrWhiteSpace(projectRoot))
             {
@@ -490,7 +492,9 @@ namespace XrmFramework.DeployUtils.TableSync
         private static IOrganizationService Connect(string connectionString)
             => new RegistrationService(connectionString);
 
-        private static int ReportUnexpected(Exception ex)
+        /// <remarks>Internal: also reused by <see cref="ColumnHelper" /> to report the same
+        /// categories of failure with the same messages.</remarks>
+        internal static int ReportUnexpected(Exception ex)
         {
             switch (ex)
             {
