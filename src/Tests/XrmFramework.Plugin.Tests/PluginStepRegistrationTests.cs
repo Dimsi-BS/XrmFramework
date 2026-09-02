@@ -47,6 +47,19 @@ public class PluginStepRegistrationTests
     }
 
     /// <summary>
+    /// Plugin with a step method requesting <see cref="IDateTimeProvider"/> in addition to <see cref="IPluginContext"/>.
+    /// </summary>
+    private sealed class DateTimeProviderPlugin() : XrmFramework.Plugin(null, null)
+    {
+        protected override void AddSteps()
+        {
+            AddStep(Stages.PreOperation, Messages.Create, Modes.Synchronous, "contact", nameof(OnContactCreate));
+        }
+
+        public void OnContactCreate(IPluginContext _, IDateTimeProvider clock) { }
+    }
+
+    /// <summary>
     /// Plugin whose step method is private (registration must fail).
     /// </summary>
     private sealed class PrivateMethodPlugin() : XrmFramework.Plugin(null, null, delayStepRegistration: true)
@@ -144,6 +157,14 @@ public class PluginStepRegistrationTests
         var plugin = new MultiStepPlugin();
 
         Assert.AreEqual(2, plugin.Steps.Count);
+    }
+
+    [Test]
+    public void AddStep_DateTimeProviderParameter_StepIsRegistered()
+    {
+        var plugin = new DateTimeProviderPlugin();
+
+        Assert.AreEqual(1, plugin.Steps.Count);
     }
 
 }

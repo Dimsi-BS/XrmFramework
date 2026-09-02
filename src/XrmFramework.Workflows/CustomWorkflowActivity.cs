@@ -125,9 +125,10 @@ namespace XrmFramework.Workflow
             foreach (var param in method.GetParameters())
             {
                 if (!typeof(ICustomWorkflowContext).IsAssignableFrom(param.ParameterType)
-                        && (!param.ParameterType.IsInterface || !typeof(IService).IsAssignableFrom(param.ParameterType)))
+                        && (!param.ParameterType.IsInterface || (!typeof(IService).IsAssignableFrom(param.ParameterType)
+                                                                  && !typeof(IDateTimeProvider).IsAssignableFrom(param.ParameterType))))
                 {
-                    throw new InvalidPluginExecutionException($"{ChildClassName}.{method.Name} parameter : {param.Name}. Only LocalPluginContext and IService interfaces are allowed as parameters");
+                    throw new InvalidPluginExecutionException($"{ChildClassName}.{method.Name} parameter : {param.Name}. Only LocalPluginContext, IService and IDateTimeProvider interfaces are allowed as parameters");
                 }
             }
             ActivityAction = method;
