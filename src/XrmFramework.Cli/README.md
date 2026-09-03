@@ -425,13 +425,69 @@ xrmframework deploy plugins --dll bin/Release/net462/MyProject.Plugins.dll \
 | Code | Meaning |
 |:---:|---|
 | `0` | Success (or cancellation at the confirmation prompt). |
-| `1` | Project missing from `xrmFramework.config`. |
-| `3` | Unexpected error (inventory, connection, deployment…). |
+| `3` | Unexpected error (inventory, connection, deployment, project missing from `xrmFramework.config`…). |
 | `255` | Argument validation error (Spectre). |
 
 Implementation: [`RegistrationHelper.RegisterPluginsAndWorkflows`](../XrmFramework.DeployUtils/RegistrationHelper.cs)
 -> inventory [`XrmFramework.PluginInventory`](../XrmFramework.PluginInventory/PluginInventoryEngine.cs)
 -> [`PluginInventoryReader`](../XrmFramework.DeployUtils/Factories/PluginInventoryReader.cs)
++ [`ConfigHelper.UseProjectConfig`](../XrmFramework.DeployUtils/Configuration/ConfigHelper.cs).
+
+### `xrmframework deploy webresources` ✅ *(available)*
+
+Publishes the web resources of a project — scripts, stylesheets, pages, images — to the
+solution declared for that project in `Config/xrmFramework.config`, then issues a single
+`PublishXmlRequest` for everything that actually changed.
+
+```bash
+xrmframework deploy webresources --project <name> [--path <dir>] [--project-root <dir>] [--noprompt]
+```
+
+| Option | Required | Description |
+|---|:---:|---|
+| `--project <NAME>` | ✅ | Project name as declared in `xrmFramework.config` (e.g. `Webresources`). Determines the target solution. |
+| `--path <DIR>` | ❌ | Folder holding the web resources. Defaults to the project's `dist` folder when there is one, otherwise the project folder itself (see below). |
+| `--project-root <DIR>` | ❌ | Root containing the `Config/` folder (default: current folder). |
+| `-n`, `--noprompt`, `-NoPrompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). |
+
+#### Which files are published
+
+Only the extensions Dataverse accepts as web resources are considered (`.js`, `.css`,
+`.html`, `.htm`, `.xml`, `.png`, `.jpg`, `.gif`, `.svg`, `.xsl`, `.xslt`, `.ico`, `.resx`).
+Build and dependency folders — `node_modules`, `bin`, `obj`, `.vs`, `.git` — are **skipped
+entirely**, at any depth.
+
+That exclusion matters as soon as the project has a TypeScript toolchain: a
+`Webresources` project that has been through `npm install` holds thousands of `.js`, `.css`
+and `.png` files under `node_modules` that have nothing to do with the environment.
+
+The unique name of each web resource is its path relative to the scanned folder, prefixed
+with the publisher's customization prefix. Scanning `dist` rather than the project folder is
+therefore what keeps `scripts/form.js` from being published as `dist/scripts/form.js`.
+
+A resource whose content is byte-identical to the one already in the environment is left
+alone and not republished; the summary line counts only what was created or updated.
+
+**Examples**
+
+```bash
+xrmframework deploy webresources --project Webresources --noprompt
+```
+
+```bash
+xrmframework deploy webresources --project Webresources --path Webresources/dist -n
+```
+
+**Exit codes**
+
+| Code | Meaning |
+|:---:|---|
+| `0` | Success (or cancellation at the confirmation prompt). |
+| `1` | Project missing from `xrmFramework.config`. |
+| `3` | Unexpected error (connection, solution not found, managed solution, publisher not found…). |
+| `-1` | Argument validation error (Spectre). |
+
+Implementation: [`WebResourceHelper.SyncWebResources`](../XrmFramework.DeployUtils/WebResourceHelper.cs)
 + [`ConfigHelper.UseProjectConfig`](../XrmFramework.DeployUtils/Configuration/ConfigHelper.cs).
 
 ### `xrmframework migrate sync-tables` ✅ *(available)* — migration from 2.\* to 3.1+
@@ -660,7 +716,7 @@ Implementation: [`TableSyncHelper.Sync`](../XrmFramework.DeployUtils/TableSyncHe
 
 ## Roadmap
 
-Target command tree (✅ exist, 🚧 are upcoming):
+Command tree:
 
 ```
 xrmframework
@@ -676,7 +732,7 @@ xrmframework
 │       └── set        ✅  renames an option set / a member       (offline)
 ├── deploy
 │   ├── plugins        ✅  deploys a plugins / custom API / workflow assembly
-│   └── webresources   🚧  deploys the webresources
+│   └── webresources   ✅  deploys the webresources                (connected)
 └── migrate
     └── sync-tables    ✅  migration 2.* -> 3.1+, run once         (offline)
 ```
@@ -692,11 +748,8 @@ from 2.\*. Routine work is `pull` (rich metadata from the environment) plus the 
 > registration therefore remains completely free-form (loops, conditions…). Requires the .NET
 > Framework runtime (Windows).
 
-### 🚧 `deploy webresources` — deploy the webresources
-
-Deploys the webresources from a project folder to the `SelectedConnection` environment. Will
-rely on [`WebResourceHelper.SyncWebResources`](../XrmFramework.DeployUtils/WebResourceHelper.cs)
-(existing options: `-p/--path`, `-n/--noprompt`).
+Every command in the tree is implemented; the roadmap above is the map of the command surface,
+not a to-do list.
 
 ---
 
