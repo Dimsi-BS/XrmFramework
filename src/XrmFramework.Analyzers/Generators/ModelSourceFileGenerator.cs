@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
+using XrmFramework.Analyzers.Generators.Mapping;
 using XrmFramework.Core;
 
 namespace XrmFramework.Analyzers.Generators
@@ -71,24 +72,27 @@ namespace XrmFramework.Analyzers.Generators
                 }
                 catch (Exception e)
                 {
-                    productionContext.AddSource("Exception.txt", $"/*\r\n{e}\r\n*/");
+                    // A generator that fails must say so as a diagnostic. Emitting a source
+                    // file named Exception.txt hides the failure behind a compilation that
+                    // "succeeds" while the models it was meant to produce are simply absent.
+                    productionContext.ReportDiagnostic(Diagnostic.Create(
+                        Xrm1008, Location.None, "one or more .model files", e.Message));
                 }
             });
         }
 
         private void WriteModelFiles(SourceProductionContext productionContext, ICollection<Core.Model> models, TableCollection tables, Table? globalEnums)
         {
-            if (globalEnums == null)
-            {
-                throw new Exception("global enums is null for some reason");
-            }
+            // A project with no global option sets is legitimate: OptionSets.table only
+            // exists once something references a global enum.
+            globalEnums ??= new Table();
             foreach (var model in models)
             {
                 var table = tables.FirstOrDefault(t => t.LogicalName == model.TableLogicalName);
                 if (table == null)
                 {
-                    productionContext.AddSource($"{model.Name}.model.cs", $"// This is an empty test file {model.Name}, there are {globalEnums.Enums.Count} global enums, there are {tables.Count} tables ");
-
+                    productionContext.ReportDiagnostic(Diagnostic.Create(
+                        Xrm1005, Location.None, model.Name, model.TableLogicalName));
                 }
                 else
                 {
@@ -325,11 +329,11 @@ namespace XrmFramework.Analyzers.Generators
                             }
                             sb.AppendLine("#endregion");
 
-
-
-
-
-
+                            // The mapping goes in the same class, emitted by the same writer that
+                            // serves hand-written models. It cannot be left to MappingSourceGenerator:
+                            // that one discovers its candidates among the compilation's source syntax
+                            // trees, which never contain another generator's output.
+                            WriteMapping(productionContext, sb, model, correspondingTable, tables);
                         }
                         sb.AppendLine("}");
 
@@ -344,5 +348,88 @@ namespace XrmFramework.Analyzers.Generators
             }
 
         }
+        // ─────────────────────────────────────────────────────────────────────
+        //  Mapping
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Appends <c>ToBindingModel</c> / <c>ToEntity</c> to the class body being written, from
+        /// the description <see cref="MappingModelFactory"/> derives from the pair of files.
+        /// Anything the pair does not allow to be mapped is reported as a diagnostic instead of
+        /// dropping the property from the generated class without a word.
+        /// </summary>
+        private static void WriteMapping(
+            SourceProductionContext productionContext,
+            IndentedStringBuilder sb,
+            Core.Model model,
+            Table table,
+            TableCollection tables)
+        {
+            var result = MappingModelFactory.Create(model, table, tables);
+
+            foreach (var failure in result.Failures)
+            {
+                productionContext.ReportDiagnostic(Diagnostic.Create(
+                    DescriptorFor(failure.Id),
+                    Location.None,
+                    failure.ModelName,
+                    failure.PropertyName,
+                    failure.Detail));
+            }
+
+            if (result.Model == null)
+            {
+                return;
+            }
+
+            var writer = new CodeWriter();
+            MappingEmitter.WriteMethods(writer, result.Model);
+
+            sb.AppendLine();
+            sb.AppendLines(writer.ToString(), skipFinalNewline: true);
+        }
+
+        private static readonly DiagnosticDescriptor Xrm1005 = new(
+            "XRM1005",
+            "Model references an unknown table",
+            "Model '{0}' targets table '{1}', which no .table file declares",
+            "XrmFramework.Generators",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1005"));
+
+        private static readonly DiagnosticDescriptor Xrm1006 = new(
+            "XRM1006",
+            "Model property cannot be mapped to a column",
+            "Model '{0}': property '{1}' cannot be mapped — {2}",
+            "XrmFramework.Generators",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1006"));
+
+        private static readonly DiagnosticDescriptor Xrm1007 = new(
+            "XRM1007",
+            "Lookup property without a relationship",
+            "Model '{0}': property '{1}' cannot be mapped — {2}",
+            "XrmFramework.Generators",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1007"));
+
+        private static readonly DiagnosticDescriptor Xrm1008 = new(
+            "XRM1008",
+            "Malformed .model file",
+            "'{0}' could not be read as a model: {1}",
+            "XrmFramework.Generators",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1008"));
+
+        private static DiagnosticDescriptor DescriptorFor(string id) => id switch
+        {
+            "XRM1007" => Xrm1007,
+            _ => Xrm1006,
+        };
+
     }
 }

@@ -25,6 +25,10 @@ expected all surface as a build diagnostic with a one-click fix where possible.
   - [XRM1002](#xrm1002)
   - [XRM1003](#xrm1003)
   - [XRM1004](#xrm1004)
+  - [XRM1005](#xrm1005)
+  - [XRM1006](#xrm1006)
+  - [XRM1007](#xrm1007)
+  - [XRM1008](#xrm1008)
   - [XRM2001](#xrm2001)
 - [Reserved identifiers](#reserved-identifiers)
 
@@ -100,6 +104,10 @@ AddStep(Stages.PostOperation, Messages.Update, Modes.Synchronous, AccountDefinit
 | [XRM1002](#xrm1002) | EnumGenerator failure | XrmFramework.Generators | 🔴 Error | — |
 | [XRM1003](#xrm1003) | Conflicting names for one option set | XrmFramework.Generators | 🔴 Error | — |
 | [XRM1004](#xrm1004) | Option set member the enum cannot declare | XrmFramework.Generators | 🔴 Error | — |
+| [XRM1005](#xrm1005) | Model references an unknown table | XrmFramework.Generators | 🔴 Error | — |
+| [XRM1006](#xrm1006) | Model property cannot be mapped to a column | XrmFramework.Generators | 🔴 Error | — |
+| [XRM1007](#xrm1007) | Lookup property without a relationship | XrmFramework.Generators | 🔴 Error | — |
+| [XRM1008](#xrm1008) | Malformed `.model` file | XrmFramework.Generators | 🔴 Error | — |
 | [XRM2001](#xrm2001) | MappingGenerator failure | XrmFramework.Generators | 🟡 Warning | — |
 
 ---
@@ -423,6 +431,56 @@ keeping either one silently would map one CRM value onto the other.
 Rename the member in the `.table` file declaring the option set — that name belongs to the project.
 
 **Message:** `The option set '{0}' cannot declare the member '{1}' ({2}): {3}. …`
+
+### XRM1005
+
+**Model references an unknown table** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+A `.model` file names a table in its `tName` that no `.table` file in the project declares. The
+generator has nothing to map the model's properties against, so it emits no class at all.
+
+Either add the table (`xrmframework tables pull --table <name>`) or correct `tName`.
+
+**Message:** `Model '{0}' targets table '{1}', which no .table file declares`
+
+---
+
+### XRM1006
+
+**Model property cannot be mapped to a column** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+A property of a `.model` names a column its table does not declare, or names one that is present
+but **not selected**. An unselected column has no constant in the generated `…Definition` class,
+so the mapping could not compile against it.
+
+Select the column (`xrmframework tables columns add`) or correct the property's `LogN`.
+
+**Message:** `Model '{0}': property '{1}' cannot be mapped — {2}`
+
+---
+
+### XRM1007
+
+**Lookup property without a relationship** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+A property maps a lookup column, but the table declares no many-to-one relationship for it, so
+the generator cannot tell which entity the `EntityReference` points at. Usually means the `.table`
+predates the relationship — `tables pull` refreshes it.
+
+**Message:** `Model '{0}': property '{1}' cannot be mapped — {2}`
+
+---
+
+### XRM1008
+
+**Malformed `.model` file** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+A `.model` could not be read. The message carries the parser's own explanation.
+
+**Message:** `'{0}' could not be read as a model: {1}`
+
+---
+
 
 ### XRM2001
 
