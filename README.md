@@ -53,7 +53,7 @@ var name = account.Nom;
 ## Features at a glance
 
 - 🧩 **Declarative plugins & Custom APIs** — describe steps, images, filtering attributes and execution order with C# attributes; the deploy tool registers everything in Dataverse for you.
-- 🏷️ **Strongly-typed model definitions** — generate typed table/column/optionset definitions from your environment with the **Definition Manager** UI. No more magic strings.
+- 🏷️ **Strongly-typed model definitions** — `.table` files are the single source of truth; typed table/column/optionset definitions are generated at compile time by a Roslyn source generator. Produce and edit them with the **Definition Manager** UI or headlessly with the **`xrmframework` CLI**. No more magic strings.
 - 💉 **Service-oriented architecture** — typed `IService` classes encapsulate data access and business logic, and are injected into plugins, Custom APIs, console apps and Azure Functions.
 - 🔍 **Live remote debugger** — set breakpoints in Visual Studio and step through real plugin executions on any environment, forwarded to your machine over Azure Relay.
 - 🚀 **One-command scaffolding & deployment** — `dotnet new` templates plus deploy utilities for plugins, web resources and Custom APIs.
@@ -158,7 +158,12 @@ Edit the `xrmFramework.config` file in the `Config` solution folder to configure
 
 ## Generate model definitions
 
-Launch the `Utils\DefinitionManager` project (set it as Startup project and run it with `Ctrl + F5` in Visual Studio).
+Since XrmFramework 3.1, a `.table` file is the **single source of truth** for a table's definition — its columns, keys, relationships and option sets. The typed `*Definition` classes (and the option-set enums) are generated automatically at **compile time** by the `XrmFramework.Analyzers` Roslyn source generator: there is no `.cs` file to generate or check in, only the `.table` files under `Contoso.Core\Definitions`.
+
+Two ways to produce and edit `.table` files:
+
+- **DefinitionManager** — the WinForms UI, for interactive use. Launch the `Utils\DefinitionManager` project (set it as Startup project and run it with `Ctrl + F5` in Visual Studio).
+- **`xrmframework` CLI** — the headless equivalent, for scripting and CI. `xrmframework tables pull` fetches or refreshes `.table` files straight from Dataverse metadata, and `xrmframework tables columns` / `xrmframework tables optionsets` activate columns or rename identifiers locally, without a connection.
 
 <img src="docs/images/definitionManager1.png" width="800" alt="Start of DefinitionManager" />
 
@@ -190,7 +195,9 @@ When you are done selecting, click **Generate Definitions**.
 
 <img src="docs/images/definitionManager4.png" width="300" alt="Generate definitions" />
 
-The `Contoso.Core` project is now updated with the definitions you chose.
+The `.table` files in `Contoso.Core\Definitions` are created or updated; the corresponding `*Definition` classes are (re)generated the next time the project builds.
+
+> For the full CLI reference — `tables list/pull/columns/optionsets`, `deploy plugins`, and the one-time `migrate sync-tables` upgrade path from 2.\* — see **[XrmFramework CLI](src/XrmFramework.Cli/README.md)**.
 
 ## Create your first plugin
 
@@ -294,6 +301,7 @@ XrmFramework ships a collection of extension methods that make working with the 
 | [Remote Debugger](docs/RemoteDebugger.md) | Debug live plugin executions in Visual Studio. |
 | [Utilities](docs/XrmFrameworkUtilities.md) | Extension methods for the Dataverse SDK. |
 | [Analyzers](docs/Analyzers.md) | Build-time diagnostics (`XRM00xx`) and code fixes that catch plugin mistakes before deploy. |
+| [CLI](src/XrmFramework.Cli/README.md) | The `xrmframework` .NET tool: `tables` (pull/columns/optionsets), `deploy`, and the 2.\* → 3.1+ `migrate sync-tables` upgrade path. |
 
 ## Packages
 
