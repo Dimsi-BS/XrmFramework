@@ -55,8 +55,6 @@ public sealed class DeployWebResourcesCommand : Command<DeployWebResourcesComman
     {
         ConfigHelper.UseProjectConfig(Path.GetFullPath(settings.ProjectRoot));
 
-        WebResourceHelper.SyncWebResources(settings.Project!, settings.Path!, settings.NoPrompt);
-
-        return 0;
+        return WebResourceHelper.SyncWebResources(settings.Project!, settings.Path!, settings.NoPrompt);
     }
 }
