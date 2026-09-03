@@ -91,7 +91,7 @@ Get from zero to a deployable, strongly-typed Dynamics 365 / Dataverse solution 
 XrmFramework uses the `dotnet new` templating engine. Install the templates from NuGet:
 
 ```PS
-dotnet new -i XrmFramework.Templates
+dotnet new install XrmFramework.Templates
 ```
 
 ### Create a new solution
@@ -103,6 +103,14 @@ PS C:\Temp> dotnet new xrmSolution -n {solutionName}
 ```
 
 The `-n` argument creates the solution in `C:\Temp\{solutionName}`.
+
+The package also ships three templates for adding a single project to an existing solution:
+
+| Template | Creates |
+| --- | --- |
+| `xrmPluginProject` | A plugins project together with its `Deploy.*` deployment project. |
+| `xrmConsoleProject` | A console application with `AddXrmFramework` already wired to a connection string. |
+| `xrmAzureFunction` | An isolated-worker Azure Function with `AddXrmFramework`, MediatR command dispatch and OpenAPI. |
 
 The templating service will prompt you to accept the execution of a PowerShell initialization script:
 
@@ -197,7 +205,7 @@ When you are done selecting, click **Generate Definitions**.
 
 The `.table` files in `Contoso.Core\Definitions` are created or updated; the corresponding `*Definition` classes are (re)generated the next time the project builds.
 
-> For the full CLI reference — `tables list/pull/columns/optionsets`, `deploy plugins`, and the one-time `migrate sync-tables` upgrade path from 2.\* — see **[XrmFramework CLI](src/XrmFramework.Cli/README.md)**.
+> For the full CLI reference — `tables list/pull/columns/optionsets`, `deploy plugins/webresources`, and the one-time `migrate sync-tables` upgrade path from 2.\* — see **[XrmFramework CLI](src/XrmFramework.Cli/README.md)**.
 
 ## Create your first plugin
 
@@ -324,6 +332,7 @@ Every piece of XrmFramework ships as an independent NuGet package, so you only p
 | Package | Role | Latest | Downloads |
 | --- | --- | --- | --- |
 | [XrmFramework.Templates](https://www.nuget.org/packages/XrmFramework.Templates) | `dotnet new` solution & project templates | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.Templates?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.Templates?color=success&label=) |
+| [XrmFramework.Cli](https://www.nuget.org/packages/XrmFramework.Cli) | The `xrmframework` .NET tool: `tables`, `deploy`, `migrate` | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.Cli?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.Cli?color=success&label=) |
 | [XrmFramework.Analyzers](https://www.nuget.org/packages/XrmFramework.Analyzers) | Roslyn analyzers & code fixes (`XRM00xx`) | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.Analyzers?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.Analyzers?color=success&label=) |
 | [XrmFramework.DefinitionManager](https://www.nuget.org/packages/XrmFramework.DefinitionManager) | Typed model definition generator (UI) | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.DefinitionManager?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.DefinitionManager?color=success&label=) |
 | [XrmFramework.DeployUtils](https://www.nuget.org/packages/XrmFramework.DeployUtils) | Deployment utilities (plugins, web resources, Custom APIs) | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.DeployUtils?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.DeployUtils?color=success&label=) |
