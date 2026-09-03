@@ -181,19 +181,23 @@ Use `AdminOrganizationService` when you need to read data that the triggering us
 
 ### Logging
 
+`Log` is a `LogServiceMethod` delegate — it takes the **calling method's name first**, then the message and its format arguments:
+
 ```csharp
 public string GetAccountNumber(EntityReference accountRef)
 {
-    Log("GetAccountNumber called for {0}", accountRef.Id);
+    Log(nameof(GetAccountNumber), "called for {0}", accountRef.Id);
 
     var account = AdminOrganizationService.Retrieve(
         accountRef, new ColumnSet(AccountDefinition.Columns.AccountNumber));
 
     var number = account.GetAttributeValue<string>(AccountDefinition.Columns.AccountNumber);
-    Log("GetAccountNumber result: {0}", number);
+    Log(nameof(GetAccountNumber), "result: {0}", number);
     return number;
 }
 ```
+
+That first argument is what lets the trace attribute each line to a method without the service having to prefix its own messages.
 
 `Log` writes to the Dataverse plugin trace. When using the auto-generated `LoggedService` wrapper, every method call is already timed and logged automatically — you only need explicit `Log` calls for additional internal detail.
 
@@ -255,16 +259,33 @@ The source generator creates both `LoggedIAccountService` and the `InternalDepen
 
 Because service classes receive an `IServiceContext` through their constructor, you can supply a test double at unit-test time without touching the plugin pipeline:
 
-```csharp
-// Using a fake context (e.g. from FakeXrmEasy or a hand-rolled mock)
-var fakeContext = new FakeServiceContext(/* ... */);
-var service = new AccountService(fakeContext);
+`IServiceContext` is an interface, so any mocking library will do — this is the pattern the framework uses for its own tests:
 
-var result = service.GetAccountNumber(
-    new EntityReference("account", Guid.NewGuid()));
+```csharp
+var orgService = new Mock<IOrganizationService>();
+var adminOrgService = new Mock<IOrganizationService>();
+
+var context = new Mock<IServiceContext>();
+context.Setup(c => c.OrganizationService).Returns(orgService.Object);
+context.Setup(c => c.AdminOrganizationService).Returns(adminOrgService.Object);
+context.Setup(c => c.LogServiceMethod).Returns((string _, string __, object[] ___) => { });
+
+var account = new Entity("account", Guid.NewGuid());
+account["accountnumber"] = "ACC-001";
+
+adminOrgService
+    .Setup(s => s.Retrieve("account", account.Id, It.IsAny<ColumnSet>()))
+    .Returns(account);
+
+var service = new AccountService(context.Object);
+
+var result = service.GetAccountNumber(account.ToEntityReference());
 
 Assert.AreEqual("ACC-001", result);
 ```
+
+Setting up `LogServiceMethod` matters: `DefaultService.Log` goes through it, so a service that
+traces would otherwise fail on a null delegate rather than on the behaviour under test.
 
 For regression testing, use the **Remote Debugger session replay** mechanism to run a service method against a recorded real context — see [RemoteDebugger](RemoteDebugger.md#session-recording-and-replay).
 

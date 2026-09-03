@@ -103,7 +103,13 @@ The framework validates at construction time that the referenced method exists, 
 
 `Messages` is a typed constant class with a static member for every built-in Dataverse message: `Messages.Create`, `Messages.Update`, `Messages.Delete`, `Messages.Associate`, `Messages.Disassociate`, `Messages.Assign`, `Messages.SetState`, and many more.
 
-For custom messages / Custom APIs, use `Messages.From("your_message_name")` or rely on the `[CustomApi]` attribute system described in [CustomApis.md](CustomApis.md).
+For custom messages / Custom APIs, use `Messages.GetMessage(...)` or rely on the `[CustomApi]` attribute system described in [CustomApis.md](CustomApis.md):
+
+```csharp
+// Second argument marks the message as custom — it defaults to false
+AddStep(Stages.PostOperation, Messages.GetMessage("new_mymessage", isCustomMessage: true),
+    Modes.Synchronous, AccountDefinition.EntityName, nameof(OnMyMessage));
+```
 
 ### Modes
 
