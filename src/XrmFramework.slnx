@@ -17,6 +17,7 @@
     <Project Path="Tests/XrmFramework.Plugin.Tests/XrmFramework.Plugin.Tests.csproj" />
     <Project Path="Tests/XrmFramework.PluginInventory.Tests/XrmFramework.PluginInventory.Tests.csproj" />
     <Project Path="Tests/XrmFramework.Tests/XrmFramework.Tests.csproj" />
+    <Project Path="Tests/XrmFramework.Workflows.Tests/XrmFramework.Workflows.Tests.csproj" />
   </Folder>
   <Project Path="XrmFramework.Analyzers.CodeFixes/XrmFramework.Analyzers.CodeFixes.csproj" />
   <Project Path="XrmFramework.Analyzers/XrmFramework.Analyzers.csproj" />

@@ -89,7 +89,7 @@ protected void AddStep(
 );
 ```
 
-The framework validates at construction time that the referenced method exists, is public, non-static, and that all its parameters are either `IPluginContext` or an `IService` interface.
+The framework validates at construction time that the referenced method exists, is public, non-static, and that all its parameters are interfaces the container can resolve: `IPluginContext`, one of your `IService` interfaces, or a framework service marked with `IXrmFrameworkService` — `IDateTimeProvider` being the one the framework ships (see [XRM0300](Analyzers.md#xrm0300)).
 
 ### Stages
 

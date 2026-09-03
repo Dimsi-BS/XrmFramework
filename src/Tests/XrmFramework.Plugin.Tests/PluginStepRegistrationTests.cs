@@ -1,6 +1,7 @@
 // Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Microsoft.Xrm.Sdk;
 using NUnit.Framework;
 
 // ReSharper disable once CheckNamespace
@@ -57,6 +58,43 @@ public class PluginStepRegistrationTests
         }
 
         public void OnContactCreate(IPluginContext _, IDateTimeProvider clock) { }
+    }
+
+    /// <summary>
+    /// A framework service other than <see cref="IDateTimeProvider"/>: what
+    /// <see cref="IXrmFrameworkService"/> exists to allow.
+    /// </summary>
+    private interface ICustomFrameworkService : IXrmFrameworkService
+    {
+    }
+
+    /// <summary>
+    /// Plugin whose step method requests an <see cref="IXrmFrameworkService"/> that is not
+    /// <see cref="IDateTimeProvider"/>. The whitelist used to name IDateTimeProvider itself, so
+    /// every other implementation of the marker was rejected at registration.
+    /// </summary>
+    private sealed class FrameworkServicePlugin() : XrmFramework.Plugin(null, null)
+    {
+        protected override void AddSteps()
+        {
+            AddStep(Stages.PreOperation, Messages.Create, Modes.Synchronous, "contact", nameof(OnContactCreate));
+        }
+
+        public void OnContactCreate(IPluginContext _, ICustomFrameworkService service) { }
+    }
+
+    /// <summary>
+    /// Plugin whose step method requests an interface the container knows nothing about
+    /// (registration must still fail).
+    /// </summary>
+    private sealed class UnknownInterfacePlugin() : XrmFramework.Plugin(null, null)
+    {
+        protected override void AddSteps()
+        {
+            AddStep(Stages.PreOperation, Messages.Create, Modes.Synchronous, "contact", nameof(OnContactCreate));
+        }
+
+        public void OnContactCreate(IPluginContext _, System.IDisposable notAService) { }
     }
 
     /// <summary>
@@ -165,6 +203,20 @@ public class PluginStepRegistrationTests
         var plugin = new DateTimeProviderPlugin();
 
         Assert.AreEqual(1, plugin.Steps.Count);
+    }
+
+    [Test]
+    public void AddStep_XrmFrameworkServiceParameter_StepIsRegistered()
+    {
+        var plugin = new FrameworkServicePlugin();
+
+        Assert.AreEqual(1, plugin.Steps.Count);
+    }
+
+    [Test]
+    public void AddStep_UnknownInterfaceParameter_Throws()
+    {
+        Assert.Throws<InvalidPluginExecutionException>(() => new UnknownInterfacePlugin());
     }
 
 }

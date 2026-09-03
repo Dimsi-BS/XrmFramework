@@ -82,12 +82,13 @@ public abstract partial class Plugin : IPlugin
 
         foreach (var param in step.Method.GetParameters())
         {
-            //Parameters for the step method must be an interface like IPluginContext, IService or IDateTimeProvider
+            //Parameters for the step method must be an interface the container can resolve:
+            //the context, a project service, or a framework service such as IDateTimeProvider.
             if (!param.ParameterType.IsInterface || (!typeof(IPluginContext).IsAssignableFrom(param.ParameterType)
                                                       && !typeof(IService).IsAssignableFrom(param.ParameterType)
-                                                      && !typeof(IDateTimeProvider).IsAssignableFrom(param.ParameterType)))
+                                                      && !typeof(IXrmFrameworkService).IsAssignableFrom(param.ParameterType)))
             {
-                throw new InvalidPluginExecutionException($"{ChildClassName}.{actionName} parameter : {param.Name}. Only IPluginContext, IService and IDateTimeProvider interfaces are allowed as parameters");
+                throw new InvalidPluginExecutionException($"{ChildClassName}.{actionName} parameter : {param.Name}. Only IPluginContext, IService and IXrmFrameworkService interfaces are allowed as parameters");
             }
         }
 
