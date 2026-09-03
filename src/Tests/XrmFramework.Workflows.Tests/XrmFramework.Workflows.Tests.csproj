@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="coverlet.collector">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+  </ItemGroup>
+
+  <!--
+    XrmFramework.Workflows and XrmFramework.Plugin both compile the framework core into
+    themselves, so a project referencing both gets every core type twice (CS0433). The
+    workflow tests therefore need a project of their own rather than a home in
+    XrmFramework.Plugin.Tests.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\XrmFramework.Workflows\XrmFramework.Workflows.csproj" />
+  </ItemGroup>
+
+</Project>
