@@ -7,20 +7,68 @@ using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
+using System.Runtime.CompilerServices;
 using XrmFramework.DeployUtils.CommandOptions;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
+
+[assembly: InternalsVisibleTo("XrmFramework.DeployUtils.Tests, PublicKey=00240000048000009400000006020000002400005253413100040000010001000d196816c56c09f53b4235803db7e452f0c1911a84b0f48ed49fc5b6cd544869a7e74fb971f388bd335b537b22e43a63101907a395e40bc0e434dc9a98c8f2d4e61e84f274cbf9bcb2b8415f582b26d5f2bd3d152d1736440ecd978b8216bb9a6ee429c9f84e87b00ca4e8fb747292d433a4017c8fa51456e80c6f12c95f59b4")]
 
 namespace XrmFramework.DeployUtils;
 
 public static class WebResourceHelper
 {
-    public static void SyncWebResources(string projectName, params string[] args)
+    /// <summary>
+    ///     Folder a bundler emits into. Preferred over the project folder when it exists, so that
+    ///     sources are not published alongside their bundles.
+    /// </summary>
+    private const string DistDirectoryName = "dist";
+
+    /// <summary>
+    ///     Folders never scanned for web resources, whatever their depth. They hold dependencies or
+    ///     build output: <c>node_modules</c> alone contributes thousands of <c>.js</c>, <c>.css</c>
+    ///     and <c>.png</c> files that have nothing to do with the environment.
+    /// </summary>
+    private static readonly string[] ExcludedDirectoryNames =
+    {
+        "node_modules", "bin", "obj", ".vs", ".git"
+    };
+
+    /// <summary>
+    ///     Walks <paramref name="root" /> depth-first, skipping <see cref="ExcludedDirectoryNames" />,
+    ///     and yields the files whose extension Dataverse accepts as a web resource.
+    /// </summary>
+    internal static IEnumerable<FileInfo> EnumerateWebResourceFiles(DirectoryInfo root)
+    {
+        foreach (var file in root.GetFiles())
+        {
+            if (IsWebResource(file.Extension))
+            {
+                yield return file;
+            }
+        }
+
+        foreach (var directory in root.GetDirectories())
+        {
+            if (ExcludedDirectoryNames.Contains(directory.Name, StringComparer.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            foreach (var file in EnumerateWebResourceFiles(directory))
+            {
+                yield return file;
+            }
+        }
+    }
+
+    public static int SyncWebResources(string projectName, params string[] args)
     {
         var options = new WebresourceCommandOptions();
 
@@ -40,7 +88,7 @@ public static class WebResourceHelper
                 }
             });
 
-        SyncWebResources(projectName, options.Path, options.DisablePrompt);
+        return SyncWebResources(projectName, options.Path, options.DisablePrompt);
     }
 
     /// <summary>
@@ -52,13 +100,40 @@ public static class WebResourceHelper
     /// <param name="projectName">Name of the project as declared in <c>xrmFramework.config</c> (e.g. <c>"Webresources"</c>).</param>
     /// <param name="webresourcesPath">Webresources project folder. Auto-discovered when <see langword="null" /> or empty.</param>
     /// <param name="noPrompt">Silent mode: skips the interactive connection confirmation (CI/CD).</param>
-    public static void SyncWebResources(string projectName, string webresourcesPath, bool noPrompt)
+    /// <returns>
+    ///     The process exit code: <c>0</c> on success, <c>1</c> when <paramref name="projectName" /> is
+    ///     not declared in <c>xrmFramework.config</c>, <c>3</c> on any other failure.
+    /// </returns>
+    public static int SyncWebResources(string projectName, string webresourcesPath, bool noPrompt)
+    {
+        try
+        {
+            return SyncWebResourcesCore(projectName, webresourcesPath, noPrompt);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine();
+            Console.WriteLine($@"Error : {ex.Message}");
+            Console.WriteLine(ex.StackTrace);
+            return 3;
+        }
+    }
+
+    private static int SyncWebResourcesCore(string projectName, string webresourcesPath, bool noPrompt)
     {
         var nbWebresources = 0;
 
         var xrmFrameworkConfigSection = ConfigHelper.GetSection();
 
-        var solutionName = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>().Single(p => p.Name == projectName).TargetSolution;
+        var project = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>().SingleOrDefault(p => p.Name == projectName);
+
+        if (project == null)
+        {
+            Console.WriteLine(@"Error : Project {0} is not declared in xrmFramework.config.", projectName);
+            return 1;
+        }
+
+        var solutionName = project.TargetSolution;
 
         var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
 
@@ -122,13 +197,13 @@ public static class WebResourceHelper
         if (solution == null)
         {
             Console.WriteLine(@"Error : Solution not found : {0}", solutionName);
-            return;
+            return 3;
         }
 
         if (solution.GetAttributeValue<bool>("ismanaged"))
         {
             Console.WriteLine(@"Error : Solution {0} is managed, no deployment possible.", solutionName);
-            return;
+            return 3;
         }
 
         var publisherId = solution.GetAttributeValue<EntityReference>("publisherid").Id;
@@ -142,7 +217,7 @@ public static class WebResourceHelper
         if (publisher == null)
         {
             Console.WriteLine(@"Error : Publisher not found : {0}", solutionName);
-            return;
+            return 3;
         }
         var prefix = publisher.GetAttributeValue<string>("customizationprefix");
         Console.WriteLine(@" ==> Prefix : {0}", prefix);
@@ -163,15 +238,23 @@ public static class WebResourceHelper
             }
 
             webresourcesPath = currentDirectory.GetDirectories(projectName).Single().FullName;
+
+            // A project with a TypeScript / bundler toolchain emits everything it wants deployed
+            // into dist/. Publishing the project folder instead would send the sources next to the
+            // bundles, and prefix every unique name with "dist/".
+            var distDirectory = Path.Combine(webresourcesPath, DistDirectoryName);
+
+            if (Directory.Exists(distDirectory))
+            {
+                Console.WriteLine(@" ==> Using the {0} folder", DistDirectoryName);
+                webresourcesPath = distDirectory;
+            }
         }
 
         DirectoryInfo root = new DirectoryInfo(webresourcesPath);
         var resourcesToPublish = new StringBuilder();
 
-        var files = Directory
-            .GetFiles(webresourcesPath, "*.*", SearchOption.AllDirectories)
-            .Select(file => new FileInfo(file))
-            .Where(fi => IsWebResource(fi.Extension))
+        var files = EnumerateWebResourceFiles(root)
             .Select(fi => new WebResource(fi, root, prefix))
             .ToList();
 
@@ -232,6 +315,8 @@ public static class WebResourceHelper
             service.Execute(request);
 
         }
+
+        return 0;
     }
 
 
