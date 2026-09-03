@@ -15,6 +15,7 @@ using XrmFramework.DeployUtils.CommandOptions;
 //   xrmframework tables optionsets list [--option <logicalname>] [--filter <text>] [--global-only]
 //   xrmframework tables optionsets set  --option <logicalname> [--name <newname>] [--value <n> --value-name <newname>]
 //   xrmframework deploy plugins         --dll <path.dll> --project <name> [--on-premise] [--noprompt]
+//   xrmframework deploy webresources    --project <name> [--path <directory>] [--noprompt]
 //   xrmframework migrate sync-tables    --dll <path.dll> --tables-dir <directory> [--clean]   (2.* -> 3.1+ migration)
 
 // A Windows console still starts on a legacy code page (CP850 / CP1252). Those cover Western
@@ -93,6 +94,11 @@ app.Configure(config =>
         deploy.AddCommand<DeployPluginsCommand>("plugins")
               .WithDescription("Deploys an assembly (plugins, custom APIs, workflows) to the selected environment.")
               .WithExample("deploy", "plugins", "--dll", "bin/net8.0/MyProject.Plugins.dll", "--project", "Plugins");
+
+        deploy.AddCommand<DeployWebResourcesCommand>("webresources")
+              .WithDescription("Publishes a project's web resources (html, css, js, images...) to the selected environment.")
+              .WithExample("deploy", "webresources", "--project", "Webresources")
+              .WithExample("deploy", "webresources", "--project", "Webresources", "--path", "Webresources");
     });
 
     // One-shot upgrades, as opposed to the day-to-day loop the other branches serve: each command

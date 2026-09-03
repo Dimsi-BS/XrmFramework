@@ -40,6 +40,20 @@ public static class WebResourceHelper
                 }
             });
 
+        SyncWebResources(projectName, options.Path, options.DisablePrompt);
+    }
+
+    /// <summary>
+    ///     Publishes the web resources found under <paramref name="webresourcesPath" /> (or, when
+    ///     omitted, auto-discovered from a folder named <paramref name="projectName" /> walked up from
+    ///     the current directory) to the CRM solution declared for <paramref name="projectName" /> in
+    ///     <c>xrmFramework.config</c>.
+    /// </summary>
+    /// <param name="projectName">Name of the project as declared in <c>xrmFramework.config</c> (e.g. <c>"Webresources"</c>).</param>
+    /// <param name="webresourcesPath">Webresources project folder. Auto-discovered when <see langword="null" /> or empty.</param>
+    /// <param name="noPrompt">Silent mode: skips the interactive connection confirmation (CI/CD).</param>
+    public static void SyncWebResources(string projectName, string webresourcesPath, bool noPrompt)
+    {
         var nbWebresources = 0;
 
         var xrmFrameworkConfigSection = ConfigHelper.GetSection();
@@ -47,8 +61,8 @@ public static class WebResourceHelper
         var solutionName = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>().Single(p => p.Name == projectName).TargetSolution;
 
         var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
-            
-        if (!options.DisablePrompt)
+
+        if (!noPrompt)
         {
             Console.WriteLine($@"You are about to deploy on {connectionString} organization. If ok press any key.");
             Console.ReadKey();
@@ -132,8 +146,6 @@ public static class WebResourceHelper
         }
         var prefix = publisher.GetAttributeValue<string>("customizationprefix");
         Console.WriteLine(@" ==> Prefix : {0}", prefix);
-
-        var webresourcesPath = options.Path;
 
         if (string.IsNullOrWhiteSpace(webresourcesPath))
         {
