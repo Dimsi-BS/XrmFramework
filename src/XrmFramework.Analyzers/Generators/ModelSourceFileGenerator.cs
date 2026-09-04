@@ -443,10 +443,20 @@ namespace XrmFramework.Analyzers.Generators
             isEnabledByDefault: true,
             helpLinkUri: DiagnosticIds.HelpLink("XRM1009"));
 
+        private static readonly DiagnosticDescriptor Xrm1010 = new(
+            "XRM1010",
+            "Ambiguous lookup target",
+            "Model '{0}': property '{1}' {2}",
+            "XrmFramework.Generators",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1010"));
+
         private static DiagnosticDescriptor DescriptorFor(string id) => id switch
         {
             "XRM1007" => Xrm1007,
             "XRM1009" => Xrm1009,
+            "XRM1010" => Xrm1010,
             _ => Xrm1006,
         };
 
