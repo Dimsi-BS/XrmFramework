@@ -37,8 +37,14 @@ public static class TableEditorApp
         if (directory == null)
             return ExitNotFound;
 
-        var tables = LoadLocalTables(directory);
-        if (tables.Count == 0)
+        // The full set, OptionSets.table (the global option sets pseudo-table) included: a
+        // global option set can be declared in several files at once, and renaming it has to
+        // walk all of them the same way "tables optionsets set" does — TableEditorWindow only
+        // browses the subset with actual columns.
+        var allTables = LoadLocalTables(directory);
+        var browsableTables = allTables.Where(t => !IsGlobalOptionSetsPseudoTable(t.Table)).ToList();
+
+        if (browsableTables.Count == 0)
         {
             AnsiConsole.MarkupLine($"[yellow]No .table file found in[/] {Markup.Escape(directory)}.");
             return ExitSuccess;
@@ -47,7 +53,7 @@ public static class TableEditorApp
         Application.Init();
         try
         {
-            Application.Run(new TableEditorWindow(tables));
+            Application.Run(new TableEditorWindow(browsableTables, allTables));
         }
         finally
         {
@@ -86,9 +92,10 @@ public static class TableEditorApp
     }
 
     /// <remarks>
-    /// Mirrors <c>ColumnHelper.LoadLocalTables(directory, includeGlobalOptionSets: false)</c>
-    /// (kept <c>internal</c>): same skip of unreadable files and of the global option sets
-    /// pseudo-table, which describes no entity and so carries no column to edit.
+    /// Mirrors <c>ColumnHelper.LoadLocalTables(directory, includeGlobalOptionSets: true)</c>
+    /// (kept <c>internal</c>): same skip of unreadable files. Unlike that default, the pseudo-table
+    /// is kept here — option set edits need every file that might declare a copy, callers that
+    /// only want browsable tables filter it out via <see cref="IsGlobalOptionSetsPseudoTable" />.
     /// </remarks>
     private static List<TrackedTable> LoadLocalTables(string directory)
     {
@@ -107,12 +114,12 @@ public static class TableEditorApp
                 continue;
             }
 
-            if (string.Equals(table.LogicalName, TableFileStore.GlobalOptionSetLogicalName, StringComparison.OrdinalIgnoreCase))
-                continue;
-
             result.Add(new TrackedTable(path, table));
         }
 
         return result.OrderBy(t => t.Table.LogicalName, StringComparer.OrdinalIgnoreCase).ToList();
     }
+
+    internal static bool IsGlobalOptionSetsPseudoTable(CoreTable table)
+        => string.Equals(table.LogicalName, TableFileStore.GlobalOptionSetLogicalName, StringComparison.OrdinalIgnoreCase);
 }

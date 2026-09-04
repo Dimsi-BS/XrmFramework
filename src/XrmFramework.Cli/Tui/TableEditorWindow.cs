@@ -20,9 +20,10 @@ namespace XrmFramework.Cli.Tui;
 /// </summary>
 internal sealed class TableEditorWindow : Window
 {
-    private const string HelpText = "↑/↓ navigate    Space/Enter toggle    R rename    Esc/Q quit";
+    private const string HelpText = "↑/↓ navigate    Space/Enter toggle    R rename    O option set    Esc/Q quit";
 
     private readonly IReadOnlyList<TrackedTable> _tables;
+    private readonly IReadOnlyList<TrackedTable> _allTables;
     private readonly ListView _tableList;
     private readonly FrameView _columnsFrame;
     private readonly TableView _columnTable;
@@ -31,10 +32,17 @@ internal sealed class TableEditorWindow : Window
     private List<Column> _sortedColumns = new();
     private TrackedTable? _current;
 
-    public TableEditorWindow(IReadOnlyList<TrackedTable> tables)
+    /// <param name="tables">Browsable, left-pane tables — those with columns to edit.</param>
+    /// <param name="allTables">
+    /// Every locally tracked file, the global option sets pseudo-table included: an option set
+    /// rename (<see cref="EditOptionSet" />) has to reach every copy, the same way
+    /// <c>tables optionsets set</c> does.
+    /// </param>
+    public TableEditorWindow(IReadOnlyList<TrackedTable> tables, IReadOnlyList<TrackedTable> allTables)
         : base("XrmFramework — tables edit")
     {
         _tables = tables;
+        _allTables = allTables;
 
         var tablesFrame = new FrameView
         {
@@ -179,6 +187,12 @@ internal sealed class TableEditorWindow : Window
                 RenameSelected(row);
                 e.Handled = true;
                 break;
+
+            case GuiKey.o:
+            case GuiKey.O:
+                EditOptionSet(row);
+                e.Handled = true;
+                break;
         }
     }
 
@@ -243,36 +257,37 @@ internal sealed class TableEditorWindow : Window
     }
 
     private static string? PromptForName(Column column)
+        => Prompts.AskText($"Rename {column.LogicalName}", "New C# name:", column.Name);
+
+    /// <summary>
+    /// Opens <see cref="OptionSetEditorWindow" /> on the option set the selected column
+    /// references, if any. A column not tied to one (<see cref="Column.EnumName" /> empty) or
+    /// one whose option set was never pulled locally (no matching entry in
+    /// <see cref="XrmFramework.Core.Table.Enums" /> anywhere in <see cref="_allTables" />) just
+    /// reports why instead of opening anything.
+    /// </summary>
+    private void EditOptionSet(int row)
     {
-        var input = new TextField(column.Name) { X = 0, Y = 1, Width = Dim.Fill() };
-        var label = new Label("New C# name:") { X = 0, Y = 0 };
+        var column = _sortedColumns[row];
 
-        var okButton = new Button("OK", true);
-        var cancelButton = new Button("Cancel", false);
-
-        var dialog = new Dialog($"Rename {column.LogicalName}", 60, 7, okButton, cancelButton);
-        dialog.Add(label, input);
-
-        string? result = null;
-        okButton.Clicked += () =>
+        if (string.IsNullOrEmpty(column.EnumName))
         {
-            result = input.Text.ToString();
-            Application.RequestStop();
-        };
-        cancelButton.Clicked += () => Application.RequestStop();
-        dialog.KeyPress += e =>
+            SetStatus($"{column.LogicalName} is not tied to an option set.");
+            return;
+        }
+
+        var known = _allTables.Any(t => t.Table.Enums.Any(
+            e => string.Equals(e?.LogicalName, column.EnumName, StringComparison.OrdinalIgnoreCase)));
+
+        if (!known)
         {
-            if (e.KeyEvent.Key == GuiKey.Esc)
-            {
-                Application.RequestStop();
-                e.Handled = true;
-            }
-        };
+            ShowError(
+                $"No option set definition tracked locally for '{column.EnumName}'. " +
+                "Run 'tables optionsets list' or 'tables pull' first.");
+            return;
+        }
 
-        input.SetFocus();
-        Application.Run(dialog);
-
-        return result;
+        Application.Run(new OptionSetEditorWindow(_allTables, column.EnumName));
     }
 
     private bool TrySave(out string? error)
@@ -290,7 +305,7 @@ internal sealed class TableEditorWindow : Window
         }
     }
 
-    private static void ShowError(string message) => MessageBox.ErrorQuery("Error", message, "OK");
+    private static void ShowError(string message) => Prompts.ShowError(message);
 
     private void SetStatus(string? message)
         => _status.Text = string.IsNullOrEmpty(message) ? HelpText : $"{message}   {HelpText}";

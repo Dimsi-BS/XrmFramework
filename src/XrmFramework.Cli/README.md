@@ -318,15 +318,31 @@ Tables tracked locally on the left, the columns of whichever one is selected on 
 | `↑` / `↓`, `Tab` | Navigate / switch pane |
 | `Space`, `Enter` | Toggle the selected column's `Select` flag |
 | `R` | Rename the selected column's C# name |
+| `O` | Edit the option set the selected column is tied to (Picklist, State, Status...) |
 | `Esc`, `Q` | Quit |
 
 Every toggle or rename is validated (same duplicate-name rule as `columns set --name`) and saved
 to disk immediately — there is no separate save step.
 
+`O` on a column with no option set, or one never pulled locally (no matching entry under any
+tracked `.table`'s `Enums`), reports why instead of opening anything. Otherwise it opens a second
+screen — the interactive counterpart of `tables optionsets set` — over that option set's members:
+
+| Key | Action |
+|---|---|
+| `↑` / `↓` | Navigate members |
+| `Enter`, `R` | Rename the selected member's C# name |
+| `N` | Rename the option set's own C# name |
+| `Esc`, `Q` | Close, back to the columns screen |
+
+A global option set can be declared in several `.table` files at once; a rename here reaches
+every copy the same way `tables optionsets set` does, skipping (and reporting) any copy marked
+`Locked` — its name belongs to the framework package's own generated code.
+
 Requires a real terminal (not redirected output); on an unsupported terminal, prefer the
 non-interactive `tables columns`/`tables optionsets` commands.
 
-Implementation: [`TableEditorApp` / `TableEditorWindow`](Tui)
+Implementation: [`TableEditorApp` / `TableEditorWindow` / `OptionSetEditorWindow`](Tui)
 -> [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs)
 + [`ProjectConfigLocator`](../XrmFramework.DeployUtils/TableSync/ProjectConfigLocator.cs).
 
