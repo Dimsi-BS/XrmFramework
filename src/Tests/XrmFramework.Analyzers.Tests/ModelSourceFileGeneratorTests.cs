@@ -94,4 +94,93 @@ public class ModelSourceFileGeneratorTests
 
         Assert.That(diagnostics.Select(d => d.Id), Does.Contain("XRM1006"));
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  Column types beyond string and picklist
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private static string GenerateContactModel()
+    {
+        var generated = TestHelper.Generate<ModelSourceFileGenerator>(
+            ("Model/Definitions/Contact.table", Resource("Contact.table")),
+            ("Model/Definitions/Account.table", Resource("Account.table")),
+            ("Model/Definitions/OptionSets.table", Resource("OptionSet.table")),
+            ("Model/ContactModel.model", Resource("ContactModel.model")));
+
+        Assert.That(generated.Keys, Does.Contain("ContactModel.model.cs"),
+            "the generator produced: " + string.Join(", ", generated.Keys));
+
+        return generated["ContactModel.model.cs"];
+    }
+
+    [Test]
+    public void DateTime_IsReadAndWrittenAsDateTime()
+    {
+        var source = GenerateContactModel();
+
+        Assert.That(source, Does.Contain("entity.GetAttributeValue<DateTime?>(ContactDefinition.Columns.BirthDate)"));
+        Assert.That(source, Does.Contain("entity[ContactDefinition.Columns.BirthDate]"));
+    }
+
+    [Test]
+    public void Money_IsUnwrappedOnReadAndRewrappedOnWrite()
+    {
+        var source = GenerateContactModel();
+
+        Assert.That(source, Does.Contain("entity.GetAttributeValue<Money>(ContactDefinition.Columns.Revenue)?.Value"));
+        Assert.That(source, Does.Contain("new Money(Revenue.Value)"));
+    }
+
+    [Test]
+    public void Lookup_ResolvesItsTargetThroughTheTablesManyToOneRelationship()
+    {
+        var source = GenerateContactModel();
+
+        Assert.That(source, Does.Contain("entity.GetAttributeValue<EntityReference>(ContactDefinition.Columns.AccountId)"));
+
+        // contact_account points at the account table, which is tracked here, so the target is
+        // written as the definition constant rather than a bare literal.
+        Assert.That(source, Does.Contain("AccountDefinition.EntityName"));
+    }
+
+    [Test]
+    public void MultiSelectPicklist_UsesTheOptionSetCollectionHelpers()
+    {
+        var source = GenerateContactModel();
+
+        Assert.That(source, Does.Contain("entity.GetOptionSetValues<ContactInterest>(ContactDefinition.Columns.Interests)"));
+        Assert.That(source, Does.Contain("entity.SetOptionSetValues(ContactDefinition.Columns.Interests, Interests)"));
+    }
+
+    [Test]
+    public void Boolean_IsMappedAsABoolean()
+    {
+        var source = GenerateContactModel();
+
+        Assert.That(source, Does.Contain("entity.GetAttributeValue<bool>(ContactDefinition.Columns.IsActive)"));
+    }
+
+    /// <summary>
+    /// A lookup column the table declares no relationship for cannot name its target, so it is
+    /// reported rather than mapped against a guess.
+    /// </summary>
+    [Test]
+    public void LookupWithoutRelationship_IsReported()
+    {
+        const string model = """
+{
+  "tName": "contact",
+  "Name": "ContactModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [ { "Name": "Orphan", "Type": "Guid", "LogN": "orphanlookup" } ]
+}
+""";
+
+        var diagnostics = TestHelper.Diagnose<ModelSourceFileGenerator>(
+            ("Model/Definitions/Contact.table", Resource("Contact.table")),
+            ("Model/Definitions/OptionSets.table", Resource("OptionSet.table")),
+            ("Model/ContactModel.model", model));
+
+        Assert.That(diagnostics.Select(d => d.Id), Does.Contain("XRM1007"));
+    }
 }

@@ -181,8 +181,13 @@ namespace XrmFramework.Analyzers.Generators
                                                 r.LookupFieldName == prop.LogicalName);
                                         if (correspondingRelation == null)
                                         {
-                                            throw new Exception("No corresponding relationship found in table for " +
-                                                                prop.Name);
+                                            // The mapping cannot name a target the table does not
+                                            // declare. Reported and skipped, so the class and its
+                                            // mapping agree on which properties exist.
+                                            productionContext.ReportDiagnostic(Diagnostic.Create(
+                                                Xrm1007, Location.None, model.Name, prop.Name,
+                                                $"lookup column '{prop.LogicalName}' has no many-to-one relationship in table '{correspondingTable.LogicalName}'"));
+                                            continue;
                                         }
 
                                         sb.AppendLine();
@@ -220,9 +225,10 @@ namespace XrmFramework.Analyzers.Generators
                                             r.Name == prop.LogicalName);
                                     if (correspondingRelation == null)
                                     {
-                                        throw new Exception(
-                                            "Error, no corresponding OneToMany relation found for this property : " +
-                                            prop.Name);
+                                        productionContext.ReportDiagnostic(Diagnostic.Create(
+                                            Xrm1006, Location.None, model.Name, prop.Name,
+                                            $"no one-to-many relationship named '{prop.LogicalName}' in table '{correspondingTable.LogicalName}'"));
+                                        continue;
                                     }
 
                                     sb.AppendLine(

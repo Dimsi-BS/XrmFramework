@@ -1,0 +1,146 @@
+{
+  "LogName": "contact",
+  "Name": "Contact",
+  "CollName": "contacts",
+  "Cols": [
+    {
+      "LogName": "contactid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Select": true
+    },
+    {
+      "LogName": "fullname",
+      "Name": "FullName",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "StrLen": 160,
+      "Select": true
+    },
+    {
+      "LogName": "birthdate",
+      "Name": "BirthDate",
+      "Type": "DateTime",
+      "Capa": 15,
+      "DatBehav": "DateOnly",
+      "Select": true
+    },
+    {
+      "LogName": "revenue",
+      "Name": "Revenue",
+      "Type": "Money",
+      "Capa": 15,
+      "Select": true
+    },
+    {
+      "LogName": "isactive",
+      "Name": "IsActive",
+      "Type": "Boolean",
+      "Capa": 15,
+      "Select": true
+    },
+    {
+      "LogName": "statuscode",
+      "Name": "StatusCode",
+      "Type": "Status",
+      "Capa": 15,
+      "EnumName": "contact|statuscode",
+      "Select": true
+    },
+    {
+      "LogName": "interests",
+      "Name": "Interests",
+      "Type": "Virtual",
+      "Capa": 15,
+      "IsMultiSelect": true,
+      "EnumName": "contact|interests",
+      "Select": true
+    },
+    {
+      "LogName": "accountid",
+      "Name": "AccountId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Select": true
+    },
+    {
+      "LogName": "orphanlookup",
+      "Name": "OrphanLookup",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Select": true
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "contact_account",
+      "Etn": "account",
+      "Role": "Referencing",
+      "NavPropName": "AccountId",
+      "LookName": "accountid"
+    }
+  ],
+  "OneToN": [],
+  "NtoN": [],
+  "Enums": [
+    {
+      "LogName": "contact|statuscode",
+      "Name": "ContactStatus",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Active",
+          "Labels": [
+            {
+              "Label": "Active",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Inactive",
+          "Labels": [
+            {
+              "Label": "Inactive",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "contact|interests",
+      "Name": "ContactInterest",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Sports",
+          "Labels": [
+            {
+              "Label": "Sports",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Music",
+          "Labels": [
+            {
+              "Label": "Music",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": false
+    }
+  ],
+  "Keys": [],
+  "Selected": true
+}
