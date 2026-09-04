@@ -29,6 +29,7 @@ expected all surface as a build diagnostic with a one-click fix where possible.
   - [XRM1006](#xrm1006)
   - [XRM1007](#xrm1007)
   - [XRM1008](#xrm1008)
+  - [XRM1009](#xrm1009)
   - [XRM2001](#xrm2001)
 - [Reserved identifiers](#reserved-identifiers)
 
@@ -108,6 +109,7 @@ AddStep(Stages.PostOperation, Messages.Update, Modes.Synchronous, AccountDefinit
 | [XRM1006](#xrm1006) | Model property cannot be mapped to a column | XrmFramework.Generators | 🔴 Error | — |
 | [XRM1007](#xrm1007) | Lookup property without a relationship | XrmFramework.Generators | 🔴 Error | — |
 | [XRM1008](#xrm1008) | Malformed `.model` file | XrmFramework.Generators | 🔴 Error | — |
+| [XRM1009](#xrm1009) | Model property type does not match its column | XrmFramework.Generators | 🟡 Warning | — |
 | [XRM2001](#xrm2001) | MappingGenerator failure | XrmFramework.Generators | 🟡 Warning | — |
 
 ---
@@ -490,6 +492,46 @@ predates the relationship — `tables pull` refreshes it.
 A `.model` could not be read. The message carries the parser's own explanation.
 
 **Message:** `'{0}' could not be read as a model: {1}`
+
+---
+
+
+### XRM1009
+
+**Model property type does not match its column** · Category `XrmFramework.Generators` · Severity 🟡 **Warning**
+
+The C# type a `.model` gives a property cannot hold the value of the column it maps to. The
+mapping is still generated — hence a warning — but it will not do what it looks like it does:
+
+```json
+{ "Name": "Revenue", "Type": "int", "LogN": "revenue" }
+```
+
+`revenue` is a `Money`, so the generated read is `entity.GetAttributeValue<int>(…)`, which returns
+`0` forever because the attribute holds a `Money`. The mapping compiles, runs, and is silently
+wrong — which is why this is checked at all.
+
+What each column kind accepts:
+
+| Column | C# type |
+|---|---|
+| `Money` | `decimal`, `decimal?`, `Money` |
+| `Lookup` / `Customer` / `Owner` | `Guid`, `Guid?`, `EntityReference` |
+| `Picklist` / `State` / `Status` | the generated enum, `int`, `OptionSetValue` |
+| multi-select | `List<TheGeneratedEnum>` |
+| `DateTime` | `DateTime`, `DateTime?` |
+| `Boolean` | `bool` |
+| `Integer` | `int` |
+| `BigInt` | `long` |
+| `Double` | `double` |
+| `Decimal` | `decimal` |
+| `String` / `Memo` | `string` |
+| `Uniqueidentifier` | `Guid` |
+
+`PartyList`, `CalendarRules`, `ManagedProperty` and a non-multi-select `Virtual` have no single
+natural mapping and are not checked.
+
+**Message:** `Model '{0}': property '{1}' {2}`
 
 ---
 

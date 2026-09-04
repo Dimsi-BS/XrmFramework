@@ -431,9 +431,22 @@ namespace XrmFramework.Analyzers.Generators
             isEnabledByDefault: true,
             helpLinkUri: DiagnosticIds.HelpLink("XRM1008"));
 
+        private static readonly DiagnosticDescriptor Xrm1009 = new(
+            "XRM1009",
+            "Model property type does not match its column",
+            "Model '{0}': property '{1}' {2}",
+            "XrmFramework.Generators",
+            // A warning, not an error: the accepted sets cover what the emitter special-cases,
+            // but a project may have a legitimate mapping this does not know about, and a false
+            // positive must not stop a build.
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1009"));
+
         private static DiagnosticDescriptor DescriptorFor(string id) => id switch
         {
             "XRM1007" => Xrm1007,
+            "XRM1009" => Xrm1009,
             _ => Xrm1006,
         };
 

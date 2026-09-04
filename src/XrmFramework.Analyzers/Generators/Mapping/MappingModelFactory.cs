@@ -105,7 +105,20 @@ internal static class MappingModelFactory
                     : $"\"{relation.EntityName}\"";
             }
 
-            properties.Add(BuildProperty(table, column, property, lookupTargetRef));
+            var mapped = BuildProperty(table, column, property, lookupTargetRef);
+
+            // Reported, but the property is still mapped: this is a warning about a probable
+            // mistake, not a refusal to generate.
+            var expected = ColumnTypeCompatibility.Describe(
+                column, property.TypeFullName ?? string.Empty, mapped.IsList, mapped.ListElemTypeName);
+
+            if (expected != null)
+            {
+                failures.Add(MappingFailure.IncompatibleType(
+                    model.Name, property.Name, property.TypeFullName ?? "?", column.LogicalName, column.Type, expected));
+            }
+
+            properties.Add(mapped);
         }
 
         var mappingModel = new MappingModel(
@@ -224,6 +237,11 @@ internal sealed class MappingFailure
         => new(MappingFailureIds.ColumnNotSelected, model, property,
                $"column '{column}' of table '{table}' is not selected, so no definition constant is generated for it");
 
+    public static MappingFailure IncompatibleType(
+        string model, string property, string declaredType, string column, AttributeTypeCode columnType, string expected)
+        => new(MappingFailureIds.IncompatibleType, model, property,
+               $"declared as '{declaredType}' but column '{column}' is a {columnType}; expected {expected}");
+
     public static MappingFailure LookupWithoutRelationship(string model, string property, string column, string table)
         => new(MappingFailureIds.LookupWithoutRelationship, model, property,
                $"lookup column '{column}' has no many-to-one relationship in table '{table}'");
@@ -234,4 +252,5 @@ internal static class MappingFailureIds
     public const string UnknownColumn = "XRM1006";
     public const string ColumnNotSelected = "XRM1006";
     public const string LookupWithoutRelationship = "XRM1007";
+    public const string IncompatibleType = "XRM1009";
 }
