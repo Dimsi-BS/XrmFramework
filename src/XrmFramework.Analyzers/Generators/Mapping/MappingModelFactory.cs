@@ -136,6 +136,21 @@ internal static class MappingModelFactory
 
             var mapped = BuildProperty(table, column, property, lookupTargetRef);
 
+            if (!string.IsNullOrEmpty(property.LookupTargetColumnLogicalName))
+            {
+                var projected = targetTable?.Columns
+                    .FirstOrDefault(c => c.LogicalName == property.LookupTargetColumnLogicalName);
+
+                // Alias the query builder gives the link: the lookup column's logical name,
+                // then the projected column. Built from the definition constants so a rename
+                // of either follows.
+                var projectedRef = projected != null && targetTable != null
+                    ? $"{targetTable.Name}Definition.Columns.{projected.Name}"
+                    : $"\"{property.LookupTargetColumnLogicalName}\"";
+
+                mapped.AliasedValueRef = $"{table.Name}Definition.Columns.{column.Name} + \".\" + {projectedRef}";
+            }
+
             ReportTypeIncompatibility(failures, model, property, column, mapped, targetTable);
 
             properties.Add(mapped);

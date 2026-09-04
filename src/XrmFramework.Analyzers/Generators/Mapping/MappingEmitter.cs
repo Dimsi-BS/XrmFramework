@@ -130,7 +130,16 @@ internal static class MappingEmitter
         sb.CloseBrace();
     }
 
-    private static string BuildReadExpr(MappingProperty prop) => prop.AttrType switch
+    private static string BuildReadExpr(MappingProperty prop)
+    {
+        // A projection lives under the alias the LinkEntity carries, not in the
+        // entity's own column — which holds the EntityReference.
+        if (prop.AliasedValueRef != null)
+        {
+            return $"entity.GetAliasedValue<{prop.TypeName}>({prop.AliasedValueRef})";
+        }
+
+        return prop.AttrType switch
     {
         AttributeTypeCode.Lookup   or
         AttributeTypeCode.Customer or
@@ -142,8 +151,9 @@ internal static class MappingEmitter
         AttributeTypeCode.State    or
         AttributeTypeCode.Status   => BuildPicklistRead(prop),
 
-        _ => $"entity.GetAttributeValue<{prop.TypeName}>({prop.ColumnRef})",
-    };
+            _ => $"entity.GetAttributeValue<{prop.TypeName}>({prop.ColumnRef})",
+        };
+    }
 
     private static string BuildLookupRead(MappingProperty prop)
     {
@@ -230,6 +240,13 @@ internal static class MappingEmitter
 
     private static void WriteEntityAssignment(CodeWriter sb, MappingProperty prop)
     {
+        // Read-only: the value belongs to the linked record, and the column it would be
+        // written to holds the reference to that record.
+        if (prop.AliasedValueRef != null)
+        {
+            return;
+        }
+
         if (prop.IsList)
         {
             sb.Line($"entity.SetOptionSetValues({prop.ColumnRef}, {prop.Name});");

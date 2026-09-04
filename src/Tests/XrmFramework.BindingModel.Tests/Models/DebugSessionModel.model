@@ -1,0 +1,58 @@
+{
+  "tName": "dimsi_debugsession",
+  "Name": "DebugSessionModel",
+  "ns": "XrmFramework.BindingModel.Tests.Models",
+  "Cols": [
+    {
+      "Name": "Name",
+      "Type": "string",
+      "LogN": "dimsi_name"
+    },
+    {
+      "Name": "RelayUrl",
+      "Type": "string",
+      "LogN": "dimsi_relayurl"
+    },
+    {
+      "Name": "HybridConnectionName",
+      "Type": "string",
+      "LogN": "dimsi_hybridconnectionname"
+    },
+    {
+      "Name": "DebugInfo",
+      "Type": "string",
+      "LogN": "dimsi_debuginfos",
+      "JsonIgnore": true
+    },
+    {
+      "Name": "SessionEnd",
+      "Type": "DateTime?",
+      "LogN": "dimsi_sessionend"
+    },
+    {
+      "Name": "CreatedOn",
+      "Type": "DateTime?",
+      "LogN": "createdon",
+      "UsePropCh": false
+    },
+    {
+      "Name": "State",
+      "Type": "DebugSessionState?",
+      "LogN": "statecode"
+    },
+    {
+      "Name": "DebugeeId",
+      "Type": "Guid?",
+      "LogN": "dimsi_debugeeid",
+      "JsonPropertyName": "debugee"
+    },
+    {
+      "Name": "DebugeeName",
+      "Type": "string",
+      "LogN": "dimsi_debugeeid",
+      "LookupTargetTableLogicalName": "systemuser",
+      "LookupTargetColumnLogicalName": "fullname",
+      "AllowNotExisting": true
+    }
+  ]
+}
