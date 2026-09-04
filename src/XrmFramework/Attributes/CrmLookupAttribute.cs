@@ -29,24 +29,31 @@ namespace XrmFramework
         /// </remarks>
         public CrmLookupAttribute(Type definitionType, string attributeName, bool allowNotExisting = false)
         {
-            if (definitionType == null)
-            {
-                throw new ArgumentNullException(nameof(definitionType));
-            }
-
-            var field = definitionType.GetField("EntityName", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
-
-            if (field == null || field.FieldType != typeof(string))
-            {
-                throw new ArgumentException(
-                    $"{definitionType.Name} is not an entity definition: it exposes no public const string EntityName.",
-                    nameof(definitionType));
-            }
-
             DefinitionType = definitionType;
-            TargetEntityName = (string)field.GetRawConstantValue();
+            TargetEntityName = ReadEntityName(definitionType);
             AttributeName = attributeName;
             AllowNotExisting = allowNotExisting;
+        }
+
+        /// <summary>
+        ///     Reads the <c>EntityName</c> constant off a generated definition class, or returns
+        ///     <see langword="null" /> when the type is not one.
+        /// </summary>
+        /// <remarks>
+        ///     Deliberately silent rather than throwing. Attributes are constructed by reflection
+        ///     while the mappers read them, so an exception here would surface as a
+        ///     <see cref="System.Reflection.TargetInvocationException" /> from the middle of a
+        ///     mapping rather than at the point of the mistake.
+        /// </remarks>
+        private static string ReadEntityName(Type definitionType)
+        {
+            var field = definitionType?.GetField(
+                "EntityName",
+                BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+
+            return field != null && field.FieldType == typeof(string)
+                ? (string)field.GetRawConstantValue()
+                : null;
         }
 
         public string RelationshipName { get; set; }

@@ -36,22 +36,19 @@ namespace XrmFramework
         /// </param>
         public CrmEntityAttribute(Type definitionType)
         {
-            if (definitionType == null)
-            {
-                throw new ArgumentNullException(nameof(definitionType));
-            }
-
-            var field = definitionType.GetField(EntityNameField, BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
-
-            if (field == null || field.FieldType != typeof(string))
-            {
-                throw new ArgumentException(
-                    $"{definitionType.Name} is not an entity definition: it exposes no public const string {EntityNameField}.",
-                    nameof(definitionType));
-            }
-
-            EntityName = (string)field.GetRawConstantValue();
             DefinitionType = definitionType;
+
+            var field = definitionType?.GetField(
+                EntityNameField,
+                BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+
+            // Silent rather than throwing. Attributes are constructed by reflection while the
+            // mappers read them, so an exception here would surface as a
+            // TargetInvocationException from the middle of a mapping instead of at the point of
+            // the mistake. A type that is not a definition is static analysis's business.
+            EntityName = field != null && field.FieldType == typeof(string)
+                ? (string)field.GetRawConstantValue()
+                : null;
         }
 
         public string EntityName { get; private set; }
