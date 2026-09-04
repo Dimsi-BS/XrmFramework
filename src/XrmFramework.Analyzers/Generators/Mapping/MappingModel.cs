@@ -60,6 +60,18 @@ internal sealed class MappingProperty
     public bool              IsValidForUpdate { get; }
     public string?           LookupTargetRef  { get; set; }
 
+    /// <summary>
+    ///     C# expression naming the aliased field a projection is read from, or
+    ///     <see langword="null"/> for an ordinary property.
+    ///
+    ///     A property projecting a column of the record behind a lookup does not live in the
+    ///     entity itself: the query builder adds a LinkEntity aliased on the lookup column, so
+    ///     the value arrives under "&lt;lookup column&gt;.&lt;projected column&gt;". Reading the
+    ///     lookup column instead hands back the EntityReference, and writing to it would put the
+    ///     projected value where the reference belongs — a projection is read-only.
+    /// </summary>
+    public string? AliasedValueRef { get; set; }
+
     /// <summary>Definition class the column constant was written against, read lexically.</summary>
     public string? DefinitionName { get; set; }
 

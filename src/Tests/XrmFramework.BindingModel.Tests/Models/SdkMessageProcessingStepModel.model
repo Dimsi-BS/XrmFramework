@@ -1,0 +1,45 @@
+{
+  "tName": "sdkmessageprocessingstep",
+  "Name": "SdkMessageProcessingStepModel",
+  "ns": "XrmFramework.BindingModel.Tests.Models",
+  "Cols": [
+    {
+      "Name": "Name",
+      "Type": "string",
+      "LogN": "name"
+    },
+    {
+      "Name": "Description",
+      "Type": "string",
+      "LogN": "description"
+    },
+    {
+      "Name": "Stage",
+      "Type": "Stage?",
+      "LogN": "stage"
+    },
+    {
+      "Name": "State",
+      "Type": "SdkmessageprocessingstepState?",
+      "LogN": "statecode"
+    },
+    {
+      "Name": "PluginTypeId",
+      "Type": "Guid?",
+      "LogN": "plugintypeid"
+    },
+    {
+      "Name": "PluginTypeName",
+      "Type": "string",
+      "LogN": "plugintypeid",
+      "LookupTargetTableLogicalName": "plugintype",
+      "LookupTargetColumnLogicalName": "typename"
+    },
+    {
+      "Name": "EventHandlerId",
+      "Type": "Guid?",
+      "LogN": "eventhandler",
+      "LookupTargetTableLogicalName": "plugintype"
+    }
+  ]
+}

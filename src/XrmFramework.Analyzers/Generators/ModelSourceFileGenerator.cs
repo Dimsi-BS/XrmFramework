@@ -109,6 +109,11 @@ namespace XrmFramework.Analyzers.Generators
                     sb.AppendLine("using System.ComponentModel.DataAnnotations;");
                     sb.AppendLine("using System.Diagnostics.CodeAnalysis;");
                     sb.AppendLine("using System.Collections.Generic;");
+                    sb.AppendLine("using System.Linq;");
+                    // The mapping written into this same class uses Entity and
+                    // IOrganizationService. MappingEmitter declares them when it produces a file
+                    // of its own, but here it only contributes the two methods.
+                    sb.AppendLine("using Microsoft.Xrm.Sdk;");
                     sb.AppendLine("using XrmFramework;");
                     sb.AppendLine("using Newtonsoft.Json;");
                     sb.AppendLine("using XrmFramework.BindingModel;");
