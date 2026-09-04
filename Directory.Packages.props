@@ -86,6 +86,15 @@
     <Ver_SpectreConsole>0.55.2</Ver_SpectreConsole>
     <Ver_SpectreConsoleCli>0.55.0</Ver_SpectreConsoleCli>
     <Ver_SpectreConsoleAnalyzer>1.0.0</Ver_SpectreConsoleAnalyzer>
+    <!--
+      CLI-only TUI (xrmframework tables edit), confined to XrmFramework.Cli.
+      Deliberately on the 1.x line rather than "latest": 2.0.1+ reorganized the entire public API
+      (Toplevel/View/Application replaced by an IRunnable/SessionToken session model) and is still
+      settling — prereleases were shipping days before this was written. 1.19.0 ships a net8.0
+      asset (consumed by our net10.0 TFM), is cross-platform (Windows/macOS/Linux drivers), and is
+      the long-stable, widely-deployed API this code is written against.
+    -->
+    <Ver_TerminalGui>1.19.0</Ver_TerminalGui>
 
     <!-- ═══════════════════════════════════════════════════════════
          Azure / Networking
@@ -161,6 +170,7 @@
     <PackageVersion Include="Spectre.Console"           Version="$(Ver_SpectreConsole)" />
     <PackageVersion Include="Spectre.Console.Cli"       Version="$(Ver_SpectreConsoleCli)" />
     <PackageVersion Include="Spectre.Console.Analyzer"  Version="$(Ver_SpectreConsoleAnalyzer)" />
+    <PackageVersion Include="Terminal.Gui"              Version="$(Ver_TerminalGui)" />
 
     <!-- Azure / Networking -->
     <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="$(Ver_SignalRClient)" />
