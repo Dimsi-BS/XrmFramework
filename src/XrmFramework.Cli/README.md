@@ -299,6 +299,37 @@ Implementation: [`ColumnHelper`](../XrmFramework.DeployUtils/TableSync/ColumnHel
 -> [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs)
 + [`ProjectConfigLocator`](../XrmFramework.DeployUtils/TableSync/ProjectConfigLocator.cs).
 
+### `xrmframework tables edit` ✅ *(available)* — full-screen interactive editor
+
+The interactive counterpart of `tables columns add`/`set`: a full-screen, keyboard-driven
+console UI ([Terminal.Gui](https://github.com/gui-cs/Terminal.Gui)) over the locally tracked
+`.table` files, for when you'd rather browse than remember exact table/column logical names.
+Entirely offline, same [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs)
+as every other `tables` command underneath.
+
+```
+xrmframework tables edit [--tables-dir <DIRECTORY>] [--project-root <DIR>]
+```
+
+Tables tracked locally on the left, the columns of whichever one is selected on the right:
+
+| Key | Action |
+|---|---|
+| `↑` / `↓`, `Tab` | Navigate / switch pane |
+| `Space`, `Enter` | Toggle the selected column's `Select` flag |
+| `R` | Rename the selected column's C# name |
+| `Esc`, `Q` | Quit |
+
+Every toggle or rename is validated (same duplicate-name rule as `columns set --name`) and saved
+to disk immediately — there is no separate save step.
+
+Requires a real terminal (not redirected output); on an unsupported terminal, prefer the
+non-interactive `tables columns`/`tables optionsets` commands.
+
+Implementation: [`TableEditorApp` / `TableEditorWindow`](Tui)
+-> [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs)
++ [`ProjectConfigLocator`](../XrmFramework.DeployUtils/TableSync/ProjectConfigLocator.cs).
+
 ### `xrmframework tables optionsets` ✅ *(available)* — rename option sets and their members
 
 The companion of `tables columns` for option sets: renames an option set's C# name and/or one
