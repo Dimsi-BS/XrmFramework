@@ -301,17 +301,19 @@ Implementation: [`ColumnHelper`](../XrmFramework.DeployUtils/TableSync/ColumnHel
 
 ### `xrmframework tables edit` ✅ *(available)* — full-screen interactive editor
 
-The interactive counterpart of `tables columns add`/`set`: a full-screen, keyboard-driven
+The interactive counterpart of `tables columns add`/`set`/`pull`: a full-screen, keyboard-driven
 console UI ([Terminal.Gui](https://github.com/gui-cs/Terminal.Gui)) over the locally tracked
 `.table` files, for when you'd rather browse than remember exact table/column logical names.
-Entirely offline, same [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs)
-as every other `tables` command underneath.
+Editing is entirely offline, same [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs)
+as every other `tables` command underneath; pulling (`P`) is the one thing that talks to the
+environment, and does so exactly like `tables pull` on the command line.
 
 ```
 xrmframework tables edit [--tables-dir <DIRECTORY>] [--project-root <DIR>]
 ```
 
-Tables tracked locally on the left, the columns of whichever one is selected on the right:
+Tables tracked locally on the left, the columns of whichever one is selected on the right — the
+left pane starts empty on a brand-new project, `P` is all it takes to populate it:
 
 | Key | Action |
 |---|---|
@@ -319,7 +321,16 @@ Tables tracked locally on the left, the columns of whichever one is selected on 
 | `Space`, `Enter` | Toggle the selected column's `Select` flag |
 | `R` | Rename the selected column's C# name |
 | `O` | Edit the option set the selected column is tied to (Picklist, State, Status...) |
+| `P` | Pull from the environment — update tracked tables, or import new ones |
 | `Esc`, `Q` | Quit |
+
+`P` asks which of the two: **update tracked** re-pulls every table already tracked (`tables pull`
+with no criteria), **import new** shows every table in the environment (flagging what's already
+tracked, like `tables list`) and prompts for the logical name(s) to add. Either way, the screen
+exits for the duration of the pull — it is a network call with its own confirmation prompt and
+progress output, already built on the normal scrolling console in
+[`CrmTableHelper`](../XrmFramework.DeployUtils/TableSync/CrmTableHelper.cs) — then reopens
+afterward over whatever landed on disk.
 
 Every toggle or rename is validated (same duplicate-name rule as `columns set --name`) and saved
 to disk immediately — there is no separate save step.
@@ -344,6 +355,7 @@ non-interactive `tables columns`/`tables optionsets` commands.
 
 Implementation: [`TableEditorApp` / `TableEditorWindow` / `OptionSetEditorWindow`](Tui)
 -> [`TableFileStore`](../XrmFramework.DeployUtils/TableSync/TableFileStore.cs)
++ [`CrmTableHelper`](../XrmFramework.DeployUtils/TableSync/CrmTableHelper.cs) (`P`)
 + [`ProjectConfigLocator`](../XrmFramework.DeployUtils/TableSync/ProjectConfigLocator.cs).
 
 ### `xrmframework tables optionsets` ✅ *(available)* — rename option sets and their members

@@ -20,7 +20,7 @@ namespace XrmFramework.Cli.Tui;
 /// </summary>
 internal sealed class TableEditorWindow : Window
 {
-    private const string HelpText = "↑/↓ navigate    Space/Enter toggle    R rename    O option set    Esc/Q quit";
+    private const string HelpText = "↑/↓ navigate    Space/Enter toggle    R rename    O option set    P pull    Esc/Q quit";
 
     private readonly IReadOnlyList<TrackedTable> _tables;
     private readonly IReadOnlyList<TrackedTable> _allTables;
@@ -31,6 +31,13 @@ internal sealed class TableEditorWindow : Window
 
     private List<Column> _sortedColumns = new();
     private TrackedTable? _current;
+
+    /// <summary>
+    /// Set by <see cref="RequestPull" /> and read back by <c>TableEditorApp.Run</c> once this
+    /// window's <c>Application.Run</c> call returns — <see langword="null" /> means the user
+    /// quit normally, no pull requested.
+    /// </summary>
+    public PullRequest? PendingPull { get; private set; }
 
     /// <param name="tables">Browsable, left-pane tables — those with columns to edit.</param>
     /// <param name="allTables">
@@ -94,27 +101,74 @@ internal sealed class TableEditorWindow : Window
         _tableList.SelectedItemChanged += args => LoadColumns(args.Item);
         _columnTable.KeyPress += ColumnTable_KeyPress;
 
-        SetStatus(null);
+        // Global shortcuts (quit, pull) via RootKeyEvent rather than an overridden ProcessKey:
+        // when the Tables pane (a ListView) has focus, its own key handling — including the
+        // incremental "jump to item" search on plain letters — consumes the event before it
+        // would ever bubble up to this Window, so Q/P (and, from that pane, even Esc) silently
+        // do nothing. RootKeyEvent fires before any view gets a look, so it works regardless of
+        // which pane has focus. Application.Current is checked to leave it inert while a modal
+        // (rename dialog, option set editor...) is on top — otherwise typing a name containing
+        // 'q' would close whatever dialog is open on the first such letter.
+        Application.RootKeyEvent = HandleGlobalKey;
 
         if (_tables.Count > 0)
+        {
+            SetStatus(null);
             LoadColumns(0);
+        }
+        else
+        {
+            SetStatus("No table tracked yet — press P to pull from the environment.");
+        }
     }
 
-    /// <remarks>
-    /// Global quit shortcut. Overriding here (rather than a <c>KeyPress</c> handler) relies on
-    /// the normal Terminal.Gui key routing: whichever pane has focus gets first chance to handle
-    /// the key (the rename dialog runs as its own modal Toplevel, so it never reaches this
-    /// override), and only an unhandled key bubbles up to the Window itself.
-    /// </remarks>
-    public override bool ProcessKey(KeyEvent keyEvent)
+    private bool HandleGlobalKey(KeyEvent keyEvent)
     {
+        // Inert while any other Toplevel (a dialog, the option set editor...) is on top: those
+        // handle their own Esc, and letters must reach a focused TextField untouched.
+        if (Application.Current != this)
+            return false;
+
         if (keyEvent.Key is GuiKey.Esc or GuiKey.q or GuiKey.Q)
         {
             Application.RequestStop();
             return true;
         }
 
-        return base.ProcessKey(keyEvent);
+        if (keyEvent.Key is GuiKey.p or GuiKey.P)
+        {
+            RequestPull();
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Asks which kind of pull to run, then quits this window with <see cref="PendingPull" /> set
+    /// so <c>TableEditorApp.Run</c> performs it — a pull is a network call with its own
+    /// confirmation and progress output, which needs the plain console, not this screen. Nothing
+    /// happens locally until control returns there.
+    /// </summary>
+    private void RequestPull()
+    {
+        var choice = MessageBox.Query(
+            "Pull from environment",
+            "Update every table already tracked, or browse the environment for new ones to import?",
+            "Update tracked", "Import new...", "Cancel");
+
+        switch (choice)
+        {
+            case 0:
+                PendingPull = PullRequest.UpdateTracked;
+                Application.RequestStop();
+                break;
+
+            case 1:
+                PendingPull = PullRequest.ImportNew;
+                Application.RequestStop();
+                break;
+        }
     }
 
     private static string FormatTableEntry(TrackedTable tracked)

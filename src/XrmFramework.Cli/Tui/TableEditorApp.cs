@@ -16,15 +16,34 @@ namespace XrmFramework.Cli.Tui;
 internal sealed record TrackedTable(string Path, CoreTable Table);
 
 /// <summary>
+/// What <see cref="TableEditorWindow" /> asked for when it requested a pull, read back by
+/// <see cref="TableEditorApp.Run" /> once <c>Application.Run</c> returns.
+/// </summary>
+internal enum PullRequest
+{
+    /// <summary>Re-pull every table already tracked locally — <c>tables pull</c> with no criteria.</summary>
+    UpdateTracked,
+
+    /// <summary>Browse the environment and pick new tables to pull by logical name.</summary>
+    ImportNew
+}
+
+/// <summary>
 /// <c>xrmframework tables edit</c> command: launches a full-screen console editor
 /// (<see cref="TableEditorWindow" />) over the locally tracked <c>.table</c> files — the
-/// interactive counterpart of <c>tables columns list/add/set</c>, entirely offline.
+/// interactive counterpart of <c>tables columns list/add/set</c>, entirely offline except for
+/// <c>P</c> (pull), which briefly hands the terminal back to <see cref="CrmTableHelper" />.
 /// </summary>
 /// <remarks>
 /// Resolution of the tables directory and the initial load are deliberately kept outside
 /// Terminal.Gui: both can fail with a message worth printing to a normal scrolling console,
 /// which stops making sense once <see cref="Application.Init(ConsoleDriver, IMainLoopDriver)" />
-/// has taken over the screen.
+/// has taken over the screen. A pull is the same story once it is running: it is a network call
+/// with its own confirmation prompt and progress lines, already built entirely on
+/// <c>AnsiConsole</c> in <see cref="CrmTableHelper" /> — reusing it as is (rather than
+/// re-implementing a progress UI inside Terminal.Gui) means <c>tables edit</c> exits its own
+/// screen for the duration of the pull, then reopens over whatever
+/// <see cref="CrmTableHelper.Pull" /> left on disk.
 /// </remarks>
 public static class TableEditorApp
 {
@@ -37,31 +56,83 @@ public static class TableEditorApp
         if (directory == null)
             return ExitNotFound;
 
-        // The full set, OptionSets.table (the global option sets pseudo-table) included: a
-        // global option set can be declared in several files at once, and renaming it has to
-        // walk all of them the same way "tables optionsets set" does — TableEditorWindow only
-        // browses the subset with actual columns.
-        var allTables = LoadLocalTables(directory);
-        var browsableTables = allTables.Where(t => !IsGlobalOptionSetsPseudoTable(t.Table)).ToList();
-
-        if (browsableTables.Count == 0)
+        while (true)
         {
-            AnsiConsole.MarkupLine($"[yellow]No .table file found in[/] {Markup.Escape(directory)}.");
-            return ExitSuccess;
-        }
+            // The full set, OptionSets.table (the global option sets pseudo-table) included: a
+            // global option set can be declared in several files at once, and renaming it has to
+            // walk all of them the same way "tables optionsets set" does — TableEditorWindow only
+            // browses the subset with actual columns.
+            var allTables = LoadLocalTables(directory);
+            var browsableTables = allTables.Where(t => !IsGlobalOptionSetsPseudoTable(t.Table)).ToList();
 
-        Application.Init();
-        try
-        {
-            Application.Run(new TableEditorWindow(browsableTables, allTables));
-        }
-        finally
-        {
-            Application.Shutdown();
-        }
+            TableEditorWindow window;
 
-        return ExitSuccess;
+            Application.Init();
+            try
+            {
+                window = new TableEditorWindow(browsableTables, allTables);
+                Application.Run(window);
+            }
+            finally
+            {
+                // TableEditorWindow's constructor points this at itself; clearing it here avoids
+                // a stale closure over a disposed window surviving into whatever runs next.
+                Application.RootKeyEvent = null;
+                Application.Shutdown();
+            }
+
+            if (window.PendingPull == null)
+                return ExitSuccess;
+
+            RunPull(window.PendingPull.Value, projectRoot, directory);
+            // Loop back: re-Init a fresh Terminal.Gui session over whatever the pull left on disk.
+        }
     }
+
+    /// <summary>
+    /// Runs entirely on the plain, non-alternate-screen console — Terminal.Gui has already been
+    /// shut down by the caller. Reuses <see cref="CrmTableHelper" /> verbatim: same environment
+    /// resolution, same confirmation prompt, same per-table progress and error reporting as
+    /// <c>tables pull</c> on the command line.
+    /// </summary>
+    private static void RunPull(PullRequest request, string? projectRoot, string tablesDirectory)
+    {
+        AnsiConsole.WriteLine();
+
+        if (request == PullRequest.ImportNew)
+        {
+            // Shows every table in the environment, flagging what's already tracked — the same
+            // browse step "tables list" offers before typing a --table name by hand.
+            CrmTableHelper.List(projectRoot, prefix: null, filter: null, customOnly: false);
+            AnsiConsole.WriteLine();
+
+            var input = AnsiConsole.Prompt(
+                new TextPrompt<string>("Logical name(s) to import ([grey]comma-separated, empty to cancel[/]):")
+                    .AllowEmpty());
+
+            var names = SplitNames(input);
+            if (names.Count == 0)
+            {
+                AnsiConsole.MarkupLine("[yellow]Nothing to import.[/]");
+            }
+            else
+            {
+                CrmTableHelper.Pull(projectRoot, tablesDirectory, names, prefix: null, noPrompt: false);
+            }
+        }
+        else
+        {
+            CrmTableHelper.Pull(projectRoot, tablesDirectory, tableNames: null, prefix: null, noPrompt: false);
+        }
+
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine("[grey]Press Enter to return to the editor...[/]");
+        Console.ReadLine();
+    }
+
+    private static List<string> SplitNames(string value)
+        => value.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .ToList();
 
     /// <remarks>
     /// Mirrors <c>ColumnHelper.ResolveTablesDirectory</c> (kept <c>internal</c> to DeployUtils):
