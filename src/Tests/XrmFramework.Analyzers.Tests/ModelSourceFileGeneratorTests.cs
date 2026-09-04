@@ -41,7 +41,7 @@ public class ModelSourceFileGeneratorTests
     {
         var source = GenerateAccountModel();
 
-        Assert.That(source, Does.Contain("[CrmEntity(AccountDefinition.EntityName)]"));
+        Assert.That(source, Does.Contain("[CrmEntity(typeof(AccountDefinition))]"));
         Assert.That(source, Does.Contain("public partial class AccountModel : BindingModelBase"));
         Assert.That(source, Does.Contain("namespace Contoso.Core.Model"));
     }

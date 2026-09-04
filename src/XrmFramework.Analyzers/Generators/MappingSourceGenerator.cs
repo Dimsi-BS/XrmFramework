@@ -34,7 +34,15 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
             .Where(static m => m is not null)
             .Collect();
 
-        context.RegisterSourceOutput(models, EmitSources);
+        // The .table files are the fallback source of column metadata. They are needed because
+        // the definition class carrying [AttributeMetadata] is generated in this same pass in the
+        // project that owns them, and a generator never sees another generator's output.
+        var tables = context.AdditionalTextsProvider
+            .Where(static a => a.Path.EndsWith(".table", StringComparison.OrdinalIgnoreCase))
+            .Select(static (text, ct) => text.GetText(ct)?.ToString() ?? string.Empty)
+            .Collect();
+
+        context.RegisterSourceOutput(models.Combine(tables), static (ctx, pair) => EmitSources(ctx, pair.Left, pair.Right));
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -84,12 +92,36 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
         if (crmEntityAttr == null)
             return null;
 
-        if (crmEntityAttr.ConstructorArguments.FirstOrDefault().Value is not string entityName)
-            return null;
+        // The argument is read from the syntax, not from the resolved constant value. In the
+        // project that owns the .table files the definition class is generated in the same pass,
+        // so ConstructorArguments[0].Value is null there and requiring it silently dropped every
+        // model in that project — see GeneratorInteropTests.
+        var argText = GetArgText(crmEntityAttr, 0, ct);
 
-        // Preserve the source expression so generated code references the constant
-        // (e.g. "ContactDefinition.EntityName") instead of a bare string literal.
-        var entityNameRef = GetArgText(crmEntityAttr, 0, ct) ?? $"\"{entityName}\"";
+        string entityNameRef;
+        string? definitionName;
+
+        if (TryReadTypeOf(argText, out var definitionTypeName))
+        {
+            // [CrmEntity(typeof(AccountDefinition))] — the preferred form.
+            definitionName = definitionTypeName;
+            entityNameRef = $"{definitionTypeName}.EntityName";
+        }
+        else if (argText != null)
+        {
+            // [CrmEntity(AccountDefinition.EntityName)] or a bare literal.
+            entityNameRef = argText;
+            definitionName = ReadDefinitionName(argText);
+        }
+        else if (crmEntityAttr.ConstructorArguments.FirstOrDefault().Value is string entityName)
+        {
+            entityNameRef = $"\"{entityName}\"";
+            definitionName = null;
+        }
+        else
+        {
+            return null;
+        }
 
         var ns              = symbol.ContainingNamespace.IsGlobalNamespace ? null : symbol.ContainingNamespace.ToDisplayString();
         var isBindingBase   = HasAncestorNamed(symbol, "BindingModelBase");
@@ -100,7 +132,50 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
         CollectMappings(symbol, ctx.SemanticModel, ct, properties, extensions);
 
         return new MappingModel(symbol.Name, ns, entityNameRef, isBindingBase,
-                             properties.ToImmutable(), extensions.ToImmutable());
+                             properties.ToImmutable(), extensions.ToImmutable())
+        {
+            DefinitionName = definitionName
+        };
+    }
+
+    /// <summary>
+    /// Reads <c>typeof(AccountDefinition)</c> down to <c>AccountDefinition</c>, keeping only the
+    /// leaf so a fully qualified name works too.
+    /// </summary>
+    private static bool TryReadTypeOf(string? argText, out string definitionTypeName)
+    {
+        definitionTypeName = string.Empty;
+
+        if (argText == null) return false;
+
+        var text = argText.Trim();
+
+        if (!text.StartsWith("typeof(", StringComparison.Ordinal) || !text.EndsWith(")", StringComparison.Ordinal))
+            return false;
+
+        var inner = text.Substring(7, text.Length - 8).Trim();
+        if (inner.Length == 0) return false;
+
+        definitionTypeName = inner.Substring(inner.LastIndexOf('.') + 1);
+        return definitionTypeName.Length > 0;
+    }
+
+    /// <summary>
+    /// Reads the definition class out of a constant reference such as
+    /// <c>AccountDefinition.EntityName</c> or <c>AccountDefinition.Columns.Name</c>.
+    /// </summary>
+    private static string? ReadDefinitionName(string argText)
+    {
+        var parts = argText.Trim().Split('.');
+
+        // Works through a namespace qualifier as well as a bare reference.
+        for (var i = parts.Length - 1; i >= 0; i--)
+        {
+            if (parts[i].EndsWith("Definition", StringComparison.Ordinal))
+                return parts[i];
+        }
+
+        return null;
     }
 
     private static AttributeData? FindAttribute(INamedTypeSymbol symbol, string attrClassName)
@@ -218,7 +293,27 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
             prop.Name, typeName, innerTypeName,
             isNullable, isEnum, isList, listElemTypeName,
             hasSetter, columnRef, attrTypeCode,
-            isValidForUpdate, lookupTargetRef);
+            isValidForUpdate, lookupTargetRef)
+        {
+            // Kept so the tables can fill in what the semantic model could not: when the
+            // definition class is generated in this same pass, columnField is null and the
+            // metadata above falls back to String for every column.
+            DefinitionName = ReadDefinitionName(columnRef),
+            ColumnLeafName = ReadColumnLeafName(columnRef),
+            MetadataResolved = columnField != null
+        };
+    }
+
+    /// <summary>Reads <c>Name</c> out of <c>AccountDefinition.Columns.Name</c>.</summary>
+    private static string? ReadColumnLeafName(string columnRef)
+    {
+        var text = columnRef.Trim();
+
+        if (text.StartsWith("\"", StringComparison.Ordinal))
+            return null;
+
+        var idx = text.LastIndexOf('.');
+        return idx >= 0 && idx < text.Length - 1 ? text.Substring(idx + 1) : null;
     }
 
     private static AttributeTypeCode ReadAttributeTypeCode(IFieldSymbol? field)
@@ -305,13 +400,17 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
         DiagnosticSeverity.Warning, isEnabledByDefault: true,
         helpLinkUri: DiagnosticIds.HelpLink("XRM2001"));
 
-    private static void EmitSources(SourceProductionContext ctx, ImmutableArray<MappingModel?> models)
+    private static void EmitSources(SourceProductionContext ctx, ImmutableArray<MappingModel?> models, ImmutableArray<string> tableContents)
     {
+        var tables = MappingMetadataFallback.ReadTables(tableContents);
+
         foreach (var model in models)
         {
             if (model is null) continue;
             try
             {
+                MappingMetadataFallback.Complete(model, tables);
+
                 var code = MappingEmitter.Generate(model);
                 var hint = model.Namespace is null
                     ? model.ClassName
