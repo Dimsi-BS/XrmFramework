@@ -189,4 +189,69 @@ public class LookupMappingTests
 
         Assert.That(diagnostics, Does.Not.Contain("XRM1009"));
     }
+
+    // ── What the generated class declares ─────────────────────────────────────
+
+    [Test]
+    public void ProjectedColumn_EmitsTheCrmLookupAttribute()
+    {
+        var code = Generate("""
+{ "Name": "CustomerName", "Type": "string", "LogN": "customerid",
+  "LookupTargetTableLogicalName": "account", "LookupTargetColumnLogicalName": "name" }
+""");
+
+        Assert.That(code, Does.Contain("[CrmLookup(AccountDefinition.EntityName, AccountDefinition.Columns.Name)]"));
+    }
+
+    [Test]
+    public void AllowNotExisting_IsCarriedToTheAttribute()
+    {
+        var code = Generate("""
+{ "Name": "CustomerName", "Type": "string", "LogN": "customerid", "AllowNotExisting": true,
+  "LookupTargetTableLogicalName": "account", "LookupTargetColumnLogicalName": "name" }
+""");
+
+        Assert.That(code, Does.Contain("AccountDefinition.Columns.Name, true)]"));
+    }
+
+    /// <summary>A lookup reaching one table and projecting nothing needs no attribute at all.</summary>
+    [Test]
+    public void PlainSingleTargetLookup_EmitsNoCrmLookup()
+    {
+        var code = Generate("""{ "Name": "OwnerId", "Type": "Guid?", "LogN": "ownerid" }""");
+
+        Assert.That(code, Does.Not.Contain("[CrmLookup("));
+    }
+
+    [Test]
+    public void FollowLink_IsCarriedToTheMapping()
+    {
+        var code = Generate("""
+{ "Name": "CustomerName", "Type": "string", "LogN": "customerid", "FollowLink": true,
+  "LookupTargetTableLogicalName": "account", "LookupTargetColumnLogicalName": "name" }
+""");
+
+        Assert.That(code, Does.Contain("FollowLink = true"));
+    }
+
+    [Test]
+    public void JsonIgnore_EmitsTheAttribute()
+    {
+        var code = Generate("""{ "Name": "Title", "Type": "string", "LogN": "title", "JsonIgnore": true }""");
+
+        Assert.That(code, Does.Contain("[JsonIgnore]"));
+    }
+
+    /// <summary>The property carries the related model, not the lookup's Guid.</summary>
+    [Test]
+    public void RelatedModel_BecomesThePropertyType()
+    {
+        var code = Generate("""
+{ "Name": "Customer", "Type": "Guid?", "LogN": "customerid",
+  "LookupTargetTableLogicalName": "account", "LookupTargetModel": "Contoso.Core.Model.AccountModel" }
+""");
+
+        Assert.That(code, Does.Contain("Contoso.Core.Model.AccountModel Customer"));
+        Assert.That(code, Does.Not.Contain("Guid? Customer"));
+    }
 }
