@@ -132,7 +132,7 @@ namespace XrmFramework.Analyzers.Generators
                         // Class declaration
                         sb.AppendLine("[GeneratedCode(\"XrmFramework\", \"2.0\")]");
                         sb.AppendLine("[ExcludeFromCodeCoverage]");
-                        sb.AppendLine($"[CrmEntity({correspondingTable.Name}Definition.EntityName)]");
+                        sb.AppendLine($"[CrmEntity(typeof({correspondingTable.Name}Definition))]");
                         sb.AppendLine("[JsonObject(MemberSerialization.OptIn)]");
 
 

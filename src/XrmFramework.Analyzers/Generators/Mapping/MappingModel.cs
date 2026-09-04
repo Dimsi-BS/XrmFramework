@@ -26,6 +26,13 @@ internal sealed class MappingModel
     public ImmutableArray<MappingProperty> Properties         { get; }
     public ImmutableArray<MappingExtension>  Extensions         { get; }
 
+    /// <summary>
+    /// Name of the generated definition class the table was named through, read lexically from
+    /// <c>[CrmEntity(typeof(AccountDefinition))]</c>. Lets the tables be consulted for column
+    /// metadata the semantic model cannot supply, the definition being generated in the same pass.
+    /// </summary>
+    public string? DefinitionName { get; set; }
+
     public MappingModel(string className, string? ns, string entityNameRef, bool isBindingModelBase,
                      ImmutableArray<MappingProperty> properties, ImmutableArray<MappingExtension> extensions)
     {
@@ -49,9 +56,18 @@ internal sealed class MappingProperty
     public string?           ListElemTypeName { get; }
     public bool              HasSetter        { get; }
     public string            ColumnRef        { get; }
-    public AttributeTypeCode AttrType         { get; }
+    public AttributeTypeCode AttrType         { get; set; }
     public bool              IsValidForUpdate { get; }
-    public string?           LookupTargetRef  { get; }
+    public string?           LookupTargetRef  { get; set; }
+
+    /// <summary>Definition class the column constant was written against, read lexically.</summary>
+    public string? DefinitionName { get; set; }
+
+    /// <summary>Leaf name of the column constant — <c>Name</c> in <c>AccountDefinition.Columns.Name</c>.</summary>
+    public string? ColumnLeafName { get; set; }
+
+    /// <summary>Whether <see cref="AttrType"/> came from a resolved symbol rather than the fallback.</summary>
+    public bool MetadataResolved { get; set; }
 
     public MappingProperty(string name, string typeName, string innerTypeName,
                     bool isNullable, bool isEnum, bool isList, string? listElemTypeName,

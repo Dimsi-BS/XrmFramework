@@ -291,10 +291,22 @@ public partial class AccountModel : IBindingModel { ... }
 ```
 
 ```csharp
-// ✅
+// ✅ preferred — names the definition class itself
+[CrmEntity(typeof(AccountDefinition))]
+public partial class AccountModel : IBindingModel { ... }
+```
+
+```csharp
+// ✅ also accepted
 [CrmEntity(AccountDefinition.EntityName)]
 public partial class AccountModel : IBindingModel { ... }
 ```
+
+> **Prefer the `typeof` form.** Both carry the same logical name at runtime — the attribute reads
+> the definition's `EntityName` constant — but `typeof` lets the mapping generator find the table
+> without resolving a constant, which matters in the project that owns the `.table` files: there
+> the definition class is generated in the same pass, so its constants are not resolvable while
+> the mapping is being generated.
 
 **Message:** `Use Definition class .EntityName in CrmEntityAttribute declaration`
 

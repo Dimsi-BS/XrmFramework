@@ -34,7 +34,7 @@ var account = service.Retrieve("account", id, new ColumnSet("name", "accountnumb
 var name = account.GetAttributeValue<string>("name");
 
 // ✅ XrmFramework — declare a typed model once…
-[CrmEntity(AccountDefinition.EntityName)]
+[CrmEntity(typeof(AccountDefinition))]
 public class AccountModel : IBindingModel
 {
     public Guid Id { get; set; }
