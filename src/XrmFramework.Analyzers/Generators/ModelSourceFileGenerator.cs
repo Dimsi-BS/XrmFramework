@@ -242,23 +242,26 @@ namespace XrmFramework.Analyzers.Generators
                                 else
                                 {
 
-                                    // Write property declaration with call to OnPropertyChanged()
+                                    // Write property declaration with call to OnPropertyChanged().
+                                    // Every set runs OnPropertyChanged(), even when the new value
+                                    // equals the old one: callers rely on the setter itself as the
+                                    // signal that the property was touched, not on the value having
+                                    // actually changed. The backing storage is the C# 14 `field`
+                                    // keyword, so there is no separate `_{prop.Name}` field to keep
+                                    // in sync with the property.
                                     if (correspondingColumn != null)
                                     {
                                         string tmp = @$"
         public {propertyType} {prop.Name}
         {{
-            get {{return _{prop.Name};}}
+            get;
             set
             {{
-                if(value == _{prop.Name})
-                    return;
-                _{prop.Name} = value;
+                field = value;
                 OnPropertyChanged();
             }}
         }}
                                                       ";
-                                        //Console.WriteLine(tmp);
                                         sb.AppendLine(tmp);
                                     }
                                     else
@@ -266,56 +269,21 @@ namespace XrmFramework.Analyzers.Generators
                                         string tmp2 = @$"
         public List<{propertyType}> {prop.Name}
         {{
-            get {{return _{prop.Name};}}
+            get;
             set
             {{
-                if(value == _{prop.Name})
-                    return;
-                _{prop.Name} = value;
+                field = value;
                 OnPropertyChanged();
             }}
-        }}= new List<{propertyType}>();
+        }} = new List<{propertyType}>();
                                                       ";
                                         sb.AppendLine(tmp2);
-                                        // "{" +
-                                        // "   get { return _{1};}\n" +
-                                        // "   set\n" +
-                                        // "       {\n" +
-                                        // "           if(value == _{1})\n" +
-                                        // "           {\n" +
-                                        // "               return;\n" +
-                                        // "           }\n" +
-                                        // "           _{1} = value;\n" +
-                                        // "           OnPropertyChanged();\n" +
-                                        // "       }\n" +
-                                        // "} = new List<{0}>();\n", prop.TypeFullName, prop.Name));
                                     }
 
                                 }
 
                                 sb.AppendLine();
                             }
-
-
-
-
-                            sb.AppendLine("#region Fields");
-
-                            foreach (var prop in model.Properties.Where(p => p.IsValidForUpdate))
-                            {
-                                //Add the corresponding field
-                                var correspondingColumn = correspondingTable.Columns.FirstOrDefault(c => c.LogicalName == prop.LogicalName);
-                                if (correspondingColumn != null)
-                                {
-                                    sb.AppendLine($"private {PropertyType(prop)} _{prop.Name};");
-
-                                }
-                                else
-                                {
-                                    sb.AppendLine($"private List<{PropertyType(prop)}> _{prop.Name};");
-                                }
-                            }
-                            sb.AppendLine("#endregion");
 
                             // The mapping goes in the same class, emitted by the same writer that
                             // serves hand-written models. It cannot be left to MappingSourceGenerator:
