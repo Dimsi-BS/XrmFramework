@@ -12,6 +12,7 @@ using XrmFramework.DeployUtils.CommandOptions;
 //   xrmframework tables columns list    [--table <name>] [--prefix <prefix>] [--filter <text>] [--unselected-only]
 //   xrmframework tables columns add     --table <name> --column <name> | --all [--noprompt]
 //   xrmframework tables columns set     --table <name> --column <name> [--name <newname>] [--select|--deselect]
+//   xrmframework tables edit            [--tables-dir <directory>]   (full-screen interactive editor)
 //   xrmframework tables optionsets list [--option <logicalname>] [--filter <text>] [--global-only]
 //   xrmframework tables optionsets set  --option <logicalname> [--name <newname>] [--value <n> --value-name <newname>]
 //   xrmframework deploy plugins         --dll <path.dll> --project <name> [--on-premise] [--noprompt]
@@ -70,6 +71,10 @@ app.Configure(config =>
                    .WithDescription("Renames a column's C# name and/or toggles its selection in a .table file.")
                    .WithExample("tables", "columns", "set", "--table", "ftp_contrat", "--column", "ftp_datedebut", "--name", "DateDebut");
         });
+
+        tables.AddCommand<TableEditCommand>("edit")
+              .WithDescription("Full-screen interactive editor: browse tracked tables, toggle columns, rename them. Same edits as 'columns add/set', without needing table/column names on the command line.")
+              .WithExample("tables", "edit");
 
         tables.AddBranch("optionsets", optionsets =>
         {
