@@ -39,7 +39,7 @@ namespace XrmFramework.Analyzers
         {
             var attributeArgumentSyntax = (AttributeArgumentSyntax)context.Node;
             var attributesSyntax = context.Node.AncestorsAndSelf().OfType<AttributeSyntax>()
-                .FirstOrDefault(a => a.Name.ToString() == "CrmEntity" || a.Name.ToString() == "CrmEntityAttribute");
+                .FirstOrDefault(a => IsCrmEntityAttribute(a.Name));
 
 
             if (attributesSyntax == null || !ReferenceEquals(attributesSyntax.ArgumentList?.Arguments.FirstOrDefault(), attributeArgumentSyntax))
@@ -47,10 +47,39 @@ namespace XrmFramework.Analyzers
                 return;
             }
 
+            // Only a string literal is wrong. Both AccountDefinition.EntityName and
+            // typeof(AccountDefinition) name the generated definition, which is the point of
+            // the rule.
             if (attributeArgumentSyntax.Expression is LiteralExpressionSyntax)
             {
                 var diag = Diagnostic.Create(Xrm0200, attributeArgumentSyntax.GetLocation(), attributeArgumentSyntax.GetText());
                 context.ReportDiagnostic(diag);
+            }
+        }
+
+        /// <summary>
+        /// Matches the attribute on its leaf name, so a qualified usage such as
+        /// <c>[XrmFramework.CrmEntity(...)]</c> is caught too — comparing the whole name missed it.
+        /// </summary>
+        private static bool IsCrmEntityAttribute(NameSyntax name)
+        {
+            var leaf = LeafName(name);
+
+            return leaf == "CrmEntity" || leaf == "CrmEntityAttribute";
+        }
+
+        private static string LeafName(NameSyntax name)
+        {
+            switch (name)
+            {
+                case IdentifierNameSyntax identifier:
+                    return identifier.Identifier.Text;
+                case QualifiedNameSyntax qualified:
+                    return LeafName(qualified.Right);
+                case AliasQualifiedNameSyntax aliased:
+                    return LeafName(aliased.Name);
+                default:
+                    return name.ToString();
             }
         }
     }
