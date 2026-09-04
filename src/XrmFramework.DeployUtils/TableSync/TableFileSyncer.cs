@@ -151,11 +151,18 @@ public sealed class TableFileSyncer
     /// Copies that do agree are folded: the file is then written once, and the columns of each are
     /// kept — a column only one of them declares is referenced by the compiled code all the same.
     /// </para>
+    /// <para>
+    /// When the project already tracks the table, its <c>.table</c> file breaks the tie instead of
+    /// stopping the run: the file's current <c>Name</c> is necessarily what the source generator used
+    /// to emit one of the two conflicting classes, so the other candidate is the versioned 2.*
+    /// class the project's own code refers to. See <see cref="ResolveNameFromExistingTableFile"/>.
+    /// </para>
     /// </remarks>
     /// <exception cref="DefinitionNameConflictException">
-    /// At least two definitions describe one table under different names.
+    /// At least two definitions describe one table under different names, and no <c>.table</c> file
+    /// on disk lets this settle which one to keep.
     /// </exception>
-    private static IReadOnlyList<DefinitionInfo> FoldPerTable(IReadOnlyList<DefinitionInfo> definitions)
+    private IReadOnlyList<DefinitionInfo> FoldPerTable(IReadOnlyList<DefinitionInfo> definitions)
     {
         var folded = new List<DefinitionInfo>();
         var conflicts = new List<DefinitionNameConflict>();
@@ -179,29 +186,19 @@ public sealed class TableFileSyncer
 
             if (names.Count > 1)
             {
-                conflicts.Add(new DefinitionNameConflict(copies[0].EntityName, names));
+                var resolvedName = ResolveNameFromExistingTableFile(copies[0].EntityName, names);
+
+                if (resolvedName == null)
+                {
+                    conflicts.Add(new DefinitionNameConflict(copies[0].EntityName, names));
+                    continue;
+                }
+
+                folded.Add(MergeColumns(copies, resolvedName));
                 continue;
             }
 
-            var columns = new List<DefinitionColumnInfo>();
-            var known = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var column in copies.SelectMany(d => d.Columns))
-            {
-                if (column?.LogicalName != null && known.Add(column.LogicalName))
-                    columns.Add(column);
-            }
-
-            folded.Add(new DefinitionInfo
-            {
-                TableName = copies[0].TableName,
-                EntityName = copies.Select(d => d.EntityName).FirstOrDefault(n => !string.IsNullOrEmpty(n))
-                             ?? string.Empty,
-                EntityCollectionName =
-                    copies.Select(d => d.EntityCollectionName).FirstOrDefault(n => !string.IsNullOrEmpty(n)),
-                Columns = columns,
-                IsFullyGenerated = copies.All(d => d.IsFullyGenerated)
-            });
+            folded.Add(MergeColumns(copies, names[0]));
         }
 
         // Every conflict at once: the fix is one edit per table, and reporting them one run at a
@@ -210,6 +207,88 @@ public sealed class TableFileSyncer
             throw new DefinitionNameConflictException(conflicts);
 
         return folded;
+    }
+
+    /// <summary>
+    /// Folds several copies of the same table into one, keeping every column at least one of them
+    /// declares — a column only one references is referenced by the compiled code all the same.
+    /// </summary>
+    private static DefinitionInfo MergeColumns(IReadOnlyList<DefinitionInfo> copies, string tableName)
+    {
+        var columns = new List<DefinitionColumnInfo>();
+        var known = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var column in copies.SelectMany(d => d.Columns))
+        {
+            if (column?.LogicalName != null && known.Add(column.LogicalName))
+                columns.Add(column);
+        }
+
+        return new DefinitionInfo
+        {
+            TableName = tableName,
+            EntityName = copies.Select(d => d.EntityName).FirstOrDefault(n => !string.IsNullOrEmpty(n))
+                         ?? string.Empty,
+            EntityCollectionName =
+                copies.Select(d => d.EntityCollectionName).FirstOrDefault(n => !string.IsNullOrEmpty(n)),
+            Columns = columns,
+            IsFullyGenerated = copies.All(d => d.IsFullyGenerated)
+        };
+    }
+
+    /// <summary>
+    /// Breaks a name conflict using the <c>.table</c> file already on disk for that entity, if any.
+    /// </summary>
+    /// <remarks>
+    /// The only way two classes describe the same table in the analyzed DLL is the migration this
+    /// tool targets: the versioned 2.* <c>*Definition.cs</c> still in source, next to the class the
+    /// 3.1 source generator now emits by reading the <c>.table</c>'s <c>Name</c>. That file's current
+    /// name is therefore necessarily the generator's candidate, not the project's — so when it
+    /// matches exactly one of the two, the other is the name to keep, and the file is renamed to it
+    /// (both the JSON's <c>Name</c> and the file itself) so the generator agrees with it next run.
+    /// Anything less clear-cut — no <c>.table</c> file yet, or its name matching none or several of
+    /// the candidates — is left for <see cref="FoldPerTable"/> to report as an unresolved conflict.
+    /// </remarks>
+    /// <returns>The name to keep, or <see langword="null"/> if the file gives no way to choose.</returns>
+    private string ResolveNameFromExistingTableFile(string entityLogicalName, IReadOnlyList<string> candidateNames)
+    {
+        var path = TableFileStore.FindTableFile(_tablesDirectory, entityLogicalName);
+        if (path == null)
+            return null;
+
+        CoreTable table;
+        try
+        {
+            table = LoadTable(path);
+        }
+        catch (Exception)
+        {
+            // An unreadable file settles nothing; it is reported where it is actually written.
+            return null;
+        }
+
+        var others = candidateNames.Where(n => !string.Equals(n, table.Name, StringComparison.Ordinal)).ToList();
+
+        if (others.Count != 1)
+            return null;
+
+        var resolvedName = others[0];
+        var oldFileName = Path.GetFileNameWithoutExtension(path);
+        var oldName = table.Name;
+
+        table.Name = resolvedName;
+        SaveTable(path, table);
+
+        var newPath = TablePath(resolvedName);
+        if (!string.Equals(path, newPath, StringComparison.OrdinalIgnoreCase))
+            File.Move(path, newPath);
+
+        AnsiConsole.MarkupLine(
+            $"[yellow]Renamed[/] {oldFileName}.table -> [bold]{resolvedName}[/].table " +
+            $"(the DLL also carries {oldName}Definition, generated from this file; kept the " +
+            $"versioned {resolvedName}Definition instead)");
+
+        return resolvedName;
     }
 
     /// <summary>

@@ -195,13 +195,14 @@ public class TableFileSyncerTests
 
     [TestCase(false, TestName = "Sync_RefusesTwoNamesForOneTable_HandWrittenCopyFirst")]
     [TestCase(true, TestName = "Sync_RefusesTwoNamesForOneTable_GeneratedCopyFirst")]
-    public void Sync_RefusesTwoNamesForOneTable(bool generatedFirst)
+    public void Sync_RefusesTwoNamesForOneTable_WhenNoTableFileSettlesIt(bool generatedFirst)
     {
         // Which of the two names the project meant cannot be told from here: both classes carry
         // [GeneratedCode("XrmFramework", "2.0")], the 3.1 generator emitting the very same attribute
-        // as the 2.* tool, and the namespace that would separate them never reaches this far.
-        // Electing one would rename a definition out from under its call sites, so the sync stops —
-        // and stops whatever order reflection hands the types back in.
+        // as the 2.* tool, and the namespace that would separate them never reaches this far. With
+        // no .table file yet describing the entity, nothing on disk can settle it either — electing
+        // one would rename a definition out from under its call sites, so the sync stops, whatever
+        // order reflection hands the types back in.
         var handWritten = SystemUserDef();
 
         var generated = SystemUserDef();
@@ -211,9 +212,6 @@ public class TableFileSyncerTests
             ? new[] { generated, handWritten }
             : new[] { handWritten, generated };
 
-        WriteTable("SystemUser", BuildTable("systemuser", "Systemuser", "systemusers",
-            new Column { LogicalName = "systemuserid", Name = "Id", Selected = true }));
-
         var conflict = Assert.Throws<DefinitionNameConflictException>(
             () => new TableFileSyncer(_tempDir).Sync(definitions));
 
@@ -222,9 +220,49 @@ public class TableFileSyncerTests
             conflict.Conflicts.Single().Names.ToArray(),
             "Both names are reported, so one run tells the reader everything to fix.");
 
-        Assert.AreEqual("Systemuser", LoadTable("SystemUser").Name,
-            "Refusing means refusing before writing: the file is left exactly as it was.");
+        Assert.IsFalse(Directory.EnumerateFiles(_tempDir, "*.table").Any(),
+            "Refusing means refusing before writing: nothing was created.");
     }
+
+    [TestCase(false, TestName = "Sync_ResolvesTwoNamesForOneTable_UsingExistingTableFile_HandWrittenCopyFirst")]
+    [TestCase(true, TestName = "Sync_ResolvesTwoNamesForOneTable_UsingExistingTableFile_GeneratedCopyFirst")]
+    public void Sync_ResolvesTwoNamesForOneTable_UsingExistingTableFile(bool generatedFirst)
+    {
+        // A business process flow: its logical name carries the process' GUID, so a .table created
+        // before anyone gave it a nicer name ends up called after that GUID — here, the entity
+        // already has such a file, named "BpfXyz123". Its current Name is necessarily what the 3.1
+        // generator used to emit the BpfXyz123Definition class below, so "BpfLeadToOpportunityProcess"
+        // — the other candidate — is the versioned 2.* class the project's own code refers to, and
+        // the one to keep. The file itself is renamed accordingly, not just its Name field.
+        var handWritten = BpfDef("BpfLeadToOpportunityProcess");
+        var generated = BpfDef("BpfXyz123");
+
+        var definitions = generatedFirst
+            ? new[] { generated, handWritten }
+            : new[] { handWritten, generated };
+
+        WriteTable("BpfXyz123", BuildTable("eco_bpf_xyz123", "BpfXyz123", "eco_bpf_xyz123s",
+            new Column { LogicalName = "eco_bpf_xyz123id", Name = "Id", Selected = true }));
+
+        Assert.DoesNotThrow(() => new TableFileSyncer(_tempDir).Sync(definitions));
+
+        Assert.IsFalse(File.Exists(Path.Combine(_tempDir, "BpfXyz123.table")),
+            "The stale file name must be gone once renamed.");
+
+        var table = LoadTable("BpfLeadToOpportunityProcess");
+        Assert.AreEqual("BpfLeadToOpportunityProcess", table.Name,
+            "The versioned class' name is kept, not the one the generator produced from the old .table.");
+        Assert.IsTrue(table.Columns.Single(c => c.LogicalName == "eco_bpf_xyz123id").Selected);
+    }
+
+    /// <summary>A Bpf* Definition under the given C# name, all describing the same CRM entity.</summary>
+    private static DefinitionInfo BpfDef(string tableName) => new()
+    {
+        TableName = tableName,
+        EntityName = "eco_bpf_xyz123",
+        EntityCollectionName = "eco_bpf_xyz123s",
+        Columns = new List<DefinitionColumnInfo> { new("eco_bpf_xyz123id", "Id") }
+    };
 
     [Test]
     public void Sync_ReportsEveryNameConflict_InOneRun()
