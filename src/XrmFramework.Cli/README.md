@@ -322,6 +322,7 @@ left pane starts empty on a brand-new project, `P` is all it takes to populate i
 | `R` | Rename the selected column's C# name |
 | `O` | Edit the option set the selected column is tied to (Picklist, State, Status...) |
 | `P` | Pull from the environment — update tracked tables, or import new ones |
+| `/` | Filter — tables from the Tables pane, columns from the Columns pane |
 | `Esc`, `Q` | Quit |
 
 `P` asks which of the two: **update tracked** re-pulls every table already tracked (`tables pull`
@@ -331,6 +332,13 @@ exits for the duration of the pull — it is a network call with its own confirm
 progress output, already built on the normal scrolling console in
 [`CrmTableHelper`](../XrmFramework.DeployUtils/TableSync/CrmTableHelper.cs) — then reopens
 afterward over whatever landed on disk.
+
+`/` narrows whichever pane it was pressed from to logical names or C# names containing the text
+typed (same substring match as `tables list --filter` / `tables columns list --filter`); an empty
+answer clears it. A column filter stays applied across a table switch — handy for scanning several
+tables for, say, every "email"-ish column — and the frame title always shows how many rows the
+filter is hiding relative to the full count. A filter never hides a real duplicate-name conflict:
+`R` still checks every column in the table, filtered out or not.
 
 Every toggle or rename is validated (same duplicate-name rule as `columns set --name`) and saved
 to disk immediately — there is no separate save step.

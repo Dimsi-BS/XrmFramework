@@ -20,17 +20,21 @@ namespace XrmFramework.Cli.Tui;
 /// </summary>
 internal sealed class TableEditorWindow : Window
 {
-    private const string HelpText = "↑/↓ navigate    Space/Enter toggle    R rename    O option set    P pull    Esc/Q quit";
+    private const string HelpText = "↑/↓ navigate    Space/Enter toggle    R rename    O option set    P pull    / filter    Esc/Q quit";
 
     private readonly IReadOnlyList<TrackedTable> _tables;
     private readonly IReadOnlyList<TrackedTable> _allTables;
+    private readonly FrameView _tablesFrame;
     private readonly ListView _tableList;
     private readonly FrameView _columnsFrame;
     private readonly TableView _columnTable;
     private readonly Label _status;
 
+    private List<TrackedTable> _filteredTables = new();
     private List<Column> _sortedColumns = new();
     private TrackedTable? _current;
+    private string? _tableFilter;
+    private string? _columnFilter;
 
     /// <summary>
     /// Set by <see cref="RequestPull" /> and read back by <c>TableEditorApp.Run</c> once this
@@ -50,8 +54,9 @@ internal sealed class TableEditorWindow : Window
     {
         _tables = tables;
         _allTables = allTables;
+        _filteredTables = tables.ToList();
 
-        var tablesFrame = new FrameView
+        _tablesFrame = new FrameView
         {
             Title = "Tables",
             X = 0,
@@ -60,19 +65,19 @@ internal sealed class TableEditorWindow : Window
             Height = Dim.Fill(1)
         };
 
-        _tableList = new ListView(_tables.Select(FormatTableEntry).ToList())
+        _tableList = new ListView(_filteredTables.Select(FormatTableEntry).ToList())
         {
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
-        tablesFrame.Add(_tableList);
+        _tablesFrame.Add(_tableList);
 
         _columnsFrame = new FrameView
         {
             Title = "Columns",
-            X = Pos.Right(tablesFrame),
+            X = Pos.Right(_tablesFrame),
             Y = 0,
             Width = Dim.Fill(),
             Height = Dim.Fill(1)
@@ -91,12 +96,12 @@ internal sealed class TableEditorWindow : Window
         _status = new Label
         {
             X = 0,
-            Y = Pos.Bottom(tablesFrame),
+            Y = Pos.Bottom(_tablesFrame),
             Width = Dim.Fill(),
             Height = 1
         };
 
-        Add(tablesFrame, _columnsFrame, _status);
+        Add(_tablesFrame, _columnsFrame, _status);
 
         _tableList.SelectedItemChanged += args => LoadColumns(args.Item);
         _columnTable.KeyPress += ColumnTable_KeyPress;
@@ -141,6 +146,16 @@ internal sealed class TableEditorWindow : Window
             return true;
         }
 
+        if (keyEvent.Key == (GuiKey)'/')
+        {
+            if (_columnTable.HasFocus)
+                FilterColumns();
+            else
+                FilterTables();
+
+            return true;
+        }
+
         return false;
     }
 
@@ -174,17 +189,88 @@ internal sealed class TableEditorWindow : Window
     private static string FormatTableEntry(TrackedTable tracked)
         => $"{tracked.Table.LogicalName,-28} {tracked.Table.Name}";
 
+    /// <summary>
+    /// Filters the left-pane list of tables (as <c>tables list --filter</c> does), by logical
+    /// name or C# name. Rebuilds the list in place — <see cref="ListView.SetSource(System.Collections.IList)" />
+    /// rather than a new <see cref="ListView" /> — and reloads the columns pane on whatever ends
+    /// up first, or clears it if nothing matches.
+    /// </summary>
+    private void FilterTables()
+    {
+        var newFilter = Prompts.AskText("Filter tables", "Logical name or C# name contains:", _tableFilter ?? string.Empty);
+        if (newFilter == null)
+            return;
+
+        _tableFilter = newFilter.Trim();
+
+        _filteredTables = string.IsNullOrEmpty(_tableFilter)
+            ? _tables.ToList()
+            : _tables.Where(t => Matches(t.Table.LogicalName, t.Table.Name, _tableFilter)).ToList();
+
+        _tableList.SetSource(_filteredTables.Select(FormatTableEntry).ToList());
+
+        var suffix = string.IsNullOrEmpty(_tableFilter)
+            ? string.Empty
+            : $" — filter \"{_tableFilter}\" ({_filteredTables.Count}/{_tables.Count} shown)";
+        _tablesFrame.Title = $"Tables{suffix}";
+
+        if (_filteredTables.Count > 0)
+        {
+            _tableList.SelectedItem = 0;
+            LoadColumns(0);
+        }
+        else
+        {
+            _current = null;
+            _sortedColumns = new List<Column>();
+            _columnTable.Table = BuildDataTable(_sortedColumns);
+            _columnsFrame.Title = "Columns";
+        }
+    }
+
+    /// <summary>
+    /// Filters the columns pane by logical name or C# name (as <c>tables columns list --filter</c>
+    /// does), deliberately kept across a table switch: browsing several tables while looking for,
+    /// say, every "email"-ish column is exactly the search this exists for.
+    /// </summary>
+    private void FilterColumns()
+    {
+        if (_current == null)
+            return;
+
+        var newFilter = Prompts.AskText("Filter columns", "Logical name or C# name contains:", _columnFilter ?? string.Empty);
+        if (newFilter == null)
+            return;
+
+        _columnFilter = newFilter.Trim();
+        ApplyColumnFilter();
+    }
+
     private void LoadColumns(int index)
     {
-        _current = _tables[index];
+        _current = _filteredTables[index];
+        ApplyColumnFilter();
+    }
 
-        _sortedColumns = _current.Table.Columns
-            .OrderBy(c => c.LogicalName, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+    private void ApplyColumnFilter()
+    {
+        if (_current == null)
+            return;
+
+        IEnumerable<Column> columns = _current.Table.Columns;
+
+        if (!string.IsNullOrEmpty(_columnFilter))
+            columns = columns.Where(c => Matches(c.LogicalName, c.Name, _columnFilter));
+
+        _sortedColumns = columns.OrderBy(c => c.LogicalName, StringComparer.OrdinalIgnoreCase).ToList();
 
         _columnTable.Table = BuildDataTable(_sortedColumns);
         RefreshTitle();
     }
+
+    private static bool Matches(string? logicalName, string? name, string filter)
+        => (logicalName ?? string.Empty).Contains(filter, StringComparison.OrdinalIgnoreCase)
+           || (name ?? string.Empty).Contains(filter, StringComparison.OrdinalIgnoreCase);
 
     private static DataTable BuildDataTable(IReadOnlyList<Column> columns)
     {
@@ -215,8 +301,17 @@ internal sealed class TableEditorWindow : Window
         if (_current == null)
             return;
 
-        var selected = _sortedColumns.Count(c => c.Selected);
-        _columnsFrame.Title = $"Columns — {_current.Table.LogicalName} ({selected}/{_sortedColumns.Count} selected)";
+        // Selected/total always describe the whole table, not just what the filter is showing —
+        // that count needs to stay meaningful even while a filter narrows the visible rows.
+        var totalAll = _current.Table.Columns.Count;
+        var selectedAll = _current.Table.Columns.Count(c => c.Selected);
+
+        var title = $"Columns — {_current.Table.LogicalName} ({selectedAll}/{totalAll} selected)";
+
+        if (!string.IsNullOrEmpty(_columnFilter))
+            title += $" — filter \"{_columnFilter}\" ({_sortedColumns.Count} shown)";
+
+        _columnsFrame.Title = title;
     }
 
     private void ColumnTable_KeyPress(View.KeyEventEventArgs e)
@@ -285,8 +380,9 @@ internal sealed class TableEditorWindow : Window
 
         // The C# name must stay unique within the table: two columns compiling to the same
         // identifier would only fail later, at the consuming project's build. Same rule as
-        // ColumnHelper.Set (tables columns set --name).
-        var conflict = _sortedColumns.FirstOrDefault(
+        // ColumnHelper.Set (tables columns set --name). Checked against every column, not just
+        // the ones a column filter currently shows — a hidden column is still a real conflict.
+        var conflict = _current!.Table.Columns.FirstOrDefault(
             c => c != column && string.Equals(c.Name, newName, StringComparison.OrdinalIgnoreCase));
 
         if (conflict != null)
