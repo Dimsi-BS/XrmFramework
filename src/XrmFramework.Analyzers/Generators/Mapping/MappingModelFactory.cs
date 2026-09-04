@@ -83,40 +83,60 @@ internal static class MappingModelFactory
             }
 
             string? lookupTargetRef = null;
+            Table? targetTable = null;
 
-            if (column.Type == AttributeTypeCode.Lookup || column.Type == AttributeTypeCode.Customer
-                || column.Type == AttributeTypeCode.Owner)
+            if (IsLookup(column.Type))
             {
-                var relation = table.ManyToOneRelationships
-                    .FirstOrDefault(r => r.LookupFieldName == column.LogicalName);
+                var relations = table.ManyToOneRelationships
+                    .Where(r => r.LookupFieldName == column.LogicalName)
+                    .ToList();
 
-                if (relation == null)
+                if (relations.Count == 0)
                 {
                     failures.Add(MappingFailure.LookupWithoutRelationship(model.Name, property.Name, column.LogicalName, table.LogicalName));
                     continue;
                 }
 
-                var target = tables.FirstOrDefault(t => t.LogicalName == relation.EntityName);
+                Relation? relation;
+
+                if (!string.IsNullOrEmpty(property.LookupTargetTableLogicalName))
+                {
+                    relation = relations.FirstOrDefault(r => r.EntityName == property.LookupTargetTableLogicalName);
+
+                    if (relation == null)
+                    {
+                        failures.Add(MappingFailure.UnknownLookupTarget(
+                            model.Name, property.Name, property.LookupTargetTableLogicalName!, column.LogicalName,
+                            relations.Select(r => r.EntityName)));
+                        continue;
+                    }
+                }
+                else if (relations.Count > 1)
+                {
+                    // A polymorphic lookup — customerid, regardingobjectid — reaches several
+                    // tables. Picking one arbitrarily would emit an EntityReference pointing at
+                    // the wrong table half the time, so the model has to say which.
+                    failures.Add(MappingFailure.AmbiguousLookupTarget(
+                        model.Name, property.Name, column.LogicalName, relations.Select(r => r.EntityName)));
+                    continue;
+                }
+                else
+                {
+                    relation = relations[0];
+                }
+
+                targetTable = tables.FirstOrDefault(t => t.LogicalName == relation.EntityName);
 
                 // A target table the project does not track still yields a correct mapping; the
                 // entity name is simply written as a literal instead of a definition constant.
-                lookupTargetRef = target != null
-                    ? $"{target.Name}Definition.EntityName"
+                lookupTargetRef = targetTable != null
+                    ? $"{targetTable.Name}Definition.EntityName"
                     : $"\"{relation.EntityName}\"";
             }
 
             var mapped = BuildProperty(table, column, property, lookupTargetRef);
 
-            // Reported, but the property is still mapped: this is a warning about a probable
-            // mistake, not a refusal to generate.
-            var expected = ColumnTypeCompatibility.Describe(
-                column, property.TypeFullName ?? string.Empty, mapped.IsList, mapped.ListElemTypeName);
-
-            if (expected != null)
-            {
-                failures.Add(MappingFailure.IncompatibleType(
-                    model.Name, property.Name, property.TypeFullName ?? "?", column.LogicalName, column.Type, expected));
-            }
+            ReportTypeIncompatibility(failures, model, property, column, mapped, targetTable);
 
             properties.Add(mapped);
         }
@@ -131,6 +151,60 @@ internal static class MappingModelFactory
 
         return new Result(mappingModel, failures.ToImmutable());
     }
+
+    /// <summary>
+    /// Checks the declared C# type against the column whose value the property actually carries.
+    ///
+    /// On a projection that is <em>not</em> the lookup column. A model reaching a field of the
+    /// targeted record — the pattern behind <c>[CrmMapping(lookupColumn)]</c> paired with
+    /// <c>[CrmLookup(target, targetColumn)]</c> — declares the type of the <em>projected</em>
+    /// column, so comparing it to the lookup would report every such property as expecting a
+    /// <c>Guid</c>.
+    /// </summary>
+    private static void ReportTypeIncompatibility(
+        ImmutableArray<MappingFailure>.Builder failures,
+        Core.Model model,
+        ModelProperty property,
+        Column column,
+        MappingProperty mapped,
+        Table? targetTable)
+    {
+        // The property is a whole related model: its type is that model's class, and nothing
+        // about a column describes it.
+        if (!string.IsNullOrEmpty(property.LookupTargetModel))
+        {
+            return;
+        }
+
+        var checkedColumn = column;
+
+        if (!string.IsNullOrEmpty(property.LookupTargetColumnLogicalName))
+        {
+            // Unknown target table: the projected column's type cannot be established, and
+            // guessing would be worse than staying quiet.
+            var projected = targetTable?.Columns
+                .FirstOrDefault(c => c.LogicalName == property.LookupTargetColumnLogicalName);
+
+            if (projected == null)
+            {
+                return;
+            }
+
+            checkedColumn = projected;
+        }
+
+        var expected = ColumnTypeCompatibility.Describe(
+            checkedColumn, property.TypeFullName ?? string.Empty, mapped.IsList, mapped.ListElemTypeName);
+
+        if (expected != null)
+        {
+            failures.Add(MappingFailure.IncompatibleType(
+                model.Name, property.Name, property.TypeFullName ?? "?", checkedColumn.LogicalName, checkedColumn.Type, expected));
+        }
+    }
+
+    private static bool IsLookup(AttributeTypeCode type)
+        => type is AttributeTypeCode.Lookup or AttributeTypeCode.Customer or AttributeTypeCode.Owner;
 
     private static MappingProperty BuildProperty(Table table, Column column, ModelProperty property, string? lookupTargetRef)
     {
@@ -237,6 +311,17 @@ internal sealed class MappingFailure
         => new(MappingFailureIds.ColumnNotSelected, model, property,
                $"column '{column}' of table '{table}' is not selected, so no definition constant is generated for it");
 
+    public static MappingFailure AmbiguousLookupTarget(
+        string model, string property, string column, System.Collections.Generic.IEnumerable<string> candidates)
+        => new(MappingFailureIds.AmbiguousLookupTarget, model, property,
+               $"lookup column '{column}' reaches several tables ({string.Join(", ", candidates)}); "
+               + "set LookupTargetTableLogicalName to say which one this property maps");
+
+    public static MappingFailure UnknownLookupTarget(
+        string model, string property, string requested, string column, System.Collections.Generic.IEnumerable<string> candidates)
+        => new(MappingFailureIds.AmbiguousLookupTarget, model, property,
+               $"LookupTargetTableLogicalName is '{requested}', which lookup column '{column}' does not reach "
+               + $"(it reaches {string.Join(", ", candidates)})");
     public static MappingFailure IncompatibleType(
         string model, string property, string declaredType, string column, AttributeTypeCode columnType, string expected)
         => new(MappingFailureIds.IncompatibleType, model, property,
@@ -253,4 +338,5 @@ internal static class MappingFailureIds
     public const string ColumnNotSelected = "XRM1006";
     public const string LookupWithoutRelationship = "XRM1007";
     public const string IncompatibleType = "XRM1009";
+    public const string AmbiguousLookupTarget = "XRM1010";
 }

@@ -30,6 +30,7 @@ expected all surface as a build diagnostic with a one-click fix where possible.
   - [XRM1007](#xrm1007)
   - [XRM1008](#xrm1008)
   - [XRM1009](#xrm1009)
+  - [XRM1010](#xrm1010)
   - [XRM2001](#xrm2001)
 - [Reserved identifiers](#reserved-identifiers)
 
@@ -110,6 +111,7 @@ AddStep(Stages.PostOperation, Messages.Update, Modes.Synchronous, AccountDefinit
 | [XRM1007](#xrm1007) | Lookup property without a relationship | XrmFramework.Generators | 🔴 Error | — |
 | [XRM1008](#xrm1008) | Malformed `.model` file | XrmFramework.Generators | 🔴 Error | — |
 | [XRM1009](#xrm1009) | Model property type does not match its column | XrmFramework.Generators | 🟡 Warning | — |
+| [XRM1010](#xrm1010) | Ambiguous lookup target | XrmFramework.Generators | 🔴 Error | — |
 | [XRM2001](#xrm2001) | MappingGenerator failure | XrmFramework.Generators | 🟡 Warning | — |
 
 ---
@@ -530,6 +532,30 @@ What each column kind accepts:
 
 `PartyList`, `CalendarRules`, `ManagedProperty` and a non-multi-select `Virtual` have no single
 natural mapping and are not checked.
+
+**Message:** `Model '{0}': property '{1}' {2}`
+
+---
+
+
+### XRM1010
+
+**Ambiguous lookup target** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+A `.model` maps a **polymorphic** lookup — `customerid`, `regardingobjectid`, an `Owner` column —
+without saying which table the property points at, or names one the column does not reach.
+
+Such a column declares several many-to-one relationships. Picking one would emit
+`new EntityReference(AccountDefinition.EntityName, id)` for records that actually point at a
+contact, so the model has to choose:
+
+```json
+{ "Name": "Customer", "Type": "Guid?", "LogN": "customerid",
+  "LookupTargetTableLogicalName": "contact" }
+```
+
+A lookup reaching a single table needs nothing: the relationship is unambiguous and the target is
+read from it.
 
 **Message:** `Model '{0}': property '{1}' {2}`
 
