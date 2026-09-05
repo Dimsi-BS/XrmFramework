@@ -31,6 +31,7 @@ expected all surface as a build diagnostic with a one-click fix where possible.
   - [XRM1008](#xrm1008)
   - [XRM1009](#xrm1009)
   - [XRM1010](#xrm1010)
+  - [XRM1011](#xrm1011)
   - [XRM2001](#xrm2001)
 - [Reserved identifiers](#reserved-identifiers)
 
@@ -112,6 +113,7 @@ AddStep(Stages.PostOperation, Messages.Update, Modes.Synchronous, AccountDefinit
 | [XRM1008](#xrm1008) | Malformed `.model` file | XrmFramework.Generators | 🔴 Error | — |
 | [XRM1009](#xrm1009) | Model property type does not match its column | XrmFramework.Generators | 🟡 Warning | — |
 | [XRM1010](#xrm1010) | Ambiguous lookup target | XrmFramework.Generators | 🔴 Error | — |
+| [XRM1011](#xrm1011) | Invalid model extension | XrmFramework.Generators | 🔴 Error | — |
 | [XRM2001](#xrm2001) | MappingGenerator failure | XrmFramework.Generators | 🟡 Warning | — |
 
 ---
@@ -556,6 +558,29 @@ contact, so the model has to choose:
 
 A lookup reaching a single table needs nothing: the relationship is unambiguous and the target is
 read from it.
+
+**Message:** `Model '{0}': property '{1}' {2}`
+
+---
+
+
+### XRM1011
+
+**Invalid model extension** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+An `ExtendBindingModel` property carries another binding model over the **same record**. It is
+what keeps part of a payload nested — `"prospect": { … }` — instead of flattening it onto the
+parent, and it maps no column of its own:
+
+```json
+{ "Name": "Prospect", "Type": "ProspectOptionModel", "ExtendBindingModel": true,
+  "JsonPropertyName": "prospect" }
+```
+
+Reported when the property names no model, names one no `.model` file declares, or names one
+targeting a different table. That last case is the one worth stating: both halves are filled from
+one row, so a model on another table has nothing to be filled from. Reading a *different* record
+is what a lookup is for — see `LookupTargetModel`.
 
 **Message:** `Model '{0}': property '{1}' {2}`
 

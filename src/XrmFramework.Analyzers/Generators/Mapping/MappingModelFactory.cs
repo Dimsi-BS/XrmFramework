@@ -55,13 +55,26 @@ internal static class MappingModelFactory
     /// not allow to be mapped is reported rather than skipped: a property silently missing from a
     /// generated class is the hardest kind of authoring mistake to notice.
     /// </summary>
-    public static Result Create(Core.Model model, Table table, TableCollection tables)
+    public static Result Create(Core.Model model, Table table, TableCollection tables, ICollection<Core.Model> models)
     {
         var failures = ImmutableArray.CreateBuilder<MappingFailure>();
         var properties = ImmutableArray.CreateBuilder<MappingProperty>();
+        var extensions = ImmutableArray.CreateBuilder<MappingExtension>();
 
         foreach (var property in model.Properties)
         {
+            if (property.ExtendBindingModel)
+            {
+                var extended = ResolveExtension(model, property, models, failures);
+
+                if (extended != null)
+                {
+                    extensions.Add(extended);
+                }
+
+                continue;
+            }
+
             var column = table.Columns.FirstOrDefault(c => c.LogicalName == property.LogicalName);
 
             if (column == null)
@@ -174,7 +187,7 @@ internal static class MappingModelFactory
             $"{table.Name}Definition.EntityName",
             isBindingModelBase: true,
             properties.ToImmutable(),
-            ImmutableArray<MappingExtension>.Empty);
+            extensions.ToImmutable());
 
         return new Result(mappingModel, failures.ToImmutable());
     }
@@ -241,6 +254,44 @@ internal static class MappingModelFactory
         && (requested == "systemuser" || requested == "team");
 
     private const string OwnerEntityName = "owner";
+
+    /// <summary>
+    ///     Resolves an [ExtendBindingModel] property against the other .model files. The model it
+    ///     names has to exist and to target the same table: both halves are filled from one row,
+    ///     so a different table would have nothing to fill the extension from.
+    /// </summary>
+    private static MappingExtension? ResolveExtension(
+        Core.Model model,
+        ModelProperty property,
+        ICollection<Core.Model> models,
+        ImmutableArray<MappingFailure>.Builder failures)
+    {
+        var typeName = property.TypeFullName?.Trim();
+
+        if (string.IsNullOrEmpty(typeName))
+        {
+            failures.Add(MappingFailure.ExtensionWithoutType(model.Name, property.Name));
+            return null;
+        }
+
+        var leaf = typeName!.Substring(typeName.LastIndexOf('.') + 1);
+        var extended = models.FirstOrDefault(m => m.Name == leaf);
+
+        if (extended == null)
+        {
+            failures.Add(MappingFailure.UnknownExtensionModel(model.Name, property.Name, typeName));
+            return null;
+        }
+
+        if (extended.TableLogicalName != model.TableLogicalName)
+        {
+            failures.Add(MappingFailure.ExtensionOnAnotherTable(
+                model.Name, property.Name, extended.Name, extended.TableLogicalName, model.TableLogicalName));
+            return null;
+        }
+
+        return new MappingExtension(property.Name, typeName);
+    }
 
     private static bool IsLookup(AttributeTypeCode type)
         => type is AttributeTypeCode.Lookup or AttributeTypeCode.Customer or AttributeTypeCode.Owner;
@@ -350,6 +401,20 @@ internal sealed class MappingFailure
         => new(MappingFailureIds.ColumnNotSelected, model, property,
                $"column '{column}' of table '{table}' is not selected, so no definition constant is generated for it");
 
+    public static MappingFailure ExtensionWithoutType(string model, string property)
+        => new(MappingFailureIds.Extension, model, property,
+               "is an ExtendBindingModel property but names no model in its Type");
+
+    public static MappingFailure UnknownExtensionModel(string model, string property, string typeName)
+        => new(MappingFailureIds.Extension, model, property,
+               $"extends '{typeName}', which no .model file declares");
+
+    public static MappingFailure ExtensionOnAnotherTable(
+        string model, string property, string extended, string extendedTable, string ownTable)
+        => new(MappingFailureIds.Extension, model, property,
+               $"extends '{extended}', which targets table '{extendedTable}' instead of '{ownTable}'; "
+               + "an extension is filled from the same record");
+
     public static MappingFailure AmbiguousLookupTarget(
         string model, string property, string column, System.Collections.Generic.IEnumerable<string> candidates)
         => new(MappingFailureIds.AmbiguousLookupTarget, model, property,
@@ -378,4 +443,5 @@ internal static class MappingFailureIds
     public const string LookupWithoutRelationship = "XRM1007";
     public const string IncompatibleType = "XRM1009";
     public const string AmbiguousLookupTarget = "XRM1010";
+    public const string Extension = "XRM1011";
 }

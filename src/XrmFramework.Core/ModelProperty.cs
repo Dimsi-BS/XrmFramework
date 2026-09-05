@@ -35,6 +35,18 @@ namespace XrmFramework.Core
         public string LookupTargetColumnLogicalName { get; set; }
 
         /// <summary>
+        ///     Carries another binding model over the <em>same</em> record. <see cref="TypeFullName" />
+        ///     names it, and that model must be declared by a <c>.model</c> file targeting the same
+        ///     table — nothing is read through a lookup here, both halves describe one row.
+        /// </summary>
+        /// <remarks>
+        ///     What keeps a payload's shape when part of it is nested — <c>"prospect": { … }</c> —
+        ///     rather than flattened onto the parent. The property carries no
+        ///     <see cref="LogicalName" />: it maps no column of its own, its model does.
+        /// </remarks>
+        public bool ExtendBindingModel { get; set; }
+
+        /// <summary>
         ///     Allows the link to be followed beyond the first level. Below that depth the query
         ///     builder stops unless the property asks for it, which is what keeps a model from
         ///     dragging in the whole graph.

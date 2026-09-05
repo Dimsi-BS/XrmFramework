@@ -254,4 +254,118 @@ public class LookupMappingTests
         Assert.That(code, Does.Contain("Contoso.Core.Model.AccountModel Customer"));
         Assert.That(code, Does.Not.Contain("Guid? Customer"));
     }
+
+    // ── Extensions over the same record ───────────────────────────────────────
+
+    private static (string path, string content)[] WithModels(params (string name, string body)[] models)
+    {
+        var files = new System.Collections.Generic.List<(string, string)>
+        {
+            ("Definitions/Incident.table", IncidentTable),
+            ("Definitions/Account.table", AccountTable),
+            ("Definitions/Contact.table", ContactTable),
+            ("Definitions/OptionSets.table", OptionSets),
+        };
+
+        foreach (var (name, body) in models)
+        {
+            files.Add(($"Model/{name}.model", body));
+        }
+
+        return files.ToArray();
+    }
+
+    private const string TitleExtension = """
+{
+  "tName": "incident",
+  "Name": "IncidentTitleModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [ { "Name": "Title", "Type": "string", "LogN": "title" } ]
+}
+""";
+
+    private const string HostWithExtension = """
+{
+  "tName": "incident",
+  "Name": "IncidentModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [
+    { "Name": "Titre", "Type": "IncidentTitleModel", "ExtendBindingModel": true, "JsonPropertyName": "titre" }
+  ]
+}
+""";
+
+    [Test]
+    public void Extension_EmitsThePropertyAndItsAttribute()
+    {
+        var code = TestHelper.Generate<ModelSourceFileGenerator>(
+            WithModels(("IncidentTitleModel", TitleExtension), ("IncidentModel", HostWithExtension)))
+            ["IncidentModel.model.cs"];
+
+        Assert.That(code, Does.Contain("[ExtendBindingModel]"));
+        Assert.That(code, Does.Contain("[JsonProperty(\"titre\")]"));
+        Assert.That(code, Does.Contain("public IncidentTitleModel Titre { get; set; }"));
+        Assert.That(code, Does.Not.Contain("[CrmMapping"), "an extension maps no column of its own");
+    }
+
+    /// <summary>Both halves are filled from the one record, in both directions.</summary>
+    [Test]
+    public void Extension_IsMappedFromTheSameEntity()
+    {
+        var code = TestHelper.Generate<ModelSourceFileGenerator>(
+            WithModels(("IncidentTitleModel", TitleExtension), ("IncidentModel", HostWithExtension)))
+            ["IncidentModel.model.cs"];
+
+        Assert.That(code, Does.Contain("model.Titre = IncidentTitleModel.ToBindingModel(entity);"));
+        Assert.That(code, Does.Contain("entity.MergeWith(Titre?.ToEntity(service));"));
+    }
+
+    [Test]
+    public void Extension_NamingAnUnknownModel_IsReported()
+    {
+        const string host = """
+{
+  "tName": "incident",
+  "Name": "IncidentModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [ { "Name": "Titre", "Type": "NoSuchModel", "ExtendBindingModel": true } ]
+}
+""";
+
+        var diagnostics = TestHelper.Diagnose<ModelSourceFileGenerator>(WithModels(("IncidentModel", host)))
+            .Select(d => d.Id).ToArray();
+
+        Assert.That(diagnostics, Does.Contain("XRM1011"));
+    }
+
+    /// <summary>
+    /// An extension is filled from the same row, so a model on another table has nothing to be
+    /// filled from.
+    /// </summary>
+    [Test]
+    public void Extension_OnAnotherTable_IsReported()
+    {
+        const string elsewhere = """
+{
+  "tName": "account",
+  "Name": "AccountSideModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [ { "Name": "Name", "Type": "string", "LogN": "name" } ]
+}
+""";
+        const string host = """
+{
+  "tName": "incident",
+  "Name": "IncidentModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [ { "Name": "Cote", "Type": "AccountSideModel", "ExtendBindingModel": true } ]
+}
+""";
+
+        var diagnostics = TestHelper.Diagnose<ModelSourceFileGenerator>(
+                WithModels(("AccountSideModel", elsewhere), ("IncidentModel", host)))
+            .Select(d => d.Id).ToArray();
+
+        Assert.That(diagnostics, Does.Contain("XRM1011"));
+    }
 }

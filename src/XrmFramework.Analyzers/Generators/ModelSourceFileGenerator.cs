@@ -157,6 +157,14 @@ namespace XrmFramework.Analyzers.Generators
                             foreach (var prop in model.Properties)
                             {
 
+                                if (prop.ExtendBindingModel)
+                                {
+                                    // Carries another model over the same record: no column of its
+                                    // own, and the mapping fills it from this very entity.
+                                    WriteExtensionProperty(sb, prop);
+                                    continue;
+                                }
+
                                 var correspondingColumn = correspondingTable.Columns.FirstOrDefault(c => c.LogicalName == prop.LogicalName);
                                 if (correspondingColumn == null)
                                 {
@@ -289,7 +297,7 @@ namespace XrmFramework.Analyzers.Generators
                             // serves hand-written models. It cannot be left to MappingSourceGenerator:
                             // that one discovers its candidates among the compilation's source syntax
                             // trees, which never contain another generator's output.
-                            WriteMapping(productionContext, sb, model, correspondingTable, tables);
+                            WriteMapping(productionContext, sb, model, correspondingTable, tables, models);
                         }
                         sb.AppendLine("}");
 
@@ -312,6 +320,28 @@ namespace XrmFramework.Analyzers.Generators
         /// </summary>
         private static string PropertyType(ModelProperty prop)
             => string.IsNullOrEmpty(prop.LookupTargetModel) ? prop.TypeFullName : prop.LookupTargetModel;
+
+        /// <summary>
+        ///     Writes an [ExtendBindingModel] property: the model it carries, its JSON name, and
+        ///     nothing else. It maps no column, so it takes no [CrmMapping].
+        /// </summary>
+        private static void WriteExtensionProperty(IndentedStringBuilder sb, ModelProperty prop)
+        {
+            sb.AppendLine("[ExtendBindingModel]");
+
+            if (!string.IsNullOrEmpty(prop.JsonPropertyName))
+            {
+                sb.AppendLine($"[JsonProperty(\"{prop.JsonPropertyName}\")]");
+            }
+
+            if (prop.JsonIgnore)
+            {
+                sb.AppendLine("[JsonIgnore]");
+            }
+
+            sb.AppendLine($"public {prop.TypeFullName} {prop.Name} {{ get; set; }}");
+            sb.AppendLine();
+        }
 
         private static bool IsLookup(AttributeTypeCode type)
             => type == AttributeTypeCode.Lookup
@@ -460,9 +490,10 @@ namespace XrmFramework.Analyzers.Generators
             IndentedStringBuilder sb,
             Core.Model model,
             Table table,
-            TableCollection tables)
+            TableCollection tables,
+            ICollection<Core.Model> models)
         {
-            var result = MappingModelFactory.Create(model, table, tables);
+            var result = MappingModelFactory.Create(model, table, tables, models);
 
             foreach (var failure in result.Failures)
             {
@@ -543,11 +574,21 @@ namespace XrmFramework.Analyzers.Generators
             isEnabledByDefault: true,
             helpLinkUri: DiagnosticIds.HelpLink("XRM1010"));
 
+        private static readonly DiagnosticDescriptor Xrm1011 = new(
+            "XRM1011",
+            "Invalid model extension",
+            "Model '{0}': property '{1}' {2}",
+            "XrmFramework.Generators",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1011"));
+
         private static DiagnosticDescriptor DescriptorFor(string id) => id switch
         {
             "XRM1007" => Xrm1007,
             "XRM1009" => Xrm1009,
             "XRM1010" => Xrm1010,
+            "XRM1011" => Xrm1011,
             _ => Xrm1006,
         };
 
