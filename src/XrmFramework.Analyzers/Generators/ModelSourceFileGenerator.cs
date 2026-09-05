@@ -356,6 +356,20 @@ namespace XrmFramework.Analyzers.Generators
             {
                 relation = relations.FirstOrDefault(r => r.EntityName == prop.LookupTargetTableLogicalName);
 
+                // An Owner column relates to the "owner" pseudo-entity, never to the tables an
+                // owner actually is; naming systemuser or team is the only way to say which.
+                if (relation == null
+                    && column.Type == AttributeTypeCode.Owner
+                    && relations.All(r => r.EntityName == "owner")
+                    && (prop.LookupTargetTableLogicalName == "systemuser" || prop.LookupTargetTableLogicalName == "team"))
+                {
+                    relation = new Relation
+                    {
+                        EntityName = prop.LookupTargetTableLogicalName,
+                        LookupFieldName = column.LogicalName
+                    };
+                }
+
                 if (relation == null)
                 {
                     productionContext.ReportDiagnostic(Diagnostic.Create(

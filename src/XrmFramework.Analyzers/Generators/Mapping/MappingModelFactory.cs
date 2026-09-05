@@ -103,6 +103,18 @@ internal static class MappingModelFactory
                 {
                     relation = relations.FirstOrDefault(r => r.EntityName == property.LookupTargetTableLogicalName);
 
+                    // An Owner column relates to the "owner" pseudo-entity, never to the tables an
+                    // owner actually is. Naming systemuser or team is the only way to say which,
+                    // and is what the hand-written models do.
+                    if (relation == null && IsOwnerAlias(column.Type, relations, property.LookupTargetTableLogicalName!))
+                    {
+                        relation = new Relation
+                        {
+                            EntityName = property.LookupTargetTableLogicalName,
+                            LookupFieldName = column.LogicalName
+                        };
+                    }
+
                     if (relation == null)
                     {
                         failures.Add(MappingFailure.UnknownLookupTarget(
@@ -217,6 +229,18 @@ internal static class MappingModelFactory
                 model.Name, property.Name, property.TypeFullName ?? "?", checkedColumn.LogicalName, checkedColumn.Type, expected));
         }
     }
+
+    /// <summary>
+    ///     Whether <paramref name="requested"/> is one of the tables an Owner column can point at.
+    ///     The platform declares such a column against the <c>owner</c> pseudo-entity, so the
+    ///     relationships never mention systemuser or team even though those are what it holds.
+    /// </summary>
+    private static bool IsOwnerAlias(AttributeTypeCode type, List<Relation> relations, string requested)
+        => type == AttributeTypeCode.Owner
+        && relations.All(r => r.EntityName == OwnerEntityName)
+        && (requested == "systemuser" || requested == "team");
+
+    private const string OwnerEntityName = "owner";
 
     private static bool IsLookup(AttributeTypeCode type)
         => type is AttributeTypeCode.Lookup or AttributeTypeCode.Customer or AttributeTypeCode.Owner;
