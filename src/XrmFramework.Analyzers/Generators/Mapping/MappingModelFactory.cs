@@ -60,6 +60,7 @@ internal static class MappingModelFactory
         var failures = ImmutableArray.CreateBuilder<MappingFailure>();
         var properties = ImmutableArray.CreateBuilder<MappingProperty>();
         var extensions = ImmutableArray.CreateBuilder<MappingExtension>();
+        var relationships = ImmutableArray.CreateBuilder<MappingRelationship>();
 
         foreach (var property in model.Properties)
         {
@@ -79,9 +80,17 @@ internal static class MappingModelFactory
 
             if (column == null)
             {
-                // Could still be a one-to-many navigation, which this version does not map.
-                if (table.OneToManyRelationships.Any(r => r.Name == property.LogicalName))
+                var oneToMany = table.OneToManyRelationships.FirstOrDefault(r => r.Name == property.LogicalName);
+
+                if (oneToMany != null)
                 {
+                    var relationship = ResolveRelationship(model, property, table, oneToMany, failures);
+
+                    if (relationship != null)
+                    {
+                        relationships.Add(relationship);
+                    }
+
                     continue;
                 }
 
@@ -97,12 +106,15 @@ internal static class MappingModelFactory
 
             string? lookupTargetRef = null;
             Table? targetTable = null;
+            List<Relation>? lookupRelations = null;
+            Relation? lookupRelation = null;
 
             if (IsLookup(column.Type))
             {
                 var relations = table.ManyToOneRelationships
                     .Where(r => r.LookupFieldName == column.LogicalName)
                     .ToList();
+                lookupRelations = relations;
 
                 if (relations.Count == 0)
                 {
@@ -123,6 +135,11 @@ internal static class MappingModelFactory
                     {
                         relation = new Relation
                         {
+                            // The real relationship the platform reports, kept so an embedded
+                            // LookupTargetModel can still be matched against RelatedEntities by its
+                            // actual schema name rather than the systemuser/team alias, which names
+                            // no relationship of its own.
+                            Name = relations.First(r => r.EntityName == OwnerEntityName).Name,
                             EntityName = property.LookupTargetTableLogicalName,
                             LookupFieldName = column.LogicalName
                         };
@@ -150,6 +167,7 @@ internal static class MappingModelFactory
                     relation = relations[0];
                 }
 
+                lookupRelation = relation;
                 targetTable = tables.FirstOrDefault(t => t.LogicalName == relation.EntityName);
 
                 // A target table the project does not track still yields a correct mapping; the
@@ -160,6 +178,14 @@ internal static class MappingModelFactory
             }
 
             var mapped = BuildProperty(table, column, property, lookupTargetRef);
+
+            if (property.LookupTargetModel)
+            {
+                mapped.IsEmbeddedLookupModel = true;
+                mapped.EmbeddedModelTypeName = property.TypeFullName;
+                mapped.EmbeddedIsPolymorphic = (lookupRelations?.Count ?? 0) > 1;
+                mapped.EmbeddedRelationshipName = lookupRelation?.Name;
+            }
 
             if (!string.IsNullOrEmpty(property.LookupTargetColumnLogicalName))
             {
@@ -187,9 +213,33 @@ internal static class MappingModelFactory
             $"{table.Name}Definition.EntityName",
             isBindingModelBase: true,
             properties.ToImmutable(),
-            extensions.ToImmutable());
+            extensions.ToImmutable(),
+            relationships.ToImmutable())
+        {
+            AlternateKeys = ResolveAlternateKeys(model, table)
+        };
 
         return new Result(mappingModel, failures.ToImmutable());
+    }
+
+    /// <summary>
+    ///     The table's alternate keys whose every column this model actually maps — a key none of
+    ///     whose columns the model writes could never be satisfied, so resolving it at runtime
+    ///     would only ever be dead code.
+    /// </summary>
+    private static ImmutableArray<ImmutableArray<string>> ResolveAlternateKeys(Core.Model model, Table table)
+    {
+        var mappedColumnNames = new HashSet<string>(
+            model.Properties
+                .Where(p => !p.ExtendBindingModel && p.LogicalName != null)
+                .Select(p => p.LogicalName)
+                .Where(n => table.Columns.Any(c => c.LogicalName == n)),
+            StringComparer.Ordinal);
+
+        return table.Keys
+            .Select(k => k.FieldNames.ToImmutableArray())
+            .Where(k => k.Length > 0 && k.All(mappedColumnNames.Contains))
+            .ToImmutableArray();
     }
 
     /// <summary>
@@ -211,7 +261,7 @@ internal static class MappingModelFactory
     {
         // The property is a whole related model: its type is that model's class, and nothing
         // about a column describes it.
-        if (!string.IsNullOrEmpty(property.LookupTargetModel))
+        if (property.LookupTargetModel)
         {
             return;
         }
@@ -291,6 +341,42 @@ internal static class MappingModelFactory
         }
 
         return new MappingExtension(property.Name, typeName);
+    }
+
+    /// <summary>
+    ///     Resolves a <c>[ChildRelationship]</c> property against the one-to-many relationship
+    ///     <paramref name="relation"/> names. The property maps no column: it is a
+    ///     <c>List&lt;T&gt;</c> populated from the entities the relationship returns, so its
+    ///     declared type has to say what <c>T</c> is.
+    /// </summary>
+    private static MappingRelationship? ResolveRelationship(
+        Core.Model model,
+        ModelProperty property,
+        Table table,
+        Relation relation,
+        ImmutableArray<MappingFailure>.Builder failures)
+    {
+        var typeName = property.TypeFullName?.Trim();
+
+        if (string.IsNullOrEmpty(typeName)
+            || !typeName!.StartsWith("List<", StringComparison.Ordinal)
+            || !typeName.EndsWith(">", StringComparison.Ordinal))
+        {
+            failures.Add(MappingFailure.RelationshipNotAList(model.Name, property.Name, typeName ?? "?"));
+            return null;
+        }
+
+        var elementTypeName = typeName.Substring(5, typeName.Length - 6).Trim();
+
+        if (elementTypeName.Length == 0)
+        {
+            failures.Add(MappingFailure.RelationshipNotAList(model.Name, property.Name, typeName));
+            return null;
+        }
+
+        var relationshipRef = $"{table.Name}Definition.OneToManyRelationships.{relation.Name}";
+
+        return new MappingRelationship(property.Name, elementTypeName, relationshipRef, property.IsValidForUpdate);
     }
 
     private static bool IsLookup(AttributeTypeCode type)
@@ -434,12 +520,17 @@ internal sealed class MappingFailure
     public static MappingFailure LookupWithoutRelationship(string model, string property, string column, string table)
         => new(MappingFailureIds.LookupWithoutRelationship, model, property,
                $"lookup column '{column}' has no many-to-one relationship in table '{table}'");
+
+    public static MappingFailure RelationshipNotAList(string model, string property, string declaredType)
+        => new(MappingFailureIds.RelationshipNotAList, model, property,
+               $"is a one-to-many relationship and must be declared as 'List<T>', not '{declaredType}'");
 }
 
 internal static class MappingFailureIds
 {
     public const string UnknownColumn = "XRM1006";
     public const string ColumnNotSelected = "XRM1006";
+    public const string RelationshipNotAList = "XRM1006";
     public const string LookupWithoutRelationship = "XRM1007";
     public const string IncompatibleType = "XRM1009";
     public const string AmbiguousLookupTarget = "XRM1010";

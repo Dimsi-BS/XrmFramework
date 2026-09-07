@@ -128,11 +128,12 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
 
         var properties = ImmutableArray.CreateBuilder<MappingProperty>();
         var extensions = ImmutableArray.CreateBuilder<MappingExtension>();
+        var relationships = ImmutableArray.CreateBuilder<MappingRelationship>();
 
-        CollectMappings(symbol, ctx.SemanticModel, ct, properties, extensions);
+        CollectMappings(symbol, ctx.SemanticModel, ct, properties, extensions, relationships);
 
         return new MappingModel(symbol.Name, ns, entityNameRef, isBindingBase,
-                             properties.ToImmutable(), extensions.ToImmutable())
+                             properties.ToImmutable(), extensions.ToImmutable(), relationships.ToImmutable())
         {
             DefinitionName = definitionName
         };
@@ -220,7 +221,8 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
         SemanticModel sem,
         CancellationToken ct,
         ImmutableArray<MappingProperty>.Builder props,
-        ImmutableArray<MappingExtension>.Builder exts)
+        ImmutableArray<MappingExtension>.Builder exts,
+        ImmutableArray<MappingRelationship>.Builder rels)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
 
@@ -243,6 +245,14 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
                     continue;
                 }
 
+                var relAttr = attrs.FirstOrDefault(a => a.AttributeClass?.Name == "ChildRelationshipAttribute");
+                if (relAttr is not null)
+                {
+                    var rel = BuildRelationshipInfo(member, relAttr, ct);
+                    if (rel is not null) rels.Add(rel);
+                    continue;
+                }
+
                 var mappingAttr = attrs.FirstOrDefault(a => a.AttributeClass?.Name == "CrmMappingAttribute");
                 if (mappingAttr is null) continue;
 
@@ -250,6 +260,28 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
                 if (info is not null) props.Add(info);
             }
         }
+    }
+
+    /// <summary>
+    /// Builds a <see cref="MappingRelationship"/> from a <c>[ChildRelationship(...)]</c> property.
+    /// The property maps no column: its declared type must be the <c>List&lt;T&gt;</c> to
+    /// populate, and the attribute's argument names the relationship's schema-name constant.
+    /// </summary>
+    private static MappingRelationship? BuildRelationshipInfo(IPropertySymbol prop, AttributeData relAttr, CancellationToken ct)
+    {
+        var relationshipRef = GetArgText(relAttr, 0, ct);
+        if (relationshipRef is null) return null;
+
+        if (prop.Type is not INamedTypeSymbol { Name: "List" } listType || listType.TypeArguments.Length != 1)
+            return null;
+
+        var elementTypeName = listType.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+
+        var isValidForUpdate = true;
+        foreach (var na in relAttr.NamedArguments)
+            if (na.Key == "IsValidForUpdate" && na.Value.Value is bool b) { isValidForUpdate = b; break; }
+
+        return new MappingRelationship(prop.Name, elementTypeName, relationshipRef, isValidForUpdate);
     }
 
     private static MappingProperty? BuildPropInfo(
@@ -289,12 +321,23 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
 
         var hasSetter = prop.SetMethod is not null;
 
+        // ── Embedded model behind the lookup ──────────────────────────────────
+        // No [CrmLookup] names a related model's target: the model's own [CrmEntity] does, the
+        // same way ExtractModelInfo reads it for the model this property lives on.
+        var isEmbeddedLookupModel = ImplementsIBindingModel(prop.Type);
+        var embeddedTargetDefinitionName = isEmbeddedLookupModel && prop.Type is INamedTypeSymbol embeddedModelSymbol
+            ? ReadEmbeddedModelDefinitionName(embeddedModelSymbol, ct)
+            : null;
+
         return new MappingProperty(
             prop.Name, typeName, innerTypeName,
             isNullable, isEnum, isList, listElemTypeName,
             hasSetter, columnRef, attrTypeCode,
             isValidForUpdate, lookupTargetRef)
         {
+            IsEmbeddedLookupModel = isEmbeddedLookupModel,
+            EmbeddedModelTypeName = isEmbeddedLookupModel ? typeName : null,
+            EmbeddedTargetDefinitionName = embeddedTargetDefinitionName,
             // Kept so the tables can fill in what the semantic model could not: when the
             // definition class is generated in this same pass, columnField is null and the
             // metadata above falls back to String for every column.
@@ -302,6 +345,28 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
             ColumnLeafName = ReadColumnLeafName(columnRef),
             MetadataResolved = columnField != null
         };
+    }
+
+    private static bool ImplementsIBindingModel(ITypeSymbol type)
+        => type.AllInterfaces.Any(i => i.Name == "IBindingModel");
+
+    /// <summary>
+    /// Reads the definition class an embedded model's own <c>[CrmEntity]</c> names —
+    /// <c>[CrmEntity(typeof(AccountDefinition))]</c> or <c>[CrmEntity(AccountDefinition.EntityName)]</c>,
+    /// the same two forms <see cref="ExtractModelInfo"/> accepts for the outer model. That table is
+    /// what a property embedding this model was resolved against — the query builder and the
+    /// mapping helper key off it, not off any explicit <c>[CrmLookup]</c> on the property itself.
+    /// </summary>
+    private static string? ReadEmbeddedModelDefinitionName(INamedTypeSymbol embeddedModelSymbol, CancellationToken ct)
+    {
+        var crmEntityAttr = FindAttribute(embeddedModelSymbol, CrmEntityFull);
+        if (crmEntityAttr == null) return null;
+
+        var argText = GetArgText(crmEntityAttr, 0, ct);
+
+        return TryReadTypeOf(argText, out var definitionTypeName)
+            ? definitionTypeName
+            : (argText != null ? ReadDefinitionName(argText) : null);
     }
 
     /// <summary>Reads <c>Name</c> out of <c>AccountDefinition.Columns.Name</c>.</summary>

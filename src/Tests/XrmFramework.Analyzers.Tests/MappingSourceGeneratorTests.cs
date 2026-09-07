@@ -75,6 +75,13 @@ namespace XrmFramework.BindingModel
     [AttributeUsage(AttributeTargets.Property)]
     public class ExtendBindingModelAttribute : Attribute { }
 
+    [AttributeUsage(AttributeTargets.Property)]
+    public class ChildRelationshipAttribute : Attribute
+    {
+        public ChildRelationshipAttribute(string relationshipName) { }
+        public bool IsValidForUpdate { get; set; } = true;
+    }
+
     public interface IBindingModel
     {
         Guid Id { get; set; }
@@ -145,6 +152,11 @@ public static class ContactDefinition
         [XrmFramework.CrmLookup(AccountDefinition.EntityName, AccountDefinition.Columns.Id)]
         public const string AccountId = ""parentcustomerid"";
     }
+
+    public static class OneToManyRelationships
+    {
+        public const string contact_children = ""contact_children"";
+    }
 }
 
 // ── Enums ─────────────────────────────────────────────────────────────────────
@@ -182,6 +194,9 @@ public partial class ContactModel : XrmFramework.BindingModel.IBindingModel
 
     [XrmFramework.BindingModel.CrmMapping(ContactDefinition.Columns.AccountId)]
     public Guid AccountId { get; set; }
+
+    [XrmFramework.BindingModel.ChildRelationship(ContactDefinition.OneToManyRelationships.contact_children)]
+    public List<ContactModel> ChildContacts { get; set; } = new();
 }
 
 // ── ContactModelWithBase  (extends BindingModelBase -> InitializedProperties) ──

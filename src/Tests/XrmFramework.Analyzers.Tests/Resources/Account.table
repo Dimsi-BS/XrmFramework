@@ -197,6 +197,13 @@
   ],
   "OneToN": [
     {
+      "Name": "contact_account",
+      "Etn": "contact",
+      "Role": "Referenced",
+      "NavPropName": "contact_account",
+      "LookName": "accountid"
+    },
+    {
       "Name": "account_principalobjectattributeaccess",
       "Etn": "principalobjectattributeaccess",
       "Role": "Referenced",

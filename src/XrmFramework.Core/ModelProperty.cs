@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.ComponentModel;
+using Newtonsoft.Json;
 
 namespace XrmFramework.Core
 {
@@ -21,12 +22,15 @@ namespace XrmFramework.Core
         public string LookupTargetTableLogicalName { get; set; }
 
         /// <summary>
-        ///     Binding model to fill from the record behind the lookup. The property's type
-        ///     becomes that model, and the reflection layer issues the query that loads its
-        ///     fields. Mutually exclusive with <see cref="LookupTargetColumnLogicalName" />:
-        ///     the two describe different things to read through the same lookup.
+        ///     Whether this property embeds another binding model behind the lookup, filled from
+        ///     the record it points at rather than carrying the lookup's own value.
+        ///     <see cref="TypeFullName" /> names that model's class — the same field an
+        ///     <see cref="ExtendBindingModel" /> property already uses to name what it nests, so a
+        ///     model's target is always spelled in the one place. Mutually exclusive with
+        ///     <see cref="LookupTargetColumnLogicalName" />: the two describe different things to
+        ///     read through the same lookup.
         /// </summary>
-        public string LookupTargetModel { get; set; }
+        public bool LookupTargetModel { get; set; }
 
         /// <summary>
         ///     A single column of the targeted record to project onto this property, reached
@@ -59,7 +63,15 @@ namespace XrmFramework.Core
         /// </summary>
         public bool AllowNotExisting { get; set; }
 
+        /// <remarks>
+        ///     <c>[DefaultValue(true)]</c> tells <c>DefaultValueHandling.Ignore</c> serialization
+        ///     — used when writing a <c>.model</c> file back out, e.g. by <c>migrate sync-models</c>
+        ///     — that <see langword="true" /> is the value to omit, not the CLR default
+        ///     <see langword="false" />; without it a property meaning "read-only" would silently
+        ///     round-trip as the default "read-write".
+        /// </remarks>
         [JsonProperty("UsePropCh")]
+        [DefaultValue(true)]
         public bool IsValidForUpdate { get; set; } = true;
 
         public string JsonPropertyName { get; set; }

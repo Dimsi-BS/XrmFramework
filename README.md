@@ -69,6 +69,7 @@ var name = account.Nom;
   - [Create a new solution](#create-a-new-solution)
   - [Configure the new project](#configure-the-new-project)
 - [Generate model definitions](#generate-model-definitions)
+- [Generate binding models](#generate-binding-models)
 - [Create your first plugin](#create-your-first-plugin)
   - [Defining steps to register](#defining-steps-to-register)
   - [Adding details to the registered steps](#adding-details-to-the-registered-steps)
@@ -198,6 +199,38 @@ When you are done selecting, click **Generate Definitions**.
 The `.table` files in `Contoso.Core\Definitions` are created or updated; the corresponding `*Definition` classes are (re)generated the next time the project builds.
 
 > For the full CLI reference — `tables list/pull/columns/optionsets`, `deploy plugins`, and the one-time `migrate sync-tables` upgrade path from 2.\* — see **[XrmFramework CLI](src/XrmFramework.Cli/README.md)**.
+
+## Generate binding models
+
+`.model` files remove the one piece of boilerplate `.table` files don't: instead of hand-writing the
+`IBindingModel` class from the introduction, describe it once as JSON and let the same
+`XrmFramework.Analyzers` source generator emit it — attributes, properties and the `ToBindingModel` /
+`ToEntity` mapping — at **compile time**, with no `.cs` file to write or check in.
+
+```json
+// Contoso.Core\Model\AccountModel.model
+{
+  "tName": "account",
+  "Name": "AccountModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [
+    { "Name": "Nom", "Type": "string", "LogN": "name", "UsePropCh": true }
+  ]
+}
+```
+
+This is the exact class shown earlier — `[CrmEntity(typeof(AccountDefinition))]`, a
+`[CrmMapping(AccountDefinition.Columns.Name)]` property, and the generated `ToBindingModel(Entity)` /
+`ToEntity()` pair — generated instead of typed.
+
+A `.model` targets a `.table` by its logical name (`tName`): the columns, option sets and
+relationships it can map come straight from that table, so add or select the column there first
+(with **DefinitionManager** or `xrmframework tables columns`) if it's missing.
+
+> For the full field reference — lookups, projections, multi-select option sets, and nesting one
+> model inside another over the same record with `ExtendBindingModel` — plus the diagnostics the
+> generator raises on a malformed `.model`, see
+> **[`.model` field reference](docs/Analyzers.md#model-field-reference)** in the Analyzers documentation.
 
 ## Create your first plugin
 

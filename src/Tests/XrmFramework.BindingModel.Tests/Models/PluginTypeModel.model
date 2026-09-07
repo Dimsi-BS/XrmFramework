@@ -1,0 +1,17 @@
+{
+  "tName": "plugintype",
+  "Name": "PluginTypeModel",
+  "ns": "XrmFramework.BindingModel.Tests.Models",
+  "Cols": [
+    {
+      "Name": "TypeName",
+      "Type": "string",
+      "LogN": "typename"
+    },
+    {
+      "Name": "Steps",
+      "Type": "List<SdkMessageProcessingStepModel>",
+      "LogN": "plugintypeid_sdkmessageprocessingstep"
+    }
+  ]
+}

@@ -25,6 +25,7 @@ internal sealed class MappingModel
     public bool                     IsBindingModelBase { get; }
     public ImmutableArray<MappingProperty> Properties         { get; }
     public ImmutableArray<MappingExtension>  Extensions         { get; }
+    public ImmutableArray<MappingRelationship> Relationships    { get; }
 
     /// <summary>
     /// Name of the generated definition class the table was named through, read lexically from
@@ -33,8 +34,18 @@ internal sealed class MappingModel
     /// </summary>
     public string? DefinitionName { get; set; }
 
+    /// <summary>
+    /// The table's alternate keys, each as the ordered logical names of its member columns, in the
+    /// order the <c>.table</c> file declares them. <see cref="MappingModelFactory"/> reads this
+    /// straight from the table; <see cref="MappingMetadataFallback"/> fills it in the same way for
+    /// a hand-written class, whose own table is only known once the <c>.table</c> AdditionalFiles
+    /// are read.
+    /// </summary>
+    public ImmutableArray<ImmutableArray<string>> AlternateKeys { get; set; } = ImmutableArray<ImmutableArray<string>>.Empty;
+
     public MappingModel(string className, string? ns, string entityNameRef, bool isBindingModelBase,
-                     ImmutableArray<MappingProperty> properties, ImmutableArray<MappingExtension> extensions)
+                     ImmutableArray<MappingProperty> properties, ImmutableArray<MappingExtension> extensions,
+                     ImmutableArray<MappingRelationship> relationships = default)
     {
         ClassName          = className;
         Namespace          = ns;
@@ -42,6 +53,7 @@ internal sealed class MappingModel
         IsBindingModelBase = isBindingModelBase;
         Properties         = properties;
         Extensions         = extensions;
+        Relationships      = relationships.IsDefault ? ImmutableArray<MappingRelationship>.Empty : relationships;
     }
 }
 
@@ -81,6 +93,40 @@ internal sealed class MappingProperty
     /// <summary>Whether <see cref="AttrType"/> came from a resolved symbol rather than the fallback.</summary>
     public bool MetadataResolved { get; set; }
 
+    /// <summary>
+    ///     Whether this property embeds another binding model behind a lookup, filled from the
+    ///     record the lookup points at rather than from the lookup value itself — a
+    ///     <c>LookupTargetModel</c> property. Read-only: <see cref="Name"/>'s type is that model's
+    ///     class, so there is no value shaped like the column to write back.
+    /// </summary>
+    public bool IsEmbeddedLookupModel { get; set; }
+
+    /// <summary>The embedded model's class name, e.g. <c>Contoso.Core.Model.AccountModel</c>.</summary>
+    public string? EmbeddedModelTypeName { get; set; }
+
+    /// <summary>
+    ///     Whether the lookup column reaches more than one table. The join a query brings the
+    ///     embedded columns back under is then aliased with the actual target's logical name as a
+    ///     suffix, to keep one candidate's columns apart from another's.
+    /// </summary>
+    public bool EmbeddedIsPolymorphic { get; set; }
+
+    /// <summary>
+    ///     Schema name of the many-to-one relationship the lookup was resolved to, checked against
+    ///     <c>RelatedEntities</c> when the query did not alias the embedded columns.
+    /// </summary>
+    public string? EmbeddedRelationshipName { get; set; }
+
+    /// <summary>
+    ///     Definition class the embedded model's own <c>[CrmEntity]</c> names, read lexically —
+    ///     <c>AccountDefinition</c> for a property typed <c>AccountModel</c>. A hand-written
+    ///     property carries no explicit target of its own: this is what says which of the lookup
+    ///     column's relationships is the one to embed. Only needed to resolve
+    ///     <see cref="EmbeddedIsPolymorphic"/>/<see cref="EmbeddedRelationshipName"/> from the
+    ///     <c>.table</c> metadata; unused once those are set.
+    /// </summary>
+    public string? EmbeddedTargetDefinitionName { get; set; }
+
     public MappingProperty(string name, string typeName, string innerTypeName,
                     bool isNullable, bool isEnum, bool isList, string? listElemTypeName,
                     bool hasSetter, string columnRef, AttributeTypeCode attrType,
@@ -107,4 +153,27 @@ internal sealed class MappingExtension
     public string TypeName { get; }
 
     public MappingExtension(string name, string typeName) { Name = name; TypeName = typeName; }
+}
+
+/// <summary>
+/// A <c>[ChildRelationship]</c> property: a <c>List&lt;T&gt;</c> of another binding model,
+/// populated from the entities a one-to-many relationship returns rather than from the entity's
+/// own attribute bag. Maps no column of its own.
+/// </summary>
+internal sealed class MappingRelationship
+{
+    public string Name             { get; }
+    public string ElementTypeName  { get; }
+
+    /// <summary>C# expression naming the relationship's schema name, e.g. <c>AccountDefinition.OneToManyRelationships.contact_account</c>.</summary>
+    public string RelationshipRef  { get; }
+    public bool   IsValidForUpdate { get; }
+
+    public MappingRelationship(string name, string elementTypeName, string relationshipRef, bool isValidForUpdate)
+    {
+        Name             = name;
+        ElementTypeName  = elementTypeName;
+        RelationshipRef  = relationshipRef;
+        IsValidForUpdate = isValidForUpdate;
+    }
 }

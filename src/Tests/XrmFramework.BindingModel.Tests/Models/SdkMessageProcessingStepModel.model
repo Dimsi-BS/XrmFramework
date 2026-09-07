@@ -40,6 +40,19 @@
       "Type": "Guid?",
       "LogN": "eventhandler",
       "LookupTargetTableLogicalName": "plugintype"
+    },
+    {
+      "Name": "PluginType",
+      "Type": "PluginTypeModel",
+      "LogN": "plugintypeid",
+      "LookupTargetModel": true
+    },
+    {
+      "Name": "EventHandlerPluginType",
+      "Type": "PluginTypeModel",
+      "LogN": "eventhandler",
+      "LookupTargetTableLogicalName": "plugintype",
+      "LookupTargetModel": true
     }
   ]
 }

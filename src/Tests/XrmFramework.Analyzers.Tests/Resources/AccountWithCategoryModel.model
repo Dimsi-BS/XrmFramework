@@ -1,0 +1,9 @@
+{
+  "tName": "account",
+  "Name": "AccountWithCategoryModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [
+    { "Name": "Name", "Type": "string", "LogN": "name", "UsePropCh": true },
+    { "Name": "CategoryInfo", "Type": "AccountCategoryModel", "ExtendBindingModel": true, "JsonPropertyName": "category" }
+  ]
+}

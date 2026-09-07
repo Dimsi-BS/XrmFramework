@@ -166,59 +166,55 @@ namespace XrmFramework.Analyzers.Generators
                                 }
 
                                 var correspondingColumn = correspondingTable.Columns.FirstOrDefault(c => c.LogicalName == prop.LogicalName);
-                                if (correspondingColumn == null)
+
+                                if (correspondingColumn == null || !correspondingColumn.Selected)
                                 {
+                                    // Not a (selected) column: it could still be a one-to-many
+                                    // relationship, carrying no column of its own.
+                                    var correspondingRelation =
+                                        correspondingTable.OneToManyRelationships.FirstOrDefault(r =>
+                                            r.Name == prop.LogicalName);
+
+                                    if (correspondingRelation != null)
+                                    {
+                                        WriteRelationshipProperty(sb, correspondingTable, prop, correspondingRelation);
+                                    }
+
+                                    // Otherwise nothing named prop.LogicalName is reachable from
+                                    // this table. WriteMapping reports XRM1006 for this same
+                                    // property once the mapping is built below, so nothing is
+                                    // reported twice here — the property is just not declared.
                                     continue;
                                 }
 
                                 var propertyType = PropertyType(prop);
 
-                                if (correspondingColumn.Selected)
+                                //This property is a column
+                                sb.Append(
+                                    $"[CrmMapping({correspondingTable.Name}Definition.Columns.{correspondingColumn.Name}");
+
+                                if (!prop.IsValidForUpdate)
                                 {
-                                    //This property is a column
-                                    sb.Append(
-                                        $"[CrmMapping({correspondingTable.Name}Definition.Columns.{correspondingColumn.Name}");
-
-                                    if (!prop.IsValidForUpdate)
-                                    {
-                                        sb.Append(", IsValidForUpdate = false");
-                                    }
-
-                                    // Below the first level the query builder stops unless the
-                                    // property asks for the link, which is what keeps a model from
-                                    // dragging in the whole graph.
-                                    if (prop.FollowLink)
-                                    {
-                                        sb.Append(", FollowLink = true");
-                                    }
-
-                                    sb.Append(")]");
-
-                                    if (IsLookup(correspondingColumn.Type))
-                                    {
-                                        if (!WriteLookupAttribute(productionContext, sb, model, prop,
-                                                correspondingTable, correspondingColumn, tables))
-                                        {
-                                            continue;
-                                        }
-                                    }
+                                    sb.Append(", IsValidForUpdate = false");
                                 }
-                                else
+
+                                // Below the first level the query builder stops unless the
+                                // property asks for the link, which is what keeps a model from
+                                // dragging in the whole graph.
+                                if (prop.FollowLink)
                                 {
-                                    //This property is a OneToMany relation
-                                    var correspondingRelation =
-                                        correspondingTable.OneToManyRelationships.FirstOrDefault(r =>
-                                            r.Name == prop.LogicalName);
-                                    if (correspondingRelation == null)
+                                    sb.Append(", FollowLink = true");
+                                }
+
+                                sb.Append(")]");
+
+                                if (IsLookup(correspondingColumn.Type))
+                                {
+                                    if (!WriteLookupAttribute(productionContext, sb, model, prop,
+                                            correspondingTable, correspondingColumn, tables))
                                     {
-                                        productionContext.ReportDiagnostic(Diagnostic.Create(
-                                            Xrm1006, Location.None, model.Name, prop.Name,
-                                            $"no one-to-many relationship named '{prop.LogicalName}' in table '{correspondingTable.LogicalName}'"));
                                         continue;
                                     }
-
-                                    sb.AppendLine(
-                                        $"[ChildRelationship({correspondingTable.Name}Definition.OneToManyRelationships.{correspondingRelation.NavigationPropertyName})]");
                                 }
 
                                 if (prop.JsonPropertyName != null)
@@ -314,12 +310,13 @@ namespace XrmFramework.Analyzers.Generators
         }
 
         /// <summary>
-        ///     The type the generated property carries. A related model replaces the
-        ///     declared type: the property holds that model, filled from the record behind
-        ///     the lookup rather than the lookup value itself.
+        ///     The type the generated property carries — <see cref="ModelProperty.TypeFullName" />
+        ///     as declared, whether that names a primitive, an enum, or (for a
+        ///     <see cref="ModelProperty.LookupTargetModel" /> or
+        ///     <see cref="ModelProperty.ExtendBindingModel" /> property) another model's class.
         /// </summary>
         private static string PropertyType(ModelProperty prop)
-            => string.IsNullOrEmpty(prop.LookupTargetModel) ? prop.TypeFullName : prop.LookupTargetModel;
+            => prop.TypeFullName;
 
         /// <summary>
         ///     Writes an [ExtendBindingModel] property: the model it carries, its JSON name, and
@@ -340,6 +337,38 @@ namespace XrmFramework.Analyzers.Generators
             }
 
             sb.AppendLine($"public {prop.TypeFullName} {prop.Name} {{ get; set; }}");
+            sb.AppendLine();
+        }
+
+        /// <summary>
+        ///     Writes a [ChildRelationship] property: a collection of another binding model,
+        ///     filled from the entities a one-to-many relationship returns. It maps no column of
+        ///     its own — <see cref="ModelProperty.TypeFullName"/> is expected to already be the
+        ///     full <c>List&lt;T&gt;</c> type, the same convention a multi-select column's `Type`
+        ///     already follows.
+        /// </summary>
+        private static void WriteRelationshipProperty(IndentedStringBuilder sb, Table table, ModelProperty prop, Relation relation)
+        {
+            sb.Append($"[ChildRelationship({table.Name}Definition.OneToManyRelationships.{relation.Name}");
+
+            if (!prop.IsValidForUpdate)
+            {
+                sb.Append(", IsValidForUpdate = false");
+            }
+
+            sb.AppendLine(")]");
+
+            if (!string.IsNullOrEmpty(prop.JsonPropertyName))
+            {
+                sb.AppendLine($"[JsonProperty(\"{prop.JsonPropertyName}\")]");
+            }
+
+            if (prop.JsonIgnore)
+            {
+                sb.AppendLine("[JsonIgnore]");
+            }
+
+            sb.AppendLine($"public {prop.TypeFullName} {prop.Name} {{ get; set; }} = new {prop.TypeFullName}();");
             sb.AppendLine();
         }
 
@@ -423,7 +452,7 @@ namespace XrmFramework.Analyzers.Generators
             }
 
             // A related model carries its own [CrmEntity]; nothing more to declare here.
-            if (!string.IsNullOrEmpty(prop.LookupTargetModel))
+            if (prop.LookupTargetModel)
             {
                 return true;
             }

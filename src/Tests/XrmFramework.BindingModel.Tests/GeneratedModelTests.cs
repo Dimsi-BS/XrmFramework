@@ -2,9 +2,16 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Xrm.Sdk;
 using NUnit.Framework;
 using XrmFramework.BindingModel.Tests.Models;
+// This file's own namespace nests under XrmFramework, which declares its own same-named
+// Relationship/EntityRole (see XrmFramework.Utils.Relationship) — enclosing-namespace lookup
+// resolves a bare reference to those before the Microsoft.Xrm.Sdk ones this file imports, so the
+// SDK types need an alias here, the same way the reflection mapper aliases them for the same reason.
+using SdkRelationship = Microsoft.Xrm.Sdk.Relationship;
+using SdkEntityRole = Microsoft.Xrm.Sdk.EntityRole;
 
 namespace XrmFramework.BindingModel.Tests;
 
@@ -169,5 +176,255 @@ public class GeneratedModelTests
 
         Assert.AreEqual("Contact PostCreate", model.Name);
         Assert.AreEqual(Stage.PostOperation, model.Stage);
+    }
+
+    // ── ChildRelationship — a one-to-many relationship as a List<T> property ───
+
+    private static readonly SdkRelationship PluginTypeSteps =
+        new(PluginTypeDefinition.OneToManyRelationships.plugintypeid_sdkmessageprocessingstep)
+        {
+            PrimaryEntityRole = SdkEntityRole.Referenced
+        };
+
+    [Test]
+    public void ToBindingModel_ReadsRelatedEntitiesIntoTheListProperty()
+    {
+        var stepId = Guid.NewGuid();
+        var step = new Entity(SdkMessageProcessingStepDefinition.EntityName, stepId);
+        step[SdkMessageProcessingStepDefinition.Columns.Name] = "Contact PostCreate";
+
+        var pluginType = new Entity(PluginTypeDefinition.EntityName, Guid.NewGuid());
+        pluginType[PluginTypeDefinition.Columns.TypeName] = "Contoso.Plugins.ContactPlugin";
+        pluginType.RelatedEntities[PluginTypeSteps] = new EntityCollection(new List<Entity> { step });
+
+        var model = PluginTypeModel.ToBindingModel(pluginType);
+
+        Assert.AreEqual("Contoso.Plugins.ContactPlugin", model.TypeName);
+        Assert.AreEqual(1, model.Steps.Count);
+        Assert.AreEqual(stepId, model.Steps[0].Id);
+        Assert.AreEqual("Contact PostCreate", model.Steps[0].Name);
+    }
+
+    [Test]
+    public void ToBindingModel_NoRelatedEntities_LeavesTheListEmpty()
+    {
+        var model = PluginTypeModel.ToBindingModel(new Entity(PluginTypeDefinition.EntityName, Guid.NewGuid()));
+
+        Assert.IsEmpty(model.Steps);
+    }
+
+    [Test]
+    public void ToEntity_WritesTheListAsRelatedEntities()
+    {
+        var model = new PluginTypeModel
+        {
+            Steps = new List<SdkMessageProcessingStepModel>
+            {
+                new() { Name = "Contact PostCreate" }
+            }
+        };
+
+        var entity = model.ToEntity(null);
+
+        Assert.IsTrue(entity.RelatedEntities.TryGetValue(PluginTypeSteps, out var related));
+        Assert.AreEqual(1, related!.Entities.Count);
+        Assert.AreEqual("Contact PostCreate", related.Entities[0][SdkMessageProcessingStepDefinition.Columns.Name]);
+    }
+
+    [Test]
+    public void ToEntity_AnEmptyList_StillWritesAnEmptyRelatedCollection()
+    {
+        var model = new PluginTypeModel();
+
+        var entity = model.ToEntity(null);
+
+        Assert.IsTrue(entity.RelatedEntities.TryGetValue(PluginTypeSteps, out var related));
+        Assert.IsEmpty(related!.Entities);
+    }
+
+    // ── LookupTargetModel — embedding another binding model behind a lookup ───
+
+    [Test]
+    public void ToBindingModel_EmbedsTheTargetFromAliasedColumns()
+    {
+        var pluginTypeId = Guid.NewGuid();
+        var entity = new Entity(SdkMessageProcessingStepDefinition.EntityName, Guid.NewGuid());
+        entity[SdkMessageProcessingStepDefinition.Columns.PluginTypeId] =
+            new EntityReference(PluginTypeDefinition.EntityName, pluginTypeId);
+        entity["plugintypeid.typename"] = new AliasedValue(
+            PluginTypeDefinition.EntityName, PluginTypeDefinition.Columns.TypeName, "Contoso.Plugins.ContactPlugin");
+
+        var model = SdkMessageProcessingStepModel.ToBindingModel(entity);
+
+        Assert.IsNotNull(model.PluginType);
+        Assert.AreEqual(pluginTypeId, model.PluginType!.Id);
+        Assert.AreEqual("Contoso.Plugins.ContactPlugin", model.PluginType.TypeName);
+    }
+
+    [Test]
+    public void ToBindingModel_EmbeddedTarget_FallsBackToRelatedEntities()
+    {
+        var pluginTypeId = Guid.NewGuid();
+        var entity = new Entity(SdkMessageProcessingStepDefinition.EntityName, Guid.NewGuid());
+        entity[SdkMessageProcessingStepDefinition.Columns.PluginTypeId] =
+            new EntityReference(PluginTypeDefinition.EntityName, pluginTypeId);
+
+        var pluginType = new Entity(PluginTypeDefinition.EntityName, pluginTypeId);
+        pluginType[PluginTypeDefinition.Columns.TypeName] = "Contoso.Plugins.ContactPlugin";
+        entity.RelatedEntities[new SdkRelationship("plugintypeid_sdkmessageprocessingstep")
+        {
+            PrimaryEntityRole = SdkEntityRole.Referenced
+        }] = new EntityCollection(new List<Entity> { pluginType });
+
+        var model = SdkMessageProcessingStepModel.ToBindingModel(entity);
+
+        Assert.IsNotNull(model.PluginType);
+        Assert.AreEqual(pluginTypeId, model.PluginType!.Id);
+        Assert.AreEqual("Contoso.Plugins.ContactPlugin", model.PluginType.TypeName);
+    }
+
+    [Test]
+    public void ToBindingModel_NoLookupValue_LeavesTheEmbeddedTargetNull()
+    {
+        var model = SdkMessageProcessingStepModel.ToBindingModel(
+            new Entity(SdkMessageProcessingStepDefinition.EntityName, Guid.NewGuid()));
+
+        Assert.IsNull(model.PluginType);
+    }
+
+    /// <summary>
+    /// <c>eventhandler</c> is polymorphic, so the aliased columns the query brings back for the
+    /// chosen target carry its logical name in the alias, to keep them apart from another
+    /// candidate's columns under the same join.
+    /// </summary>
+    [Test]
+    public void ToBindingModel_PolymorphicEmbeddedTarget_ReadsThePolymorphicAlias()
+    {
+        var pluginTypeId = Guid.NewGuid();
+        var entity = new Entity(SdkMessageProcessingStepDefinition.EntityName, Guid.NewGuid());
+        entity[SdkMessageProcessingStepDefinition.Columns.EventHandler] =
+            new EntityReference(PluginTypeDefinition.EntityName, pluginTypeId);
+        entity["eventhandler__plugintype.typename"] = new AliasedValue(
+            PluginTypeDefinition.EntityName, PluginTypeDefinition.Columns.TypeName, "Contoso.Plugins.ContactPlugin");
+
+        var model = SdkMessageProcessingStepModel.ToBindingModel(entity);
+
+        Assert.IsNotNull(model.EventHandlerPluginType);
+        Assert.AreEqual("Contoso.Plugins.ContactPlugin", model.EventHandlerPluginType!.TypeName);
+    }
+
+    [Test]
+    public void ToEntity_NeverWritesTheEmbeddedTargetBackToTheLookupColumn()
+    {
+        var model = new SdkMessageProcessingStepModel { PluginType = new PluginTypeModel { TypeName = "X" } };
+
+        var entity = model.ToEntity(null);
+
+        Assert.IsFalse(entity.Contains(SdkMessageProcessingStepDefinition.Columns.PluginTypeId));
+    }
+
+    /// <summary>
+    /// The same embedding, from a hand-written class with no <c>[CrmLookup]</c> of its own —
+    /// <c>MappingSourceGenerator</c> has to resolve it the same way <c>ModelSourceFileGenerator</c>
+    /// does for a <c>.model</c> file, from <see cref="PluginTypeModel"/>'s own <c>[CrmEntity]</c>.
+    /// </summary>
+    [Test]
+    public void HandWrittenModel_EmbedsTheTargetFromAliasedColumns()
+    {
+        var pluginTypeId = Guid.NewGuid();
+        var entity = new Entity(SdkMessageProcessingStepDefinition.EntityName, Guid.NewGuid());
+        entity[SdkMessageProcessingStepDefinition.Columns.PluginTypeId] =
+            new EntityReference(PluginTypeDefinition.EntityName, pluginTypeId);
+        entity["plugintypeid.typename"] = new AliasedValue(
+            PluginTypeDefinition.EntityName, PluginTypeDefinition.Columns.TypeName, "Contoso.Plugins.ContactPlugin");
+
+        var model = SdkMessageProcessingStepManualModel.ToBindingModel(entity);
+
+        Assert.IsNotNull(model.PluginType);
+        Assert.AreEqual(pluginTypeId, model.PluginType!.Id);
+        Assert.AreEqual("Contoso.Plugins.ContactPlugin", model.PluginType.TypeName);
+    }
+
+    [Test]
+    public void HandWrittenModel_NoLookupValue_LeavesTheEmbeddedTargetNull()
+    {
+        var model = SdkMessageProcessingStepManualModel.ToBindingModel(
+            new Entity(SdkMessageProcessingStepDefinition.EntityName, Guid.NewGuid()));
+
+        Assert.IsNull(model.PluginType);
+    }
+
+    // ── Alternate key — populated on ToEntity when nothing set a real Id ──────
+
+    [Test]
+    public void ToEntity_NoId_PopulatesKeyAttributesFromTheAlternateKey()
+    {
+        var aadId = Guid.NewGuid();
+        var model = new SystemUserModel { AzureActiveDirectoryObjectId = aadId };
+
+        var entity = model.ToEntity(null);
+
+        Assert.IsTrue(entity.KeyAttributes.Contains(SystemUserDefinition.Columns.AzureActiveDirectoryObjectId));
+        Assert.AreEqual(aadId, entity.KeyAttributes[SystemUserDefinition.Columns.AzureActiveDirectoryObjectId]);
+    }
+
+    [Test]
+    public void ToEntity_WithAnId_LeavesKeyAttributesEmpty()
+    {
+        var model = new SystemUserModel
+        {
+            Id = Guid.NewGuid(),
+            AzureActiveDirectoryObjectId = Guid.NewGuid()
+        };
+
+        var entity = model.ToEntity(null);
+
+        Assert.IsEmpty(entity.KeyAttributes);
+    }
+
+    [Test]
+    public void ToEntity_TheKeyColumnNotSet_LeavesKeyAttributesEmpty()
+    {
+        var model = new SystemUserModel { FullName = "Christophe" };
+
+        var entity = model.ToEntity(null);
+
+        Assert.IsEmpty(entity.KeyAttributes);
+    }
+
+    [Test]
+    public void HandWrittenModel_ToEntity_NoId_PopulatesKeyAttributesFromTheAlternateKey()
+    {
+        var aadId = Guid.NewGuid();
+        var model = new SystemUserManualModel { AzureActiveDirectoryObjectId = aadId };
+
+        var entity = model.ToEntity(null);
+
+        Assert.IsTrue(entity.KeyAttributes.Contains(SystemUserDefinition.Columns.AzureActiveDirectoryObjectId));
+        Assert.AreEqual(aadId, entity.KeyAttributes[SystemUserDefinition.Columns.AzureActiveDirectoryObjectId]);
+    }
+
+    // ── migrate sync-models round trip ─────────────────────────────────────────
+    //
+    // PluginTypeRoundtripModel.model / SdkMessageProcessingStepRoundtripModel.model were produced
+    // by `migrate sync-models` reflecting over SdkMessageProcessingStepManualModel /
+    // PluginTypeManualModel (both hand-written, just above) — proving the round trip compiles and
+    // behaves the same as the class it was generated from.
+
+    [Test]
+    public void RoundtripModel_EmbedsTheTargetTheSameWayTheHandWrittenOneDid()
+    {
+        var pluginTypeId = Guid.NewGuid();
+        var entity = new Entity(SdkMessageProcessingStepDefinition.EntityName, Guid.NewGuid());
+        entity[SdkMessageProcessingStepDefinition.Columns.PluginTypeId] =
+            new EntityReference(PluginTypeDefinition.EntityName, pluginTypeId);
+        entity["plugintypeid.typename"] = new AliasedValue(
+            PluginTypeDefinition.EntityName, PluginTypeDefinition.Columns.TypeName, "Contoso.Plugins.ContactPlugin");
+
+        var model = SdkMessageProcessingStepRoundtripModel.ToBindingModel(entity);
+
+        Assert.IsNotNull(model.PluginType);
+        Assert.AreEqual(pluginTypeId, model.PluginType!.Id);
+        Assert.AreEqual("Contoso.Plugins.ContactPlugin", model.PluginType.TypeName);
     }
 }

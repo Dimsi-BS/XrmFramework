@@ -184,7 +184,7 @@ public class LookupMappingTests
     {
         var diagnostics = Diagnose("""
 { "Name": "Customer", "Type": "AccountModel", "LogN": "customerid",
-  "LookupTargetTableLogicalName": "account", "LookupTargetModel": "Contoso.Core.Model.AccountModel" }
+  "LookupTargetTableLogicalName": "account", "LookupTargetModel": true }
 """);
 
         Assert.That(diagnostics, Does.Not.Contain("XRM1009"));
@@ -242,17 +242,60 @@ public class LookupMappingTests
         Assert.That(code, Does.Contain("[JsonIgnore]"));
     }
 
-    /// <summary>The property carries the related model, not the lookup's Guid.</summary>
+    /// <summary>The property is declared with the related model as its type.</summary>
     [Test]
     public void RelatedModel_BecomesThePropertyType()
     {
         var code = Generate("""
-{ "Name": "Customer", "Type": "Guid?", "LogN": "customerid",
-  "LookupTargetTableLogicalName": "account", "LookupTargetModel": "Contoso.Core.Model.AccountModel" }
+{ "Name": "Customer", "Type": "Contoso.Core.Model.AccountModel", "LogN": "customerid",
+  "LookupTargetTableLogicalName": "account", "LookupTargetModel": true }
 """);
 
         Assert.That(code, Does.Contain("Contoso.Core.Model.AccountModel Customer"));
-        Assert.That(code, Does.Not.Contain("Guid? Customer"));
+    }
+
+    // ── LookupTargetModel — embedding another binding model behind a lookup ────
+
+    /// <summary>A lookup reaching a single table needs no disambiguation to be embedded.</summary>
+    [Test]
+    public void RelatedModel_SingleTargetLookup_IsReadThroughTheEmbeddedLookupHelper()
+    {
+        var code = Generate("""
+{ "Name": "Owner", "Type": "SystemUserModel", "LogN": "ownerid", "LookupTargetModel": true }
+""");
+
+        Assert.That(code, Does.Contain(
+            "model.Owner = SystemUserModel.ToBindingModel(entity.GetEmbeddedLookupEntity("
+            + "IncidentDefinition.Columns.OwnerId, false, \"incident_owning_user\"));"));
+    }
+
+    /// <summary>
+    /// A polymorphic lookup embeds correctly once <c>LookupTargetTableLogicalName</c> resolves it
+    /// to one relation — the alias is then suffixed with the target's logical name, since the join
+    /// needs one alias per candidate table to keep them apart.
+    /// </summary>
+    [Test]
+    public void RelatedModel_PolymorphicLookup_IsReadWithThePolymorphicAlias()
+    {
+        var code = Generate("""
+{ "Name": "Customer", "Type": "AccountModel", "LogN": "customerid",
+  "LookupTargetTableLogicalName": "account", "LookupTargetModel": true }
+""");
+
+        Assert.That(code, Does.Contain(
+            "model.Customer = AccountModel.ToBindingModel(entity.GetEmbeddedLookupEntity("
+            + "IncidentDefinition.Columns.CustomerId, true, \"incident_customer_accounts\"));"));
+    }
+
+    /// <summary>The related model is loaded, never written back through the lookup column.</summary>
+    [Test]
+    public void RelatedModel_IsNeverWrittenBackToTheLookupColumn()
+    {
+        var code = Generate("""
+{ "Name": "Owner", "Type": "SystemUserModel", "LogN": "ownerid", "LookupTargetModel": true }
+""");
+
+        Assert.That(code, Does.Not.Contain("IncidentDefinition.Columns.OwnerId] ="));
     }
 
     // ── Extensions over the same record ───────────────────────────────────────

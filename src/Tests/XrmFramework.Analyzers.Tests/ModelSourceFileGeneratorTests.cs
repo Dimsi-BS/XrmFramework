@@ -183,4 +183,150 @@ public class ModelSourceFileGeneratorTests
 
         Assert.That(diagnostics.Select(d => d.Id), Does.Contain("XRM1007"));
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  ExtendBindingModel — nesting another .model over the same record
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private static string GenerateAccountWithCategoryModel()
+    {
+        var generated = TestHelper.Generate<ModelSourceFileGenerator>(
+            ("Model/Definitions/Account.table", Resource("Account.table")),
+            ("Model/Definitions/OptionSets.table", Resource("OptionSet.table")),
+            ("Model/AccountCategoryModel.model", Resource("AccountCategoryModel.model")),
+            ("Model/AccountWithCategoryModel.model", Resource("AccountWithCategoryModel.model")));
+
+        Assert.That(generated.Keys, Does.Contain("AccountWithCategoryModel.model.cs"),
+            "the generator produced: " + string.Join(", ", generated.Keys));
+
+        return generated["AccountWithCategoryModel.model.cs"];
+    }
+
+    [Test]
+    public void ExtendBindingModel_DeclaresThePropertyWithNoColumnMapping()
+    {
+        var source = GenerateAccountWithCategoryModel();
+
+        Assert.That(source, Does.Contain("[ExtendBindingModel]"));
+        Assert.That(source, Does.Contain("[JsonProperty(\"category\")]"));
+        Assert.That(source, Does.Contain("public AccountCategoryModel CategoryInfo { get; set; }"));
+
+        // No [CrmMapping] is written for it — it maps no column of its own.
+        Assert.That(source, Does.Not.Contain("[CrmMapping(AccountDefinition.Columns.CategoryInfo"));
+    }
+
+    [Test]
+    public void ExtendBindingModel_FillsAndMergesTheExtensionFromTheSameRecord()
+    {
+        var source = GenerateAccountWithCategoryModel();
+
+        Assert.That(source, Does.Contain("model.CategoryInfo = AccountCategoryModel.ToBindingModel(entity);"));
+        Assert.That(source, Does.Contain("entity.MergeWith(CategoryInfo?.ToEntity(service));"));
+    }
+
+    /// <summary>
+    /// Both halves of an extension are filled from one row, so a model targeting a different
+    /// table has nothing to fill it from.
+    /// </summary>
+    [Test]
+    public void ExtendBindingModel_TargetingAnotherTable_IsReported()
+    {
+        const string parent = """
+{
+  "tName": "account",
+  "Name": "AccountWithContactModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [ { "Name": "Contact", "Type": "ContactModel", "ExtendBindingModel": true } ]
+}
+""";
+
+        var diagnostics = TestHelper.Diagnose<ModelSourceFileGenerator>(
+            ("Model/Definitions/Account.table", Resource("Account.table")),
+            ("Model/Definitions/Contact.table", Resource("Contact.table")),
+            ("Model/Definitions/OptionSets.table", Resource("OptionSet.table")),
+            ("Model/ContactModel.model", Resource("ContactModel.model")),
+            ("Model/AccountWithContactModel.model", parent));
+
+        Assert.That(diagnostics.Select(d => d.Id), Does.Contain("XRM1011"));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  ChildRelationship — a one-to-many relationship as a List<T> property
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private static string GenerateAccountWithContactsModel()
+    {
+        var generated = TestHelper.Generate<ModelSourceFileGenerator>(
+            ("Model/Definitions/Account.table", Resource("Account.table")),
+            ("Model/Definitions/Contact.table", Resource("Contact.table")),
+            ("Model/Definitions/OptionSets.table", Resource("OptionSet.table")),
+            ("Model/ContactModel.model", Resource("ContactModel.model")),
+            ("Model/AccountWithContactsModel.model", Resource("AccountWithContactsModel.model")));
+
+        Assert.That(generated.Keys, Does.Contain("AccountWithContactsModel.model.cs"),
+            "the generator produced: " + string.Join(", ", generated.Keys));
+
+        return generated["AccountWithContactsModel.model.cs"];
+    }
+
+    [Test]
+    public void ChildRelationship_DeclaresAnInitializedListPropertyWithNoColumnMapping()
+    {
+        var source = GenerateAccountWithContactsModel();
+
+        Assert.That(source, Does.Contain("[ChildRelationship(AccountDefinition.OneToManyRelationships.contact_account)]"));
+        Assert.That(source, Does.Contain("public List<ContactModel> Contacts { get; set; } = new List<ContactModel>();"));
+
+        // No [CrmMapping] is written for it — it maps no column of its own.
+        Assert.That(source, Does.Not.Contain("[CrmMapping(AccountDefinition.Columns.Contacts"));
+    }
+
+    [Test]
+    public void ChildRelationship_ReadsRelatedEntitiesByTheRelationshipSchemaName()
+    {
+        var source = GenerateAccountWithContactsModel();
+
+        Assert.That(source, Does.Contain(
+            "entity.RelatedEntities.FirstOrDefault(r => r.Key.SchemaName == AccountDefinition.OneToManyRelationships.contact_account)"));
+        Assert.That(source, Does.Contain("var relatedModel = ContactModel.ToBindingModel(relatedEntity);"));
+        Assert.That(source, Does.Contain("model.Contacts.Add(relatedModel);"));
+    }
+
+    [Test]
+    public void ChildRelationship_WritesItsItemsAsRelatedEntities()
+    {
+        var source = GenerateAccountWithContactsModel();
+
+        Assert.That(source, Does.Contain("if (Contacts != null)"));
+        Assert.That(source, Does.Contain("relatedCollection.Entities.Add(item.ToEntity(service));"));
+        Assert.That(source, Does.Contain(
+            "entity.RelatedEntities[new Microsoft.Xrm.Sdk.Relationship(AccountDefinition.OneToManyRelationships.contact_account) "
+            + "{ PrimaryEntityRole = Microsoft.Xrm.Sdk.EntityRole.Referenced }] = relatedCollection;"));
+    }
+
+    /// <summary>
+    /// A relationship property is a collection of related records, not a single value: it has to
+    /// be declared as <c>List&lt;T&gt;</c>, the same way a multi-select column already is.
+    /// </summary>
+    [Test]
+    public void ChildRelationship_NotDeclaredAsAList_IsReported()
+    {
+        const string model = """
+{
+  "tName": "account",
+  "Name": "AccountWithContactsModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [ { "Name": "Contacts", "Type": "ContactModel", "LogN": "contact_account" } ]
+}
+""";
+
+        var diagnostics = TestHelper.Diagnose<ModelSourceFileGenerator>(
+            ("Model/Definitions/Account.table", Resource("Account.table")),
+            ("Model/Definitions/Contact.table", Resource("Contact.table")),
+            ("Model/Definitions/OptionSets.table", Resource("OptionSet.table")),
+            ("Model/ContactModel.model", Resource("ContactModel.model")),
+            ("Model/AccountWithContactsModel.model", model));
+
+        Assert.That(diagnostics.Select(d => d.Id), Does.Contain("XRM1006"));
+    }
 }

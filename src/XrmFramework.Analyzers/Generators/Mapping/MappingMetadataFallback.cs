@@ -96,6 +96,75 @@ internal static class MappingMetadataFallback
                         : $"\"{relation.EntityName}\"";
                 }
             }
+
+            if (property.IsEmbeddedLookupModel)
+            {
+                CompleteEmbeddedLookup(property, table, tables, column);
+            }
+        }
+
+        if (model.DefinitionName != null && model.AlternateKeys.IsEmpty)
+        {
+            CompleteAlternateKeys(model, tables);
+        }
+    }
+
+    /// <summary>
+    ///     The model's own table's alternate keys whose every column this class actually maps — a
+    ///     key none of whose columns the class writes could never be satisfied, so resolving it at
+    ///     runtime would only ever be dead code. Resolved independent of whether each property's
+    ///     own metadata came from a symbol or from this same fallback: either way its column is
+    ///     found the same way, by the definition constant it was written against.
+    /// </summary>
+    private static void CompleteAlternateKeys(MappingModel model, TableCollection tables)
+    {
+        var ownTable = FindTable(tables, model.DefinitionName!);
+        if (ownTable == null) return;
+
+        var mappedColumnNames = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var property in model.Properties)
+        {
+            var definitionName = property.DefinitionName ?? model.DefinitionName;
+            if (definitionName == null || property.ColumnLeafName == null) continue;
+
+            var table = FindTable(tables, definitionName);
+            var column = table?.Columns.FirstOrDefault(c => c.Name == property.ColumnLeafName);
+
+            if (column != null)
+            {
+                mappedColumnNames.Add(column.LogicalName);
+            }
+        }
+
+        model.AlternateKeys = ownTable.Keys
+            .Select(k => k.FieldNames.ToImmutableArray())
+            .Where(k => k.Length > 0 && k.All(mappedColumnNames.Contains))
+            .ToImmutableArray();
+    }
+
+    /// <summary>
+    /// Resolves which of a lookup column's relationships is the one a <c>LookupTargetModel</c>-
+    /// equivalent property embeds: the one whose target is the embedded model's own table, read
+    /// from that model's <c>[CrmEntity]</c> via <see cref="MappingProperty.EmbeddedTargetDefinitionName"/>.
+    /// </summary>
+    private static void CompleteEmbeddedLookup(MappingProperty property, Table table, TableCollection tables, Column column)
+    {
+        var relations = table.ManyToOneRelationships
+            .Where(r => r.LookupFieldName == column.LogicalName)
+            .ToList();
+
+        property.EmbeddedIsPolymorphic = relations.Count > 1;
+
+        if (property.EmbeddedTargetDefinitionName == null) return;
+
+        var embeddedTargetTable = FindTable(tables, property.EmbeddedTargetDefinitionName);
+        if (embeddedTargetTable == null) return;
+
+        var relation = relations.FirstOrDefault(r => r.EntityName == embeddedTargetTable.LogicalName);
+        if (relation != null)
+        {
+            property.EmbeddedRelationshipName = relation.Name;
         }
     }
 

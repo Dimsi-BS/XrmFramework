@@ -4,6 +4,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Immutable;
 using System.Text;
 using Model.Sdk;
 
@@ -98,8 +99,37 @@ internal static class MappingEmitter
             WriteReadFromEntity(sb, prop);
         }
 
+        foreach (var rel in model.Relationships)
+        {
+            sb.Line();
+            WriteRelationshipRead(sb, rel);
+        }
+
         sb.Line();
         sb.Line("return model;");
+        sb.CloseBrace();
+    }
+
+    /// <summary>
+    /// Reads a one-to-many relationship's related entities by the relationship's schema name —
+    /// mirroring the reflection mapper's own lookup, rather than <c>RelatedEntities</c>'
+    /// dictionary equality, which a bare <see cref="Microsoft.Xrm.Sdk.Relationship"/> key cannot
+    /// be trusted to match against one the platform filled in without a role.
+    /// </summary>
+    private static void WriteRelationshipRead(CodeWriter sb, MappingRelationship rel)
+    {
+        sb.Line($"// {rel.Name} — one-to-many relationship");
+        sb.OpenBrace();
+        sb.Line($"var relatedPair = entity.RelatedEntities.FirstOrDefault(r => r.Key.SchemaName == {rel.RelationshipRef});");
+        sb.Line("if (relatedPair.Key != null)");
+        sb.OpenBrace();
+        sb.Line("foreach (var relatedEntity in relatedPair.Value?.Entities ?? Enumerable.Empty<Entity>())");
+        sb.OpenBrace();
+        sb.Line($"var relatedModel = {rel.ElementTypeName}.ToBindingModel(relatedEntity);");
+        sb.Line("if (relatedModel != null)");
+        sb.Indent(); sb.Line($"model.{rel.Name}.Add(relatedModel);"); sb.Dedent();
+        sb.CloseBrace();
+        sb.CloseBrace();
         sb.CloseBrace();
     }
 
@@ -137,6 +167,17 @@ internal static class MappingEmitter
         if (prop.AliasedValueRef != null)
         {
             return $"entity.GetAliasedValue<{prop.TypeName}>({prop.AliasedValueRef})";
+        }
+
+        if (prop.IsEmbeddedLookupModel)
+        {
+            var relationshipRef = prop.EmbeddedRelationshipName != null
+                ? $"\"{prop.EmbeddedRelationshipName}\""
+                : "null";
+            var isPolymorphic = prop.EmbeddedIsPolymorphic ? "true" : "false";
+
+            return $"{prop.EmbeddedModelTypeName}.ToBindingModel("
+                 + $"entity.GetEmbeddedLookupEntity({prop.ColumnRef}, {isPolymorphic}, {relationshipRef}))";
         }
 
         return prop.AttrType switch
@@ -216,8 +257,78 @@ internal static class MappingEmitter
             WriteSetOnEntity(sb, prop, model.IsBindingModelBase);
         }
 
+        foreach (var rel in model.Relationships.Where(r => r.IsValidForUpdate))
+        {
+            sb.Line();
+            WriteRelationshipWrite(sb, rel);
+        }
+
+        if (!model.AlternateKeys.IsEmpty)
+        {
+            sb.Line();
+            WriteAlternateKeyResolution(sb, model.AlternateKeys);
+        }
+
         sb.Line();
         sb.Line("return entity;");
+        sb.CloseBrace();
+    }
+
+    /// <summary>
+    /// Populates <c>entity.KeyAttributes</c> from the smallest alternate key whose columns all got
+    /// a non-null value, when nothing set a real <c>Id</c> — an upsert-by-key request otherwise has
+    /// nothing to key on. Mirrors the reflection mapper's <c>KeyInfos</c>: among the keys every
+    /// column of which was actually written, the one with the fewest columns wins, first declared
+    /// breaking a tie. Checked against the finished <c>Entity</c> rather than tracked as each
+    /// attribute is written — equivalent, since a column's last write is the only one that survives
+    /// into it, and simpler than threading a tracker through every property and extension.
+    /// </summary>
+    private static void WriteAlternateKeyResolution(CodeWriter sb, ImmutableArray<ImmutableArray<string>> alternateKeys)
+    {
+        sb.Line("// Alternate key — only when nothing set a real Id");
+        sb.Line("if (entity.Id == Guid.Empty)");
+        sb.OpenBrace();
+        sb.Line("string[] smallestKey = null;");
+
+        for (var i = 0; i < alternateKeys.Length; i++)
+        {
+            var columns = string.Join(", ", alternateKeys[i].Select(c => $"\"{c}\""));
+            sb.Line($"var key{i} = new[] {{ {columns} }};");
+            sb.Line($"if (key{i}.All(c => entity.Contains(c) && entity[c] != null) "
+                  + $"&& (smallestKey == null || key{i}.Length < smallestKey.Length))");
+            sb.Indent(); sb.Line($"smallestKey = key{i};"); sb.Dedent();
+        }
+
+        sb.Line("if (smallestKey != null)");
+        sb.OpenBrace();
+        sb.Line("foreach (var keyColumn in smallestKey)");
+        sb.Indent(); sb.Line("entity.KeyAttributes[keyColumn] = entity[keyColumn];"); sb.Dedent();
+        sb.CloseBrace();
+        sb.CloseBrace();
+    }
+
+    /// <summary>
+    /// Writes a one-to-many relationship's items as an <c>EntityCollection</c> under
+    /// <c>entity.RelatedEntities</c>, mirroring the reflection mapper's <c>WriteRelationships</c>:
+    /// unconditional whenever the property is non-null, empty list included.
+    /// </summary>
+    /// <remarks>
+    /// <c>Relationship</c> and <c>EntityRole</c> are spelled out fully qualified: the generated
+    /// file's <c>using XrmFramework;</c> brings in XrmFramework's own same-named
+    /// <c>Relationship</c>/<c>EntityRole</c> (used by the generated <c>[Relationship]</c> attribute
+    /// on <c>*Definition</c> classes) alongside the SDK's, and a bare reference to either would be
+    /// ambiguous — exactly why the reflection mapper aliases them instead.
+    /// </remarks>
+    private static void WriteRelationshipWrite(CodeWriter sb, MappingRelationship rel)
+    {
+        sb.Line($"// {rel.Name} — one-to-many relationship");
+        sb.Line($"if ({rel.Name} != null)");
+        sb.OpenBrace();
+        sb.Line("var relatedCollection = new EntityCollection();");
+        sb.Line($"foreach (var item in {rel.Name})");
+        sb.Indent(); sb.Line("relatedCollection.Entities.Add(item.ToEntity(service));"); sb.Dedent();
+        sb.Line($"entity.RelatedEntities[new Microsoft.Xrm.Sdk.Relationship({rel.RelationshipRef}) "
+              + "{ PrimaryEntityRole = Microsoft.Xrm.Sdk.EntityRole.Referenced }] = relatedCollection;");
         sb.CloseBrace();
     }
 
@@ -243,6 +354,14 @@ internal static class MappingEmitter
         // Read-only: the value belongs to the linked record, and the column it would be
         // written to holds the reference to that record.
         if (prop.AliasedValueRef != null)
+        {
+            return;
+        }
+
+        // Read-only for the same reason: the property carries the related model, not a value the
+        // lookup column itself could hold. Writing the record back through its own model, on its
+        // own table, is a separate call — not something this column's assignment can express.
+        if (prop.IsEmbeddedLookupModel)
         {
             return;
         }
