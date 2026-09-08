@@ -1,0 +1,9 @@
+{
+  "tName": "account",
+  "Name": "AccountWithContactsModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [
+    { "Name": "Name", "Type": "string", "LogN": "name", "UsePropCh": true },
+    { "Name": "Contacts", "Type": "List<ContactModel>", "LogN": "contact_account" }
+  ]
+}

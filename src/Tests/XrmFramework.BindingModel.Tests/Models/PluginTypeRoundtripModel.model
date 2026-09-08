@@ -1,0 +1,12 @@
+{
+  "tName": "plugintype",
+  "Name": "PluginTypeRoundtripModel",
+  "ns": "XrmFramework.BindingModel.Tests.Models",
+  "Cols": [
+    {
+      "LogN": "typename",
+      "Name": "TypeName",
+      "Type": "string"
+    }
+  ]
+}

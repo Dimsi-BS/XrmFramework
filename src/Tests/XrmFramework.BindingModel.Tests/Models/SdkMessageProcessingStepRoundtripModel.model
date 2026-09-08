@@ -1,0 +1,13 @@
+{
+  "tName": "sdkmessageprocessingstep",
+  "Name": "SdkMessageProcessingStepRoundtripModel",
+  "ns": "XrmFramework.BindingModel.Tests.Models",
+  "Cols": [
+    {
+      "LogN": "plugintypeid",
+      "Name": "PluginType",
+      "Type": "XrmFramework.BindingModel.Tests.Models.PluginTypeRoundtripModel",
+      "LookupTargetModel": true
+    }
+  ]
+}

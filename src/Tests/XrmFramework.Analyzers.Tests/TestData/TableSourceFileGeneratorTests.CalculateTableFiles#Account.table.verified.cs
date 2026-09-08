@@ -47,6 +47,11 @@ namespace XrmFramework
             public const string Name = "name";
 
         }
+        public static class OneToManyRelationships
+        {
+            [Relationship(ContactDefinition.EntityName, EntityRole.Referenced, "contact_account", ContactDefinition.Columns.AccountId)]
+            public const string contact_account = "contact_account";
+        }
     }
 
     [OptionSetDefinition(AccountDefinition.EntityName, AccountDefinition.Columns.AccountCategoryCode)]

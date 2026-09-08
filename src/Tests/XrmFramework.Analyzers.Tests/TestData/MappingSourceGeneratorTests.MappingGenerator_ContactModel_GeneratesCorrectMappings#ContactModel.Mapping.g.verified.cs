@@ -60,6 +60,20 @@ partial class ContactModel
         if (entity.Contains(ContactDefinition.Columns.AccountId))
             model.AccountId = entity.GetAttributeValue<EntityReference>(ContactDefinition.Columns.AccountId)?.Id ?? Guid.Empty;
 
+        // ChildContacts — one-to-many relationship
+        {
+            var relatedPair = entity.RelatedEntities.FirstOrDefault(r => r.Key.SchemaName == ContactDefinition.OneToManyRelationships.contact_children);
+            if (relatedPair.Key != null)
+            {
+                foreach (var relatedEntity in relatedPair.Value?.Entities ?? Enumerable.Empty<Entity>())
+                {
+                    var relatedModel = ContactModel.ToBindingModel(relatedEntity);
+                    if (relatedModel != null)
+                        model.ChildContacts.Add(relatedModel);
+                }
+            }
+        }
+
         return model;
     }
 
@@ -92,6 +106,15 @@ partial class ContactModel
         entity[ContactDefinition.Columns.AccountId] = AccountId != Guid.Empty
             ? new EntityReference(AccountDefinition.EntityName, AccountId)
             : null;
+
+        // ChildContacts — one-to-many relationship
+        if (ChildContacts != null)
+        {
+            var relatedCollection = new EntityCollection();
+            foreach (var item in ChildContacts)
+                relatedCollection.Entities.Add(item.ToEntity(service));
+            entity.RelatedEntities[new Microsoft.Xrm.Sdk.Relationship(ContactDefinition.OneToManyRelationships.contact_children) { PrimaryEntityRole = Microsoft.Xrm.Sdk.EntityRole.Referenced }] = relatedCollection;
+        }
 
         return entity;
     }

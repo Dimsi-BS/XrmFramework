@@ -1,0 +1,17 @@
+{
+  "tName": "systemuser",
+  "Name": "SystemUserModel",
+  "ns": "XrmFramework.BindingModel.Tests.Models",
+  "Cols": [
+    {
+      "Name": "FullName",
+      "Type": "string",
+      "LogN": "fullname"
+    },
+    {
+      "Name": "AzureActiveDirectoryObjectId",
+      "Type": "Guid?",
+      "LogN": "azureactivedirectoryobjectid"
+    }
+  ]
+}

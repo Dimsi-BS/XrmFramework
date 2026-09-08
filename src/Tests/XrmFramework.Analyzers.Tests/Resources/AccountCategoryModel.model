@@ -1,0 +1,8 @@
+{
+  "tName": "account",
+  "Name": "AccountCategoryModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [
+    { "Name": "Category", "Type": "AccountCategoryCode?", "LogN": "accountcategorycode", "UsePropCh": true }
+  ]
+}

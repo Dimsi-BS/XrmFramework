@@ -725,6 +725,124 @@ Implementation: [`TableSyncHelper.Sync`](../XrmFramework.DeployUtils/TableSyncHe
 
 ---
 
+### `xrmframework migrate sync-models` ✅ *(available)* — `.model` files from hand-written binding models
+
+Unlike `sync-tables`, **not a one-time upgrade** — a `.model` file has no local edits or pulled CRM
+metadata to reconcile with, so each run simply (re)writes the file for every class still found. Run
+it once to bulk-convert a project's binding models, or repeatedly while a handful migrate at a time.
+
+#### What it does
+
+A `.model` file is a declarative stand-in for a hand-written `IBindingModel` class:
+[`ModelSourceFileGenerator`](../XrmFramework.Analyzers/Generators/ModelSourceFileGenerator.cs)
+reads it, together with the project's `.table` files, and emits the exact same shape of class —
+`[CrmMapping]` / `[CrmLookup]` properties, `ToBindingModel` / `ToEntity` — at compile time. This
+command performs the reverse step: it reflects over an assembly's classes decorated with
+`[CrmEntity]` that implement `IBindingModel`, and for each one writes the `.model` file that
+reproduces it — column mappings, lookup projections and disambiguation, `LookupTargetModel`
+(detected from a property's own type, no `[CrmLookup]` needed), `[ExtendBindingModel]`,
+`[ChildRelationship]`, and `[JsonProperty]` / `[JsonIgnore]` renames.
+
+Like `sync-tables`, attribute types are matched **by simple name**, never resolved and
+instantiated — the assembly being analyzed references its own copy of XrmFramework, whose version
+need not match the one this tool was built against.
+
+A class is left alone — reported as `Skipped`, with a reason, rather than written — in three cases:
+
+- it already carries `[GeneratedCode("XrmFramework", ...)]`: `ModelSourceFileGenerator` or
+  `TableSourceFileGenerator` already produced it, so there is nothing hand-written left to recover;
+- it extends something other than `BindingModelBase` by hand (a project's own shared base class, say):
+  `ModelSourceFileGenerator` always emits `partial class X : BindingModelBase`, so converting it would
+  break the build (CS0263) rather than migrate it — it stays hand-written, which
+  `MappingSourceGenerator` already supports directly, without needing a `.model` file;
+- it lives in the one namespace the framework itself ships a hand-written binding model under
+  (`XrmFramework.Model` — `EnvironmentVariable`, at the time of writing): `XrmFramework`'s own NuGet
+  package ships its `.cs` files as `contentFiles`, compiled directly into the consuming project's own
+  assembly, so such a class shows up in the DLL exactly like a project-authored one — writing a
+  `.model` file for it would regenerate an incomplete shadow of a class the framework already
+  provides in full.
+
+```bash
+xrmframework migrate sync-models --dll <path.dll> --models-dir <directory> [--source-dir <directory>]
+```
+
+| Option | Required | Description |
+|---|:---:|---|
+| `--dll <PATH>` | ✅ | Assembly containing the hand-written binding model classes. |
+| `--models-dir <DIRECTORY>` | ✅ | Directory the `.model` files are written into — created if it does not exist yet. |
+| `--source-dir <DIRECTORY>` | ❌ | Directory holding the hand-written `.cs` files (searched recursively). Strips the now-redundant properties from each class a `.model` file was written for — see below. |
+
+**Example**
+
+```bash
+xrmframework migrate sync-models --dll bin/Release/net8.0/MyProject.Core.dll \
+                                 --models-dir ../MyProject.Core/Model \
+                                 --source-dir ../MyProject.Core/Model
+```
+
+#### `--source-dir`: stripping the hand-written classes
+
+Once a `.model` file exists for a class, `ModelSourceFileGenerator` emits a `partial` class of the
+same name carrying the same `[CrmMapping]` / `[ChildRelationship]` / `[ExtendBindingModel]`
+properties. Left in the hand-written `.cs` file, they become duplicate members — the project no
+longer compiles. `--source-dir` performs the other half of the migration: for each class a `.model`
+file was written for, it scans the directory (recursively — a `.model` names a class, not a file, so
+there is no fixed naming convention to look the source up by) for a `.cs` file declaring it, and
+strips:
+
+- the mapped properties themselves;
+- the class-level `[CrmEntity]` attribute, and, if present, `[GeneratedCode]` /
+  `[ExcludeFromCodeCoverage]` / `[JsonObject]` — none of them allows multiple use, so leaving them
+  would break the build (CS0579) once the generated partial carries its own copy.
+
+Anything else the project added by hand — helper methods, computed properties, additional
+constructors — is not something the generator produces, so it is left alone. If something survives,
+the class is marked `partial` (if it was not already) and the file is renamed `*.partial.cs`, the
+same convention `migrate sync-tables` uses for a `*Definition.cs` that survives its own migration
+— [`DefinitionFileMigrator`](#xrmframework-migrate-sync-tables--available--migration-from-2-to-31).
+If nothing survives at all (no hand-declared `Id`, no custom logic), the file is deleted instead — a
+`.model`-only class needs nothing beside the generated partial. A class named in no file under
+`--source-dir` is reported and left alone: its `.model` file was still written.
+
+> A hand-written `Id` property is not stripped, even when the class did not already derive
+> `BindingModelBase` (`ModelSourceFileGenerator`'s generated partial always does) — it becomes
+> `CS0114` ("hides inherited member"), a warning, not an error. Add `new` to it, or remove it by
+> hand, once you have looked at the diff.
+
+#### Two classes sharing a name
+
+`.model` files name the class they nest or embed by class name — `Type`, not a path — the same
+convention `ModelSourceFileGenerator` already uses for `ExtendBindingModel` and `LookupTargetModel`.
+If the assembly declares two classes named alike in different namespaces, writing them both to
+`{Name}.model` would silently overwrite one with the other: the command detects this and **skips**
+the pair with a warning naming both namespaces, rather than guessing which one to keep. Rename one
+of them and re-run.
+
+#### What does not round-trip
+
+A hand-written property's *body* — whether its setter happens to call `OnPropertyChanged()` — is
+not something reflection can see; the `.model`'s `UsePropCh` is instead read off `[CrmMapping]`'s
+`IsValidForUpdate`, which is the value that actually matters for the generated mapping. Likewise, a
+`[CrmLookup]`'s `RelationshipName` (naming one specific relationship among several reaching the same
+target table) and `CrmMappingAttribute.LookupInfo` have no `.model` equivalent yet and are not
+carried over — a narrow, rare edge case, not the common path this command exists for.
+
+**Exit codes**
+
+| Code | Meaning |
+|:---:|---|
+| `0` | Success — including "no binding model found". |
+| `2` | DLL not found. |
+| `3` | Unexpected error (the stack trace is displayed). |
+| `1` / `-1` | Argument parsing / validation error (Spectre). |
+
+Implementation: [`ModelSyncHelper.Sync`](../XrmFramework.DeployUtils/ModelSyncHelper.cs)
+-> [`ModelDefinitionAnalyzer`](../XrmFramework.DeployUtils/ModelSync/ModelDefinitionAnalyzer.cs)
++ [`ModelSourceMigrator`](../XrmFramework.DeployUtils/ModelSync/ModelSourceMigrator.cs)
++ [`BindingModelSourceRewriter`](../XrmFramework.DeployUtils/ModelSync/BindingModelSourceRewriter.cs).
+
+---
+
 ## Roadmap
 
 Target command tree (✅ exist, 🚧 are upcoming):
@@ -745,12 +863,15 @@ xrmframework
 │   ├── plugins        ✅  deploys a plugins / custom API / workflow assembly
 │   └── webresources   🚧  deploys the webresources
 └── migrate
-    └── sync-tables    ✅  migration 2.* -> 3.1+, run once         (offline)
+    ├── sync-tables    ✅  migration 2.* -> 3.1+, run once         (offline)
+    └── sync-models    ✅  .model ← hand-written IBindingModel classes (offline)
 ```
 
-`migrate` stands apart from `tables` and `deploy`: its command rewrites the project's own
-sources once and is not part of the day-to-day loop — `sync-tables` is the upgrade path
-from 2.\*. Routine work is `pull` (rich metadata from the environment) plus the local edits
+`migrate` stands apart from `tables` and `deploy`: each command here rewrites the project's own
+sources from what an assembly's classes declare, rather than from the environment or from local
+edits. `sync-tables` is a one-time upgrade path from 2.\*; `sync-models` is not — a `.model` file
+has nothing to reconcile with, so it can be run once to bulk-convert or repeatedly as more classes
+migrate. Routine work is `pull` (rich metadata from the environment) plus the local edits
 `tables columns` and `tables optionsets` make scriptable: column selection and C# naming in the
 `.table`.
 

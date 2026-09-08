@@ -21,10 +21,18 @@ expected all surface as a build diagnostic with a one-click fix where possible.
   - [XRM0200](#xrm0200)
 - [Usage rules](#usage-rules)
   - [XRM0300](#xrm0300)
+- [`.model` field reference](#model-field-reference)
 - [Source generator diagnostics](#source-generator-diagnostics)
   - [XRM1002](#xrm1002)
   - [XRM1003](#xrm1003)
   - [XRM1004](#xrm1004)
+  - [XRM1005](#xrm1005)
+  - [XRM1006](#xrm1006)
+  - [XRM1007](#xrm1007)
+  - [XRM1008](#xrm1008)
+  - [XRM1009](#xrm1009)
+  - [XRM1010](#xrm1010)
+  - [XRM1011](#xrm1011)
   - [XRM2001](#xrm2001)
 - [Reserved identifiers](#reserved-identifiers)
 
@@ -100,6 +108,13 @@ AddStep(Stages.PostOperation, Messages.Update, Modes.Synchronous, AccountDefinit
 | [XRM1002](#xrm1002) | EnumGenerator failure | XrmFramework.Generators | 🔴 Error | — |
 | [XRM1003](#xrm1003) | Conflicting names for one option set | XrmFramework.Generators | 🔴 Error | — |
 | [XRM1004](#xrm1004) | Option set member the enum cannot declare | XrmFramework.Generators | 🔴 Error | — |
+| [XRM1005](#xrm1005) | Model references an unknown table | XrmFramework.Generators | 🔴 Error | — |
+| [XRM1006](#xrm1006) | Model property cannot be mapped to a column | XrmFramework.Generators | 🔴 Error | — |
+| [XRM1007](#xrm1007) | Lookup property without a relationship | XrmFramework.Generators | 🔴 Error | — |
+| [XRM1008](#xrm1008) | Malformed `.model` file | XrmFramework.Generators | 🔴 Error | — |
+| [XRM1009](#xrm1009) | Model property type does not match its column | XrmFramework.Generators | 🟡 Warning | — |
+| [XRM1010](#xrm1010) | Ambiguous lookup target | XrmFramework.Generators | 🔴 Error | — |
+| [XRM1011](#xrm1011) | Invalid model extension | XrmFramework.Generators | 🔴 Error | — |
 | [XRM2001](#xrm2001) | MappingGenerator failure | XrmFramework.Generators | 🟡 Warning | — |
 
 ---
@@ -283,10 +298,22 @@ public partial class AccountModel : IBindingModel { ... }
 ```
 
 ```csharp
-// ✅
+// ✅ preferred — names the definition class itself
+[CrmEntity(typeof(AccountDefinition))]
+public partial class AccountModel : IBindingModel { ... }
+```
+
+```csharp
+// ✅ also accepted
 [CrmEntity(AccountDefinition.EntityName)]
 public partial class AccountModel : IBindingModel { ... }
 ```
+
+> **Prefer the `typeof` form.** Both carry the same logical name at runtime — the attribute reads
+> the definition's `EntityName` constant — but `typeof` lets the mapping generator find the table
+> without resolving a constant, which matters in the project that owns the `.table` files: there
+> the definition class is generated in the same pass, so its constants are not resolvable while
+> the mapping is being generated.
 
 **Message:** `Use Definition class .EntityName in CrmEntityAttribute declaration`
 
@@ -339,6 +366,140 @@ parameter**; for services it injects the provider through the **constructor** (o
 `_dateTimeProvider.Now` / `.UtcNow` / `.Today`.
 
 **Message:** `Replace '{0}' with IDateTimeProvider.{1} — inject IDateTimeProvider as a method parameter`
+
+---
+
+## `.model` field reference
+
+A `.model` file declares a `BindingModelBase` class the way a `.table` file declares a `*Definition`
+class: JSON in, a generated `.cs` partial class out — here, the class carries `[CrmMapping]` /
+`[CrmLookup]` properties and a `ToBindingModel` / `ToEntity` pair instead of column constants. The
+diagnostics below (XRM1005–XRM1011, XRM2001) each explain one failure mode with a worked example;
+this section is the field-by-field reference to read alongside them.
+
+```json
+{
+  "tName": "account",
+  "Name": "AccountModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [
+    { "Name": "Name", "Type": "string", "LogN": "name", "UsePropCh": true },
+    { "Name": "Category", "Type": "AccountCategoryCode?", "LogN": "accountcategorycode" }
+  ]
+}
+```
+
+Top-level fields:
+
+| Field | Meaning |
+|---|---|
+| `tName` | Logical name of the `.table` this model is generated against. No matching `.table` → [XRM1005](#xrm1005). |
+| `Name` | Name of the generated class, and the `[CrmEntity(typeof({Name}Definition))]` it carries. |
+| `ns` | Namespace of the generated class. Falls back to `ProjectModels` when omitted or empty. |
+| `Cols` | The properties to generate — one entry per property, in declaration order. |
+
+Each entry of `Cols` maps one property:
+
+| Field | Meaning |
+|---|---|
+| `Name` | The generated property's name. |
+| `Type` | The property's C# type as text: `string`, `int?`, `List<ContactInterest>`, another `.model`'s class name (for `LookupTargetModel` / `ExtendBindingModel`). Checked against the column's actual type — mismatches are [XRM1009](#xrm1009). |
+| `LogN` | Logical name of the column this property maps. Required for an ordinary column or a one-to-many relationship property; omitted for an `ExtendBindingModel` property, which maps no column of its own. Unknown or unselected → [XRM1006](#xrm1006). |
+| `UsePropCh` | Default `true`. Governs two things at once: whether the setter is field-backed and raises `OnPropertyChanged()`, and whether `[CrmMapping]` gets `IsValidForUpdate = false` (excluding the column from `ToEntity`). Set to `false` for platform-managed, read-only columns such as `createdon` — see `DebugSessionModel.model` under `src/Tests/.../Models`. Has no effect on an `ExtendBindingModel` property, which is always a plain `{ get; set; }`; on a one-to-many relationship property it instead becomes `[ChildRelationship(..., IsValidForUpdate = false)]`, excluding the whole collection from `ToEntity`. |
+| `LookupTargetTableLogicalName` | Disambiguates a **polymorphic** lookup (`customerid`, `regardingobjectid`, an `Owner` column) by naming the table it points at for this property; also the only way to route an `Owner` column to `systemuser` or `team`. Required whenever the lookup reaches more than one table — otherwise [XRM1010](#xrm1010). |
+| `LookupTargetColumnLogicalName` | Projects one column of the record behind the lookup onto this property (read through a `LinkEntity` aliased on the lookup column — read-only). Mutually exclusive with `LookupTargetModel`. |
+| `LookupTargetModel` | Default `false`. Loads the **full** record behind the lookup into another binding model — `Type` names that model's class, the same field an `ExtendBindingModel` property uses to name what it nests — instead of projecting a single column. Read-only: the property is never written back to the lookup column. Mutually exclusive with `LookupTargetColumnLogicalName`. |
+| `ExtendBindingModel` | Default `false`. Nests another `.model` (named by `Type`) over the **same** record — what keeps part of a payload as `"prospect": { … }` instead of flattening it. That other model must target the same `tName`, or [XRM1011](#xrm1011). |
+| `FollowLink` | Default `false`. Lets the query builder follow this lookup beyond the first level; below that depth it stops unless asked, which is what keeps a model from dragging in the whole graph. |
+| `AllowNotExisting` | Default `false`. Tolerates a targeted record that does not exist instead of failing the mapping — third argument of the generated `[CrmLookup]`. |
+| `JsonPropertyName` | Emits `[JsonProperty("...")]`, renaming the property in JSON without renaming the C# member. |
+| `JsonIgnore` | Default `false`. Emits `[JsonIgnore]`. |
+
+`JsonConverterType`, `JsonConverterConstructorArguments`, `ModelConverterType`,
+`ModelConverterConstructorArguments` (per property) and `JsonMemberSerializationStrategy`
+(top-level) deserialize without error but are **not read by the generator** — setting them has no
+effect on the generated class. Do not rely on them.
+
+An `ExtendBindingModel` property nests a sibling model that must itself be declared by another
+`.model` file targeting the same table:
+
+```json
+// AccountCategoryModel.model — the nested shape
+{ "tName": "account", "Name": "AccountCategoryModel", "ns": "Contoso.Core.Model",
+  "Cols": [ { "Name": "Category", "Type": "AccountCategoryCode?", "LogN": "accountcategorycode" } ] }
+
+// AccountWithCategoryModel.model — the parent, carrying it under "category"
+{
+  "tName": "account",
+  "Name": "AccountWithCategoryModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [
+    { "Name": "Name", "Type": "string", "LogN": "name" },
+    { "Name": "CategoryInfo", "Type": "AccountCategoryModel", "ExtendBindingModel": true, "JsonPropertyName": "category" }
+  ]
+}
+```
+
+Both are read from — and written to — the **same** `account` row: `AccountWithCategoryModel.ToBindingModel`
+fills `CategoryInfo` with `AccountCategoryModel.ToBindingModel(entity)` on that same `Entity`, and
+`ToEntity` merges `CategoryInfo`'s own `ToEntity()` into the parent's before returning it.
+
+`LookupTargetModel` loads a *different* record — the one behind a lookup — into another model,
+rather than nesting one over the same row:
+
+```json
+{ "Name": "Owner", "Type": "SystemUserModel", "LogN": "ownerid", "LookupTargetModel": true }
+```
+
+`Type` names the embedded model's class, exactly as it does for `ExtendBindingModel` — there is no
+separate field to keep in sync with it. `ToBindingModel` fills `Owner` with
+`SystemUserModel.ToBindingModel(entity.GetEmbeddedLookupEntity(...))`, reading either the aliased
+columns a query's `LinkEntity` join brought back or, failing that, `RelatedEntities`; `ToEntity`
+never writes it back — the property carries the related record, not a value the lookup column
+itself could hold. A polymorphic lookup (`Customer`, `Owner`, `regardingobjectid`) needs
+`LookupTargetTableLogicalName` to say which table is meant, same as for a plain lookup — see
+[XRM1010](#xrm1010).
+
+`LogN` can also name a **one-to-many relationship** instead of a column — a `ChildRelationship`
+property, read from a *different* set of records than the one the model itself maps:
+
+```json
+{
+  "tName": "account",
+  "Name": "AccountWithContactsModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [
+    { "Name": "Name", "Type": "string", "LogN": "name" },
+    { "Name": "Contacts", "Type": "List<ContactModel>", "LogN": "contact_account" }
+  ]
+}
+```
+
+`Type` has to be the full `List<T>` the property will hold — the same convention a multi-select
+column's `Type` already follows — where `T` is another `.model`'s class. Declared as anything else,
+it is [XRM1006](#xrm1006): a relationship is a collection of related records, not a single value.
+`ToBindingModel` populates the list from the entities the relationship returns (matched by the
+relationship's schema name, not by which record the model itself was built from); `ToEntity` writes
+the list back as `entity.RelatedEntities`, one nested `ToEntity()` call per item — unconditionally
+whenever the property is non-null, empty list included, unless `UsePropCh` is set to `false`.
+
+### Alternate keys
+
+No `.model` field controls this — it follows automatically from the `.table`'s own **alternate
+keys**. When the table declares one and the model maps every column it rests on, the generated
+`ToEntity()` populates `entity.KeyAttributes` from it whenever nothing set a real `Id`, so an
+upsert-by-key request has something to key on:
+
+```csharp
+var entity = model.ToEntity();
+// entity.Id is Guid.Empty, entity.KeyAttributes["azureactivedirectoryobjectid"] is set instead
+```
+
+A table can declare several alternate keys; when more than one is fully satisfied (every one of
+its columns holds a non-null value), the one with the **fewest columns** wins, the first declared
+breaking a tie — the same rule the reflection-based mapper has always used. A key none of whose
+columns the model maps is never emitted at all: it could never be satisfied, so resolving it at
+runtime would only ever be dead code.
 
 ---
 
@@ -423,6 +584,146 @@ keeping either one silently would map one CRM value onto the other.
 Rename the member in the `.table` file declaring the option set — that name belongs to the project.
 
 **Message:** `The option set '{0}' cannot declare the member '{1}' ({2}): {3}. …`
+
+### XRM1005
+
+**Model references an unknown table** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+A `.model` file names a table in its `tName` that no `.table` file in the project declares. The
+generator has nothing to map the model's properties against, so it emits no class at all.
+
+Either add the table (`xrmframework tables pull --table <name>`) or correct `tName`.
+
+**Message:** `Model '{0}' targets table '{1}', which no .table file declares`
+
+---
+
+### XRM1006
+
+**Model property cannot be mapped to a column** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+A property of a `.model` names a column its table does not declare, or names one that is present
+but **not selected**. An unselected column has no constant in the generated `…Definition` class,
+so the mapping could not compile against it.
+
+Select the column (`xrmframework tables columns add`) or correct the property's `LogN`.
+
+The same message is also reported when `LogN` names a real **one-to-many relationship** but the
+property is not declared as `List<T>` — see [`ChildRelationship`](#model-field-reference) below.
+
+**Message:** `Model '{0}': property '{1}' cannot be mapped — {2}`
+
+---
+
+### XRM1007
+
+**Lookup property without a relationship** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+A property maps a lookup column, but the table declares no many-to-one relationship for it, so
+the generator cannot tell which entity the `EntityReference` points at. Usually means the `.table`
+predates the relationship — `tables pull` refreshes it.
+
+**Message:** `Model '{0}': property '{1}' cannot be mapped — {2}`
+
+---
+
+### XRM1008
+
+**Malformed `.model` file** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+A `.model` could not be read. The message carries the parser's own explanation.
+
+**Message:** `'{0}' could not be read as a model: {1}`
+
+---
+
+
+### XRM1009
+
+**Model property type does not match its column** · Category `XrmFramework.Generators` · Severity 🟡 **Warning**
+
+The C# type a `.model` gives a property cannot hold the value of the column it maps to. The
+mapping is still generated — hence a warning — but it will not do what it looks like it does:
+
+```json
+{ "Name": "Revenue", "Type": "int", "LogN": "revenue" }
+```
+
+`revenue` is a `Money`, so the generated read is `entity.GetAttributeValue<int>(…)`, which returns
+`0` forever because the attribute holds a `Money`. The mapping compiles, runs, and is silently
+wrong — which is why this is checked at all.
+
+What each column kind accepts:
+
+| Column | C# type |
+|---|---|
+| `Money` | `decimal`, `decimal?`, `Money` |
+| `Lookup` / `Customer` / `Owner` | `Guid`, `Guid?`, `EntityReference` |
+| `Picklist` / `State` / `Status` | the generated enum, `int`, `OptionSetValue` |
+| multi-select | `List<TheGeneratedEnum>` |
+| `DateTime` | `DateTime`, `DateTime?` |
+| `Boolean` | `bool` |
+| `Integer` | `int` |
+| `BigInt` | `long` |
+| `Double` | `double` |
+| `Decimal` | `decimal` |
+| `String` / `Memo` | `string` |
+| `Uniqueidentifier` | `Guid` |
+
+`PartyList`, `CalendarRules`, `ManagedProperty` and a non-multi-select `Virtual` have no single
+natural mapping and are not checked.
+
+**Message:** `Model '{0}': property '{1}' {2}`
+
+---
+
+
+### XRM1010
+
+**Ambiguous lookup target** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+A `.model` maps a **polymorphic** lookup — `customerid`, `regardingobjectid`, an `Owner` column —
+without saying which table the property points at, or names one the column does not reach.
+
+Such a column declares several many-to-one relationships. Picking one would emit
+`new EntityReference(AccountDefinition.EntityName, id)` for records that actually point at a
+contact, so the model has to choose:
+
+```json
+{ "Name": "Customer", "Type": "Guid?", "LogN": "customerid",
+  "LookupTargetTableLogicalName": "contact" }
+```
+
+A lookup reaching a single table needs nothing: the relationship is unambiguous and the target is
+read from it.
+
+**Message:** `Model '{0}': property '{1}' {2}`
+
+---
+
+
+### XRM1011
+
+**Invalid model extension** · Category `XrmFramework.Generators` · Severity 🔴 **Error**
+
+An `ExtendBindingModel` property carries another binding model over the **same record**. It is
+what keeps part of a payload nested — `"prospect": { … }` — instead of flattening it onto the
+parent, and it maps no column of its own:
+
+```json
+{ "Name": "Prospect", "Type": "ProspectOptionModel", "ExtendBindingModel": true,
+  "JsonPropertyName": "prospect" }
+```
+
+Reported when the property names no model, names one no `.model` file declares, or names one
+targeting a different table. That last case is the one worth stating: both halves are filled from
+one row, so a model on another table has nothing to be filled from. Reading a *different* record
+is what a lookup is for — see `LookupTargetModel`.
+
+**Message:** `Model '{0}': property '{1}' {2}`
+
+---
+
 
 ### XRM2001
 
