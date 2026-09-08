@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -44,6 +45,39 @@ namespace XrmFramework.DeployUtils.ModelSync
 
     public static class ModelDefinitionAnalyzer
     {
+        /// <summary>
+        /// Attribute types <see cref="ExtractProperty"/> already reads into a dedicated
+        /// <see cref="ModelProperty"/> field — never re-emitted a second time into
+        /// <see cref="ModelProperty.Attrs"/>.
+        /// </summary>
+        private static readonly HashSet<string> RecognizedAttributeNames = new(StringComparer.Ordinal)
+        {
+            "CrmMappingAttribute",
+            "CrmLookupAttribute",
+            "ExtendBindingModelAttribute",
+            "ChildRelationshipAttribute",
+            "JsonPropertyAttribute",
+            "JsonIgnoreAttribute",
+        };
+
+        /// <summary>
+        /// Namespaces <c>ModelSourceFileGenerator</c> already imports into every generated file — an
+        /// attribute living in one of these needs no entry of its own in <see cref="CoreModel.Usings"/>.
+        /// </summary>
+        private static readonly HashSet<string> DefaultGeneratedUsings = new(StringComparer.Ordinal)
+        {
+            "System",
+            "System.CodeDom.Compiler",
+            "System.ComponentModel.DataAnnotations",
+            "System.Diagnostics.CodeAnalysis",
+            "System.Collections.Generic",
+            "System.Linq",
+            "Microsoft.Xrm.Sdk",
+            "XrmFramework",
+            "Newtonsoft.Json",
+            "XrmFramework.BindingModel",
+        };
+
         private static readonly Dictionary<Type, string> PrimitiveAliases = new()
         {
             [typeof(bool)] = "bool",
@@ -171,11 +205,18 @@ namespace XrmFramework.DeployUtils.ModelSync
                     ModelNamespace = type.Namespace ?? string.Empty
                 };
 
+                var usings = new HashSet<string>(StringComparer.Ordinal);
+
                 foreach (var property in CollectProperties(type))
                 {
-                    var extracted = ExtractProperty(property);
+                    var extracted = ExtractProperty(property, usings);
                     if (extracted != null)
                         model.Properties.Add(extracted);
+                }
+
+                if (usings.Count > 0)
+                {
+                    model.Usings = usings.OrderBy(ns => ns, StringComparer.Ordinal).ToArray();
                 }
 
                 result.Add(model);
@@ -323,7 +364,7 @@ namespace XrmFramework.DeployUtils.ModelSync
         /// — or <see langword="null"/> when it carries none of them, meaning it plays no part in the
         /// mapping (a plain <c>Id</c>, a computed property, ...).
         /// </summary>
-        private static ModelProperty ExtractProperty(PropertyInfo property)
+        private static ModelProperty ExtractProperty(PropertyInfo property, HashSet<string> usings)
         {
             var attributes = property.GetCustomAttributesData();
 
@@ -335,26 +376,28 @@ namespace XrmFramework.DeployUtils.ModelSync
                     TypeFullName = FormatTypeName(property.PropertyType),
                     ExtendBindingModel = true,
                     JsonPropertyName = ReadJsonPropertyName(attributes),
-                    JsonIgnore = attributes.Any(a => a.AttributeType.Name == "JsonIgnoreAttribute")
+                    JsonIgnore = attributes.Any(a => a.AttributeType.Name == "JsonIgnoreAttribute"),
+                    Attrs = ExtractCustomAttributes(attributes, usings)
                 };
             }
 
             var relationshipAttr = attributes.FirstOrDefault(a => a.AttributeType.Name == "ChildRelationshipAttribute");
             if (relationshipAttr != null)
             {
-                return ExtractRelationshipProperty(property, relationshipAttr);
+                return ExtractRelationshipProperty(property, relationshipAttr, attributes, usings);
             }
 
             var mappingAttr = attributes.FirstOrDefault(a => a.AttributeType.Name == "CrmMappingAttribute");
             if (mappingAttr != null)
             {
-                return ExtractMappedProperty(property, attributes, mappingAttr);
+                return ExtractMappedProperty(property, attributes, mappingAttr, usings);
             }
 
             return null;
         }
 
-        private static ModelProperty ExtractRelationshipProperty(PropertyInfo property, CustomAttributeData relationshipAttr)
+        private static ModelProperty ExtractRelationshipProperty(
+            PropertyInfo property, CustomAttributeData relationshipAttr, IList<CustomAttributeData> attributes, HashSet<string> usings)
         {
             var relationshipName = relationshipAttr.ConstructorArguments.Count > 0
                 ? relationshipAttr.ConstructorArguments[0].Value as string
@@ -372,12 +415,13 @@ namespace XrmFramework.DeployUtils.ModelSync
                 Name = property.Name,
                 TypeFullName = $"List<{FormatTypeName(elementType)}>",
                 LogicalName = relationshipName,
-                IsValidForUpdate = ReadNamedBool(relationshipAttr, "IsValidForUpdate", true)
+                IsValidForUpdate = ReadNamedBool(relationshipAttr, "IsValidForUpdate", true),
+                Attrs = ExtractCustomAttributes(attributes, usings)
             };
         }
 
         private static ModelProperty ExtractMappedProperty(
-            PropertyInfo property, IList<CustomAttributeData> attributes, CustomAttributeData mappingAttr)
+            PropertyInfo property, IList<CustomAttributeData> attributes, CustomAttributeData mappingAttr, HashSet<string> usings)
         {
             var columnLogicalName = mappingAttr.ConstructorArguments.Count > 0
                 ? mappingAttr.ConstructorArguments[0].Value as string
@@ -394,7 +438,8 @@ namespace XrmFramework.DeployUtils.ModelSync
                 FollowLink = ReadNamedBool(mappingAttr, "FollowLink", false),
                 IsValidForUpdate = ReadNamedBool(mappingAttr, "IsValidForUpdate", true),
                 JsonPropertyName = ReadJsonPropertyName(attributes),
-                JsonIgnore = attributes.Any(a => a.AttributeType.Name == "JsonIgnoreAttribute")
+                JsonIgnore = attributes.Any(a => a.AttributeType.Name == "JsonIgnoreAttribute"),
+                Attrs = ExtractCustomAttributes(attributes, usings)
             };
 
             var lookupAttr = attributes.FirstOrDefault(a => a.AttributeType.Name == "CrmLookupAttribute");
@@ -439,8 +484,87 @@ namespace XrmFramework.DeployUtils.ModelSync
         }
 
         // ──────────────────────────────────────────────────────────────────────────
-        //  Small readers
+        //  Attrs / Usings — attributes ExtractProperty has no dedicated field for
         // ──────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Renders every attribute on <paramref name="attributes"/> that <see cref="ExtractProperty"/>
+        /// does not already read into a dedicated <see cref="ModelProperty"/> field — a
+        /// <c>[StringLength]</c>, a <c>[DataMember]</c>, anything project-specific — into
+        /// <see cref="ModelProperty.Attrs"/>, so a round trip through <c>migrate sync-models</c>
+        /// carries them into the <c>.model</c> file rather than silently dropping them. Each one's
+        /// namespace is added to <paramref name="usings"/> unless <c>ModelSourceFileGenerator</c>
+        /// already imports it into every generated file.
+        /// </summary>
+        private static string[] ExtractCustomAttributes(IList<CustomAttributeData> attributes, HashSet<string> usings)
+        {
+            List<string> result = null;
+
+            foreach (var attribute in attributes)
+            {
+                if (RecognizedAttributeNames.Contains(attribute.AttributeType.Name))
+                    continue;
+
+                (result ??= new List<string>()).Add(FormatAttributeUsage(attribute));
+
+                var ns = attribute.AttributeType.Namespace;
+                if (!string.IsNullOrEmpty(ns) && !DefaultGeneratedUsings.Contains(ns))
+                    usings.Add(ns);
+            }
+
+            return result?.ToArray();
+        }
+
+        /// <summary>
+        /// Renders a <see cref="CustomAttributeData"/> the way it would be written back onto the
+        /// generated property — e.g. <c>StringLength(100)</c> or <c>DataMember(Name = "Foo")</c>.
+        /// Never resolves or instantiates the attribute type, for the same reason the rest of this
+        /// class reads by name off raw metadata (see the class remarks).
+        /// </summary>
+        private static string FormatAttributeUsage(CustomAttributeData attribute)
+        {
+            var name = attribute.AttributeType.Name;
+            if (name.EndsWith("Attribute", StringComparison.Ordinal))
+                name = name.Substring(0, name.Length - "Attribute".Length);
+
+            var arguments = new List<string>();
+
+            foreach (var argument in attribute.ConstructorArguments)
+                arguments.Add(FormatAttributeArgument(argument));
+
+            foreach (var argument in attribute.NamedArguments)
+                arguments.Add($"{argument.MemberName} = {FormatAttributeArgument(argument.TypedValue)}");
+
+            return arguments.Count > 0 ? $"{name}({string.Join(", ", arguments)})" : name;
+        }
+
+        /// <summary>
+        /// Formats one constructor or named argument as a C# literal — the same handful of shapes an
+        /// attribute's compile-time-constant arguments can ever take: a primitive, a string, a
+        /// <c>Type</c>, an enum member, or a one-dimensional array of one of those.
+        /// </summary>
+        private static string FormatAttributeArgument(CustomAttributeTypedArgument argument)
+        {
+            if (argument.Value is IList<CustomAttributeTypedArgument> arrayValue)
+                return "new[] { " + string.Join(", ", arrayValue.Select(FormatAttributeArgument)) + " }";
+
+            if (argument.Value == null)
+                return "null";
+
+            if (argument.ArgumentType.IsEnum)
+                return $"{argument.ArgumentType.Name}.{argument.Value}";
+
+            return argument.Value switch
+            {
+                string s => "\"" + s.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"",
+                bool b => b ? "true" : "false",
+                char c => "'" + c + "'",
+                Type t => $"typeof({t.Name})",
+                double d => d.ToString(CultureInfo.InvariantCulture),
+                float f => f.ToString(CultureInfo.InvariantCulture) + "f",
+                _ => Convert.ToString(argument.Value, CultureInfo.InvariantCulture)
+            };
+        }
 
         private static bool ReadNamedBool(CustomAttributeData attribute, string argumentName, bool defaultValue)
         {

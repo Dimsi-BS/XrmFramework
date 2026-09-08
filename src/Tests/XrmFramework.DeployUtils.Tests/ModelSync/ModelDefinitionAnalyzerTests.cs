@@ -166,6 +166,42 @@ public class ModelDefinitionAnalyzerTests
         Assert.IsTrue(accountName.FollowLink);
     }
 
+    // ──────────────────────────────────────────────────────────────────────────
+    // Attrs / Usings — attributes with no dedicated ModelProperty field
+    // ──────────────────────────────────────────────────────────────────────────
+
+    [Test]
+    public void ExtractModels_ReadsUnrecognizedAttributes_AsAttrsVerbatim()
+    {
+        var fullName = Prop(Contact(), nameof(ModelSyncTestContactModel.FullName));
+
+        Assert.That(fullName.Attrs, Is.EquivalentTo(new[] { "StringLength(100)", "DataMember(Name = \"Nom\")" }));
+    }
+
+    [Test]
+    public void ExtractModels_DoesNotReemitARecognizedAttribute_AsAnAttr()
+    {
+        var email = Prop(Contact(), nameof(ModelSyncTestContactModel.Email));
+
+        // [CrmMapping] and [JsonProperty] are already read into their own fields — Attrs must stay
+        // empty, not repeat them.
+        Assert.IsNull(email.Attrs);
+    }
+
+    /// <summary>
+    /// <c>System.Runtime.Serialization</c> (<c>[DataMember]</c>) is not one of the namespaces
+    /// <c>ModelSourceFileGenerator</c> imports by default, so it needs an entry.
+    /// <c>System.ComponentModel.DataAnnotations</c> (<c>[StringLength]</c>) is already one of them
+    /// — see <c>ModelSourceFileGenerator.WriteModelFiles</c> — so it must not be repeated here.
+    /// </summary>
+    [Test]
+    public void ExtractModels_CollectsTheNamespacesUnrecognizedAttributesNeed_IntoUsings()
+    {
+        var model = Contact();
+
+        Assert.That(model.Usings, Is.EquivalentTo(new[] { "System.Runtime.Serialization" }));
+    }
+
     [Test]
     public void ExtractModels_APropertyWithNoRecognizedAttribute_IsNotExtracted()
     {

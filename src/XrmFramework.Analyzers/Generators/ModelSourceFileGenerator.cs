@@ -118,6 +118,14 @@ namespace XrmFramework.Analyzers.Generators
                     sb.AppendLine("using Newtonsoft.Json;");
                     sb.AppendLine("using XrmFramework.BindingModel;");
 
+                    if (model.Usings != null)
+                    {
+                        foreach (var ns in model.Usings)
+                        {
+                            sb.AppendLine($"using {ns};");
+                        }
+                    }
+
                     sb.AppendLine();
 
                     if (model.ModelNamespace != null && model.ModelNamespace != "")
@@ -229,6 +237,7 @@ namespace XrmFramework.Analyzers.Generators
                                     sb.AppendLine("[JsonIgnore]");
                                 }
 
+                                WriteCustomAttributes(sb, prop);
 
                                 if (!prop.IsValidForUpdate)
                                 {
@@ -336,6 +345,8 @@ namespace XrmFramework.Analyzers.Generators
                 sb.AppendLine("[JsonIgnore]");
             }
 
+            WriteCustomAttributes(sb, prop);
+
             sb.AppendLine($"public {prop.TypeFullName} {prop.Name} {{ get; set; }}");
             sb.AppendLine();
         }
@@ -368,8 +379,29 @@ namespace XrmFramework.Analyzers.Generators
                 sb.AppendLine("[JsonIgnore]");
             }
 
+            WriteCustomAttributes(sb, prop);
+
             sb.AppendLine($"public {prop.TypeFullName} {prop.Name} {{ get; set; }} = new {prop.TypeFullName}();");
             sb.AppendLine();
+        }
+
+        /// <summary>
+        ///     Writes each of <see cref="ModelProperty.Attrs" /> verbatim, one per line, wrapped in
+        ///     <c>[...]</c> — the generic escape hatch for attributes the emitter has no dedicated
+        ///     field for (<c>[StringLength]</c>, <c>[DataMember]</c>, ...). <see cref="Model.Usings" />
+        ///     lets the .model file bring the attribute's namespace into scope.
+        /// </summary>
+        private static void WriteCustomAttributes(IndentedStringBuilder sb, ModelProperty prop)
+        {
+            if (prop.Attrs == null)
+            {
+                return;
+            }
+
+            foreach (var attr in prop.Attrs)
+            {
+                sb.AppendLine($"[{attr}]");
+            }
         }
 
         private static bool IsLookup(AttributeTypeCode type)
