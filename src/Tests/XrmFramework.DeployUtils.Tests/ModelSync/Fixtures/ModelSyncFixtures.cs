@@ -4,6 +4,8 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using XrmFramework;
 using XrmFramework.BindingModel;
@@ -50,7 +52,11 @@ namespace XrmFramework.DeployUtils.Tests.ModelSync.Fixtures
     {
         public Guid Id { get; set; }
 
+        // StringLength/DataMember carry no dedicated ModelProperty field: ModelDefinitionAnalyzer
+        // must fall back to Attrs (and add their namespaces to Usings) rather than drop them.
         [CrmMapping(ModelSyncTestContactDefinition.Columns.FullName)]
+        [StringLength(100)]
+        [DataMember(Name = "Nom")]
         public string FullName { get; set; }
 
         [CrmMapping(ModelSyncTestContactDefinition.Columns.Email, IsValidForUpdate = false)]

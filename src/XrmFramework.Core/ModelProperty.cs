@@ -86,5 +86,14 @@ namespace XrmFramework.Core
         public string ModelConverterType { get; set; }
 
         public string ModelConverterConstructorArguments { get; set; }
+
+        /// <summary>
+        ///     Extra attributes to emit verbatim on the generated property — e.g.
+        ///     <c>"StringLength(100)"</c> or <c>"DataMember(Name = \"Foo\")"</c>. Each entry is
+        ///     wrapped in <c>[...]</c> exactly as written, so its type must already be in scope;
+        ///     see <see cref="Model.Usings" /> to add a namespace once for the whole file instead
+        ///     of qualifying every entry.
+        /// </summary>
+        public string[] Attrs { get; set; }
     }
 }

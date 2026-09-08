@@ -397,6 +397,7 @@ Top-level fields:
 | `Name` | Name of the generated class, and the `[CrmEntity(typeof({Name}Definition))]` it carries. |
 | `ns` | Namespace of the generated class. Falls back to `ProjectModels` when omitted or empty. |
 | `Cols` | The properties to generate — one entry per property, in declaration order. |
+| `Usings` | Extra `using` directives to add to the generated file — lets a `Cols` entry's `Attrs` name an attribute without qualifying it (e.g. add `"System.ComponentModel.DataAnnotations"` once instead of writing `"System.ComponentModel.DataAnnotations.StringLength(100)"` on every property). |
 
 Each entry of `Cols` maps one property:
 
@@ -414,11 +415,25 @@ Each entry of `Cols` maps one property:
 | `AllowNotExisting` | Default `false`. Tolerates a targeted record that does not exist instead of failing the mapping — third argument of the generated `[CrmLookup]`. |
 | `JsonPropertyName` | Emits `[JsonProperty("...")]`, renaming the property in JSON without renaming the C# member. |
 | `JsonIgnore` | Default `false`. Emits `[JsonIgnore]`. |
+| `Attrs` | List of attributes to emit verbatim on the generated property, e.g. `["StringLength(100)", "DataMember(Name = \"Nom\")"]` — each entry is wrapped in `[...]` exactly as written. The generic escape hatch for an attribute the emitter has no dedicated field for. The type must already be in scope: either qualify it inline or add its namespace once to the top-level `Usings`. |
 
 `JsonConverterType`, `JsonConverterConstructorArguments`, `ModelConverterType`,
 `ModelConverterConstructorArguments` (per property) and `JsonMemberSerializationStrategy`
 (top-level) deserialize without error but are **not read by the generator** — setting them has no
-effect on the generated class. Do not rely on them.
+effect on the generated class. Do not rely on them; use `Attrs` instead if the attribute you need
+isn't otherwise covered.
+
+```json
+{
+  "tName": "account",
+  "Name": "AccountModel",
+  "ns": "Contoso.Core.Model",
+  "Usings": [ "System.ComponentModel.DataAnnotations", "System.Runtime.Serialization" ],
+  "Cols": [
+    { "Name": "Name", "Type": "string", "LogN": "name", "Attrs": [ "StringLength(100)", "DataMember(Name = \"Nom\")" ] }
+  ]
+}
+```
 
 An `ExtendBindingModel` property nests a sibling model that must itself be declared by another
 `.model` file targeting the same table:

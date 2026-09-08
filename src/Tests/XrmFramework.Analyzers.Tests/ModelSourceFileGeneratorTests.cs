@@ -96,6 +96,38 @@ public class ModelSourceFileGeneratorTests
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    //  Attrs / Usings — attributes the emitter has no dedicated field for
+    // ─────────────────────────────────────────────────────────────────────────
+
+    [Test]
+    public void Attrs_AreEmittedVerbatimOnTheProperty_WithUsingsInScope()
+    {
+        const string model = """
+{
+  "tName": "account",
+  "Name": "AccountModel",
+  "ns": "Contoso.Core.Model",
+  "Usings": [ "System.ComponentModel.DataAnnotations", "System.Runtime.Serialization" ],
+  "Cols": [
+    {
+      "Name": "Name",
+      "Type": "string",
+      "LogN": "name",
+      "Attrs": [ "StringLength(100)", "DataMember(Name = \"Nom\")" ]
+    }
+  ]
+}
+""";
+
+        var source = GenerateAccountModel(model);
+
+        Assert.That(source, Does.Contain("using System.ComponentModel.DataAnnotations;"));
+        Assert.That(source, Does.Contain("using System.Runtime.Serialization;"));
+        Assert.That(source, Does.Contain("[StringLength(100)]"));
+        Assert.That(source, Does.Contain("[DataMember(Name = \"Nom\")]"));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     //  Column types beyond string and picklist
     // ─────────────────────────────────────────────────────────────────────────
 

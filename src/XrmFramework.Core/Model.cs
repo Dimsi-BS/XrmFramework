@@ -21,6 +21,14 @@ namespace XrmFramework.Core
 
         public MemberSerialization? JsonMemberSerializationStrategy { get; set; }
 
+        /// <summary>
+        ///     Extra namespaces to import into the generated file, so a property's
+        ///     <see cref="ModelProperty.Attrs" /> entries can name an attribute without qualifying
+        ///     it — e.g. add <c>"System.ComponentModel.DataAnnotations"</c> once instead of writing
+        ///     <c>"System.ComponentModel.DataAnnotations.StringLength(100)"</c> on every property.
+        /// </summary>
+        public string[] Usings { get; set; }
+
         [JsonIgnore]
         public string TypeFullName => $"{ModelNamespace}.{Name}";
     }
