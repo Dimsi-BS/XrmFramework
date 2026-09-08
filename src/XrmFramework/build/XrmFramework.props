@@ -5,6 +5,14 @@
         <Compile Remove="**\*.table" />
         <None Remove="**\*.table" />
         <AdditionalFiles Include="**/*.table" />
+
+        <!-- Binding models are declared the same way tables are, and the generator needs both:
+             a .model names the table it maps to. Only the project that declares them compiles
+             them; a downstream project consumes the generated classes through its reference. -->
+        <Compile Remove="**\*.model" />
+        <None Remove="**\*.model" />
+        <AdditionalFiles Include="**/*.model" />
+
         <Compile Remove="Generated\**" />
     </ItemGroup>
 

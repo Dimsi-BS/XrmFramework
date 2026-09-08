@@ -305,5 +305,77 @@ namespace XrmFramework
 
             return newEntity;
         }
+
+        /// <summary>
+        ///     Extracts the record behind a lookup column that a binding model embeds as another
+        ///     model — from the aliased columns a query's <c>LinkEntity</c> join brought back, or
+        ///     from <see cref="Entity.RelatedEntities" /> when the query fetched it that way
+        ///     instead. Used by generated <c>ToBindingModel</c> methods for a
+        ///     <c>LookupTargetModel</c> property.
+        /// </summary>
+        /// <param name="attributeName">Logical name of the lookup column.</param>
+        /// <param name="isPolymorphic">
+        ///     Whether the lookup column reaches more than one table — <c>Customer</c>,
+        ///     <c>Owner</c>, a <c>regardingobjectid</c>. The join's alias then carries the actual
+        ///     target's logical name as a suffix, one alias per candidate table being needed to
+        ///     keep them apart.
+        /// </param>
+        /// <param name="relationshipSchemaName">
+        ///     Schema name of the many-to-one relationship the lookup was resolved to, checked
+        ///     against <see cref="Entity.RelatedEntities" /> when no aliased column matches.
+        /// </param>
+        /// <returns>
+        ///     A synthetic <see cref="Entity" /> carrying whatever was found — at minimum its
+        ///     logical name and <see cref="Entity.Id" /> — or <see langword="null" /> when the
+        ///     lookup itself holds no value.
+        /// </returns>
+        public static Entity GetEmbeddedLookupEntity(this Entity entity, string attributeName, bool isPolymorphic, string relationshipSchemaName)
+        {
+            if (!entity.Contains(attributeName) || entity[attributeName] == null)
+            {
+                return null;
+            }
+
+            var entityReference = entity.GetAttributeValue<EntityReference>(attributeName);
+            var embeddedEntity = new Entity(entityReference.LogicalName) { Id = entityReference.Id };
+
+            var prefix = isPolymorphic ? $"{attributeName}__{entityReference.LogicalName}" : attributeName;
+            var prefixDot = prefix + ".";
+            var isEmbed = false;
+
+            foreach (var keyName in entity.Attributes.Keys)
+            {
+                if (keyName == prefix || !keyName.StartsWith(prefixDot, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                isEmbed = true;
+                var newKeyName = keyName.Substring(prefixDot.Length);
+
+                // A nested aliased column ("account.primarycontactid.fullname") keeps its
+                // AliasedValue wrapper for a further embedding pass; a leaf column is unwrapped to
+                // its raw value.
+                object value = newKeyName.IndexOf('.') == -1
+                    ? entity.GetAttributeValue<AliasedValue>(keyName).Value
+                    : entity.GetAttributeValue<AliasedValue>(keyName);
+
+                embeddedEntity[newKeyName] = value;
+            }
+
+            if (!isEmbed && relationshipSchemaName != null)
+            {
+                var relatedEntity = entity.RelatedEntities
+                    .FirstOrDefault(r => r.Key.SchemaName == relationshipSchemaName)
+                    .Value?.Entities.FirstOrDefault();
+
+                if (relatedEntity != null)
+                {
+                    embeddedEntity = relatedEntity;
+                }
+            }
+
+            return embeddedEntity;
+        }
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Model.Sdk;
+using XrmFramework.Analyzers.Generators.Mapping;
 
 namespace XrmFramework.Analyzers.Generators;
 
@@ -33,7 +34,15 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
             .Where(static m => m is not null)
             .Collect();
 
-        context.RegisterSourceOutput(models, EmitSources);
+        // The .table files are the fallback source of column metadata. They are needed because
+        // the definition class carrying [AttributeMetadata] is generated in this same pass in the
+        // project that owns them, and a generator never sees another generator's output.
+        var tables = context.AdditionalTextsProvider
+            .Where(static a => a.Path.EndsWith(".table", StringComparison.OrdinalIgnoreCase))
+            .Select(static (text, ct) => text.GetText(ct)?.ToString() ?? string.Empty)
+            .Collect();
+
+        context.RegisterSourceOutput(models.Combine(tables), static (ctx, pair) => EmitSources(ctx, pair.Left, pair.Right));
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -68,7 +77,7 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
     //  2. Semantic transform  (extracts plain string data for caching)
     // ─────────────────────────────────────────────────────────────────────────
 
-    private static ModelInfo? ExtractModelInfo(GeneratorSyntaxContext ctx, CancellationToken ct)
+    private static MappingModel? ExtractModelInfo(GeneratorSyntaxContext ctx, CancellationToken ct)
     {
         var classDecl = (ClassDeclarationSyntax)ctx.Node;
 
@@ -83,23 +92,91 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
         if (crmEntityAttr == null)
             return null;
 
-        if (crmEntityAttr.ConstructorArguments.FirstOrDefault().Value is not string entityName)
-            return null;
+        // The argument is read from the syntax, not from the resolved constant value. In the
+        // project that owns the .table files the definition class is generated in the same pass,
+        // so ConstructorArguments[0].Value is null there and requiring it silently dropped every
+        // model in that project — see GeneratorInteropTests.
+        var argText = GetArgText(crmEntityAttr, 0, ct);
 
-        // Preserve the source expression so generated code references the constant
-        // (e.g. "ContactDefinition.EntityName") instead of a bare string literal.
-        var entityNameRef = GetArgText(crmEntityAttr, 0, ct) ?? $"\"{entityName}\"";
+        string entityNameRef;
+        string? definitionName;
+
+        if (TryReadTypeOf(argText, out var definitionTypeName))
+        {
+            // [CrmEntity(typeof(AccountDefinition))] — the preferred form.
+            definitionName = definitionTypeName;
+            entityNameRef = $"{definitionTypeName}.EntityName";
+        }
+        else if (argText != null)
+        {
+            // [CrmEntity(AccountDefinition.EntityName)] or a bare literal.
+            entityNameRef = argText;
+            definitionName = ReadDefinitionName(argText);
+        }
+        else if (crmEntityAttr.ConstructorArguments.FirstOrDefault().Value is string entityName)
+        {
+            entityNameRef = $"\"{entityName}\"";
+            definitionName = null;
+        }
+        else
+        {
+            return null;
+        }
 
         var ns              = symbol.ContainingNamespace.IsGlobalNamespace ? null : symbol.ContainingNamespace.ToDisplayString();
         var isBindingBase   = HasAncestorNamed(symbol, "BindingModelBase");
 
-        var properties = ImmutableArray.CreateBuilder<PropInfo>();
-        var extensions = ImmutableArray.CreateBuilder<ExtInfo>();
+        var properties = ImmutableArray.CreateBuilder<MappingProperty>();
+        var extensions = ImmutableArray.CreateBuilder<MappingExtension>();
+        var relationships = ImmutableArray.CreateBuilder<MappingRelationship>();
 
-        CollectMappings(symbol, ctx.SemanticModel, ct, properties, extensions);
+        CollectMappings(symbol, ctx.SemanticModel, ct, properties, extensions, relationships);
 
-        return new ModelInfo(symbol.Name, ns, entityNameRef, isBindingBase,
-                             properties.ToImmutable(), extensions.ToImmutable());
+        return new MappingModel(symbol.Name, ns, entityNameRef, isBindingBase,
+                             properties.ToImmutable(), extensions.ToImmutable(), relationships.ToImmutable())
+        {
+            DefinitionName = definitionName
+        };
+    }
+
+    /// <summary>
+    /// Reads <c>typeof(AccountDefinition)</c> down to <c>AccountDefinition</c>, keeping only the
+    /// leaf so a fully qualified name works too.
+    /// </summary>
+    private static bool TryReadTypeOf(string? argText, out string definitionTypeName)
+    {
+        definitionTypeName = string.Empty;
+
+        if (argText == null) return false;
+
+        var text = argText.Trim();
+
+        if (!text.StartsWith("typeof(", StringComparison.Ordinal) || !text.EndsWith(")", StringComparison.Ordinal))
+            return false;
+
+        var inner = text.Substring(7, text.Length - 8).Trim();
+        if (inner.Length == 0) return false;
+
+        definitionTypeName = inner.Substring(inner.LastIndexOf('.') + 1);
+        return definitionTypeName.Length > 0;
+    }
+
+    /// <summary>
+    /// Reads the definition class out of a constant reference such as
+    /// <c>AccountDefinition.EntityName</c> or <c>AccountDefinition.Columns.Name</c>.
+    /// </summary>
+    private static string? ReadDefinitionName(string argText)
+    {
+        var parts = argText.Trim().Split('.');
+
+        // Works through a namespace qualifier as well as a bare reference.
+        for (var i = parts.Length - 1; i >= 0; i--)
+        {
+            if (parts[i].EndsWith("Definition", StringComparison.Ordinal))
+                return parts[i];
+        }
+
+        return null;
     }
 
     private static AttributeData? FindAttribute(INamedTypeSymbol symbol, string attrClassName)
@@ -143,8 +220,9 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
         INamedTypeSymbol root,
         SemanticModel sem,
         CancellationToken ct,
-        ImmutableArray<PropInfo>.Builder props,
-        ImmutableArray<ExtInfo>.Builder exts)
+        ImmutableArray<MappingProperty>.Builder props,
+        ImmutableArray<MappingExtension>.Builder exts,
+        ImmutableArray<MappingRelationship>.Builder rels)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
 
@@ -161,9 +239,17 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
 
                 if (attrs.Any(a => a.AttributeClass?.Name == "ExtendBindingModelAttribute"))
                 {
-                    exts.Add(new ExtInfo(
+                    exts.Add(new MappingExtension(
                         member.Name,
                         member.Type.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)));
+                    continue;
+                }
+
+                var relAttr = attrs.FirstOrDefault(a => a.AttributeClass?.Name == "ChildRelationshipAttribute");
+                if (relAttr is not null)
+                {
+                    var rel = BuildRelationshipInfo(member, relAttr, ct);
+                    if (rel is not null) rels.Add(rel);
                     continue;
                 }
 
@@ -176,7 +262,29 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
         }
     }
 
-    private static PropInfo? BuildPropInfo(
+    /// <summary>
+    /// Builds a <see cref="MappingRelationship"/> from a <c>[ChildRelationship(...)]</c> property.
+    /// The property maps no column: its declared type must be the <c>List&lt;T&gt;</c> to
+    /// populate, and the attribute's argument names the relationship's schema-name constant.
+    /// </summary>
+    private static MappingRelationship? BuildRelationshipInfo(IPropertySymbol prop, AttributeData relAttr, CancellationToken ct)
+    {
+        var relationshipRef = GetArgText(relAttr, 0, ct);
+        if (relationshipRef is null) return null;
+
+        if (prop.Type is not INamedTypeSymbol { Name: "List" } listType || listType.TypeArguments.Length != 1)
+            return null;
+
+        var elementTypeName = listType.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+
+        var isValidForUpdate = true;
+        foreach (var na in relAttr.NamedArguments)
+            if (na.Key == "IsValidForUpdate" && na.Value.Value is bool b) { isValidForUpdate = b; break; }
+
+        return new MappingRelationship(prop.Name, elementTypeName, relationshipRef, isValidForUpdate);
+    }
+
+    private static MappingProperty? BuildPropInfo(
         IPropertySymbol prop,
         AttributeData  mappingAttr,
         SemanticModel  sem,
@@ -213,11 +321,64 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
 
         var hasSetter = prop.SetMethod is not null;
 
-        return new PropInfo(
+        // ── Embedded model behind the lookup ──────────────────────────────────
+        // No [CrmLookup] names a related model's target: the model's own [CrmEntity] does, the
+        // same way ExtractModelInfo reads it for the model this property lives on.
+        var isEmbeddedLookupModel = ImplementsIBindingModel(prop.Type);
+        var embeddedTargetDefinitionName = isEmbeddedLookupModel && prop.Type is INamedTypeSymbol embeddedModelSymbol
+            ? ReadEmbeddedModelDefinitionName(embeddedModelSymbol, ct)
+            : null;
+
+        return new MappingProperty(
             prop.Name, typeName, innerTypeName,
             isNullable, isEnum, isList, listElemTypeName,
             hasSetter, columnRef, attrTypeCode,
-            isValidForUpdate, lookupTargetRef);
+            isValidForUpdate, lookupTargetRef)
+        {
+            IsEmbeddedLookupModel = isEmbeddedLookupModel,
+            EmbeddedModelTypeName = isEmbeddedLookupModel ? typeName : null,
+            EmbeddedTargetDefinitionName = embeddedTargetDefinitionName,
+            // Kept so the tables can fill in what the semantic model could not: when the
+            // definition class is generated in this same pass, columnField is null and the
+            // metadata above falls back to String for every column.
+            DefinitionName = ReadDefinitionName(columnRef),
+            ColumnLeafName = ReadColumnLeafName(columnRef),
+            MetadataResolved = columnField != null
+        };
+    }
+
+    private static bool ImplementsIBindingModel(ITypeSymbol type)
+        => type.AllInterfaces.Any(i => i.Name == "IBindingModel");
+
+    /// <summary>
+    /// Reads the definition class an embedded model's own <c>[CrmEntity]</c> names —
+    /// <c>[CrmEntity(typeof(AccountDefinition))]</c> or <c>[CrmEntity(AccountDefinition.EntityName)]</c>,
+    /// the same two forms <see cref="ExtractModelInfo"/> accepts for the outer model. That table is
+    /// what a property embedding this model was resolved against — the query builder and the
+    /// mapping helper key off it, not off any explicit <c>[CrmLookup]</c> on the property itself.
+    /// </summary>
+    private static string? ReadEmbeddedModelDefinitionName(INamedTypeSymbol embeddedModelSymbol, CancellationToken ct)
+    {
+        var crmEntityAttr = FindAttribute(embeddedModelSymbol, CrmEntityFull);
+        if (crmEntityAttr == null) return null;
+
+        var argText = GetArgText(crmEntityAttr, 0, ct);
+
+        return TryReadTypeOf(argText, out var definitionTypeName)
+            ? definitionTypeName
+            : (argText != null ? ReadDefinitionName(argText) : null);
+    }
+
+    /// <summary>Reads <c>Name</c> out of <c>AccountDefinition.Columns.Name</c>.</summary>
+    private static string? ReadColumnLeafName(string columnRef)
+    {
+        var text = columnRef.Trim();
+
+        if (text.StartsWith("\"", StringComparison.Ordinal))
+            return null;
+
+        var idx = text.LastIndexOf('.');
+        return idx >= 0 && idx < text.Length - 1 ? text.Substring(idx + 1) : null;
     }
 
     private static AttributeTypeCode ReadAttributeTypeCode(IFieldSymbol? field)
@@ -304,14 +465,18 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
         DiagnosticSeverity.Warning, isEnabledByDefault: true,
         helpLinkUri: DiagnosticIds.HelpLink("XRM2001"));
 
-    private static void EmitSources(SourceProductionContext ctx, ImmutableArray<ModelInfo?> models)
+    private static void EmitSources(SourceProductionContext ctx, ImmutableArray<MappingModel?> models, ImmutableArray<string> tableContents)
     {
+        var tables = MappingMetadataFallback.ReadTables(tableContents);
+
         foreach (var model in models)
         {
             if (model is null) continue;
             try
             {
-                var code = GenerateCode(model);
+                MappingMetadataFallback.Complete(model, tables);
+
+                var code = MappingEmitter.Generate(model);
                 var hint = model.Namespace is null
                     ? model.ClassName
                     : $"{model.Namespace}.{model.ClassName}";
@@ -325,413 +490,4 @@ public sealed class MappingSourceGenerator : IIncrementalGenerator
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Code generation
-    // ─────────────────────────────────────────────────────────────────────────
-
-    private static string GenerateCode(ModelInfo model)
-    {
-        var sb = new CodeWriter();
-
-        sb.Line("// <auto-generated />");
-        sb.Line();
-        sb.Line("using System;");
-        sb.Line("using System.CodeDom.Compiler;");
-        sb.Line("using System.Collections.Generic;");
-        sb.Line("using System.Diagnostics.CodeAnalysis;");
-        sb.Line("using System.Linq;");
-        sb.Line("using Microsoft.Xrm.Sdk;");
-        sb.Line("using XrmFramework;");
-        sb.Line("using XrmFramework.BindingModel;");
-        sb.Line();
-
-        if (model.Namespace is not null)
-        {
-            sb.Line($"namespace {model.Namespace}");
-            sb.OpenBrace();
-        }
-
-        sb.Line("[GeneratedCode(\"XrmFramework.MappingGenerator\", \"1.0\")]");
-        sb.Line("[ExcludeFromCodeCoverage]");
-        sb.Line($"partial class {model.ClassName}");
-        sb.OpenBrace();
-
-        WriteToBindingModelMethod(sb, model);
-        sb.Line();
-        WriteToEntityMethod(sb, model);
-
-        sb.CloseBrace(); // class
-
-        if (model.Namespace is not null)
-            sb.CloseBrace(); // namespace
-
-        return sb.ToString();
-    }
-
-    // ── ToBindingModel ────────────────────────────────────────────────────────
-
-    private static void WriteToBindingModelMethod(CodeWriter sb, ModelInfo model)
-    {
-        sb.Line($"public static {model.ClassName} ToBindingModel(Entity entity)");
-        sb.OpenBrace();
-
-        sb.Line("if (entity == null)");
-        sb.Indent(); sb.Line("return null;"); sb.Dedent();
-        sb.Line();
-        sb.Line($"if (entity.LogicalName != {model.EntityNameRef})");
-        sb.Indent(); sb.Line("return null;"); sb.Dedent();
-        sb.Line();
-        sb.Line($"var model = new {model.ClassName}();");
-        sb.Line("model.Id = entity.Id;");
-
-        foreach (var ext in model.Extensions)
-        {
-            sb.Line();
-            sb.Line($"// {ext.Name} — extension of the same entity");
-            sb.Line($"model.{ext.Name} = {ext.TypeName}.ToBindingModel(entity);");
-        }
-
-        foreach (var prop in model.Properties)
-        {
-            sb.Line();
-            WriteReadFromEntity(sb, prop);
-        }
-
-        sb.Line();
-        sb.Line("return model;");
-        sb.CloseBrace();
-    }
-
-    private static void WriteReadFromEntity(CodeWriter sb, PropInfo prop)
-    {
-        var attrLabel = prop.IsList ? "MultiSelectPicklist" : prop.AttrType.ToString();
-        sb.Line($"// {prop.Name} ({attrLabel})");
-
-        if (prop.IsList)
-        {
-            WriteListRead(sb, prop);
-            return;
-        }
-
-        sb.Line($"if (entity.Contains({prop.ColumnRef}))");
-        sb.Indent();
-        sb.Line($"model.{prop.Name} = {BuildReadExpr(prop)};");
-        sb.Dedent();
-    }
-
-    private static void WriteListRead(CodeWriter sb, PropInfo prop)
-    {
-        var elemType = prop.ListElemTypeName ?? "object";
-        sb.Line($"if (entity.Contains({prop.ColumnRef}))");
-        sb.OpenBrace();
-        sb.Line($"foreach (var item in entity.GetOptionSetValues<{elemType}>({prop.ColumnRef}))");
-        sb.Indent(); sb.Line($"model.{prop.Name}.Add(item);"); sb.Dedent();
-        sb.CloseBrace();
-    }
-
-    private static string BuildReadExpr(PropInfo prop) => prop.AttrType switch
-    {
-        AttributeTypeCode.Lookup   or
-        AttributeTypeCode.Customer or
-        AttributeTypeCode.Owner    => BuildLookupRead(prop),
-
-        AttributeTypeCode.Money    => BuildMoneyRead(prop),
-
-        AttributeTypeCode.Picklist or
-        AttributeTypeCode.State    or
-        AttributeTypeCode.Status   => BuildPicklistRead(prop),
-
-        _ => $"entity.GetAttributeValue<{prop.TypeName}>({prop.ColumnRef})",
-    };
-
-    private static string BuildLookupRead(PropInfo prop)
-    {
-        if (prop.InnerTypeName == "Guid")
-        {
-            var fallback = prop.IsNullable ? "" : " ?? Guid.Empty";
-            return $"entity.GetAttributeValue<EntityReference>({prop.ColumnRef})?.Id{fallback}";
-        }
-
-        return $"entity.GetAttributeValue<{prop.TypeName}>({prop.ColumnRef})";
-    }
-
-    private static string BuildMoneyRead(PropInfo prop)
-    {
-        if (prop.InnerTypeName is "decimal" || prop.TypeName is "decimal" or "decimal?")
-        {
-            var fallback = prop.IsNullable ? "" : " ?? default";
-            return $"entity.GetAttributeValue<Money>({prop.ColumnRef})?.Value{fallback}";
-        }
-
-        return $"entity.GetAttributeValue<{prop.TypeName}>({prop.ColumnRef})";
-    }
-
-    private static string BuildPicklistRead(PropInfo prop)
-    {
-        if (prop.IsEnum)
-        {
-            var enumType = prop.IsNullable ? prop.InnerTypeName : prop.TypeName;
-            return $"entity.GetOptionSetValue<{enumType}>({prop.ColumnRef})";
-        }
-
-        if (prop.InnerTypeName is "int" || prop.TypeName is "int" or "int?")
-        {
-            var fallback = prop.IsNullable ? "" : " ?? default";
-            return $"entity.GetAttributeValue<OptionSetValue>({prop.ColumnRef})?.Value{fallback}";
-        }
-
-        return $"entity.GetAttributeValue<{prop.TypeName}>({prop.ColumnRef})";
-    }
-
-    // ── ToEntity ──────────────────────────────────────────────────────────────
-
-    private static void WriteToEntityMethod(CodeWriter sb, ModelInfo model)
-    {
-        sb.Line("public Entity ToEntity(IOrganizationService service = null)");
-        sb.OpenBrace();
-
-        sb.Line($"var entity = new Entity({model.EntityNameRef}, Id);");
-
-        foreach (var ext in model.Extensions)
-        {
-            sb.Line();
-            sb.Line($"// {ext.Name} — extension of the same entity");
-            sb.Line($"entity.MergeWith({ext.Name}?.ToEntity(service));");
-        }
-
-        foreach (var prop in model.Properties.Where(p => p.IsValidForUpdate))
-        {
-            sb.Line();
-            WriteSetOnEntity(sb, prop, model.IsBindingModelBase);
-        }
-
-        sb.Line();
-        sb.Line("return entity;");
-        sb.CloseBrace();
-    }
-
-    private static void WriteSetOnEntity(CodeWriter sb, PropInfo prop, bool isBindingModelBase)
-    {
-        var attrLabel = prop.IsList ? "MultiSelectPicklist" : prop.AttrType.ToString();
-        sb.Line($"// {prop.Name} ({attrLabel})");
-
-        if (isBindingModelBase)
-        {
-            sb.Line($"if (InitializedProperties.Contains(nameof({prop.Name})))");
-            sb.OpenBrace();
-        }
-
-        WriteEntityAssignment(sb, prop);
-
-        if (isBindingModelBase)
-            sb.CloseBrace();
-    }
-
-    private static void WriteEntityAssignment(CodeWriter sb, PropInfo prop)
-    {
-        if (prop.IsList)
-        {
-            sb.Line($"entity.SetOptionSetValues({prop.ColumnRef}, {prop.Name});");
-            return;
-        }
-
-        switch (prop.AttrType)
-        {
-            case AttributeTypeCode.Lookup:
-            case AttributeTypeCode.Customer:
-            case AttributeTypeCode.Owner:
-                WriteLookupAssignment(sb, prop);
-                break;
-
-            case AttributeTypeCode.Money:
-                WriteMoneyAssignment(sb, prop);
-                break;
-
-            case AttributeTypeCode.Picklist:
-            case AttributeTypeCode.State:
-            case AttributeTypeCode.Status:
-                WritePicklistAssignment(sb, prop);
-                break;
-
-            case AttributeTypeCode.DateTime:
-                WriteDateTimeAssignment(sb, prop);
-                break;
-
-            default:
-                sb.Line($"entity[{prop.ColumnRef}] = {prop.Name};");
-                break;
-        }
-    }
-
-    private static void WriteLookupAssignment(CodeWriter sb, PropInfo prop)
-    {
-        if (prop.InnerTypeName == "Guid")
-        {
-            var target = prop.LookupTargetRef ?? "\"unknown\"";
-            if (prop.IsNullable)
-            {
-                sb.Line($"entity[{prop.ColumnRef}] = {prop.Name}.HasValue");
-                sb.Indent();
-                sb.Line($"? new EntityReference({target}, {prop.Name}.Value)");
-                sb.Line(": null;");
-                sb.Dedent();
-            }
-            else
-            {
-                sb.Line($"entity[{prop.ColumnRef}] = {prop.Name} != Guid.Empty");
-                sb.Indent();
-                sb.Line($"? new EntityReference({target}, {prop.Name})");
-                sb.Line(": null;");
-                sb.Dedent();
-            }
-        }
-        else
-        {
-            sb.Line($"entity[{prop.ColumnRef}] = {prop.Name};");
-        }
-    }
-
-    private static void WriteMoneyAssignment(CodeWriter sb, PropInfo prop)
-    {
-        if (prop.InnerTypeName is "decimal" || prop.TypeName is "decimal" or "decimal?")
-        {
-            sb.Line(prop.IsNullable
-                ? $"entity[{prop.ColumnRef}] = {prop.Name}.HasValue ? new Money({prop.Name}.Value) : null;"
-                : $"entity[{prop.ColumnRef}] = new Money({prop.Name});");
-        }
-        else
-        {
-            sb.Line($"entity[{prop.ColumnRef}] = {prop.Name};");
-        }
-    }
-
-    private static void WritePicklistAssignment(CodeWriter sb, PropInfo prop)
-    {
-        if (prop.IsEnum)
-        {
-            sb.Line(prop.IsNullable
-                ? $"entity[{prop.ColumnRef}] = {prop.Name}.HasValue ? new OptionSetValue((int){prop.Name}.Value) : null;"
-                : $"entity[{prop.ColumnRef}] = {prop.Name} != default ? new OptionSetValue((int){prop.Name}) : null;");
-        }
-        else if (prop.InnerTypeName is "int" || prop.TypeName is "int" or "int?")
-        {
-            sb.Line(prop.IsNullable
-                ? $"entity[{prop.ColumnRef}] = {prop.Name}.HasValue ? new OptionSetValue({prop.Name}.Value) : null;"
-                : $"entity[{prop.ColumnRef}] = new OptionSetValue({prop.Name});");
-        }
-        else
-        {
-            sb.Line($"entity.SetOptionSetValue({prop.ColumnRef}, {prop.Name});");
-        }
-    }
-
-    private static void WriteDateTimeAssignment(CodeWriter sb, PropInfo prop)
-    {
-        if (prop.IsNullable)
-            sb.Line($"entity[{prop.ColumnRef}] = {prop.Name};");
-        else
-            sb.Line($"entity[{prop.ColumnRef}] = {prop.Name} != DateTime.MinValue ? {prop.Name} : (DateTime?)null;");
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Data classes  (plain classes – records need IsExternalInit unavailable
-    //  in netstandard2.0 without a polyfill)
-    // ─────────────────────────────────────────────────────────────────────────
-
-    private sealed class ModelInfo
-    {
-        public string                   ClassName          { get; }
-        public string?                  Namespace          { get; }
-        public string                   EntityNameRef      { get; }
-        public bool                     IsBindingModelBase { get; }
-        public ImmutableArray<PropInfo> Properties         { get; }
-        public ImmutableArray<ExtInfo>  Extensions         { get; }
-
-        public ModelInfo(string className, string? ns, string entityNameRef, bool isBindingModelBase,
-                         ImmutableArray<PropInfo> properties, ImmutableArray<ExtInfo> extensions)
-        {
-            ClassName          = className;
-            Namespace          = ns;
-            EntityNameRef      = entityNameRef;
-            IsBindingModelBase = isBindingModelBase;
-            Properties         = properties;
-            Extensions         = extensions;
-        }
-    }
-
-    private sealed class PropInfo
-    {
-        public string            Name             { get; }
-        public string            TypeName         { get; }
-        public string            InnerTypeName    { get; }
-        public bool              IsNullable       { get; }
-        public bool              IsEnum           { get; }
-        public bool              IsList           { get; }
-        public string?           ListElemTypeName { get; }
-        public bool              HasSetter        { get; }
-        public string            ColumnRef        { get; }
-        public AttributeTypeCode AttrType         { get; }
-        public bool              IsValidForUpdate { get; }
-        public string?           LookupTargetRef  { get; }
-
-        public PropInfo(string name, string typeName, string innerTypeName,
-                        bool isNullable, bool isEnum, bool isList, string? listElemTypeName,
-                        bool hasSetter, string columnRef, AttributeTypeCode attrType,
-                        bool isValidForUpdate, string? lookupTargetRef)
-        {
-            Name             = name;
-            TypeName         = typeName;
-            InnerTypeName    = innerTypeName;
-            IsNullable       = isNullable;
-            IsEnum           = isEnum;
-            IsList           = isList;
-            ListElemTypeName = listElemTypeName;
-            HasSetter        = hasSetter;
-            ColumnRef        = columnRef;
-            AttrType         = attrType;
-            IsValidForUpdate = isValidForUpdate;
-            LookupTargetRef  = lookupTargetRef;
-        }
-    }
-
-    private sealed class ExtInfo
-    {
-        public string Name     { get; }
-        public string TypeName { get; }
-
-        public ExtInfo(string name, string typeName) { Name = name; TypeName = typeName; }
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Minimal indented string builder (local, so no external dependency)
-    // ─────────────────────────────────────────────────────────────────────────
-
-    private sealed class CodeWriter
-    {
-        private readonly StringBuilder _sb     = new();
-        private int                    _indent;
-        private bool                   _pendingIndent = true;
-
-        public void Line(string text = "")
-        {
-            if (text.Length > 0) DoIndent();
-            _sb.AppendLine(text);
-            _pendingIndent = true;
-        }
-
-        public void Indent()  => _indent++;
-        public void Dedent()  => _indent = Math.Max(0, _indent - 1);
-
-        public void OpenBrace()  { Line("{"); Indent(); }
-        public void CloseBrace() { Dedent(); Line("}"); }
-
-        private void DoIndent()
-        {
-            if (_pendingIndent && _indent > 0)
-                _sb.Append(new string(' ', _indent * 4));
-            _pendingIndent = false;
-        }
-
-        public override string ToString() => _sb.ToString();
-    }
 }

@@ -1,0 +1,14 @@
+{
+  "tName": "contact",
+  "Name": "ContactModel",
+  "ns": "Contoso.Core.Model",
+  "Cols": [
+    { "Name": "FullName", "Type": "string", "LogN": "fullname", "UsePropCh": true },
+    { "Name": "BirthDate", "Type": "DateTime?", "LogN": "birthdate", "UsePropCh": true },
+    { "Name": "Revenue", "Type": "decimal?", "LogN": "revenue", "UsePropCh": true },
+    { "Name": "IsActive", "Type": "bool", "LogN": "isactive", "UsePropCh": true },
+    { "Name": "StatusCode", "Type": "ContactStatus", "LogN": "statuscode", "UsePropCh": true },
+    { "Name": "Interests", "Type": "List<ContactInterest>", "LogN": "interests", "UsePropCh": true },
+    { "Name": "AccountId", "Type": "Guid", "LogN": "accountid", "UsePropCh": true }
+  ]
+}

@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
+using XrmFramework.Analyzers.Generators.Mapping;
 using XrmFramework.Core;
 
 namespace XrmFramework.Analyzers.Generators
@@ -71,24 +72,27 @@ namespace XrmFramework.Analyzers.Generators
                 }
                 catch (Exception e)
                 {
-                    productionContext.AddSource("Exception.txt", $"/*\r\n{e}\r\n*/");
+                    // A generator that fails must say so as a diagnostic. Emitting a source
+                    // file named Exception.txt hides the failure behind a compilation that
+                    // "succeeds" while the models it was meant to produce are simply absent.
+                    productionContext.ReportDiagnostic(Diagnostic.Create(
+                        Xrm1008, Location.None, "one or more .model files", e.Message));
                 }
             });
         }
 
         private void WriteModelFiles(SourceProductionContext productionContext, ICollection<Core.Model> models, TableCollection tables, Table? globalEnums)
         {
-            if (globalEnums == null)
-            {
-                throw new Exception("global enums is null for some reason");
-            }
+            // A project with no global option sets is legitimate: OptionSets.table only
+            // exists once something references a global enum.
+            globalEnums ??= new Table();
             foreach (var model in models)
             {
                 var table = tables.FirstOrDefault(t => t.LogicalName == model.TableLogicalName);
                 if (table == null)
                 {
-                    productionContext.AddSource($"{model.Name}.model.cs", $"// This is an empty test file {model.Name}, there are {globalEnums.Enums.Count} global enums, there are {tables.Count} tables ");
-
+                    productionContext.ReportDiagnostic(Diagnostic.Create(
+                        Xrm1005, Location.None, model.Name, model.TableLogicalName));
                 }
                 else
                 {
@@ -105,6 +109,11 @@ namespace XrmFramework.Analyzers.Generators
                     sb.AppendLine("using System.ComponentModel.DataAnnotations;");
                     sb.AppendLine("using System.Diagnostics.CodeAnalysis;");
                     sb.AppendLine("using System.Collections.Generic;");
+                    sb.AppendLine("using System.Linq;");
+                    // The mapping written into this same class uses Entity and
+                    // IOrganizationService. MappingEmitter declares them when it produces a file
+                    // of its own, but here it only contributes the two methods.
+                    sb.AppendLine("using Microsoft.Xrm.Sdk;");
                     sb.AppendLine("using XrmFramework;");
                     sb.AppendLine("using Newtonsoft.Json;");
                     sb.AppendLine("using XrmFramework.BindingModel;");
@@ -128,7 +137,7 @@ namespace XrmFramework.Analyzers.Generators
                         // Class declaration
                         sb.AppendLine("[GeneratedCode(\"XrmFramework\", \"2.0\")]");
                         sb.AppendLine("[ExcludeFromCodeCoverage]");
-                        sb.AppendLine($"[CrmEntity({correspondingTable.Name}Definition.EntityName)]");
+                        sb.AppendLine($"[CrmEntity(typeof({correspondingTable.Name}Definition))]");
                         sb.AppendLine("[JsonObject(MemberSerialization.OptIn)]");
 
 
@@ -148,81 +157,64 @@ namespace XrmFramework.Analyzers.Generators
                             foreach (var prop in model.Properties)
                             {
 
-                                var correspondingColumn = correspondingTable.Columns.FirstOrDefault(c => c.LogicalName == prop.LogicalName);
-                                if (correspondingColumn == null)
+                                if (prop.ExtendBindingModel)
                                 {
+                                    // Carries another model over the same record: no column of its
+                                    // own, and the mapping fills it from this very entity.
+                                    WriteExtensionProperty(sb, prop);
                                     continue;
                                 }
 
-                                if (correspondingColumn.Selected)
+                                var correspondingColumn = correspondingTable.Columns.FirstOrDefault(c => c.LogicalName == prop.LogicalName);
+
+                                if (correspondingColumn == null || !correspondingColumn.Selected)
                                 {
-                                    //This property is a column
-                                    sb.Append(
-                                        $"[CrmMapping({correspondingTable.Name}Definition.Columns.{correspondingColumn.Name}"); //)]");
-                                    if (prop.IsValidForUpdate)
-                                    {
-                                        sb.Append(")]");
-
-                                    }
-                                    else
-                                    {
-                                        sb.Append(",IsValidForUpdate = false)]");
-                                    }
-
-                                    if (correspondingColumn.Type == AttributeTypeCode.Lookup)
-                                    {
-                                        //Get the corresponding relationship info in the table
-                                        var correspondingRelation =
-                                            correspondingTable.ManyToOneRelationships.FirstOrDefault(r =>
-                                                r.LookupFieldName == prop.LogicalName);
-                                        if (correspondingRelation == null)
-                                        {
-                                            throw new Exception("No corresponding relationship found in table for " +
-                                                                prop.Name);
-                                        }
-
-                                        sb.AppendLine();
-                                        sb.Append($"[CrmLookup(");
-                                        var referencedTable = tables.FirstOrDefault(t =>
-                                            t.LogicalName == correspondingRelation.EntityName);
-                                        if (referencedTable != null)
-                                        {
-                                            sb.Append($"{referencedTable.Name}Definition.EntityName,");
-                                            var referencedColumn = referencedTable.Columns.FirstOrDefault(c =>
-                                                c.LogicalName == correspondingRelation.LookupFieldName);
-                                            if (referencedColumn != null)
-                                            {
-                                                sb.Append(
-                                                    $"{referencedTable.Name}Definition.Columns.{referencedColumn.Name})]");
-                                            }
-                                            else
-                                            {
-                                                sb.Append($"\"{correspondingRelation.LookupFieldName}\")]");
-
-                                            }
-                                        }
-                                        else
-                                        {
-                                            sb.AppendLine(
-                                                $"\"{correspondingRelation.EntityName}\",\"{correspondingRelation.LookupFieldName}\")]");
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    //This property is a OneToMany relation
+                                    // Not a (selected) column: it could still be a one-to-many
+                                    // relationship, carrying no column of its own.
                                     var correspondingRelation =
                                         correspondingTable.OneToManyRelationships.FirstOrDefault(r =>
                                             r.Name == prop.LogicalName);
-                                    if (correspondingRelation == null)
+
+                                    if (correspondingRelation != null)
                                     {
-                                        throw new Exception(
-                                            "Error, no corresponding OneToMany relation found for this property : " +
-                                            prop.Name);
+                                        WriteRelationshipProperty(sb, correspondingTable, prop, correspondingRelation);
                                     }
 
-                                    sb.AppendLine(
-                                        $"[ChildRelationship({correspondingTable.Name}Definition.OneToManyRelationships.{correspondingRelation.NavigationPropertyName})]");
+                                    // Otherwise nothing named prop.LogicalName is reachable from
+                                    // this table. WriteMapping reports XRM1006 for this same
+                                    // property once the mapping is built below, so nothing is
+                                    // reported twice here — the property is just not declared.
+                                    continue;
+                                }
+
+                                var propertyType = PropertyType(prop);
+
+                                //This property is a column
+                                sb.Append(
+                                    $"[CrmMapping({correspondingTable.Name}Definition.Columns.{correspondingColumn.Name}");
+
+                                if (!prop.IsValidForUpdate)
+                                {
+                                    sb.Append(", IsValidForUpdate = false");
+                                }
+
+                                // Below the first level the query builder stops unless the
+                                // property asks for the link, which is what keeps a model from
+                                // dragging in the whole graph.
+                                if (prop.FollowLink)
+                                {
+                                    sb.Append(", FollowLink = true");
+                                }
+
+                                sb.Append(")]");
+
+                                if (IsLookup(correspondingColumn.Type))
+                                {
+                                    if (!WriteLookupAttribute(productionContext, sb, model, prop,
+                                            correspondingTable, correspondingColumn, tables))
+                                    {
+                                        continue;
+                                    }
                                 }
 
                                 if (prop.JsonPropertyName != null)
@@ -231,7 +223,11 @@ namespace XrmFramework.Analyzers.Generators
                                     sb.AppendLine($"[JsonProperty(\"{prop.JsonPropertyName}\")]");
                                 }
 
-                                // Add other possible attributes
+                                if (prop.JsonIgnore)
+                                {
+                                    sb.AppendLine();
+                                    sb.AppendLine("[JsonIgnore]");
+                                }
 
 
                                 if (!prop.IsValidForUpdate)
@@ -239,64 +235,53 @@ namespace XrmFramework.Analyzers.Generators
                                     // Write regular declaration
                                     if (correspondingColumn != null)
                                     {
-                                        sb.AppendLine($"public {prop.TypeFullName} {prop.Name} {{get; set;}}");
+                                        sb.AppendLine($"public {propertyType} {prop.Name} {{get; set;}}");
                                     }
                                     else
                                     {
                                         sb.AppendLine(
-                                            $"public List<{prop.TypeFullName}> {prop.Name} {{get;set;}} = new List<{prop.TypeFullName}>();");
+                                            $"public List<{propertyType}> {prop.Name} {{get;set;}} = new List<{propertyType}>();");
                                     }
                                 }
                                 else
                                 {
 
-                                    // Write property declaration with call to OnPropertyChanged()
+                                    // Write property declaration with call to OnPropertyChanged().
+                                    // Every set runs OnPropertyChanged(), even when the new value
+                                    // equals the old one: callers rely on the setter itself as the
+                                    // signal that the property was touched, not on the value having
+                                    // actually changed. The backing storage is the C# 14 `field`
+                                    // keyword, so there is no separate `_{prop.Name}` field to keep
+                                    // in sync with the property.
                                     if (correspondingColumn != null)
                                     {
                                         string tmp = @$"
-        public {prop.TypeFullName} {prop.Name}
+        public {propertyType} {prop.Name}
         {{
-            get {{return _{prop.Name};}}
+            get;
             set
             {{
-                if(value == _{prop.Name})
-                    return;
-                _{prop.Name} = value;
+                field = value;
                 OnPropertyChanged();
             }}
         }}
                                                       ";
-                                        //Console.WriteLine(tmp);
                                         sb.AppendLine(tmp);
                                     }
                                     else
                                     {
                                         string tmp2 = @$"
-        public List<{prop.TypeFullName}> {prop.Name}
+        public List<{propertyType}> {prop.Name}
         {{
-            get {{return _{prop.Name};}}
+            get;
             set
             {{
-                if(value == _{prop.Name})
-                    return;
-                _{prop.Name} = value;
+                field = value;
                 OnPropertyChanged();
             }}
-        }}= new List<{prop.TypeFullName}>();
+        }} = new List<{propertyType}>();
                                                       ";
                                         sb.AppendLine(tmp2);
-                                        // "{" +
-                                        // "   get { return _{1};}\n" +
-                                        // "   set\n" +
-                                        // "       {\n" +
-                                        // "           if(value == _{1})\n" +
-                                        // "           {\n" +
-                                        // "               return;\n" +
-                                        // "           }\n" +
-                                        // "           _{1} = value;\n" +
-                                        // "           OnPropertyChanged();\n" +
-                                        // "       }\n" +
-                                        // "} = new List<{0}>();\n", prop.TypeFullName, prop.Name));
                                     }
 
                                 }
@@ -304,32 +289,11 @@ namespace XrmFramework.Analyzers.Generators
                                 sb.AppendLine();
                             }
 
-
-
-
-                            sb.AppendLine("#region Fields");
-
-                            foreach (var prop in model.Properties.Where(p => p.IsValidForUpdate))
-                            {
-                                //Add the corresponding field
-                                var correspondingColumn = correspondingTable.Columns.FirstOrDefault(c => c.LogicalName == prop.LogicalName);
-                                if (correspondingColumn != null)
-                                {
-                                    sb.AppendLine($"private {prop.TypeFullName} _{prop.Name};");
-
-                                }
-                                else
-                                {
-                                    sb.AppendLine($"private List<{prop.TypeFullName}> _{prop.Name};");
-                                }
-                            }
-                            sb.AppendLine("#endregion");
-
-
-
-
-
-
+                            // The mapping goes in the same class, emitted by the same writer that
+                            // serves hand-written models. It cannot be left to MappingSourceGenerator:
+                            // that one discovers its candidates among the compilation's source syntax
+                            // trees, which never contain another generator's output.
+                            WriteMapping(productionContext, sb, model, correspondingTable, tables, models);
                         }
                         sb.AppendLine("}");
 
@@ -344,5 +308,318 @@ namespace XrmFramework.Analyzers.Generators
             }
 
         }
+
+        /// <summary>
+        ///     The type the generated property carries — <see cref="ModelProperty.TypeFullName" />
+        ///     as declared, whether that names a primitive, an enum, or (for a
+        ///     <see cref="ModelProperty.LookupTargetModel" /> or
+        ///     <see cref="ModelProperty.ExtendBindingModel" /> property) another model's class.
+        /// </summary>
+        private static string PropertyType(ModelProperty prop)
+            => prop.TypeFullName;
+
+        /// <summary>
+        ///     Writes an [ExtendBindingModel] property: the model it carries, its JSON name, and
+        ///     nothing else. It maps no column, so it takes no [CrmMapping].
+        /// </summary>
+        private static void WriteExtensionProperty(IndentedStringBuilder sb, ModelProperty prop)
+        {
+            sb.AppendLine("[ExtendBindingModel]");
+
+            if (!string.IsNullOrEmpty(prop.JsonPropertyName))
+            {
+                sb.AppendLine($"[JsonProperty(\"{prop.JsonPropertyName}\")]");
+            }
+
+            if (prop.JsonIgnore)
+            {
+                sb.AppendLine("[JsonIgnore]");
+            }
+
+            sb.AppendLine($"public {prop.TypeFullName} {prop.Name} {{ get; set; }}");
+            sb.AppendLine();
+        }
+
+        /// <summary>
+        ///     Writes a [ChildRelationship] property: a collection of another binding model,
+        ///     filled from the entities a one-to-many relationship returns. It maps no column of
+        ///     its own — <see cref="ModelProperty.TypeFullName"/> is expected to already be the
+        ///     full <c>List&lt;T&gt;</c> type, the same convention a multi-select column's `Type`
+        ///     already follows.
+        /// </summary>
+        private static void WriteRelationshipProperty(IndentedStringBuilder sb, Table table, ModelProperty prop, Relation relation)
+        {
+            sb.Append($"[ChildRelationship({table.Name}Definition.OneToManyRelationships.{relation.Name}");
+
+            if (!prop.IsValidForUpdate)
+            {
+                sb.Append(", IsValidForUpdate = false");
+            }
+
+            sb.AppendLine(")]");
+
+            if (!string.IsNullOrEmpty(prop.JsonPropertyName))
+            {
+                sb.AppendLine($"[JsonProperty(\"{prop.JsonPropertyName}\")]");
+            }
+
+            if (prop.JsonIgnore)
+            {
+                sb.AppendLine("[JsonIgnore]");
+            }
+
+            sb.AppendLine($"public {prop.TypeFullName} {prop.Name} {{ get; set; }} = new {prop.TypeFullName}();");
+            sb.AppendLine();
+        }
+
+        private static bool IsLookup(AttributeTypeCode type)
+            => type == AttributeTypeCode.Lookup
+            || type == AttributeTypeCode.Customer
+            || type == AttributeTypeCode.Owner;
+
+        /// <summary>
+        ///     Writes the <c>[CrmLookup]</c> that tells the reflection layer what to read through
+        ///     a lookup, and returns whether the property can be emitted at all.
+        /// </summary>
+        /// <remarks>
+        ///     A plain lookup reaching one table needs no attribute — the relationship is
+        ///     unambiguous and the Guid is read straight from the EntityReference. An attribute is
+        ///     written when the model asks for something more: a column of the targeted record to
+        ///     project, or a target to pick among several. A related model needs none either: the
+        ///     query builder reads the target off that model's own [CrmEntity].
+        /// </remarks>
+        private static bool WriteLookupAttribute(
+            SourceProductionContext productionContext,
+            IndentedStringBuilder sb,
+            Core.Model model,
+            ModelProperty prop,
+            Table table,
+            Column column,
+            TableCollection tables)
+        {
+            var relations = table.ManyToOneRelationships
+                .Where(r => r.LookupFieldName == column.LogicalName)
+                .ToList();
+
+            if (relations.Count == 0)
+            {
+                productionContext.ReportDiagnostic(Diagnostic.Create(
+                    Xrm1007, Location.None, model.Name, prop.Name,
+                    $"lookup column '{column.LogicalName}' has no many-to-one relationship in table '{table.LogicalName}'"));
+                return false;
+            }
+
+            Relation relation;
+
+            if (!string.IsNullOrEmpty(prop.LookupTargetTableLogicalName))
+            {
+                relation = relations.FirstOrDefault(r => r.EntityName == prop.LookupTargetTableLogicalName);
+
+                // An Owner column relates to the "owner" pseudo-entity, never to the tables an
+                // owner actually is; naming systemuser or team is the only way to say which.
+                if (relation == null
+                    && column.Type == AttributeTypeCode.Owner
+                    && relations.All(r => r.EntityName == "owner")
+                    && (prop.LookupTargetTableLogicalName == "systemuser" || prop.LookupTargetTableLogicalName == "team"))
+                {
+                    relation = new Relation
+                    {
+                        EntityName = prop.LookupTargetTableLogicalName,
+                        LookupFieldName = column.LogicalName
+                    };
+                }
+
+                if (relation == null)
+                {
+                    productionContext.ReportDiagnostic(Diagnostic.Create(
+                        Xrm1010, Location.None, model.Name, prop.Name,
+                        $"LookupTargetTableLogicalName is '{prop.LookupTargetTableLogicalName}', which lookup column "
+                        + $"'{column.LogicalName}' does not reach (it reaches {string.Join(", ", relations.Select(r => r.EntityName))})"));
+                    return false;
+                }
+            }
+            else if (relations.Count > 1)
+            {
+                productionContext.ReportDiagnostic(Diagnostic.Create(
+                    Xrm1010, Location.None, model.Name, prop.Name,
+                    $"lookup column '{column.LogicalName}' reaches several tables "
+                    + $"({string.Join(", ", relations.Select(r => r.EntityName))}); set LookupTargetTableLogicalName to say which one this property maps"));
+                return false;
+            }
+            else
+            {
+                relation = relations[0];
+            }
+
+            // A related model carries its own [CrmEntity]; nothing more to declare here.
+            if (prop.LookupTargetModel)
+            {
+                return true;
+            }
+
+            var noProjection = string.IsNullOrEmpty(prop.LookupTargetColumnLogicalName);
+
+            // Nothing to disambiguate and nothing to project: the plain Guid needs no attribute.
+            if (noProjection && relations.Count == 1)
+            {
+                return true;
+            }
+
+            var target = tables.FirstOrDefault(t => t.LogicalName == relation.EntityName);
+
+            var entityRef = target != null
+                ? $"{target.Name}Definition.EntityName"
+                : $"\"{relation.EntityName}\"";
+
+            // Without a projection the property is the target's own id — the idiom the
+            // hand-written models use to name a polymorphic target.
+            var projected = noProjection
+                ? target?.Columns.FirstOrDefault(c => c.PrimaryType == PrimaryType.Id)
+                : target?.Columns.FirstOrDefault(c => c.LogicalName == prop.LookupTargetColumnLogicalName);
+
+            string columnRef;
+
+            if (projected != null)
+            {
+                columnRef = $"{target.Name}Definition.Columns.{projected.Name}";
+            }
+            else if (!noProjection)
+            {
+                columnRef = $"\"{prop.LookupTargetColumnLogicalName}\"";
+            }
+            else
+            {
+                // Target table not tracked and no projection asked for: nothing reliable to name.
+                return true;
+            }
+
+            sb.AppendLine();
+            sb.Append($"[CrmLookup({entityRef}, {columnRef}");
+            if (prop.AllowNotExisting)
+            {
+                sb.Append(", true");
+            }
+            sb.Append(")]");
+
+            return true;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        //  Mapping
+        // ─────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Appends <c>ToBindingModel</c> / <c>ToEntity</c> to the class body being written, from
+        /// the description <see cref="MappingModelFactory"/> derives from the pair of files.
+        /// Anything the pair does not allow to be mapped is reported as a diagnostic instead of
+        /// dropping the property from the generated class without a word.
+        /// </summary>
+        private static void WriteMapping(
+            SourceProductionContext productionContext,
+            IndentedStringBuilder sb,
+            Core.Model model,
+            Table table,
+            TableCollection tables,
+            ICollection<Core.Model> models)
+        {
+            var result = MappingModelFactory.Create(model, table, tables, models);
+
+            foreach (var failure in result.Failures)
+            {
+                productionContext.ReportDiagnostic(Diagnostic.Create(
+                    DescriptorFor(failure.Id),
+                    Location.None,
+                    failure.ModelName,
+                    failure.PropertyName,
+                    failure.Detail));
+            }
+
+            if (result.Model == null)
+            {
+                return;
+            }
+
+            var writer = new CodeWriter();
+            MappingEmitter.WriteMethods(writer, result.Model);
+
+            sb.AppendLine();
+            sb.AppendLines(writer.ToString(), skipFinalNewline: true);
+        }
+
+        private static readonly DiagnosticDescriptor Xrm1005 = new(
+            "XRM1005",
+            "Model references an unknown table",
+            "Model '{0}' targets table '{1}', which no .table file declares",
+            "XrmFramework.Generators",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1005"));
+
+        private static readonly DiagnosticDescriptor Xrm1006 = new(
+            "XRM1006",
+            "Model property cannot be mapped to a column",
+            "Model '{0}': property '{1}' cannot be mapped — {2}",
+            "XrmFramework.Generators",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1006"));
+
+        private static readonly DiagnosticDescriptor Xrm1007 = new(
+            "XRM1007",
+            "Lookup property without a relationship",
+            "Model '{0}': property '{1}' cannot be mapped — {2}",
+            "XrmFramework.Generators",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1007"));
+
+        private static readonly DiagnosticDescriptor Xrm1008 = new(
+            "XRM1008",
+            "Malformed .model file",
+            "'{0}' could not be read as a model: {1}",
+            "XrmFramework.Generators",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1008"));
+
+        private static readonly DiagnosticDescriptor Xrm1009 = new(
+            "XRM1009",
+            "Model property type does not match its column",
+            "Model '{0}': property '{1}' {2}",
+            "XrmFramework.Generators",
+            // A warning, not an error: the accepted sets cover what the emitter special-cases,
+            // but a project may have a legitimate mapping this does not know about, and a false
+            // positive must not stop a build.
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1009"));
+
+        private static readonly DiagnosticDescriptor Xrm1010 = new(
+            "XRM1010",
+            "Ambiguous lookup target",
+            "Model '{0}': property '{1}' {2}",
+            "XrmFramework.Generators",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1010"));
+
+        private static readonly DiagnosticDescriptor Xrm1011 = new(
+            "XRM1011",
+            "Invalid model extension",
+            "Model '{0}': property '{1}' {2}",
+            "XrmFramework.Generators",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true,
+            helpLinkUri: DiagnosticIds.HelpLink("XRM1011"));
+
+        private static DiagnosticDescriptor DescriptorFor(string id) => id switch
+        {
+            "XRM1007" => Xrm1007,
+            "XRM1009" => Xrm1009,
+            "XRM1010" => Xrm1010,
+            "XRM1011" => Xrm1011,
+            _ => Xrm1006,
+        };
+
     }
 }

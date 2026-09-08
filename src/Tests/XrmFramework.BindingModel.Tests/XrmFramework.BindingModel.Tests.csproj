@@ -8,6 +8,15 @@
     <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
     <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
     <PublicSign>$(XrmFramework_PublicSign)</PublicSign>
+
+    <!--
+      CS0436: the .table files below are regenerated here while the XrmFramework assembly this
+      project references already carries the same definitions, so every *Definition class exists
+      twice and the local one wins. Harmless — both come from the same .table — and not specific
+      to this project: the shipped props re-add the package's tables to every consuming project,
+      which references an assembly that contains them too.
+    -->
+    <NoWarn>$(NoWarn);CS0436</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +31,24 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\XrmFramework\XrmFramework.csproj" />
+  </ItemGroup>
+
+  <!--
+    Runs the generators over real .table files and the .model files beside them, so the binding
+    models they produce have to compile. The unit tests over the generators assert on emitted
+    text; only an actual compilation proves that text is valid C#.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\XrmFramework\Definitions\**\*.table"
+                     Link="_Imports\%(RecursiveDir)%(Filename)%(Extension)" />
+    <AdditionalFiles Include="Models\**\*.model" />
+    <None Include="Models\**\*.model" />
   </ItemGroup>
 
 </Project>

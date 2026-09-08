@@ -18,6 +18,7 @@ using XrmFramework.DeployUtils.CommandOptions;
 //   xrmframework deploy plugins         --dll <path.dll> --project <name> [--on-premise] [--noprompt]
 //   xrmframework deploy webresources    --project <name> [--path <directory>] [--noprompt]
 //   xrmframework migrate sync-tables    --dll <path.dll> --tables-dir <directory> [--clean]   (2.* -> 3.1+ migration)
+//   xrmframework migrate sync-models    --dll <path.dll> --models-dir <directory>   (.model files from hand-written IBindingModel classes)
 
 // A Windows console still starts on a legacy code page (CP850 / CP1252). Those cover Western
 // European letters, so accents survive them, but anything outside their 256 slots does not:
@@ -106,15 +107,19 @@ app.Configure(config =>
               .WithExample("deploy", "webresources", "--project", "Webresources", "--path", "Webresources");
     });
 
-    // One-shot upgrades, as opposed to the day-to-day loop the other branches serve: each command
-    // here rewrites the project's own sources once, and has no reason to be run again afterwards.
+    // sync-tables is a one-shot version upgrade; sync-models is the odd one out here — it can be
+    // run once to bulk-convert a project's binding models, or repeatedly as more of them migrate.
     config.AddBranch("migrate", migrate =>
     {
-        migrate.SetDescription("One-shot migrations of a project's sources. Run once, then commit.");
+        migrate.SetDescription("Migrations of a project's sources from what an assembly's classes declare.");
 
         migrate.AddCommand<MigrateSyncTablesCommand>("sync-tables")
                .WithDescription("Migrates definitions from XrmFramework 2.* to 3.1+: updates the .table files from a 2.* assembly, then cleans up the *Definition.cs files. Run once.")
                .WithExample("migrate", "sync-tables", "--dll", "bin/MyProject.dll", "--tables-dir", "Definitions");
+
+        migrate.AddCommand<MigrateSyncModelsCommand>("sync-models")
+               .WithDescription("Generates .model files from the hand-written IBindingModel classes ([[CrmEntity]] + [[CrmMapping]]/[[CrmLookup]]/[[ExtendBindingModel]]/[[ChildRelationship]]) found in a compiled assembly, for ModelSourceFileGenerator to reproduce them at compile time. Safe to re-run as more classes migrate.")
+               .WithExample("migrate", "sync-models", "--dll", "bin/MyProject.Core.dll", "--models-dir", "Model");
     });
 });
 
