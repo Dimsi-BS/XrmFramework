@@ -31,7 +31,6 @@
   <Project Path="XrmFramework.PluginInventory/XrmFramework.PluginInventory.csproj" />
   <Project Path="XrmFramework.RemoteDebugger.Client/XrmFramework.RemoteDebugger.Client.csproj" />
   <Project Path="XrmFramework.RemoteDebugger.Generator/XrmFramework.RemoteDebugger.Generator.csproj" />
-  <Project Path="XrmFramework.Templates/XrmFramework.Templates.csproj" />
   <Project Path="XrmFramework.TypeScript/XrmFramework.TypeScript.csproj" />
   <Project Path="XrmFramework.Workflows/XrmFramework.Workflows.csproj" />
   <Project Path="XrmFramework/XrmFramework.csproj" />

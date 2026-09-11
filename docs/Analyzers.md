@@ -42,7 +42,7 @@ expected all surface as a build diagnostic with a one-click fix where possible.
 
 The analyzers live in the **`XrmFramework.Analyzers`** NuGet package (with code fixes in
 `XrmFramework.Analyzers.CodeFixes`). They are referenced automatically by the project
-templates, so a solution scaffolded with `dotnet new xrmSolution` already has them
+templates, so a solution scaffolded with `xrmframework new solution` already has them
 enabled. They run inside the C# compiler (`netstandard2.0` Roslyn component): you see
 their diagnostics in Visual Studio / Rider / VS Code **and** on every `dotnet build`
 or CI run — there is nothing to launch.
