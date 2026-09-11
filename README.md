@@ -7,7 +7,7 @@
 Strongly-typed models, declarative plugin registration, one-click deployment and a real remote debugger — distilled from 15+ years of building production Dynamics 365 / Dataverse solutions.
 
 [![Build & Tests](https://dev.azure.com/dimsi/XrmFramework/_apis/build/status/41?branchName=main)](https://dev.azure.com/dimsi/XrmFramework/_build?definitionId=41)
-[![NuGet](https://img.shields.io/nuget/v/XrmFramework.Templates.svg?label=XrmFramework.Templates&color=512BD4)](https://www.nuget.org/packages/XrmFramework.Templates)
+[![NuGet](https://img.shields.io/nuget/v/XrmFramework.Cli.svg?label=XrmFramework.Cli&color=512BD4)](https://www.nuget.org/packages/XrmFramework.Cli)
 [![Downloads](https://img.shields.io/nuget/dt/XrmFramework.svg?label=downloads&color=success)](https://www.nuget.org/packages/XrmFramework)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.txt)
 [![.NET](https://img.shields.io/badge/.NET-Framework%204.6.2%20%7C%208%20%7C%2010-512BD4.svg)](#)
@@ -26,7 +26,7 @@ Dynamics 365 / Dataverse plugin development is famous for its friction: magic st
 | `entity.GetAttributeValue<string>("name")` — typos compile fine, break at runtime | `AccountDefinition.Columns.Name` — strongly typed, refactor-safe, IntelliSense everywhere |
 | Register every plugin step by hand in the Plugin Registration Tool | Steps are declared in code with attributes and **registered automatically on deploy** |
 | `Console.WriteLine`-style guesswork to debug a deployed plugin | Set a **breakpoint in Visual Studio** and step through a live Dataverse execution |
-| Re-glue the SDK, build, deploy and test plumbing in every new project | `dotnet new xrmSolution` scaffolds the whole thing in seconds |
+| Re-glue the SDK, build, deploy and test plumbing in every new project | `xrmframework new solution` scaffolds the whole thing in seconds |
 
 ```csharp
 // ❌ Raw SDK — magic strings, no safety net
@@ -112,40 +112,37 @@ in the CLI reference.
 
 ## Quick start
 
-Get from zero to a deployable, strongly-typed Dynamics 365 / Dataverse solution in three commands.
+Get from zero to a deployable, strongly-typed Dynamics 365 / Dataverse solution in two commands,
+via the `xrmframework` CLI — no `dotnet new`, no external script, works identically on Windows,
+macOS and Linux.
 
-### Download the project templates
+### Install the CLI
 
-XrmFramework uses the `dotnet new` templating engine. Install the templates from NuGet:
-
-```PS
-dotnet new -i XrmFramework.Templates
+```bash
+dotnet tool install --global XrmFramework.Cli
 ```
+
+See **[XrmFramework CLI](src/XrmFramework.Cli/README.md#installation)** for the local-tool
+(per-repository, recommended) and from-source alternatives.
 
 ### Create a new solution
 
 Scaffold a complete solution — Core, Plugins, deployment and test projects — in one command:
 
-```PS
-PS C:\Temp> dotnet new xrmSolution -n {solutionName}
+```bash
+xrmframework new solution {solutionName}
 ```
 
-The `-n` argument creates the solution in `C:\Temp\{solutionName}`.
+Creates `{solutionName}/` in the current directory. Projects can be added to it later the same way:
 
-The templating service will prompt you to accept the execution of a PowerShell initialization script:
-
-```PS
-Processing post-creation actions...
-Template is configured to run the following action:
-Description: Finalize XrmFramework solution initialization
-Manual instructions: Initialisation XrmFramework
-Actual command: powershell -File initXrm.ps1
-Do you want to run this action (Y|N)?
+```bash
+xrmframework new plugin {pluginName} --solution-dir {solutionName}
+xrmframework new console {consoleAppName} --solution-dir {solutionName}
+xrmframework new azurefunction {functionName} --solution-dir {solutionName}
 ```
 
-Accept this execution to make sure the solution is configured correctly.
-
-> Tip: add `--accept-scripts` to run the initialization script without the `dotnet new` prompt.
+See **[`new solution` / `plugin` / `console` / `azurefunction`](src/XrmFramework.Cli/README.md#xrmframework-new-solution--plugin--console--azurefunction--available--scaffolding-without-dotnet-new)**
+in the CLI reference for what each command does.
 
 ### Configure the new project
 
@@ -361,7 +358,7 @@ XrmFramework ships a collection of extension methods that make working with the 
 | [Remote Debugger](docs/RemoteDebugger.md) | Debug live plugin executions in Visual Studio. |
 | [Utilities](docs/XrmFrameworkUtilities.md) | Extension methods for the Dataverse SDK. |
 | [Analyzers](docs/Analyzers.md) | Build-time diagnostics (`XRM00xx`) and code fixes that catch plugin mistakes before deploy. |
-| [CLI](src/XrmFramework.Cli/README.md) | The `xrmframework` .NET tool: `tables` (pull/columns/optionsets), `deploy`, and the 2.\* → 3.1+ `migrate sync-tables` upgrade path. |
+| [CLI](src/XrmFramework.Cli/README.md) | The `xrmframework` .NET tool: `tables` (pull/columns/optionsets), `deploy`, `new` (scaffolds a solution/project without `dotnet new`), and the 2.\* → 3.1+ `migrate sync-tables` upgrade path. |
 
 ## Packages
 
@@ -383,7 +380,7 @@ Every piece of XrmFramework ships as an independent NuGet package, so you only p
 
 | Package | Role | Latest | Downloads |
 | --- | --- | --- | --- |
-| [XrmFramework.Templates](https://www.nuget.org/packages/XrmFramework.Templates) | `dotnet new` solution & project templates | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.Templates?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.Templates?color=success&label=) |
+| [XrmFramework.Cli](https://www.nuget.org/packages/XrmFramework.Cli) | `xrmframework` .NET tool: scaffolding (`new`), `tables`, `deploy`, `migrate` | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.Cli?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.Cli?color=success&label=) |
 | [XrmFramework.Analyzers](https://www.nuget.org/packages/XrmFramework.Analyzers) | Roslyn analyzers & code fixes (`XRM00xx`) | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.Analyzers?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.Analyzers?color=success&label=) |
 | [XrmFramework.DefinitionManager](https://www.nuget.org/packages/XrmFramework.DefinitionManager) | Typed model definition generator (UI) | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.DefinitionManager?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.DefinitionManager?color=success&label=) |
 | [XrmFramework.DeployUtils](https://www.nuget.org/packages/XrmFramework.DeployUtils) | Deployment utilities (plugins, web resources, Custom APIs) | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.DeployUtils?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.DeployUtils?color=success&label=) |

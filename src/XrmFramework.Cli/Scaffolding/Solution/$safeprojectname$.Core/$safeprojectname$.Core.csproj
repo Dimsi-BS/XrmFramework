@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net462</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="XrmFramework" />
+    <PackageReference Include="XrmFramework.CoreProject" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Definitions/" />
+    <Folder Include="Model/" />
+    <Folder Include="Services/" />
+  </ItemGroup>
+
+
+</Project>

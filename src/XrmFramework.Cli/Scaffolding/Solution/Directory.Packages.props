@@ -1,0 +1,49 @@
+<Project>
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- XrmFramework packages: the version is replaced at pack time (see the framework's own
+         Directory.Build.targets / ModifyTemplateDependencyVersion target), the same way each
+         PackageReference's Version used to carry #{GitBuildVersionSimple}# before Central Package
+         Management. Centralized here so every project (including one added later via
+         "xrmframework new plugin/console/azurefunction" or the matching dotnet-new templates)
+         picks up the same version without repeating it. -->
+    <PackageVersion Include="XrmFramework" Version="#{GitBuildVersionSimple}#" />
+    <PackageVersion Include="XrmFramework.CoreProject" Version="#{GitBuildVersionSimple}#" />
+    <PackageVersion Include="XrmFramework.Plugin" Version="#{GitBuildVersionSimple}#" />
+    <PackageVersion Include="XrmFramework.DeployUtils" Version="#{GitBuildVersionSimple}#" />
+    <PackageVersion Include="XrmFramework.DefinitionManager" Version="#{GitBuildVersionSimple}#" />
+    <PackageVersion Include="XrmFramework.RemoteDebugger.Client" Version="#{GitBuildVersionSimple}#" />
+    <PackageVersion Include="XrmFramework.TypeScript" Version="#{GitBuildVersionSimple}#" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Injected into every project by Directory.Build.props. -->
+    <PackageVersion Include="Nerdbank.GitVersioning" Version="3.10.91" />
+    <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- xrmframework new console / xrmConsoleProject -->
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.CommandLine" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Xml" Version="10.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- xrmframework new azurefunction / xrmAzureFunction -->
+    <PackageVersion Include="Dimsi.Azure.Functions.Worker.Extensions.MediatR" Version="*" />
+    <PackageVersion Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker" Version="2.51.0" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.50.0" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.24.0" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
+    <PackageVersion Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.7" />
+  </ItemGroup>
+
+</Project>
