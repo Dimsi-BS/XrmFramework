@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
@@ -131,7 +132,7 @@ public class CrmSettingsFactory<TSettings> where TSettings : CrmSettings, new()
                         }
                         if (objectType == typeof(decimal))
                         {
-                            return decimal.Parse(variable.Value);
+                            return decimal.Parse(variable.Value, NumberFormatInfo.InvariantInfo);
                         }
 
                         throw new ArgumentException($"The environment variable is of type Number GetEnvironmentVariable must be called with a int or decimal Type argument");
