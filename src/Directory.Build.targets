@@ -96,7 +96,13 @@
 
     <ItemGroup>
       <FilesToModify Remove="@(FilesToModify)" />
-      <FilesToModify Include="**/templates/**/*.csproj"/>
+      <!--
+        Directory.Packages.props embedded in XrmFramework.Cli's own "Scaffolding" content (for
+        "xrmframework new") carries the token on the XrmFramework PackageVersion entries — the same
+        role each scaffolded csproj's own PackageReference Version played before Central Package
+        Management centralized them.
+      -->
+      <FilesToModify Include="**/Scaffolding/**/Directory.Packages.props"/>
     </ItemGroup>
 
     <MSBuild Condition="@(FilesToModify->Count()) > 0" Projects="$(MSBuildProjectFile)" Properties="CurrentCsProj=%(FilesToModify.FullPath);searchedPattern=#{GitBuildVersionSimple}#;NuGetPackageVersion=$(NuGetPackageVersion)" Targets="ReplaceCsprojVersion">
@@ -116,8 +122,7 @@
     <Message Importance="High" Text="NuGetPackageVersion = $(NuGetPackageVersion)" />
     <ItemGroup>
       <FilesToModify Remove="@(FilesToModify)" />
-      <FilesToModify Include="**/templates/**/*.csproj"/>
-
+      <FilesToModify Include="**/Scaffolding/**/Directory.Packages.props"/>
     </ItemGroup>
 
     <MSBuild Condition="@(FilesToModify->Count()) > 0" Projects="$(MSBuildProjectFile)" Properties="CurrentCsProj=%(FilesToModify.FullPath);searchedPattern=$(NuGetPackageVersion);NuGetPackageVersion=#{GitBuildVersionSimple}#" Targets="ReplaceCsprojVersion">

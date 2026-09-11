@@ -19,6 +19,10 @@ using XrmFramework.DeployUtils.CommandOptions;
 //   xrmframework deploy webresources    --project <name> [--path <directory>] [--noprompt]
 //   xrmframework migrate sync-tables    --dll <path.dll> --tables-dir <directory> [--clean]   (2.* -> 3.1+ migration)
 //   xrmframework migrate sync-models    --dll <path.dll> --models-dir <directory>   (.model files from hand-written IBindingModel classes)
+//   xrmframework new solution           <NAME> [--output <directory>]   (scaffolds a new XrmFramework solution)
+//   xrmframework new plugin             <NAME> [--solution-dir <dir>] [--solution-unique-name <name>]
+//   xrmframework new console            <NAME> [--solution-dir <dir>]
+//   xrmframework new azurefunction      <NAME> [--solution-dir <dir>]
 
 // A Windows console still starts on a legacy code page (CP850 / CP1252). Those cover Western
 // European letters, so accents survive them, but anything outside their 256 slots does not:
@@ -120,6 +124,29 @@ app.Configure(config =>
         migrate.AddCommand<MigrateSyncModelsCommand>("sync-models")
                .WithDescription("Generates .model files from the hand-written IBindingModel classes ([[CrmEntity]] + [[CrmMapping]]/[[CrmLookup]]/[[ExtendBindingModel]]/[[ChildRelationship]]) found in a compiled assembly, for ModelSourceFileGenerator to reproduce them at compile time. Safe to re-run as more classes migrate.")
                .WithExample("migrate", "sync-models", "--dll", "bin/MyProject.Core.dll", "--models-dir", "Model");
+    });
+
+    config.AddBranch("new", @new =>
+    {
+        @new.SetDescription("Scaffolds a new XrmFramework solution or project, in-process — no dotnet-new template, no external script.");
+
+        @new.AddCommand<NewSolutionCommand>("solution")
+            .WithDescription("Creates a new XrmFramework solution: Core, Plugins, Utils (DefinitionManager, RemoteDebugger, Deploy.*), Webresources.")
+            .WithExample("new", "solution", "Contoso")
+            .WithExample("new", "solution", "Contoso", "--output", "C:\\Projects");
+
+        @new.AddCommand<NewPluginCommand>("plugin")
+            .WithDescription("Adds a plugin project (and its Deploy.* companion) to an existing solution: dotnet sln add, RemoteDebugger reference, and xrmFramework.config registration.")
+            .WithExample("new", "plugin", "Contoso.Warehouse")
+            .WithExample("new", "plugin", "Contoso.Warehouse", "--solution-unique-name", "ContosoPlugins");
+
+        @new.AddCommand<NewConsoleCommand>("console")
+            .WithDescription("Adds a console app project to an existing solution.")
+            .WithExample("new", "console", "Contoso.Scripts");
+
+        @new.AddCommand<NewAzureFunctionCommand>("azurefunction")
+            .WithDescription("Adds an isolated-worker Azure Function project to an existing solution.")
+            .WithExample("new", "azurefunction", "Contoso.Api");
     });
 });
 

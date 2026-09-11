@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+      <TargetFramework>net10.0</TargetFramework>
+      <AzureFunctionsVersion>V4</AzureFunctionsVersion>
+      <OutputType>Exe</OutputType>
+      <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+      <PackageReference Include="Dimsi.Azure.Functions.Worker.Extensions.MediatR" />
+      
+      <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" />
+
+      <PackageReference Include="Microsoft.Azure.Functions.Worker" />
+      <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" />
+      <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" />
+      <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" />
+      <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="host.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="local.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(RootFolder)/$(XrmFrameworkCoreProjectName)/$(XrmFrameworkCoreProjectName).csproj" />
+  </ItemGroup>
+
+</Project>

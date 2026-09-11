@@ -1,0 +1,23 @@
+<Project>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <RootFolder>$(MSBuildThisFileDirectory)</RootFolder>
+    <AssemblyOriginatorKeyFile>$(RootFolder)/$safeprojectname$.snk</AssemblyOriginatorKeyFile>
+
+    <LangVersion>latest</LangVersion>
+
+    <XrmFrameworkCoreProjectName>$safeprojectname$.Core</XrmFrameworkCoreProjectName>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <!-- Versions centralized in Directory.Packages.props (Central Package Management). -->
+    <PackageReference Include="Nerdbank.GitVersioning" Condition="!Exists('packages.config')">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

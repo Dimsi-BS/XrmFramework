@@ -66,6 +66,25 @@
           Visible="false" />
   </ItemGroup>
 
+  <!--
+    Scaffolding content for "xrmframework new" (SolutionScaffolder and friends in DeployUtils):
+    the former XrmFramework.Templates dotnet-new template trees, minus their .template.config and
+    initXrm.ps1 (the scaffolder replaces both — token substitution and the postAction logic are now
+    plain C#). Already under the project directory, so the SDK's implicit glob already declares
+    these as None items; Update (not Include) just adds CopyToOutputDirectory without duplicating
+    them. PackAsTool packages the whole publish output under tools/net10.0/any/, so this is enough
+    for the content to ship in the .nupkg too.
+  -->
+  <ItemGroup>
+    <!-- The scaffolding content is data, not code: excluded from every implicit glob (its .cs
+         files would otherwise be compiled straight into the CLI, and its nested .csproj files
+         are just text as far as this project is concerned) and re-declared as plain None. -->
+    <Compile Remove="Scaffolding\**" />
+    <EmbeddedResource Remove="Scaffolding\**" />
+    <None Remove="Scaffolding\**" />
+    <None Include="Scaffolding\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Spectre.Console" />
     <PackageReference Include="Spectre.Console.Cli" />

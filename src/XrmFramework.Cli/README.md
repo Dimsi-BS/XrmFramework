@@ -848,6 +848,69 @@ Implementation: [`ModelSyncHelper.Sync`](../XrmFramework.DeployUtils/ModelSyncHe
 
 ---
 
+### `xrmframework new solution` / `plugin` / `console` / `azurefunction` ✅ *(available)* — scaffolding, without `dotnet new`
+
+**Replaces the `XrmFramework.Templates` dotnet-new package** (formerly `xrmSolution`,
+`xrmPluginProject`, `xrmConsoleProject`, `xrmAzureFunction`), which no longer exists as a separate
+project — the project skeletons are shipped as plain content inside the `XrmFramework.Cli` tool
+itself, and a small in-process copier replaces `$safeprojectname$` in file/directory names and text
+content — no Template Engine, no `dotnet new install`, and no external interpreter for the
+finishing steps a `postAction` used to run (`initXrm.ps1`, which required `pwsh` — see
+[the migration story below](#why-not-dotnet-new)).
+
+```bash
+xrmframework new solution      <NAME> [--output <DIRECTORY>]
+xrmframework new plugin        <NAME> [--solution-dir <DIRECTORY>] [--solution-unique-name <NAME>]
+xrmframework new console       <NAME> [--solution-dir <DIRECTORY>]
+xrmframework new azurefunction <NAME> [--solution-dir <DIRECTORY>]
+```
+
+| Command | What it does |
+|---|---|
+| `new solution` | Creates `<NAME>/` from scratch: `<NAME>.Core`, `<NAME>.Plugins`, `Utils/` (DefinitionManager, RemoteDebugger, Deploy.\*), `Webresources/`. Renames `gitignore` to `.gitignore` and materializes `Config/connectionStrings.config` from its `.sample`. |
+| `new plugin` | Adds `<NAME>/` and `Utils/Deploy.<NAME>/` to the solution found under `--solution-dir` (one `.sln`, or it's an error): `dotnet sln add` for both, a project reference from `RemoteDebugger.csproj`, and an `<add name="<NAME>" targetSolution="…" type="PluginsWorkflows"/>` appended to `Config/xrmFramework.config`. `--solution-unique-name` is prompted for if omitted. |
+| `new console` / `new azurefunction` | Adds `<NAME>/` to the solution found under `--solution-dir` and `dotnet sln add`s it. |
+
+Every `PackageReference` in the scaffolded content is version-less: `new solution` also creates a
+root **`Directory.Packages.props`** (Central Package Management) listing every package the four
+templates use — including the XrmFramework packages themselves, at the CLI's own version. A project
+added later via `new plugin`/`new console`/`new azurefunction` relies on that same file (MSBuild
+finds it by walking up from the new project to the solution root), so no version is ever repeated
+per project.
+
+**Example**
+
+```bash
+xrmframework new solution Contoso
+xrmframework new plugin Contoso.Warehouse --solution-dir Contoso --solution-unique-name ContosoPlugins
+```
+
+<a id="why-not-dotnet-new"></a>
+#### Why not keep using `dotnet new`?
+
+The `XrmFramework.Templates` project (and its dotnet-new templates) has been removed from this
+repository — it carried a `pwsh`-based `initXrm.ps1` postAction for everything the Template Engine
+has no declarative feature for: deleting files (no post-action removes anything), producing
+`connectionStrings.config` from its
+`.sample` (no "copy" post-action, only rename), merging a plugin's generated content into the
+*already existing* solution folder (the Template Engine only ever writes into its own fresh output
+directory — hence the template's own `mv $safeprojectname$/* ./` dance), and editing the XML
+`xrmFramework.config` (the only config-editing post-action Microsoft ships targets JSON). Being a
+plain C# tool with no such sandbox, `new plugin` writes straight to its final path under
+`--solution-dir` and edits `xrmFramework.config` directly — no external interpreter, no postAction,
+no merge step.
+
+Implementation: [`SolutionScaffolder`](../XrmFramework.DeployUtils/Scaffolding/SolutionScaffolder.cs),
+[`PluginScaffolder`](../XrmFramework.DeployUtils/Scaffolding/PluginScaffolder.cs),
+[`SimpleProjectScaffolder`](../XrmFramework.DeployUtils/Scaffolding/SimpleProjectScaffolder.cs)
+-> [`TemplateScaffolder`](../XrmFramework.DeployUtils/Scaffolding/TemplateScaffolder.cs) (the copy +
+token-replace engine) + [`DotNetCliRunner`](../XrmFramework.DeployUtils/Scaffolding/DotNetCliRunner.cs)
+(`dotnet sln add` / `dotnet add reference`). Content lives under
+[`XrmFramework.Cli/Scaffolding/`](Scaffolding), shipped as plain tool content
+(`AppContext.BaseDirectory/Scaffolding/<Solution|Plugin|ConsoleApp|AzureFunction>`).
+
+---
+
 ## Roadmap
 
 Target command tree (✅ exist, 🚧 are upcoming):
@@ -867,9 +930,14 @@ xrmframework
 ├── deploy
 │   ├── plugins        ✅  deploys a plugins / custom API / workflow assembly
 │   └── webresources   🚧  deploys the webresources
-└── migrate
-    ├── sync-tables    ✅  migration 2.* -> 3.1+, run once         (offline)
-    └── sync-models    ✅  .model ← hand-written IBindingModel classes (offline)
+├── migrate
+│   ├── sync-tables    ✅  migration 2.* -> 3.1+, run once         (offline)
+│   └── sync-models    ✅  .model ← hand-written IBindingModel classes (offline)
+└── new
+    ├── solution       ✅  scaffolds a new XrmFramework solution   (offline)
+    ├── plugin         ✅  adds a plugin project to a solution     (offline)
+    ├── console        ✅  adds a console app project to a solution (offline)
+    └── azurefunction  ✅  adds an Azure Function project to a solution (offline)
 ```
 
 `migrate` stands apart from `tables` and `deploy`: each command here rewrites the project's own
