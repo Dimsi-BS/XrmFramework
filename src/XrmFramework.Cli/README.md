@@ -8,6 +8,11 @@ The business logic lives in the [`XrmFramework.DeployUtils`](../XrmFramework.Dep
 this project is only its command-line front end (based on
 [Spectre.Console.Cli](https://spectreconsole.net/cli/)).
 
+> ⚠️ **Coming from XrmFramework 2.\*?** Run [`migrate sync-tables`](#xrmframework-migrate-sync-tables--available--migration-from-2-to-31)
+> (and [`migrate sync-models`](#xrmframework-migrate-sync-models--available--model-files-from-hand-written-binding-models)
+> if the project has hand-written binding models) once, before upgrading to 3.1+ — the project
+> will not compile otherwise.
+
 ---
 
 ## Installation

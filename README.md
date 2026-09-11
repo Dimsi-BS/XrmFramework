@@ -60,10 +60,37 @@ var name = account.Nom;
 - 📋 **Rich, zero-boilerplate tracing** — every service call and step execution is logged automatically.
 - 🛠️ **Productivity utilities** — concise extension methods for OptionSets, image/target merges, QueryExpression and EntityReference handling.
 
+## ⚠️ Upgrading from 2.\*
+
+> **A project built against XrmFramework 2.\* will not compile under 3.1+ as-is.** Run the
+> one-time migration before upgrading the NuGet packages.
+
+Under 2.\*, the DefinitionManager checked in a hand-written `*Definition.cs` next to each `.table`
+file, and binding models were hand-written classes. From 3.1 on, both are **generated at compile
+time** by a Roslyn source generator — the `.table` / `.model` files are the only source of truth,
+and the old checked-in `.cs` files collide with the generated code.
+
+Two one-time CLI commands hand the project over, reflecting on the assembly **last compiled under
+2.\*** to recover what only your code knows (which columns are used, and the names your code
+compiles against):
+
+```bash
+# Required: migrates *Definition.cs / .table files
+xrmframework migrate sync-tables --dll <path-to-2.x-build.dll> --tables-dir <CoreProject>/Definitions
+
+# Only if the project has hand-written IBindingModel classes
+xrmframework migrate sync-models --dll <path-to-2.x-build.dll> --models-dir <CoreProject>/Model
+```
+
+Full details, options and what each migration does and does not touch: **[`migrate sync-tables`](src/XrmFramework.Cli/README.md#xrmframework-migrate-sync-tables--available--migration-from-2-to-31)**
+and **[`migrate sync-models`](src/XrmFramework.Cli/README.md#xrmframework-migrate-sync-models--available--model-files-from-hand-written-binding-models)**
+in the CLI reference.
+
 ## Table of contents
 
 - [Why XrmFramework?](#why-xrmframework)
 - [Features at a glance](#features-at-a-glance)
+- [⚠️ Upgrading from 2.\*](#️-upgrading-from-2)
 - [Quick start](#quick-start)
   - [Download the project templates](#download-the-project-templates)
   - [Create a new solution](#create-a-new-solution)
