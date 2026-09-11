@@ -43,7 +43,7 @@ namespace XrmFramework.DeployUtils.Scaffolding
             string solutionFile;
             try
             {
-                solutionFile = FindSingleSolutionFile(solutionRoot);
+                solutionFile = TemplateScaffolder.FindSingleSolutionFile(solutionRoot);
             }
             catch (Exception ex) when (ex is FileNotFoundException or InvalidOperationException)
             {
@@ -104,21 +104,6 @@ namespace XrmFramework.DeployUtils.Scaffolding
                 AnsiConsole.WriteException(ex);
                 return 3;
             }
-        }
-
-        private static string FindSingleSolutionFile(string solutionRoot)
-        {
-            if (!Directory.Exists(solutionRoot))
-                throw new FileNotFoundException($"Solution directory not found: {solutionRoot}", solutionRoot);
-
-            var solutionFiles = Directory.GetFiles(solutionRoot, "*.sln");
-
-            return solutionFiles.Length switch
-            {
-                0 => throw new FileNotFoundException($"No .sln file found under {solutionRoot}.", solutionRoot),
-                1 => solutionFiles[0],
-                _ => throw new InvalidOperationException($"Several .sln files found under {solutionRoot}; expected exactly one."),
-            };
         }
 
         private static void AddToSolution(string solutionFile, string projectPath)

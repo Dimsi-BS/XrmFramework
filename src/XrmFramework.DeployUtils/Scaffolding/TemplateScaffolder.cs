@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace XrmFramework.DeployUtils.Scaffolding
 {
@@ -19,7 +20,7 @@ namespace XrmFramework.DeployUtils.Scaffolding
         // text-replacing a binary file would corrupt it.
         private static readonly HashSet<string> TextExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
-            "", ".cs", ".csproj", ".sln", ".config", ".sample", ".json", ".props", ".targets",
+            "", ".cs", ".csproj", ".sln", ".slnx", ".config", ".sample", ".json", ".props", ".targets",
             ".xml", ".ts", ".js", ".html", ".css", ".md", ".txt", ".yml", ".yaml", ".editorconfig",
             ".gitignore"
         };
@@ -67,5 +68,30 @@ namespace XrmFramework.DeployUtils.Scaffolding
         }
 
         private static bool IsTextFile(string path) => TextExtensions.Contains(Path.GetExtension(path));
+
+        /// <summary>
+        /// Finds the single solution file (<c>.sln</c> or the newer <c>.slnx</c>) directly under
+        /// <paramref name="directory"/> — what <c>xrmframework new plugin/console/azurefunction</c>
+        /// add a project to. <c>new solution</c> only ever creates <c>.slnx</c>, but a solution
+        /// generated before that switch (or hand-created) may still be a classic <c>.sln</c>.
+        /// </summary>
+        /// <exception cref="FileNotFoundException">No solution file found.</exception>
+        /// <exception cref="InvalidOperationException">More than one solution file found.</exception>
+        public static string FindSingleSolutionFile(string directory)
+        {
+            if (!Directory.Exists(directory))
+                throw new FileNotFoundException($"Solution directory not found: {directory}", directory);
+
+            var solutionFiles = Directory.EnumerateFiles(directory, "*.sln")
+                                          .Concat(Directory.EnumerateFiles(directory, "*.slnx"))
+                                          .ToArray();
+
+            return solutionFiles.Length switch
+            {
+                0 => throw new FileNotFoundException($"No .sln/.slnx file found under {directory}.", directory),
+                1 => solutionFiles[0],
+                _ => throw new InvalidOperationException($"Several solution files found under {directory}; expected exactly one."),
+            };
+        }
     }
 }

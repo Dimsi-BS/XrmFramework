@@ -868,8 +868,12 @@ xrmframework new azurefunction <NAME> [--solution-dir <DIRECTORY>]
 | Command | What it does |
 |---|---|
 | `new solution` | Creates `<NAME>/` from scratch: `<NAME>.Core`, `<NAME>.Plugins`, `Utils/` (DefinitionManager, RemoteDebugger, Deploy.\*), `Webresources/`. Renames `gitignore` to `.gitignore` and materializes `Config/connectionStrings.config` from its `.sample`. |
-| `new plugin` | Adds `<NAME>/` and `Utils/Deploy.<NAME>/` to the solution found under `--solution-dir` (one `.sln`, or it's an error): `dotnet sln add` for both, a project reference from `RemoteDebugger.csproj`, and an `<add name="<NAME>" targetSolution="…" type="PluginsWorkflows"/>` appended to `Config/xrmFramework.config`. `--solution-unique-name` is prompted for if omitted. |
+| `new plugin` | Adds `<NAME>/` and `Utils/Deploy.<NAME>/` to the solution found under `--solution-dir` (one `.sln`/`.slnx`, or it's an error): `dotnet sln add` for both, a project reference from `RemoteDebugger.csproj`, and an `<add name="<NAME>" targetSolution="…" type="PluginsWorkflows"/>` appended to `Config/xrmFramework.config`. `--solution-unique-name` is prompted for if omitted. |
 | `new console` / `new azurefunction` | Adds `<NAME>/` to the solution found under `--solution-dir` and `dotnet sln add`s it. |
+
+`new solution` generates the newer XML-based **`.slnx`** format, not the classic `.sln` — `dotnet sln add`
+understands both transparently (requires .NET SDK 9.0.200+). `new plugin`/`console`/`azurefunction` look
+for either extension, so they still work against a solution generated before this switch.
 
 Every `PackageReference` in the scaffolded content is version-less: `new solution` also creates a
 root **`Directory.Packages.props`** (Central Package Management) listing every package the four

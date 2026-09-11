@@ -33,13 +33,14 @@ namespace XrmFramework.DeployUtils.Scaffolding
                 return 2;
             }
 
-            var solutionFiles = Directory.Exists(solutionRoot) ? Directory.GetFiles(solutionRoot, "*.sln") : Array.Empty<string>();
-            if (solutionFiles.Length != 1)
+            string solutionFile;
+            try
             {
-                AnsiConsole.MarkupLine(
-                    solutionFiles.Length == 0
-                        ? $"[red]No .sln file found under {Markup.Escape(solutionRoot)}.[/]"
-                        : $"[red]Several .sln files found under {Markup.Escape(solutionRoot)}; expected exactly one.[/]");
+                solutionFile = TemplateScaffolder.FindSingleSolutionFile(solutionRoot);
+            }
+            catch (Exception ex) when (ex is FileNotFoundException or InvalidOperationException)
+            {
+                AnsiConsole.MarkupLine($"[red]{Markup.Escape(ex.Message)}[/]");
                 return 2;
             }
 
@@ -52,7 +53,7 @@ namespace XrmFramework.DeployUtils.Scaffolding
 
             AnsiConsole.MarkupLine($"[bold]XrmFramework - new {kindLabel}[/]");
             AnsiConsole.MarkupLine($"  Name    : [cyan]{name}[/]");
-            AnsiConsole.MarkupLine($"  Solution: [cyan]{solutionFiles[0]}[/]");
+            AnsiConsole.MarkupLine($"  Solution: [cyan]{solutionFile}[/]");
             AnsiConsole.WriteLine();
 
             try
@@ -60,7 +61,7 @@ namespace XrmFramework.DeployUtils.Scaffolding
                 TemplateScaffolder.CopyAndReplace(templateRoot, projectDir, NameToken, name);
 
                 var projectPath = Path.Combine(projectDir, $"{name}.csproj");
-                var (exitCode, output) = DotNetCliRunner.SlnAdd(solutionFiles[0], projectPath);
+                var (exitCode, output) = DotNetCliRunner.SlnAdd(solutionFile, projectPath);
                 if (exitCode != 0)
                     throw new InvalidOperationException($"'dotnet sln add {projectPath}' failed:{Environment.NewLine}{output}");
 
