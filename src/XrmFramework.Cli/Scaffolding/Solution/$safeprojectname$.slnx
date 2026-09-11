@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/Config/">
+    <File Path="Config/App.config" />
+    <File Path="Config/connectionStrings.config" />
+    <File Path="Config/xrmFramework.config" />
+  </Folder>
+  <Folder Name="/Utils/">
+    <Project Path="Utils/Deploy.$safeprojectname$.Plugins/Deploy.$safeprojectname$.Plugins.csproj" />
+    <Project Path="Utils/Deploy.Webresources/Deploy.Webresources.csproj" />
+    <Project Path="Utils/DefinitionManager/DefinitionManager.csproj" />
+    <Project Path="Utils/RemoteDebugger/RemoteDebugger.csproj" />
+  </Folder>
+  <Project Path="$safeprojectname$.Plugins/$safeprojectname$.Plugins.csproj" />
+  <Project Path="$safeprojectname$.Core/$safeprojectname$.Core.csproj" />
+  <Project Path="Webresources/Webresources.csproj" />
+</Solution>
