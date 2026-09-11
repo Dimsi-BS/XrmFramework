@@ -5,6 +5,7 @@ trigger:
   include:
     - main
     - v2.*
+    - v3.*
  paths:
   include:
     - src
