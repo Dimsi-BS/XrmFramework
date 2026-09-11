@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -124,12 +124,17 @@ public class CrmSettingsFactory<TSettings> where TSettings : CrmSettings, new()
     
                         return variable.Value;
                     case EnvironmentVariableType.Number:
-                        if (objectType != typeof(int))
+                        if (objectType == typeof(int))
                         {
-                            throw new ArgumentException($"The environment variable is of type Integer GetEnvironmentVariable must be called with a int Type argument");
+                            return int.Parse(variable.Value);
                         }
-    
-                        return int.Parse(variable.Value);
+                        if (objectType == typeof(decimal))
+                        {
+                            return decimal.Parse(variable.Value);
+                        }
+
+                        throw new ArgumentException($"The environment variable is of type Number GetEnvironmentVariable must be called with a int or decimal Type argument");
+
                     case EnvironmentVariableType.Boolean:
                         if (objectType != typeof(bool))
                         {
