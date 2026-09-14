@@ -316,6 +316,19 @@ internal sealed class TableEditorWindow : Window
 
     private void ColumnTable_KeyPress(View.KeyEventEventArgs e)
     {
+        // TableView always consumes CursorLeft itself (moving the selected cell between its own
+        // columns, clamping at the leftmost one) and never lets it bubble up to the Window's
+        // built-in CursorLeft-to-previous-view shortcut — unlike CursorRight, which ListView
+        // doesn't bind at all and so does bubble up. Send focus back to the Tables pane
+        // explicitly so the two arrow keys stay symmetric; checked before the row-selection
+        // guards below since it applies even with no columns shown (e.g. an empty filter).
+        if (e.KeyEvent.Key == GuiKey.CursorLeft)
+        {
+            _tableList.SetFocus();
+            e.Handled = true;
+            return;
+        }
+
         if (_current == null)
             return;
 
