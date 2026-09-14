@@ -5,6 +5,7 @@ namespace MsBuildTypeScript;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Newtonsoft.Json;
+using System.Linq;
 using System.Text;
 
 internal class TsGenerator(TaskLoggingHelper log, string outputDirectory, string typePrefix)
@@ -18,30 +19,50 @@ internal class TsGenerator(TaskLoggingHelper log, string outputDirectory, string
         var tableList = new List<string>();
         tablesBuilder.AppendLine($"/// <reference path=\"./table.d.ts\" />\");");
 
-        var enumsBuilder = new StringBuilder();
-        var enumMapContent = new StringBuilder();
+        var tables = new List<Table>();
 
         foreach (var sourceFile in sourceFiles)
         {
-            ProcessSourceFile(sourceFile, tablesBuilder, tableList, enumsBuilder, enumMapContent);
+            var table = ProcessSourceFile(sourceFile, tablesBuilder, tableList);
+            if (table != null)
+            {
+                tables.Add(table);
+            }
+        }
+
+        // An option set — local or global — is only emitted when a selected column actually
+        // carries it. A local option set's name already embeds the entity it belongs to
+        // ("entity|attribute"), so it can only ever be carried by a column of that same entity:
+        // checking selected columns across every table is safe for both kinds at once.
+        var selectedEnumNames = new HashSet<string>(
+            tables.SelectMany(t => t.Cols)
+                  .Where(c => c.Selected && !string.IsNullOrEmpty(c.EnumName))
+                  .Select(c => c.EnumName!),
+            StringComparer.OrdinalIgnoreCase);
+
+        var enumsBuilder = new StringBuilder();
+        var enumMapContent = new StringBuilder();
+
+        foreach (var table in tables)
+        {
+            var usedEnums = table.Enums.Where(e => selectedEnumNames.Contains(e.LogicalName ?? string.Empty));
+            AppendEnums(usedEnums, enumsBuilder, enumMapContent);
         }
 
         WriteTablesFile(tablesBuilder, tableList);
         WriteEnumsFile(enumsBuilder, enumMapContent);
     }
 
-    private void ProcessSourceFile(
+    private Table? ProcessSourceFile(
         ITaskItem sourceFile,
         StringBuilder tablesBuilder,
-        List<string> tableList,
-        StringBuilder enumsBuilder,
-        StringBuilder enumMapContent)
+        List<string> tableList)
     {
         var sourcePath = sourceFile.GetMetadata("FullPath");
         if (string.IsNullOrWhiteSpace(sourcePath) || !File.Exists(sourcePath))
         {
             log.LogWarning($"Source file not found: {sourcePath}");
-            return;
+            return null;
         }
 
         var fileName = Path.GetFileNameWithoutExtension(sourcePath);
@@ -51,14 +72,14 @@ internal class TsGenerator(TaskLoggingHelper log, string outputDirectory, string
         if (table == null)
         {
             log.LogError($"Failed to deserialize table from {sourcePath}");
-            return;
+            return null;
         }
 
         tablesBuilder.AppendLine($"/// <reference path=\"./definitions/{fileName}Definition.d.ts\" />");
         tableList.Add($"    {table.LogName}: {fileName}Definition extends Table ? {fileName}Definition : never");
 
         WriteDefinitionFile(fileName, content);
-        AppendEnums(table.Enums, enumsBuilder, enumMapContent);
+        return table;
     }
 
     private void WriteDefinitionFile(string fileName, string content)
@@ -75,7 +96,7 @@ internal class TsGenerator(TaskLoggingHelper log, string outputDirectory, string
         log.LogMessage(MessageImportance.High, $"Generated {outputPath}");
     }
 
-    private static void AppendEnums(List<OptionSet> optionSets, StringBuilder enumsBuilder, StringBuilder enumMapContent)
+    private static void AppendEnums(IEnumerable<OptionSet> optionSets, StringBuilder enumsBuilder, StringBuilder enumMapContent)
     {
         foreach (var optionSet in optionSets)
         {
