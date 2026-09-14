@@ -1,0 +1,3922 @@
+{
+  "LogName": "account",
+  "Name": "Account",
+  "CollName": "accounts",
+  "Cols": [
+    {
+      "LogName": "accountcategorycode",
+      "Name": "AccountCategoryCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Catégorie",
+          "LangId": 1036
+        },
+        {
+          "Label": "Category",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|accountcategorycode"
+    },
+    {
+      "LogName": "accountclassificationcode",
+      "Name": "AccountClassificationCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Classification",
+          "LangId": 1036
+        },
+        {
+          "Label": "Classification",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|accountclassificationcode"
+    },
+    {
+      "LogName": "accountid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Compte",
+          "LangId": 1036
+        },
+        {
+          "Label": "Account",
+          "LangId": 1033
+        }
+      ],
+      "Select": true
+    },
+    {
+      "LogName": "accountnumber",
+      "Name": "AccountNumber",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Numéro de compte",
+          "LangId": 1036
+        },
+        {
+          "Label": "Account Number",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "accountratingcode",
+      "Name": "AccountRatingCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Évaluation de compte",
+          "LangId": 1036
+        },
+        {
+          "Label": "Account Rating",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|accountratingcode"
+    },
+    {
+      "LogName": "address1_addressid",
+      "Name": "Address1_AddressId",
+      "Type": "Uniqueidentifier",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : ID",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: ID",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "address1_addresstypecode",
+      "Name": "Address1_AddressTypeCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Type d'adresse",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Address Type",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|address1_addresstypecode"
+    },
+    {
+      "LogName": "address1_city",
+      "Name": "Address1_City",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Ville",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: City",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 80
+    },
+    {
+      "LogName": "address1_composite",
+      "Name": "Address1_Composite",
+      "Type": "Memo",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Adresse 1",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 1000
+    },
+    {
+      "LogName": "address1_country",
+      "Name": "Address1_Country",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Pays/région",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Country/Region",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 80
+    },
+    {
+      "LogName": "address1_county",
+      "Name": "Address1_County",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Commune",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: County",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_fax",
+      "Name": "Address1_Fax",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Télécopie",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Fax",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_freighttermscode",
+      "Name": "Address1_FreightTermsCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Conditions de transport",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Freight Terms",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|address1_freighttermscode"
+    },
+    {
+      "LogName": "address1_latitude",
+      "Name": "Address1_Latitude",
+      "Type": "Double",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Latitude",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Latitude",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -90.0,
+      "MaxRange": 90.0
+    },
+    {
+      "LogName": "address1_line1",
+      "Name": "Address1_Line1",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Rue 1",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Street 1",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 250
+    },
+    {
+      "LogName": "address1_line2",
+      "Name": "Address1_Line2",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Rue 2",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Street 2",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 250
+    },
+    {
+      "LogName": "address1_line3",
+      "Name": "Address1_Line3",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Rue 3",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Street 3",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 250
+    },
+    {
+      "LogName": "address1_longitude",
+      "Name": "Address1_Longitude",
+      "Type": "Double",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Longitude",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Longitude",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -180.0,
+      "MaxRange": 180.0
+    },
+    {
+      "LogName": "address1_name",
+      "Name": "Address1_Name",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Nom",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Name",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 200
+    },
+    {
+      "LogName": "address1_postalcode",
+      "Name": "Address1_PostalCode",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Code postal",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: ZIP/Postal Code",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "address1_postofficebox",
+      "Name": "Address1_PostOfficeBox",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Boîte postale",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Post Office Box",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "address1_primarycontactname",
+      "Name": "Address1_PrimaryContactName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Nom du contact principal",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Primary Contact Name",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "address1_shippingmethodcode",
+      "Name": "Address1_ShippingMethodCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Mode de livraison",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Shipping Method",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|address1_shippingmethodcode"
+    },
+    {
+      "LogName": "address1_stateorprovince",
+      "Name": "Address1_StateOrProvince",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Département/province",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: State/Province",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_telephone1",
+      "Name": "Address1_Telephone1",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Téléphone de l'adresse",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address Phone",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_telephone2",
+      "Name": "Address1_Telephone2",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Téléphone 2",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Telephone 2",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_telephone3",
+      "Name": "Address1_Telephone3",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Téléphone 3",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: Telephone 3",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address1_upszone",
+      "Name": "Address1_UPSZone",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Zone UPS",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: UPS Zone",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 4
+    },
+    {
+      "LogName": "address1_utcoffset",
+      "Name": "Address1_UTCOffset",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 1 : Décalage UTC",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 1: UTC Offset",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -1500.0,
+      "MaxRange": 1500.0
+    },
+    {
+      "LogName": "address2_addressid",
+      "Name": "Address2_AddressId",
+      "Type": "Uniqueidentifier",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : ID",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: ID",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "address2_addresstypecode",
+      "Name": "Address2_AddressTypeCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Type d'adresse",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Address Type",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|address2_addresstypecode"
+    },
+    {
+      "LogName": "address2_city",
+      "Name": "Address2_City",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Ville",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: City",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 80
+    },
+    {
+      "LogName": "address2_composite",
+      "Name": "Address2_Composite",
+      "Type": "Memo",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Adresse 2",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 1000
+    },
+    {
+      "LogName": "address2_country",
+      "Name": "Address2_Country",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Pays/région",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Country/Region",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 80
+    },
+    {
+      "LogName": "address2_county",
+      "Name": "Address2_County",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Commune",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: County",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_fax",
+      "Name": "Address2_Fax",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Télécopie",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Fax",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_freighttermscode",
+      "Name": "Address2_FreightTermsCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Conditions de transport",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Freight Terms",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|address2_freighttermscode"
+    },
+    {
+      "LogName": "address2_latitude",
+      "Name": "Address2_Latitude",
+      "Type": "Double",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Latitude",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Latitude",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -90.0,
+      "MaxRange": 90.0
+    },
+    {
+      "LogName": "address2_line1",
+      "Name": "Address2_Line1",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Rue 1",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Street 1",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 250
+    },
+    {
+      "LogName": "address2_line2",
+      "Name": "Address2_Line2",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Rue 2",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Street 2",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 250
+    },
+    {
+      "LogName": "address2_line3",
+      "Name": "Address2_Line3",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Rue 3",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Street 3",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 250
+    },
+    {
+      "LogName": "address2_longitude",
+      "Name": "Address2_Longitude",
+      "Type": "Double",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Longitude",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Longitude",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -180.0,
+      "MaxRange": 180.0
+    },
+    {
+      "LogName": "address2_name",
+      "Name": "Address2_Name",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Nom",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Name",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 200
+    },
+    {
+      "LogName": "address2_postalcode",
+      "Name": "Address2_PostalCode",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Code postal",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: ZIP/Postal Code",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "address2_postofficebox",
+      "Name": "Address2_PostOfficeBox",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Boîte postale",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Post Office Box",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "address2_primarycontactname",
+      "Name": "Address2_PrimaryContactName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Nom du contact principal",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Primary Contact Name",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "address2_shippingmethodcode",
+      "Name": "Address2_ShippingMethodCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Mode de livraison",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Shipping Method",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|address2_shippingmethodcode"
+    },
+    {
+      "LogName": "address2_stateorprovince",
+      "Name": "Address2_StateOrProvince",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Département/province",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: State/Province",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_telephone1",
+      "Name": "Address2_Telephone1",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Téléphone 1",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Telephone 1",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_telephone2",
+      "Name": "Address2_Telephone2",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Téléphone 2",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Telephone 2",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_telephone3",
+      "Name": "Address2_Telephone3",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Téléphone 3",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: Telephone 3",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "address2_upszone",
+      "Name": "Address2_UPSZone",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Zone UPS",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: UPS Zone",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 4
+    },
+    {
+      "LogName": "address2_utcoffset",
+      "Name": "Address2_UTCOffset",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Adresse 2 : Décalage UTC",
+          "LangId": 1036
+        },
+        {
+          "Label": "Address 2: UTC Offset",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -1500.0,
+      "MaxRange": 1500.0
+    },
+    {
+      "LogName": "aging30",
+      "Name": "Aging30",
+      "Type": "Money",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Classement chronologique à 30",
+          "LangId": 1036
+        },
+        {
+          "Label": "Aging 30",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": 0.0,
+      "MaxRange": 100000000000000.0
+    },
+    {
+      "LogName": "aging30_base",
+      "Name": "Aging30_Base",
+      "Type": "Money",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Classement chronologique à 30 (devise de base)",
+          "LangId": 1036
+        },
+        {
+          "Label": "Aging 30 (Base)",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -922337203685477.0,
+      "MaxRange": 922337203685477.0
+    },
+    {
+      "LogName": "aging60",
+      "Name": "Aging60",
+      "Type": "Money",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Classement chronologique à 60",
+          "LangId": 1036
+        },
+        {
+          "Label": "Aging 60",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": 0.0,
+      "MaxRange": 100000000000000.0
+    },
+    {
+      "LogName": "aging60_base",
+      "Name": "Aging60_Base",
+      "Type": "Money",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Classement chronologique à 60 (devise de base)",
+          "LangId": 1036
+        },
+        {
+          "Label": "Aging 60 (Base)",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -922337203685477.0,
+      "MaxRange": 922337203685477.0
+    },
+    {
+      "LogName": "aging90",
+      "Name": "Aging90",
+      "Type": "Money",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Classement chronologique à 90",
+          "LangId": 1036
+        },
+        {
+          "Label": "Aging 90",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": 0.0,
+      "MaxRange": 100000000000000.0
+    },
+    {
+      "LogName": "aging90_base",
+      "Name": "Aging90_Base",
+      "Type": "Money",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Classement chronologique à 90 (devise de base)",
+          "LangId": 1036
+        },
+        {
+          "Label": "Aging 90 (Base)",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -922337203685477.0,
+      "MaxRange": 922337203685477.0
+    },
+    {
+      "LogName": "businesstypecode",
+      "Name": "BusinessTypeCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Type d'entreprise/activité",
+          "LangId": 1036
+        },
+        {
+          "Label": "Business Type",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|businesstypecode"
+    },
+    {
+      "LogName": "createdby",
+      "Name": "CreatedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par",
+          "LangId": 1036
+        },
+        {
+          "Label": "Created By",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "createdbyexternalparty",
+      "Name": "CreatedByExternalParty",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par (partie externe)",
+          "LangId": 1036
+        },
+        {
+          "Label": "Created By (External Party)",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "createdon",
+      "Name": "CreatedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé le",
+          "LangId": 1036
+        },
+        {
+          "Label": "Created On",
+          "LangId": 1033
+        }
+      ],
+      "DatBehav": 0,
+      "Select": true
+    },
+    {
+      "LogName": "createdonbehalfby",
+      "Name": "CreatedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Créé par (délégué)",
+          "LangId": 1036
+        },
+        {
+          "Label": "Created By (Delegate)",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "creditlimit",
+      "Name": "CreditLimit",
+      "Type": "Money",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Limite de crédit",
+          "LangId": 1036
+        },
+        {
+          "Label": "Credit Limit",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": 0.0,
+      "MaxRange": 100000000000000.0
+    },
+    {
+      "LogName": "creditlimit_base",
+      "Name": "CreditLimit_Base",
+      "Type": "Money",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Limite de crédit (devise de base)",
+          "LangId": 1036
+        },
+        {
+          "Label": "Credit Limit (Base)",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -922337203685477.0,
+      "MaxRange": 922337203685477.0
+    },
+    {
+      "LogName": "creditonhold",
+      "Name": "CreditOnHold",
+      "Type": "Boolean",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Suspension de crédit",
+          "LangId": 1036
+        },
+        {
+          "Label": "Credit Hold",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "customersizecode",
+      "Name": "CustomerSizeCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Taille du client",
+          "LangId": 1036
+        },
+        {
+          "Label": "Customer Size",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|customersizecode"
+    },
+    {
+      "LogName": "customertypecode",
+      "Name": "CustomerTypeCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Type de relation",
+          "LangId": 1036
+        },
+        {
+          "Label": "Relationship Type",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|customertypecode"
+    },
+    {
+      "LogName": "description",
+      "Name": "Description",
+      "Type": "Memo",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Description",
+          "LangId": 1036
+        },
+        {
+          "Label": "Description",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 2000
+    },
+    {
+      "LogName": "donotbulkemail",
+      "Name": "DoNotBulkEMail",
+      "Type": "Boolean",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Ne pas autoriser l’envoi de messages en nombre",
+          "LangId": 1036
+        },
+        {
+          "Label": "Do not allow Bulk Emails",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "donotbulkpostalmail",
+      "Name": "DoNotBulkPostalMail",
+      "Type": "Boolean",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Ne pas autoriser l'envoi de messages en nombre",
+          "LangId": 1036
+        },
+        {
+          "Label": "Do not allow Bulk Mails",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "donotemail",
+      "Name": "DoNotEMail",
+      "Type": "Boolean",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Ne pas autoriser le courrier électronique",
+          "LangId": 1036
+        },
+        {
+          "Label": "Do not allow Emails",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "donotfax",
+      "Name": "DoNotFax",
+      "Type": "Boolean",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Ne pas autoriser la télécopie",
+          "LangId": 1036
+        },
+        {
+          "Label": "Do not allow Faxes",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "donotphone",
+      "Name": "DoNotPhone",
+      "Type": "Boolean",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Ne pas autoriser les appels téléphoniques",
+          "LangId": 1036
+        },
+        {
+          "Label": "Do not allow Phone Calls",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "donotpostalmail",
+      "Name": "DoNotPostalMail",
+      "Type": "Boolean",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Ne pas autoriser le courrier postal",
+          "LangId": 1036
+        },
+        {
+          "Label": "Do not allow Mails",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "donotsendmm",
+      "Name": "DoNotSendMM",
+      "Type": "Boolean",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Envoyer les documents marketing",
+          "LangId": 1036
+        },
+        {
+          "Label": "Send Marketing Materials",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "emailaddress1",
+      "Name": "EMailAddress1",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Courrier électronique",
+          "LangId": 1036
+        },
+        {
+          "Label": "Email",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "emailaddress2",
+      "Name": "EMailAddress2",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse de messagerie 2",
+          "LangId": 1036
+        },
+        {
+          "Label": "Email Address 2",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "emailaddress3",
+      "Name": "EMailAddress3",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Adresse de messagerie 3",
+          "LangId": 1036
+        },
+        {
+          "Label": "Email Address 3",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 100
+    },
+    {
+      "LogName": "entityimageid",
+      "Name": "EntityImageId",
+      "Type": "Uniqueidentifier",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Code d'image de l'entité",
+          "LangId": 1036
+        },
+        {
+          "Label": "Entity Image Id",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "exchangerate",
+      "Name": "ExchangeRate",
+      "Type": "Decimal",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Taux de change",
+          "LangId": 1036
+        },
+        {
+          "Label": "Exchange Rate",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": 1e-10,
+      "MaxRange": 100000000000.0
+    },
+    {
+      "LogName": "fax",
+      "Name": "Fax",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Télécopie",
+          "LangId": 1036
+        },
+        {
+          "Label": "Fax",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "followemail",
+      "Name": "FollowEmail",
+      "Type": "Boolean",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Suivre l'activité de courrier électronique",
+          "LangId": 1036
+        },
+        {
+          "Label": "Follow Email Activity",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "ftpsiteurl",
+      "Name": "FtpSiteURL",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Site FTP",
+          "LangId": 1036
+        },
+        {
+          "Label": "FTP Site",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 200
+    },
+    {
+      "LogName": "importsequencenumber",
+      "Name": "ImportSequenceNumber",
+      "Type": "Integer",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Numéro séquentiel d'importation",
+          "LangId": 1036
+        },
+        {
+          "Label": "Import Sequence Number",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -2147483648.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "industrycode",
+      "Name": "IndustryCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Secteur d’activité",
+          "LangId": 1036
+        },
+        {
+          "Label": "Industry",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|industrycode"
+    },
+    {
+      "LogName": "lastonholdtime",
+      "Name": "LastOnHoldTime",
+      "Type": "DateTime",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Dernière durée de suspension",
+          "LangId": 1036
+        },
+        {
+          "Label": "Last On Hold Time",
+          "LangId": 1033
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "lastusedincampaign",
+      "Name": "LastUsedInCampaign",
+      "Type": "DateTime",
+      "Capa": 11,
+      "Labels": [
+        {
+          "Label": "Dernière date incluse de la campagne",
+          "LangId": 1036
+        },
+        {
+          "Label": "Last Date Included in Campaign",
+          "LangId": 1033
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "marketcap",
+      "Name": "MarketCap",
+      "Type": "Money",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Capitalisation boursière",
+          "LangId": 1036
+        },
+        {
+          "Label": "Market Capitalization",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": 0.0,
+      "MaxRange": 100000000000000.0
+    },
+    {
+      "LogName": "marketcap_base",
+      "Name": "MarketCap_Base",
+      "Type": "Money",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Capitalisation boursière (devise de base)",
+          "LangId": 1036
+        },
+        {
+          "Label": "Market Capitalization (Base)",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -922337203685477.0,
+      "MaxRange": 922337203685477.0
+    },
+    {
+      "LogName": "marketingonly",
+      "Name": "MarketingOnly",
+      "Type": "Boolean",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Marketing uniquement",
+          "LangId": 1036
+        },
+        {
+          "Label": "Marketing Only",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "masterid",
+      "Name": "MasterId",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "ID principal",
+          "LangId": 1036
+        },
+        {
+          "Label": "Master ID",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "merged",
+      "Name": "Merged",
+      "Type": "Boolean",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Fusionné(e)",
+          "LangId": 1036
+        },
+        {
+          "Label": "Merged",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedby",
+      "Name": "ModifiedBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par",
+          "LangId": 1036
+        },
+        {
+          "Label": "Modified By",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedbyexternalparty",
+      "Name": "ModifiedByExternalParty",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par (partie externe)",
+          "LangId": 1036
+        },
+        {
+          "Label": "Modified By (External Party)",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "modifiedon",
+      "Name": "ModifiedOn",
+      "Type": "DateTime",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié le",
+          "LangId": 1036
+        },
+        {
+          "Label": "Modified On",
+          "LangId": 1033
+        }
+      ],
+      "DatBehav": 0,
+      "Select": true
+    },
+    {
+      "LogName": "modifiedonbehalfby",
+      "Name": "ModifiedOnBehalfBy",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Modifié par (délégué)",
+          "LangId": 1036
+        },
+        {
+          "Label": "Modified By (Delegate)",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom du compte",
+          "LangId": 1036
+        },
+        {
+          "Label": "Account Name",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 160,
+      "Select": true
+    },
+    {
+      "LogName": "numberofemployees",
+      "Name": "NumberOfEmployees",
+      "Type": "Integer",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nombre d'employés",
+          "LangId": 1036
+        },
+        {
+          "Label": "Number of Employees",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": 0.0,
+      "MaxRange": 1000000000.0
+    },
+    {
+      "LogName": "onholdtime",
+      "Name": "OnHoldTime",
+      "Type": "Integer",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Durée de la suspension (minutes)",
+          "LangId": 1036
+        },
+        {
+          "Label": "On Hold Time (Minutes)",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -2147483648.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "overriddencreatedon",
+      "Name": "OverriddenCreatedOn",
+      "Type": "DateTime",
+      "Capa": 13,
+      "Labels": [
+        {
+          "Label": "Enregistrement créé le",
+          "LangId": 1036
+        },
+        {
+          "Label": "Record Created On",
+          "LangId": 1033
+        }
+      ],
+      "DatBehav": 0
+    },
+    {
+      "LogName": "ownerid",
+      "Name": "OwnerId",
+      "Type": "Owner",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Propriétaire",
+          "LangId": 1036
+        },
+        {
+          "Label": "Owner",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "ownershipcode",
+      "Name": "OwnershipCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Propriété",
+          "LangId": 1036
+        },
+        {
+          "Label": "Ownership",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|ownershipcode"
+    },
+    {
+      "LogName": "owningbusinessunit",
+      "Name": "OwningBusinessUnit",
+      "Type": "Lookup",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Division propriétaire",
+          "LangId": 1036
+        },
+        {
+          "Label": "Owning Business Unit",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "owningteam",
+      "Name": "OwningTeam",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Équipe propriétaire",
+          "LangId": 1036
+        },
+        {
+          "Label": "Owning Team",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "owninguser",
+      "Name": "OwningUser",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Utilisateur propriétaire",
+          "LangId": 1036
+        },
+        {
+          "Label": "Owning User",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "parentaccountid",
+      "Name": "ParentAccountId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Compte parent",
+          "LangId": 1036
+        },
+        {
+          "Label": "Parent Account",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "participatesinworkflow",
+      "Name": "ParticipatesInWorkflow",
+      "Type": "Boolean",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Participe au workflow",
+          "LangId": 1036
+        },
+        {
+          "Label": "Participates in Workflow",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "paymenttermscode",
+      "Name": "PaymentTermsCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Conditions de paiement",
+          "LangId": 1036
+        },
+        {
+          "Label": "Payment Terms",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|paymenttermscode"
+    },
+    {
+      "LogName": "preferredappointmentdaycode",
+      "Name": "PreferredAppointmentDayCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Jour privilégié",
+          "LangId": 1036
+        },
+        {
+          "Label": "Preferred Day",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|preferredappointmentdaycode"
+    },
+    {
+      "LogName": "preferredappointmenttimecode",
+      "Name": "PreferredAppointmentTimeCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Heure privilégiée",
+          "LangId": 1036
+        },
+        {
+          "Label": "Preferred Time",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|preferredappointmenttimecode"
+    },
+    {
+      "LogName": "preferredcontactmethodcode",
+      "Name": "PreferredContactMethodCode",
+      "Type": "Picklist",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Mode de communication privilégié",
+          "LangId": 1036
+        },
+        {
+          "Label": "Preferred Method of Contact",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|preferredcontactmethodcode"
+    },
+    {
+      "LogName": "preferredsystemuserid",
+      "Name": "PreferredSystemUserId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Utilisateur privilégié",
+          "LangId": 1036
+        },
+        {
+          "Label": "Preferred User",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "primarycontactid",
+      "Name": "PrimaryContactId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Contact principal",
+          "LangId": 1036
+        },
+        {
+          "Label": "Primary Contact",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "primarysatoriid",
+      "Name": "PrimarySatoriId",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "ID Satori principal",
+          "LangId": 1036
+        },
+        {
+          "Label": "Primary Satori ID",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 200
+    },
+    {
+      "LogName": "primarytwitterid",
+      "Name": "PrimaryTwitterId",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "ID Twitter principal",
+          "LangId": 1036
+        },
+        {
+          "Label": "Primary Twitter ID",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 128
+    },
+    {
+      "LogName": "processid",
+      "Name": "ProcessId",
+      "Type": "Uniqueidentifier",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Processus",
+          "LangId": 1036
+        },
+        {
+          "Label": "Process",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "revenue",
+      "Name": "Revenue",
+      "Type": "Money",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Chiffre d’affaires annuel",
+          "LangId": 1036
+        },
+        {
+          "Label": "Annual Revenue",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": 0.0,
+      "MaxRange": 100000000000000.0
+    },
+    {
+      "LogName": "revenue_base",
+      "Name": "Revenue_Base",
+      "Type": "Money",
+      "Capa": 9,
+      "Labels": [
+        {
+          "Label": "Chiffre d'affaires annuel (devise de base)",
+          "LangId": 1036
+        },
+        {
+          "Label": "Annual Revenue (Base)",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -922337203685477.0,
+      "MaxRange": 922337203685477.0
+    },
+    {
+      "LogName": "sharesoutstanding",
+      "Name": "SharesOutstanding",
+      "Type": "Integer",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Actions en circulation",
+          "LangId": 1036
+        },
+        {
+          "Label": "Shares Outstanding",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": 0.0,
+      "MaxRange": 1000000000.0
+    },
+    {
+      "LogName": "shippingmethodcode",
+      "Name": "ShippingMethodCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Mode de livraison",
+          "LangId": 1036
+        },
+        {
+          "Label": "Shipping Method",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|shippingmethodcode"
+    },
+    {
+      "LogName": "sic",
+      "Name": "SIC",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Code NACE",
+          "LangId": 1036
+        },
+        {
+          "Label": "SIC Code",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "slaid",
+      "Name": "SLAId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Contrat SLA",
+          "LangId": 1036
+        },
+        {
+          "Label": "SLA",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "slainvokedid",
+      "Name": "SLAInvokedId",
+      "Type": "Lookup",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Dernier contrat SLA appliqué",
+          "LangId": 1036
+        },
+        {
+          "Label": "Last SLA applied",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "stageid",
+      "Name": "StageId",
+      "Type": "Uniqueidentifier",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "(Déconseillé) Phase du processus",
+          "LangId": 1036
+        },
+        {
+          "Label": "(Deprecated) Process Stage",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "statecode",
+      "Name": "StateCode",
+      "Type": "State",
+      "Capa": 11,
+      "Labels": [
+        {
+          "Label": "Statut",
+          "LangId": 1036
+        },
+        {
+          "Label": "Status",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|statecode",
+      "Select": true
+    },
+    {
+      "LogName": "statuscode",
+      "Name": "StatusCode",
+      "Type": "Status",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Raison du statut",
+          "LangId": 1036
+        },
+        {
+          "Label": "Status Reason",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|statuscode",
+      "Select": true
+    },
+    {
+      "LogName": "stockexchange",
+      "Name": "StockExchange",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Place boursière",
+          "LangId": 1036
+        },
+        {
+          "Label": "Stock Exchange",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 20
+    },
+    {
+      "LogName": "telephone1",
+      "Name": "Telephone1",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Téléphone principal",
+          "LangId": 1036
+        },
+        {
+          "Label": "Main Phone",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50,
+      "Select": true
+    },
+    {
+      "LogName": "telephone2",
+      "Name": "Telephone2",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Autre téléphone",
+          "LangId": 1036
+        },
+        {
+          "Label": "Other Phone",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50,
+      "Select": true
+    },
+    {
+      "LogName": "telephone3",
+      "Name": "Telephone3",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Téléphone 3",
+          "LangId": 1036
+        },
+        {
+          "Label": "Telephone 3",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 50
+    },
+    {
+      "LogName": "territorycode",
+      "Name": "TerritoryCode",
+      "Type": "Picklist",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Code de secteur de vente",
+          "LangId": 1036
+        },
+        {
+          "Label": "Territory Code",
+          "LangId": 1033
+        }
+      ],
+      "EnumName": "account|territorycode"
+    },
+    {
+      "LogName": "tickersymbol",
+      "Name": "TickerSymbol",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Symbole de l’action",
+          "LangId": 1036
+        },
+        {
+          "Label": "Ticker Symbol",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 10
+    },
+    {
+      "LogName": "timespentbymeonemailandmeetings",
+      "Name": "TimeSpentByMeOnEmailAndMeetings",
+      "Type": "String",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Temps que je consacre",
+          "LangId": 1036
+        },
+        {
+          "Label": "Time Spent by me",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 1250
+    },
+    {
+      "LogName": "timezoneruleversionnumber",
+      "Name": "TimeZoneRuleVersionNumber",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Numéro de version de la règle du fuseau horaire",
+          "LangId": 1036
+        },
+        {
+          "Label": "Time Zone Rule Version Number",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -1.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "transactioncurrencyid",
+      "Name": "TransactionCurrencyId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Devise",
+          "LangId": 1036
+        },
+        {
+          "Label": "Currency",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "traversedpath",
+      "Name": "TraversedPath",
+      "Type": "String",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "(Déconseillé) Chemin d’accès traversé",
+          "LangId": 1036
+        },
+        {
+          "Label": "(Deprecated) Traversed Path",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 1250
+    },
+    {
+      "LogName": "utcconversiontimezonecode",
+      "Name": "UTCConversionTimeZoneCode",
+      "Type": "Integer",
+      "Capa": 7,
+      "Labels": [
+        {
+          "Label": "Code de fuseau horaire pour la conversion UTC",
+          "LangId": 1036
+        },
+        {
+          "Label": "UTC Conversion Time Zone Code",
+          "LangId": 1033
+        }
+      ],
+      "MinRange": -1.0,
+      "MaxRange": 2147483647.0
+    },
+    {
+      "LogName": "versionnumber",
+      "Name": "VersionNumber",
+      "Type": "BigInt",
+      "Capa": 1,
+      "Labels": [
+        {
+          "Label": "Numéro de version",
+          "LangId": 1036
+        },
+        {
+          "Label": "Version Number",
+          "LangId": 1033
+        }
+      ]
+    },
+    {
+      "LogName": "websiteurl",
+      "Name": "WebSiteURL",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Site Web",
+          "LangId": 1036
+        },
+        {
+          "Label": "Website",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 200
+    },
+    {
+      "LogName": "yominame",
+      "Name": "YomiName",
+      "Type": "String",
+      "Capa": 15,
+      "Labels": [
+        {
+          "Label": "Nom de compte Yomi",
+          "LangId": 1036
+        },
+        {
+          "Label": "Yomi Account Name",
+          "LangId": 1033
+        }
+      ],
+      "StrLen": 160
+    }
+  ],
+  "NtoN": [],
+  "OneToN": [
+    {
+      "Name": "Account_BulkDeleteFailures",
+      "Etn": "bulkdeletefailure",
+      "Role": "Referenced",
+      "NavPropName": "Account_BulkDeleteFailures",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_Phonecalls",
+      "Etn": "phonecall",
+      "Role": "Referenced",
+      "NavPropName": "Account_Phonecalls",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_CustomerAddress",
+      "Etn": "customeraddress",
+      "Role": "Referenced",
+      "NavPropName": "Account_CustomerAddress",
+      "LookName": "parentid"
+    },
+    {
+      "Name": "Account_SharepointDocumentLocation",
+      "Etn": "sharepointdocumentlocation",
+      "Role": "Referenced",
+      "NavPropName": "Account_SharepointDocumentLocation",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "SocialActivity_PostAuthor_accounts",
+      "Etn": "socialactivity",
+      "Role": "Referenced",
+      "NavPropName": "SocialActivity_PostAuthor_accounts",
+      "LookName": "postauthor"
+    },
+    {
+      "Name": "Account_Email_EmailSender",
+      "Etn": "email",
+      "Role": "Referenced",
+      "NavPropName": "Account_Email_EmailSender",
+      "LookName": "emailsender"
+    },
+    {
+      "Name": "Account_ProcessSessions",
+      "Etn": "processsession",
+      "Role": "Referenced",
+      "NavPropName": "Account_ProcessSessions",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_PostRegardings",
+      "Etn": "postregarding",
+      "Role": "Referenced",
+      "NavPropName": "account_PostRegardings",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_parent_account",
+      "Etn": "account",
+      "Role": "Referenced",
+      "NavPropName": "account_parent_account",
+      "LookName": "parentaccountid"
+    },
+    {
+      "Name": "Account_Tasks",
+      "Etn": "task",
+      "Role": "Referenced",
+      "NavPropName": "Account_Tasks",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_principalobjectattributeaccess",
+      "Etn": "principalobjectattributeaccess",
+      "Role": "Referenced",
+      "NavPropName": "account_principalobjectattributeaccess",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "Socialprofile_customer_accounts",
+      "Etn": "socialprofile",
+      "Role": "Referenced",
+      "NavPropName": "Socialprofile_customer_accounts",
+      "LookName": "customerid"
+    },
+    {
+      "Name": "Account_AsyncOperations",
+      "Etn": "asyncoperation",
+      "Role": "Referenced",
+      "NavPropName": "Account_AsyncOperations",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_connections1",
+      "Etn": "connection",
+      "Role": "Referenced",
+      "NavPropName": "account_connections1",
+      "LookName": "record1id"
+    },
+    {
+      "Name": "account_actioncard",
+      "Etn": "actioncard",
+      "Role": "Referenced",
+      "NavPropName": "account_actioncard",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_Email_SendersAccount",
+      "Etn": "email",
+      "Role": "Referenced",
+      "NavPropName": "Account_Email_SendersAccount",
+      "LookName": "sendersaccount"
+    },
+    {
+      "Name": "userentityinstancedata_account",
+      "Etn": "userentityinstancedata",
+      "Role": "Referenced",
+      "NavPropName": "userentityinstancedata_account",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "Account_Faxes",
+      "Etn": "fax",
+      "Role": "Referenced",
+      "NavPropName": "Account_Faxes",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_MailboxTrackingFolder",
+      "Etn": "mailboxtrackingfolder",
+      "Role": "Referenced",
+      "NavPropName": "Account_MailboxTrackingFolder",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_activity_parties",
+      "Etn": "activityparty",
+      "Role": "Referenced",
+      "NavPropName": "account_activity_parties",
+      "LookName": "partyid"
+    },
+    {
+      "Name": "account_PostFollows",
+      "Etn": "postfollow",
+      "Role": "Referenced",
+      "NavPropName": "account_PostFollows",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_PostRoles",
+      "Etn": "postrole",
+      "Role": "Referenced",
+      "NavPropName": "account_PostRoles",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_Letters",
+      "Etn": "letter",
+      "Role": "Referenced",
+      "NavPropName": "Account_Letters",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_Annotation",
+      "Etn": "annotation",
+      "Role": "Referenced",
+      "NavPropName": "Account_Annotation",
+      "LookName": "objectid"
+    },
+    {
+      "Name": "Account_DuplicateMatchingRecord",
+      "Etn": "duplicaterecord",
+      "Role": "Referenced",
+      "NavPropName": "Account_DuplicateMatchingRecord",
+      "LookName": "duplicaterecordid"
+    },
+    {
+      "Name": "Account_DuplicateBaseRecord",
+      "Etn": "duplicaterecord",
+      "Role": "Referenced",
+      "NavPropName": "Account_DuplicateBaseRecord",
+      "LookName": "baserecordid"
+    },
+    {
+      "Name": "Account_Emails",
+      "Etn": "email",
+      "Role": "Referenced",
+      "NavPropName": "Account_Emails",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "slakpiinstance_account",
+      "Etn": "slakpiinstance",
+      "Role": "Referenced",
+      "NavPropName": "slakpiinstance_account",
+      "LookName": "regarding"
+    },
+    {
+      "Name": "account_customer_relationship_partner",
+      "Etn": "customerrelationship",
+      "Role": "Referenced",
+      "NavPropName": "account_customer_relationship_partner",
+      "LookName": "partnerid"
+    },
+    {
+      "Name": "account_connections2",
+      "Etn": "connection",
+      "Role": "Referenced",
+      "NavPropName": "account_connections2",
+      "LookName": "record2id"
+    },
+    {
+      "Name": "account_chats",
+      "Etn": "chat",
+      "Role": "Referenced",
+      "NavPropName": "account_chats",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_Appointments",
+      "Etn": "appointment",
+      "Role": "Referenced",
+      "NavPropName": "Account_Appointments",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_SocialActivities",
+      "Etn": "socialactivity",
+      "Role": "Referenced",
+      "NavPropName": "Account_SocialActivities",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_SharepointDocument",
+      "Etn": "sharepointdocument",
+      "Role": "Referenced",
+      "NavPropName": "Account_SharepointDocument",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_SyncErrors",
+      "Etn": "syncerror",
+      "Role": "Referenced",
+      "NavPropName": "Account_SyncErrors",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "SocialActivity_PostAuthorAccount_accounts",
+      "Etn": "socialactivity",
+      "Role": "Referenced",
+      "NavPropName": "SocialActivity_PostAuthorAccount_accounts",
+      "LookName": "postauthoraccount"
+    },
+    {
+      "Name": "Account_RecurringAppointmentMasters",
+      "Etn": "recurringappointmentmaster",
+      "Role": "Referenced",
+      "NavPropName": "Account_RecurringAppointmentMasters",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "Account_ActivityPointers",
+      "Etn": "activitypointer",
+      "Role": "Referenced",
+      "NavPropName": "Account_ActivityPointers",
+      "LookName": "regardingobjectid"
+    },
+    {
+      "Name": "account_master_account",
+      "Etn": "account",
+      "Role": "Referenced",
+      "NavPropName": "account_master_account",
+      "LookName": "masterid"
+    },
+    {
+      "Name": "account_customer_relationship_customer",
+      "Etn": "customerrelationship",
+      "Role": "Referenced",
+      "NavPropName": "account_customer_relationship_customer",
+      "LookName": "customerid"
+    },
+    {
+      "Name": "contact_customer_accounts",
+      "Etn": "contact",
+      "Role": "Referenced",
+      "NavPropName": "contact_customer_accounts",
+      "LookName": "parentcustomerid"
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "lk_accountbase_modifiedonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedonbehalfby",
+      "LookName": "modifiedonbehalfby"
+    },
+    {
+      "Name": "system_user_accounts",
+      "Etn": "systemuser",
+      "NavPropName": "preferredsystemuserid",
+      "LookName": "preferredsystemuserid"
+    },
+    {
+      "Name": "transactioncurrency_account",
+      "Etn": "transactioncurrency",
+      "NavPropName": "transactioncurrencyid",
+      "LookName": "transactioncurrencyid"
+    },
+    {
+      "Name": "account_parent_account",
+      "Etn": "account",
+      "NavPropName": "parentaccountid",
+      "LookName": "parentaccountid"
+    },
+    {
+      "Name": "sla_account",
+      "Etn": "sla",
+      "NavPropName": "slainvokedid_account_sla",
+      "LookName": "slainvokedid"
+    },
+    {
+      "Name": "business_unit_accounts",
+      "Etn": "businessunit",
+      "NavPropName": "owningbusinessunit",
+      "LookName": "owningbusinessunit"
+    },
+    {
+      "Name": "owner_accounts",
+      "Etn": "owner",
+      "NavPropName": "ownerid",
+      "LookName": "ownerid"
+    },
+    {
+      "Name": "user_accounts",
+      "Etn": "systemuser",
+      "NavPropName": "owninguser",
+      "LookName": "owninguser"
+    },
+    {
+      "Name": "lk_accountbase_createdby",
+      "Etn": "systemuser",
+      "NavPropName": "createdby",
+      "LookName": "createdby"
+    },
+    {
+      "Name": "team_accounts",
+      "Etn": "team",
+      "NavPropName": "owningteam",
+      "LookName": "owningteam"
+    },
+    {
+      "Name": "lk_accountbase_createdonbehalfby",
+      "Etn": "systemuser",
+      "NavPropName": "createdonbehalfby",
+      "LookName": "createdonbehalfby"
+    },
+    {
+      "Name": "processstage_account",
+      "Etn": "processstage",
+      "NavPropName": "stageid_processstage",
+      "LookName": "stageid"
+    },
+    {
+      "Name": "lk_externalparty_account_createdby",
+      "Etn": "externalparty",
+      "NavPropName": "CreatedByExternalParty",
+      "LookName": "createdbyexternalparty"
+    },
+    {
+      "Name": "manualsla_account",
+      "Etn": "sla",
+      "NavPropName": "sla_account_sla",
+      "LookName": "slaid"
+    },
+    {
+      "Name": "lk_accountbase_modifiedby",
+      "Etn": "systemuser",
+      "NavPropName": "modifiedby",
+      "LookName": "modifiedby"
+    },
+    {
+      "Name": "account_primary_contact",
+      "Etn": "contact",
+      "NavPropName": "primarycontactid",
+      "LookName": "primarycontactid"
+    },
+    {
+      "Name": "lk_externalparty_account_modifiedby",
+      "Etn": "externalparty",
+      "NavPropName": "ModifiedByExternalParty",
+      "LookName": "modifiedbyexternalparty"
+    },
+    {
+      "Name": "lk_account_entityimage",
+      "Etn": "imagedescriptor",
+      "NavPropName": "entityimageid_imagedescriptor",
+      "LookName": "entityimageid"
+    },
+    {
+      "Name": "account_master_account",
+      "Etn": "account",
+      "NavPropName": "masterid",
+      "LookName": "masterid"
+    }
+  ],
+  "Keys": [],
+  "Enums": [
+    {
+      "LogName": "account|accountcategorycode",
+      "Name": "Categorie",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ClientFavori",
+          "Labels": [
+            {
+              "Label": "Client favori",
+              "LangId": 1036
+            },
+            {
+              "Label": "Preferred Customer",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Standard",
+          "Labels": [
+            {
+              "Label": "Standard",
+              "LangId": 1036
+            },
+            {
+              "Label": "Standard",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|accountclassificationcode",
+      "Name": "Classification",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            },
+            {
+              "Label": "Default Value",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|accountratingcode",
+      "Name": "EvaluationDeCompte",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            },
+            {
+              "Label": "Default Value",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|address1_addresstypecode",
+      "Name": "Adresse1TypeDAdresse",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Facturation",
+          "Labels": [
+            {
+              "Label": "Facturation",
+              "LangId": 1036
+            },
+            {
+              "Label": "Bill To",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Expedition",
+          "Labels": [
+            {
+              "Label": "Expédition",
+              "LangId": 1036
+            },
+            {
+              "Label": "Ship To",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Principale",
+          "Labels": [
+            {
+              "Label": "Principale",
+              "LangId": 1036
+            },
+            {
+              "Label": "Primary",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "Autre",
+          "Labels": [
+            {
+              "Label": "Autre",
+              "LangId": 1036
+            },
+            {
+              "Label": "Other",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|address1_freighttermscode",
+      "Name": "Adresse1ConditionsDeTransport",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "FAB",
+          "Labels": [
+            {
+              "Label": "FAB",
+              "LangId": 1036
+            },
+            {
+              "Label": "FOB",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "SansSupplement",
+          "Labels": [
+            {
+              "Label": "Sans supplément",
+              "LangId": 1036
+            },
+            {
+              "Label": "No Charge",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|address1_shippingmethodcode",
+      "Name": "Adresse1ModeDeLivraison",
+      "Values": [
+        {
+          "Value": 5,
+          "Name": "CourrierPostal",
+          "Labels": [
+            {
+              "Label": "Courrier postal",
+              "LangId": 1036
+            },
+            {
+              "Label": "Postal Mail",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 7,
+          "Name": "Collecte",
+          "Labels": [
+            {
+              "Label": "Collecte",
+              "LangId": 1036
+            },
+            {
+              "Label": "Will Call",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 8,
+          "Name": "Autre",
+          "Labels": [
+            {
+              "Label": "Autre",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 17,
+          "Name": "Transporteur",
+          "Labels": [
+            {
+              "Label": "Transporteur",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|address2_addresstypecode",
+      "Name": "Adresse2TypeDAdresse",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            },
+            {
+              "Label": "Default Value",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|address2_freighttermscode",
+      "Name": "Adresse2ConditionsDeTransport",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            },
+            {
+              "Label": "Default Value",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|address2_shippingmethodcode",
+      "Name": "Adresse2ModeDeLivraison",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            },
+            {
+              "Label": "Default Value",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|businesstypecode",
+      "Name": "TypeDEntrepriseActivite",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            },
+            {
+              "Label": "Default Value",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|customersizecode",
+      "Name": "TailleDuClient",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            },
+            {
+              "Label": "Default Value",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|customertypecode",
+      "Name": "TypeDeRelation",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Concurrent",
+          "Labels": [
+            {
+              "Label": "Concurrent",
+              "LangId": 1036
+            },
+            {
+              "Label": "Competitor",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Consultant",
+          "Labels": [
+            {
+              "Label": "Consultant",
+              "LangId": 1036
+            },
+            {
+              "Label": "Consultant",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Client",
+          "Labels": [
+            {
+              "Label": "Client",
+              "LangId": 1036
+            },
+            {
+              "Label": "Customer",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "Investisseur",
+          "Labels": [
+            {
+              "Label": "Investisseur",
+              "LangId": 1036
+            },
+            {
+              "Label": "Investor",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 5,
+          "Name": "Partenaire",
+          "Labels": [
+            {
+              "Label": "Partenaire",
+              "LangId": 1036
+            },
+            {
+              "Label": "Partner",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 6,
+          "Name": "Influenceur",
+          "Labels": [
+            {
+              "Label": "Influenceur",
+              "LangId": 1036
+            },
+            {
+              "Label": "Influencer",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 7,
+          "Name": "Presse",
+          "Labels": [
+            {
+              "Label": "Presse",
+              "LangId": 1036
+            },
+            {
+              "Label": "Press",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 8,
+          "Name": "Prospect",
+          "Labels": [
+            {
+              "Label": "Prospect",
+              "LangId": 1036
+            },
+            {
+              "Label": "Prospect",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 9,
+          "Name": "Revendeur",
+          "Labels": [
+            {
+              "Label": "Revendeur",
+              "LangId": 1036
+            },
+            {
+              "Label": "Reseller",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 10,
+          "Name": "Fournisseur",
+          "Labels": [
+            {
+              "Label": "Fournisseur",
+              "LangId": 1036
+            },
+            {
+              "Label": "Supplier",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 11,
+          "Name": "Fournisseur",
+          "Labels": [
+            {
+              "Label": "Fournisseur",
+              "LangId": 1036
+            },
+            {
+              "Label": "Vendor",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 12,
+          "Name": "Autre",
+          "Labels": [
+            {
+              "Label": "Autre",
+              "LangId": 1036
+            },
+            {
+              "Label": "Other",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|industrycode",
+      "Name": "SecteurDActivite",
+      "Values": [
+        {
+          "Value": 34,
+          "Name": "AgricultureChasseForesterieEtPeche",
+          "Labels": [
+            {
+              "Label": "Agriculture, chasse, foresterie et pêche",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 35,
+          "Name": "EnergieEtEau",
+          "Labels": [
+            {
+              "Label": "Énergie et eau",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 36,
+          "Name": "ExtractionEtTransformationDeMinerauxNonEnergetiquesEtProduitsDerives;IndustrieChimique",
+          "Labels": [
+            {
+              "Label": "Extraction et transformation de minéraux non énergétiques et produits dérivés ; industrie chimique",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 37,
+          "Name": "IndustriesTransformatricesDesMetauxMecaniqueDePrecision",
+          "Labels": [
+            {
+              "Label": "Industries transformatrices des métaux, mécanique de précision",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 38,
+          "Name": "AutresIndustriesManufacturieres",
+          "Labels": [
+            {
+              "Label": "Autres industries manufacturières",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 39,
+          "Name": "BatimentEtGenieCivil",
+          "Labels": [
+            {
+              "Label": "Bâtiment et génie civil",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 40,
+          "Name": "CommerceRestaurationEtHebergementReparations",
+          "Labels": [
+            {
+              "Label": "Commerce, restauration et hébergement, réparations",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 41,
+          "Name": "TransportsEtCommunications",
+          "Labels": [
+            {
+              "Label": "Transports et communications",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 42,
+          "Name": "InstitutionsDeCreditAssurancesServicesFournisAuxEntreprisesLocation",
+          "Labels": [
+            {
+              "Label": "Institutions de crédit, assurances, services fournis aux entreprises, location",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 43,
+          "Name": "AutresServices",
+          "Labels": [
+            {
+              "Label": "Autres services",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|ownershipcode",
+      "Name": "Propriete",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Public",
+          "Labels": [
+            {
+              "Label": "Public",
+              "LangId": 1036
+            },
+            {
+              "Label": "Public",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Prive",
+          "Labels": [
+            {
+              "Label": "Privé",
+              "LangId": 1036
+            },
+            {
+              "Label": "Private",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Filiale",
+          "Labels": [
+            {
+              "Label": "Filiale",
+              "LangId": 1036
+            },
+            {
+              "Label": "Subsidiary",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "Autre",
+          "Labels": [
+            {
+              "Label": "Autre",
+              "LangId": 1036
+            },
+            {
+              "Label": "Other",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|paymenttermscode",
+      "Name": "ConditionsDePaiement",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Net30J",
+          "Labels": [
+            {
+              "Label": "Net 30J",
+              "LangId": 1036
+            },
+            {
+              "Label": "Net 30",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "Net60J",
+          "Labels": [
+            {
+              "Label": "Net 60J",
+              "LangId": 1036
+            },
+            {
+              "Label": "Net 60",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 10,
+          "Name": "AuComptant",
+          "Labels": [
+            {
+              "Label": "Au comptant",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 15,
+          "Name": "AReceptionDeFacture",
+          "Labels": [
+            {
+              "Label": "À réception de facture",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 16,
+          "Name": "30JFDM",
+          "Labels": [
+            {
+              "Label": "30J FDM",
+              "LangId": 1036
+            }
+          ]
+        },
+        {
+          "Value": 17,
+          "Name": "60JFDM",
+          "Labels": [
+            {
+              "Label": "60J FDM",
+              "LangId": 1036
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|preferredappointmentdaycode",
+      "Name": "JourPrivilegie",
+      "Values": [
+        {
+          "Name": "Dimanche",
+          "Labels": [
+            {
+              "Label": "Dimanche",
+              "LangId": 1036
+            },
+            {
+              "Label": "Sunday",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Lundi",
+          "Labels": [
+            {
+              "Label": "Lundi",
+              "LangId": 1036
+            },
+            {
+              "Label": "Monday",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Mardi",
+          "Labels": [
+            {
+              "Label": "Mardi",
+              "LangId": 1036
+            },
+            {
+              "Label": "Tuesday",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Mercredi",
+          "Labels": [
+            {
+              "Label": "Mercredi",
+              "LangId": 1036
+            },
+            {
+              "Label": "Wednesday",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "Jeudi",
+          "Labels": [
+            {
+              "Label": "Jeudi",
+              "LangId": 1036
+            },
+            {
+              "Label": "Thursday",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 5,
+          "Name": "Vendredi",
+          "Labels": [
+            {
+              "Label": "Vendredi",
+              "LangId": 1036
+            },
+            {
+              "Label": "Friday",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 6,
+          "Name": "Samedi",
+          "Labels": [
+            {
+              "Label": "Samedi",
+              "LangId": 1036
+            },
+            {
+              "Label": "Saturday",
+              "LangId": 1033
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "account|preferredappointmenttimecode",
+      "Name": "HeurePrivilegiee",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Matin",
+          "Labels": [
+            {
+              "Label": "Matin",
+              "LangId": 1036
+            },
+            {
+              "Label": "Morning",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "ApresMidi",
+          "Labels": [
+            {
+              "Label": "Après-midi",
+              "LangId": 1036
+            },
+            {
+              "Label": "Afternoon",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Soir",
+          "Labels": [
+            {
+              "Label": "Soir",
+              "LangId": 1036
+            },
+            {
+              "Label": "Evening",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|preferredcontactmethodcode",
+      "Name": "ModeDeCommunicationPrivilegie",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "SansPreference",
+          "Labels": [
+            {
+              "Label": "Sans préférence",
+              "LangId": 1036
+            },
+            {
+              "Label": "Any",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "CourrierElectronique",
+          "Labels": [
+            {
+              "Label": "Courrier électronique",
+              "LangId": 1036
+            },
+            {
+              "Label": "Email",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 3,
+          "Name": "Telephone",
+          "Labels": [
+            {
+              "Label": "Téléphone",
+              "LangId": 1036
+            },
+            {
+              "Label": "Phone",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 4,
+          "Name": "Telecopie",
+          "Labels": [
+            {
+              "Label": "Télécopie",
+              "LangId": 1036
+            },
+            {
+              "Label": "Fax",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 5,
+          "Name": "CourrierPostal",
+          "Labels": [
+            {
+              "Label": "Courrier postal",
+              "LangId": 1036
+            },
+            {
+              "Label": "Mail",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|shippingmethodcode",
+      "Name": "ModeDeLivraison",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            },
+            {
+              "Label": "Default Value",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    },
+    {
+      "LogName": "account|statecode",
+      "Name": "AccountState",
+      "Values": [
+        {
+          "Name": "Actif",
+          "Labels": [
+            {
+              "Label": "Actif",
+              "LangId": 1036
+            },
+            {
+              "Label": "Active",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 1,
+          "Name": "Inactif",
+          "Labels": [
+            {
+              "Label": "Inactif",
+              "LangId": 1036
+            },
+            {
+              "Label": "Inactive",
+              "LangId": 1033
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "account|statuscode",
+      "Name": "AccountStatus",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "Actif",
+          "Labels": [
+            {
+              "Label": "Actif",
+              "LangId": 1036
+            },
+            {
+              "Label": "Active",
+              "LangId": 1033
+            }
+          ]
+        },
+        {
+          "Value": 2,
+          "Name": "Inactif",
+          "Labels": [
+            {
+              "Label": "Inactif",
+              "LangId": 1036
+            },
+            {
+              "Label": "Inactive",
+              "LangId": 1033
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "LogName": "account|territorycode",
+      "Name": "CodeDeSecteurDeVente",
+      "Values": [
+        {
+          "Value": 1,
+          "Name": "ValeurParDefaut",
+          "Labels": [
+            {
+              "Label": "Valeur par défaut",
+              "LangId": 1036
+            },
+            {
+              "Label": "Default Value",
+              "LangId": 1033
+            }
+          ]
+        }
+      ],
+      "HasNullValue": true
+    }
+  ]
+}

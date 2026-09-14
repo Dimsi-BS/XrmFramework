@@ -37,7 +37,7 @@
 
   <ItemGroup>
     <!-- xrmframework new azurefunction / xrmAzureFunction -->
-    <PackageVersion Include="Dimsi.Azure.Functions.Worker.Extensions.MediatR" Version="*" />
+    <PackageVersion Include="Dimsi.Azure.Functions.Worker.Extensions.MediatR" Version="0.2.15" />
     <PackageVersion Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" />
     <PackageVersion Include="Microsoft.Azure.Functions.Worker" Version="2.51.0" />
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.50.0" />
