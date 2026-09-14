@@ -3,7 +3,7 @@
   "version": "v3.1-beta",
   "publicReleaseRefSpec": [
     "^refs/heads/main$",
-    "^refs/tags/v\\d+\\.\\d+"
+    "^refs/heads/v\\d+\\.\\d+"
   ],
   "cloudBuild": {
     "buildNumber": {
