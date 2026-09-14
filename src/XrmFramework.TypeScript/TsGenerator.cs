@@ -17,7 +17,7 @@ internal class TsGenerator(TaskLoggingHelper log, string outputDirectory, string
 
         var tablesBuilder = new StringBuilder();
         var tableList = new List<string>();
-        tablesBuilder.AppendLine($"/// <reference path=\"./table.d.ts\" />\");");
+        tablesBuilder.AppendLine("/// <reference path=\"./table.d.ts\" />");
 
         var tables = new List<Table>();
 
