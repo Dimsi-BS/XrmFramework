@@ -3,6 +3,8 @@
     <File Path="Config/App.config" />
     <File Path="Config/connectionStrings.config" />
     <File Path="Config/xrmFramework.config" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
   </Folder>
   <Folder Name="/Utils/">
     <Project Path="Utils/Deploy.$safeprojectname$.Plugins/Deploy.$safeprojectname$.Plugins.csproj" />
