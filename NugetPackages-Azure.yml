@@ -53,12 +53,19 @@ steps:
 # --settings scopes the coverage collector to the XrmFramework assemblies. Without it the
 # collector instruments every dependency shipping an embedded PDB (Argon, Spectre.Console,
 # Microsoft.Testing.Platform, MSTest 4.x), which drowns the ratio in third-party code.
+#
+# /p:PublicRelease=true must match the Build step above: 'dotnet test' rebuilds the same
+# GeneratePackageOnBuild projects, and Nerdbank.GitVersioning computes a different
+# NuGetPackageVersion without this flag on non-public-release branches (anything but main
+# or a version tag - e.g. v3.1). That mismatch produced two differently-versioned .nupkg per
+# package (a stable one from Build, a "-g<commit>" one from Test) sitting side by side in
+# GeneratedNuGetPackages, since neither overwrites the other.
 - task: DotNetCoreCLI@2
   displayName: Test
   inputs:
     command: 'test'
     projects: 'src/XrmFramework.slnx'
-    arguments: '--configuration $(buildConfiguration) --logger trx --collect "Code coverage" --settings $(Build.SourcesDirectory)/src/coverage.runsettings'
+    arguments: '--configuration $(buildConfiguration) --logger trx --collect "Code coverage" --settings $(Build.SourcesDirectory)/src/coverage.runsettings /p:PublicRelease=true'
     publishTestResults: true
 
 - task: CopyFiles@2
