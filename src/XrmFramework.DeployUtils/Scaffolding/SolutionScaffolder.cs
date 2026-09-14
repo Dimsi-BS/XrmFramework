@@ -57,11 +57,16 @@ namespace XrmFramework.DeployUtils.Scaffolding
                 TemplateScaffolder.CopyAndReplace(templateRoot, target, NameToken, name);
 
                 // Equivalent of dotnet-new's declarative "rename" map: a leading-dot file can't be
-                // checked in as such without every tool along the way (git included) treating it
-                // as the real thing, so the template ships it as "gitignore" and it's renamed here.
+                // checked in as such without every tool along the way (git included, and NuGet's
+                // pack step, which silently drops dot-files from the .nupkg) treating it as the
+                // real thing, so every gitignore ships as "gitignore" and is renamed here.
                 var gitignore = Path.Combine(target, "gitignore");
                 if (File.Exists(gitignore))
                     File.Move(gitignore, Path.Combine(target, ".gitignore"));
+
+                var webresourcesGitignore = Path.Combine(target, "Webresources", "gitignore");
+                if (File.Exists(webresourcesGitignore))
+                    File.Move(webresourcesGitignore, Path.Combine(target, "Webresources", ".gitignore"));
 
                 // The sample stays as a reference; the real, gitignored config is materialized from it.
                 // (dotnet new has no "copy to two outputs" primitive — see the .sample file itself.)
