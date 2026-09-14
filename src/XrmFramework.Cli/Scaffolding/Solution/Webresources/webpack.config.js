@@ -55,18 +55,22 @@ module.exports = () => ({
         {
           from: path.resolve(__dirname, "assets"),
           to: path.resolve(__dirname, "dist/assets"),
+          noErrorOnMissing: true,
         },
         {
           from: path.resolve(__dirname, "svg"),
           to: path.resolve(__dirname, "dist/svg"),
+          noErrorOnMissing: true,
         },
         {
           from: path.resolve(__dirname, "js"),
           to: path.resolve(__dirname, "dist/js"),
+          noErrorOnMissing: true,
         },
         {
           from: path.resolve(__dirname, "html"),
           to: path.resolve(__dirname, "dist/html"),
+          noErrorOnMissing: true,
         },
       ],
     }),
