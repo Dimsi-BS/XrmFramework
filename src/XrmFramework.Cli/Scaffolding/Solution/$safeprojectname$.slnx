@@ -9,7 +9,6 @@
   <Folder Name="/Utils/">
     <Project Path="Utils/Deploy.$safeprojectname$.Plugins/Deploy.$safeprojectname$.Plugins.csproj" />
     <Project Path="Utils/Deploy.Webresources/Deploy.Webresources.csproj" />
-    <Project Path="Utils/DefinitionManager/DefinitionManager.csproj" />
     <Project Path="Utils/RemoteDebugger/RemoteDebugger.csproj" />
   </Folder>
   <Project Path="$safeprojectname$.Plugins/$safeprojectname$.Plugins.csproj" />

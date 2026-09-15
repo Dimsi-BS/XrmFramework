@@ -15,7 +15,6 @@
     <PackageVersion Include="XrmFramework.CoreProject" Version="#{GitBuildVersionSimple}#" />
     <PackageVersion Include="XrmFramework.Plugin" Version="#{GitBuildVersionSimple}#" />
     <PackageVersion Include="XrmFramework.DeployUtils" Version="#{GitBuildVersionSimple}#" />
-    <PackageVersion Include="XrmFramework.DefinitionManager" Version="#{GitBuildVersionSimple}#" />
     <PackageVersion Include="XrmFramework.RemoteDebugger.Client" Version="#{GitBuildVersionSimple}#" />
     <PackageVersion Include="XrmFramework.TypeScript" Version="#{GitBuildVersionSimple}#" />
   </ItemGroup>
