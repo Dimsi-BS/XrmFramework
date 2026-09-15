@@ -42,7 +42,12 @@ steps:
     }
   displayName: 'Validate beta version on main'
 
-- script: dotnet build XrmFramework.slnx --configuration $(buildConfiguration) /p:PublicRelease=true
+# PublicRelease is no longer forced here: version.json's publicReleaseRefSpec now matches
+# refs/heads/main and refs/heads/vX.Y directly, so NBGV resolves it the same way (true) for
+# every branch this pipeline builds, in both this step and the Test step below - keeping
+# NuGetPackageVersion consistent between the two and avoiding a second, differently-versioned
+# .nupkg per package.
+- script: dotnet build XrmFramework.slnx --configuration $(buildConfiguration)
   displayName: Build
   workingDirectory: src
 
@@ -53,12 +58,16 @@ steps:
 # --settings scopes the coverage collector to the XrmFramework assemblies. Without it the
 # collector instruments every dependency shipping an embedded PDB (Argon, Spectre.Console,
 # Microsoft.Testing.Platform, MSTest 4.x), which drowns the ratio in third-party code.
+#
+# --no-build reuses the Build step's output instead of rebuilding (and, for every
+# GeneratePackageOnBuild project, re-packing) the whole solution a second time. Requires the
+# same --configuration as Build, which is already the case via $(buildConfiguration).
 - task: DotNetCoreCLI@2
   displayName: Test
   inputs:
     command: 'test'
     projects: 'src/XrmFramework.slnx'
-    arguments: '--configuration $(buildConfiguration) --logger trx --collect "Code coverage" --settings $(Build.SourcesDirectory)/src/coverage.runsettings'
+    arguments: '--configuration $(buildConfiguration) --no-build --logger trx --collect "Code coverage" --settings $(Build.SourcesDirectory)/src/coverage.runsettings'
     publishTestResults: true
 
 - task: CopyFiles@2
