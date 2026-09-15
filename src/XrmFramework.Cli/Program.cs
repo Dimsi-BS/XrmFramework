@@ -131,7 +131,7 @@ app.Configure(config =>
         @new.SetDescription("Scaffolds a new XrmFramework solution or project, in-process — no dotnet-new template, no external script.");
 
         @new.AddCommand<NewSolutionCommand>("solution")
-            .WithDescription("Creates a new XrmFramework solution: Core, Plugins, Utils (DefinitionManager, RemoteDebugger, Deploy.*), Webresources.")
+            .WithDescription("Creates a new XrmFramework solution: Core, Plugins, Utils (RemoteDebugger, Deploy.*), Webresources.")
             .WithExample("new", "solution", "Contoso")
             .WithExample("new", "solution", "Contoso", "--output", "C:\\Projects");
 

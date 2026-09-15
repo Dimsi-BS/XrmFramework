@@ -190,8 +190,7 @@ registerRibbonScript(new AccountRibbon());
 `Account.table` in the `.Core` project — the same single source of truth used to generate the C#
 `AccountDefinition` class (see [Generate model definitions](../README.md#generate-model-definitions)).
 Regenerating it is automatic: it happens on every `Webresources` build, so adding a column with
-**DefinitionManager** or `xrmframework tables columns` and rebuilding is enough to make it available
-to scripts.
+`xrmframework tables columns` and rebuilding is enough to make it available to scripts.
 
 This is what makes `UtilsApi<TTable>` generic-safe end to end:
 

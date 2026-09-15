@@ -185,24 +185,7 @@ Edit the `xrmFramework.config` file in the `Config` solution folder to configure
 
 Since XrmFramework 3.1, a `.table` file is the **single source of truth** for a table's definition — its columns, keys, relationships and option sets. The typed `*Definition` classes (and the option-set enums) are generated automatically at **compile time** by the `XrmFramework.Analyzers` Roslyn source generator: there is no `.cs` file to generate or check in, only the `.table` files under `Contoso.Core\Definitions`.
 
-Two ways to produce and edit `.table` files:
-
-- **DefinitionManager** — the WinForms UI, for interactive use. Launch the `Utils\DefinitionManager` project (set it as Startup project and run it with `Ctrl + F5` in Visual Studio).
-- **`xrmframework` CLI** — the headless equivalent, for scripting and CI. `xrmframework tables pull` fetches or refreshes `.table` files straight from Dataverse metadata, and `xrmframework tables columns` / `xrmframework tables optionsets` activate columns or rename identifiers locally, without a connection.
-
-<img src="docs/images/definitionManager1.png" width="800" alt="Start of DefinitionManager" />
-
-The program retrieves all the entities referenced in your entities solution. Definitions already present in your solution are automatically selected.
-
-<img src="docs/images/definitionManager2.png" width="800" alt="Loaded entities" />
-
-Select attributes to add them to existing definitions, or select new entities to generate definition files for them.
-
-<img src="docs/images/definitionManager3.png" width="300" alt="Select attribute" />
-
-OptionSet attributes, when selected, generate the corresponding enums:
-
-<img src="docs/images/definitionManager5.png" width="500" alt="Select attribute" />
+Produce and edit `.table` files with the **`xrmframework` CLI**: `xrmframework tables pull` fetches or refreshes `.table` files straight from Dataverse metadata, and `xrmframework tables columns` / `xrmframework tables optionsets` activate columns or rename identifiers locally, without a connection. Selecting an OptionSet column generates the corresponding enum:
 
 ```csharp
 	[OptionSetDefinition(AccountDefinition.EntityName, AccountDefinition.Columns.AccountCategoryCode)]
@@ -215,10 +198,6 @@ OptionSet attributes, when selected, generate the corresponding enums:
 		Standard = 2,
 	}
 ```
-
-When you are done selecting, click **Generate Definitions**.
-
-<img src="docs/images/definitionManager4.png" width="300" alt="Generate definitions" />
 
 The `.table` files in `Contoso.Core\Definitions` are created or updated; the corresponding `*Definition` classes are (re)generated the next time the project builds.
 
@@ -249,7 +228,7 @@ This is the exact class shown earlier — `[CrmEntity(typeof(AccountDefinition))
 
 A `.model` targets a `.table` by its logical name (`tName`): the columns, option sets and
 relationships it can map come straight from that table, so add or select the column there first
-(with **DefinitionManager** or `xrmframework tables columns`) if it's missing.
+(with `xrmframework tables columns`) if it's missing.
 
 > For the full field reference — lookups, projections, multi-select option sets, and nesting one
 > model inside another over the same record with `ExtendBindingModel` — plus the diagnostics the
@@ -389,7 +368,6 @@ Every piece of XrmFramework ships as an independent NuGet package, so you only p
 | --- | --- | --- | --- |
 | [XrmFramework.Cli](https://www.nuget.org/packages/XrmFramework.Cli) | `xrmframework` .NET tool: scaffolding (`new`), `tables`, `deploy`, `migrate` | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.Cli?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.Cli?color=success&label=) |
 | [XrmFramework.Analyzers](https://www.nuget.org/packages/XrmFramework.Analyzers) | Roslyn analyzers & code fixes (`XRM00xx`) | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.Analyzers?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.Analyzers?color=success&label=) |
-| [XrmFramework.DefinitionManager](https://www.nuget.org/packages/XrmFramework.DefinitionManager) | Typed model definition generator (UI) | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.DefinitionManager?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.DefinitionManager?color=success&label=) |
 | [XrmFramework.DeployUtils](https://www.nuget.org/packages/XrmFramework.DeployUtils) | Deployment utilities (plugins, web resources, Custom APIs) | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.DeployUtils?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.DeployUtils?color=success&label=) |
 | [XrmFramework.RemoteDebugger.Client](https://www.nuget.org/packages/XrmFramework.RemoteDebugger.Client) | Remote debugger client | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.RemoteDebugger.Client?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.RemoteDebugger.Client?color=success&label=) |
 | [XrmFramework.RemoteDebugger.Generator](https://www.nuget.org/packages/XrmFramework.RemoteDebugger.Generator) | Remote debugger source generator | ![NuGet](https://img.shields.io/nuget/v/XrmFramework.RemoteDebugger.Generator?logo=nuget&label=) | ![Downloads](https://img.shields.io/nuget/dt/XrmFramework.RemoteDebugger.Generator?color=success&label=) |

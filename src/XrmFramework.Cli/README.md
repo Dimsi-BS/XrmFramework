@@ -71,7 +71,8 @@ the environment, but still need this discovery to locate the `.table` files.
 At the root thus found, the CLI reads `Directory.Build.props` to extract
 `XrmFrameworkCoreProjectName`, which gives it the default `.table` directory:
 `<root>/<CoreProject>/Definitions`. This is the same resolution that MSBuild injects into the
-DefinitionManager. Failing that, `--tables-dir` becomes mandatory.
+`XrmFramework.Plugin` project (via `XrmFrameworkCoreProjectName`). Failing that, `--tables-dir`
+becomes mandatory.
 
 > Discovery only checks for `xrmFramework.config`: `connectionStrings.config` carries secrets
 > and is gitignored in generated solutions, so it is absent from a fresh clone. Its absence is
@@ -113,8 +114,8 @@ noticeably faster than a full retrieval.
 ### `xrmframework tables pull` ✅ *(available)*
 
 Generates or updates `.table` files from the environment's metadata: types, localized labels,
-capabilities, bounds, relationships, alternate keys, and option sets. This is the headless
-equivalent of the **DefinitionManager** (WinForms `net462`), usable in CI.
+capabilities, bounds, relationships, alternate keys, and option sets. Usable interactively or in
+CI.
 
 ```bash
 xrmframework tables pull [--table <names>] [--prefix <prefix>] [--tables-dir <dir>] [--project-root <dir>] [-n]
@@ -164,8 +165,7 @@ When a `.table` is **created**, only the directly usable columns are activated
 
 All other columns are indeed **written with their full metadata**, but remain inactive — this
 avoids generating thousands of useless constants. Activating one is a deliberate act: set
-`Select: true` in the `.table` (via the DefinitionManager, by hand, or with the upcoming
-`tables columns`). On a project coming from 2.\*, the initial activation is done in bulk by the
+`Select: true` in the `.table` (by hand, or with `tables columns`). On a project coming from 2.\*, the initial activation is done in bulk by the
 `migrate sync-tables` migration, which reads it from the existing code.
 
 #### Merge rules for an existing file
@@ -867,7 +867,7 @@ xrmframework new azurefunction <NAME> [--solution-dir <DIRECTORY>]
 
 | Command | What it does |
 |---|---|
-| `new solution` | Creates `<NAME>/` from scratch: `<NAME>.Core`, `<NAME>.Plugins`, `Utils/` (DefinitionManager, RemoteDebugger, Deploy.\*), `Webresources/`. Renames `gitignore` to `.gitignore` and materializes `Config/connectionStrings.config` from its `.sample`. |
+| `new solution` | Creates `<NAME>/` from scratch: `<NAME>.Core`, `<NAME>.Plugins`, `Utils/` (RemoteDebugger, Deploy.\*), `Webresources/`. Renames `gitignore` to `.gitignore` and materializes `Config/connectionStrings.config` from its `.sample`. |
 | `new plugin` | Adds `<NAME>/` and `Utils/Deploy.<NAME>/` to the solution found under `--solution-dir` (one `.sln`/`.slnx`, or it's an error): `dotnet sln add` for both, a project reference from `RemoteDebugger.csproj`, and an `<add name="<NAME>" targetSolution="…" type="PluginsWorkflows"/>` appended to `Config/xrmFramework.config`. `--solution-unique-name` is prompted for if omitted. |
 | `new console` / `new azurefunction` | Adds `<NAME>/` to the solution found under `--solution-dir` and `dotnet sln add`s it. |
 

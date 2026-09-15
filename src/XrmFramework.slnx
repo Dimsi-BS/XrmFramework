@@ -24,7 +24,6 @@
   <Project Path="XrmFramework.Core/XrmFramework.Core.csproj" />
   <Project Path="XrmFramework.CoreProject.OnPremise/XrmFramework.CoreProject.OnPremise.csproj" />
   <Project Path="XrmFramework.CoreProject/XrmFramework.CoreProject.csproj" />
-  <Project Path="XrmFramework.DefinitionManager/XrmFramework.DefinitionManager.csproj" />
   <Project Path="XrmFramework.DeployUtils/XrmFramework.DeployUtils.csproj" />
   <Project Path="XrmFramework.Plugin.Tests/XrmFramework.Plugin.Tests.csproj" />
   <Project Path="XrmFramework.Plugin/XrmFramework.Plugin.csproj" />
