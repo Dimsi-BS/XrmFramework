@@ -16,6 +16,7 @@ type ColumnTypes =
     | "State" 
     | "Status"
     | "PartyList"
+    | "Virtual"
 
 type Label = {
     Label: string,
