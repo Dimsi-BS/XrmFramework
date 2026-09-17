@@ -52,6 +52,7 @@ type ColTypeToAttributeType = {
     Integer: Xrm.Attributes.NumberAttribute;
     DateTime: Xrm.Attributes.DateAttribute;
     BigInt: never;
+    Virtual: never;
 };
 
 type AttributeTypeFromCol<
