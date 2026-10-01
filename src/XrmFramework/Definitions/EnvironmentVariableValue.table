@@ -19,6 +19,22 @@
     },
 
     {
+      "LogName": "environmentvariablevalueid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 13,
+      "Locked": true,
+      "Labels": [
+        {
+          "Label": "Environment Variable Value",
+          "LangId": 1036
+        }
+      ],
+      "Select": true
+    },
+
+    {
       "LogName": "value",
       "Name": "Value",
       "Type": "Memo",

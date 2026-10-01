@@ -32,6 +32,7 @@ namespace XrmFramework.Core
         public double? MaxRange { get; set; }
 
         [JsonProperty("DatBehav")]
+        [JsonConverter(typeof(LegacyDateTimeBehaviorConverter))]
         public DateTimeBehavior? DateTimeBehavior { get; set; }
 
         public bool IsMultiSelect { get; set; }
