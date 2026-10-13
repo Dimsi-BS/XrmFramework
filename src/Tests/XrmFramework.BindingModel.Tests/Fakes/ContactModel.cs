@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Xrm.Sdk;
 
 namespace XrmFramework.BindingModel.Tests.Fakes
 {
@@ -38,6 +39,9 @@ namespace XrmFramework.BindingModel.Tests.Fakes
 
         [CrmMapping(ContactDefinition.Columns.AccountId)]
         public Guid AccountId { get; set; }
+
+        [CrmMapping(ContactDefinition.Columns.PreferredCustomerId)]
+        public EntityReference? PreferredCustomerId { get; set; }
     }
 
     /// <summary>Status picklist for <see cref="ContactModel"/>.</summary>

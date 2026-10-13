@@ -178,7 +178,6 @@ namespace XrmFramework.BindingModel
             string attributeName,
             BindingCache cache)
         {
-            var modelLookupAttributes = entityDefinition.GetCrmLookupAttributes(attributeName);
             var objectType = property.ObjectType;
             var crmLookupAttribute = property.CrmLookupAttribute;
 
@@ -187,15 +186,20 @@ namespace XrmFramework.BindingModel
 
             if (crmLookupAttribute != null)
             {
+                var modelLookupAttributes = entityDefinition.GetCrmLookupAttributes(attributeName);
                 value = ReadValueFromLookupAttribute(entity, property, attributeName, modelLookupAttributes, out isEntityReference);
             }
             else if (typeof(IBindingModel).IsAssignableFrom(objectType))
             {
+                var modelLookupAttributes = entityDefinition.GetCrmLookupAttributes(attributeName);
                 value = ReadEmbeddedBindingModel(entity, property, attributeName, modelLookupAttributes, cache);
                 isEntityReference = false;
             }
             else
             {
+                // Plain Guid/EntityReference property with no explicit CrmLookupAttribute: the SDK already
+                // returns a correctly-typed EntityReference for this attribute (Lookup, Owner or Customer),
+                // so there is no need to resolve the Definition-side lookup metadata here.
                 value = entity.GetAttributeValue<EntityReference>(attributeName);
                 isEntityReference = true;
             }

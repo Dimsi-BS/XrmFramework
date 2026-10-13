@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 
 namespace XrmFramework
 {
@@ -14,6 +15,15 @@ namespace XrmFramework
         private static readonly ConcurrentDictionary<string, EntityDefinition> InternalDefinitionCache = new ConcurrentDictionary<string, EntityDefinition>();
 
         private static readonly ConcurrentDictionary<Type, ModelDefinition> InternalModelDefinitionCache = new ConcurrentDictionary<Type, ModelDefinition>();
+
+        /// <summary>
+        /// The exception a type's <see cref="ModelDefinition"/> construction failed with, kept around so
+        /// <see cref="GetModelDefinition"/> can surface it: <see cref="TryGetModelDefinition"/> caches a
+        /// failure as a plain <see langword="null"/>, which would otherwise leave every caller of
+        /// <see cref="GetModelDefinition"/> with a generic "not found" instead of the actual reason —
+        /// an authoring mistake such as the unresolvable-Guid-lookup check below.
+        /// </summary>
+        private static readonly ConcurrentDictionary<Type, ExceptionDispatchInfo> ModelDefinitionFailures = new ConcurrentDictionary<Type, ExceptionDispatchInfo>();
 
         private static readonly ConcurrentBag<Assembly> AdditionalAssemblies = new ConcurrentBag<Assembly>();
 
@@ -36,6 +46,7 @@ namespace XrmFramework
         {
             InternalDefinitionCache.Clear();
             InternalModelDefinitionCache.Clear();
+            ModelDefinitionFailures.Clear();
         }
 
         public static EntityDefinition GetEntityDefinition(string entityName)
@@ -135,10 +146,13 @@ namespace XrmFramework
                 {
                     try
                     {
-                        return new ModelDefinition(t);
+                        var definition = new ModelDefinition(t);
+                        ModelDefinitionFailures.TryRemove(t, out _);
+                        return definition;
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        ModelDefinitionFailures[t] = ExceptionDispatchInfo.Capture(ex);
                         return null;
                     }
                 });
@@ -152,6 +166,12 @@ namespace XrmFramework
             {
                 return modelDefinition;
             }
+
+            if (ModelDefinitionFailures.TryGetValue(type, out var failure))
+            {
+                failure.Throw();
+            }
+
             throw new KeyNotFoundException($"No model definition found for type {type.FullName}");
         }
     }

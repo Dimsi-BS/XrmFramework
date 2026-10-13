@@ -141,6 +141,8 @@ namespace XrmFramework
                 IsNullable = true;
             }
 
+            CheckForUnresolvableGuidLookup();
+
             UpsertOrder = GetAttribute<UpsertOrderAttribute>(property)?.Order;
 
             var converterAttribute = GetAttribute<ModelPropertyConverterAttribute>(property);
@@ -180,6 +182,44 @@ namespace XrmFramework
         {
             return property.GetCustomAttribute<T>(true)
                    ?? Model.ImplementedInterfaces.FirstOrDefault(t => t.GetProperty(property.Name)?.GetCustomAttribute<T>() != null)?.GetProperty(property.Name)?.GetCustomAttribute<T>();
+        }
+
+        /// <summary>
+        /// Fails fast when a writable <see cref="Guid"/> property is mapped onto a lookup that reaches
+        /// more than one table (a Customer/Owner column, or an occasionally polymorphic plain Lookup
+        /// one such as <c>regardingobjectid</c>), with no <see cref="CrmLookupAttribute"/> on the
+        /// property to say which table it actually means.
+        /// </summary>
+        /// <remarks>
+        /// A bare <see cref="Guid"/> carries no indication of its target table, so writing one back
+        /// (<c>BindingModelToEntityMapper.BuildLookupFromDirectValue</c>) would have to guess — and
+        /// silently pick whichever table happens to come first. This is caught here, once, the first
+        /// time the binding model type is used for anything, rather than only when a write actually
+        /// runs into it.
+        /// </remarks>
+        private void CheckForUnresolvableGuidLookup()
+        {
+            if (CrmMappingAttribute == null
+                || !CrmMappingAttribute.IsValidForUpdate
+                || CrmLookupAttribute != null
+                || ObjectType != typeof(Guid)
+                || !Model.IsBindingModel)
+            {
+                return;
+            }
+
+            if (!Model.MainDefinition.HasAmbiguousLookupTarget(CrmMappingAttribute.AttributeName))
+            {
+                return;
+            }
+
+            throw new InvalidOperationException(
+                $"{Model.BindingType.Name}.{Property.Name} is a writable Guid (IsValidForUpdate = true) " +
+                $"mapped to '{CrmMappingAttribute.AttributeName}', a lookup that reaches more than one table. " +
+                "A bare Guid cannot carry which table it targets, so writing it would silently guess one " +
+                "(whichever table happens to be registered first). Use EntityReference instead — it already " +
+                "carries its target table — or mark the property read-only with " +
+                "[CrmMapping(..., IsValidForUpdate = false)] if it is only meant for reading.");
         }
 
 
