@@ -69,6 +69,15 @@ namespace XrmFramework.BindingModel
                 return;
             }
 
+            // Plain Guid/EntityReference property with no explicit CrmLookupAttribute: nothing to link —
+            // the SDK already returns a correctly-typed EntityReference for this attribute (Lookup, Owner
+            // or Customer), so there is no need to resolve the Definition-side lookup metadata here.
+            if (property.CrmLookupAttribute == null &&
+                (property.ObjectType == typeof(Guid) || property.ObjectType == typeof(EntityReference)))
+            {
+                return;
+            }
+
             if (depth > 1 && !crmAttribute.FollowLink)
             {
                 return;
@@ -85,12 +94,6 @@ namespace XrmFramework.BindingModel
             var targetEntityName = property.IsBindingModel
                 ? property.TargettedModelDefinition.MainDefinition.EntityName
                 : property.CrmLookupAttribute?.TargetEntityName;
-
-            // Single Guid-typed lookup with no explicit CrmLookupAttribute: nothing to link.
-            if (hasOneLookupAttribute && crmLookupAttribute == null && typeof(Guid).IsAssignableFrom(property.ObjectType))
-            {
-                return;
-            }
 
             if (hasOneLookupAttribute && targetEntityName == null)
             {
