@@ -29,7 +29,7 @@ type BaseColumnName<
                 ? Name
                 : never;
 
-type LookupColumnLogNames<TableDefinition extends Table> = Extract<ColDef<TableDefinition>, { Type: "Lookup" | "Owner" }>["LogName"];
+type LookupColumnLogNames<TableDefinition extends Table> = Extract<ColDef<TableDefinition>, { Type: "Lookup" | "Owner" | "Customer"  }>["LogName"];
 
 type PicklistColumnLogNames<TableDefinition extends Table> = Extract<ColDef<TableDefinition>, { Type: "Picklist" | "State" | "Status" }>["LogName"];
 
