@@ -174,12 +174,18 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 							AddColumnSummary(sb, col, enumDefinition);
 
 							sb.AppendLine($"[AttributeMetadata(AttributeTypeCode.{col.Type.ToString()})]");
-							if (col.Type == AttributeTypeCode.Lookup)
+							if (col.Type == AttributeTypeCode.Lookup
+							    || col.Type == AttributeTypeCode.Customer
+							    || col.Type == AttributeTypeCode.Owner)
 							{
-								var relation =
-									table.ManyToOneRelationships.FirstOrDefault(r =>
-									                                            r.LookupFieldName == col.LogicalName);
-								if (relation != null)
+								// A Lookup can be polymorphic too (e.g. regardingobjectid), and Customer/Owner
+								// always are (account/contact, systemuser/team): emit one [CrmLookup] per target
+								// table so the runtime can resolve whichever one a given record actually uses,
+								// instead of silently locking the column to the first table found.
+								var relations =
+									table.ManyToOneRelationships.Where(r =>
+									                                   r.LookupFieldName == col.LogicalName);
+								foreach (var relation in relations)
 								{
 									var tb = tables.FirstOrDefault(t => t.LogicalName == relation.EntityName);
 									//var eC = this._entityCollection[relationship.ReferencedEntity];

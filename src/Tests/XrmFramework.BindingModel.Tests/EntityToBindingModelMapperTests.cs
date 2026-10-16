@@ -275,6 +275,58 @@ namespace XrmFramework.BindingModel.Tests
         }
 
         // ------------------------------------------------------------------
+        // Customer attribute (polymorphic lookup, EntityReference typed)
+        // ------------------------------------------------------------------
+
+        [Test]
+        public void ToBindingModel_CustomerAttribute_MapsEntityReference_WithoutThrowing()
+        {
+            // Regression test: a Customer column (polymorphic account/contact lookup) has no
+            // CrmLookupAttribute on the Definition side — TableSourceFileGenerator only emits
+            // one for plain Lookup columns. Reading it must not require that metadata.
+            var accountId = Guid.NewGuid();
+            var entity = CreateContact();
+            entity[ContactDefinition.Columns.PreferredCustomerId] =
+                new EntityReference(AccountDefinition.EntityName, accountId);
+
+            var model = entity.ToBindingModel<ContactModel>();
+
+            Assert.IsNotNull(model);
+            Assert.IsNotNull(model!.PreferredCustomerId);
+            Assert.AreEqual(AccountDefinition.EntityName, model.PreferredCustomerId!.LogicalName);
+            Assert.AreEqual(accountId, model.PreferredCustomerId!.Id);
+        }
+
+        [Test]
+        public void ToBindingModel_CustomerAttribute_PointingToContact_MapsEntityReference()
+        {
+            // A Customer column is polymorphic: it may resolve to either account or contact.
+            var contactId = Guid.NewGuid();
+            var entity = CreateContact();
+            entity[ContactDefinition.Columns.PreferredCustomerId] =
+                new EntityReference(ContactDefinition.EntityName, contactId);
+
+            var model = entity.ToBindingModel<ContactModel>();
+
+            Assert.IsNotNull(model);
+            Assert.IsNotNull(model!.PreferredCustomerId);
+            Assert.AreEqual(ContactDefinition.EntityName, model.PreferredCustomerId!.LogicalName);
+            Assert.AreEqual(contactId, model.PreferredCustomerId!.Id);
+        }
+
+        [Test]
+        public void ToBindingModel_CustomerAttribute_AbsentFromEntity_LeavesPropertyNull()
+        {
+            var entity = CreateContact();
+            // PreferredCustomerId is intentionally not set.
+
+            var model = entity.ToBindingModel<ContactModel>();
+
+            Assert.IsNotNull(model);
+            Assert.IsNull(model!.PreferredCustomerId);
+        }
+
+        // ------------------------------------------------------------------
         // MapMany (batch mapping with cache)
         // ------------------------------------------------------------------
 

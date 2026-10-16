@@ -73,6 +73,20 @@ namespace XrmFramework.BindingModel.Tests
         }
 
         // ------------------------------------------------------------------
+        // Customer column — polymorphic lookup, EntityReference typed
+        // ------------------------------------------------------------------
+
+        [Test]
+        public void GetRetrieveAllQuery_CustomerAttribute_IncludesColumn_WithoutThrowing()
+        {
+            // Regression test: ContactModel.PreferredCustomerId maps to a Customer column that has
+            // no CrmLookupAttribute on the Definition side. Building the query must not require it.
+            var query = BindingModelHelper.GetRetrieveAllQuery<ContactModel>();
+
+            Assert.That(query.ColumnSet.Columns, Does.Contain(ContactDefinition.Columns.PreferredCustomerId));
+        }
+
+        // ------------------------------------------------------------------
         // Non-generic overload
         // ------------------------------------------------------------------
 
