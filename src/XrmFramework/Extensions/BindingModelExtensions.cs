@@ -89,6 +89,8 @@ namespace XrmFramework
                         }
                         break;
                     case AttributeTypeCode.Lookup:
+                    case AttributeTypeCode.Customer:
+                    case AttributeTypeCode.Owner:
                         if (attribute.Property.PropertyType == typeof(string) && string.Empty == valueSource as string)
                         {
                             valueSource = null;

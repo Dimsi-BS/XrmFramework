@@ -134,6 +134,20 @@ namespace XrmFramework
             return _crmLookupAttributes[attributeName];
         }
 
+        /// <summary>
+        /// Tells whether <paramref name="attributeName"/> is a polymorphic lookup reaching more than
+        /// one table (a <c>Customer</c>/<c>Owner</c> column, or an occasionally polymorphic plain
+        /// <c>Lookup</c> one such as <c>regardingobjectid</c>) — the case a bare <see cref="Guid"/>
+        /// cannot safely round-trip, since it carries no indication of which table it targets.
+        /// </summary>
+        /// <remarks>
+        /// Never throws: an attribute with no registered <see cref="CrmLookupAttribute"/> at all
+        /// (the common case for a plain pass-through property) is unambiguous as far as this check
+        /// is concerned — it is simply not a case this method flags.
+        /// </remarks>
+        public bool HasAmbiguousLookupTarget(string attributeName)
+            => _crmLookupAttributes.TryGetValue(attributeName, out var attributes) && attributes.Count > 1;
+
         public string PrimaryIdAttributeName { get; }
 
         public string PrimaryNameAttributeName { get; }
