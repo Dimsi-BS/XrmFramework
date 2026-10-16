@@ -26,7 +26,7 @@ public class CrmSettingsFactory<TSettings> where TSettings : CrmSettings, new()
 	/// Constructor for the <see cref="CrmSettingsFactory{TSettings}"/> class.
 	/// </summary>
 	/// <param name="service"></param>
-	/// <param name="initSettings">If this delegate throws an <see cref="NotImplementedException"/>, uses the default <see cref="CrmSettingsFactory{TSettings}.DefaultInitSettings"/></param>
+	/// <param name="initSettings">If this delegate returns <see langword="null"/> or an empty collection, uses the default <see cref="CrmSettingsFactory{TSettings}.DefaultInitSettings"/></param>
 	public CrmSettingsFactory(IOrganizationService service, InitSettings initSettings)
 	{
 		Service = service;
@@ -43,15 +43,14 @@ public class CrmSettingsFactory<TSettings> where TSettings : CrmSettings, new()
 			var splitPropertySettings = propertySettings.Select(p => (p.Name, p.Property.PropertyType)).ToList();
 			
 			
-			var	settingsValues = initSettings(splitPropertySettings);
+			var settingsValues = initSettings(splitPropertySettings)?.ToList() ?? new List<(string settingName, object settingValue)>();
 
-			var valueTuples = settingsValues ?? settingsValues.ToArray();
-			if(!valueTuples.Any())
+			if (!settingsValues.Any())
 			{
-				settingsValues = DefaultInitSettings(splitPropertySettings.ToArray());
+				settingsValues = DefaultInitSettings(splitPropertySettings.ToArray()).ToList();
 			}
 
-			foreach (var value in valueTuples)
+			foreach (var value in settingsValues)
 			{
 				var property = propertySettings.FirstOrDefault(p => p.Name == value.settingName);
 

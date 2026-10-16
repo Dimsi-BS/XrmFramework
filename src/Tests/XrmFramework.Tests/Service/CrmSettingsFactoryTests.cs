@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
 using Moq;
 using NUnit.Framework;
 using XrmFramework.Model;
@@ -20,6 +21,106 @@ namespace XrmFramework.Tests.Service
         {
             public string Name { get; set; } = string.Empty;
             public int Value { get; set; }
+        }
+
+        private class TestSettings : CrmSettings
+        {
+            [SettingName("my.string.setting")]
+            public string MySetting { get; set; } = string.Empty;
+        }
+
+        /// <summary>
+        /// Builds a raw environmentvariabledefinition <see cref="Entity"/> as RetrieveMultiple would
+        /// return it: the queried value comes back aliased through the environmentvariablevalue link,
+        /// exactly like <see cref="CrmSettingsFactory{TSettings}.GetEnvironmentVariables"/> queries it.
+        /// </summary>
+        private static Entity MakeEnvironmentVariableEntity(string schemaName, string queriedValue)
+        {
+            var entity = new Entity(EnvironmentVariableDefinition.EntityName, Guid.NewGuid())
+            {
+                [EnvironmentVariableDefinition.Columns.SchemaName] = schemaName,
+                [EnvironmentVariableDefinition.Columns.Type] = new OptionSetValue((int)EnvironmentVariableType.String),
+                [$"{EnvironmentVariableValueDefinition.EntityName}.{EnvironmentVariableValueDefinition.Columns.Value}"]
+                    = new AliasedValue(EnvironmentVariableValueDefinition.EntityName, EnvironmentVariableValueDefinition.Columns.Value, queriedValue)
+            };
+
+            return entity;
+        }
+
+        private static Mock<IOrganizationService> MakeMockServiceReturning(params Entity[] entities)
+        {
+            var mockService = new Mock<IOrganizationService>();
+            mockService
+                .Setup(s => s.RetrieveMultiple(It.IsAny<QueryBase>()))
+                .Returns(new EntityCollection(entities.ToList()) { MoreRecords = false });
+
+            return mockService;
+        }
+
+        // ────────────────────────────────────────────────────────────
+        //  Settings - end to end
+        // ────────────────────────────────────────────────────────────
+
+        [Test]
+        public void Settings_DefaultInitSettings_QueriesCrmAndAppliesTheRetrievedValue()
+        {
+            var mockService = MakeMockServiceReturning(MakeEnvironmentVariableEntity("my.string.setting", "QueriedValue"));
+
+            var factory = new CrmSettingsFactory<TestSettings>(
+                mockService.Object,
+                _ => Enumerable.Empty<(string, object)>());
+
+            var settings = factory.Settings;
+
+            Assert.AreEqual("QueriedValue", settings.MySetting);
+            mockService.Verify(s => s.RetrieveMultiple(It.IsAny<QueryBase>()), Times.Once);
+        }
+
+        [Test]
+        public void Settings_InitSettingsOverride_IsAppliedWithoutQueryingCrm()
+        {
+            var mockService = MakeMockServiceReturning();
+
+            var factory = new CrmSettingsFactory<TestSettings>(
+                mockService.Object,
+                _ => new[] { ("my.string.setting", (object)"OverrideValue") });
+
+            var settings = factory.Settings;
+
+            Assert.AreEqual("OverrideValue", settings.MySetting);
+            mockService.Verify(s => s.RetrieveMultiple(It.IsAny<QueryBase>()), Times.Never);
+        }
+
+        [Test]
+        public void Settings_InitSettingsReturningNull_FallsBackToCrmWithoutThrowing()
+        {
+            var mockService = MakeMockServiceReturning(MakeEnvironmentVariableEntity("my.string.setting", "QueriedValue"));
+
+            var factory = new CrmSettingsFactory<TestSettings>(
+                mockService.Object,
+                _ => null!);
+
+            TestSettings settings = null!;
+            Assert.DoesNotThrow(() => settings = factory.Settings);
+
+            Assert.AreEqual("QueriedValue", settings.MySetting);
+            mockService.Verify(s => s.RetrieveMultiple(It.IsAny<QueryBase>()), Times.Once);
+        }
+
+        [Test]
+        public void Settings_IsComputedOnceAndCached()
+        {
+            var mockService = MakeMockServiceReturning(MakeEnvironmentVariableEntity("my.string.setting", "QueriedValue"));
+
+            var factory = new CrmSettingsFactory<TestSettings>(
+                mockService.Object,
+                _ => Enumerable.Empty<(string, object)>());
+
+            var first = factory.Settings;
+            var second = factory.Settings;
+
+            Assert.AreSame(first, second);
+            mockService.Verify(s => s.RetrieveMultiple(It.IsAny<QueryBase>()), Times.Once);
         }
 
         [SetUp]
