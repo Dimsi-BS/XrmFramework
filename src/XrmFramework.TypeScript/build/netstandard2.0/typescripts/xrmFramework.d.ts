@@ -95,7 +95,7 @@ declare namespace XrmFramework {
             T extends FilteredTableObject<Tables[EntityName], Columns>
         >(entityLogicalName: EntityName, id: string, data: T): Xrm.Async.PromiseLike<Xrm.UpdateResponse>;
     }
-    
+
     interface FormContext<TableDefinition extends Table> extends Xrm.FormContext {
         /**
          * Gets a control by name or index.
@@ -142,7 +142,7 @@ interface UtilsApi<TableDefinition extends Table> {
     getIsDirty<ColumnName extends ColumnLogNames<TableDefinition>>(fieldName: ColumnName | ColDef<TableDefinition>["LogName"]): boolean;
     getProcessData(): Xrm.ProcessFlow.ProcessManager | null;
     getProcessUi(): Xrm.Controls.ProcessControl | null;
-    getLookupValue<ColumnName extends LookupColumnLogNames<TableDefinition>>(fieldName: ColumnName): any | null;
+    getLookupValue<ColumnName extends LookupColumnLogNames<TableDefinition>>(fieldName: ColumnName): Xrm.LookupValue | null;
 
     getValue<ColumnName extends LookupColumnLogNames<TableDefinition>>(
         fieldName: ColumnName

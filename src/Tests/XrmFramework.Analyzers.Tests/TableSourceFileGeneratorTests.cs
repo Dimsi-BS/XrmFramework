@@ -554,6 +554,139 @@ public class TableSourceFileGeneratorTests
     }
 
     // ══════════════════════════════════════════════════════════════════════════
+    // Polymorphic lookups: Customer and Owner get one [CrmLookup] per target too
+    // ══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// <c>preferredcustomerid</c> is a <c>Customer</c> column, reaching both <c>account</c> and
+    /// <c>contact</c> through two relationships sharing the same lookup field — exactly how Dataverse
+    /// itself reports a polymorphic lookup's metadata, Customer and Owner included.
+    /// </summary>
+    private const string ContactWithCustomerLookupTable = """
+        {
+          "LogName": "contact", "Name": "Contact", "CollName": "contacts",
+          "Cols": [
+            { "LogName": "contactid", "Name": "Id", "Type": "Uniqueidentifier", "PrimaryType": "Id", "Select": true },
+            { "LogName": "preferredcustomerid", "Name": "PreferredCustomerId", "Type": "Customer", "Select": true }
+          ],
+          "NToOne": [
+            { "Name": "contact_preferredcustomer_accounts", "Etn": "account", "NavPropName": "preferredcustomerid_account", "LookName": "preferredcustomerid" },
+            { "Name": "contact_preferredcustomer_contacts", "Etn": "contact", "NavPropName": "preferredcustomerid_contact", "LookName": "preferredcustomerid" }
+          ]
+        }
+        """;
+
+    private const string AccountForCustomerLookupTable = """
+        {
+          "LogName": "account", "Name": "Account", "CollName": "accounts",
+          "Cols": [
+            { "LogName": "accountid", "Name": "Id", "Type": "Uniqueidentifier", "PrimaryType": "Id", "Select": true }
+          ]
+        }
+        """;
+
+    /// <summary>
+    /// Before this test, only plain <c>Lookup</c> columns got a <c>[CrmLookup]</c> attribute: a
+    /// <c>Customer</c>/<c>Owner</c> column's Definition metadata stayed empty, and anything needing it
+    /// at runtime (an embedded sub-model, a <c>[CrmLookup]</c>-annotated property reading a related
+    /// field, or a bare <c>Guid</c> on write) threw "is not a lookup attribute" — even though the
+    /// column plainly is one. Picking only the first relationship would be just as wrong the other
+    /// way: it would silently lock a polymorphic column to one target table.
+    /// </summary>
+    [Test]
+    public void ACustomerColumn_GetsOneCrmLookupPerTargetTable()
+    {
+        var generated = TestHelper.Generate<TableSourceFileGenerator>(
+            ("Model/Definitions/Contact.table", ContactWithCustomerLookupTable),
+            ("Model/Definitions/Account.table", AccountForCustomerLookupTable));
+
+        var contact = generated["Contact.table.cs"];
+
+        StringAssert.Contains("[AttributeMetadata(AttributeTypeCode.Customer)]", contact);
+
+        StringAssert.Contains(
+            "[CrmLookup(AccountDefinition.EntityName, AccountDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.contact_preferredcustomer_accounts)]",
+            contact, "The account target must get its own [CrmLookup].");
+
+        StringAssert.Contains(
+            "[CrmLookup(ContactDefinition.EntityName, ContactDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.contact_preferredcustomer_contacts)]",
+            contact, "The contact (self-referencing) target must get its own [CrmLookup] too, not be dropped in favour of the first one found.");
+
+        Assert.AreEqual(2, CountOccurrences(contact, "[CrmLookup("),
+            "Both targets of the polymorphic column must be represented — picking only the first would silently mistype the other.");
+    }
+
+    /// <summary>
+    /// A plain <c>Owner</c> column (<c>ownerid</c>, reaching <c>systemuser</c> and <c>team</c>) must be
+    /// treated exactly like a <c>Customer</c> one: there is no reason, in Dataverse or in this
+    /// framework, to single it out.
+    /// </summary>
+    [Test]
+    public void AnOwnerColumn_GetsOneCrmLookupPerTargetTable()
+    {
+        const string systemUser = """
+            {
+              "LogName": "systemuser", "Name": "SystemUser", "CollName": "systemusers",
+              "Cols": [
+                { "LogName": "systemuserid", "Name": "Id", "Type": "Uniqueidentifier", "PrimaryType": "Id", "Select": true }
+              ]
+            }
+            """;
+
+        const string team = """
+            {
+              "LogName": "team", "Name": "Team", "CollName": "teams",
+              "Cols": [
+                { "LogName": "teamid", "Name": "Id", "Type": "Uniqueidentifier", "PrimaryType": "Id", "Select": true }
+              ]
+            }
+            """;
+
+        const string contact = """
+            {
+              "LogName": "contact", "Name": "Contact", "CollName": "contacts",
+              "Cols": [
+                { "LogName": "contactid", "Name": "Id", "Type": "Uniqueidentifier", "PrimaryType": "Id", "Select": true },
+                { "LogName": "ownerid", "Name": "OwnerId", "Type": "Owner", "Select": true }
+              ],
+              "NToOne": [
+                { "Name": "contact_owning_user", "Etn": "systemuser", "NavPropName": "ownerid_user", "LookName": "ownerid" },
+                { "Name": "contact_owning_team", "Etn": "team", "NavPropName": "ownerid_team", "LookName": "ownerid" }
+              ]
+            }
+            """;
+
+        var generated = TestHelper.Generate<TableSourceFileGenerator>(
+            ("Model/Definitions/Contact.table", contact),
+            ("Model/Definitions/SystemUser.table", systemUser),
+            ("Model/Definitions/Team.table", team));
+
+        var contactSource = generated["Contact.table.cs"];
+
+        StringAssert.Contains(
+            "[CrmLookup(SystemUserDefinition.EntityName, SystemUserDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.contact_owning_user)]",
+            contactSource);
+        StringAssert.Contains(
+            "[CrmLookup(TeamDefinition.EntityName, TeamDefinition.Columns.Id, RelationshipName = ManyToOneRelationships.contact_owning_team)]",
+            contactSource);
+    }
+
+    /// <summary>
+    /// A column with a single relationship — the overwhelming majority of <c>Lookup</c> columns,
+    /// and the occasional Customer/Owner restricted to one table in practice — must still get exactly
+    /// one <c>[CrmLookup]</c>, unchanged from before this fix.
+    /// </summary>
+    [Test]
+    public void ALookupWithASingleTarget_StillGetsExactlyOneCrmLookup()
+    {
+        var generated = TestHelper.Generate<TableSourceFileGenerator>(
+            ("Model/Definitions/Contact.table", ContactTable),
+            ("Model/Definitions/Account.table", AccountTable));
+
+        Assert.AreEqual(1, CountOccurrences(generated["Contact.table.cs"], "[CrmLookup("));
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
     // Alternate keys
     // ══════════════════════════════════════════════════════════════════════════
 
