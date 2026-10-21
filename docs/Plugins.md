@@ -17,6 +17,7 @@
   - [Method Dependency Injection](#method-dependency-injection)
     - [IPluginContext](#iplugincontext)
     - [IService](#iservice)
+    - [IXrmFrameworkService — framework and custom services](#ixrmframeworkservice--framework-and-custom-services)
   - [Working with Images](#working-with-images)
   - [Plugin Configuration](#plugin-configuration)
   - [Execution Flow](#execution-flow)
@@ -200,6 +201,21 @@ The unsecured config is available at runtime from `context.UnsecureConfig` (whol
 
 Step methods can declare any combination of the following parameter types. The framework resolves and injects all of them automatically.
 
+A step method parameter must be an **interface** that is authorized for injection, otherwise step
+registration throws at plugin instantiation:
+
+| Parameter type | Authorized because |
+| --- | --- |
+| `IPluginContext` | Execution context built by the framework |
+| An interface extending `IService` | Registered by the generated `RegisterServices` |
+| An interface extending `IXrmFrameworkService` | Framework service (`IDateTimeProvider`, …) or a custom service registered in `RegisterCustomService` |
+
+Anything else (a concrete type, or an interface that is not one of the above) raises:
+
+```text
+MyPlugin.OnPreUpdate parameter : myParam. Only IPluginContext, IService and IXrmFrameworkService interfaces are allowed as parameters
+```
+
 ### IPluginContext
 
 Provides access to the full execution context.
@@ -283,6 +299,70 @@ public void OnPostCreate(IPluginContext context, IAccountService accountService,
     // ...
 }
 ```
+
+### IXrmFrameworkService — framework and custom services
+
+`IXrmFrameworkService` is the marker interface that authorizes a service for method injection. It
+covers the services shipped with the framework — `IDateTimeProvider` for instance — and the services
+a consuming project registers itself.
+
+A consuming project registers its own services by completing the `RegisterCustomService` partial
+method of `InternalDependencyProvider`. Marking the service interface with `IXrmFrameworkService` is
+what authorizes it to be injected into a plugin method, a Custom Api method or a custom workflow
+activity action:
+
+```csharp
+// 1. The service interface carries the marker interface
+public interface IPricingCalculator : IXrmFrameworkService
+{
+    decimal GetDiscountRate(Guid accountId);
+}
+
+public class PricingCalculator : IPricingCalculator
+{
+    private readonly IServiceContext _context;
+
+    // Constructor parameters are resolved by the container as well
+    public PricingCalculator(IServiceContext context) => _context = context;
+
+    public decimal GetDiscountRate(Guid accountId) => 0.1m;
+}
+```
+
+```csharp
+// 2. The service is registered once, in the plugin project
+using BoDi;
+
+namespace XrmFramework
+{
+    public static partial class InternalDependencyProvider
+    {
+        static partial void RegisterCustomService(IObjectContainer container)
+        {
+            container.RegisterTypeAs<PricingCalculator, IPricingCalculator>();
+        }
+    }
+}
+```
+
+```csharp
+// 3. The service is injected like any built-in one
+public void OnPreCreate(IPluginContext context, IPricingCalculator pricing, IDateTimeProvider clock)
+{
+    var rate = pricing.GetDiscountRate(context.PrimaryEntityId);
+    context.Log("Rate {0} computed at {1}", rate, clock.UtcNow);
+}
+```
+
+> The `RegisterCustomService` partial method exists in two flavours: the `IObjectContainer` one shown
+> above for plugin / Custom Api / workflow projects, and an `IServiceCollection` one in the core
+> project for console applications and Azure Functions
+> (`XrmFrameworkServiceCollectionExtension.RegisterCustomService`). Register the service in both when
+> it is used on both sides.
+
+Services registered this way are **not** wrapped in a generated `Logged…` decorator — only interfaces
+extending `IService` are. Use `IService` when you want the framework's automatic call logging,
+`IXrmFrameworkService` for everything else.
 
 ---
 

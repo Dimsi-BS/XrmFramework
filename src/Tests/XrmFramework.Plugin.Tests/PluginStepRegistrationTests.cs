@@ -1,6 +1,7 @@
 // Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Microsoft.Xrm.Sdk;
 using NUnit.Framework;
 
 // ReSharper disable once CheckNamespace
@@ -57,6 +58,61 @@ public class PluginStepRegistrationTests
         }
 
         public void OnContactCreate(IPluginContext _, IDateTimeProvider clock) { }
+    }
+
+    /// <summary>
+    /// Custom service of a consuming project, authorized for injection by <see cref="IXrmFrameworkService"/>
+    /// and registered through <c>InternalDependencyProvider.RegisterCustomService</c>.
+    /// </summary>
+    private interface IPricingCalculator : IXrmFrameworkService
+    {
+    }
+
+    /// <summary>
+    /// Service interface of a consuming project which forgot the <see cref="IXrmFrameworkService"/> marker.
+    /// </summary>
+    private interface IUnregisteredHelper
+    {
+    }
+
+    /// <summary>
+    /// Plugin with a step method requesting a custom service registered by the consuming project.
+    /// </summary>
+    private sealed class CustomServicePlugin() : XrmFramework.Plugin(null, null)
+    {
+        protected override void AddSteps()
+        {
+            AddStep(Stages.PreOperation, Messages.Create, Modes.Synchronous, "contact", nameof(OnContactCreate));
+        }
+
+        public void OnContactCreate(IPluginContext _, IPricingCalculator pricing) { }
+    }
+
+    /// <summary>
+    /// Plugin whose step method requests an interface that is not authorized for injection
+    /// (registration must fail).
+    /// </summary>
+    private sealed class UnauthorizedServicePlugin() : XrmFramework.Plugin(null, null)
+    {
+        protected override void AddSteps()
+        {
+            AddStep(Stages.PreOperation, Messages.Create, Modes.Synchronous, "contact", nameof(OnContactCreate));
+        }
+
+        public void OnContactCreate(IPluginContext _, IUnregisteredHelper helper) { }
+    }
+
+    /// <summary>
+    /// Plugin whose step method requests a concrete type instead of an interface (registration must fail).
+    /// </summary>
+    private sealed class ConcreteParameterPlugin() : XrmFramework.Plugin(null, null)
+    {
+        protected override void AddSteps()
+        {
+            AddStep(Stages.PreOperation, Messages.Create, Modes.Synchronous, "contact", nameof(OnContactCreate));
+        }
+
+        public void OnContactCreate(IPluginContext _, string notAService) { }
     }
 
     /// <summary>
@@ -165,6 +221,30 @@ public class PluginStepRegistrationTests
         var plugin = new DateTimeProviderPlugin();
 
         Assert.AreEqual(1, plugin.Steps.Count);
+    }
+
+    // ──────────────────────────────────────────────
+    //  Injection authorization of step method parameters
+    // ──────────────────────────────────────────────
+
+    [Test]
+    public void AddStep_CustomXrmFrameworkServiceParameter_StepIsRegistered()
+    {
+        var plugin = new CustomServicePlugin();
+
+        Assert.AreEqual(1, plugin.Steps.Count);
+    }
+
+    [Test]
+    public void AddStep_UnauthorizedInterfaceParameter_Throws()
+    {
+        Assert.Throws<InvalidPluginExecutionException>(() => new UnauthorizedServicePlugin());
+    }
+
+    [Test]
+    public void AddStep_NonInterfaceParameter_Throws()
+    {
+        Assert.Throws<InvalidPluginExecutionException>(() => new ConcreteParameterPlugin());
     }
 
 }
