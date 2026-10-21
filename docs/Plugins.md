@@ -360,6 +360,9 @@ public void OnPreCreate(IPluginContext context, IPricingCalculator pricing, IDat
 > (`XrmFrameworkServiceCollectionExtension.RegisterCustomService`). Register the service in both when
 > it is used on both sides.
 
+`RegisterCustomService` runs after the framework defaults, so registering an interface the framework
+already provides — `IDateTimeProvider` for instance — replaces the default implementation.
+
 Services registered this way are **not** wrapped in a generated `Logged…` decorator — only interfaces
 extending `IService` are. Use `IService` when you want the framework's automatic call logging,
 `IXrmFrameworkService` for everything else.

@@ -14,12 +14,15 @@ namespace XrmFramework
         public static void RegisterDefaults(IObjectContainer container)
         {
             RegisterServices(container);
-            RegisterCustomService(container);
 
             // Registers SystemDateTimeProvider as the default implementation of IDateTimeProvider.
             // This registration can be overridden by InitializeDateTimeProvider()
             // in the RemoteDebugger context to use FixedDateTimeProvider during replays.
             container.RegisterInstanceAs<IDateTimeProvider>(SystemDateTimeProvider.Instance);
+
+            // Registered last so that the services of the consuming project take precedence over
+            // the framework defaults when both target the same interface.
+            RegisterCustomService(container);
         }
 
         // ReSharper disable once UnusedMember.Local
