@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using NUnit.Framework;
 using Microsoft.Xrm.Sdk.Metadata;
 
@@ -6,6 +7,34 @@ namespace XrmFramework.Core.Tests
     [TestFixture]
     public class ColumnTests
     {
+        [Test]
+        public void DeserializeDatBehav_CurrentIntegerShape()
+        {
+            var column = JsonConvert.DeserializeObject<Column>("{ \"DatBehav\": 1 }");
+
+            Assert.AreEqual(DateTimeBehavior.DateOnly, column.DateTimeBehavior);
+        }
+
+        [Test]
+        public void DeserializeDatBehav_LegacyObjectShape()
+        {
+            // 2.* .table files sometimes carry the raw Dataverse SDK DateTimeBehavior object
+            // instead of the plain enum: { "DatBehav": { "Value": "UserLocal" } }.
+            var column = JsonConvert.DeserializeObject<Column>("{ \"DatBehav\": { \"Value\": \"UserLocal\" } }");
+
+            Assert.AreEqual(DateTimeBehavior.UserLocal, column.DateTimeBehavior);
+        }
+
+        [Test]
+        public void SerializeDatBehav_AlwaysWritesPlainInteger()
+        {
+            var column = new Column { DateTimeBehavior = DateTimeBehavior.TimeZoneIndependent };
+
+            var json = JsonConvert.SerializeObject(column);
+
+            Assert.IsTrue(json.Replace(" ", string.Empty).Contains("\"DatBehav\":2"));
+        }
+
         [Test]
         public void ObjectInitialization()
         {
