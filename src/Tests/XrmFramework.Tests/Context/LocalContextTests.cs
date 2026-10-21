@@ -573,6 +573,44 @@ public class LocalContextTests
     }
 
     [Test]
+    public void InvokeMethod_FrameworkServiceParameter_InvokesSuccessfully()
+    {
+        var context = new LocalContext(_serviceProviderMock.Object);
+        var testObject = new TestClass();
+        var method = typeof(TestClass).GetMethod(nameof(TestClass.MethodWithDateTimeProvider));
+
+        context.InvokeMethod(testObject, method);
+
+        Assert.IsTrue(testObject.MethodWithDateTimeProviderCalled);
+    }
+
+    [Test]
+    public void InvokeMethod_UnregisteredService_ThrowsInvalidPluginExecutionException()
+    {
+        var context = new LocalContext(_serviceProviderMock.Object);
+        var testObject = new TestClass();
+        var method = typeof(TestClass).GetMethod(nameof(TestClass.MethodWithUnregisteredService));
+
+        Assert.Throws<InvalidPluginExecutionException>(() => context.InvokeMethod(testObject, method));
+    }
+
+    [Test]
+    public void InvokeMethod_UnregisteredService_MessageNamesMemberAndParameter()
+    {
+        var context = new LocalContext(_serviceProviderMock.Object);
+        var testObject = new TestClass();
+        var method = typeof(TestClass).GetMethod(nameof(TestClass.MethodWithUnregisteredService));
+
+        var exception = Assert.Throws<InvalidPluginExecutionException>(() => context.InvokeMethod(testObject, method));
+
+        Assert.IsTrue(exception!.Message.Contains(nameof(TestClass)), "The message should name the declaring type");
+        Assert.IsTrue(exception.Message.Contains(nameof(TestClass.MethodWithUnregisteredService)), "The message should name the method");
+        Assert.IsTrue(exception.Message.Contains("unregistered"), "The message should name the parameter");
+        Assert.IsTrue(exception.Message.Contains(nameof(IUnregisteredService)), "The message should name the missing type");
+        Assert.IsTrue(exception.Message.Contains("RegisterCustomService"), "The message should point to RegisterCustomService");
+    }
+
+    [Test]
     public void InvokeMethod_TaskMethod_WaitsForCompletion()
     {
         var context = new LocalContext(_serviceProviderMock.Object);
@@ -622,11 +660,19 @@ public class LocalContextTests
         _tracingServiceMock.Verify(t => t.Trace(It.IsAny<string>(), new object[]{It.IsAny<string>(), It.IsAny<string>()}), Times.AtLeastOnce);
     }
 
+    /// <summary>
+    /// Service interface nobody registered in the dependency container.
+    /// </summary>
+    private interface IUnregisteredService
+    {
+    }
+
     // Helper test class
     private class TestClass
     {
         public bool MethodCalled { get; private set; }
         public bool MethodWithContextCalled { get; private set; }
+        public bool MethodWithDateTimeProviderCalled { get; private set; }
         public bool AsyncMethodCalled { get; private set; }
 
         public void MethodWithoutParameters()
@@ -637,6 +683,16 @@ public class LocalContextTests
         public void MethodWithContext(IServiceContext context)
         {
             MethodWithContextCalled = true;
+        }
+
+        public void MethodWithDateTimeProvider(IDateTimeProvider clock)
+        {
+            MethodWithDateTimeProviderCalled = true;
+        }
+
+        // ReSharper disable once UnusedParameter.Local
+        public void MethodWithUnregisteredService(IUnregisteredService unregistered)
+        {
         }
 
         public async Task AsyncMethod()

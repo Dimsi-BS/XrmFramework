@@ -17,7 +17,7 @@
   - [Method Dependency Injection](#method-dependency-injection)
     - [IPluginContext](#iplugincontext)
     - [IService](#iservice)
-    - [IXrmFrameworkService — framework and custom services](#ixrmframeworkservice--framework-and-custom-services)
+    - [Custom services of the consuming project](#custom-services-of-the-consuming-project)
   - [Working with Images](#working-with-images)
   - [Plugin Configuration](#plugin-configuration)
   - [Execution Flow](#execution-flow)
@@ -201,20 +201,33 @@ The unsecured config is available at runtime from `context.UnsecureConfig` (whol
 
 Step methods can declare any combination of the following parameter types. The framework resolves and injects all of them automatically.
 
-A step method parameter must be an **interface** that is authorized for injection, otherwise step
-registration throws at plugin instantiation:
+**The dependency container is the only authority.** Any interface it can provide is injectable — no
+marker interface to implement, no list to extend:
 
-| Parameter type | Authorized because |
+| Parameter type | Provided by |
 | --- | --- |
-| `IPluginContext` | Execution context built by the framework |
-| An interface extending `IService` | Registered by the generated `RegisterServices` |
-| An interface extending `IXrmFrameworkService` | Framework service (`IDateTimeProvider`, …) or a custom service registered in `RegisterCustomService` |
+| `IPluginContext` | The execution context built by the framework |
+| An interface extending `IService` | The generated `RegisterServices` |
+| `IDateTimeProvider` and other framework services | `InternalDependencyProvider.RegisterDefaults` |
+| Any interface of the consuming project | `InternalDependencyProvider.RegisterCustomService` |
 
-Anything else (a concrete type, or an interface that is not one of the above) raises:
+Validation happens in two steps:
 
-```text
-MyPlugin.OnPreUpdate parameter : myParam. Only IPluginContext, IService and IXrmFrameworkService interfaces are allowed as parameters
-```
+1. **At plugin instantiation**, a parameter that is not an interface is rejected — the container
+   would otherwise silently construct an arbitrary concrete type nobody registered:
+
+   ```text
+   MyPlugin.OnPreUpdate parameter : myParam. Only interfaces registered in the dependency container are allowed as parameters
+   ```
+
+2. **At step invocation**, an interface the container holds no registration for — directly, or
+   anywhere down the constructor chain of the service being built — names the member at fault:
+
+   ```text
+   MyPlugin.OnPreUpdate parameter : pricing. IPricingCalculator is not registered in the dependency
+   container. Register it in InternalDependencyProvider.RegisterCustomService, or declare it as an
+   IService. Container details : Interface cannot be resolved: IPricingCalculator
+   ```
 
 ### IPluginContext
 
@@ -300,20 +313,16 @@ public void OnPostCreate(IPluginContext context, IAccountService accountService,
 }
 ```
 
-### IXrmFrameworkService — framework and custom services
-
-`IXrmFrameworkService` is the marker interface that authorizes a service for method injection. It
-covers the services shipped with the framework — `IDateTimeProvider` for instance — and the services
-a consuming project registers itself.
+### Custom services of the consuming project
 
 A consuming project registers its own services by completing the `RegisterCustomService` partial
-method of `InternalDependencyProvider`. Marking the service interface with `IXrmFrameworkService` is
-what authorizes it to be injected into a plugin method, a Custom Api method or a custom workflow
-activity action:
+method of `InternalDependencyProvider`. Registering is all it takes: the service becomes injectable
+into a plugin method, a Custom Api method or a custom workflow activity action, exactly like a
+built-in one, and it needs no base class and no marker interface.
 
 ```csharp
-// 1. The service interface carries the marker interface
-public interface IPricingCalculator : IXrmFrameworkService
+// 1. A plain interface and its implementation
+public interface IPricingCalculator
 {
     decimal GetDiscountRate(Guid accountId);
 }
@@ -354,6 +363,11 @@ public void OnPreCreate(IPluginContext context, IPricingCalculator pricing, IDat
 }
 ```
 
+The container resolves the constructor parameters of `PricingCalculator` the same way, so a custom
+service can itself depend on `IServiceContext`, on an `IService`, or on another custom service. A
+missing registration anywhere in that chain throws at invocation time, with the faulty plugin method
+parameter named.
+
 > The `RegisterCustomService` partial method exists in two flavours: the `IObjectContainer` one shown
 > above for plugin / Custom Api / workflow projects, and an `IServiceCollection` one in the core
 > project for console applications and Azure Functions
@@ -364,8 +378,8 @@ public void OnPreCreate(IPluginContext context, IPricingCalculator pricing, IDat
 already provides — `IDateTimeProvider` for instance — replaces the default implementation.
 
 Services registered this way are **not** wrapped in a generated `Logged…` decorator — only interfaces
-extending `IService` are. Use `IService` when you want the framework's automatic call logging,
-`IXrmFrameworkService` for everything else.
+extending `IService` are. Use `IService` when you want the framework's automatic call logging, a plain
+interface plus `RegisterCustomService` for everything else.
 
 ---
 

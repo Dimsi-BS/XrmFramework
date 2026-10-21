@@ -253,9 +253,14 @@ namespace XrmFramework
         {
             var listParamValues = new List<object>();
 
+            var ownerName = obj?.GetType().Name ?? GetType().Name;
+
             foreach (var param in method.GetParameters())
             {
-                var parameter = ObjectContainer.Resolve(param.ParameterType);
+                // Everything the container knows is injectable, be it registered by the framework or
+                // by the consuming project in InternalDependencyProvider.RegisterCustomService.
+                // An unknown type fails here, with the member and the parameter named.
+                var parameter = InjectionRules.Resolve(ObjectContainer, param.ParameterType, ownerName, method.Name, param.Name);
 
                 if (parameter is IApplicationInsightsLogger logger)
                 {

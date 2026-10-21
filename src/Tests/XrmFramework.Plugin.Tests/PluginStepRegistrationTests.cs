@@ -61,17 +61,10 @@ public class PluginStepRegistrationTests
     }
 
     /// <summary>
-    /// Custom service of a consuming project, authorized for injection by <see cref="IXrmFrameworkService"/>
-    /// and registered through <c>InternalDependencyProvider.RegisterCustomService</c>.
+    /// Custom service of a consuming project, carrying no framework marker interface and registered
+    /// through <c>InternalDependencyProvider.RegisterCustomService</c>.
     /// </summary>
-    private interface IPricingCalculator : IXrmFrameworkService
-    {
-    }
-
-    /// <summary>
-    /// Service interface of a consuming project which forgot the <see cref="IXrmFrameworkService"/> marker.
-    /// </summary>
-    private interface IUnregisteredHelper
+    private interface IPricingCalculator
     {
     }
 
@@ -86,20 +79,6 @@ public class PluginStepRegistrationTests
         }
 
         public void OnContactCreate(IPluginContext _, IPricingCalculator pricing) { }
-    }
-
-    /// <summary>
-    /// Plugin whose step method requests an interface that is not authorized for injection
-    /// (registration must fail).
-    /// </summary>
-    private sealed class UnauthorizedServicePlugin() : XrmFramework.Plugin(null, null)
-    {
-        protected override void AddSteps()
-        {
-            AddStep(Stages.PreOperation, Messages.Create, Modes.Synchronous, "contact", nameof(OnContactCreate));
-        }
-
-        public void OnContactCreate(IPluginContext _, IUnregisteredHelper helper) { }
     }
 
     /// <summary>
@@ -224,21 +203,19 @@ public class PluginStepRegistrationTests
     }
 
     // ──────────────────────────────────────────────
-    //  Injection authorization of step method parameters
+    //  Step method parameters
     // ──────────────────────────────────────────────
 
+    /// <summary>
+    /// A custom service needs no marker interface : step registration accepts any interface, and the
+    /// dependency container decides at invocation time whether it can provide it.
+    /// </summary>
     [Test]
-    public void AddStep_CustomXrmFrameworkServiceParameter_StepIsRegistered()
+    public void AddStep_CustomServiceParameterWithoutMarkerInterface_StepIsRegistered()
     {
         var plugin = new CustomServicePlugin();
 
         Assert.AreEqual(1, plugin.Steps.Count);
-    }
-
-    [Test]
-    public void AddStep_UnauthorizedInterfaceParameter_Throws()
-    {
-        Assert.Throws<InvalidPluginExecutionException>(() => new UnauthorizedServicePlugin());
     }
 
     [Test]
