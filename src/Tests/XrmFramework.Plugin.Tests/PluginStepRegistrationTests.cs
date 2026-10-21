@@ -1,6 +1,7 @@
 // Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Microsoft.Xrm.Sdk;
 using NUnit.Framework;
 
 // ReSharper disable once CheckNamespace
@@ -57,6 +58,40 @@ public class PluginStepRegistrationTests
         }
 
         public void OnContactCreate(IPluginContext _, IDateTimeProvider clock) { }
+    }
+
+    /// <summary>
+    /// Custom service of a consuming project, carrying no framework marker interface and registered
+    /// through <c>InternalDependencyProvider.RegisterCustomService</c>.
+    /// </summary>
+    private interface IPricingCalculator
+    {
+    }
+
+    /// <summary>
+    /// Plugin with a step method requesting a custom service registered by the consuming project.
+    /// </summary>
+    private sealed class CustomServicePlugin() : XrmFramework.Plugin(null, null)
+    {
+        protected override void AddSteps()
+        {
+            AddStep(Stages.PreOperation, Messages.Create, Modes.Synchronous, "contact", nameof(OnContactCreate));
+        }
+
+        public void OnContactCreate(IPluginContext _, IPricingCalculator pricing) { }
+    }
+
+    /// <summary>
+    /// Plugin whose step method requests a concrete type instead of an interface (registration must fail).
+    /// </summary>
+    private sealed class ConcreteParameterPlugin() : XrmFramework.Plugin(null, null)
+    {
+        protected override void AddSteps()
+        {
+            AddStep(Stages.PreOperation, Messages.Create, Modes.Synchronous, "contact", nameof(OnContactCreate));
+        }
+
+        public void OnContactCreate(IPluginContext _, string notAService) { }
     }
 
     /// <summary>
@@ -165,6 +200,28 @@ public class PluginStepRegistrationTests
         var plugin = new DateTimeProviderPlugin();
 
         Assert.AreEqual(1, plugin.Steps.Count);
+    }
+
+    // ──────────────────────────────────────────────
+    //  Step method parameters
+    // ──────────────────────────────────────────────
+
+    /// <summary>
+    /// A custom service needs no marker interface : step registration accepts any interface, and the
+    /// dependency container decides at invocation time whether it can provide it.
+    /// </summary>
+    [Test]
+    public void AddStep_CustomServiceParameterWithoutMarkerInterface_StepIsRegistered()
+    {
+        var plugin = new CustomServicePlugin();
+
+        Assert.AreEqual(1, plugin.Steps.Count);
+    }
+
+    [Test]
+    public void AddStep_NonInterfaceParameter_Throws()
+    {
+        Assert.Throws<InvalidPluginExecutionException>(() => new ConcreteParameterPlugin());
     }
 
 }
