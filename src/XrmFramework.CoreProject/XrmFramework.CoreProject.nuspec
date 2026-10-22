@@ -16,6 +16,7 @@
     <dependencies>
       <group targetFramework="net462">
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="$Ver_DataverseClient$" />
+        <dependency id="Microsoft.Identity.Client" version="$Ver_MsalClient$" />
         <dependency id="Newtonsoft.Json" version="$Ver_NewtonsoftJson$" />
         <dependency id="Microsoft.Extensions.DependencyInjection" version="$Ver_ExtDependencyInjection$" />
         <dependency id="XrmFramework" version="$version$" />
@@ -23,6 +24,7 @@
 
       <group targetFramework="net8.0">
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="$Ver_DataverseClient$" />
+        <dependency id="Microsoft.Identity.Client" version="$Ver_MsalClient$" />
         <dependency id="Newtonsoft.Json" version="$Ver_NewtonsoftJson$" />
         <dependency id="Microsoft.Extensions.DependencyInjection" version="$Ver_ExtDependencyInjection$" />
         <dependency id="XrmFramework" version="$version$" />
@@ -30,6 +32,7 @@
 
       <group targetFramework="net10.0">
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="$Ver_DataverseClient$" />
+        <dependency id="Microsoft.Identity.Client" version="$Ver_MsalClient$" />
         <dependency id="Newtonsoft.Json" version="$Ver_NewtonsoftJson$" />
         <dependency id="Microsoft.Extensions.DependencyInjection" version="$Ver_ExtDependencyInjection$" />
         <dependency id="XrmFramework" version="$version$" />
