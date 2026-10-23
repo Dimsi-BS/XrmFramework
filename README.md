@@ -19,7 +19,7 @@ The XrmFramework project is the result of 15+ years working on Dynamics 365 / Da
 Several design pattern are included in this framework :
 1.	Definition of Services to access CRM Data from Plugins or external code (Webservices, console apps, ...)
 2.	Automatic Plugin Step registration from source code (use of attributes to describe plugin and plugin steps)
-3.	Advanced plugin traces (service calls are logged)
+3.	Advanced plugin traces (service calls are logged), to plugin trace logs and to Application Insights — see [Logging and telemetry](docs/Logging.md)
 4.  Metadata Definition extraction tool (no more plain string attribute references)
 5.  Definition and automatic registration of Custom Apis
 

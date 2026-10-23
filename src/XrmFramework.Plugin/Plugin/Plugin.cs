@@ -152,11 +152,11 @@ namespace XrmFramework
             // Construct the Local plug-in context.
             var localContext = new LocalPluginContext(serviceProvider, UnSecuredConfigFull, SecuredConfig);
 
-            localContext.Log($"Entity: {localContext.PrimaryEntityName}, Message: {localContext.MessageName}, Stage: {Enum.ToObject(typeof(Stages), localContext.Stage)}, Mode: {localContext.Mode}");
+            localContext.LogInformation($"Entity: {localContext.PrimaryEntityName}, Message: {localContext.MessageName}, Stage: {Enum.ToObject(typeof(Stages), localContext.Stage)}, Mode: {localContext.Mode}");
 
-            localContext.Log($"\r\nClass {ChildClassName}");
-            localContext.Log($"\r\nUserId\t\t\t\t{localContext.UserId}\r\nInitiatingUserId\t{localContext.InitiatingUserId}");
-            localContext.Log($"\r\nStart : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}");
+            localContext.LogInformation($"\r\nClass {ChildClassName}");
+            localContext.LogDebug($"\r\nUserId\t\t\t\t{localContext.UserId}\r\nInitiatingUserId\t{localContext.InitiatingUserId}");
+            localContext.LogDebug($"\r\nStart : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}");
             sw.Restart();
 
 
@@ -187,73 +187,76 @@ namespace XrmFramework
 
                 var stage = Enum.ToObject(typeof(Stages), localContext.Stage);
                 sw.Restart();
-                localContext.Log("------------------ Input Variables (before) ------------------");
+                localContext.LogDebug("------------------ Input Variables (before) ------------------");
                 localContext.DumpInputParameters();
-                localContext.Log("\r\n------------------ Shared Variables (before) ------------------");
+                localContext.LogDebug("\r\n------------------ Shared Variables (before) ------------------");
                 localContext.DumpSharedVariables();
-                localContext.Log("\r\n---------------------------------------------------------------");
+                localContext.LogDebug("\r\n---------------------------------------------------------------");
 
                 foreach (var step in steps)
                 {
-                    sw.Restart();
-                    if (step.Message == Messages.Update && step.FilteringAttributes.Any())
+                    using (localContext.BeginScope($"{ChildClassName}.{step.Method.Name}"))
                     {
-
-                        var target = localContext.GetInputParameter<Entity>(InputParameters.Target);
-
-                        var useStep = false;
-
-                        foreach (var attributeName in target.Attributes.Select(a => a.Key))
+                        sw.Restart();
+                        if (step.Message == Messages.Update && step.FilteringAttributes.Any())
                         {
-                            useStep |= step.FilteringAttributes.Contains(attributeName);
+
+                            var target = localContext.GetInputParameter<Entity>(InputParameters.Target);
+
+                            var useStep = false;
+
+                            foreach (var attributeName in target.Attributes.Select(a => a.Key))
+                            {
+                                useStep |= step.FilteringAttributes.Contains(attributeName);
+                            }
+
+                            if (!useStep)
+                            {
+                                localContext.LogDebug(
+                                    "\r\n{0}.{5} is not fired because filteringAttributes filter is not met.",
+                                    ChildClassName,
+                                    localContext.PrimaryEntityName,
+                                    localContext.MessageName,
+                                    stage,
+                                    localContext.Mode, step.Method.Name);
+                                continue;
+                            }
+
                         }
 
-                        if (!useStep)
-                        {
-                            localContext.Log(
-                                "\r\n{0}.{5} is not fired because filteringAttributes filter is not met.",
-                                ChildClassName,
-                                localContext.PrimaryEntityName,
-                                localContext.MessageName,
-                                stage,
-                                localContext.Mode, step.Method.Name);
-                            continue;
-                        }
+                        var entityAction = step.Method;
 
+                        localContext.LogDebug($"\r\n\r\n{ChildClassName}.{step.Method.Name} is firing");
+
+                        sw.Restart();
+
+                        localContext.LogInformation($"{ChildClassName}.{step.Method.Name} Start");
+
+                        localContext.InvokeMethod(this, entityAction);
+
+                        localContext.LogInformation($"{ChildClassName}.{step.Method.Name} End, duration : {sw.Elapsed}");
                     }
-
-                    var entityAction = step.Method;
-
-                    localContext.Log($"\r\n\r\n{ChildClassName}.{step.Method.Name} is firing");
-
-                    sw.Restart();
-
-                    localContext.Log($"{ChildClassName}.{step.Method.Name} Start");
-
-                    localContext.InvokeMethod(this, entityAction);
-
-                    localContext.Log($"{ChildClassName}.{step.Method.Name} End, duration : {sw.Elapsed}");
                 }
 
                 if (localContext.IsStage(Stages.PreValidation) || localContext.IsStage(Stages.PreOperation))
                 {
-                    localContext.Log("\r\n\r\n------------------ Input Variables (after) ------------------");
+                    localContext.LogDebug("\r\n\r\n------------------ Input Variables (after) ------------------");
                     localContext.DumpInputParameters();
-                    localContext.Log("\r\n------------------ Shared Variables (after) ------------------");
+                    localContext.LogDebug("\r\n------------------ Shared Variables (after) ------------------");
                     localContext.DumpSharedVariables();
-                    localContext.Log("\r\n---------------------------------------------------------------");
+                    localContext.LogDebug("\r\n---------------------------------------------------------------");
                 }
             }
             catch (FaultException<OrganizationServiceFault> e)
             {
-                localContext.Log($"Exception: {e}");
+                localContext.Log(XrmLogLevel.Error, $"Exception: {e}");
 
                 // Handle the exception.
                 throw;
             }
             catch (TargetInvocationException e)
             {
-                localContext.Log($"Exception : {e.InnerException}");
+                localContext.Log(XrmLogLevel.Error, $"Exception : {e.InnerException}");
 
                 if (e.InnerException != null)
                 {
@@ -273,9 +276,9 @@ namespace XrmFramework
             }
             finally
             {
-                localContext.Log($"Exiting {ChildClassName}.Execute()");
+                localContext.LogInformation($"Exiting {ChildClassName}.Execute()");
 
-                localContext.Log($"End : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}\r\n");
+                localContext.LogDebug($"End : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}\r\n");
 
                 localContext.FlushLogs();
             }

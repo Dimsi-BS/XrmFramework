@@ -54,6 +54,12 @@ namespace XrmFramework.RemoteDebugger.Common
                 return ServiceEndpointNotificationService;
             }
 
+            if (serviceType == typeof(Microsoft.Xrm.Sdk.PluginTelemetry.ILogger))
+            {
+                // Application Insights telemetry is not available in a remote debugging session.
+                return null;
+            }
+
             throw new NotImplementedException();
         }
     }
