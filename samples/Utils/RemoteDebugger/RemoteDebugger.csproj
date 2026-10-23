@@ -4,10 +4,11 @@
     <!--
       Remote debugging client: intercepts plugin calls from Dataverse
       and redirects them to the development machine for local debugging.
-      net462 is required for compatibility with the Dynamics SDKs.
+      A .NET Framework target is required for compatibility with the Dynamics SDKs;
+      net48 is the default, net462 is also supported.
     -->
     <OutputType>Exe</OutputType>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +24,6 @@
     <ProjectReference Include="../../../src/XrmFramework.RemoteDebugger.Client/XrmFramework.RemoteDebugger.Client.csproj" />
   </ItemGroup>
 
-  <Import Project="../../../src/XrmFramework.RemoteDebugger.Client/build/net462/XrmFramework.RemoteDebugger.Client.props" />
+  <Import Project="../../../src/XrmFramework.RemoteDebugger.Client/build/net48/XrmFramework.RemoteDebugger.Client.props" />
 
 </Project>

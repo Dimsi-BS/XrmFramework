@@ -1,0 +1,8 @@
+<Project>
+    
+    <PropertyGroup>
+        <DoNotUsePackageDeployment>True</DoNotUsePackageDeployment>
+    </PropertyGroup>
+    
+    
+</Project>

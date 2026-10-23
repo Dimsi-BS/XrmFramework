@@ -23,9 +23,15 @@
                 <dependency id="XrmFramework.Plugin" version="[$version$]"/>
                 <dependency id="Microsoft.CrmSdk.Workflow" version="$Ver_CrmSdkWorkflow$"/>
             </group>
+            <group targetFramework="net48">
+                <dependency id="XrmFramework" version="[$version$]"/>
+                <dependency id="XrmFramework.Plugin" version="[$version$]"/>
+                <dependency id="Microsoft.CrmSdk.Workflow" version="$Ver_CrmSdkWorkflow$"/>
+            </group>
         </dependencies>
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="System.Activities" targetFramework="net462"/>
+            <frameworkAssembly assemblyName="System.Activities" targetFramework="net48"/>
         </frameworkAssemblies>
     </metadata>
 

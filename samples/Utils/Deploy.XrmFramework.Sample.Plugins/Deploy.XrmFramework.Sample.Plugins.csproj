@@ -3,10 +3,11 @@
   <PropertyGroup>
     <!--
       Tool for deploying plugins to Dataverse.
-      net462 is required for compatibility with the Dynamics SDKs.
+      A .NET Framework target is required for compatibility with the Dynamics SDKs;
+      net48 is the default, net462 is also supported.
     -->
     <OutputType>Exe</OutputType>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +24,7 @@
   </ItemGroup>
 
 
-  <Import Project="../../../src/XrmFramework.DeployUtils/build/net462/XrmFramework.DeployUtils.props" />
+  <Import Project="../../../src/XrmFramework.DeployUtils/build/net48/XrmFramework.DeployUtils.props" />
 
 
 </Project>
