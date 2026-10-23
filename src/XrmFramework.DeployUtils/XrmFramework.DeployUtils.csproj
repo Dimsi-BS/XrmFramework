@@ -85,7 +85,7 @@
     </ItemGroup>
 
   <!--
-    In-process inventory (net462 only): links the shared engine from
+    In-process inventory (.NET Framework only): links the shared engine from
     XrmFramework.PluginInventory. On net8/net10 the inventory goes through the out-of-process net462 exe
     (instantiating a net462 plugin is not possible from net8).
   -->
@@ -96,13 +96,13 @@
 
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <!--
-      CrmServiceClient (net462 connection, on-premise included) and the Microsoft.Xrm.Sdk.Workflow
-      types used by the linked XrmFramework.Workflows sources. Both are declared in the net462
+      CrmServiceClient (.NET Framework connection, on-premise included) and the Microsoft.Xrm.Sdk.Workflow
+      types used by the linked XrmFramework.Workflows sources. Both are declared in the .NET Framework
       group of the nuspec: the packaged assembly references them, consumers must restore them.
     -->
     <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" />
     <PackageReference Include="Microsoft.CrmSdk.Workflow" />
-    <!-- DI 3.1.8 required on net462; central version = 10.0.7 -->
+    <!-- DI 3.1.8 required on .NET Framework; central version = 10.0.7 -->
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" VersionOverride="3.1.8" />
 
     <Reference Include="System.Configuration" />

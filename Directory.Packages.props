@@ -22,7 +22,7 @@
     <Ver_DataverseClient>1.2.26</Ver_DataverseClient>
     <Ver_CrmSdkCoreAssemblies>9.0.2.60</Ver_CrmSdkCoreAssemblies>
     <Ver_CrmSdkWorkflow>9.0.2.60</Ver_CrmSdkWorkflow>
-    <!-- Used by CoreProject.OnPremise and by DeployUtils/net462 (CrmServiceClient). -->
+    <!-- Used by CoreProject.OnPremise and by DeployUtils on .NET Framework (CrmServiceClient). -->
     <Ver_CrmSdkXrmTooling>9.1.1.65</Ver_CrmSdkXrmTooling>
 
     <!-- ═══════════════════════════════════════════════════════════
@@ -33,7 +33,7 @@
     <!-- ═══════════════════════════════════════════════════════════
          Microsoft Extensions
          ═══════════════════════════════════════════════════════════ -->
-    <!-- Default net8+/net10+. DeployUtils/net462 uses 3.1.8 via VersionOverride. -->
+    <!-- Default net8+/net10+. DeployUtils on .NET Framework uses 3.1.8 via VersionOverride. -->
     <Ver_ExtDependencyInjection>10.0.10</Ver_ExtDependencyInjection>
 
     <!-- ═══════════════════════════════════════════════════════════
