@@ -178,15 +178,46 @@ namespace XrmFramework.DeployUtils.Configuration
 
 
         /// <summary>
+        /// Raw value of the <c>deployment</c> attribute. Typed as a string rather than as
+        /// <see cref="DeploymentMode" /> so that the casing of a hand-written config does not
+        /// matter: System.Configuration parses enums case-SENSITIVELY, so a perfectly reasonable
+        /// <c>deployment="package"</c> would otherwise fail with "The enumeration value must be one
+        /// of the following: Assembly, Package" before the deployment even starts.
+        /// Read it through <see cref="Deployment" />.
+        /// </summary>
+        [ConfigurationProperty("deployment", IsRequired = false, DefaultValue = "Assembly")]
+        internal string DeploymentValue
+        {
+            get => base["deployment"] as string;
+            set => base["deployment"] = value;
+        }
+
+        /// <summary>
         /// How the project's assembly reaches Dataverse: as a lone signed <c>pluginassembly</c>
         /// (the default, and the only option before 3.2) or wrapped in a <c>pluginpackage</c>
         /// that also carries its runtime dependencies.
         /// </summary>
-        [ConfigurationProperty("deployment", IsRequired = false, DefaultValue = DeploymentMode.Assembly)]
+        /// <exception cref="ConfigurationErrorsException">
+        /// If the attribute holds something that is neither mode.
+        /// </exception>
         public DeploymentMode Deployment
         {
-            get => (DeploymentMode)base["deployment"];
-            set => base["deployment"] = value;
+            get
+            {
+                var raw = DeploymentValue;
+
+                // Absent attribute: every config written before 3.2, whatever the project type.
+                if (string.IsNullOrWhiteSpace(raw)) return DeploymentMode.Assembly;
+
+                if (Enum.TryParse(raw.Trim(), ignoreCase: true, out DeploymentMode mode))
+                    return mode;
+
+                throw new ConfigurationErrorsException(
+                    $"Project \"{Name}\": deployment=\"{raw}\" is not a valid deployment mode. " +
+                    "Use \"Assembly\" (the default: the signed assembly is pushed on its own) or " +
+                    "\"Package\" (a NuGet package carrying the assembly and its dependencies).");
+            }
+            set => DeploymentValue = value.ToString();
         }
     }
 

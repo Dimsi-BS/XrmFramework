@@ -454,7 +454,7 @@ Since 3.2, XrmFramework builds and deploys one for you. Two things to set, once:
 
 ```xml
 <!-- Config/xrmFramework.config -->
-<add name="Contoso.Plugins" targetSolution="PluginsSolutionUniqueName" type="PluginsWorkflows" deployment="package" />
+<add name="Contoso.Plugins" targetSolution="PluginsSolutionUniqueName" type="PluginsWorkflows" deployment="Package" />
 ```
 
 Then reference the library as you would anywhere else, and keep your usual workflow — build the
@@ -486,7 +486,7 @@ What the framework does differently in this mode, and why it matters to you:
 Two platform limitations, which the deployment refuses up front rather than failing halfway:
 
 - **Custom workflow activities are not supported** in a package. If you have any, keep them in a
-  separate, signed assembly project left on `deployment="assembly"` — a plugin project and a
+  separate, signed assembly project left on `deployment="Assembly"` — a plugin project and a
   workflow project can target the same solution.
 - **On-premise environments are not supported.**
 

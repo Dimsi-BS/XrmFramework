@@ -181,7 +181,7 @@ Edit the `xrmFramework.config` file in the `Config` solution folder to configure
 - Pick the connection to use in the deployment tools with the `selectedConnection` attribute — you can declare as many as you need.
 - Set `entitySolution` to the unique name of the solution that holds the entities in your Dynamics 365 implementation.
 - List your projects under `projects` together with their deployment target solution.
-- Add `deployment="package"` on a plugin project to deploy it as a Dataverse **plugin package** rather than a lone assembly — the only supported way to use a third-party library in a plugin. The default, `deployment="assembly"`, keeps the historical behaviour. See [Using a Third-Party Library](docs/Plugins.md#using-a-third-party-library).
+- Add `deployment="Package"` on a plugin project to deploy it as a Dataverse **plugin package** rather than a lone assembly — the only supported way to use a third-party library in a plugin. The default, `deployment="Assembly"`, keeps the historical behaviour. See [Using a Third-Party Library](docs/Plugins.md#using-a-third-party-library).
 
 ## Generate model definitions
 
