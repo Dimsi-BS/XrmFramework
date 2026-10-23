@@ -59,6 +59,19 @@ public interface IAssemblyExporter
     void AddComponentToSolution(ICrmComponent component);
 
     /// <summary>
+    ///     Pushes a plugin package: creates it when <paramref name="registeredPackage" /> is
+    ///     <see langword="null" />, otherwise updates its content only.
+    ///     <para>
+    ///         Dataverse reacts to this by unpacking the <c>.nupkg</c> and creating or refreshing the
+    ///         <c>pluginassembly</c> and <c>plugintype</c> rows itself, so steps must be registered
+    ///         against what the platform produced, not against the local inventory's ids.
+    ///     </para>
+    /// </summary>
+    /// <param name="localPackage">The package built from the local project.</param>
+    /// <param name="registeredPackage">The package already registered, or <see langword="null" />.</param>
+    void PushPackage(PluginPackage localPackage, PluginPackage registeredPackage);
+
+    /// <summary>
     ///     Deletes a <see cref="ICrmComponent" /> on the Crm
     /// </summary>
     /// <param name="component"></param>
