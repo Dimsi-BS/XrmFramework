@@ -32,7 +32,7 @@
         <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='net462'">
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <Reference Include="System.Configuration" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>

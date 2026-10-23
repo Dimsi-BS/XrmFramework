@@ -20,6 +20,12 @@
         <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.59" />
         <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.59" />
       </group>
+      <group targetFramework="net48">
+        <dependency id="Microsoft.Azure.Relay" version="3.0.1" />
+        <dependency id="System.ComponentModel.Annotations" version="5.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="9.0.2.59" />
+        <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.59" />
+      </group>
     </dependencies>
     <repository
       type="git"
@@ -29,7 +35,8 @@
   </metadata>
 
   <files>
-    <file src="bin\$config$\net462\XrmFramework.RemoteDebugger.Client.*" target="lib\$XrmFramework_FullFramework_Runtime_TFM$" />
+    <file src="bin\$config$\net462\XrmFramework.RemoteDebugger.Client.*" target="lib\$XrmFramework_FullFramework_TFM$" />
+    <file src="bin\$config$\net48\XrmFramework.RemoteDebugger.Client.*" target="lib\$XrmFramework_FullFramework_Latest_TFM$" />
 
     <file src="build\**\*" target="build/" />
   </files>
