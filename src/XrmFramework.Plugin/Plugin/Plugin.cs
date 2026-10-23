@@ -119,9 +119,9 @@ public abstract partial class Plugin : IPlugin
         // Construct the Local plug-in context.
         var localContext = new LocalPluginContext(serviceProvider, UnSecuredConfig, SecuredConfig);
 
-        localContext.Log($"\r\nClass {ChildClassName}");
+        localContext.LogInformation($"\r\nClass {ChildClassName}");
         localContext.LogStart();
-        localContext.Log("The context is genuine");
+        localContext.LogDebug("The context is genuine");
 
         try
         {
@@ -140,7 +140,7 @@ public abstract partial class Plugin : IPlugin
         }
         catch (FaultException<OrganizationServiceFault> e)
         {
-            localContext.Log($"Exception: {e}");
+            localContext.Log(XrmLogLevel.Error, $"Exception: {e}");
             throw;
         }
         catch (Exception e)
@@ -149,7 +149,7 @@ public abstract partial class Plugin : IPlugin
         }
 
         localContext.LogContextExit();
-        localContext.Log($"Exiting {ChildClassName}.Execute()");
+        localContext.LogInformation($"Exiting {ChildClassName}.Execute()");
         localContext.LogExit();
     }
 
@@ -180,20 +180,25 @@ public abstract partial class Plugin : IPlugin
 
             if (methodsToAvoid.Contains(entityAction.Name))
             {
-                localContext.Log(
+                localContext.LogDebug(
                   $"\r\n{ChildClassName}.{step.Method.Name} is not fired because it has been manually disabled in the Unsecured Configuration.");
                 continue;
             }
 
-            localContext.Log($"\r\n\r\n{ChildClassName}.{step.Method.Name} is firing");
+            // Everything written until the scope is disposed carries it in its Application Insights
+            // customDimensions.
+            using (localContext.BeginScope($"{ChildClassName}.{step.Method.Name}"))
+            {
+                localContext.LogDebug($"\r\n\r\n{ChildClassName}.{step.Method.Name} is firing");
 
-            sw.Restart();
+                sw.Restart();
 
-            localContext.Log($"{ChildClassName}.{step.Method.Name} Start");
-            //Call the method corresponding to the step
-            localContext.InvokeMethod(this, entityAction);
+                localContext.LogInformation($"{ChildClassName}.{step.Method.Name} Start");
+                //Call the method corresponding to the step
+                localContext.InvokeMethod(this, entityAction);
 
-            localContext.Log($"{ChildClassName}.{step.Method.Name} End, duration : {sw.Elapsed}");
+                localContext.LogInformation($"{ChildClassName}.{step.Method.Name} End, duration : {sw.Elapsed}");
+            }
         }
     }
 
@@ -225,7 +230,7 @@ public abstract partial class Plugin : IPlugin
         {
             case TargetInvocationException e:
 
-                localContext.Log($"Exception : {e.InnerException}");
+                localContext.Log(XrmLogLevel.Error, $"Exception : {e.InnerException}");
                 if (e.InnerException != null)
                 {
                     if (e.InnerException is InvalidPluginExecutionException invalidPluginExecutionException)
