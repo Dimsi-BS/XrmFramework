@@ -57,6 +57,7 @@ var name = account.Nom;
 - 💉 **Service-oriented architecture** — typed `IService` classes encapsulate data access and business logic, and are injected into plugins, Custom APIs, console apps and Azure Functions.
 - 🔍 **Live remote debugger** — set breakpoints in Visual Studio and step through real plugin executions on any environment, forwarded to your machine over Azure Relay.
 - 🚀 **One-command scaffolding & deployment** — `dotnet new` templates plus deploy utilities for plugins, web resources and Custom APIs.
+- 📦 **Third-party libraries in plugins** — one property turns a plugin project into a Dataverse **plugin package** carrying its own dependencies, built on build and deployed by the same command. The supported alternative to ILMerge.
 - 📋 **Rich, zero-boilerplate tracing** — every service call and step execution is logged automatically.
 - 🛠️ **Productivity utilities** — concise extension methods for OptionSets, image/target merges, QueryExpression and EntityReference handling.
 
@@ -180,6 +181,7 @@ Edit the `xrmFramework.config` file in the `Config` solution folder to configure
 - Pick the connection to use in the deployment tools with the `selectedConnection` attribute — you can declare as many as you need.
 - Set `entitySolution` to the unique name of the solution that holds the entities in your Dynamics 365 implementation.
 - List your projects under `projects` together with their deployment target solution.
+- Add `deployment="package"` on a plugin project to deploy it as a Dataverse **plugin package** rather than a lone assembly — the only supported way to use a third-party library in a plugin. The default, `deployment="assembly"`, keeps the historical behaviour. See [Using a Third-Party Library](docs/Plugins.md#using-a-third-party-library).
 
 ## Generate model definitions
 
