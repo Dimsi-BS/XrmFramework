@@ -23,6 +23,7 @@
       </group>
       <group targetFramework="net48">
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="$Ver_DataverseClient$" />
+        <dependency id="Microsoft.Identity.Client" version="$Ver_MsalClient$" />
         <dependency id="Newtonsoft.Json" version="$Ver_NewtonsoftJson$" />
         <dependency id="Microsoft.Extensions.DependencyInjection" version="$Ver_ExtDependencyInjection$" />
         <dependency id="XrmFramework" version="$version$" />
