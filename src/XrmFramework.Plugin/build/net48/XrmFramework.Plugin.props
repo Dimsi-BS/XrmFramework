@@ -1,5 +1,8 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+  <!-- Plugin package (dependent assemblies) support, opt-in via XrmFrameworkPluginPackage. -->
+  <Import Project="$(MSBuildThisFileDirectory)../XrmFramework.Plugin.Package.props" />
+
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);DISABLE_DI;PLUGIN</DefineConstants>
 

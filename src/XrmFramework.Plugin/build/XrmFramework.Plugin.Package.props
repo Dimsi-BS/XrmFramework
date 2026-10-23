@@ -1,0 +1,79 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    Plugin package (dependent assemblies) support.
+
+    Set <XrmFrameworkPluginPackage>true</XrmFrameworkPluginPackage> in the plugin project to
+    deploy it as a Dataverse plugin package (pluginpackage table) instead of a lone signed
+    pluginassembly. The project then produces a .nupkg containing the plugin assembly AND its
+    runtime dependencies, which is what Dataverse extracts into the sandbox.
+
+    The mechanism mirrors Microsoft.PowerApps.MSBuild.Plugin: what gets packed is the PUBLISH
+    output, not the build output. Publishing is what drops the dependencies - and only the
+    dependencies - next to the assembly. The actual items are gathered in the .targets file;
+    this file only sets the properties, so that the project can still override any of them.
+  -->
+
+  <PropertyGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+    <!-- One `dotnet build` is enough: no extra `dotnet pack` step for the developer.
+         Set unconditionally, because the SDK has already defaulted this to false by the time
+         these props are imported - a `== ''` condition would never fire. Opt out with
+         XrmFrameworkPackageGenerateOnBuild=false, not by setting GeneratePackageOnBuild. -->
+    <GeneratePackageOnBuild Condition="'$(XrmFrameworkPackageGenerateOnBuild)' != 'false'">true</GeneratePackageOnBuild>
+    <PublishOnBuild Condition="'$(PublishOnBuild)' == ''">true</PublishOnBuild>
+
+    <!-- The .nupkg stays where NuGet puts it, bin/<Configuration>/, next to the TFM folders:
+         one package per project and configuration, multi-targeting included, so the deployment
+         finds it by looking beside the assembly and then one level up. NuGet freezes this path
+         during evaluation, so overriding it has to happen in the project, not in a target. -->
+
+    <!-- Dataverse never restores the package, it unzips it. Declaring NuGet dependencies that
+         are already shipped inside the package only makes the manifest misleading. -->
+    <SuppressDependenciesWhenPacking Condition="'$(SuppressDependenciesWhenPacking)' == ''">true</SuppressDependenciesWhenPacking>
+
+    <!-- Signing is not required in a package, and it is actively harmful: a signed assembly
+         cannot consume an unsigned dependency, which is the whole point of packaging one.
+         The scaffolded solution turns SignAssembly on for every project, hence the override. -->
+    <SignAssembly Condition="'$(XrmFrameworkPackageSignAssembly)' != 'true'">false</SignAssembly>
+
+    <!-- The sandbox extracts the whole package, so a shipped .pdb gives plugin stack traces
+         their line numbers - something a classic assembly registration cannot offer. Off by
+         default to keep the package small. -->
+    <XrmFrameworkPackageIncludePdb Condition="'$(XrmFrameworkPackageIncludePdb)' == ''">false</XrmFrameworkPackageIncludePdb>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+    <!--
+      Assemblies the Dataverse sandbox already provides. Shipping them invites a version
+      conflict at load time - System.Text.Json being the documented example - so they are
+      pruned from the package even when the restore graph drops them in the publish folder.
+
+      These reach a plugin project transitively through Microsoft.CrmSdk.CoreAssemblies, which
+      XrmFramework declares as an ordinary dependency, so without this list a plugin package
+      would carry some fifteen assemblies that the server is going to ignore at best.
+
+      Override per project by name, e.g.:
+        <XrmFrameworkSandboxProvidedAssemblyName Remove="System.Text.Json" />
+    -->
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Xrm.Sdk" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Xrm.Sdk.Workflow" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Xrm.Sdk.Deployment" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Crm.Sdk.Proxy" />
+    <!-- Pulled in by the plugin props as a copy-local framework reference, for workflow
+         activities. Part of the .NET Framework in the sandbox. -->
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Activities" />
+    <!-- Transitive closure of Microsoft.CrmSdk.CoreAssemblies. -->
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Bcl.AsyncInterfaces" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Buffers" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Memory" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Numerics.Vectors" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Runtime.CompilerServices.Unsafe" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.ServiceModel.Http" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.ServiceModel.Primitives" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Text.Encodings.Web" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Text.Json" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Threading.Tasks.Extensions" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.ValueTuple" />
+  </ItemGroup>
+
+</Project>

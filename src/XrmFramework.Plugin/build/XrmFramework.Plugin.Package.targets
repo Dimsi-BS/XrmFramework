@@ -1,0 +1,49 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    Plugin package (dependent assemblies) packaging. See XrmFramework.Plugin.Package.props for
+    the properties and the sandbox-provided assembly list.
+
+    What goes into the .nupkg is the publish output: `dotnet publish` resolves the runtime graph
+    and copies the dependencies the plugin actually needs, where a plain build also leaves the
+    reference assemblies behind. Dataverse unzips lib/<tfm>/ into the sandbox, so one file per
+    assembly at that level is exactly what it expects.
+  -->
+
+  <PropertyGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);XrmFrameworkPackagePublishedFiles</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <!--
+    Replaces the default build output of the package with the published files.
+    IncludeBuildOutput has to be turned off from inside this target: setting it any earlier
+    stops every TFM build output target from running, this one included.
+  -->
+  <Target Name="XrmFrameworkPackagePublishedFiles" Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+    <Error Condition="!Exists('$(PublishDir)')"
+           Text="The publish folder '$(PublishDir)' does not exist, so the plugin package would be empty. Run a build with PublishOnBuild=true, or publish before packing." />
+
+    <ItemGroup>
+      <BuildOutputInPackage Include="$(PublishDir)*.dll"
+                            Exclude="@(XrmFrameworkSandboxProvidedAssemblyName->'$(PublishDir)%(Identity).dll')" />
+      <BuildOutputInPackage Include="$(PublishDir)*.pdb"
+                            Condition="'$(XrmFrameworkPackageIncludePdb)' == 'true'" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <IncludeBuildOutput>false</IncludeBuildOutput>
+    </PropertyGroup>
+
+    <Message Importance="normal" Text="Plugin package contents: @(BuildOutputInPackage->'%(Filename)%(Extension)', ', ')" />
+  </Target>
+
+  <!--
+    Publishing is normally a separate command. Hooking it onto Build keeps the whole thing a
+    single `dotnet build`, and runs it before the Pack that GeneratePackageOnBuild schedules.
+  -->
+  <Target Name="XrmFrameworkPublishBeforePack"
+          AfterTargets="Build"
+          Condition="'$(XrmFrameworkPluginPackage)' == 'true' and '$(PublishOnBuild)' == 'true'"
+          DependsOnTargets="Publish" />
+
+</Project>
