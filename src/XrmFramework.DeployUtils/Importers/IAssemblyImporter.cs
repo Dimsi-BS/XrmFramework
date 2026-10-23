@@ -48,11 +48,15 @@ internal interface IAssemblyImporter
 	IAssemblyContext CreateAssemblyFromRemote(AssemblyInfo assemblyInfo);
 
 	/// <summary>
-	///     Creates a <see cref="PluginPackage" /> from a local Assembly
+	///     Creates a <see cref="PluginPackage" /> wrapping <paramref name="assembly" /> from the
+	///     <c>.nupkg</c> at <paramref name="packagePath" />.
 	/// </summary>
-	/// <param name="assembly"></param>
-	/// <returns></returns>
-	PluginPackage CreatePackageFromLocal(AssemblyInfo assembly);
+	/// <param name="assembly">The local assembly the package was built from.</param>
+	/// <param name="packagePath">
+	///     Path of the <c>.nupkg</c> to read, as resolved by
+	///     <see cref="AssemblyImporter.ResolvePackagePath" /> or given explicitly on the command line.
+	/// </param>
+	PluginPackage CreatePackageFromLocal(AssemblyInfo assembly, string packagePath);
 
 	/// <summary>
 	///     Creates a <see cref="PluginPackage" /> from the remote

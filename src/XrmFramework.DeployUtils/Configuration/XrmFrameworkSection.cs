@@ -175,12 +175,48 @@ namespace XrmFramework.DeployUtils.Configuration
             get => (ProjectType)base["type"];
             set => base["type"] = value;
         }
+
+
+        /// <summary>
+        /// How the project's assembly reaches Dataverse: as a lone signed <c>pluginassembly</c>
+        /// (the default, and the only option before 3.2) or wrapped in a <c>pluginpackage</c>
+        /// that also carries its runtime dependencies.
+        /// </summary>
+        [ConfigurationProperty("deployment", IsRequired = false, DefaultValue = DeploymentMode.Assembly)]
+        public DeploymentMode Deployment
+        {
+            get => (DeploymentMode)base["deployment"];
+            set => base["deployment"] = value;
+        }
     }
 
     public enum ProjectType
     {
         PluginsWorkflows,
         WebResources
+    }
+
+    /// <summary>
+    /// Deployment shape of a plugin project, chosen by the <c>deployment</c> attribute of its
+    /// <c>&lt;add&gt;</c> element in <c>xrmFramework.config</c>.
+    /// </summary>
+    public enum DeploymentMode
+    {
+        /// <summary>
+        /// The assembly is pushed on its own into the <c>pluginassembly</c> table, and the
+        /// framework registers plugin types, steps, images and custom APIs itself. The assembly
+        /// must be signed and cannot carry a third-party dependency.
+        /// </summary>
+        Assembly,
+
+        /// <summary>
+        /// A NuGet package holding the assembly and its dependencies is pushed into the
+        /// <c>pluginpackage</c> table. Dataverse unpacks it and creates the
+        /// <c>pluginassembly</c> and <c>plugintype</c> rows itself; the framework only
+        /// registers what remains - steps, images and custom APIs. Not available on-premise,
+        /// and not available for custom workflow activities.
+        /// </summary>
+        Package
     }
 
     public enum TestProjectType

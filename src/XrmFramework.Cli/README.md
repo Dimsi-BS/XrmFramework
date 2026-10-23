@@ -458,7 +458,7 @@ Deploys an XrmFramework assembly — **plugins, custom APIs, and workflows** —
 environment selected in `Config/xrmFramework.config`.
 
 ```bash
-xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <dir>] [--on-premise] [--noprompt]
+xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <dir>] [--package <path.nupkg>] [--on-premise] [--noprompt]
 ```
 
 | Option | Required | Description |
@@ -466,6 +466,7 @@ xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <d
 | `--dll <PATH>` | ✅ | Plugin project assembly (`net462`, the one registered in Dataverse). |
 | `--project <NAME>` | ✅ | Project name as declared in `xrmFramework.config` (e.g. `Plugins`). |
 | `--project-root <DIR>` | ❌ | Root containing the `Config/` folder (default: current folder). |
+| `--package <PATH>` | ❌ | Explicit `.nupkg` to push, overriding the one found next to the assembly. Only read for a project configured with `deployment="package"`. |
 | `--on-premise` | ❌ | Targets an On-Premises CRM (default: Dataverse Online). |
 | `-n`, `--noprompt`, `-NoPrompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). `-NoPrompt` (any casing) is kept for backward compatibility with the deployment scripts written against that spelling. |
 
@@ -491,6 +492,48 @@ xrmframework deploy plugins --dll bin/Release/net462/MyProject.Plugins.dll \
                             --project MyProject.Plugins \
                             --noprompt
 ```
+
+#### Deploying as a plugin package (dependent assemblies)
+
+A plugin assembly registered on its own cannot carry a third-party library, and Microsoft does
+not support ILMerge. The supported answer is a **plugin package**: a NuGet package holding the
+assembly *and* its dependencies, stored in the `pluginpackage` table and unpacked by Dataverse
+into the sandbox.
+
+Two things to set, once:
+
+```xml
+<!-- MyProject.Plugins.csproj -->
+<PropertyGroup>
+  <XrmFrameworkPluginPackage>true</XrmFrameworkPluginPackage>
+</PropertyGroup>
+```
+
+```xml
+<!-- Config/xrmFramework.config -->
+<add name="MyProject.Plugins" targetSolution="MySolution" type="PluginsWorkflows" deployment="package" />
+```
+
+`dotnet build` then produces the `.nupkg` next to the assembly output, and `deploy plugins`
+finds it without further options. Assemblies the sandbox already provides — the Dataverse SDK,
+`System.Text.Json` and the rest of the `Microsoft.CrmSdk.CoreAssemblies` closure — are pruned
+from the package; override the `XrmFrameworkSandboxProvidedAssemblyName` item list to ship one
+anyway. Set `XrmFrameworkPackageIncludePdb` to `true` to also ship the `.pdb`, which gives
+server-side stack traces their line numbers.
+
+What changes at deployment time: Dataverse creates the `pluginassembly` and `plugintype` rows
+itself from the package, so the framework pushes the package first, waits for the platform to
+unpack it, and only then registers steps, images and custom APIs against what the platform
+produced. Signing is turned off automatically — it is not required in a package, and a signed
+assembly cannot load an unsigned dependency.
+
+Platform limitations, which the deployment refuses up front rather than failing halfway:
+
+- **custom workflow activities are not supported** in a package — keep them in a separate,
+  signed assembly project left on `deployment="assembly"`;
+- **on-premise is not supported**;
+- the package's **name and version are frozen** once created, so only its content is updated
+  afterwards.
 
 **Exit codes**
 
