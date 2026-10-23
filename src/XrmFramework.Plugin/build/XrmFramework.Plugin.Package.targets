@@ -89,11 +89,30 @@
     <Error Condition="!Exists('$(PublishDir)')"
            Text="The publish folder '$(PublishDir)' does not exist, so the plugin package would be empty. Build with PublishOnBuild=true, or publish before packing." />
 
+    <!-- Resolved first, on its own: an element that both transforms this list and declares
+         %(FullPath) metadata batches over the wrong item and packs nonsense paths. -->
     <ItemGroup>
-      <BuildOutputInPackage Include="$(PublishDir)*.dll"
-                            Exclude="@(XrmFrameworkSandboxProvidedAssemblyName->'$(PublishDir)%(Identity).dll')" />
-      <BuildOutputInPackage Include="$(PublishDir)*.pdb"
-                            Condition="'$(XrmFrameworkPackageIncludePdb)' == 'true'" />
+      <_XrmFrameworkPrunedAssembly Include="@(XrmFrameworkSandboxProvidedAssemblyName->'$(PublishDir)%(Identity).dll')" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_XrmFrameworkPackageFile Include="$(PublishDir)*.dll" Exclude="@(_XrmFrameworkPrunedAssembly)" />
+      <_XrmFrameworkPackageFile Include="$(PublishDir)*.pdb"
+                                Condition="'$(XrmFrameworkPackageIncludePdb)' == 'true'" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <!--
+        FinalOutputPath is what makes `dotnet build` produce a FRESH package after a code change.
+        NuGet decides whether to re-run GenerateNuspec by comparing @(NuGetPackInput) against the
+        existing .nupkg, and it builds that input list as
+        @(_BuildOutputInPackage->'%(FinalOutputPath)'). Without this metadata the transform yields
+        nothing, pack believes it has no inputs, considers itself up to date - and leaves a .nupkg
+        holding the PREVIOUS build of the assembly. The deployment would then push stale code and
+        report success. Microsoft.PowerApps.MSBuild.Plugin omits it too; don't take that as a
+        reason to drop it.
+      -->
+      <BuildOutputInPackage Include="@(_XrmFrameworkPackageFile)" FinalOutputPath="%(FullPath)" />
     </ItemGroup>
 
     <PropertyGroup>

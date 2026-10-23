@@ -514,8 +514,12 @@ Two things to set, once:
 <add name="MyProject.Plugins" targetSolution="MySolution" type="PluginsWorkflows" deployment="package" />
 ```
 
-`dotnet build` then produces the `.nupkg` next to the assembly output, and `deploy plugins`
-finds it without further options. Assemblies the sandbox already provides — the Dataverse SDK,
+**The workflow does not change**: build the solution, then run the `Deploy.*` project — exactly
+as in assembly mode. Publishing and packing are hooked onto the build, so building the `Deploy.*`
+project alone is enough (it builds the plugin project as a project reference). The `.nupkg` lands
+in `bin/<Configuration>/`, beside the TFM folder, and `deploy plugins` finds it without further
+options. A build with nothing changed re-packs nothing; a build after a code change always
+produces a fresh package. Assemblies the sandbox already provides — the Dataverse SDK,
 `System.Text.Json` and the rest of the `Microsoft.CrmSdk.CoreAssemblies` closure — are pruned
 from the package; override the `XrmFrameworkSandboxProvidedAssemblyName` item list to ship one
 anyway. Set `XrmFrameworkPackageIncludePdb` to `true` to also ship the `.pdb`, which gives
