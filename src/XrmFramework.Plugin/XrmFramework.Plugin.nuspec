@@ -18,6 +18,10 @@
         <dependency id="XrmFramework" version="[$version$]" />
         <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.59" />
       </group>
+      <group targetFramework="net48">
+        <dependency id="XrmFramework" version="[$version$]" />
+        <dependency id="Microsoft.CrmSdk.Workflow" version="9.0.2.59" />
+      </group>
     </dependencies>
   </metadata>
 

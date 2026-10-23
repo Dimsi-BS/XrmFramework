@@ -18,6 +18,10 @@
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="1.2.10" />
         <dependency id="CommandLineParser" version="2.9.1" />
       </group>
+      <group targetFramework="net48">
+        <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="1.2.10" />
+        <dependency id="CommandLineParser" version="2.9.1" />
+      </group>
         <group targetFramework="net8.0">
             <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="1.2.10" />
             <dependency id="CommandLineParser" version="2.9.1" />
@@ -26,7 +30,8 @@
   </metadata>
 
   <files>
-      <file src="bin\$config$\net462\XrmFramework.DeployUtils.*" target="lib\$XrmFramework_FullFramework_Runtime_TFM$" />
+      <file src="bin\$config$\net462\XrmFramework.DeployUtils.*" target="lib\$XrmFramework_FullFramework_TFM$" />
+      <file src="bin\$config$\net48\XrmFramework.DeployUtils.*" target="lib\$XrmFramework_FullFramework_Latest_TFM$" />
       <file src="bin\$config$\net8.0\XrmFramework.DeployUtils.*" target="lib\net8.0" />
 
       <file src="build\**\*" target="build/" />

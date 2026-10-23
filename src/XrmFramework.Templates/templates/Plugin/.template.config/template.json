@@ -11,6 +11,25 @@
   },
   "sourceName": "$safeprojectname$",
   "preferNameDirectory": true,
+  "symbols": {
+    "Framework": {
+      "type": "parameter",
+      "description": "The .NET Framework version targeted by the plugin assembly",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "net462",
+          "description": ".NET Framework 4.6.2"
+        },
+        {
+          "choice": "net48",
+          "description": ".NET Framework 4.8"
+        }
+      ],
+      "defaultValue": "net462",
+      "replaces": "net462"
+    }
+  },
   "postActions": [
     {
       "actionId": "3A7C4B45-1F5D-4A30-959A-51B88E82B5D2",

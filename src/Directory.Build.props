@@ -27,9 +27,13 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <!-- Oldest supported .NET Framework TFM, kept for backward compatibility. -->
     <XrmFramework_FullFramework_TFM>net462</XrmFramework_FullFramework_TFM>
 
-    <XrmFramework_FullFramework_Runtime_TFM>$(XrmFramework_FullFramework_TFM)</XrmFramework_FullFramework_Runtime_TFM>
+    <!-- Latest supported .NET Framework TFM, used by Dataverse plugins/workflows targeting .NET Framework 4.8. -->
+    <XrmFramework_FullFramework_Latest_TFM>net48</XrmFramework_FullFramework_Latest_TFM>
+
+    <XrmFramework_FullFramework_Runtime_TFM>$(XrmFramework_FullFramework_TFM);$(XrmFramework_FullFramework_Latest_TFM)</XrmFramework_FullFramework_Runtime_TFM>
 
     <XrmFramework_Runtime_TFM>$(XrmFramework_FullFramework_Runtime_TFM);net8.0</XrmFramework_Runtime_TFM>
 
