@@ -3,9 +3,10 @@
   <PropertyGroup>
     <!--
       Plugins project: contains the Dataverse plugins and workflows.
-      net462 is required for running plugins in the Dataverse sandbox.
+      A .NET Framework target is required for running plugins in the Dataverse sandbox;
+      net48 is the default, net462 is also supported.
     -->
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

@@ -40,6 +40,12 @@
         <dependency id="NUnit3TestAdapter"       version="$Ver_NUnit3Adapter$" />
         <dependency id="Moq"                    version="$Ver_Moq$" />
       </group>
+      <group targetFramework="net48">
+        <dependency id="Microsoft.NET.Test.Sdk" version="$Ver_NETTestSdk$" />
+        <dependency id="NUnit"                  version="$Ver_NUnit$" />
+        <dependency id="NUnit3TestAdapter"       version="$Ver_NUnit3Adapter$" />
+        <dependency id="Moq"                    version="$Ver_Moq$" />
+      </group>
       <group targetFramework="net8.0">
         <dependency id="Microsoft.NET.Test.Sdk" version="$Ver_NETTestSdk$" />
         <dependency id="NUnit"                  version="$Ver_NUnit$" />
@@ -69,6 +75,7 @@
       Lib placeholders: source-only package, no compiled assembly provided.
     -->
     <file src="lib\net462\_._" target="lib\net462" />
+    <file src="lib\net48\_._" target="lib\net48" />
     <file src="lib\net8.0\_._"  target="lib\net8.0" />
     <file src="lib\net10.0\_._" target="lib\net10.0" />
 

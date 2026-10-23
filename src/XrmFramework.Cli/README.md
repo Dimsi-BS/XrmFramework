@@ -859,8 +859,8 @@ finishing steps a `postAction` used to run (`initXrm.ps1`, which required `pwsh`
 [the migration story below](#why-not-dotnet-new)).
 
 ```bash
-xrmframework new solution      <NAME> [--output <DIRECTORY>]
-xrmframework new plugin        <NAME> [--solution-dir <DIRECTORY>] [--solution-unique-name <NAME>]
+xrmframework new solution      <NAME> [--output <DIRECTORY>] [--framework net48|net462]
+xrmframework new plugin        <NAME> [--solution-dir <DIRECTORY>] [--solution-unique-name <NAME>] [--framework net48|net462]
 xrmframework new console       <NAME> [--solution-dir <DIRECTORY>]
 xrmframework new azurefunction <NAME> [--solution-dir <DIRECTORY>]
 ```
@@ -870,6 +870,14 @@ xrmframework new azurefunction <NAME> [--solution-dir <DIRECTORY>]
 | `new solution` | Creates `<NAME>/` from scratch: `<NAME>.Core`, `<NAME>.Plugins`, `Utils/` (RemoteDebugger, Deploy.\*), `Webresources/`. Renames `gitignore` to `.gitignore` and materializes `Config/connectionStrings.config` from its `.sample`. |
 | `new plugin` | Adds `<NAME>/` and `Utils/Deploy.<NAME>/` to the solution found under `--solution-dir` (one `.sln`/`.slnx`, or it's an error): `dotnet sln add` for both, a project reference from `RemoteDebugger.csproj`, and an `<add name="<NAME>" targetSolution="…" type="PluginsWorkflows"/>` appended to `Config/xrmFramework.config`. `--solution-unique-name` is prompted for if omitted. |
 | `new console` / `new azurefunction` | Adds `<NAME>/` to the solution found under `--solution-dir` and `dotnet sln add`s it. |
+
+**`--framework` (`-f`)** picks the .NET Framework the sandbox-side projects compile against —
+the plugin/workflow assembly and the `Deploy.*` / `RemoteDebugger` companions that reference it.
+Dataverse supports both **`net48`** (the default) and **`net462`**; pass `--framework net462`
+to scaffold a solution that must stay on .NET Framework 4.6.2. On `new solution` the choice also
+applies to the full-framework leg of `<NAME>.Core` (`net10.0;<tfm>`). Projects that never run in
+the sandbox (`new console`, `new azurefunction`, `Webresources`, `Deploy.Webresources`) always
+target the current .NET and are unaffected.
 
 `new solution` generates the newer XML-based **`.slnx`** format, not the classic `.sln` — `dotnet sln add`
 understands both transparently (requires .NET SDK 9.0.200+). `new plugin`/`console`/`azurefunction` look
@@ -887,6 +895,10 @@ per project.
 ```bash
 xrmframework new solution Contoso
 xrmframework new plugin Contoso.Warehouse --solution-dir Contoso --solution-unique-name ContosoPlugins
+
+# ... the same solution, with the plugin assemblies kept on .NET Framework 4.6.2
+xrmframework new solution Contoso --framework net462
+xrmframework new plugin Contoso.Warehouse --solution-dir Contoso --solution-unique-name ContosoPlugins --framework net462
 ```
 
 <a id="why-not-dotnet-new"></a>

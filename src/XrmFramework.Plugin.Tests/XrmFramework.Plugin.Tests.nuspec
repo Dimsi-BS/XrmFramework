@@ -43,7 +43,20 @@
         <dependency id="NUnit"                  version="4.5.1" />
         <dependency id="NUnit3TestAdapter"       version="$Ver_NUnit3Adapter$" />
         <!--
-          coverlet.collector is managed via the build/net462/XrmFramework.Plugin.Tests.props file
+          coverlet.collector is managed via the build/<tfm>/XrmFramework.Plugin.Tests.props files
+          with PrivateAssets=all to avoid transitive propagation.
+        -->
+      </group>
+      <group targetFramework="net48">
+        <!-- Version pinned to the package's own version: the tests must match the Framework exactly -->
+        <dependency id="XrmFramework.Plugin" version="[$version$]" />
+        <!-- NUnit test infrastructure -->
+        <dependency id="Microsoft.NET.Test.Sdk" version="$Ver_NETTestSdk$" />
+        <!-- NUnit 4.5.1: minimum version declared for consumer compatibility. -->
+        <dependency id="NUnit"                  version="4.5.1" />
+        <dependency id="NUnit3TestAdapter"       version="$Ver_NUnit3Adapter$" />
+        <!--
+          coverlet.collector is managed via the build/<tfm>/XrmFramework.Plugin.Tests.props files
           with PrivateAssets=all to avoid transitive propagation.
         -->
       </group>
@@ -64,9 +77,10 @@
 
     <!--
       Placeholder lib: source-only package, no compiled assembly provided.
-      The _._  file tells NuGet that net462 is supported without a DLL.
+      The _._  file tells NuGet that net462 and net48 are supported without a DLL.
     -->
     <file src="lib\net462\_._" target="lib\net462" />
+    <file src="lib\net48\_._" target="lib\net48" />
 
     <!--
       .props file injected by NuGet into the consuming project:

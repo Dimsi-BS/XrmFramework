@@ -22,6 +22,14 @@
         <dependency id="XrmFramework.DeployUtils" version="[$version$]" />
         <dependency id="Spectre.Console" version="$Ver_SpectreConsole$" />
       </group>
+      <group targetFramework="net48">
+        <dependency id="Microsoft.Azure.Relay" version="$Ver_AzureRelay$" />
+        <dependency id="System.ComponentModel.Annotations" version="$Ver_SysComponentAnnotations$" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="$Ver_CrmSdkCoreAssemblies$" />
+        <dependency id="Microsoft.CrmSdk.Workflow" version="$Ver_CrmSdkWorkflow$" />
+        <dependency id="XrmFramework.DeployUtils" version="[$version$]" />
+        <dependency id="Spectre.Console" version="$Ver_SpectreConsole$" />
+      </group>
     </dependencies>
     <repository
       type="git"
@@ -31,7 +39,8 @@
   </metadata>
 
   <files>
-    <file src="bin\$config$\net462\XrmFramework.RemoteDebugger.Client.*" target="lib\$XrmFramework_FullFramework_Runtime_TFM$" />
+    <file src="bin\$config$\net462\XrmFramework.RemoteDebugger.Client.*" target="lib\$XrmFramework_FullFramework_TFM$" />
+    <file src="bin\$config$\net48\XrmFramework.RemoteDebugger.Client.*" target="lib\$XrmFramework_FullFramework_Latest_TFM$" />
 
     <file src="build\**\*" target="build/" />
   </files>

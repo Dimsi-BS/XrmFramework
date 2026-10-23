@@ -151,7 +151,7 @@
     </ItemGroup>
 
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
       <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" />
       <PackageReference Include="Microsoft.CrmSdk.Workflow" />
     </ItemGroup>

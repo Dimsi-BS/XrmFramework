@@ -17,6 +17,9 @@
       <group targetFramework="net462">
         <dependency id="Newtonsoft.Json" version="$Ver_NewtonsoftJson$" />
       </group>
+      <group targetFramework="net48">
+        <dependency id="Newtonsoft.Json" version="$Ver_NewtonsoftJson$" />
+      </group>
       <group targetFramework="net8.0">
         <dependency id="Newtonsoft.Json" version="$Ver_NewtonsoftJson$" />
       </group>
