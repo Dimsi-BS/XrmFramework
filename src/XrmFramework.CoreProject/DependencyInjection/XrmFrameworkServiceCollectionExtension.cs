@@ -19,6 +19,8 @@ namespace Microsoft.Extensions.DependencyInjection
             var optionsBuilder = new XrmFrameworkOptionBuilder(serviceCollection);
             optionsBuilderAction?.Invoke(optionsBuilder);
 
+            ValidateConnectionOptions(optionsBuilder);
+
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IOrganizationServiceAsync), sp =>
             {
                 var serviceClient = sp.GetRequiredService<ServiceClient>();
@@ -35,7 +37,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(ServiceClient), sp =>
             {
-                var service = new ServiceClient(optionsBuilder.ConnectionString);
+                var service = optionsBuilder.UsesCallerManagedAuthentication
+                    ? new ServiceClient(optionsBuilder.Url, optionsBuilder.AccessTokenProviderFunction, optionsBuilder.RequireNewServiceClientInstance)
+                    : new ServiceClient(optionsBuilder.ConnectionString);
 
                 if (optionsBuilder.UseWebApiForced)
                 {
@@ -73,6 +77,15 @@ namespace Microsoft.Extensions.DependencyInjection
 
             RegisterCustomService(serviceCollection);
             return serviceCollection;
+        }
+
+        private static void ValidateConnectionOptions(XrmFrameworkOptionBuilder optionsBuilder)
+        {
+            if (!string.IsNullOrWhiteSpace(optionsBuilder.ConnectionString) && optionsBuilder.UsesCallerManagedAuthentication)
+            {
+                throw new InvalidOperationException(
+                    "AddXrmFramework was given both a connection string and a managed identity / access token provider. Only one connection mode can be used, call either UseConnectionString or UseManagedIdentity / UseAccessTokenProvider.");
+            }
         }
 
         static partial void RegisterServices(IServiceCollection serviceCollection);

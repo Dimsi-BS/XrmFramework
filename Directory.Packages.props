@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
 
   <PropertyGroup>
@@ -101,7 +101,10 @@
          ═══════════════════════════════════════════════════════════ -->
     <Ver_SignalRClient>8.0.0</Ver_SignalRClient>
     <Ver_AzureRelay>3.1.1</Ver_AzureRelay>
-    <Ver_MsalClient>4.61.3</Ver_MsalClient>
+    <!-- Must stay >= the version Microsoft.PowerPlatform.Dataverse.Client depends on
+         ($(Ver_DataverseClient) requires 4.84.2), otherwise CoreProject's direct
+         reference triggers a NU1605 package downgrade. -->
+    <Ver_MsalClient>4.84.2</Ver_MsalClient>
 
     <!-- ═══════════════════════════════════════════════════════════
          Miscellaneous
