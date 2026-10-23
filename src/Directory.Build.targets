@@ -3,7 +3,7 @@
     Detection of the Microsoft.PowerPlatform.Dataverse.Client package in the project currently being built.
 
     XrmFramework sources are linked (<Compile Include="..\XrmFramework\**\*.cs" />) into projects that
-    don't all reference this package: XrmFramework.Workflows and XrmFramework.DeployUtils (net462)
+    don't all reference this package: XrmFramework.Workflows and XrmFramework.DeployUtils (.NET Framework)
     go through Microsoft.CrmSdk.XrmTooling.CoreAssembly, XrmFramework.Plugin only has the Core SDK, and the
     On-Premise flavor explicitly removes it. Code that depends on IOrganizationServiceAsync /
     IOrganizationServiceAsync2 is therefore wrapped in "#if DATAVERSE_CLIENT".

@@ -16,10 +16,10 @@
     <dependencies>
       <group targetFramework="net462">
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="$Ver_DataverseClient$" />
-        <!-- The net462 assembly connects through CrmServiceClient (on-premise AD/NTLM, which
+        <!-- The .NET Framework assembly connects through CrmServiceClient (on-premise AD/NTLM, which
              ServiceClient does not support) and hard-references Microsoft.Xrm.Tooling.Connector. -->
         <dependency id="Microsoft.CrmSdk.XrmTooling.CoreAssembly" version="$Ver_CrmSdkXrmTooling$" />
-        <!-- Same for Microsoft.Xrm.Sdk.Workflow: the net462 assembly compiles the
+        <!-- Same for Microsoft.Xrm.Sdk.Workflow: the .NET Framework assembly compiles the
              XrmFramework.Workflows sources, which reference it. -->
         <dependency id="Microsoft.CrmSdk.Workflow" version="$Ver_CrmSdkWorkflow$" />
         <dependency id="CommandLineParser" version="$Ver_CommandLineParser$" />
@@ -27,10 +27,10 @@
       </group>
       <group targetFramework="net48">
         <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="$Ver_DataverseClient$" />
-        <!-- The net462 assembly connects through CrmServiceClient (on-premise AD/NTLM, which
+        <!-- The .NET Framework assembly connects through CrmServiceClient (on-premise AD/NTLM, which
              ServiceClient does not support) and hard-references Microsoft.Xrm.Tooling.Connector. -->
         <dependency id="Microsoft.CrmSdk.XrmTooling.CoreAssembly" version="$Ver_CrmSdkXrmTooling$" />
-        <!-- Same for Microsoft.Xrm.Sdk.Workflow: the net462 assembly compiles the
+        <!-- Same for Microsoft.Xrm.Sdk.Workflow: the .NET Framework assembly compiles the
              XrmFramework.Workflows sources, which reference it. -->
         <dependency id="Microsoft.CrmSdk.Workflow" version="$Ver_CrmSdkWorkflow$" />
         <dependency id="CommandLineParser" version="$Ver_CommandLineParser$" />
