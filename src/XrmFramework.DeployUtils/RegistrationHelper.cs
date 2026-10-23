@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xrm.Sdk;
@@ -24,23 +25,32 @@ namespace XrmFramework.DeployUtils;
 
 public partial class RegistrationHelper
 {
+    /// <summary>How often the deployment asks Dataverse whether it has finished unpacking a package.</summary>
+    private static readonly TimeSpan PackagePollInterval = TimeSpan.FromSeconds(5);
+
     private readonly AssemblyDiffFactory _assemblyDiffFactory;
     private readonly IAssemblyExporter _assemblyExporter;
     private readonly IAssemblyFactory _assemblyFactory;
     private readonly IConsoleService _consoleService;
     private readonly IRegistrationService _registrationService;
+    private readonly DeploySettings _deploySettings;
+    private readonly DeployOptions _deployOptions;
 
     public RegistrationHelper(IRegistrationService registrationService,
       IAssemblyExporter assemblyExporter,
       IAssemblyFactory assemblyFactory,
       IConsoleService consoleService,
-      AssemblyDiffFactory assemblyDiffFactory)
+      AssemblyDiffFactory assemblyDiffFactory,
+      DeploySettings deploySettings,
+      DeployOptions deployOptions)
     {
         _registrationService = registrationService;
         _assemblyExporter = assemblyExporter;
         _assemblyFactory = assemblyFactory;
         _consoleService = consoleService;
         _assemblyDiffFactory = assemblyDiffFactory;
+        _deploySettings = deploySettings;
+        _deployOptions = deployOptions;
     }
 
     /// <summary>
@@ -113,13 +123,27 @@ public partial class RegistrationHelper
         string projectName,
         bool isOnPremise,
         bool noPrompt)
+        => RegisterPluginsAndWorkflows(dllPath, projectName, isOnPremise, noPrompt, null);
+
+    /// <param name="packagePath">
+    ///     Explicit <c>.nupkg</c> to push, overriding the default resolution next to the assembly.
+    ///     Only read for a project configured with <c>deployment="package"</c>.
+    /// </param>
+    /// <inheritdoc cref="RegisterPluginsAndWorkflows(string,string,bool,bool)" />
+    public static int RegisterPluginsAndWorkflows(
+        string dllPath,
+        string projectName,
+        bool isOnPremise,
+        bool noPrompt,
+        string packagePath)
     {
         try
         {
             var deployOptions = new DeployOptions
             {
                 IsOnPremise = isOnPremise,
-                NoPrompt = noPrompt
+                NoPrompt = noPrompt,
+                PackagePath = packagePath
             };
 
             // ── Initialize the DI container ─────────────────────────────────────
@@ -135,6 +159,7 @@ public partial class RegistrationHelper
             AnsiConsole.WriteLine($"Target    : {deploySettings.Url}");
             AnsiConsole.WriteLine($"ClientId  : {deploySettings.ClientId}");
             AnsiConsole.WriteLine($"OnPremise : {(isOnPremise ? "yes" : "no")}");
+            AnsiConsole.WriteLine($"Deploy as : {(deploySettings.UsePluginPackage ? "plugin package" : "plugin assembly")}");
 
             // ── Interactive confirmation (unless silent mode) ────────────────
             if (!deployOptions.NoPrompt && !AnsiConsole.Confirm("Continue the deployment?"))
@@ -172,6 +197,14 @@ public partial class RegistrationHelper
         // AddSteps) via XrmFramework.PluginInventory: in-process net462, out-of-process net462 exe on net8.
         var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(dllPath);
 
+        var localPackage = localAssembly.AssemblyInfo.Package;
+
+        if (localPackage != null)
+        {
+            GuardPackageMode(localAssembly);
+            PushPackageAndWait(localAssembly, localPackage);
+        }
+
         _consoleService.SetStatus("Fetching Remote Assembly...");
 
         var registeredAssembly = _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, localAssembly.AssemblyInfo.Name);
@@ -183,7 +216,124 @@ public partial class RegistrationHelper
         _consoleService.SetStatus(@"Executing Registration Strategy...");
 
         ExecuteStrategy(registrationStrategy);
+
+        if (localPackage != null)
+        {
+            // The pluginassembly row belongs to the package, but solution membership does not come
+            // along: it is added here, now that the platform has actually created the row.
+            _assemblyExporter.AddComponentToSolution(registeredAssembly.AssemblyInfo);
+        }
     }
+
+    /// <summary>
+    ///     Rejects, before anything is written, what Dataverse does not support in a plugin package.
+    /// </summary>
+    private void GuardPackageMode(IAssemblyContext localAssembly)
+    {
+        if (_deploySettings.IsOnPremise)
+            throw new NotSupportedException(
+                "Plugin packages are not supported on-premise. Set deployment=\"assembly\" for this " +
+                "project in xrmFramework.config, or target a Dataverse environment.");
+
+        var workflowNames = localAssembly.Workflows.Select(w => w.FullName).ToList();
+
+        if (workflowNames.Count > 0)
+            throw new NotSupportedException(
+                "Custom workflow activities cannot be deployed in a plugin package, and this assembly " +
+                $"contains {workflowNames.Count}: {string.Join(", ", workflowNames)}. Move them to a " +
+                "separate, signed assembly project deployed with deployment=\"assembly\".");
+    }
+
+    /// <summary>
+    ///     Pushes the package, then waits for Dataverse to unpack it.
+    ///     <para>
+    ///         Steps that point at a plugin type the new package no longer carries are unregistered
+    ///         first: the platform rejects a package update that would strand a step registration.
+    ///     </para>
+    /// </summary>
+    private void PushPackageAndWait(IAssemblyContext localAssembly, PluginPackage localPackage)
+    {
+        _consoleService.SetStatus("Fetching Registered Package...");
+
+        var registeredPackage = _registrationService.GetPackageByUniqueName(localPackage.UniqueName);
+
+        if (registeredPackage != null)
+        {
+            _consoleService.SetStatus("Unregistering Obsolete Steps...");
+            DeleteStepsOfRemovedPluginTypes(localAssembly);
+        }
+
+        _consoleService.SetStatus($"Pushing Package {localPackage.UniqueName}...");
+        _assemblyExporter.PushPackage(localPackage, registeredPackage);
+
+        _consoleService.SetStatus("Waiting for Dataverse to Unpack the Package...");
+        WaitForPluginTypes(localAssembly);
+    }
+
+    /// <summary>
+    ///     Deletes the steps and images whose plugin type is about to disappear from the package.
+    ///     Everything else is left to the normal diff, which runs once the package is in place.
+    /// </summary>
+    private void DeleteStepsOfRemovedPluginTypes(IAssemblyContext localAssembly)
+    {
+        var remoteAssembly =
+            _assemblyFactory.CreateFromRemoteAssemblyContext(_registrationService, localAssembly.AssemblyInfo.Name);
+
+        if (remoteAssembly?.AssemblyInfo == null || remoteAssembly.AssemblyInfo.Id == Guid.Empty) return;
+
+        var orphanedComponents = PluginPackageReconciler.FindStepsOfRemovedPluginTypes(
+            remoteAssembly.Plugins, LocalPluginTypeNames(localAssembly));
+
+        if (orphanedComponents.Count == 0) return;
+
+        _assemblyExporter.DeleteAllComponents(orphanedComponents);
+    }
+
+    /// <summary>
+    ///     Polls until every locally inventoried plugin type exists server-side, because the steps
+    ///     registered right after are hung off those rows. Packages holding hundreds of plugin types
+    ///     take minutes to import, hence a bounded wait rather than an assumption.
+    /// </summary>
+    private void WaitForPluginTypes(IAssemblyContext localAssembly)
+    {
+        var expectedTypeNames = LocalPluginTypeNames(localAssembly).ToList();
+        var deadline = DateTime.UtcNow + _deployOptions.PackageProcessingTimeout;
+        var missing = new List<string>();
+
+        while (true)
+        {
+            var assembly = _registrationService.GetAssemblyInfoByName(localAssembly.AssemblyInfo.Name);
+
+            if (assembly != null)
+            {
+                var registeredTypeNames = new HashSet<string>(
+                    _registrationService.GetRegisteredPluginTypes(assembly.Id).Select(t => t.TypeName),
+                    StringComparer.Ordinal);
+
+                missing = expectedTypeNames.Where(n => !registeredTypeNames.Contains(n)).ToList();
+
+                if (missing.Count == 0) return;
+            }
+
+            if (DateTime.UtcNow >= deadline)
+                throw new TimeoutException(
+                    $"Dataverse did not finish unpacking the plugin package within {_deployOptions.PackageProcessingTimeout.TotalMinutes:0.#} min. " +
+                    (assembly == null
+                        ? $"The assembly '{localAssembly.AssemblyInfo.Name}' has not appeared yet."
+                        : $"Still missing {missing.Count} plugin type(s): {string.Join(", ", missing.Take(5))}.") +
+                    " Raise DeployOptions.PackageProcessingTimeout and run the deployment again - it is idempotent.");
+
+            Thread.Sleep(PackagePollInterval);
+        }
+    }
+
+    /// <summary>
+    ///     Full type names the platform is expected to register out of the package: the plugins, plus
+    ///     the types backing the custom APIs.
+    /// </summary>
+    private static IEnumerable<string> LocalPluginTypeNames(IAssemblyContext localAssembly)
+        => localAssembly.Plugins.Select(p => p.FullName)
+            .Concat(localAssembly.CustomApis.Select(c => c.FullName));
 
     /// <summary>
     ///     Deploy the <paramref name="strategy" />'s components according to their <see cref="RegistrationState" />

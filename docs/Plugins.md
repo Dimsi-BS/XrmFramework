@@ -20,6 +20,7 @@
     - [Custom services of the consuming project](#custom-services-of-the-consuming-project)
   - [Working with Images](#working-with-images)
   - [Plugin Configuration](#plugin-configuration)
+  - [Using a Third-Party Library](#using-a-third-party-library)
   - [Execution Flow](#execution-flow)
   - [Complete Example](#complete-example)
 
@@ -430,6 +431,72 @@ public void OnPreValidateCreate(IPluginContext context)
 ```
 
 When the unsecured config is a JSON object, the framework deserialises it into a `StepConfiguration` automatically. The `Configuration` property of that object is surfaced as `UnsecureConfig` on the context, allowing you to embed arbitrary JSON in the config while the framework strips away the internal `relName` / `configuration` envelope used for Associate / Disassociate steps.
+
+---
+
+## Using a Third-Party Library
+
+A plugin assembly registered on its own cannot bring a dependency with it: Dataverse loads that
+single assembly into the sandbox, and anything it references that the sandbox does not already
+provide fails at runtime with a `FileNotFoundException`. Microsoft does not support ILMerge as a
+way around it.
+
+The supported answer is a **plugin package**: a NuGet package holding the plugin assembly *and*
+its dependencies, stored in the `pluginpackage` table and unpacked by Dataverse into the sandbox.
+Since 3.2, XrmFramework builds and deploys one for you. Two things to set, once:
+
+```xml
+<!-- Contoso.Plugins.csproj -->
+<PropertyGroup>
+  <XrmFrameworkPluginPackage>true</XrmFrameworkPluginPackage>
+</PropertyGroup>
+```
+
+```xml
+<!-- Config/xrmFramework.config -->
+<add name="Contoso.Plugins" targetSolution="PluginsSolutionUniqueName" type="PluginsWorkflows" deployment="Package" />
+```
+
+Then reference the library as you would anywhere else, and keep your usual workflow — build the
+solution, run the `Deploy.*` project. Publishing and packaging are hooked onto the build, so there
+is no extra command and nothing changes in how you deploy.
+
+```xml
+<ItemGroup>
+  <PackageReference Include="ClosedXML" Version="0.104.2" />
+</ItemGroup>
+```
+
+What the framework does differently in this mode, and why it matters to you:
+
+- **Assemblies the sandbox already provides are left out of the package** — the Dataverse SDK,
+  `System.Text.Json` and the rest of the `Microsoft.CrmSdk.CoreAssemblies` closure. Shipping them
+  risks loading a different version than the server's. To ship one deliberately, remove it from
+  the list: `<XrmFrameworkSandboxProvidedAssemblyName Remove="System.Text.Json" />`.
+- **Signing is turned off.** It is not required in a package, and a signed assembly cannot load an
+  unsigned dependency — which is exactly what you are packaging. The scaffolded solution signs
+  every project, hence the override.
+- **Dataverse creates the `pluginassembly` and `plugintype` rows itself** from the package. The
+  deployment pushes the package first, waits for the platform to unpack it, then registers steps,
+  images and Custom APIs against what the platform produced.
+- **Set `XrmFrameworkPackageIncludePdb` to `true`** to also ship the `.pdb`. The sandbox extracts
+  the whole package, so server-side stack traces then carry line numbers — something a classic
+  assembly registration cannot offer.
+
+Two platform limitations, which the deployment refuses up front rather than failing halfway:
+
+- **Custom workflow activities are not supported** in a package. If you have any, keep them in a
+  separate, signed assembly project left on `deployment="Assembly"` — a plugin project and a
+  workflow project can target the same solution.
+- **On-premise environments are not supported.**
+
+One more consequence worth knowing before you switch an existing project: a package creates its
+**own** `pluginassembly` row, and Microsoft documents no in-place conversion. Moving a project
+that is already deployed means unregistering the old assembly — which takes its types and steps
+with it — then pushing the package and re-registering. Steps are declared in code so rebuilding
+them costs nothing, but their GUIDs change (in a managed solution that reads as a component
+removal plus an addition, not an update) and there is a window where the plugins do not run. Plan
+it as a maintenance operation; new projects have nothing to migrate.
 
 ---
 

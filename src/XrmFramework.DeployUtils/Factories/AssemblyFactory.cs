@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Importers;
 using XrmFramework.DeployUtils.Model;
@@ -15,11 +17,18 @@ internal partial class AssemblyFactory : IAssemblyFactory
 {
 	private readonly IAssemblyImporter _importer;
 	private readonly ISolutionContext _solutionContext;
+	private readonly DeploySettings _deploySettings;
+	private readonly DeployOptions _deployOptions;
 
-	public AssemblyFactory(IAssemblyImporter importer, ISolutionContext solutionContext)
+	public AssemblyFactory(IAssemblyImporter importer,
+		ISolutionContext solutionContext,
+		DeploySettings deploySettings,
+		DeployOptions deployOptions)
 	{
 		_importer = importer;
 		_solutionContext = solutionContext;
+		_deploySettings = deploySettings;
+		_deployOptions = deployOptions;
 	}
 
 	public IAssemblyContext CreateFromLocalAssemblyContext(string dllPath)
@@ -37,6 +46,9 @@ internal partial class AssemblyFactory : IAssemblyFactory
 			AssemblyInfo = GetLocalAssemblyInfo(dllPath)
 		};
 
+		if (_deploySettings.UsePluginPackage)
+			AttachLocalPackage(localAssembly.AssemblyInfo, dllPath);
+
 		foreach (var plugin in PluginInventoryReader.ReadPlugins(json))
 			localAssembly.AddChild(plugin);
 
@@ -49,6 +61,25 @@ internal partial class AssemblyFactory : IAssemblyFactory
 			localAssembly.AddChild(customApi);
 
 		return localAssembly;
+	}
+
+	/// <summary>
+	///     Reads the <c>.nupkg</c> built next to <paramref name="dllPath" /> and hangs it under the
+	///     assembly, which is what switches the rest of the pipeline into package mode.
+	/// </summary>
+	private void AttachLocalPackage(AssemblyInfo assemblyInfo, string dllPath)
+	{
+		var packagePath = string.IsNullOrWhiteSpace(_deployOptions.PackagePath)
+			? AssemblyImporter.ResolvePackagePath(dllPath)
+			: _deployOptions.PackagePath;
+
+		if (string.IsNullOrWhiteSpace(packagePath))
+			throw new InvalidOperationException(
+				$"No plugin package found for '{Path.GetFileName(dllPath)}'. The project is configured " +
+				"for package deployment, so build it with <XrmFrameworkPluginPackage>true</XrmFrameworkPluginPackage>, " +
+				"or point at the .nupkg with --package.");
+
+		assemblyInfo.AddChild(_importer.CreatePackageFromLocal(assemblyInfo, packagePath));
 	}
 
 	private static string GetManifestJson(string dllPath)
