@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -25,12 +26,24 @@ namespace XrmFramework.DeployUtils.Scaffolding
     {
         public const string NameToken = "$safeprojectname$";
 
+        /// <param name="targetFramework">
+        /// .NET Framework moniker the generated plugin (and its Deploy.* companion) target — one of
+        /// <see cref="TemplateScaffolder.SupportedFrameworks"/>. Defaults to net48.
+        /// </param>
         /// <returns>Exit code: <c>0</c> success, <c>2</c> invalid input / target not usable, <c>3</c> unexpected error.</returns>
-        public static int Create(string templateRoot, string name, string solutionRoot, string? solutionUniqueName)
+        public static int Create(string templateRoot, string name, string solutionRoot, string? solutionUniqueName, string? targetFramework = null)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
                 AnsiConsole.MarkupLine("[red]A project name is required.[/]");
+                return 2;
+            }
+
+            var framework = TemplateScaffolder.NormalizeFramework(targetFramework);
+            if (framework is null)
+            {
+                AnsiConsole.MarkupLine(
+                    $"[red]Unsupported target framework:[/] {Markup.Escape(targetFramework!)} (expected {string.Join(" or ", TemplateScaffolder.SupportedFrameworks)}).");
                 return 2;
             }
 
@@ -69,8 +82,9 @@ namespace XrmFramework.DeployUtils.Scaffolding
                 solutionUniqueName = AnsiConsole.Ask<string>("Solution unique name:");
 
             AnsiConsole.MarkupLine("[bold]XrmFramework - new plugin[/]");
-            AnsiConsole.MarkupLine($"  Name    : [cyan]{name}[/]");
-            AnsiConsole.MarkupLine($"  Solution: [cyan]{solutionFile}[/]");
+            AnsiConsole.MarkupLine($"  Name     : [cyan]{name}[/]");
+            AnsiConsole.MarkupLine($"  Framework: [cyan]{framework}[/]");
+            AnsiConsole.MarkupLine($"  Solution : [cyan]{solutionFile}[/]");
             AnsiConsole.WriteLine();
 
             try
@@ -78,7 +92,11 @@ namespace XrmFramework.DeployUtils.Scaffolding
                 // The template's own folder names already carry the token ($safeprojectname$ and
                 // Deploy.$safeprojectname$), so copying straight into solutionRoot lands everything
                 // at its final path — no wrapper folder to unwrap or merge afterwards.
-                TemplateScaffolder.CopyAndReplace(templateRoot, solutionRoot, NameToken, name);
+                TemplateScaffolder.CopyAndReplace(templateRoot, solutionRoot, new[]
+                {
+                    new KeyValuePair<string, string>(NameToken, name),
+                    new KeyValuePair<string, string>(TemplateScaffolder.FrameworkToken, framework),
+                });
 
                 var projectPath = Path.Combine(solutionRoot, name, $"{name}.csproj");
                 var deployProjectPath = Path.Combine(solutionRoot, "Utils", $"Deploy.{name}", $"Deploy.{name}.csproj");

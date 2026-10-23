@@ -1,0 +1,17 @@
+﻿<Project>
+
+  <Import Project="$(MSBuildThisFileDirectory)XrmFrameworkVersions.props" />
+
+  <!--
+    This file is injected into the consuming project by NuGet.
+    It configures coverlet.collector with PrivateAssets=all so that it is not
+    propagated as a transitive dependency of the consuming project.
+  -->
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="$(XrmFrameworkVer_CoverletCollector)">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

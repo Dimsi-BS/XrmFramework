@@ -26,6 +26,14 @@
                 <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="$Ver_CrmSdkCoreAssemblies$"/>
                 <dependency id="XrmFramework.Analyzers" version="[$version$]"/>
             </group>
+            <group targetFramework="net48">
+                <dependency id="System.ComponentModel.Annotations" version="$Ver_SysComponentAnnotations$" exclude="Build,Analyzers"/>
+                <dependency id="System.Net.Http" version="$Ver_SysNetHttp$"/>
+                <dependency id="Microsoft.CSharp" version="$Ver_MicrosoftCSharp$"/>
+                <dependency id="System.Configuration.ConfigurationManager" version="$Ver_SysConfigurationManager$"/>
+                <dependency id="Microsoft.CrmSdk.CoreAssemblies" version="$Ver_CrmSdkCoreAssemblies$"/>
+                <dependency id="XrmFramework.Analyzers" version="[$version$]"/>
+            </group>
             <group targetFramework="net8.0">
                 <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="$Ver_DataverseClient$" exclude="Build,Analyzers"/>
                 <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="$Ver_DataverseClient$" exclude="Build,Analyzers"/>

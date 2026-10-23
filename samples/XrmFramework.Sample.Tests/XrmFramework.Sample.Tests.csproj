@@ -21,7 +21,7 @@
   -->
 
   <PropertyGroup>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

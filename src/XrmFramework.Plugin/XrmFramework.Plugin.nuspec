@@ -17,6 +17,9 @@
       <group targetFramework="net462">
         <dependency id="XrmFramework" version="[$version$]" />
       </group>
+      <group targetFramework="net48">
+        <dependency id="XrmFramework" version="[$version$]" />
+      </group>
     </dependencies>
   </metadata>
 

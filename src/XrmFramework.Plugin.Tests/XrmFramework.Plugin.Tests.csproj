@@ -14,7 +14,7 @@
   -->
 
   <PropertyGroup>
-    <TargetFrameworks>net462</TargetFrameworks>
+    <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
     <AssemblyName>XrmFramework.Plugin.Tests</AssemblyName>
     <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
     <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>

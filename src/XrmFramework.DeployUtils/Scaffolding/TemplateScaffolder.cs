@@ -15,6 +15,41 @@ namespace XrmFramework.DeployUtils.Scaffolding
     /// </summary>
     public static class TemplateScaffolder
     {
+        /// <summary>
+        /// Token the scaffolding templates carry in their &lt;TargetFramework(s)&gt; entries for the
+        /// projects that run inside the Dataverse sandbox (plugins/workflows) or alongside them
+        /// (Deploy.*, RemoteDebugger). It is literally the default moniker, so a template left
+        /// unsubstituted still produces a valid project.
+        /// </summary>
+        public const string FrameworkToken = DefaultFramework;
+
+        /// <summary>
+        /// .NET Framework monikers a scaffolded plugin project may target. Dataverse supports
+        /// both .NET Framework 4.6.2 and 4.8 for plugins and workflow activities.
+        /// </summary>
+        public static readonly string[] SupportedFrameworks = { "net48", "net462" };
+
+        /// <summary>
+        /// Default moniker used when the caller does not pick one: .NET Framework 4.8, the
+        /// current target for Dataverse plugins and workflow activities. net462 stays available
+        /// through <c>--framework</c> for solutions that must keep it.
+        /// </summary>
+        public const string DefaultFramework = "net48";
+
+        /// <summary>
+        /// Checks <paramref name="framework"/> against <see cref="SupportedFrameworks"/>, returning the
+        /// normalized (lower-case) moniker, or <c>null</c> when it is not a supported value.
+        /// </summary>
+        public static string? NormalizeFramework(string? framework)
+        {
+            if (string.IsNullOrWhiteSpace(framework))
+                return DefaultFramework;
+
+            var normalized = framework!.Trim().ToLowerInvariant();
+
+            return Array.IndexOf(SupportedFrameworks, normalized) >= 0 ? normalized : null;
+        }
+
         // Extensions (and the no-extension case, e.g. "gitignore") treated as text and searched for
         // the token. Anything else (the .snk strong-name key, images...) is copied byte for byte:
         // text-replacing a binary file would corrupt it.
@@ -31,24 +66,33 @@ namespace XrmFramework.DeployUtils.Scaffolding
         /// file names, and the content of recognized text files.
         /// </summary>
         public static void CopyAndReplace(string sourceRoot, string destinationRoot, string token, string replacement)
+            => CopyAndReplace(sourceRoot, destinationRoot, new[] { new KeyValuePair<string, string>(token, replacement) });
+
+        /// <summary>
+        /// Same as <see cref="CopyAndReplace(string, string, string, string)"/> but applies several
+        /// token substitutions — the project name plus, for plugin templates, the target framework
+        /// moniker the generated projects compile against.
+        /// </summary>
+        public static void CopyAndReplace(string sourceRoot, string destinationRoot, IEnumerable<KeyValuePair<string, string>> replacements)
         {
+            var substitutions = replacements.ToArray();
+
             sourceRoot = Path.GetFullPath(sourceRoot);
             Directory.CreateDirectory(destinationRoot);
 
             foreach (var sourceDir in Directory.EnumerateDirectories(sourceRoot, "*", SearchOption.AllDirectories))
             {
-                Directory.CreateDirectory(Path.Combine(destinationRoot, MapRelativePath(sourceRoot, sourceDir, token, replacement)));
+                Directory.CreateDirectory(Path.Combine(destinationRoot, MapRelativePath(sourceRoot, sourceDir, substitutions)));
             }
 
             foreach (var sourceFile in Directory.EnumerateFiles(sourceRoot, "*", SearchOption.AllDirectories))
             {
-                var destFile = Path.Combine(destinationRoot, MapRelativePath(sourceRoot, sourceFile, token, replacement));
+                var destFile = Path.Combine(destinationRoot, MapRelativePath(sourceRoot, sourceFile, substitutions));
                 Directory.CreateDirectory(Path.GetDirectoryName(destFile) ?? destinationRoot);
 
                 if (IsTextFile(sourceFile))
                 {
-                    var content = File.ReadAllText(sourceFile);
-                    File.WriteAllText(destFile, content.Replace(token, replacement));
+                    File.WriteAllText(destFile, Replace(File.ReadAllText(sourceFile), substitutions));
                 }
                 else
                 {
@@ -59,12 +103,20 @@ namespace XrmFramework.DeployUtils.Scaffolding
 
         // Path.GetRelativePath isn't available on net462 (this library multi-targets it), hence
         // the plain prefix strip rather than a BCL relative-path computation.
-        private static string MapRelativePath(string root, string fullPath, string token, string replacement)
+        private static string MapRelativePath(string root, string fullPath, KeyValuePair<string, string>[] substitutions)
         {
             var relative = fullPath.Substring(root.Length)
                                     .TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 
-            return relative.Replace(token, replacement);
+            return Replace(relative, substitutions);
+        }
+
+        private static string Replace(string value, KeyValuePair<string, string>[] substitutions)
+        {
+            foreach (var substitution in substitutions)
+                value = value.Replace(substitution.Key, substitution.Value);
+
+            return value;
         }
 
         private static bool IsTextFile(string path) => TextExtensions.Contains(Path.GetExtension(path));

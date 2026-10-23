@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Spectre.Console;
@@ -24,12 +25,24 @@ namespace XrmFramework.DeployUtils.Scaffolding
         /// <param name="templateRoot">Directory holding the embedded "Solution" scaffolding content.</param>
         /// <param name="name">Solution / root project name — replaces <see cref="NameToken"/>.</param>
         /// <param name="outputDirectory">Directory the solution's own folder is created into.</param>
+        /// <param name="targetFramework">
+        /// .NET Framework moniker the Plugins, Deploy.* and RemoteDebugger projects target — one of
+        /// <see cref="TemplateScaffolder.SupportedFrameworks"/>. Defaults to net48.
+        /// </param>
         /// <returns>Exit code: <c>0</c> success, <c>2</c> invalid input / target not usable, <c>3</c> unexpected error.</returns>
-        public static int Create(string templateRoot, string name, string outputDirectory)
+        public static int Create(string templateRoot, string name, string outputDirectory, string? targetFramework = null)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
                 AnsiConsole.MarkupLine("[red]A solution name is required.[/]");
+                return 2;
+            }
+
+            var framework = TemplateScaffolder.NormalizeFramework(targetFramework);
+            if (framework is null)
+            {
+                AnsiConsole.MarkupLine(
+                    $"[red]Unsupported target framework:[/] {Markup.Escape(targetFramework!)} (expected {string.Join(" or ", TemplateScaffolder.SupportedFrameworks)}).");
                 return 2;
             }
 
@@ -48,13 +61,18 @@ namespace XrmFramework.DeployUtils.Scaffolding
             }
 
             AnsiConsole.MarkupLine("[bold]XrmFramework - new solution[/]");
-            AnsiConsole.MarkupLine($"  Name  : [cyan]{name}[/]");
-            AnsiConsole.MarkupLine($"  Output: [cyan]{target}[/]");
+            AnsiConsole.MarkupLine($"  Name     : [cyan]{name}[/]");
+            AnsiConsole.MarkupLine($"  Framework: [cyan]{framework}[/]");
+            AnsiConsole.MarkupLine($"  Output   : [cyan]{target}[/]");
             AnsiConsole.WriteLine();
 
             try
             {
-                TemplateScaffolder.CopyAndReplace(templateRoot, target, NameToken, name);
+                TemplateScaffolder.CopyAndReplace(templateRoot, target, new[]
+                {
+                    new KeyValuePair<string, string>(NameToken, name),
+                    new KeyValuePair<string, string>(TemplateScaffolder.FrameworkToken, framework),
+                });
 
                 // Equivalent of dotnet-new's declarative "rename" map: a leading-dot file can't be
                 // checked in as such without every tool along the way (git included, and NuGet's

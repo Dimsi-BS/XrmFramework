@@ -71,7 +71,8 @@
       <NuspecProperties>$(NuspecProperties);owner=$(XrmFramework_Owners)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);commit=$(GitCommitId)</NuspecProperties>
 
-      <NuspecProperties>$(NuspecProperties);XrmFramework_FullFramework_Runtime_TFM=$(XrmFramework_FullFramework_Runtime_TFM)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);XrmFramework_FullFramework_TFM=$(XrmFramework_FullFramework_TFM)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);XrmFramework_FullFramework_Latest_TFM=$(XrmFramework_FullFramework_Latest_TFM)</NuspecProperties>
 
       <!-- Third-party dependency versions — single source of truth: Directory.Packages.props -->
       <NuspecProperties>$(NuspecProperties);Ver_DataverseClient=$(Ver_DataverseClient)</NuspecProperties>
