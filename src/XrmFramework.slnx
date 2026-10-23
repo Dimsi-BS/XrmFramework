@@ -8,6 +8,7 @@
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/XrmFramework.Analyzers.Tests/XrmFramework.Analyzers.Tests.csproj" />
+    <Project Path="Tests/XrmFramework.Tests/XrmFramework.Tests.csproj" />
   </Folder>
   <Project Path="XrmFramework.Analyzers/XrmFramework.Analyzers.csproj" />
   <Project Path="XrmFramework.Core/XrmFramework.Core.csproj" />

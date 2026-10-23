@@ -23,7 +23,7 @@ namespace XrmFramework.Workflow
             // Construct the Local plug-in context.
             var localContext = new LocalWorkflowContext(context);
 
-            localContext.Log($"Entered {ChildClassName}.Execute()");
+            localContext.LogInformation($"Entered {ChildClassName}.Execute()");
 
             try
             {
@@ -34,22 +34,25 @@ namespace XrmFramework.Workflow
 
                 if (ActivityAction != null)
                 {
-                    localContext.Log($"{ChildClassName} is firing for Entity: {localContext.WorkflowContext.PrimaryEntityName}, Message: {localContext.WorkflowContext.MessageName}, Mode: {localContext.WorkflowContext.Mode}");
+                    using (localContext.BeginScope($"{ChildClassName}.{ActivityAction.Name}"))
+                    {
+                        localContext.LogInformation($"{ChildClassName} is firing for Entity: {localContext.WorkflowContext.PrimaryEntityName}, Message: {localContext.WorkflowContext.MessageName}, Mode: {localContext.WorkflowContext.Mode}");
 
-                    localContext.DumpInputParameters();
-                    localContext.DumpSharedVariables();
+                        localContext.DumpInputParameters();
+                        localContext.DumpSharedVariables();
 
-                    DumpInputArguments(localContext, context);
+                        DumpInputArguments(localContext, context);
 
-                    localContext.Log(ActivityAction.Name, "Start");
+                        localContext.Log(XrmLogLevel.Information, ActivityAction.Name, "Start");
 
-                    localContext.InvokeMethod(this, ActivityAction);
-                    localContext.Log(ActivityAction.Name, "End");
+                        localContext.InvokeMethod(this, ActivityAction);
+                        localContext.Log(XrmLogLevel.Information, ActivityAction.Name, "End");
 
-                    DumpOutputArguments(localContext, context);
+                        DumpOutputArguments(localContext, context);
 
-                    // now exit - if the derived plug-in has incorrectly registered overlapping event registrations,
-                    // guard against multiple executions.
+                        // now exit - if the derived plug-in has incorrectly registered overlapping event registrations,
+                        // guard against multiple executions.
+                    }
                 }
             }
             catch (FaultException<OrganizationServiceFault> e)
@@ -66,7 +69,7 @@ namespace XrmFramework.Workflow
             }
             finally
             {
-                localContext.Log($"Exiting {ChildClassName}.Execute()");
+                localContext.LogInformation($"Exiting {ChildClassName}.Execute()");
 
                 localContext.DumpLog();
             }
@@ -74,7 +77,7 @@ namespace XrmFramework.Workflow
 
         private void DumpInputArguments(LocalWorkflowContext localContext, CodeActivityContext context)
         {
-            localContext.Log("InputArguments :");
+            localContext.LogDebug("InputArguments :");
 
             var list = new Dictionary<string, object>();
             foreach (var propertyInfo in GetType().GetProperties())
@@ -92,7 +95,7 @@ namespace XrmFramework.Workflow
 
         private void DumpOutputArguments(LocalWorkflowContext localContext, CodeActivityContext context)
         {
-            localContext.Log("OutputArguments :");
+            localContext.LogDebug("OutputArguments :");
 
             var list = new Dictionary<string, object>();
             foreach (var propertyInfo in GetType().GetProperties())

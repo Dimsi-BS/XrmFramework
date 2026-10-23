@@ -11,12 +11,25 @@ using XrmFramework.BindingModel;
 
 namespace XrmFramework
 {
-    public class DefaultLogHelper : ILogger
+    public class DefaultLogHelper : ILogger, ILeveledLogger
     {
         protected IOrganizationService Service { get; }
         public ILoggerContext Context { get; }
 
         private LogMethod LogMethod { get; }
+
+        /// <summary>
+        /// Secondary channel, written to in addition to the tracing one. Wired by
+        /// <see cref="LoggerFactory"/>; stays <see cref="NullTelemetrySink"/> when no telemetry is
+        /// available.
+        /// </summary>
+        public ITelemetrySink TelemetrySink { get; set; } = NullTelemetrySink.Instance;
+
+        /// <summary>
+        /// Minimum level written to <see cref="TelemetrySink"/>, set from
+        /// <see cref="TelemetryOptionsAttribute"/>.
+        /// </summary>
+        public XrmLogLevel MinimumTelemetryLevel { get; set; } = XrmLogLevel.Information;
 
         public DefaultLogHelper(IOrganizationService service, ILoggerContext context, LogMethod logMethod)
         {
@@ -27,7 +40,57 @@ namespace XrmFramework
 
         public void Log(string message, params object[] args)
         {
-            LogInternal(message, FormatArgs(args));
+            Log(XrmLogLevel.Information, message, args);
+        }
+
+        public void Log(XrmLogLevel level, string message, params object[] args)
+        {
+            var formattedArgs = FormatArgs(args);
+
+            LogInternal(message, formattedArgs);
+
+            WriteTelemetry(level, SafeFormat(message, formattedArgs));
+        }
+
+        public bool IsTelemetryEnabled(XrmLogLevel level)
+            => level != XrmLogLevel.None
+               && level >= MinimumTelemetryLevel
+               && TelemetrySink != null
+               && TelemetrySink.IsEnabled(level);
+
+        public IDisposable BeginScope(string name)
+            => (TelemetrySink ?? NullTelemetrySink.Instance).BeginScope(name);
+
+        private void WriteTelemetry(XrmLogLevel level, string message, Exception exception = null)
+        {
+            if (!IsTelemetryEnabled(level))
+            {
+                return;
+            }
+
+            TelemetrySink.Write(level, message, exception);
+        }
+
+        /// <summary>
+        /// The tracing service formats the message itself, the telemetry channel needs it already
+        /// formatted. A message holding unmatched braces (a serialized entity, some JSON) must not
+        /// break the call.
+        /// </summary>
+        internal static string SafeFormat(string message, object[] args)
+        {
+            if (string.IsNullOrEmpty(message) || args == null || args.Length == 0)
+            {
+                return message;
+            }
+
+            try
+            {
+                return string.Format(message, args);
+            }
+            catch (FormatException)
+            {
+                return message;
+            }
         }
 
         public void LogCollection(IEnumerable<KeyValuePair<string, object>> collection, bool verifyIncluded = false, params string[] excludedIncludedKeys)
@@ -52,7 +115,7 @@ namespace XrmFramework
                     continue;
                 }
 
-                Log("{0} : {1}", kvp.Key, LogObject(kvp.Value));
+                Log(XrmLogLevel.Debug, "{0} : {1}", kvp.Key, LogObject(kvp.Value));
 
             }
 
@@ -60,7 +123,7 @@ namespace XrmFramework
             {
                 foreach (var key in excludedIncludedKeys.Where(key => keyValuePairs.All(c => c.Key != key)))
                 {
-                    Log("{0} not present", key);
+                    Log(XrmLogLevel.Debug, "{0} not present", key);
                 }
             }
         }
@@ -268,9 +331,26 @@ namespace XrmFramework
             return res;
         }
 
-        public void LogWithMethodName(string methodName, string message, params object[] args) => LogInternal($"{methodName} : {message}", FormatArgs(args));
+        public void LogWithMethodName(string methodName, string message, params object[] args)
+        {
+            var formattedArgs = FormatArgs(args);
+            var text = $"{methodName} : {message}";
 
-        public virtual void LogError(Exception e, string message = null, params object[] args) => LogInternal("ERROR : {0}\r\n{1}", message == null ? string.Empty : string.Format(message, FormatArgs(args)), e);
+            LogInternal(text, formattedArgs);
+
+            WriteTelemetry(XrmLogLevel.Debug, SafeFormat(text, formattedArgs));
+        }
+
+        public virtual void LogError(Exception e, string message = null, params object[] args) => LogError(XrmLogLevel.Error, e, message, args);
+
+        public virtual void LogError(XrmLogLevel level, Exception e, string message = null, params object[] args)
+        {
+            var formattedMessage = message == null ? string.Empty : string.Format(message, FormatArgs(args));
+
+            LogInternal("ERROR : {0}\r\n{1}", formattedMessage, e);
+
+            WriteTelemetry(level, string.IsNullOrEmpty(formattedMessage) ? "ERROR" : formattedMessage, e);
+        }
 
         public virtual void DumpLog()
         {
