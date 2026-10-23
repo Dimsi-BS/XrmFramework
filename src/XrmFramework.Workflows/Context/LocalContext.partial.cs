@@ -29,7 +29,9 @@ namespace XrmFramework
 
             _businessUnitRef = new EntityReference("businessunit", ExecutionContext.BusinessUnitId);
 
-            Logger = LoggerFactory.GetLogger(this, TracingService.Trace);
+            InitializeTelemetry(context);
+
+            Logger = LoggerFactory.GetLogger(this, TracingService.Trace, _telemetrySink);
         }
     }
 }

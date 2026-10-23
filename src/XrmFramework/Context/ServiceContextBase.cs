@@ -7,7 +7,7 @@ using System;
 
 namespace XrmFramework
 {
-    public class ServiceContextBase : IServiceContext
+    public class ServiceContextBase : IServiceContext, ILoggerAccessor
     {
         public LogServiceMethod LogServiceMethod => Logger.LogWithMethodName;
 

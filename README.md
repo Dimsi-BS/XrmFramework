@@ -320,6 +320,12 @@ XrmFramework includes a remote debugger that lets you set Visual Studio breakpoi
 
 -> **[Remote Debugger](docs/RemoteDebugger.md)**
 
+## Logging and telemetry
+
+Plugins, workflow activities and services write to two channels at once: the plugin trace logs (`ITracingService`, 24 h retention) as they always did, and the Application Insights resource configured on the environment (`Microsoft.Xrm.Sdk.PluginTelemetry.ILogger`, 90 days, KQL queries) when the integration is enabled. Severity levels, scopes and request correlation come for free, and an assembly attribute sets how verbose the telemetry channel gets.
+
+-> **[Logging and telemetry](docs/Logging.md)**
+
 ## Utilities
 
 XrmFramework ships a collection of extension methods that make working with the Dataverse SDK more concise: typed OptionSet helpers, pre-image/target merges, QueryExpression helpers, EntityReference conversions and more.
@@ -341,6 +347,7 @@ XrmFramework ships a collection of extension methods that make working with the 
 | [IService Architecture](docs/IService-Architecture.md) | Design rationale and the complete `IService` API surface. |
 | [Custom APIs](docs/CustomApis.md) | Define and deploy Dataverse Custom APIs from C#. |
 | [Remote Debugger](docs/RemoteDebugger.md) | Debug live plugin executions in Visual Studio. |
+| [Logging and telemetry](docs/Logging.md) | Plugin trace logs and Application Insights: levels, scopes, KQL queries. |
 | [Utilities](docs/XrmFrameworkUtilities.md) | Extension methods for the Dataverse SDK. |
 | [TypeScript](docs/XrmFrameworkTypeScript.md) | Client-side scripting: typed form/ribbon scripts, the `UtilsApi` helper, and the webpack build pipeline. |
 | [Analyzers](docs/Analyzers.md) | Build-time diagnostics (`XRM00xx`) and code fixes that catch plugin mistakes before deploy. |
