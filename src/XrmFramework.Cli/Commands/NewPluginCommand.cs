@@ -15,7 +15,7 @@ namespace XrmFramework.Cli.Commands;
 /// existing solution, replacing the <c>xrmPluginProject</c> dotnet-new template and its
 /// <c>pwsh</c> postAction (merge, <c>dotnet sln add</c>, <c>dotnet add reference</c>, the
 /// <c>xrmFramework.config</c> XML edit, and the interactive solution-name prompt). The actual logic
-/// lives in <see cref="PluginScaffolder.Create(string, string, string, string?)"/>.
+/// lives in <see cref="PluginScaffolder.Create(string, string, string, string?, string?)"/>.
 /// </summary>
 public sealed class NewPluginCommand : Command<NewPluginCommand.Settings>
 {
@@ -33,10 +33,18 @@ public sealed class NewPluginCommand : Command<NewPluginCommand.Settings>
         [System.ComponentModel.Description("Unique name of the Dataverse solution the project deploys to. Prompted for if omitted.")]
         public string? SolutionUniqueName { get; init; }
 
+        [CommandOption("-f|--framework <TFM>")]
+        [System.ComponentModel.Description(".NET Framework the plugin assembly targets: net48 (default) or net462.")]
+        public string? Framework { get; init; }
+
         public override ValidationResult Validate()
         {
             if (string.IsNullOrWhiteSpace(Name))
                 return ValidationResult.Error("A project name is required.");
+
+            if (TemplateScaffolder.NormalizeFramework(Framework) is null)
+                return ValidationResult.Error(
+                    $"Unsupported target framework '{Framework}'; expected {string.Join(" or ", TemplateScaffolder.SupportedFrameworks)}.");
 
             return ValidationResult.Success();
         }
@@ -47,6 +55,6 @@ public sealed class NewPluginCommand : Command<NewPluginCommand.Settings>
         var templateRoot = Path.Combine(AppContext.BaseDirectory, "Scaffolding", "Plugin");
         var solutionRoot = settings.SolutionDirectory ?? Directory.GetCurrentDirectory();
 
-        return PluginScaffolder.Create(templateRoot, settings.Name!, solutionRoot, settings.SolutionUniqueName);
+        return PluginScaffolder.Create(templateRoot, settings.Name!, solutionRoot, settings.SolutionUniqueName, settings.Framework);
     }
 }

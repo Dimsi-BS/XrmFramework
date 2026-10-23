@@ -3,7 +3,7 @@
       Detects the Microsoft.PowerPlatform.Dataverse.Client package in the project being compiled.
 
       The XrmFramework package ships its sources as contentFiles: they are therefore compiled into the
-      consuming project, which does not always reference the Dataverse client (net462 plugin project,
+      consuming project, which does not always reference the Dataverse client (.NET Framework plugin project,
       On-Premise Core project via Microsoft.CrmSdk.XrmTooling.CoreAssembly, ...). Code that depends on
       IOrganizationServiceAsync / IOrganizationServiceAsync2 is guarded by "#if DATAVERSE_CLIENT".
 
