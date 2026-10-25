@@ -63,7 +63,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # required by Nerdbank.GitVersioning
 
@@ -71,7 +71,7 @@ jobs:
       # solution format (understood starting with SDK 9.0.200). net462/net48 build
       # through Microsoft.NETFramework.ReferenceAssemblies.
       - name: Install .NET SDKs
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             8.0.x
@@ -80,7 +80,7 @@ jobs:
       # Central Package Management keeps every version in Directory.Packages.props:
       # hashing it together with the project files is enough to key the restore cache.
       - name: Cache NuGet packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj', '**/*.nuspec') }}
@@ -129,7 +129,7 @@ jobs:
       # artifact; `always()` keeps them available precisely when the tests failed.
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: TestResults
           # The whole folder: dotnet test drops the .trx at its root and the .coverage
@@ -141,7 +141,7 @@ jobs:
       # Directory.Build.targets (CopyNupkgToFolder) copies every .nupkg/.snupkg into
       # src/GeneratedNuGetPackages/<Configuration> after each Pack.
       - name: Upload packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Packages
           path: |
