@@ -135,16 +135,21 @@ jobs:
           ./.github/scripts/Write-TestSummary.ps1
           -ResultsDirectory "${{ github.workspace }}/TestResults"
 
-      # TEMPORARY — validates the failure rendering of Write-TestSummary.ps1 against a
-      # .trx holding one passed, one failed and one ignored test. Removed, with the
-      # fixture, once the rendering is confirmed on this run.
-      - name: TEMP validate failure rendering
+      # TEMPORARY — renders both the passing and the failing case to a file and echoes
+      # it, GITHUB_STEP_SUMMARY being a per-step file that no later step can read back.
+      # Removed, with the fixture, once the rendering is confirmed.
+      - name: TEMP validate the rendering
         if: always()
         shell: pwsh
         run: |
+          ./.github/scripts/Write-TestSummary.ps1 -ResultsDirectory "${{ github.workspace }}/TestResults" -OutputPath "${{ runner.temp }}/real.md"
+          Write-Output '===== REAL RUN ====='
+          Get-Content "${{ runner.temp }}/real.md"
           New-Item -ItemType Directory -Force -Path "${{ runner.temp }}/fixture" | Out-Null
           Copy-Item ".github/scripts/__failing-fixture.trx" "${{ runner.temp }}/fixture/"
-          ./.github/scripts/Write-TestSummary.ps1 -ResultsDirectory "${{ runner.temp }}/fixture"
+          ./.github/scripts/Write-TestSummary.ps1 -ResultsDirectory "${{ runner.temp }}/fixture" -OutputPath "${{ runner.temp }}/fixture.md"
+          Write-Output '===== FAILING FIXTURE ====='
+          Get-Content "${{ runner.temp }}/fixture.md"
 
       # The Microsoft collector only writes a binary .coverage, which opens in Visual
       # Studio Enterprise and nowhere else: Azure DevOps rendered it server-side,
@@ -191,13 +196,6 @@ jobs:
           path: TestResults
           if-no-files-found: warn
           retention-days: 14
-
-      # TEMPORARY — echoes the job summary into the log so the rendering can be reviewed
-      # from outside the GitHub UI. Removed together with the fixture step.
-      - name: TEMP echo the job summary
-        if: always()
-        shell: pwsh
-        run: Get-Content $env:GITHUB_STEP_SUMMARY
 
       # Directory.Build.targets (CopyNupkgToFolder) copies every .nupkg/.snupkg into
       # src/GeneratedNuGetPackages/<Configuration> after each Pack.
