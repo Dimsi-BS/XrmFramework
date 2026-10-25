@@ -124,9 +124,41 @@ jobs:
           --collect "Code coverage"
           --settings "${{ github.workspace }}/src/coverage.runsettings"
 
+      # The Microsoft collector only writes a binary .coverage, which opens in Visual
+      # Studio Enterprise and nowhere else: Azure DevOps rendered it server-side,
+      # GitHub cannot. dotnet-coverage (Microsoft) converts it to Cobertura, and
+      # ReportGenerator turns that into a Markdown table shown on the run page plus an
+      # HTML site shipped in the TestResults artifact.
+      #
+      # Both tools are installed with --tool-path rather than --global: the global tool
+      # folder is not guaranteed to be on PATH, and a pinned version keeps the CI output
+      # from drifting without a commit.
+      #
+      # The glob is passed quoted, on purpose: dotnet-coverage expands the pattern
+      # itself (one .coverage per test project × TFM, so ~15 files here).
+      - name: Report coverage
+        if: always()
+        shell: pwsh
+        run: |
+          $results = "$env:GITHUB_WORKSPACE/TestResults"
+          if (-not (Get-ChildItem -Path $results -Filter *.coverage -Recurse -ErrorAction SilentlyContinue)) {
+            Write-Output "::notice::No .coverage file produced, skipping the coverage report."
+            exit 0
+          }
+          dotnet tool install dotnet-coverage --tool-path ./.tools --version 18.12.0
+          dotnet tool install dotnet-reportgenerator-globaltool --tool-path ./.tools --version 5.5.11
+          ./.tools/dotnet-coverage merge "$results/**/*.coverage" `
+            --output "$results/coverage.cobertura.xml" --output-format cobertura --nologo
+          ./.tools/reportgenerator `
+            "-reports:$results/coverage.cobertura.xml" `
+            "-targetdir:$results/CoverageReport" `
+            "-reporttypes:MarkdownSummaryGithub;Html"
+          Get-Content "$results/CoverageReport/SummaryGithub.md" | Add-Content $env:GITHUB_STEP_SUMMARY
+
       # Azure DevOps published the .trx automatically (publishTestResults: true).
       # GitHub has no first-party equivalent, so the results are uploaded as an
       # artifact; `always()` keeps them available precisely when the tests failed.
+      # The folder also carries the Cobertura file and the HTML coverage report.
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7

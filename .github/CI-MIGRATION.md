@@ -62,25 +62,46 @@ télécharge l'artefact `Packages` d'un run CI vert et le pousse. Ce qui atterri
 nuget.org est donc l'octet près ce qui a été testé. Le mode `dry_run` est activé par
 défaut, et l'environnement `nuget` impose une approbation.
 
-## Perte fonctionnelle à arbitrer : l'affichage des tests
+## Affichage des tests et de la couverture
 
 Azure DevOps publiait le `.trx` et rendait l'onglet « Tests » ainsi que le rapport de
-couverture (`.coverage`) automatiquement. GitHub Actions n'a pas d'équivalent de
-première partie : `ci.yml` se contente donc d'uploader les `.trx` et les `.coverage` en
-artefacts (les échecs restent lisibles dans le log du step `Test`). Trois options, par
-ordre de coût croissant :
+couverture (`.coverage`) automatiquement, côté serveur. GitHub Actions n'a aucun
+équivalent de première partie : c'est le seul vrai recul fonctionnel de la migration.
 
-1. **Statu quo** (livré) : artefacts téléchargeables, zéro dépendance tierce.
-2. **Annoter les PR** avec une action tierce lisant le `.trx`
-   (`dorny/test-reporter`, `EnricoMi/publish-unit-test-result-action`). Épinglées par
-   SHA, elles demandent `checks: write` — donc un droit d'écriture accordé à du code
-   tiers sur le dépôt. À arbitrer.
-3. **Passer la couverture à Cobertura** pour la rendre affichable dans le résumé de job
-   et en commentaire de PR. `coverlet.collector` est déjà référencé par tous les projets
-   de test, donc `--collect "XPlat Code Coverage"` fonctionne — mais les filtres de
-   `src/coverage.runsettings` sont écrits pour le collecteur Microsoft et devront être
-   retranscrits dans le bloc `XPlat code coverage` (filtres `[XrmFramework*]*` /
-   `ExcludeByFile`). À valider sur une branche jetable avant de toucher au runsettings.
+**Couverture : traitée.** Le step `Report coverage` convertit les `.coverage` en
+Cobertura avec `dotnet-coverage` (outil Microsoft), puis ReportGenerator produit :
+
+- un tableau Markdown ajouté à `$GITHUB_STEP_SUMMARY`, donc le pourcentage est lisible
+  directement sur la page du run, sans rien télécharger ;
+- un site HTML navigable, embarqué dans l'artefact `TestResults`.
+
+Deux pièges rencontrés en construisant ce step, à ne pas réintroduire :
+
+- `<Format>Cobertura</Format>` dans le runsettings du collecteur Microsoft **n'est pas
+  honoré** (vérifié avec le SDK 10.0.100 : le collecteur écrit un `.coverage` binaire
+  quoi qu'il arrive). La conversion par `dotnet-coverage merge --output-format cobertura`
+  est la route fiable.
+- Les outils sont installés en `--tool-path` et non `--global` : le dossier des outils
+  globaux n'est pas garanti dans le `PATH` du runner. Les versions sont épinglées, sinon
+  la sortie de la CI dérive sans commit.
+
+À noter : la couverture de méthode de ReportGenerator est réservée aux sponsors ; la
+couverture de ligne et de branche, celle qui nous intéresse, est libre.
+
+**Tests : reste en artefact.** Les `.trx` sont uploadés, les échecs restent lisibles
+dans le log du step `Test`. Deux options pour faire mieux, non retenues à ce stade :
+
+1. **Résumé maison** : un script qui agrège les `.trx` (15 fichiers, un par projet ×
+   TFM) en tableau Markdown dans `$GITHUB_STEP_SUMMARY`, comme pour la couverture.
+   Zéro dépendance, pas d'historique.
+2. **Annoter les PR** avec une action tierce (`dorny/test-reporter`, reporter
+   `dotnet-trx` natif). Épinglée par SHA, elle demande `checks: write` — donc un droit
+   d'écriture accordé à du code tiers sur le dépôt. À arbitrer.
+
+Pour un historique, des tendances ou de la détection de tests instables, il n'existe
+rien côté GitHub : il faut publier un rapport Allure/CTRF sur GitHub Pages ou brancher
+un service externe (Codecov/Coveralls pour la couverture, Datadog Test Optimization ou
+Trunk pour les tests).
 
 ## Mise en place
 
