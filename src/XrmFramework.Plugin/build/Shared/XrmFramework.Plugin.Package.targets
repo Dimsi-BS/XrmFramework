@@ -171,7 +171,7 @@
 
     <Error Condition="'$(XrmFrameworkPluginPackage)' == 'true' and '$(_XrmFrameworkNewtonsoftReferenced)' != 'true'"
            Code="XRMFW1001"
-           Text="This project is built as a plugin package, so XrmFramework no longer compiles its vendored Newtonsoft.Json source into it - the package carries the real assembly instead. Add &lt;PackageReference Include=&quot;Newtonsoft.Json&quot; /&gt; to the project (version centralized in Directory.Packages.props)." />
+           Text="This project is built as a plugin package, so XrmFramework no longer compiles its vendored Newtonsoft.Json source into it - the package carries the real assembly instead. Add it to the project, conditioned on the same property so the two stay in step: &lt;ItemGroup Condition=&quot;'%24(XrmFrameworkPluginPackage)' == 'true'&quot;&gt;&lt;PackageReference Include=&quot;Newtonsoft.Json&quot; /&gt;&lt;/ItemGroup&gt; (the scaffolded plugin project ships exactly that; version centralized in Directory.Packages.props)." />
 
     <Error Condition="'$(XrmFrameworkPluginPackage)' != 'true' and '$(_XrmFrameworkNewtonsoftReferenced)' == 'true'"
            Code="XRMFW1002"

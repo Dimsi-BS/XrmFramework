@@ -451,8 +451,9 @@ Since 3.2, XrmFramework builds and deploys one for you. Two things to set, once:
   <XrmFrameworkPluginPackage>true</XrmFrameworkPluginPackage>
 </PropertyGroup>
 
-<ItemGroup>
-  <!-- See "Newtonsoft.Json" below: in package mode it comes from the real assembly. -->
+<!-- Conditioned on the same property, so it follows it: see "Newtonsoft.Json" below.
+     The scaffolded plugin project already contains this - there is nothing to edit. -->
+<ItemGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
   <PackageReference Include="Newtonsoft.Json" />
 </ItemGroup>
 ```
@@ -497,10 +498,17 @@ in the sandbox is not a version anyone controls — so `XrmFramework.Plugin` shi
 
 A plugin package lifts that constraint, so in package mode the framework stops compiling the
 vendored source and expects the real assembly instead — hence the `PackageReference` above. The
-two are mutually exclusive: both at once would declare every Newtonsoft type twice. Each half of
-the mistake gets its own build error naming the fix (`XRMFW1001` for a package without the
-reference, `XRMFW1002` for a reference without the package), because the compiler's own output —
-hundreds of `CS0246` or `CS0433` — says nothing useful about the cause.
+two are mutually exclusive: both at once would declare every Newtonsoft type twice.
+
+That reference is conditioned on `XrmFrameworkPluginPackage`, which is why switching a project
+over is a single edit: the property is the only lever, and the reference follows it. A scaffolded
+plugin project ships both lines, so there is nothing to add — and because the condition is in the
+project itself, the ordinary restore that `dotnet build` performs picks the change up.
+
+For a project written by hand, each half of the mistake gets its own build error naming the fix
+(`XRMFW1001` for a package without the reference, `XRMFW1002` for a reference without the
+package), because the compiler's own output — hundreds of `CS0246` or `CS0433` — says nothing
+useful about the cause.
 
 Two welcome side effects in package mode: the plugin assembly shrinks by roughly 750 KB, and the
 Newtonsoft version becomes yours to pin in `Directory.Packages.props` rather than whatever

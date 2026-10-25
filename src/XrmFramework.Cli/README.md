@@ -515,15 +515,18 @@ Two things to set, once:
 ```
 
 ```xml
-<!-- MyProject.Plugins.csproj, alongside the property above -->
-<PackageReference Include="Newtonsoft.Json" />
+<!-- MyProject.Plugins.csproj — already in the scaffolded project, nothing to edit -->
+<ItemGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+  <PackageReference Include="Newtonsoft.Json" />
+</ItemGroup>
 ```
 
-That last one is required: outside package mode XrmFramework compiles its *vendored* Newtonsoft
-source into the plugin assembly, because a lone assembly cannot carry a dependency. In package
-mode it stops doing that and uses the real assembly, which the package ships. The two are mutually
-exclusive — both would declare every Newtonsoft type twice — and each half of the mistake gets a
-build error naming the fix (`XRMFW1001` / `XRMFW1002`).
+That reference is required in package mode: outside it, XrmFramework compiles its *vendored*
+Newtonsoft source into the plugin assembly, because a lone assembly cannot carry a dependency. In
+package mode it stops doing that and uses the real assembly, which the package ships. The two are
+mutually exclusive — both would declare every Newtonsoft type twice — so the reference is
+conditioned on the same property, leaving the property as the only lever. For a project written by
+hand, each half of the mistake gets a build error naming the fix (`XRMFW1001` / `XRMFW1002`).
 
 **The workflow does not change**: build the solution, then run the `Deploy.*` project — exactly
 as in assembly mode. Publishing and packing are hooked onto the build, so building the `Deploy.*`
