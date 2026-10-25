@@ -158,16 +158,19 @@ $lines.Add("## $verdict Tests")
 $lines.Add('')
 $lines.Add("**$totalPassed passed · $totalFailed failed · $totalSkipped skipped** out of $totalExecutions executions.")
 $lines.Add('')
-$lines.Add("$($distinctTests.Count) distinct tests, run across $($targetFrameworks.Count) target framework(s) ($($targetFrameworks -join ', ')) in $($rows.Count) test assemblies.")
+$frameworkWord = if ($targetFrameworks.Count -eq 1) { 'target framework' } else { 'target frameworks' }
+$assemblyWord = if ($rows.Count -eq 1) { 'test assembly' } else { 'test assemblies' }
+$lines.Add("$($distinctTests.Count) distinct tests, run across $($targetFrameworks.Count) $frameworkWord ($($targetFrameworks -join ', ')) in $($rows.Count) $assemblyWord.")
 $lines.Add('')
 $lines.Add('| Project | TFM | Tests | Passed | Failed | Skipped | Duration |')
 $lines.Add('|:---|:---|---:|---:|---:|---:|---:|')
 
 # Failures first: the point of this table is to find what broke without scrolling.
 foreach ($row in $rows | Sort-Object -Property @{ Expression = 'Failed'; Descending = $true }, Project, Tfm) {
-    $status = if ($row.Failed -gt 0) { '❌' } else { '' }
+    # Trimmed: a passing row would otherwise start with the empty status plus a space.
+    $name = "$(if ($row.Failed -gt 0) { '❌ ' })$($row.Project)".Trim()
     $elapsed = if ($row.Duration) { '{0:mm\:ss}' -f $row.Duration } else { '—' }
-    $lines.Add("| $status $($row.Project) | $($row.Tfm) | $($row.Total) | $($row.Passed) | $($row.Failed) | $($row.Skipped) | $elapsed |")
+    $lines.Add("| $name | $($row.Tfm) | $($row.Total) | $($row.Passed) | $($row.Failed) | $($row.Skipped) | $elapsed |")
 }
 
 if ($failures.Count -gt 0) {
@@ -197,6 +200,8 @@ if ($failures.Count -gt 0) {
             $lines.Add('```')
         }
         if ($first.StackTrace) {
+            # Blank line between the two fences: adjacent fences render as one block.
+            $lines.Add('')
             $lines.Add('```')
             $lines.Add($first.StackTrace)
             $lines.Add('```')

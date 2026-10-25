@@ -88,15 +88,29 @@ Deux pièges rencontrés en construisant ce step, à ne pas réintroduire :
 À noter : la couverture de méthode de ReportGenerator est réservée aux sponsors ; la
 couverture de ligne et de branche, celle qui nous intéresse, est libre.
 
-**Tests : reste en artefact.** Les `.trx` sont uploadés, les échecs restent lisibles
-dans le log du step `Test`. Deux options pour faire mieux, non retenues à ce stade :
+**Tests : traité aussi.** `.github/scripts/Write-TestSummary.ps1` agrège les `.trx`
+(15 fichiers : un par projet de test × TFM) en un tableau Markdown dans
+`$GITHUB_STEP_SUMMARY`, et déplie chaque test en échec avec son message et sa stack
+trace. Les `.trx` restent uploadés en artefact pour le détail complet.
 
-1. **Résumé maison** : un script qui agrège les `.trx` (15 fichiers, un par projet ×
-   TFM) en tableau Markdown dans `$GITHUB_STEP_SUMMARY`, comme pour la couverture.
-   Zéro dépendance, pas d'historique.
-2. **Annoter les PR** avec une action tierce (`dorny/test-reporter`, reporter
-   `dotnet-trx` natif). Épinglée par SHA, elle demande `checks: write` — donc un droit
-   d'écriture accordé à du code tiers sur le dépôt. À arbitrer.
+Trois partis pris du script, qui expliquent sa forme :
+
+- **Deux chiffres annoncés, pas un** : les exécutions (5 726 sur le run de référence) et
+  les tests distincts (1 468). Le multi-targeting compte un test une fois par TFM ;
+  annoncer les seules exécutions laisserait croire à un volume de tests quatre fois
+  supérieur à la réalité.
+- **Échecs groupés par test, pas par fichier** : un test qui casse sur quatre TFM est un
+  bug, pas quatre. Les TFM touchés sont listés dans le titre du bloc.
+- **Détail plafonné** (`-MaxFailuresDetailed`, 20 par défaut) : un job summary est limité
+  à 1 MiB, et une panne massive le dépasserait. Le tableau, lui, compte tous les échecs.
+
+À savoir si vous reprenez ce script : `GITHUB_STEP_SUMMARY` désigne un **fichier par
+step**, concaténés à l'affichage — un step ne peut pas relire ce qu'un autre a écrit.
+
+Option non retenue : **annoter les PR** avec une action tierce (`dorny/test-reporter`,
+reporter `dotnet-trx` natif). Épinglée par SHA, elle demande `checks: write` — donc un
+droit d'écriture accordé à du code tiers sur le dépôt. À arbitrer si l'affichage dans le
+résumé de run ne suffit pas.
 
 Pour un historique, des tendances ou de la détection de tests instables, il n'existe
 rien côté GitHub : il faut publier un rapport Allure/CTRF sur GitHub Pages ou brancher

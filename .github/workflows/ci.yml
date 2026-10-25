@@ -135,22 +135,6 @@ jobs:
           ./.github/scripts/Write-TestSummary.ps1
           -ResultsDirectory "${{ github.workspace }}/TestResults"
 
-      # TEMPORARY — renders both the passing and the failing case to a file and echoes
-      # it, GITHUB_STEP_SUMMARY being a per-step file that no later step can read back.
-      # Removed, with the fixture, once the rendering is confirmed.
-      - name: TEMP validate the rendering
-        if: always()
-        shell: pwsh
-        run: |
-          ./.github/scripts/Write-TestSummary.ps1 -ResultsDirectory "${{ github.workspace }}/TestResults" -OutputPath "${{ runner.temp }}/real.md"
-          Write-Output '===== REAL RUN ====='
-          Get-Content "${{ runner.temp }}/real.md"
-          New-Item -ItemType Directory -Force -Path "${{ runner.temp }}/fixture" | Out-Null
-          Copy-Item ".github/scripts/__failing-fixture.trx" "${{ runner.temp }}/fixture/"
-          ./.github/scripts/Write-TestSummary.ps1 -ResultsDirectory "${{ runner.temp }}/fixture" -OutputPath "${{ runner.temp }}/fixture.md"
-          Write-Output '===== FAILING FIXTURE ====='
-          Get-Content "${{ runner.temp }}/fixture.md"
-
       # The Microsoft collector only writes a binary .coverage, which opens in Visual
       # Studio Enterprise and nowhere else: Azure DevOps rendered it server-side,
       # GitHub cannot. dotnet-coverage (Microsoft) converts it to Cobertura, and
