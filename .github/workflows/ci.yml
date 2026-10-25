@@ -1,0 +1,151 @@
+# Build + test + NuGet packaging — GitHub Actions port of NugetPackages-Azure.yml.
+#
+# Parity choices with the Azure pipeline, see .github/CI-MIGRATION.md:
+#   - windows-latest: the net462/net48 inner builds and the Microsoft "Code coverage"
+#     collector are Windows-only in practice.
+#   - fetch-depth: 0 is MANDATORY: Nerdbank.GitVersioning walks the full history to
+#     compute the version; a shallow clone yields a wrong version (or no version at all).
+#   - PublicRelease is not forced: version.json's publicReleaseRefSpec matches
+#     refs/heads/main and refs/heads/vX.Y, so NBGV resolves it identically in the
+#     Build and the Test step, keeping a single NuGetPackageVersion per package.
+
+name: Build & Tests
+
+on:
+  push:
+    branches:
+      - main
+      - v2.*
+      - v3.*
+    paths:
+      # The Azure trigger only watched `src`, so a root-level version.json or
+      # Directory.Packages.props bump produced no build. They are included here.
+      - 'src/**'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+      - 'version.json'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    branches:
+      - main
+      - v2.*
+      - v3.*
+    paths:
+      - 'src/**'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+      - 'version.json'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch:
+
+# A new push on the same PR cancels the previous, still-running build. main and the
+# vX.Y release branches are never cancelled: their packages are the artifacts the
+# release workflow consumes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  BUILD_CONFIGURATION: Release
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  NUGET_XMLDOC_MODE: skip
+
+jobs:
+  build:
+    name: Build, test & pack
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # required by Nerdbank.GitVersioning
+
+      # SDKs compatible with the targeted TFMs (net8.0 / net10.0) and with the .slnx
+      # solution format (understood starting with SDK 9.0.200). net462/net48 build
+      # through Microsoft.NETFramework.ReferenceAssemblies.
+      - name: Install .NET SDKs
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      # Central Package Management keeps every version in Directory.Packages.props:
+      # hashing it together with the project files is enough to key the restore cache.
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj', '**/*.nuspec') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      # Guardrail: main carries the beta of the next minor version, the stable
+      # versions are cut on the vX.Y branches.
+      - name: Validate beta version on main
+        if: github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $versionJson = Get-Content "$env:GITHUB_WORKSPACE/version.json" -Raw | ConvertFrom-Json
+          if ($versionJson.version -notmatch '-beta') {
+            Write-Error "The main branch must produce a beta version. Current version: $($versionJson.version)"
+            exit 1
+          }
+          Write-Host "main version OK: $($versionJson.version)"
+
+      - name: Build
+        working-directory: src
+        run: dotnet build XrmFramework.slnx --configuration ${{ env.BUILD_CONFIGURATION }}
+
+      # --no-build reuses the Build step's output instead of rebuilding (and, for every
+      # GeneratePackageOnBuild project, re-packing) the whole solution a second time.
+      # It requires the same --configuration as Build.
+      #
+      # --settings scopes the coverage collector to the XrmFramework assemblies; without
+      # it every dependency shipping an embedded PDB gets instrumented and drowns the ratio.
+      #
+      # dotnet test produces .trx (VSTest), never NUnit TEST-*.xml.
+      - name: Test
+        working-directory: src
+        run: >
+          dotnet test XrmFramework.slnx
+          --configuration ${{ env.BUILD_CONFIGURATION }}
+          --no-build
+          --logger "trx"
+          --logger "console;verbosity=normal"
+          --results-directory "${{ github.workspace }}/TestResults"
+          --collect "Code coverage"
+          --settings "${{ github.workspace }}/src/coverage.runsettings"
+
+      # Azure DevOps published the .trx automatically (publishTestResults: true).
+      # GitHub has no first-party equivalent, so the results are uploaded as an
+      # artifact; `always()` keeps them available precisely when the tests failed.
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          # The whole folder: dotnet test drops the .trx at its root and the .coverage
+          # in a per-run subfolder.
+          path: TestResults
+          if-no-files-found: warn
+          retention-days: 14
+
+      # Directory.Build.targets (CopyNupkgToFolder) copies every .nupkg/.snupkg into
+      # src/GeneratedNuGetPackages/<Configuration> after each Pack.
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: Packages
+          path: |
+            src/GeneratedNuGetPackages/${{ env.BUILD_CONFIGURATION }}/*.nupkg
+            src/GeneratedNuGetPackages/${{ env.BUILD_CONFIGURATION }}/*.snupkg
+          if-no-files-found: error
+          retention-days: 30

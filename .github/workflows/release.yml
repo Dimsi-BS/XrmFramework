@@ -1,0 +1,116 @@
+# Publishes to nuget.org the packages produced by a Build & Tests run.
+#
+# Deliberately NOT automatic: the workflow is started by hand and is gated by the
+# `nuget` environment, so a reviewer approves before anything is pushed. It never
+# rebuilds — it republishes the exact artifacts of a green CI run, so what reaches
+# nuget.org is byte-for-byte what was tested.
+#
+# Required one-time setup (see .github/CI-MIGRATION.md):
+#   - a `nuget` environment, with "Required reviewers" enabled;
+#   - the NUGET_API_KEY secret in that environment (nuget.org API key, scoped to
+#     the XrmFramework* package glob).
+
+name: Publish to NuGet
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Build & Tests run id whose Packages artifact to publish (empty = latest successful run on this branch)'
+        required: false
+        type: string
+      dry_run:
+        description: 'List the packages without pushing them'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read # to download the artifacts of another workflow run
+
+concurrency:
+  group: release-nuget
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish packages
+    runs-on: ubuntu-latest # no build here, only dotnet nuget push
+    environment: nuget
+    timeout-minutes: 20
+
+    steps:
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Resolve the CI run to publish
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          if [ -n "$INPUT_RUN_ID" ]; then
+            run_id="$INPUT_RUN_ID"
+          else
+            run_id=$(gh run list \
+              --repo "$GITHUB_REPOSITORY" \
+              --workflow ci.yml \
+              --branch "$GITHUB_REF_NAME" \
+              --status success \
+              --limit 1 \
+              --json databaseId \
+              --jq '.[0].databaseId')
+          fi
+          if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
+            echo "::error::No successful Build & Tests run found for $GITHUB_REF_NAME"
+            exit 1
+          fi
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          gh run view "$run_id" --repo "$GITHUB_REPOSITORY" \
+            --json displayTitle,headBranch,headSha,conclusion \
+            --jq '"Publishing artifacts of run \(.displayTitle) — \(.headBranch)@\(.headSha[0:8]) (\(.conclusion))"'
+
+      - name: Download the Packages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run download "${{ steps.resolve.outputs.run_id }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name Packages \
+            --dir packages
+
+      - name: List the packages
+        run: |
+          set -euo pipefail
+          ls -l packages
+          count=$(find packages -name '*.nupkg' | wc -l)
+          echo "### Packages to publish ($count)" >> "$GITHUB_STEP_SUMMARY"
+          find packages -name '*.nupkg' -printf '- %f\n' >> "$GITHUB_STEP_SUMMARY"
+          if [ "$count" -eq 0 ]; then
+            echo "::error::No .nupkg in the artifact"
+            exit 1
+          fi
+
+      # The .snupkg files sit next to the .nupkg: dotnet nuget push uploads the
+      # matching symbol package automatically, no second push needed.
+      # --skip-duplicate makes a re-run idempotent instead of failing on a version
+      # already published.
+      - name: Push to nuget.org
+        if: ${{ !inputs.dry_run }}
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          set -euo pipefail
+          dotnet nuget push "packages/*.nupkg" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key "$NUGET_API_KEY" \
+            --skip-duplicate
+
+      - name: Dry run notice
+        if: ${{ inputs.dry_run }}
+        run: echo "::notice::Dry run — nothing was pushed. Re-run with dry_run = false to publish."
