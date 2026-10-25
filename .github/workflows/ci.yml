@@ -192,6 +192,13 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      # TEMPORARY — echoes the job summary into the log so the rendering can be reviewed
+      # from outside the GitHub UI. Removed together with the fixture step.
+      - name: TEMP echo the job summary
+        if: always()
+        shell: pwsh
+        run: Get-Content $env:GITHUB_STEP_SUMMARY
+
       # Directory.Build.targets (CopyNupkgToFolder) copies every .nupkg/.snupkg into
       # src/GeneratedNuGetPackages/<Configuration> after each Pack.
       - name: Upload packages
