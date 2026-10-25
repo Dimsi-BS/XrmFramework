@@ -1,0 +1,15 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    Intentionally empty.
+
+    NuGet expects a build/<id>.targets next to any TFM-specific one (NU5129), and auto-imports
+    the most specific match: a net462 or net48 project gets build/<tfm>/XrmFramework.Plugin.targets
+    and never this file. It exists so that a project on some other target framework - which this
+    package has no assets for anyway - is not handed plugin build logic that does not apply to it.
+
+    The shared logic lives in Shared/XrmFramework.Plugin.Package.targets, imported from each
+    TFM-specific .targets.
+  -->
+
+</Project>
