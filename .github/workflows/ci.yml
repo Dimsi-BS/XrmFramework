@@ -124,6 +124,28 @@ jobs:
           --collect "Code coverage"
           --settings "${{ github.workspace }}/src/coverage.runsettings"
 
+      # Azure DevOps rendered the .trx server-side (its "Tests" tab). This script is the
+      # replacement: it aggregates the ~15 .trx (one per test project × TFM) into a table
+      # on the run page, with the failing tests expanded inline. No third-party action,
+      # so nothing is granted `checks: write` on the repository.
+      - name: Summarize tests
+        if: always()
+        shell: pwsh
+        run: >
+          ./.github/scripts/Write-TestSummary.ps1
+          -ResultsDirectory "${{ github.workspace }}/TestResults"
+
+      # TEMPORARY — validates the failure rendering of Write-TestSummary.ps1 against a
+      # .trx holding one passed, one failed and one ignored test. Removed, with the
+      # fixture, once the rendering is confirmed on this run.
+      - name: TEMP validate failure rendering
+        if: always()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "${{ runner.temp }}/fixture" | Out-Null
+          Copy-Item ".github/scripts/__failing-fixture.trx" "${{ runner.temp }}/fixture/"
+          ./.github/scripts/Write-TestSummary.ps1 -ResultsDirectory "${{ runner.temp }}/fixture"
+
       # The Microsoft collector only writes a binary .coverage, which opens in Visual
       # Studio Enterprise and nowhere else: Azure DevOps rendered it server-side,
       # GitHub cannot. dotnet-coverage (Microsoft) converts it to Cobertura, and
