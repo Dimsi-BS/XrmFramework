@@ -458,8 +458,11 @@ Since 3.2, XrmFramework builds and deploys one for you. Two things to set, once:
 </ItemGroup>
 ```
 
+There is nothing to change in `Config/xrmFramework.config`: `deployment` defaults to `Auto`, and
+the deployment follows what the build produced. Pin it explicitly only to override that detection:
+
 ```xml
-<!-- Config/xrmFramework.config -->
+<!-- Config/xrmFramework.config - optional -->
 <add name="Contoso.Plugins" targetSolution="PluginsSolutionUniqueName" type="PluginsWorkflows" deployment="Package" />
 ```
 

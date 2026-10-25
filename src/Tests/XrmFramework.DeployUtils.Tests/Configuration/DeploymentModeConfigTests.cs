@@ -12,8 +12,8 @@ namespace XrmFramework.DeployUtils.Tests.Configuration;
 /// <summary>
 ///     The <c>deployment</c> attribute was added to <c>xrmFramework.config</c> in 3.2. Every config
 ///     written before that does not carry it, on any project - plugins, workflow activities, web
-///     resources - so reading it has to yield <see cref="DeploymentMode.Assembly" /> rather than
-///     throw. A parsing failure here would break the deployment of every existing solution.
+///     resources - so reading it has to resolve to something sane rather than throw. A parsing
+///     failure here would break the deployment of every existing solution.
 /// </summary>
 [TestFixture]
 public class DeploymentModeConfigTests
@@ -41,8 +41,14 @@ public class DeploymentModeConfigTests
         if (Directory.Exists(_projectRoot)) Directory.Delete(_projectRoot, recursive: true);
     }
 
+    /// <summary>
+    /// A config written before 3.2 carries no attribute at all, on any project type. It resolves
+    /// to <see cref="DeploymentMode.Auto" />, which is only backward compatible because such a
+    /// project's build produces a signed assembly and no package - so Auto lands on Assembly.
+    /// Both halves of that are asserted here; the first one alone would not be the guarantee.
+    /// </summary>
     [Test]
-    public void LegacyConfig_WithoutTheAttribute_DefaultsToAssembly()
+    public void LegacyConfig_WithoutTheAttribute_StillDeploysAsAnAssembly()
     {
         WriteXrmConfig("""
                        <xrmFramework selectedConnection="Xrm">
@@ -59,8 +65,17 @@ public class DeploymentModeConfigTests
         Assert.Multiple(() =>
         {
             Assert.That(projects, Has.Count.EqualTo(2));
-            Assert.That(projects.All(p => p.Deployment == DeploymentMode.Assembly), Is.True);
+            Assert.That(projects.All(p => p.Deployment == DeploymentMode.Auto), Is.True);
         });
+
+        // What a pre-3.2 build leaves on disk: an assembly, no package next to it.
+        var legacyOutput = Path.Combine(_projectRoot, "bin", "Debug", "net48");
+        Directory.CreateDirectory(legacyOutput);
+        var dll = Path.Combine(legacyOutput, "Contoso.Plugins.dll");
+        File.Copy(typeof(Uri).Assembly.Location, dll, overwrite: true);
+
+        Assert.That(DeploymentModeResolver.Resolve(DeploymentMode.Auto, dll).Mode,
+            Is.EqualTo(DeploymentMode.Assembly));
     }
 
     [Test]
@@ -101,6 +116,8 @@ public class DeploymentModeConfigTests
     [TestCase("assembly", DeploymentMode.Assembly)]
     [TestCase("Assembly", DeploymentMode.Assembly)]
     [TestCase(" Package ", DeploymentMode.Package)]
+    [TestCase("auto", DeploymentMode.Auto)]
+    [TestCase("Auto", DeploymentMode.Auto)]
     public void TheAttribute_IsReadWhateverItsCasing(string raw, DeploymentMode expected)
     {
         WriteXrmConfig($"""

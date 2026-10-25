@@ -1,4 +1,4 @@
-# XrmFramework.Cli
+﻿# XrmFramework.Cli
 
 The XrmFramework CLI, distributed as a **.NET tool**. It brings together the Dynamics 365 /
 Dataverse development and deployment utilities behind a single command:
@@ -466,7 +466,7 @@ xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <d
 | `--dll <PATH>` | ✅ | Plugin project assembly (`net462`, the one registered in Dataverse). |
 | `--project <NAME>` | ✅ | Project name as declared in `xrmFramework.config` (e.g. `Plugins`). |
 | `--project-root <DIR>` | ❌ | Root containing the `Config/` folder (default: current folder). |
-| `--package <PATH>` | ❌ | Explicit `.nupkg` to push, overriding the one found next to the assembly. Only read for a project configured with `deployment="Package"`. |
+| `--package <PATH>` | ❌ | Explicit `.nupkg` to push, instead of the one found next to the assembly. Implies package mode, unless `deployment="Assembly"` pins the project to the other shape. |
 | `--on-premise` | ❌ | Targets an On-Premises CRM (default: Dataverse Online). |
 | `-n`, `--noprompt`, `-NoPrompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). `-NoPrompt` (any casing) is kept for backward compatibility with the deployment scripts written against that spelling. |
 
@@ -509,8 +509,11 @@ Two things to set, once:
 </PropertyGroup>
 ```
 
+Nothing to change in `Config/xrmFramework.config`: the `deployment` attribute defaults to `Auto`
+and the deployment follows what the build produced. Pin it only to override that:
+
 ```xml
-<!-- Config/xrmFramework.config -->
+<!-- Config/xrmFramework.config - optional -->
 <add name="MyProject.Plugins" targetSolution="MySolution" type="PluginsWorkflows" deployment="Package" />
 ```
 
