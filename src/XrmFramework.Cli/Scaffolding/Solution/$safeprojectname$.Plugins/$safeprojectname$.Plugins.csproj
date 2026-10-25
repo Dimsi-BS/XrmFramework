@@ -14,6 +14,12 @@
   <ItemGroup>
     <PackageReference Include="XrmFramework" />
     <PackageReference Include="XrmFramework.Plugin" />
+
+    <!-- Required when XrmFrameworkPluginPackage above is turned on: a plugin package carries the
+         real Newtonsoft.Json assembly, where a lone plugin assembly has XrmFramework's vendored
+         Newtonsoft source compiled into it instead. Uncomment both lines together - the build
+         fails with a message naming the fix if only one of them is. -->
+    <!-- <PackageReference Include="Newtonsoft.Json" /> -->
   </ItemGroup>
   
 </Project>

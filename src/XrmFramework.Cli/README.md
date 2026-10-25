@@ -514,6 +514,17 @@ Two things to set, once:
 <add name="MyProject.Plugins" targetSolution="MySolution" type="PluginsWorkflows" deployment="Package" />
 ```
 
+```xml
+<!-- MyProject.Plugins.csproj, alongside the property above -->
+<PackageReference Include="Newtonsoft.Json" />
+```
+
+That last one is required: outside package mode XrmFramework compiles its *vendored* Newtonsoft
+source into the plugin assembly, because a lone assembly cannot carry a dependency. In package
+mode it stops doing that and uses the real assembly, which the package ships. The two are mutually
+exclusive — both would declare every Newtonsoft type twice — and each half of the mistake gets a
+build error naming the fix (`XRMFW1001` / `XRMFW1002`).
+
 **The workflow does not change**: build the solution, then run the `Deploy.*` project — exactly
 as in assembly mode. Publishing and packing are hooked onto the build, so building the `Deploy.*`
 project alone is enough (it builds the plugin project as a project reference). The `.nupkg` lands

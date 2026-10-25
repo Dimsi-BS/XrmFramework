@@ -131,4 +131,51 @@
           Condition="'$(XrmFrameworkPluginPackage)' == 'true' and '$(PublishOnBuild)' == 'true'"
           DependsOnTargets="Publish" />
 
+  <!--
+    Newtonsoft.Json: vendored source, or the real package.
+
+    A plugin assembly registered on its own cannot carry Newtonsoft.Json as a dependency, and the
+    copy living in the sandbox is not a version anyone controls. XrmFramework.Plugin therefore
+    ships Newtonsoft's SOURCE and compiles it into the plugin assembly - the HAVE_* switches below
+    are Newtonsoft's own source-build configuration, not XrmFramework's.
+
+    A plugin package removes that constraint: it carries its dependencies, so the real
+    Newtonsoft.Json assembly can be shipped inside it and the vendored source becomes both
+    unnecessary and harmful - it declares the same types in the same namespace as the real one.
+
+    Hence the switch. It lives in the .targets because the opt-in property is set in the project
+    body, which a package's .props is imported too early to see; and it is an evaluation-time
+    ItemGroup rather than a target so that IntelliSense and the IDE see the same files the
+    compiler does.
+  -->
+  <PropertyGroup Condition="'$(XrmFrameworkPluginPackage)' != 'true'">
+    <DefineConstants>$(DefineConstants);HAVE_ADO_NET;HAVE_APP_DOMAIN;HAVE_ASYNC;HAVE_BINARY_FORMATTER;HAVE_BINARY_SERIALIZATION;HAVE_BINARY_EXCEPTION_SERIALIZATION;HAVE_CAS;HAVE_CHAR_TO_LOWER_WITH_CULTURE;HAVE_CHAR_TO_STRING_WITH_CULTURE;HAVE_COMPONENT_MODEL;HAVE_CONCURRENT_COLLECTIONS;HAVE_COVARIANT_GENERICS;HAVE_DATA_CONTRACTS;HAVE_DATE_TIME_OFFSET;HAVE_DB_NULL_TYPE_CODE;HAVE_DYNAMIC;HAVE_EMPTY_TYPES;HAVE_ENTITY_FRAMEWORK;HAVE_EXPRESSIONS;HAVE_FAST_REVERSE;HAVE_FSHARP_TYPES;HAVE_FULL_REFLECTION;HAVE_GUID_TRY_PARSE;HAVE_HASH_SET;HAVE_ICLONEABLE;HAVE_ICONVERTIBLE;HAVE_IGNORE_DATA_MEMBER_ATTRIBUTE;HAVE_INOTIFY_COLLECTION_CHANGED;HAVE_INOTIFY_PROPERTY_CHANGING;HAVE_ISET;HAVE_LINQ;HAVE_MEMORY_BARRIER;HAVE_METHOD_IMPL_ATTRIBUTE;HAVE_NON_SERIALIZED_ATTRIBUTE;HAVE_READ_ONLY_COLLECTIONS;HAVE_REFLECTION_EMIT;HAVE_SERIALIZATION_BINDER_BIND_TO_NAME;HAVE_STREAM_READER_WRITER_CLOSE;HAVE_STRING_JOIN_WITH_ENUMERABLE;HAVE_TIME_SPAN_PARSE_WITH_CULTURE;HAVE_TIME_SPAN_TO_STRING_WITH_CULTURE;HAVE_TIME_ZONE_INFO;HAVE_TRACE_WRITER;HAVE_TYPE_DESCRIPTOR;HAVE_UNICODE_SURROGATE_DETECTION;HAVE_VARIANT_TYPE_PARAMETERS;HAVE_VERSION_TRY_PARSE;HAVE_XLINQ;HAVE_XML_DOCUMENT;HAVE_XML_DOCUMENT_TYPE;HAVE_CONCURRENT_DICTIONARY</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(XrmFrameworkPluginPackage)' != 'true'">
+    <Compile Include="$(MSBuildThisFileDirectory)../NewtonSoft.Json/**/*.cs"
+             Link="__Imports/XrmFramework.Plugin/NewtonSoft.Json/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!--
+    Both halves of the switch fail in ways that are hard to read from the compiler output alone:
+    without Newtonsoft at all, every framework file using it reports CS0246; with both, every
+    Newtonsoft type reports CS0433. One error naming the fix is worth more than hundreds of those.
+  -->
+  <Target Name="XrmFrameworkCheckNewtonsoftJson"
+          AfterTargets="ResolveReferences"
+          BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <_XrmFrameworkNewtonsoftReferenced Condition="'@(ReferencePath->WithMetadataValue('Filename','Newtonsoft.Json'))' != ''">true</_XrmFrameworkNewtonsoftReferenced>
+    </PropertyGroup>
+
+    <Error Condition="'$(XrmFrameworkPluginPackage)' == 'true' and '$(_XrmFrameworkNewtonsoftReferenced)' != 'true'"
+           Code="XRMFW1001"
+           Text="This project is built as a plugin package, so XrmFramework no longer compiles its vendored Newtonsoft.Json source into it - the package carries the real assembly instead. Add &lt;PackageReference Include=&quot;Newtonsoft.Json&quot; /&gt; to the project (version centralized in Directory.Packages.props)." />
+
+    <Error Condition="'$(XrmFrameworkPluginPackage)' != 'true' and '$(_XrmFrameworkNewtonsoftReferenced)' == 'true'"
+           Code="XRMFW1002"
+           Text="This project references the Newtonsoft.Json assembly while XrmFramework compiles its vendored Newtonsoft.Json source into it, which declares the same types twice. Either remove the Newtonsoft.Json reference, or set &lt;XrmFrameworkPluginPackage&gt;true&lt;/XrmFrameworkPluginPackage&gt; to deploy as a plugin package - a lone plugin assembly cannot carry a dependency anyway." />
+  </Target>
+
 </Project>
