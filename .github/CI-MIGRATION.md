@@ -57,10 +57,45 @@ suffixe donc la version avec le hash du commit (`3.2.x-beta-g<sha>`). C'est le
 comportement souhaité — ces packages ne sont pas publiables — mais il faut le savoir en
 comparant un artefact de PR à un artefact de `main`.
 
-**Publication séparée et non automatique.** `release.yml` ne reconstruit rien : il
-télécharge l'artefact `Packages` d'un run CI vert et le pousse. Ce qui atterrit sur
-nuget.org est donc l'octet près ce qui a été testé. Le mode `dry_run` est activé par
-défaut, et l'environnement `nuget` impose une approbation.
+**Publication séparée du build.** `release.yml` ne reconstruit rien : il télécharge
+l'artefact `Packages` d'un run CI vert et le pousse. Ce qui atterrit sur nuget.org est
+donc à l'octet près ce qui a été testé.
+
+Deux entrées :
+
+- **automatique**, quand « Build & Tests » réussit sur `main`, `v2.*` ou `v3.*` ;
+- **à la main** (`workflow_dispatch`), pour republier un run plus ancien ou répéter à
+  blanc. Sur cette voie, `dry_run` vaut `true` par défaut ; la voie automatique publie
+  toujours, un `input` n'existant pas sur un évènement `workflow_run`.
+
+Dans les deux cas l'environnement `nuget` impose son approbation : « automatique »
+signifie que la publication est mise en attente d'un clic, jamais qu'elle est
+silencieuse. Retirer `environment: nuget` la rendrait réellement non surveillée — à
+peser, une version nuget.org ne se supprimant pas, seulement se dé-listant.
+
+### Pourquoi `workflow_run` et non `push`
+
+Trois raisons, dont deux sont des bugs qu'un trigger `push` aurait introduits :
+
+- sur un `push`, les deux workflows démarrent **en même temps** : le run CI de ce commit
+  n'est pas terminé, donc résoudre « le dernier run vert de la branche » publierait les
+  paquets du commit **précédent**. `workflow_run` fournit l'id exact du run qui vient de
+  réussir ;
+- `inputs.dry_run` n'existe pas sur un `push`, donc `!inputs.dry_run` y vaut *vrai* : la
+  publication se ferait sans garde-fou ;
+- un run CI de pull request a pour `head_branch` la branche source (`ci/...`), qui ne
+  correspond à aucun filtre — les builds de PR ne publient donc rien, ce qui est voulu.
+
+**Contrainte à connaître** : comme `schedule`, `workflow_run` ne se déclenche que depuis
+la copie du fichier présente sur la **branche par défaut**. C'est donc le `release.yml`
+de `main` qui pilote aussi la publication automatique de `v2.*` et `v3.*` ; les copies
+vivant sur ces branches ont un bloc `workflow_run` inerte et ne servent que leur propre
+`workflow_dispatch`.
+
+Corollaire sur la policy nuget.org : **laissez son filtre de branche vide**. Sur un
+évènement `workflow_run`, les claims OIDC décrivent la branche par défaut et non la
+branche construite, donc un filtre épinglé sur `v2.2` ou `v3.1` rejetterait les
+publications automatiques de ces lignes.
 
 ## Affichage des tests et de la couverture
 
