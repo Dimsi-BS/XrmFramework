@@ -28,6 +28,7 @@ GitHub (`Dimsi-BS/XrmFramework`) avec un flux de PR.
 | --- | --- | --- |
 | `trigger.branches` (`main`, `v2.*`, `v3.*`) | `on.push.branches` identiques | — |
 | `trigger.paths: src` | `on.push.paths` : `src/**` **+** `Directory.Build.props`, `Directory.Packages.props`, `version.json`, le workflow | Correction : un bump de `version.json` (racine) ne déclenchait aucun build |
+| *(idem)* | **aucun filtre sur `on.pull_request`** | Voir « Filtres de chemins et checks obligatoires » |
 | *(aucun)* | `on.pull_request` | Nouveau : validation des PR, forks inclus |
 | `pool.vmImage: windows-latest` | `runs-on: windows-latest` | Conservé, voir « Décisions » |
 | `checkout: self` + `fetchDepth: 0` | `actions/checkout` + `fetch-depth: 0` | Indispensable à Nerdbank.GitVersioning |
@@ -72,6 +73,28 @@ Dans les deux cas l'environnement `nuget` impose son approbation : « automatiqu
 signifie que la publication est mise en attente d'un clic, jamais qu'elle est
 silencieuse. Retirer `environment: nuget` la rendrait réellement non surveillée — à
 peser, une version nuget.org ne se supprimant pas, seulement se dé-listant.
+
+## Filtres de chemins et checks obligatoires
+
+`on.pull_request` n'a **aucun filtre `paths`**, et ce n'est pas un oubli.
+
+`Build, test & pack` est un check **obligatoire** sur `main` (ruleset du dépôt). Un
+check obligatoire qui ne se déclenche pas est rapporté « Expected — waiting for status »
+et **bloque définitivement** la pull request : il n'y a pas d'échec à corriger, juste un
+état qui n'arrivera jamais. Avec un filtre `paths`, c'est le sort de toute PR ne touchant
+que le README, `docs/`, `.gitignore` ou `release.yml`.
+
+Le cas s'est produit en vrai sur la PR qui a introduit la publication automatique : elle
+ne modifiait que `release.yml` et ce document, elle est sortie `BLOCKED` avec zéro check.
+
+Construire ces PR coûte ~3,5 minutes de runner gratuit ; une PR en impasse coûte une
+après-midi de perplexité. Le filtre reste en place sur `on.push` : aucun check
+obligatoire ne garde un push, donc un merge de documentation seule ne déclenche toujours
+ni build ni paquet.
+
+Les deux alternatives, pour mémoire : rendre le check non obligatoire (on perd la
+garantie), ou ajouter un second workflow « skip » qui rapporte le même nom de job sur les
+chemins complémentaires (fragile, et il faut maintenir deux listes de chemins miroir).
 
 ### Pourquoi `workflow_run` et non `push`
 
