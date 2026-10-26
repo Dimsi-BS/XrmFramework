@@ -25,17 +25,20 @@ on:
       - 'Directory.Packages.props'
       - 'version.json'
       - '.github/workflows/ci.yml'
+  # No `paths` filter on pull requests, deliberately. "Build, test & pack" is a REQUIRED
+  # status check on main: a pull request that never runs it is reported as "Expected —
+  # waiting for status" and can never be merged. With a paths filter, that is the fate of
+  # every PR touching only the README, docs/, .gitignore or release.yml — permanently
+  # blocked, with no failure to point at. Building those PRs costs ~3.5 minutes of free
+  # runner time; a deadlocked PR costs a confused afternoon.
+  #
+  # The `push` filter above keeps its paths: no required check gates a push, so a
+  # docs-only merge still skips the build and publishes nothing.
   pull_request:
     branches:
       - main
       - v2.*
       - v3.*
-    paths:
-      - 'src/**'
-      - 'Directory.Build.props'
-      - 'Directory.Packages.props'
-      - 'version.json'
-      - '.github/workflows/ci.yml'
   workflow_dispatch:
 
 # A new push on the same PR cancels the previous, still-running build. main and the
