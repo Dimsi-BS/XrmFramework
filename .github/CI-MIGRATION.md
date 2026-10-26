@@ -47,6 +47,15 @@ plus : il n'aurait rien à résumer.
 - Le workflow s'appelle **`Build`** et non « Build & Tests » : il ne teste rien, le nom
   doit le dire. Le nom de fichier reste `ci.yml`, et le check obligatoire à cocher dans
   la protection de branche est donc `Build & pack` (le nom du job).
+
+  À savoir, parce que c'est déroutant : **GitHub indexe les workflows par chemin de
+  fichier, pas par branche.** `.github/workflows/ci.yml` est donc une seule entité pour
+  tout le dépôt, et son nom affiché dans la barre latérale Actions vient de la branche
+  par défaut. Les runs de `v2.2` apparaissent par conséquent regroupés sous « Build &
+  Tests », alors que chaque run porte bien le nom `Build` sur sa propre page. Rien n'est
+  cassé : c'est le même fichier `ci.yml` de cette branche qui s'exécute. Corollaire
+  utile : pour distinguer les checks obligatoires entre branches, fiez-vous au **nom du
+  job**, pas à celui du workflow.
 - Les triggers ne listent que `v2.*`. La pipeline Azure listait aussi `master`, ce qui
   n'a aucun effet dans un fichier vivant sur `v2.2` : pour un push sur `master`, GitHub
   lit les workflows de `master`.
