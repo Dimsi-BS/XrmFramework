@@ -71,14 +71,31 @@ branche peut désormais échouer sur un test qui n'était jamais exécuté. Deux
   `Build, test & pack`, comme sur `main` et `v3.1`.
 - Le step « Validate beta version on main » est conditionné à
   `github.ref == 'refs/heads/main'` : toujours *skipped* ici.
+- **`on.pull_request` n'a aucun filtre `paths`**, et c'est ce qui rend cette branche
+  sûre si vous étendez le ruleset du dépôt à `v2.*`. Un check obligatoire qui ne se
+  déclenche pas n'échoue pas : il reste « Expected — waiting for status » et bloque la
+  PR définitivement. Avec un filtre, ce serait le sort de toute PR ne touchant que de la
+  documentation. Le filtre reste en place sur `on.push`.
 - `dependabot.yml` n'est pas copié : Dependabot ne lit sa configuration que sur la
   branche par défaut. Pour couvrir `v2.2`, il faut une entrée `target-branch: v2.2` dans
   le fichier de `main`.
 
-## `release.yml`
+## `release.yml` : publication pilotée depuis `main`
 
-Identique à celui de `main`, Trusted Publishing compris. Il se lance à la main
-(`workflow_dispatch`) et republie l'artefact `Packages` d'un build vert de **cette**
-branche. La policy nuget.org porte sur le fichier `release.yml`, donc elle couvre déjà
-cette copie — vérifiez simplement que son éventuel filtre de branche n'est pas limité à
-`main`.
+Identique à celui de `main`, Trusted Publishing compris, et il doit le rester —
+`git diff origin/main -- .github/workflows .github/scripts` doit être vide.
+
+**Son bloc `workflow_run` est inerte ici.** Comme `schedule`, `workflow_run` ne se
+déclenche que depuis la copie du fichier présente sur la **branche par défaut** : c'est
+donc le `release.yml` de `main` qui publie automatiquement cette ligne quand son
+« Build & Tests » réussit. La copie ci-présente ne sert que son propre
+`workflow_dispatch` — republier un run précis, ou répéter à blanc. Ne « corrigez » pas
+cette inertie, c'est le comportement de GitHub et non une omission.
+
+Le workflow est découpé en deux jobs, `resolve` puis `publish`, pour que la version
+apparaisse dans le nom du second (`Publish 2.2.110 to nuget.org`) et donc sur l'écran
+d'approbation. Le détail du pourquoi est dans le document de `main`.
+
+La policy nuget.org porte sur le fichier `release.yml`, elle couvre donc déjà cette
+copie. Son filtre de branche doit rester **vide** : sur un `workflow_run`, les claims
+OIDC décrivent la branche par défaut et non la branche construite.
