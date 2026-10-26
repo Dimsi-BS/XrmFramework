@@ -1,9 +1,34 @@
-# Publishes to nuget.org the packages produced by a Build & Tests run.
-#
-# Deliberately NOT automatic: the workflow is started by hand and is gated by the
-# `nuget` environment, so a reviewer approves before anything is pushed. It never
+# Publishes to nuget.org the packages produced by a Build & Tests run. It never
 # rebuilds — it republishes the exact artifacts of a green CI run, so what reaches
 # nuget.org is byte-for-byte what was tested.
+#
+# Two ways in:
+#
+#   - automatically, when Build & Tests succeeds on main, v2.* or v3.*. The trigger is
+#     `workflow_run` and NOT `push`, on purpose: on a push both workflows start at the
+#     same time, so the CI run for that very commit is not finished yet and resolving
+#     "the latest green run on this branch" would publish the PREVIOUS commit's
+#     packages. workflow_run hands us the exact run that just succeeded.
+#   - by hand (`workflow_dispatch`), to republish an older run or to rehearse with
+#     dry_run. The manual path keeps dry_run defaulting to true; the automatic path
+#     always publishes, an input being absent on a workflow_run event.
+#
+# The `nuget` environment still gates both paths behind its required reviewer, so
+# "automatic" means the publish is queued and waiting for one click, never silent.
+# Remove `environment: nuget` below if a fully unattended publish is ever wanted —
+# nuget.org versions cannot be deleted, only unlisted, so that is a one-way door.
+#
+# TWO JOBS, and the split is not cosmetic. `run-name` is evaluated before any job runs
+# and only sees the `github`, `inputs` and `vars` contexts, so the run title can never
+# carry a version computed during the run. `jobs.<job_id>.name` however does see
+# `needs`. Resolving the version in a first job therefore puts it in the second job's
+# name — which is the text shown on the APPROVAL screen. You see which version you are
+# approving instead of a generic "Publish packages".
+#
+# CAVEAT — workflow_run only fires from the DEFAULT BRANCH's copy of this file, like
+# `schedule`. This copy on main therefore drives the automatic publishing of v2.* and
+# v3.* too; the copies living on those branches have an inert workflow_run block and
+# serve only their own workflow_dispatch. Do not "fix" that by editing them.
 #
 # Authentication goes through nuget.org Trusted Publishing: no API key is stored
 # anywhere. GitHub issues an OIDC token to this job, NuGet/login exchanges it against
@@ -12,7 +37,9 @@
 # Required one-time setup (see .github/CI-MIGRATION.md):
 #   - a Trusted Publishing policy on nuget.org whose Workflow file is `release.yml`
 #     and whose Environment is either empty or exactly `nuget`, this job running in
-#     that environment;
+#     that environment. Leave its branch filter EMPTY: on a workflow_run event the OIDC
+#     claims describe the default branch, not the branch that was built, so a filter
+#     pinned to v2.2 or v3.1 would reject the automatic publishes of those lines;
 #   - a NUGET_USER repository variable (Settings → Variables), holding the nuget.org
 #     account name that owns the policy. A variable and not a secret: it is not
 #     sensitive, and a wrong value must produce a readable error.
@@ -22,6 +49,13 @@
 name: Publish to NuGet
 
 on:
+  workflow_run:
+    workflows: ['Build & Tests']
+    types: [completed]
+    branches:
+      - main
+      - v2.*
+      - v3.*
   workflow_dispatch:
     inputs:
       run_id:
@@ -34,21 +68,143 @@ on:
         default: true
         type: boolean
 
-permissions:
-  contents: read
-  actions: read # to download the artifacts of another workflow run
-  id-token: write # required for GitHub to issue the OIDC token NuGet/login exchanges
-
+# Serialized, never cancelled: two publishes must not race, and a queued one must not
+# be dropped just because a newer build finished first.
 concurrency:
   group: release-nuget
   cancel-in-progress: false
 
 jobs:
+  resolve:
+    name: Resolve the version
+    # `completed` covers failure and cancellation too, so the conclusion is filtered
+    # here rather than in the trigger, which has no `conclusions` field. The publish job
+    # needs this one, so it is skipped along with it.
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # No id-token here: this job never authenticates to nuget.org, and the OIDC token
+    # has no business existing outside the gated job.
+    permissions:
+      contents: read
+      actions: read # to list runs and download another run's artifact
+
+    outputs:
+      run_id: ${{ steps.run.outputs.run_id }}
+      version: ${{ steps.version.outputs.version }}
+      count: ${{ steps.version.outputs.count }}
+
+    env:
+      # On a workflow_run event GITHUB_REF_NAME is the default branch, NOT the branch
+      # that was built — head_branch is the only honest source.
+      TRIGGERING_RUN_ID: ${{ github.event.workflow_run.id }}
+      TRIGGERING_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+
+    steps:
+      - name: Resolve the CI run to publish
+        id: run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          if [ -n "$TRIGGERING_RUN_ID" ]; then
+            # Automatic path: the run that triggered us, no guessing involved.
+            run_id="$TRIGGERING_RUN_ID"
+          elif [ -n "$INPUT_RUN_ID" ]; then
+            run_id="$INPUT_RUN_ID"
+          else
+            run_id=$(gh run list \
+              --repo "$GITHUB_REPOSITORY" \
+              --workflow ci.yml \
+              --branch "$TRIGGERING_BRANCH" \
+              --status success \
+              --limit 1 \
+              --json databaseId \
+              --jq '.[0].databaseId')
+          fi
+          if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
+            echo "::error::No successful Build & Tests run found for $TRIGGERING_BRANCH"
+            exit 1
+          fi
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          gh run view "$run_id" --repo "$GITHUB_REPOSITORY" \
+            --json displayTitle,headBranch,headSha,conclusion \
+            --jq '"Resolved run \(.displayTitle) — \(.headBranch)@\(.headSha[0:8]) (\(.conclusion))"'
+
+      - name: Download the Packages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run download "${{ steps.run.outputs.run_id }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name Packages \
+            --dir packages
+
+      # The version is read off the file names rather than from NBGV: this job has the
+      # artifact, not the repository state, and the artifact is the authority on what
+      # would actually be pushed.
+      #
+      # The pattern anchors on the TRAILING version, which is the only way to tell a
+      # version from a package id: both contain dots, as in
+      # XrmFramework.CoreProject.OnPremise.2.2.110.nupkg. Validated against real
+      # artifacts, including 3.2.4-beta-g507f0c4e0d (prerelease label plus commit hash).
+      - name: Read the package version
+        id: version
+        run: |
+          set -euo pipefail
+          # tr strips the padding wc adds, which would otherwise land in the job name
+          # and in the summary heading.
+          count=$(find packages -name '*.nupkg' | wc -l | tr -d '[:space:]')
+          if [ "$count" -eq 0 ]; then
+            echo "::error::No .nupkg in the artifact"
+            exit 1
+          fi
+
+          versions=$(ls packages/*.nupkg \
+            | grep -oE '[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?\.nupkg$' \
+            | sed 's/\.nupkg$//' \
+            | sort -u)
+          distinct=$(echo "$versions" | wc -l | tr -d '[:space:]')
+
+          if [ "$distinct" -eq 1 ]; then
+            version="$versions"
+          else
+            # Every package of a build shares one NBGV version; several means something
+            # regressed (see #54). Surfaced in the job name rather than failed, so a
+            # human decides on the approval screen.
+            version=$(echo "$versions" | paste -sd',' - | sed 's/,/, /g')
+            echo "::warning::The artifact carries $distinct different versions: $version"
+          fi
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### $count packages, version \`$version\`"
+            find packages -name '*.nupkg' -printf '- %f\n' | sort
+          } >> "$GITHUB_STEP_SUMMARY"
+
   publish:
-    name: Publish packages
+    # The whole point of the split: `needs` is available here, so the version shows up
+    # in the UI and, above all, on the approval screen.
+    name: Publish ${{ needs.resolve.outputs.version }} to nuget.org
+    needs: resolve
     runs-on: ubuntu-latest # no build here, only dotnet nuget push
     environment: nuget
     timeout-minutes: 20
+
+    permissions:
+      contents: read
+      actions: read # to download the artifact again, this job starting from a clean runner
+      id-token: write # required for GitHub to issue the OIDC token NuGet/login exchanges
+
+    env:
+      # An automatic publish is never a dry run: `inputs` does not exist outside a
+      # workflow_dispatch, so the input is only consulted on that path.
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
 
     steps:
       - name: Install .NET SDK
@@ -56,60 +212,25 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Resolve the CI run to publish
-        id: resolve
-        env:
-          GH_TOKEN: ${{ github.token }}
-          INPUT_RUN_ID: ${{ inputs.run_id }}
-        run: |
-          set -euo pipefail
-          if [ -n "$INPUT_RUN_ID" ]; then
-            run_id="$INPUT_RUN_ID"
-          else
-            run_id=$(gh run list \
-              --repo "$GITHUB_REPOSITORY" \
-              --workflow ci.yml \
-              --branch "$GITHUB_REF_NAME" \
-              --status success \
-              --limit 1 \
-              --json databaseId \
-              --jq '.[0].databaseId')
-          fi
-          if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
-            echo "::error::No successful Build & Tests run found for $GITHUB_REF_NAME"
-            exit 1
-          fi
-          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
-          gh run view "$run_id" --repo "$GITHUB_REPOSITORY" \
-            --json displayTitle,headBranch,headSha,conclusion \
-            --jq '"Publishing artifacts of run \(.displayTitle) — \(.headBranch)@\(.headSha[0:8]) (\(.conclusion))"'
-
+      # Downloaded a second time on purpose: passing ~10 MB of packages between jobs
+      # would mean re-uploading them as a job artifact, which is slower and leaves a
+      # duplicate copy behind. The run id comes from the resolve job, so both jobs
+      # provably read the same artifact.
       - name: Download the Packages artifact
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh run download "${{ steps.resolve.outputs.run_id }}" \
+          gh run download "${{ needs.resolve.outputs.run_id }}" \
             --repo "$GITHUB_REPOSITORY" \
             --name Packages \
             --dir packages
-
-      - name: List the packages
-        run: |
-          set -euo pipefail
           ls -l packages
-          count=$(find packages -name '*.nupkg' | wc -l)
-          echo "### Packages to publish ($count)" >> "$GITHUB_STEP_SUMMARY"
-          find packages -name '*.nupkg' -printf '- %f\n' >> "$GITHUB_STEP_SUMMARY"
-          if [ "$count" -eq 0 ]; then
-            echo "::error::No .nupkg in the artifact"
-            exit 1
-          fi
 
       # Checked before the login rather than after: NuGet/login fails on an empty user
       # with an error that says nothing about the missing variable.
       - name: Check the publishing configuration
-        if: ${{ !inputs.dry_run }}
+        if: env.DRY_RUN != 'true'
         env:
           NUGET_USER: ${{ vars.NUGET_USER }}
         run: |
@@ -123,7 +244,7 @@ jobs:
       # run: no reason to mint a credential for a publish that will not happen.
       - name: Log in to nuget.org
         id: login
-        if: ${{ !inputs.dry_run }}
+        if: env.DRY_RUN != 'true'
         uses: NuGet/login@v1
         with:
           user: ${{ vars.NUGET_USER }}
@@ -131,9 +252,9 @@ jobs:
       # The .snupkg files sit next to the .nupkg: dotnet nuget push uploads the
       # matching symbol package automatically, no second push needed.
       # --skip-duplicate makes a re-run idempotent instead of failing on a version
-      # already published.
+      # already published — which also makes a re-triggered CI run harmless.
       - name: Push to nuget.org
-        if: ${{ !inputs.dry_run }}
+        if: env.DRY_RUN != 'true'
         env:
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
         run: |
@@ -142,7 +263,10 @@ jobs:
             --source https://api.nuget.org/v3/index.json \
             --api-key "$NUGET_API_KEY" \
             --skip-duplicate
+          echo "### Published \`${{ needs.resolve.outputs.version }}\` to nuget.org" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Dry run notice
-        if: ${{ inputs.dry_run }}
-        run: echo "::notice::Dry run — nothing was pushed. Re-run with dry_run = false to publish."
+        if: env.DRY_RUN == 'true'
+        run: |
+          echo "::notice::Dry run — ${{ needs.resolve.outputs.version }} was not pushed. Re-run with dry_run = false to publish."
+          echo "### Dry run — \`${{ needs.resolve.outputs.version }}\` was NOT pushed" >> "$GITHUB_STEP_SUMMARY"
