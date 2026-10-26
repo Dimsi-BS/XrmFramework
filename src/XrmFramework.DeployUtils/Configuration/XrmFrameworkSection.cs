@@ -185,7 +185,7 @@ namespace XrmFramework.DeployUtils.Configuration
         /// of the following: Assembly, Package" before the deployment even starts.
         /// Read it through <see cref="Deployment" />.
         /// </summary>
-        [ConfigurationProperty("deployment", IsRequired = false, DefaultValue = "Assembly")]
+        [ConfigurationProperty("deployment", IsRequired = false, DefaultValue = "Auto")]
         internal string DeploymentValue
         {
             get => base["deployment"] as string;
@@ -193,9 +193,11 @@ namespace XrmFramework.DeployUtils.Configuration
         }
 
         /// <summary>
-        /// How the project's assembly reaches Dataverse: as a lone signed <c>pluginassembly</c>
-        /// (the default, and the only option before 3.2) or wrapped in a <c>pluginpackage</c>
-        /// that also carries its runtime dependencies.
+        /// How the project's assembly reaches Dataverse: as a lone signed <c>pluginassembly</c>,
+        /// or wrapped in a <c>pluginpackage</c> that also carries its runtime dependencies.
+        /// Defaults to <see cref="DeploymentMode.Auto" />, which reads the answer off what the
+        /// build produced rather than asking for it a second time here - see
+        /// <see cref="DeploymentModeResolver" />.
         /// </summary>
         /// <exception cref="ConfigurationErrorsException">
         /// If the attribute holds something that is neither mode.
@@ -207,15 +209,18 @@ namespace XrmFramework.DeployUtils.Configuration
                 var raw = DeploymentValue;
 
                 // Absent attribute: every config written before 3.2, whatever the project type.
-                if (string.IsNullOrWhiteSpace(raw)) return DeploymentMode.Assembly;
+                // Auto then reads back what the build produced, which for such a project is a
+                // signed assembly and no package - so the historical behaviour.
+                if (string.IsNullOrWhiteSpace(raw)) return DeploymentMode.Auto;
 
                 if (Enum.TryParse(raw.Trim(), ignoreCase: true, out DeploymentMode mode))
                     return mode;
 
                 throw new ConfigurationErrorsException(
                     $"Project \"{Name}\": deployment=\"{raw}\" is not a valid deployment mode. " +
-                    "Use \"Assembly\" (the default: the signed assembly is pushed on its own) or " +
-                    "\"Package\" (a NuGet package carrying the assembly and its dependencies).");
+                    "Use \"Auto\" (the default: follow what the build produced), \"Assembly\" (the " +
+                    "signed assembly is pushed on its own) or \"Package\" (a NuGet package carrying " +
+                    "the assembly and its dependencies).");
             }
             set => DeploymentValue = value.ToString();
         }
@@ -233,6 +238,14 @@ namespace XrmFramework.DeployUtils.Configuration
     /// </summary>
     public enum DeploymentMode
     {
+        /// <summary>
+        /// Follow what the build produced: a plugin package when the project was built with
+        /// <c>XrmFrameworkPluginPackage</c>, a bare assembly otherwise. Keeps the choice in one
+        /// place - the project - instead of asking for it again here, where the two can drift.
+        /// This is the default, including for a configuration written before the attribute existed.
+        /// </summary>
+        Auto,
+
         /// <summary>
         /// The assembly is pushed on its own into the <c>pluginassembly</c> table, and the
         /// framework registers plugin types, steps, images and custom APIs itself. The assembly

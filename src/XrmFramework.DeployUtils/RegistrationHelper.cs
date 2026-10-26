@@ -127,7 +127,7 @@ public partial class RegistrationHelper
 
     /// <param name="packagePath">
     ///     Explicit <c>.nupkg</c> to push, overriding the default resolution next to the assembly.
-    ///     Only read for a project configured with <c>deployment="package"</c>.
+    ///     Implies package mode, unless <c>deployment="Assembly"</c> pins the project to the other shape.
     /// </param>
     /// <inheritdoc cref="RegisterPluginsAndWorkflows(string,string,bool,bool)" />
     public static int RegisterPluginsAndWorkflows(
@@ -159,7 +159,19 @@ public partial class RegistrationHelper
             AnsiConsole.WriteLine($"Target    : {deploySettings.Url}");
             AnsiConsole.WriteLine($"ClientId  : {deploySettings.ClientId}");
             AnsiConsole.WriteLine($"OnPremise : {(isOnPremise ? "yes" : "no")}");
-            AnsiConsole.WriteLine($"Deploy as : {(deploySettings.UsePluginPackage ? "plugin package" : "plugin assembly")}");
+
+            // Collapses Auto into a concrete mode by reading what the build produced, before the
+            // confirmation prompt: the shape of the deployment is not something to discover after
+            // saying yes, and switching an already-deployed project between the two re-creates its
+            // steps with new ids.
+            var resolution = DeploymentModeResolver.Resolve(
+                deploySettings.Deployment, dllPath, deployOptions.PackagePath);
+
+            deploySettings.Deployment = resolution.Mode;
+            deployOptions.PackagePath = resolution.PackagePath ?? deployOptions.PackagePath;
+
+            AnsiConsole.WriteLine(
+                $"Deploy as : {(resolution.Mode == DeploymentMode.Package ? "plugin package" : "plugin assembly")} ({resolution.Reason})");
 
             // ── Interactive confirmation (unless silent mode) ────────────────
             if (!deployOptions.NoPrompt && !AnsiConsole.Confirm("Continue the deployment?"))

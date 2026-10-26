@@ -1,4 +1,4 @@
-// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.IO;
@@ -35,7 +35,7 @@ public sealed class DeployPluginsCommand : Command<DeployPluginsCommand.Settings
         public string ProjectRoot { get; init; } = ".";
 
         [CommandOption("--package <PATH>")]
-        [System.ComponentModel.Description("Explicit .nupkg to push, overriding the one found next to the assembly. Only used when the project is configured with deployment=\"package\".")]
+        [System.ComponentModel.Description("Explicit .nupkg to push, instead of the one found next to the assembly. Implies package mode, unless deployment=\"Assembly\" pins the project to the other shape.")]
         public string? PackagePath { get; init; }
 
         [CommandOption("--on-premise")]

@@ -3,17 +3,24 @@
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
 
-    <!-- Uncomment to deploy as a Dataverse plugin package, which is what lets this project use a
-         third-party library: the build then produces a NuGet package carrying the assembly and
-         its dependencies. Also set deployment="Package" on this project in
+    <!-- Flip to true to deploy this project as a Dataverse plugin package, which is what lets it
+         use a third-party library: the build then produces a NuGet package carrying the assembly
+         and its dependencies. Also set deployment="Package" on this project in
          Config/xrmFramework.config. Rules out custom workflow activities and on-premise.
          See https://github.com/Dimsi-BS/XrmFramework/blob/main/docs/Plugins.md#using-a-third-party-library -->
-    <!-- <XrmFrameworkPluginPackage>true</XrmFrameworkPluginPackage> -->
+    <XrmFrameworkPluginPackage>false</XrmFrameworkPluginPackage>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="XrmFramework" />
     <PackageReference Include="XrmFramework.Plugin" />
+  </ItemGroup>
+
+  <!-- Follows the property above, nothing to edit here: a plugin package carries the real
+       Newtonsoft.Json assembly, where a lone plugin assembly has XrmFramework's vendored
+       Newtonsoft source compiled into it instead. The two are mutually exclusive. -->
+  <ItemGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,4 @@
-# XrmFramework.Cli
+﻿# XrmFramework.Cli
 
 The XrmFramework CLI, distributed as a **.NET tool**. It brings together the Dynamics 365 /
 Dataverse development and deployment utilities behind a single command:
@@ -466,7 +466,7 @@ xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <d
 | `--dll <PATH>` | ✅ | Plugin project assembly (`net462`, the one registered in Dataverse). |
 | `--project <NAME>` | ✅ | Project name as declared in `xrmFramework.config` (e.g. `Plugins`). |
 | `--project-root <DIR>` | ❌ | Root containing the `Config/` folder (default: current folder). |
-| `--package <PATH>` | ❌ | Explicit `.nupkg` to push, overriding the one found next to the assembly. Only read for a project configured with `deployment="Package"`. |
+| `--package <PATH>` | ❌ | Explicit `.nupkg` to push, instead of the one found next to the assembly. Implies package mode, unless `deployment="Assembly"` pins the project to the other shape. |
 | `--on-premise` | ❌ | Targets an On-Premises CRM (default: Dataverse Online). |
 | `-n`, `--noprompt`, `-NoPrompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). `-NoPrompt` (any casing) is kept for backward compatibility with the deployment scripts written against that spelling. |
 
@@ -509,10 +509,27 @@ Two things to set, once:
 </PropertyGroup>
 ```
 
+Nothing to change in `Config/xrmFramework.config`: the `deployment` attribute defaults to `Auto`
+and the deployment follows what the build produced. Pin it only to override that:
+
 ```xml
-<!-- Config/xrmFramework.config -->
+<!-- Config/xrmFramework.config - optional -->
 <add name="MyProject.Plugins" targetSolution="MySolution" type="PluginsWorkflows" deployment="Package" />
 ```
+
+```xml
+<!-- MyProject.Plugins.csproj — already in the scaffolded project, nothing to edit -->
+<ItemGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+  <PackageReference Include="Newtonsoft.Json" />
+</ItemGroup>
+```
+
+That reference is required in package mode: outside it, XrmFramework compiles its *vendored*
+Newtonsoft source into the plugin assembly, because a lone assembly cannot carry a dependency. In
+package mode it stops doing that and uses the real assembly, which the package ships. The two are
+mutually exclusive — both would declare every Newtonsoft type twice — so the reference is
+conditioned on the same property, leaving the property as the only lever. For a project written by
+hand, each half of the mistake gets a build error naming the fix (`XRMFW1001` / `XRMFW1002`).
 
 **The workflow does not change**: build the solution, then run the `Deploy.*` project — exactly
 as in assembly mode. Publishing and packing are hooked onto the build, so building the `Deploy.*`
