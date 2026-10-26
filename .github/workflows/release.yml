@@ -5,10 +5,19 @@
 # rebuilds — it republishes the exact artifacts of a green CI run, so what reaches
 # nuget.org is byte-for-byte what was tested.
 #
+# Authentication goes through nuget.org Trusted Publishing: no API key is stored
+# anywhere. GitHub issues an OIDC token to this job, NuGet/login exchanges it against
+# the trusted publishing policy and returns a temporary key valid about an hour.
+#
 # Required one-time setup (see .github/CI-MIGRATION.md):
-#   - a `nuget` environment, with "Required reviewers" enabled;
-#   - the NUGET_API_KEY secret in that environment (nuget.org API key, scoped to
-#     the XrmFramework* package glob).
+#   - a Trusted Publishing policy on nuget.org whose Workflow file is `release.yml`
+#     and whose Environment is either empty or exactly `nuget`, this job running in
+#     that environment;
+#   - a NUGET_USER repository variable (Settings → Variables), holding the nuget.org
+#     account name that owns the policy. A variable and not a secret: it is not
+#     sensitive, and a wrong value must produce a readable error.
+#   - the `nuget` environment with "Required reviewers" enabled. The environment no
+#     longer carries a secret, it carries the approval gate — that is its only job now.
 
 name: Publish to NuGet
 
@@ -28,6 +37,7 @@ on:
 permissions:
   contents: read
   actions: read # to download the artifacts of another workflow run
+  id-token: write # required for GitHub to issue the OIDC token NuGet/login exchanges
 
 concurrency:
   group: release-nuget
@@ -96,6 +106,28 @@ jobs:
             exit 1
           fi
 
+      # Checked before the login rather than after: NuGet/login fails on an empty user
+      # with an error that says nothing about the missing variable.
+      - name: Check the publishing configuration
+        if: ${{ !inputs.dry_run }}
+        env:
+          NUGET_USER: ${{ vars.NUGET_USER }}
+        run: |
+          if [ -z "$NUGET_USER" ]; then
+            echo "::error::The NUGET_USER repository variable is not set. It must hold the nuget.org account that owns the trusted publishing policy."
+            exit 1
+          fi
+          echo "Publishing as nuget.org user $NUGET_USER."
+
+      # Exchanges the job's OIDC token for a short-lived nuget.org key. Skipped on a dry
+      # run: no reason to mint a credential for a publish that will not happen.
+      - name: Log in to nuget.org
+        id: login
+        if: ${{ !inputs.dry_run }}
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+
       # The .snupkg files sit next to the .nupkg: dotnet nuget push uploads the
       # matching symbol package automatically, no second push needed.
       # --skip-duplicate makes a re-run idempotent instead of failing on a version
@@ -103,7 +135,7 @@ jobs:
       - name: Push to nuget.org
         if: ${{ !inputs.dry_run }}
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
         run: |
           set -euo pipefail
           dotnet nuget push "packages/*.nupkg" \

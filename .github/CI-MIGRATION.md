@@ -119,11 +119,26 @@ Trunk pour les tests).
 
 ## Mise en place
 
-1. **Secrets / environnement** (Settings → Environments) : créer l'environnement
-   `nuget`, y ajouter `NUGET_API_KEY` (clé nuget.org limitée au glob `XrmFramework*`)
-   et activer *Required reviewers*. À terme, le *Trusted Publishing* de nuget.org
-   (OIDC, sans clé stockée) est l'évolution à viser — à vérifier dans la doc nuget.org
-   avant de remplacer la clé.
+1. **Publication nuget.org — Trusted Publishing, aucune clé stockée.** La policy
+   nuget.org (menu utilisateur → *Trusted Publishing*) porte le propriétaire du package,
+   `Dimsi-BS/XrmFramework`, et le fichier de workflow `release.yml`. Côté GitHub, trois
+   choses :
+
+   - une **variable de dépôt `NUGET_USER`** (Settings → Variables) avec le compte
+     nuget.org propriétaire de la policy. Une variable, pas un secret : rien de sensible,
+     et une valeur erronée doit donner une erreur lisible ;
+   - la permission `id-token: write` sur le job, déjà déclarée dans `release.yml` ;
+   - l'environnement **`nuget` avec *Required reviewers*** : il ne porte plus de secret,
+     il ne sert plus qu'à la validation humaine avant publication.
+
+   Point d'attention sur la policy : son champ *Environment* est optionnel, mais la
+   claim n'est vérifiée **que s'il est rempli**. Laissé vide, il n'impose rien ; rempli,
+   il doit valoir exactement `nuget`, sinon le login est rejeté alors que le workflow
+   tourne bien. La policy peut aussi filtrer la branche — à ne pas restreindre à `main`
+   seule si vous publiez depuis les branches `vX.Y`.
+
+   Le délai de 7 jours d'activation d'une nouvelle policy ne s'applique qu'aux dépôts
+   privés : XrmFramework étant public, la policy est active immédiatement.
 2. **Fusionner cette PR.** Les deux CI tournent alors en parallèle.
 3. **Observer 2 à 3 PR et un push sur `main`** et comparer : nombre de `.nupkg`
    produits, versions NBGV identiques, durée de build (le cache NuGet ne sert qu'à
