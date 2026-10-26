@@ -1,0 +1,109 @@
+# Build + NuGet packaging for the v2.2 maintenance line — GitHub Actions port of this
+# branch's NugetPackages-Azure.yml.
+#
+# This is NOT a copy of main's workflow: the v2.2 pipeline differs on three points, each
+# of which would break the packages if ported blindly.
+#
+#   1. /p:PublicRelease=true is MANDATORY here. This branch's version.json declares
+#      publicReleaseRefSpec as ^refs/heads/master$ plus the vX.Y tags — it does NOT cover
+#      refs/heads/v2.2. Without the switch, NBGV treats a v2.2 branch build as a private
+#      release and stamps every package 2.2.x-g<sha> instead of 2.2.x. main's workflow
+#      deliberately omits the switch because its own refspec covers refs/heads/vX.Y.
+#   2. No test step. The Azure pipeline of this branch never ran the tests, and a
+#      maintenance line is not the place to turn them on blind.
+#   3. No coverage: src/coverage.runsettings does not exist on this branch, and there is
+#      no test run to collect from anyway.
+#
+# Consequently there is no Write-TestSummary.ps1 here either: it would have nothing to
+# summarize.
+
+name: Build
+
+on:
+  push:
+    branches:
+      - v2.*
+    paths:
+      # Same correction as on main: version.json and the Directory.*.props sit at the
+      # repository root, so a version bump used to produce no build at all.
+      - 'src/**'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+      - 'version.json'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    branches:
+      - v2.*
+    paths:
+      - 'src/**'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+      - 'version.json'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch:
+
+# The Azure trigger also listed `master`, which is pointless in a workflow file living on
+# v2.2: for a push to master GitHub reads the workflows from master, not from here.
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  BUILD_CONFIGURATION: Release
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  NUGET_XMLDOC_MODE: skip
+
+jobs:
+  build:
+    name: Build & pack
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # required by Nerdbank.GitVersioning
+
+      # This branch targets net462;net48;net8.0, so the .NET 8 SDK is needed, and the
+      # .slnx format requires an SDK >= 9.0.200 to be parsed at all. The Azure pipeline
+      # relied on whatever the image happened to ship; pinning both makes the build
+      # deterministic instead.
+      - name: Install .NET SDKs
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj', '**/*.nuspec') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      # PublicRelease=true: see the header. Dropping it silently changes every package
+      # version on this branch.
+      - name: Build
+        working-directory: src
+        run: dotnet build XrmFramework.slnx --configuration ${{ env.BUILD_CONFIGURATION }} /p:PublicRelease=true
+
+      # Directory.Build.targets (CopyNupkgToFolder) copies every .nupkg/.snupkg into
+      # src/GeneratedNuGetPackages/<Configuration> after each Pack.
+      - name: Upload packages
+        uses: actions/upload-artifact@v7
+        with:
+          name: Packages
+          path: |
+            src/GeneratedNuGetPackages/${{ env.BUILD_CONFIGURATION }}/*.nupkg
+            src/GeneratedNuGetPackages/${{ env.BUILD_CONFIGURATION }}/*.snupkg
+          if-no-files-found: error
+          retention-days: 30
