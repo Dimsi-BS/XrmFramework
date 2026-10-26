@@ -1,31 +1,25 @@
-# Build + NuGet packaging for the v2.2 maintenance line — GitHub Actions port of this
-# branch's NugetPackages-Azure.yml.
+# Build + test + NuGet packaging — GitHub Actions port of NugetPackages-Azure.yml.
 #
-# This is NOT a copy of main's workflow: the v2.2 pipeline differs on three points, each
-# of which would break the packages if ported blindly.
-#
-#   1. /p:PublicRelease=true is MANDATORY here. This branch's version.json declares
-#      publicReleaseRefSpec as ^refs/heads/master$ plus the vX.Y tags — it does NOT cover
-#      refs/heads/v2.2. Without the switch, NBGV treats a v2.2 branch build as a private
-#      release and stamps every package 2.2.x-g<sha> instead of 2.2.x. main's workflow
-#      deliberately omits the switch because its own refspec covers refs/heads/vX.Y.
-#   2. No test step. The Azure pipeline of this branch never ran the tests, and a
-#      maintenance line is not the place to turn them on blind.
-#   3. No coverage: src/coverage.runsettings does not exist on this branch, and there is
-#      no test run to collect from anyway.
-#
-# Consequently there is no Write-TestSummary.ps1 here either: it would have nothing to
-# summarize.
+# Parity choices with the Azure pipeline, see .github/CI-MIGRATION.md:
+#   - windows-latest: the net462/net48 inner builds and the Microsoft "Code coverage"
+#     collector are Windows-only in practice.
+#   - fetch-depth: 0 is MANDATORY: Nerdbank.GitVersioning walks the full history to
+#     compute the version; a shallow clone yields a wrong version (or no version at all).
+#   - PublicRelease is not forced: version.json's publicReleaseRefSpec matches
+#     refs/heads/main and refs/heads/vX.Y, so NBGV resolves it identically in the
+#     Build and the Test step, keeping a single NuGetPackageVersion per package.
 
-name: Build
+name: Build & Tests
 
 on:
   push:
     branches:
+      - main
       - v2.*
+      - v3.*
     paths:
-      # Same correction as on main: version.json and the Directory.*.props sit at the
-      # repository root, so a version bump used to produce no build at all.
+      # The Azure trigger only watched `src`, so a root-level version.json or
+      # Directory.Packages.props bump produced no build. They are included here.
       - 'src/**'
       - 'Directory.Build.props'
       - 'Directory.Packages.props'
@@ -33,7 +27,9 @@ on:
       - '.github/workflows/ci.yml'
   pull_request:
     branches:
+      - main
       - v2.*
+      - v3.*
     paths:
       - 'src/**'
       - 'Directory.Build.props'
@@ -42,9 +38,9 @@ on:
       - '.github/workflows/ci.yml'
   workflow_dispatch:
 
-# The Azure trigger also listed `master`, which is pointless in a workflow file living on
-# v2.2: for a push to master GitHub reads the workflows from master, not from here.
-
+# A new push on the same PR cancels the previous, still-running build. main and the
+# vX.Y release branches are never cancelled: their packages are the artifacts the
+# release workflow consumes.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -61,7 +57,7 @@ env:
 
 jobs:
   build:
-    name: Build & pack
+    name: Build, test & pack
     runs-on: windows-latest
     timeout-minutes: 45
 
@@ -71,10 +67,9 @@ jobs:
         with:
           fetch-depth: 0 # required by Nerdbank.GitVersioning
 
-      # This branch targets net462;net48;net8.0, so the .NET 8 SDK is needed, and the
-      # .slnx format requires an SDK >= 9.0.200 to be parsed at all. The Azure pipeline
-      # relied on whatever the image happened to ship; pinning both makes the build
-      # deterministic instead.
+      # SDKs compatible with the targeted TFMs (net8.0 / net10.0) and with the .slnx
+      # solution format (understood starting with SDK 9.0.200). net462/net48 build
+      # through Microsoft.NETFramework.ReferenceAssemblies.
       - name: Install .NET SDKs
         uses: actions/setup-dotnet@v6
         with:
@@ -82,6 +77,8 @@ jobs:
             8.0.x
             10.0.x
 
+      # Central Package Management keeps every version in Directory.Packages.props:
+      # hashing it together with the project files is enough to key the restore cache.
       - name: Cache NuGet packages
         uses: actions/cache@v6
         with:
@@ -90,11 +87,99 @@ jobs:
           restore-keys: |
             nuget-${{ runner.os }}-
 
-      # PublicRelease=true: see the header. Dropping it silently changes every package
-      # version on this branch.
+      # Guardrail: main carries the beta of the next minor version, the stable
+      # versions are cut on the vX.Y branches.
+      - name: Validate beta version on main
+        if: github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $versionJson = Get-Content "$env:GITHUB_WORKSPACE/version.json" -Raw | ConvertFrom-Json
+          if ($versionJson.version -notmatch '-beta') {
+            Write-Error "The main branch must produce a beta version. Current version: $($versionJson.version)"
+            exit 1
+          }
+          Write-Host "main version OK: $($versionJson.version)"
+
       - name: Build
         working-directory: src
-        run: dotnet build XrmFramework.slnx --configuration ${{ env.BUILD_CONFIGURATION }} /p:PublicRelease=true
+        run: dotnet build XrmFramework.slnx --configuration ${{ env.BUILD_CONFIGURATION }}
+
+      # --no-build reuses the Build step's output instead of rebuilding (and, for every
+      # GeneratePackageOnBuild project, re-packing) the whole solution a second time.
+      # It requires the same --configuration as Build.
+      #
+      # --settings scopes the coverage collector to the XrmFramework assemblies; without
+      # it every dependency shipping an embedded PDB gets instrumented and drowns the ratio.
+      #
+      # dotnet test produces .trx (VSTest), never NUnit TEST-*.xml.
+      - name: Test
+        working-directory: src
+        run: >
+          dotnet test XrmFramework.slnx
+          --configuration ${{ env.BUILD_CONFIGURATION }}
+          --no-build
+          --logger "trx"
+          --logger "console;verbosity=normal"
+          --results-directory "${{ github.workspace }}/TestResults"
+          --collect "Code coverage"
+          --settings "${{ github.workspace }}/src/coverage.runsettings"
+
+      # Azure DevOps rendered the .trx server-side (its "Tests" tab). This script is the
+      # replacement: it aggregates the ~15 .trx (one per test project × TFM) into a table
+      # on the run page, with the failing tests expanded inline. No third-party action,
+      # so nothing is granted `checks: write` on the repository.
+      - name: Summarize tests
+        if: always()
+        shell: pwsh
+        run: >
+          ./.github/scripts/Write-TestSummary.ps1
+          -ResultsDirectory "${{ github.workspace }}/TestResults"
+
+      # The Microsoft collector only writes a binary .coverage, which opens in Visual
+      # Studio Enterprise and nowhere else: Azure DevOps rendered it server-side,
+      # GitHub cannot. dotnet-coverage (Microsoft) converts it to Cobertura, and
+      # ReportGenerator turns that into a Markdown table shown on the run page plus an
+      # HTML site shipped in the TestResults artifact.
+      #
+      # Both tools are installed with --tool-path rather than --global: the global tool
+      # folder is not guaranteed to be on PATH, and a pinned version keeps the CI output
+      # from drifting without a commit.
+      #
+      # The glob is passed quoted, on purpose: dotnet-coverage expands the pattern
+      # itself (one .coverage per test project × TFM, so ~15 files here).
+      - name: Report coverage
+        if: always()
+        shell: pwsh
+        run: |
+          $results = "$env:GITHUB_WORKSPACE/TestResults"
+          if (-not (Get-ChildItem -Path $results -Filter *.coverage -Recurse -ErrorAction SilentlyContinue)) {
+            Write-Output "::notice::No .coverage file produced, skipping the coverage report."
+            exit 0
+          }
+          dotnet tool install dotnet-coverage --tool-path ./.tools --version 18.12.0
+          dotnet tool install dotnet-reportgenerator-globaltool --tool-path ./.tools --version 5.5.11
+          ./.tools/dotnet-coverage merge "$results/**/*.coverage" `
+            --output "$results/coverage.cobertura.xml" --output-format cobertura --nologo
+          ./.tools/reportgenerator `
+            "-reports:$results/coverage.cobertura.xml" `
+            "-targetdir:$results/CoverageReport" `
+            "-reporttypes:MarkdownSummaryGithub;Html"
+          Get-Content "$results/CoverageReport/SummaryGithub.md" | Add-Content $env:GITHUB_STEP_SUMMARY
+
+      # Azure DevOps published the .trx automatically (publishTestResults: true).
+      # GitHub has no first-party equivalent, so the results are uploaded as an
+      # artifact; `always()` keeps them available precisely when the tests failed.
+      # The folder also carries the Cobertura file and the HTML coverage report.
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: TestResults
+          # The whole folder: dotnet test drops the .trx at its root and the .coverage
+          # in a per-run subfolder.
+          path: TestResults
+          if-no-files-found: warn
+          retention-days: 14
 
       # Directory.Build.targets (CopyNupkgToFolder) copies every .nupkg/.snupkg into
       # src/GeneratedNuGetPackages/<Configuration> after each Pack.

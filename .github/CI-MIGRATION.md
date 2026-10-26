@@ -7,69 +7,77 @@ bascule, est sur `main` ; celui-ci ne couvre que ce qui est **spécifique à v2.
 Les workflows vivent sur chaque branche construite : pour un push sur `v2.2`, GitHub lit
 `ci.yml` **depuis `v2.2`**, jamais depuis `main`. D'où cette copie.
 
-## Ce n'est pas une copie de `main`
+## `ci.yml` est identique à celui de `main`
 
-La pipeline Azure de cette branche diffère de celle de `main` sur trois points, et
-chacun casserait quelque chose s'il était porté en aveugle.
+Au bit près, sans substitution : cette branche utilise déjà `src/XrmFramework.slnx`,
+comme `main`, et n'a pas de `.sln`. Garder les deux fichiers identiques rend chaque
+portage ultérieur trivial — un `git show origin/main:.github/workflows/ci.yml` suffit.
 
-### 1. `/p:PublicRelease=true` est obligatoire ici
+Deux changements ont été nécessaires sur la branche pour y arriver.
 
-C'est le point important. Le `version.json` de cette branche déclare :
+### 1. `publicReleaseRefSpec` couvre maintenant les branches `vX.Y`
+
+C'est ce qui permet de supprimer le `/p:PublicRelease=true` que forçait la pipeline
+Azure. L'entrée ajoutée :
 
 ```json
-"publicReleaseRefSpec": [ "^refs/heads/master$", "^refs/tags/v\\d+\\.\\d+" ]
+"publicReleaseRefSpec": [
+  "^refs/heads/master$",
+  "^refs/heads/v\\d+\\.\\d+",   // ← ajoutée
+  "^refs/tags/v\\d+\\.\\d+"
+]
 ```
 
-Il ne couvre donc **pas** `refs/heads/v2.2`. Sans le commutateur, NBGV considère un build
-de cette branche comme une préversion privée et estampille chaque paquet
-`2.2.x-g<sha>` au lieu de `2.2.x`. La pipeline Azure le forçait déjà ; le workflow le
-garde.
+Sans elle, NBGV traitait un build de `v2.2` comme une préversion privée et estampillait
+les paquets `2.2.x-g<sha>` au lieu de `2.2.x` ; la pipeline Azure compensait avec le
+commutateur. Le refspec le résout maintenant à la source, comme sur `main` et `v3.1`.
 
-Le workflow de `main` omet ce commutateur **volontairement** — son propre refspec couvre
-`^refs/heads/v\d+\.\d+`, donc NBGV y résout `PublicRelease` tout seul. Copier le fichier
-de `main` sur cette branche changerait silencieusement la version de tous les paquets.
+`^refs/heads/master$` et `^refs/tags/v\d+\.\d+` sont **conservés** volontairement : le
+premier ne coûte rien, le second préserve le comportement des builds par tag, qui
+produisent eux aussi une version publique sur cette ligne. `main` a abandonné l'entrée
+de tag ; la retirer ici changerait la version des builds de tag sans raison.
 
-### 2. Aucun test
+**Conséquence à connaître** : un build de **pull request** produit désormais une version
+suffixée `-g<sha>`, car `GITHUB_REF` vaut alors `refs/pull/N/merge`, qu'aucun refspec ne
+couvre. C'est le comportement de `main` et de `v3.1`, et c'est voulu — un artefact de PR
+n'a pas à porter un numéro publiable. La version propre `2.2.x` revient dès le push sur
+`v2.2`.
 
-La pipeline Azure de cette branche n'a jamais exécuté les tests. Une ligne de
-maintenance n'est pas l'endroit pour les activer à l'aveugle : si vous voulez les
-lancer ici, c'est un changement à faire et valider séparément, pas un effet de bord du
-portage de la CI.
+### 2. Les tests tournent maintenant sur cette branche
 
-### 3. Aucune couverture
+La pipeline Azure de `v2.2` ne lançait **aucun test**. Comme `ci.yml` est désormais
+identique à celui de `main`, les deux projets de test de la solution
+(`XrmFramework.Analyzers.Tests` et `XrmFramework.Tests`) sont exécutés, avec la
+couverture et le résumé dans le résumé de run.
 
-`src/coverage.runsettings` n'existe pas sur cette branche — et sans run de test, il n'y
-aurait rien à collecter. Par conséquent `Write-TestSummary.ps1` n'est pas copié ici non
-plus : il n'aurait rien à résumer.
+C'est un **changement de comportement réel**, pas un simple portage : la CI de cette
+branche peut désormais échouer sur un test qui n'était jamais exécuté. Deux fichiers ont
+été ajoutés pour cela, copiés de `main` :
 
-## Autres écarts, mineurs
+- `src/coverage.runsettings`, qui cantonne le collecteur aux assemblies `XrmFramework*`.
+  Ses deux exclusions de sources portent sur `XrmFramework.Plugin/NewtonSoft.Json` et
+  `XrmFramework/Utils/BoDi.cs` — vérifié, ces deux chemins existent bien sur `v2.2`,
+  les règles sont donc actives et non inertes ;
+- `.github/scripts/Write-TestSummary.ps1`, inchangé.
 
-- Le workflow s'appelle **`Build`** et non « Build & Tests » : il ne teste rien, le nom
-  doit le dire. Le nom de fichier reste `ci.yml`, et le check obligatoire à cocher dans
-  la protection de branche est donc `Build & pack` (le nom du job).
+## Autres points
 
-  À savoir, parce que c'est déroutant : **GitHub indexe les workflows par chemin de
-  fichier, pas par branche.** `.github/workflows/ci.yml` est donc une seule entité pour
-  tout le dépôt, et son nom affiché dans la barre latérale Actions vient de la branche
-  par défaut. Les runs de `v2.2` apparaissent par conséquent regroupés sous « Build &
-  Tests », alors que chaque run porte bien le nom `Build` sur sa propre page. Rien n'est
-  cassé : c'est le même fichier `ci.yml` de cette branche qui s'exécute. Corollaire
-  utile : pour distinguer les checks obligatoires entre branches, fiez-vous au **nom du
-  job**, pas à celui du workflow.
-- Les triggers ne listent que `v2.*`. La pipeline Azure listait aussi `master`, ce qui
-  n'a aucun effet dans un fichier vivant sur `v2.2` : pour un push sur `master`, GitHub
-  lit les workflows de `master`.
-- Les SDK .NET 8 et 10 sont installés explicitement. Cette branche cible
-  `net462;net48;net8.0`, et le format `.slnx` exige un SDK ≥ 9.0.200 pour être lu. La
-  pipeline Azure se reposait sur ce que l'image embarquait ; épingler rend le build
-  déterministe.
+- **GitHub indexe les workflows par chemin de fichier, pas par branche.**
+  `.github/workflows/ci.yml` est une seule entité pour tout le dépôt, et son nom affiché
+  dans la barre latérale Actions vient de la branche par défaut. Les runs de `v2.2`
+  apparaissent donc regroupés avec ceux de `main`. Rien n'est cassé : c'est bien le
+  `ci.yml` de cette branche qui s'exécute. Corollaire : pour les checks obligatoires,
+  fiez-vous au **nom du job**, pas à celui du workflow. Il est ici
+  `Build, test & pack`, comme sur `main` et `v3.1`.
+- Le step « Validate beta version on main » est conditionné à
+  `github.ref == 'refs/heads/main'` : toujours *skipped* ici.
 - `dependabot.yml` n'est pas copié : Dependabot ne lit sa configuration que sur la
   branche par défaut. Pour couvrir `v2.2`, il faut une entrée `target-branch: v2.2` dans
   le fichier de `main`.
 
 ## `release.yml`
 
-Identique à celui de `main`, y compris le Trusted Publishing. Il se lance à la main
+Identique à celui de `main`, Trusted Publishing compris. Il se lance à la main
 (`workflow_dispatch`) et republie l'artefact `Packages` d'un build vert de **cette**
 branche. La policy nuget.org porte sur le fichier `release.yml`, donc elle couvre déjà
 cette copie — vérifiez simplement que son éventuel filtre de branche n'est pas limité à
