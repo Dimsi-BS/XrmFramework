@@ -19,7 +19,8 @@ GitHub (`Dimsi-BS/XrmFramework`) avec un flux de PR.
 | Fichier | Rôle |
 | --- | --- |
 | `.github/workflows/ci.yml` | Build + tests + pack, portage 1:1 de la pipeline Azure |
-| `.github/workflows/release.yml` | Publication sur nuget.org, manuelle et validée par un reviewer |
+| `.github/workflows/release.yml` | Publication sur nuget.org : automatique sur `main`/`v2.*`/`v3.*` ou manuelle, toujours validée par un reviewer |
+| `.github/scripts/Write-TestSummary.ps1` | Résumé des `.trx` sur la page du run |
 | `.github/dependabot.yml` | Mise à jour mensuelle des versions d'actions |
 
 ## Correspondance étape par étape
@@ -38,7 +39,7 @@ GitHub (`Dimsi-BS/XrmFramework`) avec un flux de PR.
 | `script: dotnet build ... ` | `run:` + `working-directory: src` | Identique |
 | `DotNetCoreCLI@2 command: test` + `publishTestResults: true` | `dotnet test` + `actions/upload-artifact` | **Seule perte fonctionnelle**, voir ci-dessous |
 | `CopyFiles@2` + `PublishPipelineArtifact@1` | un seul `actions/upload-artifact` (glob direct) | L'étape de copie intermédiaire disparaît |
-| *(publication nuget.org hors pipeline)* | `release.yml`, `workflow_dispatch` + environnement `nuget` | Nouveau : la publication devient tracée et reproductible |
+| *(publication nuget.org hors pipeline)* | `release.yml` : `workflow_run` (automatique) + `workflow_dispatch`, environnement `nuget` | Nouveau : la publication devient tracée et reproductible |
 
 ## Décisions prises
 
@@ -73,6 +74,40 @@ Dans les deux cas l'environnement `nuget` impose son approbation : « automatiqu
 signifie que la publication est mise en attente d'un clic, jamais qu'elle est
 silencieuse. Retirer `environment: nuget` la rendrait réellement non surveillée — à
 peser, une version nuget.org ne se supprimant pas, seulement se dé-listant.
+
+### Deux jobs, pour afficher la version sur l'écran d'approbation
+
+Le découpage `resolve` → `publish` n'est pas cosmétique, c'est le seul moyen d'exposer
+la version dans l'interface. La table de disponibilité des contextes de GitHub :
+
+| Champ | Contextes autorisés |
+| --- | --- |
+| `run-name` | `github`, `inputs`, `vars` |
+| `jobs.<job_id>.name` | `github`, **`needs`**, `strategy`, `matrix`, `vars`, `inputs` |
+
+`run-name` est évalué à l'initialisation du workflow, avant tout job : le **titre du
+run** ne peut donc jamais porter une version calculée pendant l'exécution. Mais le nom
+d'un job voit `needs`. Résoudre la version dans un premier job la place donc dans le nom
+du second — `Publish 3.2.8-beta to nuget.org` — et c'est ce texte que montre l'écran
+d'approbation. On valide une version identifiée, plus un « Publish packages » anonyme.
+
+Le job `resolve` ne reçoit délibérément **pas** `id-token: write` : il ne s'authentifie
+jamais auprès de nuget.org, et le jeton OIDC n'a rien à faire hors du job sous approbation.
+
+La version est lue sur les **noms de fichiers** de l'artefact, pas demandée à NBGV : ce
+job détient l'artefact, pas l'état du dépôt, et c'est l'artefact qui fait autorité sur ce
+qui serait réellement poussé. Le motif s'ancre sur la version **finale** du nom, seul
+moyen de la distinguer de l'identifiant — les deux contiennent des points, comme dans
+`XrmFramework.CoreProject.OnPremise.2.2.110.nupkg`. Validé sur de vrais artefacts, dont
+`3.2.4-beta-g507f0c4e0d` qui cumule libellé de préversion et hash de commit.
+
+Si l'artefact contient **plusieurs** versions — ce qui signalerait une régression du
+bug corrigé en #54 — le job n'échoue pas : il les liste dans son nom et émet un
+avertissement, laissant la décision à l'humain sur l'écran d'approbation.
+
+L'artefact est téléchargé une fois par job. Le passer de l'un à l'autre imposerait de le
+ré-uploader comme artefact de job, plus lent et laissant une copie en double ; l'id du
+run venant de `resolve`, les deux jobs lisent de façon prouvée le même artefact.
 
 ## Filtres de chemins et checks obligatoires
 
