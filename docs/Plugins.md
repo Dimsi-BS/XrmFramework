@@ -443,7 +443,7 @@ way around it.
 
 The supported answer is a **plugin package**: a NuGet package holding the plugin assembly *and*
 its dependencies, stored in the `pluginpackage` table and unpacked by Dataverse into the sandbox.
-Since 3.2, XrmFramework builds and deploys one for you. Two things to set, once:
+Since 3.2, XrmFramework builds and deploys one for you. One thing to set, once:
 
 ```xml
 <!-- Contoso.Plugins.csproj -->
@@ -452,10 +452,14 @@ Since 3.2, XrmFramework builds and deploys one for you. Two things to set, once:
 </PropertyGroup>
 ```
 
-```xml
-<!-- Config/xrmFramework.config -->
-<add name="Contoso.Plugins" targetSolution="PluginsSolutionUniqueName" type="PluginsWorkflows" deployment="Package" />
-```
+Nothing to declare in `xrmFramework.config`: the packaging targets stamp the opt-in into the
+assembly itself, and the deployment reads it there. The shape follows the build, so the two cannot
+disagree — and a project that was not built as a package cannot be pushed as one by a
+configuration mistake.
+
+> The `deployment="Package"` attribute still forces package mode, for an assembly built before
+> the marker existed. It is no longer needed, and `deployment="Assembly"` is no longer what keeps a
+> project on the classic registration — not opting in is.
 
 Then reference the library as you would anywhere else, and keep your usual workflow — build the
 solution, run the `Deploy.*` project. Publishing and packaging are hooked onto the build, so there
@@ -486,7 +490,7 @@ What the framework does differently in this mode, and why it matters to you:
 Two platform limitations, which the deployment refuses up front rather than failing halfway:
 
 - **Custom workflow activities are not supported** in a package. If you have any, keep them in a
-  separate, signed assembly project left on `deployment="Assembly"` — a plugin project and a
+  separate, signed assembly project that does not opt in — a plugin project and a
   workflow project can target the same solution.
 - **On-premise environments are not supported.**
 

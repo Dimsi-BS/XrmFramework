@@ -1,4 +1,4 @@
-// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
@@ -89,7 +89,36 @@ namespace XrmFramework.PluginInventory
                     plugins.Add(ExtractPlugin(type));
             }
 
-            return ManifestJson.Build(plugins, workflows, customApis);
+            return ManifestJson.Build(plugins, workflows, customApis, UsesPluginPackage(assembly));
+        }
+
+        /// <summary>
+        ///     Whether the assembly was built as a Dataverse plugin package, read from the
+        ///     <c>XrmFrameworkPluginPackage</c> assembly metadata stamped by the packaging targets.
+        /// </summary>
+        /// <remarks>
+        ///     Reported here because this is the one place that already has the assembly loaded: the
+        ///     deployment side deliberately reads a plugin DLL's identity without loading it, so that
+        ///     a net8 host can describe a net462 assembly.
+        /// </remarks>
+        private static bool UsesPluginPackage(Assembly assembly)
+        {
+            try
+            {
+                foreach (AssemblyMetadataAttribute metadata in
+                    assembly.GetCustomAttributes(typeof(AssemblyMetadataAttribute), false))
+                {
+                    if (string.Equals(metadata.Key, "XrmFrameworkPluginPackage", StringComparison.OrdinalIgnoreCase))
+                        return string.Equals(metadata.Value, "true", StringComparison.OrdinalIgnoreCase);
+                }
+            }
+            catch (Exception)
+            {
+                // An unreadable attribute must not cost the whole inventory: the deployment then
+                // falls back on the deployment= attribute in xrmFramework.config.
+            }
+
+            return false;
         }
 
         private static bool InheritsFrom(Type type, string baseFullName)
