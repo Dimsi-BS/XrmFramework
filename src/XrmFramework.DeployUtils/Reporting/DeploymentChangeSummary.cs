@@ -31,6 +31,11 @@ public static class DeploymentChangeSummary
     public const string HeaderLine = "[bold]Changes to apply:[/]";
 
     /// <summary>
+    ///     Introduces what a plugin package push has to unregister on its way in.
+    /// </summary>
+    public const string PackageRemovalHeaderLine = "[bold]To unregister before pushing the package:[/]";
+
+    /// <summary>
     ///     The components a deployment is about to write, in the pool's own order - which is the
     ///     order they will be applied in, so the summary reads like the plan it describes.
     /// </summary>
@@ -105,6 +110,42 @@ public static class DeploymentChangeSummary
         foreach (var component in changes)
         {
             var (verb, color) = DescribeState(component.RegistrationState);
+            lines.Add($"  [{color}]{verb}[/] {Markup.Escape(Describe(component))}");
+        }
+
+        return lines;
+    }
+
+    /// <summary>
+    ///     The lines announcing components deleted outright, ahead of any diff - what a plugin
+    ///     package push has to unregister before the platform will accept it.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The state is deliberately ignored. These components come from the remote inventory
+    ///         and are handed straight to the exporter rather than through the strategy, so they
+    ///         still carry <see cref="RegistrationState.NotComputed" />; every one of them is about
+    ///         to be deleted, so every line reads as a removal.
+    ///     </para>
+    ///     <para>
+    ///         Nothing to remove yields no line at all, header included: that phase does not run,
+    ///         and announcing it would suggest a write that never happens.
+    ///     </para>
+    /// </remarks>
+    public static IReadOnlyList<string> BuildRemovalLines(IEnumerable<ICrmComponent> components)
+    {
+        if (components == null) return Array.Empty<string>();
+
+        var removals = components.Where(c => c != null).ToList();
+
+        if (removals.Count == 0) return Array.Empty<string>();
+
+        var (verb, color) = DescribeState(RegistrationState.ToDelete);
+
+        var lines = new List<string>(removals.Count + 1) {PackageRemovalHeaderLine};
+
+        foreach (var component in removals)
+        {
             lines.Add($"  [{color}]{verb}[/] {Markup.Escape(Describe(component))}");
         }
 
