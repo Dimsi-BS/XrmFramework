@@ -306,7 +306,33 @@ public partial class RegistrationHelper
 
         if (orphanedComponents.Count == 0) return;
 
+        PrintRemovalSummary(orphanedComponents);
+
         _assemblyExporter.DeleteAllComponents(orphanedComponents);
+    }
+
+    /// <summary>
+    ///     Prints what is about to be unregistered to let the package push through.
+    /// </summary>
+    /// <remarks>
+    ///     These deletions happen before the diff is computed, so the change summary never sees
+    ///     them: without this they are the one part of a package deployment that writes - and
+    ///     unregisters live steps at that - without saying so.
+    /// </remarks>
+    private static void PrintRemovalSummary(IEnumerable<ICrmComponent> components)
+    {
+        var lines = DeploymentChangeSummary.BuildRemovalLines(components);
+
+        if (lines.Count == 0) return;
+
+        AnsiConsole.WriteLine();
+
+        foreach (var line in lines)
+        {
+            AnsiConsole.MarkupLine(line);
+        }
+
+        AnsiConsole.WriteLine();
     }
 
     /// <summary>

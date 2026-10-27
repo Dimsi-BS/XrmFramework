@@ -379,6 +379,105 @@ public class DeploymentChangeSummaryTests
             "the component's real name should reach the output, brackets included");
     }
 
+    /// <summary>
+    ///     The steps a package push has to unregister are deleted outright, before the diff runs,
+    ///     so they never reach the change summary. They still have to be announced: this is the one
+    ///     phase that unregisters live steps, and it is irreversible from the console's point of view.
+    /// </summary>
+    [Test]
+    public void BuildRemovalLines_HeaderThenOneRemovalPerComponentInOrder()
+    {
+        var step = StepOn("OnContactCreate", "contact");
+        var components = new ICrmComponent[] {step.PreImage, step};
+
+        var lines = DeploymentChangeSummary.BuildRemovalLines(components);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(lines, Has.Count.EqualTo(3));
+            Assert.That(lines[0], Is.EqualTo(DeploymentChangeSummary.PackageRemovalHeaderLine));
+            Assert.That(lines[1], Is.EqualTo($"  [red]Remove[/] pre-image of step '{step.Description}'"));
+            Assert.That(lines[2], Is.EqualTo($"  [red]Remove[/] step '{step.Description}'"));
+        });
+    }
+
+    /// <summary>
+    ///     These components come from the remote inventory and go straight to the exporter, so they
+    ///     still carry <see cref="RegistrationState.NotComputed" />. Filtering on the state the way
+    ///     the main summary does would print nothing at all - the deletions would stay silent.
+    /// </summary>
+    [Test]
+    public void BuildRemovalLines_AnnouncesComponentsWhateverTheirState()
+    {
+        var untouched = new Plugin("MySolution.Plugins.Dropped");
+
+        Assume.That(untouched.RegistrationState, Is.EqualTo(RegistrationState.NotComputed),
+            "a component read back from the environment carries no computed state");
+
+        var lines = DeploymentChangeSummary.BuildRemovalLines(new ICrmComponent[] {untouched});
+
+        Assert.That(lines, Has.Count.EqualTo(2));
+        Assert.That(lines[1], Is.EqualTo("  [red]Remove[/] plugin 'MySolution.Plugins.Dropped'"));
+    }
+
+    /// <summary>
+    ///     Nothing to unregister prints nothing, header included: that phase is skipped entirely,
+    ///     and a header on its own would suggest a write that never happens.
+    /// </summary>
+    [Test]
+    public void BuildRemovalLines_NothingToRemovePrintsNothing()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(DeploymentChangeSummary.BuildRemovalLines(null), Is.Empty);
+            Assert.That(DeploymentChangeSummary.BuildRemovalLines(Array.Empty<ICrmComponent>()), Is.Empty);
+            Assert.That(DeploymentChangeSummary.BuildRemovalLines(new ICrmComponent[] {null}), Is.Empty);
+        });
+    }
+
+    /// <summary>
+    ///     Same hazard as the change summary: a bracket in a plugin type name is markup to Spectre,
+    ///     and this phase runs with live steps about to be unregistered.
+    /// </summary>
+    [Test]
+    public void BuildRemovalLines_EscapesMarkupAndStaysPrintable()
+    {
+        var hostile = new Plugin("MySolution.Plugins.On[Contact]Create");
+
+        var lines = DeploymentChangeSummary.BuildRemovalLines(new ICrmComponent[] {hostile});
+
+        var writer = new StringWriter();
+        var console = AnsiConsole.Create(new AnsiConsoleSettings
+        {
+            Ansi = AnsiSupport.No,
+            ColorSystem = ColorSystemSupport.NoColors,
+            Out = new AnsiConsoleOutput(writer)
+        });
+
+        Assert.That(() =>
+        {
+            foreach (var line in lines) console.MarkupLine(line);
+        }, Throws.Nothing);
+
+        Assert.That(writer.ToString(), Does.Contain("On[Contact]Create"));
+    }
+
+    /// <summary>
+    ///     The verb has to match the one the change summary uses for a deletion: the two summaries
+    ///     are read one after the other in a package deployment, and a removal must look the same
+    ///     in both.
+    /// </summary>
+    [Test]
+    public void BuildRemovalLines_UsesTheSameRemovalVerbAsTheChangeSummary()
+    {
+        var (verb, color) = DeploymentChangeSummary.DescribeState(RegistrationState.ToDelete);
+
+        var removalLine = DeploymentChangeSummary
+            .BuildRemovalLines(new ICrmComponent[] {new Plugin("P.A")}).Last();
+
+        Assert.That(removalLine, Does.StartWith($"  [{color}]{verb}[/] "));
+    }
+
     /// <summary>A component type the summary has no special case for.</summary>
     private sealed class UnknownComponent : BaseCrmComponent
     {
