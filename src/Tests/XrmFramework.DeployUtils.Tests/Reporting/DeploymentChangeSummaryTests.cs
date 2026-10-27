@@ -478,6 +478,86 @@ public class DeploymentChangeSummaryTests
         Assert.That(removalLine, Does.StartWith($"  [{color}]{verb}[/] "));
     }
 
+    /// <summary>
+    ///     Removing live step registrations is the one irreversible thing a package push does on
+    ///     its way in, so an interactive run has to approve it.
+    /// </summary>
+    [Test]
+    public void RequiresRemovalConfirmation_AsksWhenThereIsSomethingToRemove()
+    {
+        var components = new ICrmComponent[] {new Plugin("MySolution.Plugins.Dropped")};
+
+        Assert.That(DeploymentChangeSummary.RequiresRemovalConfirmation(components, noPrompt: false), Is.True);
+    }
+
+    /// <summary>
+    ///     A deployment that only adds and updates must not grow a second prompt: nothing is being
+    ///     removed, so there is nothing to approve.
+    /// </summary>
+    [Test]
+    public void RequiresRemovalConfirmation_StaysSilentWithNothingToRemove()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(DeploymentChangeSummary.RequiresRemovalConfirmation(null, noPrompt: false), Is.False);
+            Assert.That(
+                DeploymentChangeSummary.RequiresRemovalConfirmation(Array.Empty<ICrmComponent>(), noPrompt: false),
+                Is.False);
+            Assert.That(
+                DeploymentChangeSummary.RequiresRemovalConfirmation(new ICrmComponent[] {null}, noPrompt: false),
+                Is.False);
+        });
+    }
+
+    /// <summary>
+    ///     Silent mode never prompts, removals included. <c>--noprompt</c> exists for CI, where
+    ///     nobody can answer: a prompt there would hang the agent instead of deploying.
+    /// </summary>
+    [Test]
+    public void RequiresRemovalConfirmation_NeverAsksInSilentMode()
+    {
+        var components = new ICrmComponent[] {new Plugin("MySolution.Plugins.Dropped")};
+
+        Assert.That(DeploymentChangeSummary.RequiresRemovalConfirmation(components, noPrompt: true), Is.False);
+    }
+
+    /// <summary>
+    ///     The two conditions are independent: pinning the whole truth table keeps a later edit
+    ///     from collapsing them into one.
+    /// </summary>
+    [TestCase(true, false, true, Description = "removals, interactive -> ask")]
+    [TestCase(true, true, false, Description = "removals, silent -> no ask")]
+    [TestCase(false, false, false, Description = "nothing to remove, interactive -> no ask")]
+    [TestCase(false, true, false, Description = "nothing to remove, silent -> no ask")]
+    public void RequiresRemovalConfirmation_TruthTable(bool hasRemovals, bool noPrompt, bool expected)
+    {
+        var components = hasRemovals
+            ? new ICrmComponent[] {new Plugin("P.Dropped")}
+            : Array.Empty<ICrmComponent>();
+
+        Assert.That(DeploymentChangeSummary.RequiresRemovalConfirmation(components, noPrompt), Is.EqualTo(expected));
+    }
+
+    /// <summary>
+    ///     What is announced and what is submitted for approval have to be the same set: a
+    ///     component listed but not counted, or the reverse, would make the prompt lie.
+    /// </summary>
+    [Test]
+    public void RequiresRemovalConfirmation_AgreesWithWhatIsPrinted()
+    {
+        var step = StepOn("OnContactCreate", "contact");
+        var components = new ICrmComponent[] {step.PreImage, null, step};
+
+        var lines = DeploymentChangeSummary.BuildRemovalLines(components);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(DeploymentChangeSummary.RequiresRemovalConfirmation(components, noPrompt: false), Is.True);
+            Assert.That(DeploymentChangeSummary.SelectRemovals(components), Has.Count.EqualTo(lines.Count - 1),
+                "one printed line per component submitted for approval, plus the header");
+        });
+    }
+
     /// <summary>A component type the summary has no special case for.</summary>
     private sealed class UnknownComponent : BaseCrmComponent
     {

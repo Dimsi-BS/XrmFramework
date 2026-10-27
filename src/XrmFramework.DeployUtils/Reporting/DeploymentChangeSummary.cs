@@ -117,6 +117,30 @@ public static class DeploymentChangeSummary
     }
 
     /// <summary>
+    ///     The components a pre-push phase is about to delete outright, in the order given.
+    /// </summary>
+    public static IReadOnlyList<ICrmComponent> SelectRemovals(IEnumerable<ICrmComponent> components)
+    {
+        if (components == null) return Array.Empty<ICrmComponent>();
+
+        return components.Where(c => c != null).ToList();
+    }
+
+    /// <summary>
+    ///     Whether the operator has to approve these removals before they are applied.
+    /// </summary>
+    /// <remarks>
+    ///     Two conditions, and both matter. Something has to actually be removed - a deployment
+    ///     that only adds and updates must not grow a second prompt. And the run has to be
+    ///     interactive: under <c>--noprompt</c>, which exists for CI, there is nobody to answer and
+    ///     a prompt would hang the agent instead of deploying.
+    /// </remarks>
+    /// <param name="components">The components about to be deleted.</param>
+    /// <param name="noPrompt">The deployment's silent-mode switch.</param>
+    public static bool RequiresRemovalConfirmation(IEnumerable<ICrmComponent> components, bool noPrompt)
+        => !noPrompt && SelectRemovals(components).Count > 0;
+
+    /// <summary>
     ///     The lines announcing components deleted outright, ahead of any diff - what a plugin
     ///     package push has to unregister before the platform will accept it.
     /// </summary>
@@ -134,9 +158,7 @@ public static class DeploymentChangeSummary
     /// </remarks>
     public static IReadOnlyList<string> BuildRemovalLines(IEnumerable<ICrmComponent> components)
     {
-        if (components == null) return Array.Empty<string>();
-
-        var removals = components.Where(c => c != null).ToList();
+        var removals = SelectRemovals(components);
 
         if (removals.Count == 0) return Array.Empty<string>();
 
