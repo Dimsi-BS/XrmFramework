@@ -160,7 +160,9 @@ public partial class RegistrationHelper
             AnsiConsole.WriteLine($"Target    : {deploySettings.Url}");
             AnsiConsole.WriteLine($"ClientId  : {deploySettings.ClientId}");
             AnsiConsole.WriteLine($"OnPremise : {(isOnPremise ? "yes" : "no")}");
-            AnsiConsole.WriteLine($"Deploy as : {(deploySettings.UsePluginPackage ? "plugin package" : "plugin assembly")}");
+            // "Deploy as" is not printed here any more: the shape now comes from the assembly's own
+            // marker, which is only known once the inventory has run. Register prints it then,
+            // rather than restating a configuration that no longer decides.
 
             // ── Interactive confirmation (unless silent mode) ────────────────
             if (!deployOptions.NoPrompt && !AnsiConsole.Confirm("Continue the deployment?"))
@@ -206,6 +208,8 @@ public partial class RegistrationHelper
         var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(dllPath);
 
         var localPackage = localAssembly.AssemblyInfo.Package;
+
+        AnsiConsole.WriteLine($"Deploy as : {(localPackage != null ? "plugin package" : "plugin assembly")}");
 
         if (localPackage != null)
         {
