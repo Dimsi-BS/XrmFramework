@@ -179,6 +179,13 @@ public partial class RegistrationHelper
 
             return 0;
         }
+        catch (OperationCanceledException ex)
+        {
+            // A declined confirmation is a choice, not a failure. Nothing has been written when it
+            // is raised, and a non-zero code would fail a pipeline that did exactly as it was told.
+            AnsiConsole.MarkupLine($"[yellow]{Markup.Escape(ex.Message)}[/]");
+            return 0;
+        }
         catch (Exception ex)
         {
             AnsiConsole.WriteException(ex);
@@ -307,8 +314,43 @@ public partial class RegistrationHelper
         if (orphanedComponents.Count == 0) return;
 
         PrintRemovalSummary(orphanedComponents);
+        ConfirmRemovalsOrCancel(orphanedComponents);
 
         _assemblyExporter.DeleteAllComponents(orphanedComponents);
+    }
+
+    /// <summary>
+    ///     Asks whether to go ahead with the unregistrations a package push requires.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Only reached when something is actually about to be removed, so a deployment that
+    ///         adds and updates still runs end to end without a second prompt.
+    ///     </para>
+    ///     <para>
+    ///         Skipped under <c>--noprompt</c>, the same way the connection confirmation is: that
+    ///         switch exists for CI, where there is nobody to answer and a blocked prompt would
+    ///         hang the agent.
+    ///     </para>
+    ///     <para>
+    ///         Declining cancels the whole deployment rather than just the removals, because the
+    ///         package push that follows is what required them - the platform rejects an update
+    ///         that would strand those step registrations. Nothing has been written at this point,
+    ///         so the environment is left exactly as it was.
+    ///     </para>
+    /// </remarks>
+    /// <exception cref="OperationCanceledException">The removals were declined.</exception>
+    private void ConfirmRemovalsOrCancel(IEnumerable<ICrmComponent> components)
+    {
+        if (!DeploymentChangeSummary.RequiresRemovalConfirmation(components, _deployOptions.NoPrompt)) return;
+
+        // Defaults to no: this unregisters steps that are live in the environment.
+        if (!AnsiConsole.Confirm("Unregister these and push the package?", false))
+        {
+            throw new OperationCanceledException(
+                "Deployment cancelled: the unregistrations listed above were declined. " +
+                "Nothing has been written to the environment.");
+        }
     }
 
     /// <summary>
