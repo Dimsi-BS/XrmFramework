@@ -46,6 +46,22 @@
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);XrmFrameworkPackagePublishedFiles</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
 
+  <!--
+    Stamps the opt-in into the assembly itself, so the deployment can tell how the project was
+    built instead of being told a second time in xrmFramework.config.
+
+    The alternative - looking for a .nupkg next to the DLL - is only a proxy: a stale package left
+    by an earlier build would flip a deployment into package mode on its own, and that switch is a
+    re-registration (new pluginassembly row, new step ids). The marker travels inside the assembly
+    being deployed, so it cannot disagree with the binary it describes.
+
+    Read back by XrmFramework.PluginInventory, which already executes inside this assembly and
+    reports it in its manifest. Nothing loads the DLL just to read this.
+  -->
+  <ItemGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+    <AssemblyMetadata Include="XrmFrameworkPluginPackage" Value="true" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
     <!--
       Assemblies the Dataverse sandbox already provides. Shipping them invites a version conflict

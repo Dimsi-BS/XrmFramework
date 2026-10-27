@@ -18,6 +18,23 @@ namespace XrmFramework.DeployUtils.Factories
     public static class PluginInventoryReader
     {
         /// <summary>
+        ///     Whether the inventoried assembly was built as a Dataverse plugin package, as stamped
+        ///     into it by the packaging targets and reported by the inventory.
+        /// </summary>
+        /// <remarks>
+        ///     This is how the deployment learns the shape from the build itself rather than from a
+        ///     second declaration in <c>xrmFramework.config</c>. An assembly built before the marker
+        ///     existed, or by a project that never opted in, reports <see langword="false" /> - the
+        ///     <c>deployment</c> attribute still forces package mode for those.
+        /// </remarks>
+        public static bool ReadUsesPluginPackage(string manifestJson)
+        {
+            if (string.IsNullOrWhiteSpace(manifestJson)) return false;
+
+            return (JsonConvert.DeserializeObject<ManifestDto>(manifestJson) ?? new ManifestDto()).PluginPackage;
+        }
+
+        /// <summary>
         ///     Deserializes the JSON manifest and maps the plugins (and their steps) to the model.
         /// </summary>
         public static IReadOnlyList<Plugin> ReadPlugins(string manifestJson)
@@ -237,6 +254,7 @@ namespace XrmFramework.DeployUtils.Factories
 
         private sealed class ManifestDto
         {
+            [JsonProperty("pluginPackage")] public bool PluginPackage { get; set; }
             [JsonProperty("plugins")] public List<PluginDto> Plugins { get; set; } = new List<PluginDto>();
             [JsonProperty("workflows")] public List<WorkflowDto> Workflows { get; set; } = new List<WorkflowDto>();
             [JsonProperty("customApis")] public List<CustomApiDto> CustomApis { get; set; } = new List<CustomApiDto>();
