@@ -213,6 +213,8 @@ public partial class RegistrationHelper
 
         var registrationStrategy = _assemblyDiffFactory.ComputeDiffPatch(localAssembly, registeredAssembly);
 
+        PrintChangeSummary(registrationStrategy.ComponentsOrderedPool);
+
         _consoleService.SetStatus(@"Executing Registration Strategy...");
 
         ExecuteStrategy(registrationStrategy);
@@ -224,6 +226,62 @@ public partial class RegistrationHelper
             _assemblyExporter.AddComponentToSolution(registeredAssembly.AssemblyInfo);
         }
     }
+
+    /// <summary>
+    ///     Prints an explicit, human-readable list of every component that is about to be
+    ///     created, updated or deleted, so the changes a deployment is going to make are never silent.
+    /// </summary>
+    /// <param name="componentsPool">The full component pool, already flagged with a <see cref="RegistrationState" />.</param>
+    private static void PrintChangeSummary(IEnumerable<ICrmComponent> componentsPool)
+    {
+        var changes = componentsPool
+            .Where(c => c.RegistrationState is RegistrationState.ToCreate or RegistrationState.ToUpdate or RegistrationState.ToDelete)
+            .ToList();
+
+        AnsiConsole.WriteLine();
+
+        if (changes.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[grey]No changes detected: nothing to deploy.[/]");
+            AnsiConsole.WriteLine();
+            return;
+        }
+
+        AnsiConsole.MarkupLine("[bold]Changes to apply:[/]");
+
+        foreach (var component in changes)
+        {
+            var (verb, color) = component.RegistrationState switch
+            {
+                RegistrationState.ToCreate => ("Add", "green"),
+                RegistrationState.ToUpdate => ("Update", "yellow"),
+                RegistrationState.ToDelete => ("Remove", "red"),
+                _ => ("?", "grey")
+            };
+
+            AnsiConsole.MarkupLine($"  [{color}]{verb}[/] {Markup.Escape(DescribeComponent(component))}");
+        }
+
+        AnsiConsole.WriteLine();
+    }
+
+    /// <summary>
+    ///     Builds a short, human-readable description of a component for the change summary
+    ///     (e.g. <c>plugin 'MySolution.Plugins.AccountPlugin'</c>, <c>assembly 'MySolution.Plugins' (version 1.0.0.2)</c>).
+    /// </summary>
+    private static string DescribeComponent(ICrmComponent component) => component switch
+    {
+        AssemblyInfo assembly => $"assembly '{assembly.Name}' (version {assembly.Version})",
+        PluginPackage package => $"NuGet package '{package.Name}' (version {package.Version})",
+        Plugin { IsWorkflow: true } workflow => $"workflow activity '{workflow.DisplayName}'",
+        Plugin plugin => $"plugin '{plugin.FullName}'",
+        Step step => $"step '{step.Description}'",
+        StepImage image => $"{(image.IsPreImage ? "pre" : "post")}-image of step '{image.FatherStep.Description}'",
+        CustomApi api => $"Custom API '{api.Name}'",
+        CustomApiRequestParameter param => $"Custom API parameter '{param.UniqueName}'",
+        CustomApiResponseProperty prop => $"Custom API response property '{prop.UniqueName}'",
+        _ => $"{component.GetType().Name} '{component.UniqueName}'"
+    };
 
     /// <summary>
     ///     Rejects, before anything is written, what Dataverse does not support in a plugin package.
