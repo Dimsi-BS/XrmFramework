@@ -34,6 +34,10 @@ public sealed class DeployPluginsCommand : Command<DeployPluginsCommand.Settings
         [System.ComponentModel.Description("Project root containing the Config/ folder (default: current folder).")]
         public string ProjectRoot { get; init; } = ".";
 
+        [CommandOption("--package <PATH>")]
+        [System.ComponentModel.Description("Explicit .nupkg to push, overriding the one found next to the assembly. Only used when the project is configured with deployment=\"package\".")]
+        public string? PackagePath { get; init; }
+
         [CommandOption("--on-premise")]
         [System.ComponentModel.Description("Targets an On-Premises CRM (default: Dataverse Online).")]
         public bool OnPremise { get; init; }
@@ -56,6 +60,9 @@ public sealed class DeployPluginsCommand : Command<DeployPluginsCommand.Settings
             if (string.IsNullOrWhiteSpace(Project))
                 return ValidationResult.Error("The --project option is required.");
 
+            if (!string.IsNullOrWhiteSpace(PackagePath) && !File.Exists(PackagePath))
+                return ValidationResult.Error($"Plugin package not found: {PackagePath}");
+
             return ValidationResult.Success();
         }
     }
@@ -68,6 +75,7 @@ public sealed class DeployPluginsCommand : Command<DeployPluginsCommand.Settings
         // 2. Deploys: the assembly is NOT loaded in this net8 process; its path is passed
         //    to the net462 inventory tool (and its metadata read without runtime loading).
         return RegistrationHelper.RegisterPluginsAndWorkflows(
-            Path.GetFullPath(settings.DllPath!), settings.Project!, settings.OnPremise, settings.NoPrompt);
+            Path.GetFullPath(settings.DllPath!), settings.Project!, settings.OnPremise, settings.NoPrompt,
+            string.IsNullOrWhiteSpace(settings.PackagePath) ? null : Path.GetFullPath(settings.PackagePath!));
     }
 }

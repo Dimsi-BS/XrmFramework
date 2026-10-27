@@ -50,20 +50,34 @@ public class AssemblyInfo : BaseCrmComponent, IBindingModel, IAssemblyComponent
 		set => Name = value;
 	}
 
-	public new RegistrationState RegistrationState
+	/// <summary>
+	///     In package mode the <c>pluginassembly</c> row is created and maintained by Dataverse out of
+	///     the pushed package, so the framework must not write it: pushing the raw DLL as assembly
+	///     content would undo what the package put there. The state is therefore forced to
+	///     <see cref="Interfaces.RegistrationState.Computed" /> as soon as a package is attached, which
+	///     keeps the assembly out of the create/update/delete batches without touching the diff.
+	///     <para>
+	///         Overridden rather than shadowed: the pipeline walks components as
+	///         <see cref="ICrmComponent" />, so a <c>new</c> member would never be reached.
+	///     </para>
+	/// </summary>
+	public override RegistrationState RegistrationState
 	{
-		// If the package exists, it will be manipulated and I shouldn't touch the assembly
-		// get => Package == null
-		// 	? base.RegistrationState
-		// 	: RegistrationState.Computed;
-		get => base.RegistrationState;
+		get => Package == null
+			? base.RegistrationState
+			: Interfaces.RegistrationState.Computed;
 		set => base.RegistrationState = value;
 	}
 
-	public override IEnumerable<ICrmComponent> Children =>
-		Package == null
-			? Enumerable.Empty<ICrmComponent>()
-			: new[] {Package};
+	/// <summary>
+	///     Always empty, the package included. A plugin package is not registered through the
+	///     create/update/delete batches the diff produces: it has to be pushed on its own, before
+	///     them, because Dataverse answers that push by creating the very plugin types the steps in
+	///     those batches are registered against. Keeping it out of the assembly context's ordered
+	///     component pool is what lets the deployment own that ordering - <see cref="Package" />
+	///     stays reachable for it.
+	/// </summary>
+	public override IEnumerable<ICrmComponent> Children => Enumerable.Empty<ICrmComponent>();
 
 	public override void AddChild(ICrmComponent child)
 	{

@@ -1,0 +1,134 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    Plugin package (dependent assemblies) support.
+
+    Set <XrmFrameworkPluginPackage>true</XrmFrameworkPluginPackage> in the plugin project and a
+    plain `dotnet build` produces the NuGet package Dataverse expects in its pluginpackage table:
+    the plugin assembly AND its runtime dependencies, which is the only supported way to use a
+    third-party library in a plugin (Microsoft does not support ILMerge).
+
+    The mechanism mirrors Microsoft.PowerApps.MSBuild.Plugin: what gets packed is the PUBLISH
+    output, not the build output. Publishing is what resolves the runtime graph and drops the
+    dependencies - and only the dependencies - next to the assembly.
+
+    Everything lives in the .targets rather than a .props on purpose. A package's
+    build/<tfm>/*.props is imported before the project body, where XrmFrameworkPluginPackage has
+    not been set yet, so every condition on it would read false and nothing would apply. The
+    .targets is imported after the body; the properties below are all read at target-execution
+    time, which is later still, and `== ''` conditions keep the project able to override them.
+  -->
+
+  <PropertyGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+    <!-- One `dotnet build` is enough: no separate `dotnet pack` step for the developer. -->
+    <GeneratePackageOnBuild Condition="'$(XrmFrameworkPackageGenerateOnBuild)' != 'false'">true</GeneratePackageOnBuild>
+    <PublishOnBuild Condition="'$(PublishOnBuild)' == ''">true</PublishOnBuild>
+
+    <!-- Dataverse never restores the package, it unzips it. Declaring NuGet dependencies that are
+         already shipped inside the package only makes the manifest misleading. -->
+    <SuppressDependenciesWhenPacking Condition="'$(SuppressDependenciesWhenPacking)' == ''">true</SuppressDependenciesWhenPacking>
+
+    <!-- Signing is not required in a package, and it is actively harmful: a signed assembly
+         cannot consume an unsigned dependency, which is the whole point of packaging one. The
+         scaffolded solution turns SignAssembly on for every project, hence the override. -->
+    <SignAssembly Condition="'$(XrmFrameworkPackageSignAssembly)' != 'true'">false</SignAssembly>
+
+    <!-- The sandbox extracts the whole package, so a shipped .pdb gives plugin stack traces their
+         line numbers - something a classic assembly registration cannot offer. Off by default to
+         keep the package small. -->
+    <XrmFrameworkPackageIncludePdb Condition="'$(XrmFrameworkPackageIncludePdb)' == ''">false</XrmFrameworkPackageIncludePdb>
+
+    <!-- The .nupkg stays where NuGet puts it, bin/<Configuration>/, beside the TFM folders: one
+         package per project and configuration, multi-targeting included, so the deployment finds
+         it by looking next to the assembly and then one level up. NuGet freezes this path during
+         evaluation, so a project that wants it elsewhere has to set PackageOutputPath itself. -->
+
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);XrmFrameworkPackagePublishedFiles</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+    <!--
+      Assemblies the Dataverse sandbox already provides. Shipping them invites a version conflict
+      at load time - System.Text.Json being the documented example - so they are pruned from the
+      package even when the restore graph drops them in the publish folder.
+
+      These reach a plugin project transitively through Microsoft.CrmSdk.CoreAssemblies, which
+      XrmFramework declares as an ordinary dependency, so without this list a plugin package would
+      carry some fifteen assemblies the server ignores at best.
+
+      Override per project by name, e.g.:
+        <XrmFrameworkSandboxProvidedAssemblyName Remove="System.Text.Json" />
+    -->
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Xrm.Sdk" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Xrm.Sdk.Workflow" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Xrm.Sdk.Deployment" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Crm.Sdk.Proxy" />
+    <!-- Pulled in by the plugin props as a copy-local framework reference, for workflow
+         activities. Part of the .NET Framework in the sandbox. -->
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Activities" />
+    <!-- Transitive closure of Microsoft.CrmSdk.CoreAssemblies. -->
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Bcl.AsyncInterfaces" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Buffers" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Memory" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Numerics.Vectors" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Runtime.CompilerServices.Unsafe" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.ServiceModel.Http" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.ServiceModel.Primitives" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Text.Encodings.Web" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Text.Json" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Threading.Tasks.Extensions" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.ValueTuple" />
+  </ItemGroup>
+
+  <!--
+    Replaces the default build output of the package with the published files.
+    IncludeBuildOutput has to be turned off from inside this target: setting it any earlier stops
+    every TFM build output target from running, this one included.
+  -->
+  <Target Name="XrmFrameworkPackagePublishedFiles" Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+    <Error Condition="!Exists('$(PublishDir)')"
+           Text="The publish folder '$(PublishDir)' does not exist, so the plugin package would be empty. Build with PublishOnBuild=true, or publish before packing." />
+
+    <!-- Resolved first, on its own: an element that both transforms this list and declares
+         %(FullPath) metadata batches over the wrong item and packs nonsense paths. -->
+    <ItemGroup>
+      <_XrmFrameworkPrunedAssembly Include="@(XrmFrameworkSandboxProvidedAssemblyName->'$(PublishDir)%(Identity).dll')" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_XrmFrameworkPackageFile Include="$(PublishDir)*.dll" Exclude="@(_XrmFrameworkPrunedAssembly)" />
+      <_XrmFrameworkPackageFile Include="$(PublishDir)*.pdb"
+                                Condition="'$(XrmFrameworkPackageIncludePdb)' == 'true'" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <!--
+        FinalOutputPath is what makes `dotnet build` produce a FRESH package after a code change.
+        NuGet decides whether to re-run GenerateNuspec by comparing @(NuGetPackInput) against the
+        existing .nupkg, and it builds that input list as
+        @(_BuildOutputInPackage->'%(FinalOutputPath)'). Without this metadata the transform yields
+        nothing, pack believes it has no inputs, considers itself up to date - and leaves a .nupkg
+        holding the PREVIOUS build of the assembly. The deployment would then push stale code and
+        report success. Microsoft.PowerApps.MSBuild.Plugin omits it too; don't take that as a
+        reason to drop it.
+      -->
+      <BuildOutputInPackage Include="@(_XrmFrameworkPackageFile)" FinalOutputPath="%(FullPath)" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <IncludeBuildOutput>false</IncludeBuildOutput>
+    </PropertyGroup>
+
+    <Message Importance="normal" Text="Plugin package contents: @(BuildOutputInPackage->'%(Filename)%(Extension)', ', ')" />
+  </Target>
+
+  <!--
+    Publishing is normally a separate command. Hooking it onto Build keeps the whole thing a
+    single `dotnet build`, and runs it before the Pack that GeneratePackageOnBuild schedules.
+  -->
+  <Target Name="XrmFrameworkPublishBeforePack"
+          AfterTargets="Build"
+          Condition="'$(XrmFrameworkPluginPackage)' == 'true' and '$(PublishOnBuild)' == 'true'"
+          DependsOnTargets="Publish" />
+
+</Project>

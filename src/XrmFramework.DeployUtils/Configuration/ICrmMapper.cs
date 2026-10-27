@@ -40,6 +40,13 @@ public interface ICrmMapper
 
     PluginAssembly ToRemote(AssemblyInfo source);
     Deploy.PluginPackage ToRemote(PluginPackage source);
+
+    /// <summary>
+    ///     Maps a <see cref="PluginPackage" /> for an UPDATE: the id and the content, nothing else.
+    ///     The name and version of a plugin package cannot be changed once it exists, and sending
+    ///     them again makes the platform reject the whole request.
+    /// </summary>
+    Deploy.PluginPackage ToRemoteContentUpdate(PluginPackage source);
     Deploy.CustomApi ToRemote(CustomApi source);
     Deploy.CustomApiRequestParameter ToRemote(CustomApiRequestParameter source);
     Deploy.CustomApiResponseProperty ToRemote(CustomApiResponseProperty source);

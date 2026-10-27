@@ -83,12 +83,12 @@ public interface IRegistrationService : IOrganizationService
 	ICollection<SdkMessageProcessingStep> GetRegisteredSteps(Guid assemblyId);
 
 	/// <summary>
-	///     Retrieves all <see cref="Deploy.PluginPackage" /> that can be linked with the Remote Assembly of Id
-	///     <paramref name="assemblyId" />
+	///     Retrieves the registered <see cref="PluginPackage" /> whose unique name is
+	///     <paramref name="uniqueName" />, or <see langword="null" /> when the package has never been
+	///     pushed to this environment.
 	/// </summary>
-	/// <param name="assemblyId"></param>
-	/// <returns></returns>
-	PluginPackage GetRegisteredPackage(Guid assemblyId);
+	/// <param name="uniqueName">The prefixed unique name, e.g. <c>dim_MyProject.Plugins</c>.</param>
+	PluginPackage GetPackageByUniqueName(string uniqueName);
 
 	/// <summary>
 	///     Retrieves all <see cref="Entity" /> that match the given <paramref name="query" /> <see cref="QueryExpression" />
