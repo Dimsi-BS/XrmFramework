@@ -466,7 +466,7 @@ xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <d
 | `--dll <PATH>` | ✅ | Plugin project assembly (`net462`, the one registered in Dataverse). |
 | `--project <NAME>` | ✅ | Project name as declared in `xrmFramework.config` (e.g. `Plugins`). |
 | `--project-root <DIR>` | ❌ | Root containing the `Config/` folder (default: current folder). |
-| `--package <PATH>` | ❌ | Explicit `.nupkg` to push, overriding the one found next to the assembly. Only read for a project configured with `deployment="Package"`. |
+| `--package <PATH>` | ❌ | Explicit `.nupkg` to push, overriding the one found next to the assembly. Only read for a project built as a package. |
 | `--on-premise` | ❌ | Targets an On-Premises CRM (default: Dataverse Online). |
 | `-n`, `--noprompt`, `-NoPrompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). `-NoPrompt` (any casing) is kept for backward compatibility with the deployment scripts written against that spelling. |
 
@@ -509,10 +509,10 @@ Two things to set, once:
 </PropertyGroup>
 ```
 
-```xml
-<!-- Config/xrmFramework.config -->
-<add name="MyProject.Plugins" targetSolution="MySolution" type="PluginsWorkflows" deployment="Package" />
-```
+Nothing to declare in `xrmFramework.config`: the packaging targets stamp the opt-in into the
+assembly, and the deployment reads it there, so the shape always matches the binary being pushed.
+The `deployment="Package"` attribute still forces the mode, for an assembly built before the
+marker existed.
 
 **The workflow does not change**: build the solution, then run the `Deploy.*` project — exactly
 as in assembly mode. Publishing and packing are hooked onto the build, so building the `Deploy.*`
@@ -534,7 +534,7 @@ assembly cannot load an unsigned dependency.
 Platform limitations, which the deployment refuses up front rather than failing halfway:
 
 - **custom workflow activities are not supported** in a package — keep them in a separate,
-  signed assembly project left on `deployment="Assembly"`;
+  signed assembly project that does not opt in;
 - **on-premise is not supported**;
 - the package's **name and version are frozen** once created, so only its content is updated
   afterwards.

@@ -46,7 +46,7 @@ internal partial class AssemblyFactory : IAssemblyFactory
 			AssemblyInfo = GetLocalAssemblyInfo(dllPath)
 		};
 
-		if (_deploySettings.UsePluginPackage)
+		if (UsesPluginPackage(json))
 			AttachLocalPackage(localAssembly.AssemblyInfo, dllPath);
 
 		foreach (var plugin in PluginInventoryReader.ReadPlugins(json))
@@ -62,6 +62,23 @@ internal partial class AssemblyFactory : IAssemblyFactory
 
 		return localAssembly;
 	}
+
+	/// <summary>
+	///     Whether this deployment runs in package mode.
+	/// </summary>
+	/// <remarks>
+	///     The assembly decides. The packaging targets stamp the opt-in into it, so a project built
+	///     with <c>&lt;XrmFrameworkPluginPackage&gt;true&lt;/XrmFrameworkPluginPackage&gt;</c> deploys
+	///     as a package without having to say so a second time in <c>xrmFramework.config</c> - and a
+	///     project that was not built that way cannot be pushed as one by a configuration mistake.
+	///     <para>
+	///         <c>deployment="package"</c> still forces it, for assemblies built before the marker
+	///         existed. It is no longer required, and the mismatch it used to allow - configured for
+	///         package, built as a plain assembly - is now reported by the <c>.nupkg</c> lookup.
+	///     </para>
+	/// </remarks>
+	private bool UsesPluginPackage(string manifestJson)
+		=> PluginInventoryReader.ReadUsesPluginPackage(manifestJson) || _deploySettings.UsePluginPackage;
 
 	/// <summary>
 	///     Reads the <c>.nupkg</c> built next to <paramref name="dllPath" /> and hangs it under the

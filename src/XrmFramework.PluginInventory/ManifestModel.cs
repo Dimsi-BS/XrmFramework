@@ -72,10 +72,13 @@ namespace XrmFramework.PluginInventory
 
     internal static class ManifestJson
     {
-        public static string Build(List<PluginInfo> plugins, List<WorkflowInfo> workflows, List<CustomApiInfo> customApis)
+        public static string Build(List<PluginInfo> plugins, List<WorkflowInfo> workflows,
+            List<CustomApiInfo> customApis, bool usesPluginPackage = false)
         {
             var sb = new StringBuilder();
-            sb.Append("{\"plugins\":[");
+            // First, and outside the three collections: it describes the assembly, not its contents.
+            sb.Append("{\"pluginPackage\":").Append(usesPluginPackage ? "true" : "false")
+              .Append(",\"plugins\":[");
             for (var pi = 0; pi < plugins.Count; pi++)
             {
                 var p = plugins[pi];

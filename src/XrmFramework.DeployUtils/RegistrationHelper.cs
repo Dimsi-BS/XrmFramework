@@ -18,6 +18,7 @@ using XrmFramework.DeployUtils.Exporters;
 using XrmFramework.DeployUtils.Factories;
 using XrmFramework.DeployUtils.Model;
 using XrmFramework.DeployUtils.Model.Interfaces;
+using XrmFramework.DeployUtils.Reporting;
 using XrmFramework.DeployUtils.Service;
 using IAssemblyFactory = XrmFramework.DeployUtils.Factories.IAssemblyFactory;
 
@@ -159,7 +160,9 @@ public partial class RegistrationHelper
             AnsiConsole.WriteLine($"Target    : {deploySettings.Url}");
             AnsiConsole.WriteLine($"ClientId  : {deploySettings.ClientId}");
             AnsiConsole.WriteLine($"OnPremise : {(isOnPremise ? "yes" : "no")}");
-            AnsiConsole.WriteLine($"Deploy as : {(deploySettings.UsePluginPackage ? "plugin package" : "plugin assembly")}");
+            // "Deploy as" is not printed here any more: the shape now comes from the assembly's own
+            // marker, which is only known once the inventory has run. Register prints it then,
+            // rather than restating a configuration that no longer decides.
 
             // ── Interactive confirmation (unless silent mode) ────────────────
             if (!deployOptions.NoPrompt && !AnsiConsole.Confirm("Continue the deployment?"))
@@ -176,6 +179,13 @@ public partial class RegistrationHelper
             var registrationHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
             registrationHelper.Register(dllPath);
 
+            return 0;
+        }
+        catch (OperationCanceledException ex)
+        {
+            // A declined confirmation is a choice, not a failure. Nothing has been written when it
+            // is raised, and a non-zero code would fail a pipeline that did exactly as it was told.
+            AnsiConsole.MarkupLine($"[yellow]{Markup.Escape(ex.Message)}[/]");
             return 0;
         }
         catch (Exception ex)
@@ -199,6 +209,8 @@ public partial class RegistrationHelper
 
         var localPackage = localAssembly.AssemblyInfo.Package;
 
+        AnsiConsole.WriteLine($"Deploy as : {(localPackage != null ? "plugin package" : "plugin assembly")}");
+
         if (localPackage != null)
         {
             GuardPackageMode(localAssembly);
@@ -213,6 +225,8 @@ public partial class RegistrationHelper
 
         var registrationStrategy = _assemblyDiffFactory.ComputeDiffPatch(localAssembly, registeredAssembly);
 
+        PrintChangeSummary(registrationStrategy.ComponentsOrderedPool);
+
         _consoleService.SetStatus(@"Executing Registration Strategy...");
 
         ExecuteStrategy(registrationStrategy);
@@ -223,6 +237,23 @@ public partial class RegistrationHelper
             // along: it is added here, now that the platform has actually created the row.
             _assemblyExporter.AddComponentToSolution(registeredAssembly.AssemblyInfo);
         }
+    }
+
+    /// <summary>
+    ///     Prints an explicit, human-readable list of every component that is about to be
+    ///     created, updated or deleted, so the changes a deployment is going to make are never silent.
+    /// </summary>
+    /// <param name="componentsPool">The full component pool, already flagged with a <see cref="RegistrationState" />.</param>
+    private static void PrintChangeSummary(IEnumerable<ICrmComponent> componentsPool)
+    {
+        AnsiConsole.WriteLine();
+
+        foreach (var line in DeploymentChangeSummary.BuildLines(componentsPool))
+        {
+            AnsiConsole.MarkupLine(line);
+        }
+
+        AnsiConsole.WriteLine();
     }
 
     /// <summary>
@@ -286,7 +317,68 @@ public partial class RegistrationHelper
 
         if (orphanedComponents.Count == 0) return;
 
+        PrintRemovalSummary(orphanedComponents);
+        ConfirmRemovalsOrCancel(orphanedComponents);
+
         _assemblyExporter.DeleteAllComponents(orphanedComponents);
+    }
+
+    /// <summary>
+    ///     Asks whether to go ahead with the unregistrations a package push requires.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Only reached when something is actually about to be removed, so a deployment that
+    ///         adds and updates still runs end to end without a second prompt.
+    ///     </para>
+    ///     <para>
+    ///         Skipped under <c>--noprompt</c>, the same way the connection confirmation is: that
+    ///         switch exists for CI, where there is nobody to answer and a blocked prompt would
+    ///         hang the agent.
+    ///     </para>
+    ///     <para>
+    ///         Declining cancels the whole deployment rather than just the removals, because the
+    ///         package push that follows is what required them - the platform rejects an update
+    ///         that would strand those step registrations. Nothing has been written at this point,
+    ///         so the environment is left exactly as it was.
+    ///     </para>
+    /// </remarks>
+    /// <exception cref="OperationCanceledException">The removals were declined.</exception>
+    private void ConfirmRemovalsOrCancel(IEnumerable<ICrmComponent> components)
+    {
+        if (!DeploymentChangeSummary.RequiresRemovalConfirmation(components, _deployOptions.NoPrompt)) return;
+
+        // Defaults to no: this unregisters steps that are live in the environment.
+        if (!AnsiConsole.Confirm("Unregister these and push the package?", false))
+        {
+            throw new OperationCanceledException(
+                "Deployment cancelled: the unregistrations listed above were declined. " +
+                "Nothing has been written to the environment.");
+        }
+    }
+
+    /// <summary>
+    ///     Prints what is about to be unregistered to let the package push through.
+    /// </summary>
+    /// <remarks>
+    ///     These deletions happen before the diff is computed, so the change summary never sees
+    ///     them: without this they are the one part of a package deployment that writes - and
+    ///     unregisters live steps at that - without saying so.
+    /// </remarks>
+    private static void PrintRemovalSummary(IEnumerable<ICrmComponent> components)
+    {
+        var lines = DeploymentChangeSummary.BuildRemovalLines(components);
+
+        if (lines.Count == 0) return;
+
+        AnsiConsole.WriteLine();
+
+        foreach (var line in lines)
+        {
+            AnsiConsole.MarkupLine(line);
+        }
+
+        AnsiConsole.WriteLine();
     }
 
     /// <summary>
