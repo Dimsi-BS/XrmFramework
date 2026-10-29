@@ -75,6 +75,11 @@ public class AssemblyImporter : IAssemblyImporter
 
     public IAssemblyContext CreateAssemblyFromRemote(AssemblyInfo assemblyInfo)
     {
+        // Nothing registered yet: no context at all, rather than one wrapping a null AssemblyInfo.
+        // The diff reads "no context" as "everything has to be created"; a context whose assembly
+        // row is missing looks deployed and blows up as soon as its id is read.
+        if (assemblyInfo == null) return null;
+
         return new AssemblyContext { AssemblyInfo = assemblyInfo };
     }
 
