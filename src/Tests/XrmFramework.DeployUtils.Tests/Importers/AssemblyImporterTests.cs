@@ -43,4 +43,17 @@ public class AssemblyImporterTests
             Assert.That(info.IsolationMode, Is.EqualTo(IsolationMode.Sandbox));
         });
     }
+
+    /// <summary>
+    /// An assembly that is not registered yet has no context at all. Returning a context wrapping a
+    /// null <see cref="AssemblyInfo" /> made the diff believe the assembly was deployed, and the
+    /// first deployment of any assembly failed on reading its id.
+    /// </summary>
+    [Test]
+    public void CreateAssemblyFromRemote_WithoutAssemblyInfo_ReturnsNoContext()
+    {
+        var importer = new AssemblyImporter(null, null);
+
+        Assert.That(importer.CreateAssemblyFromRemote((AssemblyInfo) null), Is.Null);
+    }
 }

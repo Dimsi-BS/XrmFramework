@@ -39,11 +39,12 @@ internal interface IAssemblyImporter
 
 	/// <summary>
 	///     Creates a <see cref="IAssemblyContext" /> with only the <see cref="AssemblyInfo" /> Property computed from a
-	///     <see cref="Deploy.PluginAssembly" />
+	///     remote <see cref="AssemblyInfo" />
 	/// </summary>
 	/// <param name="assemblyInfo"></param>
 	/// <returns>
-	///     <see cref="IAssemblyContext" />
+	///     <see cref="IAssemblyContext" />, or <see langword="null" /> when <paramref name="assemblyInfo" /> is
+	///     <see langword="null" />, meaning the assembly is not registered yet
 	/// </returns>
 	IAssemblyContext CreateAssemblyFromRemote(AssemblyInfo assemblyInfo);
 
