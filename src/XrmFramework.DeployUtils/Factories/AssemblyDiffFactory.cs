@@ -35,7 +35,9 @@ public class AssemblyDiffFactory
 		//Clone the from AssemblyContext
 		var fromCopy = _mapper.Clone(from);
 
-		if (target == null)
+		// No target, or a target without its pluginassembly row: nothing is deployed, so everything
+		// the local assembly carries has to be created.
+		if (target?.AssemblyInfo == null)
 		{
 			FlagAllAssemblyContext(fromCopy, RegistrationState.ToCreate);
 			return fromCopy;

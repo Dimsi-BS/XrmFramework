@@ -234,8 +234,13 @@ public partial class RegistrationHelper
         if (localPackage != null)
         {
             // The pluginassembly row belongs to the package, but solution membership does not come
-            // along: it is added here, now that the platform has actually created the row.
-            _assemblyExporter.AddComponentToSolution(registeredAssembly.AssemblyInfo);
+            // along: it is added here, now that the platform has actually created the row. On a
+            // first push there was no row to read before the package went in, so it is fetched now.
+            var packagedAssembly = registeredAssembly?.AssemblyInfo
+                                   ?? _assemblyFactory.GetRemoteAssemblyInfo(_registrationService,
+                                       localAssembly.AssemblyInfo.Name);
+
+            if (packagedAssembly != null) _assemblyExporter.AddComponentToSolution(packagedAssembly);
         }
     }
 
