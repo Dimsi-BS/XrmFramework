@@ -26,6 +26,20 @@
 
         <file src="bin\$config$\netstandard2.0\XrmFramework.TypeScript.dll" target="build\netstandard2.0\" />
 
+        <!--
+            The .table files the framework ships, the same ones the XrmFramework package packs under
+            content\tables and hands to the C# source generator. The TypeScript definitions are
+            generated from them alongside the project's own copies, so that both generators fold the
+            same declarations: without them, a table the project tracks a copy of was described to
+            TypeScript by that copy alone.
+
+            Shipped here rather than taken from the XrmFramework package, which a WebResources
+            project deliberately does not reference — doing so would drag the Dataverse client into
+            a web project for four files of JSON. Both packages are built from these same sources
+            and released under one version, so the two copies cannot skew.
+        -->
+        <file src="..\XrmFramework\Definitions\**\*.table" target="build\netstandard2.0\tables\" />
+
         <file src="lib\**" target="lib" />
 
     </files>
