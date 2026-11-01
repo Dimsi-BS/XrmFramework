@@ -148,7 +148,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "filteringattributes",
@@ -300,7 +301,8 @@
         }
       ],
       "StrLen": 256,
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "organizationid",
@@ -333,7 +335,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "rank",
@@ -373,7 +376,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "sdkmessageid",
@@ -395,7 +399,8 @@
       "PrimaryType": "Id",
       "Capa": 5,
       "Labels": [],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "sdkmessageprocessingstepidunique",
@@ -440,7 +445,8 @@
         }
       ],
       "EnumName": "sdkmessageprocessingstep|stage",
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "statecode",

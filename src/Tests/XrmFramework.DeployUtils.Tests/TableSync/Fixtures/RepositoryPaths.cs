@@ -16,6 +16,9 @@ public static class RepositoryPaths
     public static string ShippedDefinitionsDirectory
         => FindDirectory(Path.Combine("src", "XrmFramework", "Definitions"));
 
+    /// <summary>Root of the framework's sources, for tests that read the code itself.</summary>
+    public static string SourceDirectory => FindDirectory("src");
+
     /// <summary>
     /// Walks up from the test output directory until it finds the repository root,
     /// identified by the presence of the sought-after relative path.

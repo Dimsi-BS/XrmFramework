@@ -119,7 +119,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "description",
@@ -208,7 +209,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "isprivate",
@@ -359,7 +361,8 @@
           "Label": "Plugin Type",
           "LangId": 1036
         }
-      ]
+      ],
+      "Locked": true
     },
     {
       "LogName": "sdkmessageid",
