@@ -84,4 +84,149 @@ public class FrameworkTableCatalogTests
         Assert.IsFalse(FrameworkTableCatalog.IsFrameworkTable("WebResource", "webresource"));
         Assert.IsFalse(FrameworkTableCatalog.IsFrameworkTable("Publisher", "publisher"));
     }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // Seeding the locks
+    // ══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// A project's copy of <c>team</c> as a pull leaves it: the columns it cares about, named after
+    /// the CRM schema names, and no lock anywhere — the environment knows nothing of locks.
+    /// </summary>
+    private static Table ProjectCopyOfTeam()
+    {
+        var table = new Table { LogicalName = "team", Name = "Team", CollectionName = "teams" };
+
+        table.Columns.Add(new Column
+        {
+            LogicalName = "teamtype", Name = "TeamType", Selected = true, EnumName = "team|teamtype"
+        });
+        table.Columns.Add(new Column { LogicalName = "name", Name = "Name", Selected = true });
+        table.Columns.Add(new Column { LogicalName = "dpp_custom", Name = "Custom", Selected = true });
+
+        table.Enums.Add(new OptionSetEnum { LogicalName = "team|teamtype", Name = "TypeDEquipe" });
+
+        return table;
+    }
+
+    [Test]
+    public void SeedLocks_NullTable_SeedsNothing()
+    {
+        Assert.AreEqual(0, FrameworkTableCatalog.SeedLocks(null));
+    }
+
+    [Test]
+    public void SeedLocks_TableTheFrameworkDoesNotShip_SeedsNothing()
+    {
+        var table = new Table { LogicalName = "contact", Name = "Contact" };
+        table.Columns.Add(new Column { LogicalName = "firstname", Name = "FirstName", Selected = true });
+
+        Assert.AreEqual(0, FrameworkTableCatalog.SeedLocks(table));
+        Assert.IsFalse(table.Columns.Single().IsLocked);
+    }
+
+    /// <summary>
+    /// The case that started this: the framework ships <c>teamtype</c> locked under the name its own
+    /// code refers to, while the project's copy called it something else and knew of no lock.
+    /// </summary>
+    [Test]
+    public void SeedLocks_ProjectCopyOfAFrameworkTable_LocksTheColumnAndRestoresItsName()
+    {
+        var table = ProjectCopyOfTeam();
+
+        Assert.IsTrue(FrameworkTableCatalog.SeedLocks(table) > 0);
+
+        var teamType = table.Columns.Single(c => c.LogicalName == "teamtype");
+
+        Assert.AreEqual("Type", teamType.Name);
+        Assert.IsTrue(teamType.IsLocked);
+        Assert.IsTrue(table.IsLocked, "the shipped table is locked, so the project's copy is too");
+    }
+
+    [Test]
+    public void SeedLocks_ProjectCopyOfAFrameworkTable_LocksTheOptionSetAndRestoresItsName()
+    {
+        var table = ProjectCopyOfTeam();
+
+        FrameworkTableCatalog.SeedLocks(table);
+
+        var optionSet = table.Enums.Single(e => e.LogicalName == "team|teamtype");
+
+        Assert.AreEqual("TeamType", optionSet.Name);
+        Assert.IsTrue(optionSet.IsLocked);
+    }
+
+    /// <summary>
+    /// The project's own columns are what its copy exists for: seeding must not touch them.
+    /// </summary>
+    [Test]
+    public void SeedLocks_LeavesTheProjectsOwnColumnsAlone()
+    {
+        var table = ProjectCopyOfTeam();
+
+        FrameworkTableCatalog.SeedLocks(table);
+
+        var custom = table.Columns.Single(c => c.LogicalName == "dpp_custom");
+
+        Assert.AreEqual("Custom", custom.Name);
+        Assert.IsFalse(custom.IsLocked);
+    }
+
+    /// <summary>
+    /// A locked column the project does not track stays out: the framework's own copy declares it,
+    /// and adding it here would widen the project's generated surface on its behalf.
+    /// </summary>
+    [Test]
+    public void SeedLocks_DoesNotAddALockedColumnTheCopyDoesNotTrack()
+    {
+        var table = ProjectCopyOfTeam();
+        var before = table.Columns.Count;
+
+        FrameworkTableCatalog.SeedLocks(table);
+
+        Assert.AreEqual(before, table.Columns.Count);
+        Assert.IsFalse(table.Columns.Any(c => c.LogicalName == "businessunitid"),
+                       "businessunitid is locked by the framework but absent from this copy");
+    }
+
+    /// <summary>
+    /// Every pull seeds, so a second one must find nothing left to do — otherwise each retrieval
+    /// would report work it did not perform.
+    /// </summary>
+    [Test]
+    public void SeedLocks_IsIdempotent()
+    {
+        var table = ProjectCopyOfTeam();
+
+        var first = FrameworkTableCatalog.SeedLocks(table);
+
+        Assert.IsTrue(first > 0);
+        Assert.AreEqual(0, FrameworkTableCatalog.SeedLocks(table));
+    }
+
+    /// <summary>
+    /// The shipped <c>.table</c> files must be readable from the installed tool, which has no
+    /// repository to read them from: they travel as embedded resources, and this is what notices
+    /// when one stops being embedded.
+    /// </summary>
+    [Test]
+    public void SeedLocks_ReadsEveryShippedTableThatLocksAColumn()
+    {
+        var checked_ = 0;
+
+        foreach (var shipped in ShippedTables().Where(t => t.Columns.Any(c => c.IsLocked)))
+        {
+            var lockedColumn = shipped.Columns.First(c => c.IsLocked);
+
+            var table = new Table { LogicalName = shipped.LogicalName, Name = shipped.Name };
+            table.Columns.Add(new Column { LogicalName = lockedColumn.LogicalName, Name = "Renamed" });
+
+            Assert.IsTrue(FrameworkTableCatalog.SeedLocks(table) > 0,
+                          $"{shipped.Name} locks columns but seeds nothing — is it still embedded?");
+            Assert.AreEqual(lockedColumn.Name, table.Columns.Single().Name);
+            checked_++;
+        }
+
+        Assert.IsTrue(checked_ > 0, "no shipped table locks a column — this test would prove nothing");
+    }
 }
