@@ -19,6 +19,25 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
     </PropertyGroup>
 
+    <!--
+        The TypeScript definitions are generated from the very .table files the C# source generator
+        reads, so they have to be read through the same model and folded by the same rules: the
+        framework's copy of a table and the project's copy of it are two declarations of one table.
+        A model of its own silently drifted from XrmFramework.Core — a locked name honoured on the
+        C# side and ignored here, among others.
+
+        Linked by source rather than referenced as an assembly, exactly as XrmFramework.Analyzers
+        does for the same reason: XrmFramework.Core depends on the Dataverse client, which has no
+        business being loaded into the MSBuild process, and none of the model types needs it.
+    -->
+    <ItemGroup>
+        <Compile Include="..\XrmFramework.Core\**\*.cs"
+                 Link="_Imports\XrmFramework.Core\%(RecursiveDir)%(Filename)%(Extension)"
+                 Exclude="..\XrmFramework.Core\bin\**;..\XrmFramework.Core\obj\**" />
+
+        <Compile Include="..\XrmFramework\Utils\SdkEnums.cs" Link="_Imports\XrmFramework.Core\SdkEnums.cs" />
+    </ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="Microsoft.Build.Framework" />
         <PackageReference Include="Microsoft.Build.Utilities.Core" />
