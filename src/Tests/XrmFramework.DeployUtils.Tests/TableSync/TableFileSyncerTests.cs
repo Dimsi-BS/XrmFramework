@@ -420,6 +420,59 @@ public class TableFileSyncerTests
             "Missing columns must be added just like on any other table.");
     }
 
+    /// <summary>
+    /// The analyzed DLL carries no lock -- the generated code never spells them out -- and the
+    /// project's copy was pulled under the CRM schema names, so this is where the locks the
+    /// framework ships reach the file. Nothing but this notices if that call goes away.
+    /// </summary>
+    [Test]
+    public void Sync_OfAFrameworkTable_SeedsTheShippedLocks()
+    {
+        WriteTable("Team", BuildTable("team", "Team", "teams",
+            new Column { LogicalName = "teamtype", Name = "TeamType", Selected = true }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { TeamDef() });
+
+        var teamType = LoadTable("Team").Columns.Single(c => c.LogicalName == "teamtype");
+
+        Assert.AreEqual("Type", teamType.Name,
+            "the framework ships teamtype under the name its own code refers to");
+        Assert.IsTrue(teamType.IsLocked);
+        Assert.IsTrue(LoadTable("Team").IsLocked, "the shipped team table is locked");
+    }
+
+    /// <summary>
+    /// The name carried over from the DLL and the locked name disagree here, which is the whole
+    /// point: activating a column must not be what reinstates a name the framework owns.
+    /// </summary>
+    [Test]
+    public void Sync_OfAFrameworkTable_PrefersTheLockedName_OverTheOneFromTheDll()
+    {
+        // Not selected, so the activation pass writes the DLL's name onto it first.
+        WriteTable("Team", BuildTable("team", "Team", "teams",
+            new Column { LogicalName = "teamtype", Name = "Renamed", Selected = false }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { TeamDef() });
+
+        var teamType = LoadTable("Team").Columns.Single(c => c.LogicalName == "teamtype");
+
+        Assert.IsTrue(teamType.Selected, "the column is referenced by the code, so it is activated");
+        Assert.AreEqual("Type", teamType.Name);
+        Assert.IsTrue(teamType.IsLocked);
+    }
+
+    [Test]
+    public void Sync_OfAProjectTable_SeedsNothing()
+    {
+        WriteTable("Contact", BuildTable("contact", "Contact", "contacts",
+            new Column { LogicalName = "firstname", Name = "FirstName", Selected = true }));
+
+        new TableFileSyncer(_tempDir).Sync(new[] { ContactDef() });
+
+        Assert.IsFalse(LoadTable("Contact").IsLocked);
+        Assert.IsFalse(LoadTable("Contact").Columns.Any(c => c.IsLocked));
+    }
+
     [Test]
     public void Sync_PreservesLockedMarker_OnFrameworkColumn()
     {
@@ -864,6 +917,21 @@ public class TableFileSyncerTests
         {
             new("systemuserid", "Id"),
             new("fullname",     "FullName")
+        }
+    };
+
+    /// <summary>
+    /// team as the generated code describes it: the column the project activated, under the name
+    /// that project's .table gave it. The framework's own copy locks it as Type.
+    /// </summary>
+    private static DefinitionInfo TeamDef() => new()
+    {
+        TableName = "Team",
+        EntityName = "team",
+        EntityCollectionName = "teams",
+        Columns = new List<DefinitionColumnInfo>
+        {
+            new("teamtype", "TeamType")
         }
     };
 

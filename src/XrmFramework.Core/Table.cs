@@ -66,6 +66,11 @@ namespace XrmFramework.Core
         /// already in place wins. The members always stay those of that same copy.
         /// </para>
         /// <para>
+        /// Unless the option set is locked, in which case <see cref="LockArbitration.LockedName" />
+        /// settles it ahead of the selection: a locked name belongs to the framework shipping it,
+        /// not to the project tracking a copy of the table.
+        /// </para>
+        /// <para>
         /// Relationships are folded in the same way, so that <see cref="RelationSelector" /> decides on
         /// the union of what both copies declare: the project's copy of <c>account</c> knows the 1:N
         /// towards a table the framework's copy never heard of, and the other way around.
@@ -104,6 +109,19 @@ namespace XrmFramework.Core
                 if (existingOptionSet == null)
                 {
                     existingEntity.Enums.Add(optionSet);
+                    continue;
+                }
+
+                // The lock describes the option set, not the copy that happened to be loaded
+                // first: it survives the fold either way round.
+                var lockedName = LockArbitration.LockedName(existingOptionSet.IsLocked, existingOptionSet.Name,
+                                                            optionSet.IsLocked, optionSet.Name);
+
+                existingOptionSet.IsLocked |= optionSet.IsLocked;
+
+                if (lockedName != null)
+                {
+                    existingOptionSet.Name = lockedName;
                 }
                 else if (!string.IsNullOrEmpty(optionSet.Name)
                          && selectedByThis.Contains(optionSet.LogicalName)

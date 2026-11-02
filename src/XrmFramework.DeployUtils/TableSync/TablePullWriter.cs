@@ -14,12 +14,14 @@ namespace XrmFramework.DeployUtils.TableSync
     public sealed class TablePullOutcome
     {
         internal TablePullOutcome(
-            string filePath, bool created, CoreTable table, IReadOnlyList<Column> columnsMissingFromCrm)
+            string filePath, bool created, CoreTable table, IReadOnlyList<Column> columnsMissingFromCrm,
+            int seededLocks)
         {
             FilePath = filePath;
             Created = created;
             Table = table;
             ColumnsMissingFromCrm = columnsMissingFromCrm;
+            SeededLocks = seededLocks;
         }
 
         /// <summary>Path of the written file.</summary>
@@ -36,6 +38,12 @@ namespace XrmFramework.DeployUtils.TableSync
         /// kept: a retrieval refreshes, it does not destroy.
         /// </summary>
         public IReadOnlyList<Column> ColumnsMissingFromCrm { get; }
+
+        /// <summary>
+        /// Declarations whose lock the framework ships and this retrieval carried onto the file;
+        /// see <see cref="FrameworkTableCatalog.SeedLocks" />.
+        /// </summary>
+        public int SeededLocks { get; }
     }
 
     /// <summary>
@@ -69,10 +77,15 @@ namespace XrmFramework.DeployUtils.TableSync
             var merged = TableMerger.Merge(existing, freshTable);
             var missing = TableMerger.GetColumnsMissingFromCrm(existing, freshTable);
 
+            // The locks belong to the framework: the environment knows nothing of them, and the
+            // merge above can only keep what the file already carried. This is where a project's
+            // own copy of a framework table gets them, or never does.
+            var seededLocks = FrameworkTableCatalog.SeedLocks(merged);
+
             path = path ?? TableFileStore.BuildTableFilePath(tablesDirectory, merged.Name);
             TableFileStore.Save(path, merged);
 
-            return new TablePullOutcome(path, existing == null, merged, missing);
+            return new TablePullOutcome(path, existing == null, merged, missing, seededLocks);
         }
     }
 }

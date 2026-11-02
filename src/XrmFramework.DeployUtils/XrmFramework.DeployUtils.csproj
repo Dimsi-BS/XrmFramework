@@ -29,7 +29,7 @@
 
         <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\**\*.cs" Link="_Imports\XrmFramework.Plugin\RemoteDebugger\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\**\*partial*.cs;..\XrmFramework.Plugin\RemoteDebugger\RemoteDebugger.Remote\*.cs" />
 
-  
+
         <Compile Include="..\XrmFramework.Plugin\**\StepConfiguration*.cs" Link="Model\StepConfigurations\%(RecursiveDir)%(Filename)%(Extension)" />
 
 
@@ -72,16 +72,12 @@
         <Compile Remove="..\XrmFramework.Workflows\Context\**\*.cs" />
         <Compile Remove="..\XrmFramework.Workflows\RemoteDebugger\LocalWorkflowContext.cs" />
     </ItemGroup>
-    
-    
-    
+
+
+
     <ItemGroup>
         <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\XrmFramework.Analyzers.CodeFixes\XrmFramework.Analyzers.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <AdditionalFiles Include="../XrmFramework/**/*.table"  Exclude="../XrmFramework/bin/**;../XrmFramework/obj/**" />
     </ItemGroup>
 
   <!--
@@ -145,9 +141,20 @@
 
     <ItemGroup>
         <None Remove="**\*.table" />
-        <AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**" />
+        <AdditionalFiles Include="..\XrmFramework\**\*.table" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
 
         <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
+    </ItemGroup>
+
+    <!--
+        The .table files the framework ships, embedded so that the CLI can read them at runtime:
+        FrameworkTableCatalog carries their locks onto a project's own copy of a framework table,
+        which a pull would otherwise never give it. AdditionalFiles above feeds the source
+        generator at compile time and leaves nothing to read once the tool is installed.
+    -->
+    <ItemGroup>
+        <EmbeddedResource Include="..\XrmFramework\Definitions\**\*.table"
+                          LogicalName="XrmFramework.ShippedTables.%(Filename)%(Extension)" />
     </ItemGroup>
 
 

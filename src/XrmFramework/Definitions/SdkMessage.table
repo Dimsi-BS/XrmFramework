@@ -242,7 +242,8 @@
         }
       ],
       "StrLen": 256,
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "organizationid",
@@ -271,7 +272,8 @@
       "PrimaryType": "Id",
       "Capa": 5,
       "Labels": [],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "sdkmessageidunique",

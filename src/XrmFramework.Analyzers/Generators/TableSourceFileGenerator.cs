@@ -484,30 +484,15 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 	/// the other used to give such a key an empty logical name, which the CRM matches nothing on.
 	/// </para>
 	/// </remarks>
+	/// <remarks>
+	/// Which keys those are is <see cref="KeySelector" />'s to say, so that the TypeScript
+	/// definitions generated from the same .table files declare the same ones.
+	/// </remarks>
 	private static IReadOnlyList<GeneratedKey> SelectKeys(Table table)
-	{
-		var keys = new List<GeneratedKey>();
-
-		if (table.Keys == null)
-		{
-			return keys;
-		}
-
-		var claimedNames = new HashSet<string>(StringComparer.Ordinal);
-
-		foreach (var key in table.Keys)
-		{
-			if (string.IsNullOrEmpty(key?.EffectiveLogicalName) || !claimedNames.Add(key.MemberName))
-			{
-				continue;
-			}
-
-			keys.Add(new GeneratedKey(key.MemberName, key.EffectiveLogicalName,
-			                          key.FieldNames ?? Enumerable.Empty<string>()));
-		}
-
-		return keys;
-	}
+	=> KeySelector.Declared(table)
+	              .Select(key => new GeneratedKey(key.MemberName, key.EffectiveLogicalName,
+	                                              key.FieldNames ?? Enumerable.Empty<string>()))
+	              .ToList();
 
 
 	private void AddColumnSummary(IndentedStringBuilder sb, Column col, OptionSetEnum? optionSetEnum)
