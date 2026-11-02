@@ -2,9 +2,9 @@
 
 namespace MsBuildTypeScript;
 
-using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using XrmFramework.Core;
@@ -20,7 +20,7 @@ using XrmFramework.Core;
 /// drifts: a locked name honoured in the generated C# and ignored in the generated TypeScript left
 /// one project with <c>TeamType</c> on one side and <c>TypeDEquipe</c> on the other.
 /// </remarks>
-internal class TsGenerator(TaskLoggingHelper log, string outputDirectory, string typePrefix)
+public class TsGenerator(IGeneratorLog log, string outputDirectory, string typePrefix)
 {
     /// <summary>
     /// The settings <c>TableFileStore</c> writes <c>.table</c> files with. A definition carries its
@@ -32,12 +32,12 @@ internal class TsGenerator(TaskLoggingHelper log, string outputDirectory, string
         DefaultValueHandling = DefaultValueHandling.Ignore
     };
 
-    public void Generate(ITaskItem[] sourceFiles)
+    public void Generate(IEnumerable<string> sourcePaths)
     {
         Directory.CreateDirectory(outputDirectory);
         Directory.CreateDirectory(Path.Combine(outputDirectory, "definitions"));
 
-        var tables = ReadTables(sourceFiles);
+        var tables = ReadTables(sourcePaths);
         var selection = OptionSetSelection.Of(tables);
 
         WriteDefinitionFiles(tables, selection);
@@ -47,17 +47,15 @@ internal class TsGenerator(TaskLoggingHelper log, string outputDirectory, string
     /// <summary>
     /// Reads every <c>.table</c> into one table per logical name.
     /// </summary>
-    private TableCollection ReadTables(ITaskItem[] sourceFiles)
+    private TableCollection ReadTables(IEnumerable<string> sourcePaths)
     {
         var tables = new TableCollection();
 
-        foreach (var sourceFile in sourceFiles)
+        foreach (var sourcePath in sourcePaths)
         {
-            var sourcePath = sourceFile.GetMetadata("FullPath");
-
             if (string.IsNullOrWhiteSpace(sourcePath) || !File.Exists(sourcePath))
             {
-                log.LogWarning($"Source file not found: {sourcePath}");
+                log.Warning($"Source file not found: {sourcePath}");
                 continue;
             }
 
@@ -71,13 +69,13 @@ internal class TsGenerator(TaskLoggingHelper log, string outputDirectory, string
             }
             catch (JsonException e)
             {
-                log.LogError($"Failed to deserialize table from {sourcePath}: {e.Message}");
+                log.Error($"Failed to deserialize table from {sourcePath}: {e.Message}");
                 continue;
             }
 
             if (table == null)
             {
-                log.LogError($"Failed to deserialize table from {sourcePath}");
+                log.Error($"Failed to deserialize table from {sourcePath}");
                 continue;
             }
 
@@ -129,7 +127,7 @@ internal class TsGenerator(TaskLoggingHelper log, string outputDirectory, string
             .AppendLine();
 
         File.WriteAllText(outputPath, generated.ToString(), Encoding.UTF8);
-        log.LogMessage(MessageImportance.High, $"Generated {outputPath}");
+        log.Message($"Generated {outputPath}");
     }
 
     /// <summary>
@@ -197,7 +195,7 @@ internal class TsGenerator(TaskLoggingHelper log, string outputDirectory, string
         {
             // The C# generator reports this as an error (XRM1003) and fails the build on its own. A
             // warning here says why an enum is missing from the TypeScript without failing twice.
-            log.LogWarning(
+            log.Warning(
                 $"The name '{conflict.Name}' stands for several different option sets: "
                 + $"{string.Join(", ", conflict.Claims.Select(c => c.OptionSet.LogicalName))}. "
                 + "Only the first one is declared.");
