@@ -742,6 +742,115 @@ public class TableCollectionTests
         Assert.IsTrue(optionSet.IsLocked);
     }
 
+    /// <summary>
+    /// A name and its members describe one generated enum: keeping the locked name over the
+    /// project's own members emitted <c>enum TeamType { Proprietaire, ... }</c>, which the
+    /// framework's <c>TeamType.Owner</c> does not compile against.
+    /// </summary>
+    [Test]
+    public void Add_DuplicateTable_TakesTheMembersOfTheCopyThatNamesTheOptionSet(
+        [Values(true, false)] bool frameworkFirst)
+    {
+        var framework = new Table { LogicalName = "team", Name = "Team", IsLocked = true };
+        framework.Columns.Add(new Column
+        {
+            LogicalName = "teamtype", Name = "Type", IsLocked = true, Selected = true,
+            EnumName = "team|teamtype"
+        });
+        framework.Enums.Add(Enum("team|teamtype", "TeamType", locked: true, ("Owner", 0), ("Access", 1)));
+
+        var project = new Table { LogicalName = "team", Name = "Team" };
+        project.Columns.Add(new Column
+        {
+            LogicalName = "teamtype", Name = "TeamType", Selected = true, EnumName = "team|teamtype"
+        });
+        project.Enums.Add(Enum("team|teamtype", "TypeDEquipe", locked: false,
+                               ("Proprietaire", 0), ("Acces", 1)));
+
+        AddInOrder(frameworkFirst, framework, project);
+
+        var optionSet = _tableCollection.Get("team")!.Enums.Single();
+
+        Assert.AreEqual("TeamType", optionSet.Name);
+        Assert.That(optionSet.Values.OrderBy(v => v.Value).Select(v => v.Name),
+                    Is.EqualTo(new[] { "Owner", "Access" }),
+                    "the members come from the copy that names the option set");
+    }
+
+    /// <summary>
+    /// The same rule outside the lock: when the selection hands the naming to the other copy, the
+    /// members go with it.
+    /// </summary>
+    [Test]
+    public void Add_DuplicateTable_TakesTheMembersOfTheCopySelectingTheColumn()
+    {
+        _table1.Columns.Add(new Column
+        {
+            LogicalName = "caltype", Name = "CALType", EnumName = "account|caltype"
+        });
+        _table1.Enums.Add(Enum("account|caltype", "ClientAccessLicenseType", locked: false,
+                               ("Professional", 0)));
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.Columns.Add(new Column
+        {
+            LogicalName = "caltype", Name = "CALType", Selected = true, EnumName = "account|caltype"
+        });
+        projectCopy.Enums.Add(Enum("account|caltype", "CALTypes", locked: false, ("Professionnel", 0)));
+
+        _tableCollection.Add(_table1);
+        _tableCollection.Add(projectCopy);
+
+        var optionSet = _tableCollection.Get("account")!.Enums.Single();
+
+        Assert.AreEqual("CALTypes", optionSet.Name);
+        Assert.That(optionSet.Values.Single().Name, Is.EqualTo("Professionnel"));
+    }
+
+    /// <summary>
+    /// Nothing to arbitrate: the copy in place keeps its own name and its own members.
+    /// </summary>
+    [Test]
+    public void Add_DuplicateTable_NeitherCopyNames_KeepsTheMembersAlreadyInPlace()
+    {
+        _table1.Columns.Add(new Column
+        {
+            LogicalName = "caltype", Name = "CALType", Selected = true, EnumName = "account|caltype"
+        });
+        _table1.Enums.Add(Enum("account|caltype", "CALTypes", locked: false, ("Professional", 0)));
+
+        var projectCopy = new Table { LogicalName = "account", Name = "Account" };
+        projectCopy.Columns.Add(new Column
+        {
+            LogicalName = "caltype", Name = "CALType", Selected = true, EnumName = "account|caltype"
+        });
+        projectCopy.Enums.Add(Enum("account|caltype", "Renamed", locked: false, ("Professionnel", 0)));
+
+        _tableCollection.Add(_table1);
+        _tableCollection.Add(projectCopy);
+
+        var optionSet = _tableCollection.Get("account")!.Enums.Single();
+
+        Assert.AreEqual("CALTypes", optionSet.Name);
+        Assert.That(optionSet.Values.Single().Name, Is.EqualTo("Professional"));
+    }
+
+    private static OptionSetEnum Enum(string logicalName, string name, bool locked,
+                                      params (string Name, int Value)[] members)
+    {
+        var optionSet = new OptionSetEnum
+        {
+            LogicalName = logicalName,
+            Name = name,
+            IsLocked = locked
+        };
+
+        foreach (var member in members)
+            optionSet.Values.Add(new OptionSetEnumValue { Name = member.Name, Value = member.Value });
+
+        return optionSet;
+    }
+
     [Test]
     public void Add_DuplicateTable_LockedOptionSetWithoutAName_ImposesNothing()
     {
