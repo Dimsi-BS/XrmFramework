@@ -63,7 +63,7 @@ namespace XrmFramework.Core
         /// are the only option sets whose name the copy in question actually depends on. Everywhere
         /// else the name belongs to the consuming project, and a rename applied to its own
         /// <c>.table</c> takes effect. Should both copies — or neither — select the column, the copy
-        /// already in place wins. The members always stay those of that same copy.
+        /// already in place wins. The members follow the name: see <see cref="TakeNameAndMembers" />.
         /// </para>
         /// <para>
         /// Unless the option set is locked, in which case <see cref="LockArbitration.LockedName" />
@@ -112,22 +112,17 @@ namespace XrmFramework.Core
                     continue;
                 }
 
+                // Read before the lock is carried over: once both sides look locked there is no
+                // lock left to arbitrate on, and the name would fall back to the selection rule.
+                var naming = NamingCopy(existingOptionSet, optionSet, selectedByThis, selectedByExisting);
+
                 // The lock describes the option set, not the copy that happened to be loaded
                 // first: it survives the fold either way round.
-                var lockedName = LockArbitration.LockedName(existingOptionSet.IsLocked, existingOptionSet.Name,
-                                                            optionSet.IsLocked, optionSet.Name);
-
                 existingOptionSet.IsLocked |= optionSet.IsLocked;
 
-                if (lockedName != null)
+                if (naming != null)
                 {
-                    existingOptionSet.Name = lockedName;
-                }
-                else if (!string.IsNullOrEmpty(optionSet.Name)
-                         && selectedByThis.Contains(optionSet.LogicalName)
-                         && !selectedByExisting.Contains(optionSet.LogicalName))
-                {
-                    existingOptionSet.Name = optionSet.Name;
+                    TakeNameAndMembers(existingOptionSet, naming);
                 }
             }
 
@@ -136,6 +131,59 @@ namespace XrmFramework.Core
             MergeRelations(ManyToOneRelationships, existingEntity.ManyToOneRelationships);
             MergeRelations(OneToManyRelationships, existingEntity.OneToManyRelationships);
             MergeRelations(ManyToManyRelationships, existingEntity.ManyToManyRelationships);
+        }
+
+        /// <summary>
+        /// The copy whose name — and therefore whose members — the folded option set takes, or
+        /// <see langword="null" /> when the one already in place keeps both.
+        /// </summary>
+        private static OptionSetEnum NamingCopy(OptionSetEnum existingOptionSet, OptionSetEnum optionSet,
+                                                ISet<string> selectedByThis, ISet<string> selectedByExisting)
+        {
+            // A locked name belongs to the framework shipping it, whichever copy the fold keeps.
+            // Exactly one of the two is locked whenever this returns a name, so the locked copy is
+            // the one that names it.
+            if (LockArbitration.LockedName(existingOptionSet.IsLocked, existingOptionSet.Name,
+                                           optionSet.IsLocked, optionSet.Name) != null)
+            {
+                return existingOptionSet.IsLocked ? existingOptionSet : optionSet;
+            }
+
+            // Otherwise the copy that selects the column carrying it names it.
+            return !string.IsNullOrEmpty(optionSet.Name)
+                && selectedByThis.Contains(optionSet.LogicalName)
+                && !selectedByExisting.Contains(optionSet.LogicalName)
+                       ? optionSet
+                       : null;
+        }
+
+        /// <summary>
+        /// Takes onto <paramref name="existingOptionSet" /> the name and the members of the copy
+        /// that names it.
+        /// </summary>
+        /// <remarks>
+        /// A name and its members describe one generated enum and cannot come from different copies.
+        /// The framework ships <c>team|teamtype</c> as <c>TeamType</c> with <c>Owner</c>,
+        /// <c>Access</c>, ... and its own code writes <c>TeamType.Owner</c>; keeping the locked name
+        /// over a project copy's members emitted <c>enum TeamType { Proprietaire, Acces, ... }</c>,
+        /// which that code does not compile against — and which of the two won depended on the order
+        /// the copies reached the fold in.
+        /// </remarks>
+        private static void TakeNameAndMembers(OptionSetEnum existingOptionSet, OptionSetEnum naming)
+        {
+            existingOptionSet.Name = naming.Name;
+
+            if (ReferenceEquals(existingOptionSet, naming))
+            {
+                return;
+            }
+
+            existingOptionSet.Values.Clear();
+
+            foreach (var value in naming.Values)
+            {
+                existingOptionSet.Values.Add(value);
+            }
         }
 
         /// <summary>
