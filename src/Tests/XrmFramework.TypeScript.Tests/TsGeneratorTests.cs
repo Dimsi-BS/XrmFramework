@@ -125,6 +125,24 @@ public class TsGeneratorTests
                     "one enum, under the name the framework locked");
     }
 
+    /// <summary>
+    /// The emitted enum must carry the members of the copy that names it: the framework's code
+    /// writes <c>TeamType.Owner</c>, and the TypeScript has to offer the same member.
+    /// </summary>
+    [Test]
+    public void Run_EmitsTheMembersOfTheCopyThatNamesTheOptionSet()
+    {
+        using var harness = new GeneratorHarness()
+            .WithTable("ZProjectTeam", ProjectTeam())
+            .WithTable("Team", FrameworkTeam());
+
+        Assert.IsTrue(harness.Run());
+
+        Assert.That(harness.Enums(), Does.Contain("Owner = 0,"));
+        Assert.That(harness.Enums(), Does.Not.Contain("Proprietaire"),
+                    "the project's member names belong to the name it did not win");
+    }
+
     [Test]
     public void Run_WritesOneTablesEntryPerLogicalName()
     {
