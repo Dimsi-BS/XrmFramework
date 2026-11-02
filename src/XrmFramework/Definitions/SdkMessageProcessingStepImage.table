@@ -254,7 +254,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "sdkmessageprocessingstepimageid",

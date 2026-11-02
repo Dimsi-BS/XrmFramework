@@ -19,7 +19,18 @@
 
     <Target Name="TransformFiles" BeforeTargets="PreComputeCompileTypeScript">
 
+        <!--
+            Both halves of what declares a table, as XrmFramework.props hands them to the C# source
+            generator: the tables the framework ships, then the ones the project tracks — including
+            its own copy of a framework table, which declares only the part of it the project cares
+            about. The task folds them per logical name.
+
+            The framework's come first, as they do for the C# generator. Which copy wins no longer
+            depends on that order, but there is no reason for the two generators to read their
+            inputs differently.
+        -->
         <ItemGroup>
+            <SourceFiles Include="$(MSBuildThisFileDirectory)tables\**\*.table" />
             <SourceFiles Include="$(RootFolder)\$(XrmFrameworkCoreProjectName)\**\*.table" />
         </ItemGroup>
 
