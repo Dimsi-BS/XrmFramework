@@ -159,6 +159,40 @@ public class FrameworkTableCatalogTests
     /// <summary>
     /// The project's own columns are what its copy exists for: seeding must not touch them.
     /// </summary>
+    /// <summary>
+    /// The members travel with the name: the framework's code writes <c>TeamType.Owner</c>, so a
+    /// file carrying the locked name over its own French members describes an enum nothing
+    /// compiles against.
+    /// </summary>
+    [Test]
+    public void SeedLocks_CarriesTheMembersOfTheLockedOptionSet()
+    {
+        var table = ProjectCopyOfTeam();
+
+        var optionSet = table.Enums.Single(e => e.LogicalName == "team|teamtype");
+        optionSet.Values.Add(new OptionSetEnumValue { Name = "Proprietaire", Value = 0 });
+        optionSet.Values.Add(new OptionSetEnumValue { Name = "Acces", Value = 1 });
+
+        FrameworkTableCatalog.SeedLocks(table);
+
+        Assert.AreEqual("TeamType", optionSet.Name);
+        Assert.That(optionSet.Values.OrderBy(v => v.Value).Select(v => v.Name),
+                    Is.EqualTo(new[] { "Owner", "Access", "AadSecurityGroup", "AadOfficeGroup" }),
+                    "the shipped members come with the shipped name");
+    }
+
+    /// <summary>
+    /// Seeding members must stay idempotent, or every pull would report work it did not do.
+    /// </summary>
+    [Test]
+    public void SeedLocks_WithTheMembersAlreadySeeded_SeedsNothingMore()
+    {
+        var table = ProjectCopyOfTeam();
+
+        Assert.IsTrue(FrameworkTableCatalog.SeedLocks(table) > 0);
+        Assert.AreEqual(0, FrameworkTableCatalog.SeedLocks(table));
+    }
+
     [Test]
     public void SeedLocks_LeavesTheProjectsOwnColumnsAlone()
     {

@@ -248,6 +248,12 @@ namespace XrmFramework.DeployUtils.TableSync
             return seeded;
         }
 
+        /// <remarks>
+        /// The members travel with the name, as they do when the two copies are folded at build
+        /// time: a name and its members describe one generated enum, and the code the framework
+        /// ships writes <c>TeamType.Owner</c>. Seeding the locked name over the project's own
+        /// members would leave the file describing an enum nothing compiles against.
+        /// </remarks>
         private static bool Seed(OptionSetEnum optionSet, OptionSetEnum shipped)
         {
             var seeded = false;
@@ -258,14 +264,40 @@ namespace XrmFramework.DeployUtils.TableSync
                 seeded = true;
             }
 
-            if (!string.IsNullOrEmpty(shipped.Name)
-                && !string.Equals(optionSet.Name, shipped.Name, StringComparison.Ordinal))
+            if (string.IsNullOrEmpty(shipped.Name))
+            {
+                return seeded;
+            }
+
+            if (!string.Equals(optionSet.Name, shipped.Name, StringComparison.Ordinal))
             {
                 optionSet.Name = shipped.Name;
                 seeded = true;
             }
 
+            if (!MembersMatch(optionSet, shipped))
+            {
+                optionSet.Values.Clear();
+
+                foreach (var value in shipped.Values)
+                    optionSet.Values.Add(value);
+
+                seeded = true;
+            }
+
             return seeded;
         }
+
+        /// <summary>
+        /// Whether the two copies already declare the same members, by value and by name — so that
+        /// seeding twice reports nothing the second time.
+        /// </summary>
+        private static bool MembersMatch(OptionSetEnum optionSet, OptionSetEnum shipped)
+        => optionSet.Values.Count == shipped.Values.Count
+        && optionSet.Values.OrderBy(v => v.Value)
+                    .Zip(shipped.Values.OrderBy(v => v.Value),
+                         (mine, theirs) => mine.Value == theirs.Value
+                                        && string.Equals(mine.Name, theirs.Name, StringComparison.Ordinal))
+                    .All(same => same);
     }
 }
