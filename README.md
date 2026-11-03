@@ -10,7 +10,7 @@ Strongly-typed models, declarative plugin registration, one-click deployment and
 [![NuGet](https://img.shields.io/nuget/v/XrmFramework.Cli.svg?label=XrmFramework.Cli&color=512BD4)](https://www.nuget.org/packages/XrmFramework.Cli)
 [![Downloads](https://img.shields.io/nuget/dt/XrmFramework.svg?label=downloads&color=success)](https://www.nuget.org/packages/XrmFramework)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.txt)
-[![.NET](https://img.shields.io/badge/.NET-Framework%204.6.2%20%7C%208%20%7C%2010-512BD4.svg)](#)
+[![.NET](https://img.shields.io/badge/.NET-Framework%204.6.2%20%7C%204.8%20%7C%208%20%7C%2010-512BD4.svg)](#)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contribute)
 
 </div>
