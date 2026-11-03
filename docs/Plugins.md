@@ -483,6 +483,12 @@ What the framework does differently in this mode, and why it matters to you:
 - **Dataverse creates the `pluginassembly` and `plugintype` rows itself** from the package. The
   deployment pushes the package first, waits for the platform to unpack it, then registers steps,
   images and Custom APIs against what the platform produced.
+- **The package follows its assembly into the `Deploy.*` project's output.** The deployment runs
+  against the `Plugins.dll` the project reference copied next to its own binaries, and looks for
+  the package beside it. A `.nupkg` is not a reference, so nothing in the build would follow it
+  there; `XrmFramework.DeployUtils` asks each project reference for its package and copies what
+  comes back. Nothing to declare, and no relative path into the plugin project's `bin/` to
+  maintain by hand.
 - **Set `XrmFrameworkPackageIncludePdb` to `true`** to also ship the `.pdb`. The sandbox extracts
   the whole package, so server-side stack traces then carry line numbers — something a classic
   assembly registration cannot offer.
