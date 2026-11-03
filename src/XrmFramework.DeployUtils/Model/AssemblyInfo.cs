@@ -99,7 +99,15 @@ public class AssemblyInfo : BaseCrmComponent, IBindingModel, IAssemblyComponent
 	public string HumanName => "Assembly";
 	public string AssemblyName => Name;
 	public override int Rank => 0;
-	public override bool DoAddToSolution => true;
+
+	/// <summary>
+	///     In package mode the solution component is the <c>pluginpackage</c> row, added when the
+	///     package is pushed. Dataverse rejects the <c>pluginassembly</c> rows it derives from a
+	///     package - "cannot be exported as it is part of a Plugin Package. Please export the Package
+	///     directly." - so the assembly keeps out of the solution as soon as a package is attached.
+	/// </summary>
+	public override bool DoAddToSolution => Package == null;
+
 	public override bool DoFetchTypeCode => false;
 
 	#endregion

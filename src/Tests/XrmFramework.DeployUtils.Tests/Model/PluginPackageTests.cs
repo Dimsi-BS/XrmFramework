@@ -94,4 +94,48 @@ public class PluginPackageTests
 
         Assert.That(assembly.RegistrationState, Is.EqualTo(RegistrationState.ToUpdate));
     }
+
+    /// <summary>
+    /// In package mode the solution component is the package, not the assembly: Dataverse answers
+    /// "cannot be exported as it is part of a Plugin Package" to a pluginassembly row it derived
+    /// from a package, which failed the deployment right at the end.
+    /// </summary>
+    [Test]
+    public void AssemblyInfo_WithAPackage_IsNotASolutionComponent()
+    {
+        var assembly = new AssemblyInfo {Name = "MyProject.Plugins"};
+
+        assembly.AddChild(new PluginPackage {Name = "dim_MyProject.Plugins"});
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(assembly.DoAddToSolution, Is.False);
+
+            // The exporter reads the flag through the interface.
+            Assert.That(((ICrmComponent) assembly).DoAddToSolution, Is.False);
+        });
+    }
+
+    /// <summary>
+    /// Deployed as a plain assembly, it stays the solution component it has always been.
+    /// </summary>
+    [Test]
+    public void AssemblyInfo_WithoutAPackage_IsASolutionComponent()
+    {
+        var assembly = new AssemblyInfo {Name = "MyProject.Plugins"};
+
+        Assert.That(assembly.DoAddToSolution, Is.True);
+    }
+
+    /// <summary>
+    /// A package is a solution component in its own right - that is how the assemblies Dataverse
+    /// derives from it travel with the solution.
+    /// </summary>
+    [Test]
+    public void Package_IsASolutionComponent()
+    {
+        var package = new PluginPackage {Name = "dim_MyProject.Plugins"};
+
+        Assert.That(package.DoAddToSolution, Is.True);
+    }
 }
