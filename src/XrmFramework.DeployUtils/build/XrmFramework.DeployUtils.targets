@@ -1,0 +1,55 @@
+﻿<Project>
+
+  <!--
+    Brings the plugin packages of the referenced plugin projects next to their assemblies in this
+    project's output.
+
+    A deployment project references the plugin project, so the ProjectReference copies Plugins.dll
+    into bin/<Configuration>/<tfm>/ and RegisterPluginsAndWorkflows<T> deploys that copy. In
+    package mode the deployment then looks for the .nupkg beside that DLL (and one level up), which
+    is where nothing puts it: the package lives in the plugin project's own
+    bin/<Configuration>/, and a .nupkg is not a reference, so no copy-local rule follows it.
+
+    Each ProjectReference is asked for its package through the XrmFrameworkGetPluginPackage target
+    that XrmFramework.Plugin ships; references that do not answer - the framework's own projects, a
+    plugin project not built as a package - are skipped. That keeps the package's location inside
+    the plugin project, instead of a relative path into its bin/ written out in every deployment
+    project.
+  -->
+  <Target Name="XrmFrameworkCopyReferencedPluginPackages"
+          AfterTargets="Build"
+          DependsOnTargets="ResolveProjectReferences"
+          Condition="'$(XrmFrameworkCopyReferencedPluginPackages)' != 'false'">
+
+    <!--
+      _MSBuildProjectReferenceExistent, and the Set*/GlobalPropertiesToRemove metadata read off it,
+      are how the SDK itself walks references for GetCopyToOutputDirectoryItems: they carry the
+      configuration and target framework the reference was resolved against, so a multi-targeted
+      plugin project answers from the same inner build that produced the assembly being copied.
+
+      SkipNonexistentTargets covers every reference that is not a packaged plugin project - the
+      target simply is not there - and keeps this out of the way of projects that never deploy one.
+    -->
+    <MSBuild Projects="@(_MSBuildProjectReferenceExistent)"
+             Targets="XrmFrameworkGetPluginPackage"
+             BuildInParallel="$(BuildInParallel)"
+             Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration); %(_MSBuildProjectReferenceExistent.SetPlatform); %(_MSBuildProjectReferenceExistent.SetTargetFramework)"
+             RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove)$(_GlobalPropertiesToRemoveFromProjectReferences)"
+             Condition="'@(_MSBuildProjectReferenceExistent)' != ''"
+             SkipNonexistentTargets="true"
+             SkipNonexistentProjects="true">
+
+      <Output TaskParameter="TargetOutputs" ItemName="_XrmFrameworkReferencedPluginPackage" />
+    </MSBuild>
+
+    <Copy SourceFiles="@(_XrmFrameworkReferencedPluginPackage)"
+          DestinationFolder="$(OutDir)"
+          SkipUnchangedFiles="true"
+          Condition="'@(_XrmFrameworkReferencedPluginPackage)' != ''" />
+
+    <Message Importance="normal"
+             Condition="'@(_XrmFrameworkReferencedPluginPackage)' != ''"
+             Text="Plugin package(s) copied to $(OutDir): @(_XrmFrameworkReferencedPluginPackage->'%(Filename)%(Extension)', ', ')" />
+  </Target>
+
+</Project>

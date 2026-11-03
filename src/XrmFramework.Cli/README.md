@@ -517,8 +517,10 @@ marker existed.
 **The workflow does not change**: build the solution, then run the `Deploy.*` project — exactly
 as in assembly mode. Publishing and packing are hooked onto the build, so building the `Deploy.*`
 project alone is enough (it builds the plugin project as a project reference). The `.nupkg` lands
-in `bin/<Configuration>/`, beside the TFM folder, and `deploy plugins` finds it without further
-options. A build with nothing changed re-packs nothing; a build after a code change always
+in the plugin project's `bin/<Configuration>/`, beside the TFM folder, and is copied into the
+`Deploy.*` project's output next to the `Plugins.dll` the project reference puts there — which is
+where the deployment looks for it, so `deploy plugins` finds it without further options and
+without a hand-written copy step. A build with nothing changed re-packs nothing; a build after a code change always
 produces a fresh package. Assemblies the sandbox already provides — the Dataverse SDK,
 `System.Text.Json` and the rest of the `Microsoft.CrmSdk.CoreAssemblies` closure — are pruned
 from the package; override the `XrmFrameworkSandboxProvidedAssemblyName` item list to ship one
