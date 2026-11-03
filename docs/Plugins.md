@@ -3,6 +3,7 @@
 - [XrmFramework Plugins](#xrmframework-plugins)
   - [Overview](#overview)
   - [Creating a Plugin](#creating-a-plugin)
+    - [Target framework](#target-framework)
   - [Registering Steps](#registering-steps)
     - [Stages](#stages)
     - [Messages](#messages)
@@ -62,6 +63,28 @@ public class AccountPlugin : Plugin
 ```
 
 > **Important:** Never store per-execution state in instance fields. Dataverse caches plugin instances across executions; all execution state must be read from the `IPluginContext` injected into each step method.
+
+### Target framework
+
+A plugin assembly targets .NET Framework. Dataverse supports **4.6.2 through 4.8** for plug-in and
+custom workflow activity assemblies, and Microsoft recommends targeting **4.8** for new code — see
+[Support for .NET Framework versions](https://learn.microsoft.com/power-apps/developer/data-platform/supported-customizations#support-for-net-framework-versions).
+
+The framework ships `net462` and `net48` for every assembly a plugin project consumes, so either
+works. `net48` is what a scaffolded solution targets:
+
+```bash
+xrmframework new solution Contoso                      # net48 (default)
+xrmframework new solution Contoso --framework net462   # for an existing net462 codebase
+```
+
+This covers the `Plugins`, `Deploy.*` and `RemoteDebugger` projects — the ones that run on .NET
+Framework. The `Webresources` projects and the CLI itself are unaffected.
+
+Changing the target framework of an existing plugin project is an ordinary `TargetFramework` edit.
+The deployment matches the registered assembly by its name and its plugin types by their full type
+name, neither of which carries the moniker, so the existing steps are updated rather than
+re-registered.
 
 ---
 
