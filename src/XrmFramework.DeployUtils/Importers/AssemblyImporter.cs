@@ -238,6 +238,13 @@ public class AssemblyImporter : IAssemblyImporter
     }
 
 
+    /// <summary>
+    ///     Fills the pre- or post-image of <paramref name="step" /> with the matching image registered
+    ///     on the server, so the deployment recognises it instead of creating a second one.
+    /// </summary>
+    /// <param name="step">The step read back from the server.</param>
+    /// <param name="isPreImage">Which of the step's two images to fill.</param>
+    /// <param name="stepImages">The images registered on the server, all steps mixed.</param>
     public void CreateStepImageFromRemote(Step step, bool isPreImage,
         IEnumerable<SdkMessageProcessingStepImage> stepImages)
     {
@@ -252,10 +259,17 @@ public class AssemblyImporter : IAssemblyImporter
             return;
         }
 
-        step.PreImage.Id = existingImage.Id;
-        step.PreImage.ParentId = step.Id;
-        step.PreImage.AllAttributes = existingImage.Attributes1 == null;
-        step.PreImage.Attributes.Add(existingImage.Attributes1);
+        // The image to fill is the one the caller asked for: writing the post-image onto the
+        // pre-image left the post-image without an Id, and the diff then created it on every run.
+        var image = isPreImage ? step.PreImage : step.PostImage;
+
+        image.Id = existingImage.Id;
+        image.ParentId = step.Id;
+        image.AllAttributes = existingImage.Attributes1 == null;
+        if (existingImage.Attributes1 != null)
+        {
+            image.Attributes.Add(existingImage.Attributes1);
+        }
     }
 
 }
