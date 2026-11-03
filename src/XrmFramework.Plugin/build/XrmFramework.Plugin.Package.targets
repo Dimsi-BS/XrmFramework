@@ -147,4 +147,41 @@
           Condition="'$(XrmFrameworkPluginPackage)' == 'true' and '$(PublishOnBuild)' == 'true'"
           DependsOnTargets="Publish" />
 
+  <!--
+    Hands the built .nupkg to whatever project references this one - in practice the deployment
+    console, which calls RegisterPluginsAndWorkflows<T> on the Plugins.dll a ProjectReference
+    copied next to its own output, and then looks for the package beside that DLL. The package has
+    to make the same trip, and nothing in the build does that on its own: a .nupkg is not a
+    reference, so no copy-local rule picks it up.
+
+    Answering a question instead of copying anything is what keeps the package's location an
+    implementation detail of this file - PackageOutputPath is settable per project - rather than a
+    relative path into bin/ hard-coded in every deployment project. XrmFramework.DeployUtils ships
+    the other half, which asks each ProjectReference this question and copies what comes back.
+
+    Returns nothing when there is no package to hand over (not a package project, or pack skipped
+    through XrmFrameworkPackageGenerateOnBuild=false): the caller skips a reference that answers
+    nothing, and a project that does not even define this target is skipped the same way.
+  -->
+  <!-- FullPath, not the item as declared: PackageOutputPath is relative to this project, and the
+       answer is read by another one, which would resolve a relative path against its own
+       directory. -->
+  <Target Name="XrmFrameworkGetPluginPackage"
+          Condition="'$(XrmFrameworkPluginPackage)' == 'true'"
+          Returns="@(_XrmFrameworkBuiltPluginPackage->'%(FullPath)')">
+
+    <PropertyGroup>
+      <_XrmFrameworkPackageOutputDir>$([MSBuild]::EnsureTrailingSlash('$(PackageOutputPath)'))</_XrmFrameworkPackageOutputDir>
+      <_XrmFrameworkBuiltPluginPackagePath>$(_XrmFrameworkPackageOutputDir)$(PackageId).$(PackageVersion).nupkg</_XrmFrameworkBuiltPluginPackagePath>
+    </PropertyGroup>
+
+    <!-- Named exactly rather than globbed: bin/<Configuration>/ keeps every version ever built
+         there, and handing back the whole pile would leave the deployment to guess which one
+         describes the assembly it is about to push. -->
+    <ItemGroup>
+      <_XrmFrameworkBuiltPluginPackage Include="$(_XrmFrameworkBuiltPluginPackagePath)"
+                                       Condition="Exists('$(_XrmFrameworkBuiltPluginPackagePath)')" />
+    </ItemGroup>
+  </Target>
+
 </Project>
