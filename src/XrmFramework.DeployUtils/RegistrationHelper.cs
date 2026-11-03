@@ -231,17 +231,10 @@ public partial class RegistrationHelper
 
         ExecuteStrategy(registrationStrategy);
 
-        if (localPackage != null)
-        {
-            // The pluginassembly row belongs to the package, but solution membership does not come
-            // along: it is added here, now that the platform has actually created the row. On a
-            // first push there was no row to read before the package went in, so it is fetched now.
-            var packagedAssembly = registeredAssembly?.AssemblyInfo
-                                   ?? _assemblyFactory.GetRemoteAssemblyInfo(_registrationService,
-                                       localAssembly.AssemblyInfo.Name);
-
-            if (packagedAssembly != null) _assemblyExporter.AddComponentToSolution(packagedAssembly);
-        }
+        // Nothing to do for the assembly itself in package mode: the pluginpackage row is the
+        // solution component, added when it is pushed, and Dataverse refuses the pluginassembly
+        // rows it derives from a package - "cannot be exported as it is part of a Plugin Package.
+        // Please export the Package directly."
     }
 
     /// <summary>

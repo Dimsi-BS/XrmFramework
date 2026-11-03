@@ -92,10 +92,10 @@ public partial class AssemblyExporter : IAssemblyExporter
 
 	public void AddComponentToSolution(ICrmComponent component)
 	{
-		// A package used to also add its assembly here, by name. That cannot work on a first push:
-		// Dataverse creates the pluginassembly row from the package AFTER this call, so the lookup
-		// came back null and the recursive call threw. The assembly is added by the deployment once
-		// the package has been unpacked and the row actually exists.
+		// A package used to also add its assembly here, by name. Dataverse does not accept that at
+		// all: a pluginassembly row it derived from a package cannot be a solution component on its
+		// own ("Please export the Package directly"). The package is the component, and it is added
+		// when it is pushed - which is also why the assembly reports DoAddToSolution false then.
 		if (!component.DoAddToSolution) return;
 
 		int? entityTypeCode = component.DoFetchTypeCode
