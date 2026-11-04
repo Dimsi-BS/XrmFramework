@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Stand-in for the .NET Framework's System.Activities, so that the .NET-modern inventory host
+    (XrmFramework.PluginInventory) can LOAD a net462/net48 plugin assembly containing Custom
+    Workflow Activities. System.Activities, Version=4.0.0.0 does not exist on .NET 5+, so without
+    it every CodeActivity-derived type fails to load and the activities silently vanish from the
+    manifest.
+
+    This assembly is a BUILD/DEPLOY-TIME artifact only. It ships inside the CLI's inventory/
+    folder, is never referenced by a plugin project, and never reaches Dataverse - the plugin
+    package targets already prune System.Activities by name. The plugin itself is still compiled
+    against the real reference assembly, so its metadata and its strong-name signature are
+    untouched; the substitution happens only when the host resolves the reference at runtime, and
+    .NET modern enforces neither assembly version nor public key for a resolver's answer.
+
+    The type surface is not invented: it mirrors the real reference assembly shipped by
+    Microsoft.NETFramework.ReferenceAssemblies, and XrmFramework.PluginInventory.Tests asserts that
+    every System.Activities member the plugin assemblies actually reference exists here with a
+    matching signature.
+
+    Method bodies throw: nothing in this assembly is ever executed. The inventory runs
+    constructors, not Execute().
+  -->
+  <PropertyGroup>
+    <!-- netstandard2.0, not the host's TFM: loadable by both the net10 host and the net8 test
+         project, so neither has to be retargeted to match the other. -->
+    <TargetFramework>netstandard2.0</TargetFramework>
+
+    <AssemblyName>System.Activities</AssemblyName>
+    <RootNamespace>System.Activities</RootNamespace>
+
+    <!-- Matches the identity the plugin assemblies reference. Cosmetic (a resolver's answer is
+         accepted whatever its version), but it keeps diagnostics honest. -->
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
+    <FileVersion>4.0.0.0</FileVersion>
+
+    <!-- Unsigned on purpose. Signing it with XrmFramework.snk would claim a DIMSI identity for an
+         imitation of Microsoft types, and buys nothing: .NET modern does not verify strong names,
+         so a signed plugin binds to this assembly regardless. -->
+    <SignAssembly>false</SignAssembly>
+
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+
+    <!-- Nerdbank.GitVersioning would otherwise overwrite AssemblyVersion with the repository
+         version, breaking the 4.0.0.0 identity above. -->
+    <NBGV_SkipVersioning>true</NBGV_SkipVersioning>
+  </PropertyGroup>
+
+  <!-- Injected into every project by the repository root Directory.Build.props; neither applies to
+       a versionless, framework-less stand-in assembly. -->
+  <ItemGroup>
+    <PackageReference Remove="Nerdbank.GitVersioning" />
+    <PackageReference Remove="Microsoft.NETFramework.ReferenceAssemblies" />
+  </ItemGroup>
+
+</Project>

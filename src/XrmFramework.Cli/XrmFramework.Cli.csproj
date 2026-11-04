@@ -42,9 +42,8 @@
     <ProjectReference Include="..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj" />
 
     <!--
-      net462 inventory tool: referenced only for build ordering (no code dependency;
-      the CLI launches it out-of-process). SkipGetTargetFrameworkProperties avoids the TFM
-      negotiation between net8 and net462.
+      Inventory host: referenced only for build ordering (no code dependency; the CLI launches it
+      out of process). SkipGetTargetFrameworkProperties avoids a pointless TFM negotiation.
     -->
     <ProjectReference Include="..\XrmFramework.PluginInventory\XrmFramework.PluginInventory.csproj"
                       ReferenceOutputAssembly="false"
@@ -53,18 +52,54 @@
   </ItemGroup>
 
   <!--
-    Embeds the net462 inventory exe under inventory/: copied next to the tool (resolved via
-    AppContext.BaseDirectory). PackAsTool packages the publish output under
-    tools/net10.0/any/, so CopyToOutputDirectory is enough — an explicit Pack inclusion
-    would create a duplicate (NU5118).
-    The helper has no third-party dependency (BCL + framework GAC) -> only the exe is needed.
+    Embeds the inventory host under inventory/, where PluginInventoryProcessRunner looks for it
+    (relative to AppContext.BaseDirectory), and launches it with `dotnet inventory/…dll`.
+
+    Its whole PUBLISH output, not a single file. The host used to be a net462 exe with nothing but
+    the BCL and the GAC behind it, so one `None Include` of that exe was enough; now that it runs on
+    .NET it has a real closure - a runtimeconfig.json and deps.json without which the muxer cannot
+    start it, System.Configuration.ConfigurationManager and its dependencies, the runtimes/ RID tree,
+    and the System.Activities stand-in. Publishing is what resolves and lays all that out.
+
+    Published into obj/ and copied from there, rather than globbing the host's own bin/: an item
+    glob in the project body is expanded during EVALUATION, before the referenced project has been
+    built, so on a clean build it would match nothing and the CLI would ship with no inventory at
+    all - a failure that only shows up on a user's machine. Doing it inside a target means the files
+    exist by the time they are collected.
+
+    PackAsTool packs the publish output under tools/net10.0/any/, so CopyToOutputDirectory plus the
+    publish entries below are enough; an explicit Pack inclusion would duplicate them (NU5118).
   -->
-  <ItemGroup>
-    <None Include="..\XrmFramework.PluginInventory\bin\$(Configuration)\net462\XrmFramework.PluginInventory.exe"
-          Link="inventory\XrmFramework.PluginInventory.exe"
-          CopyToOutputDirectory="PreserveNewest"
-          Visible="false" />
-  </ItemGroup>
+  <Target Name="PublishInventoryHost" Returns="@(_InventoryHostFile)">
+    <MSBuild Projects="..\XrmFramework.PluginInventory\XrmFramework.PluginInventory.csproj"
+             Targets="Publish"
+             Properties="Configuration=$(Configuration);TargetFramework=net10.0;PublishDir=$(MSBuildProjectDirectory)\obj\inventory\" />
+
+    <ItemGroup>
+      <_InventoryHostFile Include="$(MSBuildProjectDirectory)\obj\inventory\**\*" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Running the CLI straight out of bin/ has to find inventory/ too, not just the packaged tool. -->
+  <Target Name="CopyInventoryHostToOutput"
+          AfterTargets="Build"
+          DependsOnTargets="PublishInventoryHost">
+    <Copy SourceFiles="@(_InventoryHostFile)"
+          DestinationFiles="@(_InventoryHostFile->'$(OutDir)inventory\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+  <!-- ResolvedFileToPublish with RelativePath is how a file is placed in the publish layout, which
+       is also what PackAsTool packs. -->
+  <Target Name="AddInventoryHostToPublish"
+          AfterTargets="ComputeFilesToPublish"
+          DependsOnTargets="PublishInventoryHost">
+    <ItemGroup>
+      <ResolvedFileToPublish Include="@(_InventoryHostFile)"
+                             RelativePath="inventory\%(RecursiveDir)%(Filename)%(Extension)"
+                             CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
 
   <!--
     Scaffolding content for "xrmframework new" (SolutionScaffolder and friends in DeployUtils):
