@@ -33,9 +33,9 @@ internal partial class AssemblyFactory : IAssemblyFactory
 
 	public IAssemblyContext CreateFromLocalAssemblyContext(string dllPath)
 	{
-		// Inventory by EXECUTING the registration code (constructors / AddSteps), via the
-		// shared XrmFramework.PluginInventory engine: in-process on net462, out-of-process
-		// (net462 exe) from net8/net10. The result is the same JSON schema the reader consumes.
+		// Inventory by EXECUTING the registration code (constructors / AddSteps), via the shared
+		// XrmFramework.PluginInventory engine: in-process on .NET Framework, out of process through
+		// the inventory host otherwise. Either way, the same JSON schema the reader consumes.
 		var json = GetManifestJson(dllPath);
 		if (string.IsNullOrEmpty(json))
 			throw new InvalidOperationException(
@@ -102,10 +102,13 @@ internal partial class AssemblyFactory : IAssemblyFactory
 	private static string GetManifestJson(string dllPath)
 	{
 #if NET462_OR_GREATER
-		// Already on .NET Framework: plugins are instantiated in-process.
+		// Already on .NET Framework, and holding the plugin's own Microsoft.Xrm.Sdk: no second
+		// process buys anything here, so the engine runs in this one.
 		return PluginInventory.PluginInventoryEngine.BuildManifestJson(dllPath);
 #else
-		// net8/net10: delegated to the net462 exe (instantiating a net462 plugin here is impossible).
+		// Delegated to the inventory host, which runs on this same .NET version. Out of process not
+		// because a modern runtime cannot load a net4x plugin - it can - but because this process
+		// already has its own Microsoft.Xrm.Sdk, by way of Microsoft.PowerPlatform.Dataverse.Client.
 		return PluginInventoryProcessRunner.Run(dllPath);
 #endif
 	}

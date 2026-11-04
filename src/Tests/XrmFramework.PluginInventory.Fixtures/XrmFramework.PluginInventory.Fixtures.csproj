@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Real .NET Framework plugin assemblies, built so the inventory tests can run the .NET-modern host
+    against the thing it actually has to describe in production.
+
+    The existing engine tests inventory the TEST assembly itself, with net8 stubs standing in for
+    the framework types. That proves the engine's reflection is TFM-agnostic, but it exercises
+    nothing about the hard part: loading a net462/net48 assembly, and its net4x Microsoft.Xrm.Sdk,
+    on a runtime that has neither .NET Framework nor System.Activities. Only a genuine net4x
+    assembly can test that, hence this project.
+
+    Both TFMs are built because both are supported plugin targets (net48 is the default for new
+    solutions, net462 is still offered), and they reference System.Activities identically.
+
+    XrmFramework.Workflows, not XrmFramework.Plugin: the Workflows project already compiles the
+    XrmFramework and XrmFramework.Plugin sources into itself, so referencing both would put
+    XrmFramework.Plugin, Step and the step attributes in two assemblies at once.
+  -->
+  <PropertyGroup>
+    <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+
+    <!-- Test data, not shipped code: signing it would only make the fixtures harder to vary. One
+         signed variant is produced by XrmFramework.PluginInventory.Fixtures.Signed instead. -->
+    <SignAssembly>false</SignAssembly>
+
+    <!-- These assemblies exist to be mis-shapen on purpose (an activity whose action does not
+         exist, a type that cannot load). Warnings about unused members are noise here. -->
+    <NoWarn>$(NoWarn);CS0169;CS0649;CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\XrmFramework.Workflows\XrmFramework.Workflows.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Needed by the ConfigurationSection fixture below, which is what pins the inventory host's
+         dependency on System.Configuration.ConfigurationManager. -->
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Reproduces XrmFramework.Plugin.props verbatim: every real plugin's output directory ends up
+      with a copy-local System.Activities.dll, and because the reference resolves to the targeting
+      pack it is always a REFERENCE assembly - metadata with no IL, which no modern runtime can
+      load. The host has to serve its own stand-in and never touch this file, so the fixture would
+      be easier to inventory than a real plugin without this line.
+    -->
+    <Reference Include="System.Activities">
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Exercises the cross-TFM read of the package marker: the engine reads this attribute back
+         out of a net4x assembly it loaded on a modern runtime. -->
+    <AssemblyMetadata Include="XrmFrameworkPluginPackage" Value="true" />
+  </ItemGroup>
+
+</Project>
