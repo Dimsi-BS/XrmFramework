@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
       <TargetFrameworks>$(XrmFramework_Runtime_TFM)</TargetFrameworks>
@@ -82,8 +82,10 @@
 
   <!--
     In-process inventory (.NET Framework only): links the shared engine from
-    XrmFramework.PluginInventory. On net8/net10 the inventory goes through the out-of-process net462 exe
-    (instantiating a net462 plugin is not possible from net8).
+    XrmFramework.PluginInventory, for the deployment consoles that still run on .NET Framework.
+    On net8/net10 the inventory goes through the out-of-process host instead - not because a modern
+    runtime cannot load a net4x plugin, but to keep the plugin's Microsoft.Xrm.Sdk away from the one
+    Microsoft.PowerPlatform.Dataverse.Client brings into this process.
   -->
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <Compile Include="..\XrmFramework.PluginInventory\PluginInventoryEngine.cs" Link="_Imports\PluginInventory\PluginInventoryEngine.cs" />

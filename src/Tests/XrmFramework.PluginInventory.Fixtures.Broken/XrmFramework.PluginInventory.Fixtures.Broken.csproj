@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    A plugin assembly that is wrong on purpose, to pin the inventory's failure behaviour.
+
+    Its own project, separate from XrmFramework.PluginInventory.Fixtures, because the defects here
+    make the WHOLE inventory fail - that is the point of them - so they cannot sit beside the types
+    the happy-path tests assert on.
+  -->
+  <PropertyGroup>
+    <TargetFramework>$(XrmFramework_FullFramework_Latest_TFM)</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\XrmFramework.Workflows\XrmFramework.Workflows.csproj" />
+  </ItemGroup>
+
+</Project>

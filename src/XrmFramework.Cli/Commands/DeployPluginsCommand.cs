@@ -1,4 +1,4 @@
-// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.IO;
@@ -16,14 +16,15 @@ namespace XrmFramework.Cli.Commands;
 /// <c>Config/xrmFramework.config</c>. Delegates to
 /// <see cref="RegistrationHelper.RegisterPluginsAndWorkflows(string, string, bool, bool)" />.
 /// The inventory is produced by executing the registration code via the net462 tool
-/// <c>XrmFramework.PluginInventory</c> (deployment requires .NET Framework / Windows).
+/// <c>XrmFramework.PluginInventory</c>, which runs wherever the CLI runs - Windows, macOS and
+/// Linux alike, with no .NET Framework and no Mono.
 /// </summary>
 public sealed class DeployPluginsCommand : Command<DeployPluginsCommand.Settings>
 {
     public sealed class Settings : CommandSettings
     {
         [CommandOption("--dll <PATH>")]
-        [System.ComponentModel.Description("net462 assembly of the plugin project to deploy (plugins, custom APIs, workflows).")]
+        [System.ComponentModel.Description("net48 or net462 assembly of the plugin project to deploy (plugins, custom APIs, workflows).")]
         public string? DllPath { get; init; }
 
         [CommandOption("--project <NAME>")]
@@ -72,8 +73,9 @@ public sealed class DeployPluginsCommand : Command<DeployPluginsCommand.Settings
         // 1. Points the config to the project root's Config/.
         ConfigHelper.UseProjectConfig(Path.GetFullPath(settings.ProjectRoot));
 
-        // 2. Deploys: the assembly is NOT loaded in this net8 process; its path is passed
-        //    to the net462 inventory tool (and its metadata read without runtime loading).
+        // 2. Deploys: the assembly is NOT loaded in this process - that invariant still holds, and
+        //    still matters, because this one has its own Microsoft.Xrm.Sdk. Its path is passed to
+        //    the inventory host (and its metadata read without runtime loading).
         return RegistrationHelper.RegisterPluginsAndWorkflows(
             Path.GetFullPath(settings.DllPath!), settings.Project!, settings.OnPremise, settings.NoPrompt,
             string.IsNullOrWhiteSpace(settings.PackagePath) ? null : Path.GetFullPath(settings.PackagePath!));

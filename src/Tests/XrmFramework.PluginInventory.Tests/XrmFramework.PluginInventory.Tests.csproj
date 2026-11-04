@@ -1,12 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    Tests for the inventory engine (XrmFramework.PluginInventory) on net8.0.
+    Tests for the plugin inventory, on net8.0, at two levels.
 
-    The engine is pure reflection (TFM-agnostic): its sources are linked in and run against net8
-    "stub" plugins that mimic the XrmFramework shape. We reuse the real core types (Stages/Modes/
-    Messages, provided by DeployUtils) and the real PluginManifestReader to validate the
-    producer -> consumer round-trip.
+    1. The ENGINE, in process. Its sources are linked in and run against net8 "stub" plugins that
+       mimic the XrmFramework shape, reusing the real core types (Stages/Modes/Messages, from
+       DeployUtils) and the real PluginInventoryReader for the producer -> consumer round-trip.
+       This is what proves the engine is TFM-agnostic: it compiles and behaves the same away from
+       .NET Framework, with no shim in sight.
+
+    2. The HOST, out of process, against REAL net462/net48 plugin assemblies (the Fixtures
+       project). This is the only level that can test the hard part - loading a .NET Framework
+       assembly, its net4x Microsoft.Xrm.Sdk and its workflow activities on a runtime that has
+       neither .NET Framework nor System.Activities.
+
+       Out of process, not in process, for the same reason the CLI does it that way: this test
+       assembly already has a .NET Microsoft.Xrm.Sdk resolvable through DeployUtils ->
+       Dataverse.Client, and the default load context would serve that one from its own deps.json
+       before the engine's resolver ever saw the request. Spawning the published host keeps the
+       two worlds apart and tests exactly what ships.
+
+    Everything here runs on macOS, Linux and the Windows CI: net462/net48 compile through
+    Microsoft.NETFramework.ReferenceAssemblies, and nothing needs Mono or a .NET Framework runtime.
   -->
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -40,5 +55,89 @@
     <Compile Include="..\..\XrmFramework.PluginInventory\PluginInventoryEngine.cs" Link="_Engine\PluginInventoryEngine.cs" />
     <Compile Include="..\..\XrmFramework.PluginInventory\ManifestModel.cs" Link="_Engine\ManifestModel.cs" />
   </ItemGroup>
+
+  <!--
+    Build ordering only. SkipGetTargetFrameworkProperties keeps this net8.0 project from trying to
+    negotiate a target framework with projects it does not reference for their types: the inventory
+    host is net10.0 and the fixtures are net462;net48. Same pattern as XrmFramework.Cli.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\XrmFramework.PluginInventory\XrmFramework.PluginInventory.csproj"
+                      ReferenceOutputAssembly="false"
+                      SkipGetTargetFrameworkProperties="true"
+                      Private="false" />
+    <ProjectReference Include="..\XrmFramework.PluginInventory.Fixtures\XrmFramework.PluginInventory.Fixtures.csproj"
+                      ReferenceOutputAssembly="false"
+                      SkipGetTargetFrameworkProperties="true"
+                      Private="false" />
+    <ProjectReference Include="..\XrmFramework.PluginInventory.Fixtures.Broken\XrmFramework.PluginInventory.Fixtures.Broken.csproj"
+                      ReferenceOutputAssembly="false"
+                      SkipGetTargetFrameworkProperties="true"
+                      Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The fixture flavours the cross-TFM tests run against; [TestCase] names match these. -->
+    <XrmFrameworkFixtureTfm Include="net462" />
+    <XrmFrameworkFixtureTfm Include="net48" />
+  </ItemGroup>
+
+  <!--
+    Lays out, in the test output, the two things the out-of-process tests need:
+
+      inventory-host/   the PUBLISHED host - the whole closure, not just the .dll, because the
+                        runtimeconfig/deps and the System.Activities stand-in are what make it
+                        runnable. Published, since that is the layout the CLI ships.
+      fixtures/<tfm>/   each fixture's whole output directory. The whole directory matters: the
+                        dependencies (Microsoft.Xrm.Sdk, XrmFramework.Workflows) and the
+                        unloadable System.Activities reference assembly have to travel with the
+                        plugin, because resolving them from beside it is part of what is tested.
+
+    Copied rather than located by path: a test that reaches into another project's bin/ depends on
+    that project's configuration and TFM layout, and goes stale silently. These copies happen at
+    build time, so a CI run that tests without rebuilding works off whatever the build produced.
+  -->
+  <Target Name="CopyInventoryHostAndFixtures" AfterTargets="Build">
+    <MSBuild Projects="..\..\XrmFramework.PluginInventory\XrmFramework.PluginInventory.csproj"
+             Targets="Publish"
+             Properties="Configuration=$(Configuration);TargetFramework=net10.0;PublishDir=$(MSBuildProjectDirectory)\obj\inventory-host\" />
+
+    <ItemGroup>
+      <_InventoryHostFile Include="$(MSBuildProjectDirectory)\obj\inventory-host\**\*" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_InventoryHostFile)"
+          DestinationFiles="@(_InventoryHostFile->'$(OutDir)inventory-host\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+
+    <!-- One explicit call per flavour, so both exist before the glob below runs: a glob declared
+         in the project body is expanded during evaluation, when the fixtures may not be built. -->
+    <MSBuild Projects="..\XrmFramework.PluginInventory.Fixtures\XrmFramework.PluginInventory.Fixtures.csproj"
+             Targets="Build"
+             Properties="Configuration=$(Configuration);TargetFramework=%(XrmFrameworkFixtureTfm.Identity)" />
+
+    <!-- The ** starts just under $(Configuration), so %(RecursiveDir) already carries the target
+         framework folder, and fixtures/ ends up mirroring bin/<config>/ as fixtures/<tfm>/. -->
+    <ItemGroup>
+      <_FixtureFile Include="..\XrmFramework.PluginInventory.Fixtures\bin\$(Configuration)\**\*" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_FixtureFile)"
+          DestinationFiles="@(_FixtureFile->'$(OutDir)fixtures\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+
+    <!-- The deliberately-broken assembly, under broken/, for the strictness tests. -->
+    <MSBuild Projects="..\XrmFramework.PluginInventory.Fixtures.Broken\XrmFramework.PluginInventory.Fixtures.Broken.csproj"
+             Targets="Build"
+             Properties="Configuration=$(Configuration)" />
+
+    <ItemGroup>
+      <_BrokenFixtureFile Include="..\XrmFramework.PluginInventory.Fixtures.Broken\bin\$(Configuration)\**\*" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_BrokenFixtureFile)"
+          DestinationFiles="@(_BrokenFixtureFile->'$(OutDir)broken\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>
