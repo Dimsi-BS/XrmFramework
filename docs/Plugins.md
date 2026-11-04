@@ -473,6 +473,12 @@ Since 3.2, XrmFramework builds and deploys one for you. One thing to set, once:
 <PropertyGroup>
   <XrmFrameworkPluginPackage>true</XrmFrameworkPluginPackage>
 </PropertyGroup>
+
+<!-- Conditioned on the same property, so it follows it: see "Newtonsoft.Json" below.
+     The scaffolded plugin project already contains this - there is nothing to edit. -->
+<ItemGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+  <PackageReference Include="Newtonsoft.Json" />
+</ItemGroup>
 ```
 
 Nothing to declare in `xrmFramework.config`: the packaging targets stamp the opt-in into the
@@ -515,6 +521,31 @@ What the framework does differently in this mode, and why it matters to you:
 - **Set `XrmFrameworkPackageIncludePdb` to `true`** to also ship the `.pdb`. The sandbox extracts
   the whole package, so server-side stack traces then carry line numbers — something a classic
   assembly registration cannot offer.
+
+### Newtonsoft.Json
+
+A plugin assembly registered on its own cannot carry Newtonsoft.Json either, and the copy living
+in the sandbox is not a version anyone controls — so `XrmFramework.Plugin` ships Newtonsoft's
+**source** and compiles it into the plugin assembly. That is why a plugin project gets a
+`Newtonsoft.Json` namespace without ever referencing the package.
+
+A plugin package lifts that constraint, so in package mode the framework stops compiling the
+vendored source and expects the real assembly instead — hence the `PackageReference` above. The
+two are mutually exclusive: both at once would declare every Newtonsoft type twice.
+
+That reference is conditioned on `XrmFrameworkPluginPackage`, which is why switching a project
+over is a single edit: the property is the only lever, and the reference follows it. A scaffolded
+plugin project ships both lines, so there is nothing to add — and because the condition is in the
+project itself, the ordinary restore that `dotnet build` performs picks the change up.
+
+For a project written by hand, each half of the mistake gets its own build error naming the fix
+(`XRMFW1001` for a package without the reference, `XRMFW1002` for a reference without the
+package), because the compiler's own output — hundreds of `CS0246` or `CS0433` — says nothing
+useful about the cause.
+
+Two welcome side effects in package mode: the plugin assembly shrinks by roughly two thirds (the
+vendored source is most of it — 977 KB down to 308 KB on a probe), and the Newtonsoft version
+becomes yours to pin in `Directory.Packages.props` rather than whatever XrmFramework vendored.
 
 Two platform limitations, which the deployment refuses up front rather than failing halfway:
 
