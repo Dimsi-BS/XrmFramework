@@ -15,6 +15,8 @@
     <Project Path="Tests/XrmFramework.DeployUtils.Tests/XrmFramework.DeployUtils.Tests.csproj" />
     <Project Path="Tests/XrmFramework.Generators.Tests/XrmFramework.Generators.Tests.csproj" />
     <Project Path="Tests/XrmFramework.Plugin.Tests/XrmFramework.Plugin.Tests.csproj" />
+    <Project Path="Tests/XrmFramework.PluginInventory.Fixtures/XrmFramework.PluginInventory.Fixtures.csproj" />
+    <Project Path="Tests/XrmFramework.PluginInventory.Fixtures.Broken/XrmFramework.PluginInventory.Fixtures.Broken.csproj" />
     <Project Path="Tests/XrmFramework.PluginInventory.Tests/XrmFramework.PluginInventory.Tests.csproj" />
     <Project Path="Tests/XrmFramework.Tests/XrmFramework.Tests.csproj" />
     <Project Path="Tests/XrmFramework.TypeScript.Tests/XrmFramework.TypeScript.Tests.csproj" />
@@ -28,6 +30,7 @@
   <Project Path="XrmFramework.DeployUtils/XrmFramework.DeployUtils.csproj" />
   <Project Path="XrmFramework.Plugin.Tests/XrmFramework.Plugin.Tests.csproj" />
   <Project Path="XrmFramework.Plugin/XrmFramework.Plugin.csproj" />
+  <Project Path="XrmFramework.PluginInventory.SystemActivities/XrmFramework.PluginInventory.SystemActivities.csproj" />
   <Project Path="XrmFramework.PluginInventory/XrmFramework.PluginInventory.csproj" />
   <Project Path="XrmFramework.RemoteDebugger.Client/XrmFramework.RemoteDebugger.Client.csproj" />
   <Project Path="XrmFramework.RemoteDebugger.Generator/XrmFramework.RemoteDebugger.Generator.csproj" />

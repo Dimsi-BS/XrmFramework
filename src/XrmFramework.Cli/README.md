@@ -463,32 +463,42 @@ xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <d
 
 | Option | Required | Description |
 |---|:---:|---|
-| `--dll <PATH>` | ✅ | Plugin project assembly (`net462`, the one registered in Dataverse). |
+| `--dll <PATH>` | ✅ | Plugin project assembly (`net48` or `net462`, the one registered in Dataverse). |
 | `--project <NAME>` | ✅ | Project name as declared in `xrmFramework.config` (e.g. `Plugins`). |
 | `--project-root <DIR>` | ❌ | Root containing the `Config/` folder (default: current folder). |
 | `--package <PATH>` | ❌ | Explicit `.nupkg` to push, overriding the one found next to the assembly. Only read for a project built as a package. |
 | `--on-premise` | ❌ | Targets an On-Premises CRM (default: Dataverse Online). |
 | `-n`, `--noprompt`, `-NoPrompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). `-NoPrompt` (any casing) is kept for backward compatibility with the deployment scripts written against that spelling. |
 
-> **How it works — inventory via actual code execution.** A plugin is `net462`, this tool is
-> `net10.0`: it therefore cannot instantiate the plugin's types itself. It delegates to the
-> **`XrmFramework.PluginInventory`** tool (a `net462` executable, embedded under `inventory/`),
-> which loads the assembly, **executes the constructors (`AddSteps`)**, and reflects over the
-> types, then returns the JSON manifest (plugins / steps / workflows / custom APIs) on its
+> **How it works — inventory via actual code execution.** The plugin assembly is `net48` (or
+> `net462`) and this tool is `net10.0`, so it does not instantiate the plugin's types itself. It
+> delegates to the **`XrmFramework.PluginInventory`** host (embedded under `inventory/` and started
+> with `dotnet`), which loads the assembly, **executes the constructors (`AddSteps`)**, reflects
+> over the types, and returns the JSON manifest (plugins / steps / workflows / custom APIs) on its
 > standard output.
 >
 > Consequences:
 > - Step registration is **entirely free-form**: loops, conditions, computed values,
 >   configuration… since the real code runs (no static analysis constraints).
-> - Deployment requires the **.NET Framework runtime** (Windows). For cross-platform
->   development, a launcher can be provided via the `XRMFRAMEWORK_INVENTORY_LAUNCHER`
->   environment variable (e.g. `mono`); `XRMFRAMEWORK_INVENTORY_EXE` allows pointing to an
->   alternative inventory executable.
+> - **Deployment works wherever the CLI works** — Windows, macOS and Linux — with no .NET Framework
+>   and no Mono. A .NET Framework assembly loads perfectly well on a modern runtime; the host
+>   supplies the two things that runtime lacks, a `System.Activities` stand-in (for custom workflow
+>   activities) and System.Configuration's implementation.
+> - A separate process, deliberately: this tool has its own `Microsoft.Xrm.Sdk` through
+>   `Microsoft.PowerPlatform.Dataverse.Client`, and the plugin's `net48` one must not meet it.
+> - The inventory **fails rather than report a partial picture**. If a type cannot be loaded — a
+>   dependency missing next to the assembly, say — the deployment stops, because a plugin absent
+>   from the manifest is one the deployment would unregister. A custom workflow activity using a
+>   `System.Activities` member the stand-in does not cover fails the same way, naming the member.
+> - Overrides, for development or an unusual install: `XRMFRAMEWORK_INVENTORY_DLL` points at the
+>   host assembly, `XRMFRAMEWORK_INVENTORY_DOTNET` at the `dotnet` executable to run it with.
+>   (`XRMFRAMEWORK_INVENTORY_LAUNCHER` and `XRMFRAMEWORK_INVENTORY_EXE`, which existed for Mono,
+>   are gone; the CLI warns if it still finds them set.)
 
 **Example**
 
 ```bash
-xrmframework deploy plugins --dll bin/Release/net462/MyProject.Plugins.dll \
+xrmframework deploy plugins --dll bin/Release/net48/MyProject.Plugins.dll \
                             --project MyProject.Plugins \
                             --noprompt
 ```
@@ -1013,8 +1023,8 @@ migrate. Routine work is `pull` (rich metadata from the environment) plus the lo
 `tables columns` and `tables optionsets` make scriptable: column selection and C# naming in the
 `.table`.
 
-> `deploy plugins` inventories the `net462` plugin assembly by **executing its registration
-> code** via the `XrmFramework.PluginInventory` tool (embedded `net462` executable) — step
+> `deploy plugins` inventories the `net48`/`net462` plugin assembly by **executing its
+> registration code** via the embedded `XrmFramework.PluginInventory` host — step
 > registration therefore remains completely free-form (loops, conditions…). Requires the .NET
 > Framework runtime (Windows).
 

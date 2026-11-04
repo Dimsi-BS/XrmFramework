@@ -21,9 +21,13 @@ namespace XrmFramework.PluginInventory
     ///
     /// This code is shared (linked source):
     /// <list type="bullet">
-    ///   <item>executed out-of-process by the net462 tool (net8 CLI -> deploy plugins);</item>
-    ///   <item>executed in-process by the net462 DeployUtils (legacy deployment program).</item>
+    ///   <item>executed out-of-process by the net10 inventory host (CLI -> deploy plugins);</item>
+    ///   <item>executed in-process by the net462/net48 DeployUtils (legacy deployment program).</item>
     /// </list>
+    /// It is therefore TFM-agnostic: pure reflection, read by property name, never casting to a
+    /// type of the inspected assembly. Everything a particular runtime needs to make the load
+    /// succeed is passed in by its host - see the <c>hostSuppliedAssemblies</c> argument of
+    /// <see cref="BuildManifestJson(string, IReadOnlyDictionary{string, string})" />.
     /// </summary>
     internal static class PluginInventoryEngine
     {
@@ -39,13 +43,22 @@ namespace XrmFramework.PluginInventory
         /// <summary>
         /// Loads the assembly located at <paramref name="dllPath" /> and returns the JSON manifest.
         /// </summary>
-        public static string BuildManifestJson(string dllPath)
+        /// <param name="dllPath">The plugin assembly to describe.</param>
+        /// <param name="hostSuppliedAssemblies">
+        ///     Assemblies the HOST provides itself, by simple name, mapped to the file to load. Consulted
+        ///     before the probe directory. The .NET-modern host uses it for <c>System.Activities</c>,
+        ///     which does not exist on .NET 5+ and whose stand-in ships next to the host; .NET Framework
+        ///     callers pass nothing and get the GAC's copy as before.
+        /// </param>
+        public static string BuildManifestJson(
+            string dllPath,
+            IReadOnlyDictionary<string, string> hostSuppliedAssemblies = null)
         {
             var fullPath = Path.GetFullPath(dllPath);
 
             // The plugin's dependencies (Microsoft.Xrm.Sdk, etc.) live next to the DLL.
             var probeDir = Path.GetDirectoryName(fullPath);
-            ResolveEventHandler resolver = (_, e) => ResolveFromProbeDir(probeDir, e.Name);
+            ResolveEventHandler resolver = (_, e) => Resolve(probeDir, hostSuppliedAssemblies, e.Name);
             AppDomain.CurrentDomain.AssemblyResolve += resolver;
             try
             {
@@ -67,7 +80,7 @@ namespace XrmFramework.PluginInventory
             // Classification by inheritance on the FULL NAME of the base type: robust whether
             // the XrmFramework base types are compiled into the assembly (source package) or
             // provided by a referenced XrmFramework.Plugin.dll (ProjectReference).
-            foreach (var type in GetLoadableTypes(assembly))
+            foreach (var type in GetTypes(assembly))
             {
                 if (!type.IsClass || type.IsAbstract)
                     continue;
@@ -182,17 +195,25 @@ namespace XrmFramework.PluginInventory
 
         private static WorkflowInfo ExtractWorkflow(Type type)
         {
-            string displayName = null;
+            // A failure here used to be swallowed and the type's short name reported instead. That
+            // silently shipped a WRONG workflow display name - Dataverse registers the plugintype
+            // under it - with nothing in the output to say so. The inventory describes what will be
+            // deployed, so it has to fail rather than guess.
+            object instance;
             try
             {
-                var instance = Instantiate(type);
-                displayName = GetProp(instance, "DisplayName") as string;
+                instance = Instantiate(type);
             }
-            catch
+            catch (Exception ex)
             {
-                // DisplayName not resolvable -> fall back to the type name.
+                throw new InvalidOperationException(
+                    $"Failed to instantiate workflow activity '{type.FullName}': {Flatten(ex)}", ex);
             }
 
+            var displayName = GetProp(instance, "DisplayName") as string;
+
+            // Still a legitimate fallback: an activity that never sets a display name is named after
+            // its type, which is what .NET Framework's System.Activities does on its own.
             if (string.IsNullOrEmpty(displayName))
                 displayName = type.Name;
 
@@ -297,19 +318,65 @@ namespace XrmFramework.PluginInventory
             return result;
         }
 
-        private static Assembly ResolveFromProbeDir(string probeDir, string assemblyFullName)
+        /// <summary>
+        ///     Resolves a dependency of the plugin assembly: what the host supplies itself first, then
+        ///     the directory the plugin assembly sits in.
+        /// </summary>
+        /// <remarks>
+        ///     The host's own list wins deliberately, rather than letting the probe directory be tried
+        ///     first and falling back when it throws. A plugin's output directory ALWAYS contains a
+        ///     <c>System.Activities.dll</c> - the plugin props copy it local - and it is always a
+        ///     reference assembly, which .NET modern refuses to load. That is a known, predictable
+        ///     shape, not an anomaly, so it should not be driven by exception handling. It also means a
+        ///     directory that happens to hold a loadable-but-wrong <c>System.Activities</c> (someone
+        ///     dropped CoreWF in it) cannot silently win over the stand-in the host shipped.
+        /// </remarks>
+        private static Assembly Resolve(
+            string probeDir, IReadOnlyDictionary<string, string> hostSuppliedAssemblies, string assemblyFullName)
         {
             var simpleName = new AssemblyName(assemblyFullName).Name;
+
+            string hostSupplied;
+            if (hostSuppliedAssemblies != null
+                    && hostSuppliedAssemblies.TryGetValue(simpleName, out hostSupplied)
+                    && File.Exists(hostSupplied))
+                return Assembly.LoadFrom(hostSupplied);
+
             foreach (var ext in new[] { ".dll", ".exe" })
             {
                 var candidate = Path.Combine(probeDir, simpleName + ext);
-                if (File.Exists(candidate))
+                if (!File.Exists(candidate))
+                    continue;
+
+                try
+                {
                     return Assembly.LoadFrom(candidate);
+                }
+                catch (BadImageFormatException)
+                {
+                    // A reference assembly copied next to the plugin (the plugin props do this for
+                    // System.Activities). It carries metadata but no IL, so a modern runtime cannot
+                    // load it. Keep looking rather than failing the whole inventory - and let the
+                    // caller see an unresolved dependency if nothing else answers.
+                }
             }
+
             return null;
         }
 
-        private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
+        /// <summary>
+        ///     All the types of the assembly, or a failure naming what could not be loaded.
+        /// </summary>
+        /// <remarks>
+        ///     A type that fails to load used to produce a warning on stderr and be skipped. That is
+        ///     the most dangerous outcome this tool can have: a missing dependency takes out exactly
+        ///     the types that depend on it, so a whole set of plugins, custom APIs or workflow
+        ///     activities would DISAPPEAR from the manifest - and the deployment, reading a manifest
+        ///     that simply does not mention them, would treat them as removed and happily unregister
+        ///     their steps. An incomplete inventory is indistinguishable from a deliberate deletion,
+        ///     so it must not be reported as a success.
+        /// </remarks>
+        private static IEnumerable<Type> GetTypes(Assembly assembly)
         {
             try
             {
@@ -317,11 +384,16 @@ namespace XrmFramework.PluginInventory
             }
             catch (ReflectionTypeLoadException ex)
             {
-                // Surface load failures (missing deps next to the DLL) without blocking the
-                // inventory of the types that could be loaded.
-                foreach (var le in ex.LoaderExceptions ?? Array.Empty<Exception>())
-                    Console.Error.WriteLine("Type load warning: " + Flatten(le));
-                return ex.Types.Where(t => t != null);
+                var reasons = (ex.LoaderExceptions ?? Array.Empty<Exception>())
+                    .Where(e => e != null)
+                    .Select(Flatten)
+                    .Distinct()
+                    .ToList();
+
+                throw new InvalidOperationException(
+                    $"Some types of '{assembly.Location}' could not be loaded, so the inventory would " +
+                    "be incomplete. A dependency is most likely missing next to the assembly." +
+                    Environment.NewLine + string.Join(Environment.NewLine, reasons), ex);
             }
         }
 

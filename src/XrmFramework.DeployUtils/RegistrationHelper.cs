@@ -204,7 +204,8 @@ public partial class RegistrationHelper
         _consoleService.SetStatus("Fetching Local Assembly...");
 
         // The local inventory is obtained by EXECUTING the registration code (constructors /
-        // AddSteps) via XrmFramework.PluginInventory: in-process net462, out-of-process net462 exe on net8.
+        // AddSteps) via XrmFramework.PluginInventory: in-process on .NET Framework, out of process
+        // through the inventory host otherwise.
         var localAssembly = _assemblyFactory.CreateFromLocalAssemblyContext(dllPath);
 
         var localPackage = localAssembly.AssemblyInfo.Package;
