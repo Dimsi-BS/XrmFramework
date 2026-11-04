@@ -543,9 +543,9 @@ For a project written by hand, each half of the mistake gets its own build error
 package), because the compiler's own output — hundreds of `CS0246` or `CS0433` — says nothing
 useful about the cause.
 
-Two welcome side effects in package mode: the plugin assembly shrinks by roughly 750 KB, and the
-Newtonsoft version becomes yours to pin in `Directory.Packages.props` rather than whatever
-XrmFramework vendored.
+Two welcome side effects in package mode: the plugin assembly shrinks by roughly two thirds (the
+vendored source is most of it — 977 KB down to 308 KB on a probe), and the Newtonsoft version
+becomes yours to pin in `Directory.Packages.props` rather than whatever XrmFramework vendored.
 
 Two platform limitations, which the deployment refuses up front rather than failing halfway:
 

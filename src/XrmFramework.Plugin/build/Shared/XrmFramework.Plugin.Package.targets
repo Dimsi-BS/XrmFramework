@@ -206,8 +206,11 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(XrmFrameworkPluginPackage)' != 'true'">
+    <!-- The metadata is what XRMFW1003 below looks for, to tell "the glob matched nothing" from
+         "the glob was never evaluated". -->
     <Compile Include="$(MSBuildThisFileDirectory)../NewtonSoft.Json/**/*.cs"
-             Link="__Imports/XrmFramework.Plugin/NewtonSoft.Json/%(RecursiveDir)%(Filename)%(Extension)" />
+             Link="__Imports/XrmFramework.Plugin/NewtonSoft.Json/%(RecursiveDir)%(Filename)%(Extension)"
+             XrmFrameworkVendoredNewtonsoft="true" />
   </ItemGroup>
 
   <!--
@@ -221,6 +224,20 @@
     <PropertyGroup>
       <_XrmFrameworkNewtonsoftReferenced Condition="'@(ReferencePath->WithMetadataValue('Filename','Newtonsoft.Json'))' != ''">true</_XrmFrameworkNewtonsoftReferenced>
     </PropertyGroup>
+
+    <!--
+      Guards the one link in this mechanism that spans two files: the nuspec ships the vendored
+      source to build/NewtonSoft.Json, and the ItemGroup above globs it from there relative to this
+      file. Move either and assembly mode silently compiles no Newtonsoft at all, which reaches the
+      consumer as hundreds of CS0246 in framework files they never wrote. Nothing on the framework's
+      own side would notice: its projects compile that source straight out of the repository.
+
+      Asserts the glob's RESULT rather than the directory's existence - that is the invariant that
+      matters, and it does not depend on how MSBuild normalises a path with a ".." segment in it.
+    -->
+    <Error Condition="'$(XrmFrameworkPluginPackage)' != 'true' and '@(Compile->WithMetadataValue('XrmFrameworkVendoredNewtonsoft','true'))' == ''"
+           Code="XRMFW1003"
+           Text="The XrmFramework.Plugin package is incomplete: it carries no Newtonsoft.Json source under build/NewtonSoft.Json, which is what a plugin deployed as a plain assembly compiles in place of a Newtonsoft.Json reference. Reinstall the package; if it persists, it was packed wrong - the framework's nuspec and its build/Shared/XrmFramework.Plugin.Package.targets disagree on where that source lives." />
 
     <Error Condition="'$(XrmFrameworkPluginPackage)' == 'true' and '$(_XrmFrameworkNewtonsoftReferenced)' != 'true'"
            Code="XRMFW1001"
