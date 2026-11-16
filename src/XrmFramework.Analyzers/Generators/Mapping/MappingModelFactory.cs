@@ -449,7 +449,7 @@ internal static class MappingModelFactory
 
     private static bool IsEnumType(string typeName, Column column)
     {
-        if (!IsOptionSet(column.Type) && !column.IsMultiSelect)
+        if (!IsOptionSet(column.Type) && !column.IsMultiSelectChoice)
         {
             return false;
         }

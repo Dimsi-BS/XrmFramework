@@ -353,6 +353,13 @@ namespace XrmFramework.DeployUtils.TableSync
             {
                 LogicalName = attributeMetadata.LogicalName,
                 Name = name,
+                // A multi-select choice is written as a Picklist carrying the IsMultiSelect flag,
+                // not as AttributeTypeCode.MultiSelectPicklist. The flag is the shape every
+                // consumer of a .table already reads — Column.IsMultiSelectChoice turns it into
+                // the type the generated code declares — and writing the type instead would churn
+                // every checked-in .table on the next sync-tables for nothing. The generated code
+                // takes the type from Column.EffectiveType, so all three shapes a .table carries
+                // this in produce the same definition, and no project has to re-pull to be fixed.
                 Type = isMultiSelect
                     ? AttributeTypeCode.Picklist
                     : (AttributeTypeCode)attributeType,

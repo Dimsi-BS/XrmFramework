@@ -1,4 +1,4 @@
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 using System;
@@ -931,5 +931,115 @@ public class TableSourceFileGeneratorTests
         StringAssert.Contains("public const string business_unit_system_users = \"business_unit_system_users\";",
             generated["SystemUser.table.cs"],
             "The lookup selected by one copy must find the relationship declared by the other.");
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // Multi-select choices
+    // ══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// A multi-select choice declared the way <c>xrmframework pull</c> writes it: a <c>Picklist</c>
+    /// carrying the <c>IsMultiSelect</c> flag.
+    /// </summary>
+    /// <remarks>
+    /// The generated <c>[AttributeMetadata]</c> is what the runtime mappers branch on, and only
+    /// <c>MultiSelectPicklist</c> routes to the readers that expect an
+    /// <c>OptionSetValueCollection</c>. Declared <c>Picklist</c>, the column made every binding
+    /// model reading it throw an <c>InvalidCastException</c> out of
+    /// <c>Entity.GetAttributeValue&lt;OptionSetValue&gt;</c>.
+    /// </remarks>
+    [Test]
+    public void APicklistFlaggedMultiSelect_IsDeclaredMultiSelectPicklist()
+    {
+        var generated = GenerateMultiSelectTable("Picklist", flagged: true);
+
+        StringAssert.Contains("[AttributeMetadata(AttributeTypeCode.MultiSelectPicklist)]", generated);
+        StringAssert.Contains("[OptionSet(typeof(TypeDeCRA))]", generated);
+        StringAssert.Contains("public const string TypesCRAs = \"dpp_typescras\";", generated);
+        StringAssert.DoesNotContain("[AttributeMetadata(AttributeTypeCode.Picklist)]", generated);
+    }
+
+    /// <summary>
+    /// The same column as an older pull wrote it. The CRM reports a multi-select choice as a
+    /// <c>Virtual</c> attribute, which is the type that reached the <c>.table</c> before the pull
+    /// started normalising it to <c>Picklist</c> — and <c>Virtual</c> routes to no reader at all.
+    /// </summary>
+    [Test]
+    public void AVirtualColumnFlaggedMultiSelect_IsDeclaredMultiSelectPicklist()
+    {
+        var generated = GenerateMultiSelectTable("Virtual", flagged: true);
+
+        StringAssert.Contains("[AttributeMetadata(AttributeTypeCode.MultiSelectPicklist)]", generated);
+        StringAssert.DoesNotContain("[AttributeMetadata(AttributeTypeCode.Virtual)]", generated);
+    }
+
+    /// <summary>
+    /// The type on its own, with no flag beside it: the shape a project hand-edited its <c>.table</c>
+    /// into to work around the generator ignoring the flag. It must keep producing what it produced.
+    /// </summary>
+    [Test]
+    public void AColumnTypedMultiSelectPicklist_IsDeclaredMultiSelectPicklist()
+    {
+        var generated = GenerateMultiSelectTable("MultiSelectPicklist", flagged: false);
+
+        StringAssert.Contains("[AttributeMetadata(AttributeTypeCode.MultiSelectPicklist)]", generated);
+        StringAssert.Contains("[OptionSet(typeof(TypeDeCRA))]", generated);
+    }
+
+    /// <summary>
+    /// And a choice holding one option at a time stays a <c>Picklist</c>: the flag is what tells the
+    /// two apart, so a column without it must come out untouched.
+    /// </summary>
+    [Test]
+    public void APicklistNotFlaggedMultiSelect_StaysAPicklist()
+    {
+        var generated = GenerateMultiSelectTable("Picklist", flagged: false);
+
+        StringAssert.Contains("[AttributeMetadata(AttributeTypeCode.Picklist)]", generated);
+        StringAssert.DoesNotContain("MultiSelectPicklist", generated);
+    }
+
+    /// <summary>
+    /// The three shapes produce one and the same definition — nothing about a multi-select column
+    /// may depend on which of them its <c>.table</c> happens to carry.
+    /// </summary>
+    [Test]
+    public void TheThreeMultiSelectShapes_GenerateTheSameDefinition()
+    {
+        var picklistFlagged = GenerateMultiSelectTable("Picklist", flagged: true);
+
+        Assert.AreEqual(picklistFlagged, GenerateMultiSelectTable("Virtual", flagged: true));
+        Assert.AreEqual(picklistFlagged, GenerateMultiSelectTable("MultiSelectPicklist", flagged: true));
+
+        // The hand-edited form carries no flag at all, which only changes the type written in the
+        // XML summary of the column — the metadata the mappers read is the same.
+        StringAssert.Contains("[AttributeMetadata(AttributeTypeCode.MultiSelectPicklist)]",
+            GenerateMultiSelectTable("MultiSelectPicklist", flagged: false));
+    }
+
+    private static string GenerateMultiSelectTable(string type, bool flagged)
+    {
+        var table = $$"""
+            {
+              "LogName": "dpp_cra", "Name": "Cra", "CollName": "dpp_cras",
+              "Cols": [
+                { "LogName": "dpp_craid", "Name": "Id", "Type": "Uniqueidentifier", "PrimaryType": "Id", "Select": true },
+                {
+                  "LogName": "dpp_typescras", "Name": "TypesCRAs", "Type": "{{type}}", "Capa": 15,
+                  {{(flagged ? "\"IsMultiSelect\": true," : string.Empty)}}
+                  "EnumName": "dpp_typedecra", "Select": true
+                }
+              ],
+              "Enums": [
+                {
+                  "LogName": "dpp_typedecra", "Name": "TypeDeCRA", "IsGlobal": true,
+                  "Values": [ { "Value": 1, "Name": "Interne" }, { "Value": 2, "Name": "Client" } ]
+                }
+              ]
+            }
+            """;
+
+        return TestHelper.Generate<TableSourceFileGenerator>(
+            ("Model/Definitions/Cra.table", table))["Cra.table.cs"];
     }
 }
