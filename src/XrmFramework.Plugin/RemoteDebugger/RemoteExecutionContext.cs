@@ -39,11 +39,18 @@ public partial class RemoteDebugExecutionContext : IPluginExecutionContext
         OperationCreatedOn = context.OperationCreatedOn;
         ExecutionDate = DateTime.UtcNow;
 
-        if (context.GetType().Name == "IWorkflowContext")
-        {
-            InitRemoteWorkflowContext(context);
-        }
-        else if (context is IPluginExecutionContext pluginContext)
+        // The partial decides whether the context is a workflow one, because this file cannot name
+        // IWorkflowContext: Microsoft.Xrm.Sdk.Workflow is referenced by the workflow assembly
+        // alone, and in a plugin assembly the partial has no implementation, so the call compiles
+        // away and IsWorkflowContext stays false.
+        //
+        // The test used to be `context.GetType().Name == "IWorkflowContext"`, which never held:
+        // GetType() answers the concrete class the CRM hands over, never the name of an interface
+        // it implements. So a workflow activity reached the debugger flagged as a plugin, and the
+        // client cast it to IPlugin — which a CodeActivity is not.
+        InitRemoteWorkflowContext(context);
+
+        if (!IsWorkflowContext && context is IPluginExecutionContext pluginContext)
         {
             Stage = pluginContext.Stage;
 
