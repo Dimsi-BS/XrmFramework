@@ -373,8 +373,49 @@ public class TableSourceFileGeneratorTests
         StringAssert.Contains("_2Pieces = 3,", generated,
             "A name starting with a digit is no identifier either.");
 
-        // The label the name was derived from is what [Description] carries, untouched.
+        // A .table carrying no label leaves the name as the only description of the member.
         StringAssert.Contains("[Description(\"PourInvest.Jeanbrun\")]", generated);
+    }
+
+    /// <summary>
+    /// <c>[Description]</c> is what <c>GetDescription()</c> hands back and what
+    /// <c>GetValueFromDescription()</c> matches a CRM value against: it must carry the label the CRM
+    /// displays, not the identifier that label was stripped down to.
+    /// </summary>
+    [Test]
+    public void AMemberDescription_IsTheLabelOfTheOption()
+    {
+        const string table = """
+            {
+              "LogName": "systemuser", "Name": "SystemUser", "CollName": "systemusers", "Cols": [
+                { "LogName": "accessmode", "Name": "AccessMode", "Type": "Picklist", "EnumName": "systemuser|accessmode", "Select": true }
+              ],
+              "Enums": [
+                {
+                  "LogName": "systemuser|accessmode", "Name": "AccessMode",
+                  "Values": [
+                    { "Value": 0, "Name": "ReadWrite", "Labels": [ { "Label": "Lecture-\u00e9criture", "LangId": 1036 } ] },
+                    { "Value": 1, "Name": "ValeurParDefaut", "Labels": [
+                        { "Label": "Default Value", "LangId": 1033 },
+                        { "Label": "Valeur par d\u00e9faut", "LangId": 1036 } ] }
+                  ]
+                }
+              ]
+            }
+            """;
+
+        var generated = TestHelper.Generate<TableSourceFileGenerator>(
+            ("Model/Definitions/SystemUser.table", table))["SystemUser.table.cs"];
+
+        StringAssert.Contains("[Description(\"Lecture-\u00e9criture\")]", generated);
+        StringAssert.DoesNotContain("[Description(\"ReadWrite\")]", generated);
+
+        StringAssert.Contains("[Description(\"Valeur par d\u00e9faut\")]", generated,
+            "Of several languages, the one the member name was derived from.");
+
+        // The member itself is still named after what the .table says.
+        StringAssert.Contains("ReadWrite = 0,", generated);
+        StringAssert.Contains("ValeurParDefaut = 1,", generated);
     }
 
     /// <summary>

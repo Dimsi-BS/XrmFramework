@@ -342,7 +342,8 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 					continue;
 				}
 
-				sb.AppendLine($"[Description(\"{Literal(val.Name)}\")]");
+				// The CRM label, not the member name: see OptionSetEnumValue.EffectiveLabel.
+				sb.AppendLine($"[Description(\"{Literal(val.EffectiveLabel)}\")]");
 
 				if (!string.IsNullOrEmpty(val.ExternalValue))
 					sb.AppendLine($"[ExternalValue(\"{Literal(val.ExternalValue)}\")]");
