@@ -1,0 +1,43 @@
+{
+  "LogName": "xrmtest_project",
+  "Name": "MultiSelectProject",
+  "CollName": "xrmtest_projects",
+  "Cols": [
+    {
+      "LogName": "xrmtest_projectid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 15,
+      "Select": true
+    },
+    {
+      "LogName": "xrmtest_name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Select": true
+    },
+    {
+      "LogName": "xrmtest_billingtypes",
+      "Name": "BillingTypes",
+      "Type": "Virtual",
+      "Capa": 15,
+      "IsMultiSelect": true,
+      "EnumName": "xrmtest_billingtype",
+      "Select": true
+    }
+  ],
+  "Enums": [
+    {
+      "LogName": "xrmtest_billingtype",
+      "Name": "MultiSelectBillingType",
+      "IsGlobal": true,
+      "Values": [
+        { "Value": 10, "Name": "Fixed" },
+        { "Value": 20, "Name": "TimeAndMaterials" }
+      ]
+    }
+  ]
+}

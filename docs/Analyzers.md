@@ -516,6 +516,39 @@ breaking a tie — the same rule the reflection-based mapper has always used. A 
 columns the model maps is never emitted at all: it could never be satisfied, so resolving it at
 runtime would only ever be dead code.
 
+### Multi-select choices
+
+A column holding several options at once is declared `AttributeTypeCode.MultiSelectPicklist` in
+the generated definition, whichever of the three shapes its `.table` carries it in:
+
+```json
+{ "LogName": "dpp_typescras", "Type": "Picklist", "IsMultiSelect": true,
+  "EnumName": "dpp_typedecra", "Select": true }
+```
+
+```csharp
+[AttributeMetadata(AttributeTypeCode.MultiSelectPicklist)]
+[OptionSet(typeof(TypeDeCRA))]
+public const string TypesCRAs = "dpp_typescras";
+```
+
+`xrmframework pull` writes the shape above — a `Picklist` carrying the flag. An older pull wrote
+`"Type": "Virtual"` next to the same flag, which is how the CRM itself reports a multi-select
+choice, and `"Type": "MultiSelectPicklist"` on its own is accepted too. **No re-pull is needed**:
+all three produce the same definition.
+
+That attribute is what both mappers branch on, and only `MultiSelectPicklist` routes to the ones
+that expect an `OptionSetValueCollection`. A hand-written `[CrmMapping]` property can be typed
+`ICollection<T>`, `IList<T>` or `List<T>` of either the generated enum or `int`:
+
+```csharp
+[CrmMapping(CraDefinition.Columns.TypesCRAs)]
+public ICollection<TypeDeCRA> TypesCras { get; set; }
+```
+
+A `.model` declares the same column as `"Type": "List<TypeDeCRA>"`, which generates the
+`GetOptionSetValues` / `SetOptionSetValues` pair instead of going through the reflection mapper.
+
 ---
 
 ## Source generator diagnostics

@@ -57,10 +57,10 @@ namespace XrmFramework
 
             /// <summary>
             /// 
-            /// Type : Virtual (ContactInterest)
+            /// Type : MultiSelectPicklist (ContactInterest)
             /// Validity :  Read | Create | Update | AdvancedFind 
             /// </summary>
-            [AttributeMetadata(AttributeTypeCode.Virtual)]
+            [AttributeMetadata(AttributeTypeCode.MultiSelectPicklist)]
             [OptionSet(typeof(ContactInterest))]
             public const string Interests = "interests";
 
