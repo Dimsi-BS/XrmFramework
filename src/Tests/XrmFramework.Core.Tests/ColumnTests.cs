@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using NUnit.Framework;
 using Microsoft.Xrm.Sdk.Metadata;
 
@@ -89,6 +89,63 @@ namespace XrmFramework.Core.Tests
 
             Assert.IsNotNull(column.Labels);
             Assert.AreEqual(0, column.Labels.Count);
+        }
+
+        // ═════════════════════════════════════════════════════════════════════
+        //  Multi-select choices
+        // ═════════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// The three shapes a <c>.table</c> carries a multi-select choice in, and the one type the
+        /// generated code has to declare for all of them: anything but
+        /// <c>MultiSelectPicklist</c> sends the runtime mappers to the readers that expect a single
+        /// <c>OptionSetValue</c>, and reading an <c>OptionSetValueCollection</c> through those
+        /// throws.
+        /// </summary>
+        [TestCase("Picklist", true, TestName = "EffectiveType_PicklistFlaggedMultiSelect")]
+        [TestCase("Virtual", true, TestName = "EffectiveType_VirtualFlaggedMultiSelect")]
+        [TestCase("MultiSelectPicklist", false, TestName = "EffectiveType_TypedMultiSelectPicklist")]
+        public void EffectiveType_OfAMultiSelectColumn_IsMultiSelectPicklist(string type, bool flagged)
+        {
+            var json = flagged
+                ? $"{{ \"Type\": \"{type}\", \"IsMultiSelect\": true }}"
+                : $"{{ \"Type\": \"{type}\" }}";
+
+            var column = JsonConvert.DeserializeObject<Column>(json);
+
+            Assert.IsTrue(column.IsMultiSelectChoice);
+            Assert.AreEqual(AttributeTypeCode.MultiSelectPicklist, column.EffectiveType);
+        }
+
+        /// <summary>A choice holding one option at a time is left alone.</summary>
+        [Test]
+        public void EffectiveType_OfASinglePicklist_IsThePicklistItself()
+        {
+            var column = JsonConvert.DeserializeObject<Column>("{ \"Type\": \"Picklist\" }");
+
+            Assert.IsFalse(column.IsMultiSelectChoice);
+            Assert.AreEqual(AttributeTypeCode.Picklist, column.EffectiveType);
+        }
+
+        /// <summary>
+        /// Neither derived property may be written back out. A <c>.table</c> is round-tripped
+        /// verbatim — <c>TsGenerator</c> serializes a column straight into the TypeScript
+        /// definitions, and <c>TableFileStore</c> rewrites the files in place — so a property that
+        /// serialized would churn every generated file and every checked-in table at once.
+        /// </summary>
+        [Test]
+        public void TheDerivedMultiSelectProperties_AreNotSerialized()
+        {
+            var json = JsonConvert.SerializeObject(new Column
+            {
+                LogicalName = "xrm_tags",
+                Type = AttributeTypeCode.Picklist,
+                IsMultiSelect = true
+            });
+
+            Assert.IsFalse(json.Contains(nameof(Column.IsMultiSelectChoice)));
+            Assert.IsFalse(json.Contains(nameof(Column.EffectiveType)));
+            Assert.IsTrue(json.Replace(" ", string.Empty).Contains("\"IsMultiSelect\":true"));
         }
     }
 }

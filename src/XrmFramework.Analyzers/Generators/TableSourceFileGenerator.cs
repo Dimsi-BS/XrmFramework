@@ -173,7 +173,11 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 
 							AddColumnSummary(sb, col, enumDefinition);
 
-							sb.AppendLine($"[AttributeMetadata(AttributeTypeCode.{col.Type.ToString()})]");
+							// EffectiveType, not Type: a multi-select choice reaches the .table written
+							// "Picklist" or "Virtual" next to its IsMultiSelect flag, and declaring it as
+							// such made every binding model reading it throw — the runtime mappers branch on
+							// this attribute, and only MultiSelectPicklist routes to the collection readers.
+							sb.AppendLine($"[AttributeMetadata(AttributeTypeCode.{col.EffectiveType.ToString()})]");
 							if (col.Type == AttributeTypeCode.Lookup
 							    || col.Type == AttributeTypeCode.Customer
 							    || col.Type == AttributeTypeCode.Owner)
@@ -500,7 +504,7 @@ public class TableSourceFileGenerator : IIncrementalGenerator
 	{
 		sb.AppendLine("/// <summary>");
 		sb.AppendLine("/// ");
-		sb.AppendLine($"/// Type : {col.Type}{(optionSetEnum == null ? "" : " (" + optionSetEnum.Name + ")")}");
+		sb.AppendLine($"/// Type : {col.EffectiveType}{(optionSetEnum == null ? "" : " (" + optionSetEnum.Name + ")")}");
 		sb.Append("/// Validity :  ");
 
 		var isFirst = true;

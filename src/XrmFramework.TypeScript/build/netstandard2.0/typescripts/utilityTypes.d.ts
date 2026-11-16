@@ -58,7 +58,7 @@ type ColTypeToAttributeType = {
 type AttributeTypeFromCol<
     TableDefinition extends Table,
     C extends ColDef<TableDefinition> | undefined
-> = C extends { Type: "Picklist"; IsMultiSelect: true }
+> = C extends MultiSelectColumn
     ? Xrm.Attributes.MultiSelectOptionSetAttribute
     : C extends { Type: infer T }
         ? T extends keyof ColTypeToAttributeType
@@ -131,7 +131,7 @@ type ApiColTypeToTsType = {
 type QueryTypeFromCol<
     TableDefinition extends Table,
     C extends ColDef<TableDefinition> | undefined
-> = C extends { Type: "Picklist"; IsMultiSelect: true }
+> = C extends MultiSelectColumn
     ? number[]
     : C extends { Type: infer T }
         ? T extends keyof ApiColTypeToTsType
@@ -191,7 +191,7 @@ type ColTypeToControlType = {
 type ControlTypeFromCol<
     TableDefinition extends Table,
     C extends ColDef<TableDefinition> | undefined
-> = C extends { Type: "Picklist"; IsMultiSelect: true }
+> = C extends MultiSelectColumn
     ? Xrm.Controls.MultiSelectOptionSetControl
     : C extends { Type: infer T }
         ? T extends keyof ColTypeToControlType
