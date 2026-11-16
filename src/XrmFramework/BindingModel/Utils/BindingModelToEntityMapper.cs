@@ -238,6 +238,13 @@ namespace XrmFramework.BindingModel
                 return null;
             }
 
+            // The element type, not the property type: objectType is the collection
+            // (ICollection<MyChoice>, List<int>, …), so asking it whether it is an enum answered no
+            // every time, and unboxing a boxed enum straight to int threw on the way out.
+            var elementType = objectType.IsEnum
+                ? objectType
+                : objectType.GenericTypeArguments.FirstOrDefault();
+
             var list = new List<OptionSetValue>();
 
             foreach (var v in enumValues)
@@ -247,16 +254,18 @@ namespace XrmFramework.BindingModel
                     continue;
                 }
 
-                if (objectType.IsEnum)
+                var optionValue = Convert.ToInt32(v);
+
+                if (elementType != null && elementType.IsEnum)
                 {
                     // Preserve the (odd) original behaviour: skip the "Null" name with value 0.
-                    if (Enum.GetName(objectType, v) == "Null" && (int)v == 0)
+                    if (optionValue == 0 && Enum.GetName(elementType, v) == "Null")
                     {
                         continue;
                     }
                 }
 
-                list.Add(new OptionSetValue((int)v));
+                list.Add(new OptionSetValue(optionValue));
             }
 
             return list.Count == 0 ? null : new OptionSetValueCollection(list);

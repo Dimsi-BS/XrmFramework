@@ -69,6 +69,19 @@ namespace XrmFramework.Tests.Sdk.Queries
             Assert.AreEqual("3", result);
         }
 
+        /// <summary>
+        /// A multi-select column is compared one option at a time, so its condition value is the
+        /// option's integer like any other choice. These columns used to be declared
+        /// <c>Picklist</c> and reach that case; declared <c>MultiSelectPicklist</c>, they must not
+        /// fall through to the empty string.
+        /// </summary>
+        [Test]
+        public void ToWebApiValue_MultiSelectPicklist_ReturnsIntValue()
+        {
+            var result = Query.ToWebApiValue(AttributeTypeCode.MultiSelectPicklist, 3);
+            Assert.AreEqual("3", result);
+        }
+
         [Test]
         public void ToWebApiValue_Status_ReturnsIntValue()
         {

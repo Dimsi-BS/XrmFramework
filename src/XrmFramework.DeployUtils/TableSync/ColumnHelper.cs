@@ -132,7 +132,7 @@ namespace XrmFramework.DeployUtils.TableSync
                 grid.AddRow(
                     Markup.Escape(column.LogicalName ?? string.Empty),
                     Markup.Escape(column.Name ?? string.Empty),
-                    Markup.Escape(column.Type.ToString()),
+                    Markup.Escape(column.EffectiveType.ToString()),
                     column.Selected ? "[green]yes[/]" : string.Empty,
                     column.IsLocked ? "[yellow]yes[/]" : string.Empty);
             }
