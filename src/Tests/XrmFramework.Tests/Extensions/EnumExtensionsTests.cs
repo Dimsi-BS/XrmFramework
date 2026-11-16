@@ -1,4 +1,4 @@
-// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -326,6 +326,53 @@ namespace XrmFramework.Tests.Extensions
         {
             var result = new List<OptionSetValue>().ToEnumCollection(typeof(SimpleEnum));
             Assert.AreEqual(0, result.Count);
+        }
+
+        // ────────────────────────────────────────────────────────────
+        //  ToTypedEnumList
+        // ────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// The list is of the enum, not of <see cref="object" />. That is the whole point of it
+        /// existing beside <c>ToEnumCollection</c>: a binding model's settable
+        /// <c>ICollection&lt;MyChoice&gt;</c> property rejects a <c>List&lt;object&gt;</c> of boxed
+        /// members, which left <c>ICollection&lt;int&gt;</c> as the only type a multi-select column
+        /// could be read into.
+        /// </summary>
+        [Test]
+        public void ToTypedEnumList_ReturnsAListOfTheEnum()
+        {
+            var osvs = new List<OptionSetValue> { new OptionSetValue(1), new OptionSetValue(2) };
+
+            var result = osvs.ToTypedEnumList(typeof(SimpleEnum));
+
+            Assert.IsInstanceOf<List<SimpleEnum>>(result);
+            Assert.That((List<SimpleEnum>)result,
+                Is.EqualTo(new[] { SimpleEnum.First, SimpleEnum.Second }));
+        }
+
+        /// <summary>
+        /// And it is assignable to the property types a model actually declares — the ones a
+        /// <c>List&lt;object&gt;</c> satisfies none of.
+        /// </summary>
+        [Test]
+        public void ToTypedEnumList_IsAssignableToTheCollectionTypesAModelDeclares()
+        {
+            var result = new List<OptionSetValue> { new OptionSetValue(1) }
+                .ToTypedEnumList(typeof(SimpleEnum));
+
+            Assert.IsInstanceOf<ICollection<SimpleEnum>>(result);
+            Assert.IsInstanceOf<IList<SimpleEnum>>(result);
+            Assert.IsInstanceOf<IEnumerable<SimpleEnum>>(result);
+        }
+
+        [Test]
+        public void ToTypedEnumList_EmptyList_ReturnsAnEmptyTypedList()
+        {
+            var result = new List<OptionSetValue>().ToTypedEnumList(typeof(SimpleEnum));
+
+            Assert.IsInstanceOf<List<SimpleEnum>>(result);
+            Assert.AreEqual(0, ((List<SimpleEnum>)result).Count);
         }
     }
 }

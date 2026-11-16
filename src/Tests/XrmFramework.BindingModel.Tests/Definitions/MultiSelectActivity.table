@@ -1,0 +1,59 @@
+{
+  "LogName": "xrmtest_activity",
+  "Name": "MultiSelectActivity",
+  "CollName": "xrmtest_activities",
+  "Cols": [
+    {
+      "LogName": "xrmtest_activityid",
+      "Name": "Id",
+      "Type": "Uniqueidentifier",
+      "PrimaryType": "Id",
+      "Capa": 15,
+      "Select": true
+    },
+    {
+      "LogName": "xrmtest_name",
+      "Name": "Name",
+      "Type": "String",
+      "PrimaryType": "Name",
+      "Capa": 15,
+      "Select": true
+    },
+    {
+      "LogName": "xrmtest_reporttypes",
+      "Name": "ReportTypes",
+      "Type": "Picklist",
+      "Capa": 15,
+      "IsMultiSelect": true,
+      "EnumName": "xrmtest_reporttype",
+      "Select": true
+    },
+    {
+      "LogName": "xrmtest_projectid",
+      "Name": "ProjectId",
+      "Type": "Lookup",
+      "Capa": 15,
+      "Select": true
+    }
+  ],
+  "NToOne": [
+    {
+      "Name": "xrmtest_project_activities",
+      "Etn": "xrmtest_project",
+      "NavPropName": "xrmtest_projectid",
+      "LookName": "xrmtest_projectid"
+    }
+  ],
+  "Enums": [
+    {
+      "LogName": "xrmtest_reporttype",
+      "Name": "MultiSelectReportType",
+      "IsGlobal": true,
+      "Values": [
+        { "Value": 1, "Name": "Internal" },
+        { "Value": 2, "Name": "Client" },
+        { "Value": 3, "Name": "Audit" }
+      ]
+    }
+  ]
+}

@@ -32,7 +32,7 @@ type FormColTypeToTsType = {
 type FormAttributeValueTypeFromCol<
     TableDefinition extends Table,
     C extends ColDef<TableDefinition> | undefined
-> = C extends { Type: "Picklist"; IsMultiSelect: true }
+> = C extends MultiSelectColumn
     ? number[]
     : C extends { Type: infer T }
         ? T extends keyof FormColTypeToTsType

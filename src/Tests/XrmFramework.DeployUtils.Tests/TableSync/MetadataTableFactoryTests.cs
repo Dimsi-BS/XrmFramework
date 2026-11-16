@@ -1,4 +1,4 @@
-// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Linq;
@@ -274,6 +274,38 @@ public class MetadataTableFactoryTests
         var result = MetadataTableFactory.Convert(entity, Prefixes);
 
         Assert.IsFalse(result.GlobalEnums.Single().HasNullValue);
+    }
+
+    /// <summary>
+    /// The shape the pull writes a multi-select choice in, and must keep writing: a
+    /// <c>Picklist</c> carrying the <c>IsMultiSelect</c> flag, never
+    /// <c>AttributeTypeCode.MultiSelectPicklist</c>.
+    /// </summary>
+    /// <remarks>
+    /// The flag is what every consumer of a <c>.table</c> reads — <c>Column.EffectiveType</c> turns
+    /// it into the type the generated C# declares, and the TypeScript definitions carry the column
+    /// verbatim and read the flag off it. Writing the type here instead would churn every
+    /// checked-in <c>.table</c> on the next <c>sync-tables</c> and buy nothing: a project is fixed
+    /// by the generator, with no re-pull.
+    /// </remarks>
+    [Test]
+    public void Convert_WritesMultiSelectChoice_AsAFlaggedPicklist()
+    {
+        var multiSelect = Attribute<DataverseMetadata.MultiSelectPicklistAttributeMetadata>(
+                "ftp_canaux", "ftp_Canaux", DataverseMetadata.AttributeTypeCode.Virtual)
+            .Set(nameof(DataverseMetadata.MultiSelectPicklistAttributeMetadata.OptionSet),
+                OptionSet("ftp_canal", isGlobal: true, "Canal", Option(1, "Direct")));
+
+        var entity = Entity("ftp_contrat", "ftp_Contrat", "ftp_contratid", attributes: multiSelect);
+
+        var column = MetadataTableFactory.Convert(entity, Prefixes)
+                                         .Table.Columns.Single(c => c.LogicalName == "ftp_canaux");
+
+        Assert.AreEqual(AttributeTypeCode.Picklist, column.Type);
+        Assert.IsTrue(column.IsMultiSelect);
+
+        // And what the generated code declares for it, whichever way the file spells it.
+        Assert.AreEqual(AttributeTypeCode.MultiSelectPicklist, column.EffectiveType);
     }
 
     [Test]

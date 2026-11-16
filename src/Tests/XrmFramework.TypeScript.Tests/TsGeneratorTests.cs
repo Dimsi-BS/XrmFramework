@@ -1,4 +1,4 @@
-// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Linq;
@@ -413,5 +413,50 @@ public class TsGeneratorTests
 
         Assert.IsFalse(harness.Run(), "a table that cannot be read must fail the build");
         Assert.IsNotEmpty(harness.Log.Errors);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // Multi-select choices
+    // ══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// A multi-select column reaches the definition carrying the <c>IsMultiSelect</c> flag, and
+    /// nothing else new: the conditional types in <c>table.d.ts</c> read that flag to type the
+    /// attribute as a <c>MultiSelectOptionSetAttribute</c> whose value is a <c>number[]</c>.
+    /// </summary>
+    /// <remarks>
+    /// The definition is the column serialized verbatim, so this is also what keeps the derived
+    /// properties <c>Column</c> answers the C# generator with — <c>IsMultiSelectChoice</c> and
+    /// <c>EffectiveType</c> — out of every generated <c>.d.ts</c> in every project at once.
+    /// </remarks>
+    [Test]
+    public void Run_CarriesTheMultiSelectFlag_AndNoDerivedProperty()
+    {
+        using var harness = new GeneratorHarness().WithTable("Cra", new
+        {
+            LogName = "dpp_cra",
+            Name = "Cra",
+            CollName = "dpp_cras",
+            Cols = new object[]
+            {
+                new { LogName = "dpp_typescras", Name = "TypesCRAs", Type = "Picklist", Capa = 15,
+                      IsMultiSelect = true, Select = true, EnumName = "dpp_typedecra" }
+            },
+            Enums = new object[]
+            {
+                new { LogName = "dpp_typedecra", Name = "TypeDeCRA",
+                      Values = new object[] { new { Value = 1, Name = "Interne" } } }
+            }
+        });
+
+        Assert.IsTrue(harness.Run());
+
+        var column = harness.Definition("CraDefinition")["Cols"]!
+                            .Single(c => (string?)c["LogName"] == "dpp_typescras");
+
+        Assert.AreEqual("Picklist", (string?)column["Type"]);
+        Assert.AreEqual(true, (bool?)column["IsMultiSelect"]);
+        Assert.IsNull(column["IsMultiSelectChoice"]);
+        Assert.IsNull(column["EffectiveType"]);
     }
 }
