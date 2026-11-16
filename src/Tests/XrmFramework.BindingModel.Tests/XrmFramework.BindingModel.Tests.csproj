@@ -47,6 +47,14 @@
   <ItemGroup>
     <AdditionalFiles Include="..\..\XrmFramework\Definitions\**\*.table"
                      Link="_Imports\%(RecursiveDir)%(Filename)%(Extension)" />
+    <!--
+      Tables of this project's own, declaring what the shipped ones do not: a multi-select choice.
+      Written the way `xrmframework pull` writes one, so the definitions the generator emits for
+      them are what a real project compiles against — the point of the multi-select tests being
+      that the metadata generated from a .table is what the runtime mappers branch on.
+    -->
+    <AdditionalFiles Include="Definitions\**\*.table" />
+    <None Include="Definitions\**\*.table" />
     <AdditionalFiles Include="Models\**\*.model" />
     <None Include="Models\**\*.model" />
   </ItemGroup>

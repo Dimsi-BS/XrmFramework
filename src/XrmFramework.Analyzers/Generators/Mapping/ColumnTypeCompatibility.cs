@@ -76,7 +76,7 @@ internal static class ColumnTypeCompatibility
 
             if (element.Length == 0 || KnownPrimitives.Contains(element))
             {
-                return column.IsMultiSelect || IsOptionSet(column.Type)
+                return column.IsMultiSelectChoice || IsOptionSet(column.Type)
                     ? "a generated option set enum"
                     : null;
             }
@@ -88,10 +88,11 @@ internal static class ColumnTypeCompatibility
 
         if (declared.Length == 0) return null;
 
-        if (column.IsMultiSelect)
+        if (column.IsMultiSelectChoice)
         {
-            // A multi-select column read into a single value loses every option but one.
-            return $"List<{(IsOptionSet(column.Type) ? "TheOptionSetEnum" : "T")}>";
+            // A multi-select column read into a single value loses every option but one. It is a
+            // choice collection whatever its declared Type says, so the element is its enum.
+            return "List<TheOptionSetEnum>";
         }
 
         if (IsOptionSet(column.Type))

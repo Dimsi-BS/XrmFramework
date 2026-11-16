@@ -424,9 +424,12 @@ namespace XrmFramework.BindingModel
 
             var genericType = objectType.GenericTypeArguments[0];
 
+            // A list of the element type the property declares, not of boxed values: a settable
+            // ICollection<MyChoice> rejects a List<object>, which used to leave ICollection<int>
+            // as the only type a multi-select column could be read into.
             return genericType == typeof(int)
                 ? collection.Select(o => o.Value).ToList()
-                : collection.ToEnumCollection(genericType);
+                : collection.ToTypedEnumList(genericType);
         }
 
         private static OptionSetValue GetOptionSetValue(Entity entity, string attributeName)
