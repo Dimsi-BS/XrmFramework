@@ -157,6 +157,11 @@ namespace XrmFramework.Sdk.Queries
                 case AttributeTypeCode.Picklist:
                 case AttributeTypeCode.Status:
                 case AttributeTypeCode.State:
+                // A condition on a multi-select column still compares one option at a time, so the
+                // value serializes as the option's integer like any other choice. The columns now
+                // declared MultiSelectPicklist used to be declared Picklist and land here; without
+                // this case they would fall through to the empty string instead.
+                case AttributeTypeCode.MultiSelectPicklist:
                     return ((int)value).ToString();
                 case AttributeTypeCode.Customer:
                 case AttributeTypeCode.Lookup:
