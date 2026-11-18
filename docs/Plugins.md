@@ -78,8 +78,11 @@ xrmframework new solution Contoso                      # net48 (default)
 xrmframework new solution Contoso --framework net462   # for an existing net462 codebase
 ```
 
-This covers the `Plugins`, `Deploy.*` and `RemoteDebugger` projects — the ones that run on .NET
-Framework. The `Webresources` projects and the CLI itself are unaffected.
+This covers the `Plugins` and `Deploy.*` projects, and the .NET Framework half of the
+`RemoteDebugger` project — which also targets `net10.0`, so that a plugin can be debugged from
+macOS or Linux without the plugin itself being retargeted (see
+[Remote Debugger](RemoteDebugger.md#debugging-from-macos-or-linux)). The `Webresources` projects and
+the CLI itself are unaffected.
 
 Changing the target framework of an existing plugin project is an ordinary `TargetFramework` edit.
 The deployment matches the registered assembly by its name and its plugin types by their full type
