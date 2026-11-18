@@ -218,11 +218,31 @@ Inside `Plugin.Execute`, just before the matching step methods are dispatched, t
 
 ---
 
+## Custom Workflow Activities
+
+A custom workflow activity goes through the same relay, with one difference that matters: it is a
+`CodeActivity`, not an `IPlugin`. The runner therefore instantiates it and runs it through a
+`WorkflowInvoker`, passing the workflow extensions (`IWorkflowContext`,
+`IOrganizationServiceFactory`, `IServiceEndpointNotificationService`, `ITracingService`) rather
+than calling `Execute` on a service provider.
+
+Its `InArgument` / `InOutArgument` properties are read into the context before it is sent, and the
+`OutArgument` / `InOutArgument` values the local run produces are written back into the activity
+when the context returns — that is what `RemoteDebugExecutionContext.Arguments` carries.
+
+Which of the two the runner builds is decided from the type it resolved, so an activity is run as
+an activity whatever the context says. `IsWorkflowContext` on the context is a hint, set when the
+captured context is an `IWorkflowContext`.
+
+---
+
 ## Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---------|-------------|-----|
 | Plugin executes normally despite an active `DebugSession` | The runner is not started, or the Hybrid Connection URL / SAS key is wrong | Start the runner first; verify the relay settings in the `DebugSession` record |
+| `Unable to cast object of type '<YourActivity>' to type 'Microsoft.Xrm.Sdk.IPlugin'` | A custom workflow activity reached the runner flagged as a plugin — fixed; the runner now decides from the resolved type | Update the XrmFramework packages on both sides |
+| `'<YourType>' is neither an IPlugin nor a CodeActivity` | The resolved type is neither kind, so there is nothing to run | A workflow activity must derive from `CodeActivity`, a plugin must implement `IPlugin` |
 | `InvalidPluginExecutionException: No type found` | The plugin type could not be resolved locally | Ensure the plugin assembly is loaded by the runner (add a project reference or load it explicitly) |
 | Session expired immediately | `SessionEnd` set to a past date | Update the `SessionEnd` field to a future date/time |
 | TUI shows execution as failed with `HttpRequestException` | Runner stopped while execution was in progress | Restart the runner; the plugin will execute normally in Dataverse for that invocation |
