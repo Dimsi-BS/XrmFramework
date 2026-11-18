@@ -26,6 +26,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Used by a plugin project deployed as a plugin package, where the real Newtonsoft.Json
+         assembly ships inside the package instead of XrmFramework compiling its vendored source
+         in. Pinned here so uncommenting the PackageReference in the plugin project is enough;
+         kept in step with the version XrmFramework itself builds against. -->
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- xrmframework new console / xrmConsoleProject -->
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.CommandLine" Version="10.0.5" />

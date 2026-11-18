@@ -3,6 +3,7 @@
 - [XrmFramework Plugins](#xrmframework-plugins)
   - [Overview](#overview)
   - [Creating a Plugin](#creating-a-plugin)
+    - [Target framework](#target-framework)
   - [Registering Steps](#registering-steps)
     - [Stages](#stages)
     - [Messages](#messages)
@@ -20,6 +21,7 @@
     - [Custom services of the consuming project](#custom-services-of-the-consuming-project)
   - [Working with Images](#working-with-images)
   - [Plugin Configuration](#plugin-configuration)
+  - [Using a Third-Party Library](#using-a-third-party-library)
   - [Execution Flow](#execution-flow)
   - [Complete Example](#complete-example)
 
@@ -61,6 +63,31 @@ public class AccountPlugin : Plugin
 ```
 
 > **Important:** Never store per-execution state in instance fields. Dataverse caches plugin instances across executions; all execution state must be read from the `IPluginContext` injected into each step method.
+
+### Target framework
+
+A plugin assembly targets .NET Framework. Dataverse supports **4.6.2 through 4.8** for plug-in and
+custom workflow activity assemblies, and Microsoft recommends targeting **4.8** for new code — see
+[Support for .NET Framework versions](https://learn.microsoft.com/power-apps/developer/data-platform/supported-customizations#support-for-net-framework-versions).
+
+The framework ships `net462` and `net48` for every assembly a plugin project consumes, so either
+works. `net48` is what a scaffolded solution targets:
+
+```bash
+xrmframework new solution Contoso                      # net48 (default)
+xrmframework new solution Contoso --framework net462   # for an existing net462 codebase
+```
+
+This covers the `Plugins` and `Deploy.*` projects, and the .NET Framework half of the
+`RemoteDebugger` project — which also targets `net10.0`, so that a plugin can be debugged from
+macOS or Linux without the plugin itself being retargeted (see
+[Remote Debugger](RemoteDebugger.md#debugging-from-macos-or-linux)). The `Webresources` projects and
+the CLI itself are unaffected.
+
+Changing the target framework of an existing plugin project is an ordinary `TargetFramework` edit.
+The deployment matches the registered assembly by its name and its plugin types by their full type
+name, neither of which carries the moniker, so the existing steps are updated rather than
+re-registered.
 
 ---
 
@@ -430,6 +457,113 @@ public void OnPreValidateCreate(IPluginContext context)
 ```
 
 When the unsecured config is a JSON object, the framework deserialises it into a `StepConfiguration` automatically. The `Configuration` property of that object is surfaced as `UnsecureConfig` on the context, allowing you to embed arbitrary JSON in the config while the framework strips away the internal `relName` / `configuration` envelope used for Associate / Disassociate steps.
+
+---
+
+## Using a Third-Party Library
+
+A plugin assembly registered on its own cannot bring a dependency with it: Dataverse loads that
+single assembly into the sandbox, and anything it references that the sandbox does not already
+provide fails at runtime with a `FileNotFoundException`. Microsoft does not support ILMerge as a
+way around it.
+
+The supported answer is a **plugin package**: a NuGet package holding the plugin assembly *and*
+its dependencies, stored in the `pluginpackage` table and unpacked by Dataverse into the sandbox.
+Since 3.2, XrmFramework builds and deploys one for you. One thing to set, once:
+
+```xml
+<!-- Contoso.Plugins.csproj -->
+<PropertyGroup>
+  <XrmFrameworkPluginPackage>true</XrmFrameworkPluginPackage>
+</PropertyGroup>
+
+<!-- Conditioned on the same property, so it follows it: see "Newtonsoft.Json" below.
+     The scaffolded plugin project already contains this - there is nothing to edit. -->
+<ItemGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+  <PackageReference Include="Newtonsoft.Json" />
+</ItemGroup>
+```
+
+Nothing to declare in `xrmFramework.config`: the packaging targets stamp the opt-in into the
+assembly itself, and the deployment reads it there. The shape follows the build, so the two cannot
+disagree — and a project that was not built as a package cannot be pushed as one by a
+configuration mistake.
+
+> The `deployment="Package"` attribute still forces package mode, for an assembly built before
+> the marker existed. It is no longer needed, and `deployment="Assembly"` is no longer what keeps a
+> project on the classic registration — not opting in is.
+
+Then reference the library as you would anywhere else, and keep your usual workflow — build the
+solution, run the `Deploy.*` project. Publishing and packaging are hooked onto the build, so there
+is no extra command and nothing changes in how you deploy.
+
+```xml
+<ItemGroup>
+  <PackageReference Include="ClosedXML" Version="0.104.2" />
+</ItemGroup>
+```
+
+What the framework does differently in this mode, and why it matters to you:
+
+- **Assemblies the sandbox already provides are left out of the package** — the Dataverse SDK,
+  `System.Text.Json` and the rest of the `Microsoft.CrmSdk.CoreAssemblies` closure. Shipping them
+  risks loading a different version than the server's. To ship one deliberately, remove it from
+  the list: `<XrmFrameworkSandboxProvidedAssemblyName Remove="System.Text.Json" />`.
+- **Signing is turned off.** It is not required in a package, and a signed assembly cannot load an
+  unsigned dependency — which is exactly what you are packaging. The scaffolded solution signs
+  every project, hence the override.
+- **Dataverse creates the `pluginassembly` and `plugintype` rows itself** from the package. The
+  deployment pushes the package first, waits for the platform to unpack it, then registers steps,
+  images and Custom APIs against what the platform produced.
+- **The package follows its assembly into the `Deploy.*` project's output.** The deployment runs
+  against the `Plugins.dll` the project reference copied next to its own binaries, and looks for
+  the package beside it. A `.nupkg` is not a reference, so nothing in the build would follow it
+  there; `XrmFramework.DeployUtils` asks each project reference for its package and copies what
+  comes back. Nothing to declare, and no relative path into the plugin project's `bin/` to
+  maintain by hand.
+- **Set `XrmFrameworkPackageIncludePdb` to `true`** to also ship the `.pdb`. The sandbox extracts
+  the whole package, so server-side stack traces then carry line numbers — something a classic
+  assembly registration cannot offer.
+
+### Newtonsoft.Json
+
+A plugin assembly registered on its own cannot carry Newtonsoft.Json either, and the copy living
+in the sandbox is not a version anyone controls — so `XrmFramework.Plugin` ships Newtonsoft's
+**source** and compiles it into the plugin assembly. That is why a plugin project gets a
+`Newtonsoft.Json` namespace without ever referencing the package.
+
+A plugin package lifts that constraint, so in package mode the framework stops compiling the
+vendored source and expects the real assembly instead — hence the `PackageReference` above. The
+two are mutually exclusive: both at once would declare every Newtonsoft type twice.
+
+That reference is conditioned on `XrmFrameworkPluginPackage`, which is why switching a project
+over is a single edit: the property is the only lever, and the reference follows it. A scaffolded
+plugin project ships both lines, so there is nothing to add — and because the condition is in the
+project itself, the ordinary restore that `dotnet build` performs picks the change up.
+
+For a project written by hand, each half of the mistake gets its own build error naming the fix
+(`XRMFW1001` for a package without the reference, `XRMFW1002` for a reference without the
+package), because the compiler's own output — hundreds of `CS0246` or `CS0433` — says nothing
+useful about the cause.
+
+Two welcome side effects in package mode: the plugin assembly shrinks by roughly two thirds (the
+vendored source is most of it — 977 KB down to 308 KB on a probe), and the Newtonsoft version
+becomes yours to pin in `Directory.Packages.props` rather than whatever XrmFramework vendored.
+
+Two platform limitations, which the deployment refuses up front rather than failing halfway:
+
+- **Custom workflow activities are not supported** in a package. If you have any, keep them in a
+  separate, signed assembly project that does not opt in — a plugin project and a
+  workflow project can target the same solution.
+- **On-premise environments are not supported.**
+
+One more consequence worth knowing before you switch an existing project: a package creates its
+**own** `pluginassembly` row, and Microsoft documents no in-place conversion. Moving a project
+that is already deployed means unregistering the old assembly — which takes its types and steps
+with it — then pushing the package and re-registering. Steps are declared in code so rebuilding
+them costs nothing, but their GUIDs change (in a managed solution that reads as a component
+removal plus an addition, not an update) and there is a window where the plugins do not run. Plan
+it as a maintenance operation; new projects have nothing to migrate.
 
 ---
 

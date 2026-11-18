@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # Keeps the action majors (checkout, setup-dotnet, cache, upload-artifact) current.
+  # Without this, a workflow silently rots on a deprecated action major.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: 'chore(ci)'
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+
+  # NuGet updates are out of scope for this migration. Every version lives in
+  # Directory.Packages.props behind a $(Ver_*) property that Directory.Build.targets
+  # also feeds to the .nuspec tokens, so how Dependabot rewrites those entries has to
+  # be validated on a throwaway branch before the ecosystem is enabled here.

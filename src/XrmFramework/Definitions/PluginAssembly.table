@@ -36,7 +36,8 @@
       "Capa": 7,
       "Labels": [],
       "StrLen": 1073741823,
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "createdby",
@@ -87,7 +88,8 @@
         }
       ],
       "StrLen": 32,
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "customizationlevel",
@@ -97,7 +99,8 @@
       "Labels": [],
       "MinRange": -255.0,
       "MaxRange": 255.0,
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "description",
@@ -111,7 +114,8 @@
         }
       ],
       "StrLen": 256,
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "introducedversion",
@@ -174,7 +178,8 @@
         }
       ],
       "EnumName": "pluginassembly|isolationmode",
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "ispasswordset",
@@ -262,7 +267,8 @@
         }
       ],
       "StrLen": 256,
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "organizationid",
@@ -295,7 +301,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "password",
@@ -330,7 +337,8 @@
       "PrimaryType": "Id",
       "Capa": 5,
       "Labels": [],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "pluginassemblyidunique",
@@ -352,7 +360,8 @@
         }
       ],
       "StrLen": 32,
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "solutionid",
@@ -387,7 +396,8 @@
         }
       ],
       "EnumName": "pluginassembly|sourcetype",
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "url",
@@ -427,7 +437,8 @@
         }
       ],
       "StrLen": 48,
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "versionnumber",

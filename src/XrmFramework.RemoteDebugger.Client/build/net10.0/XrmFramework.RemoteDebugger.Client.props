@@ -1,0 +1,24 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    Config for a .NET runner. The net4x props next door link Config/App.config as the project's own
+    App.config, which is how ConfigurationManager finds the connection strings there. .NET has no
+    App.config, so the two fragments travel into the output under Config/ instead, where
+    ConfigHelper.UseProjectConfig() reads them - the same path the net10 CLI already uses for a
+    consumer project's configuration.
+
+    Under Config/ rather than linked at the root, because UseProjectConfig() takes a project root
+    and looks for Config/ beneath it: the folder has to survive into the output.
+  -->
+  <ItemGroup>
+    <Content Include="$(RootFolder)/Config/connectionStrings.config">
+      <Link>Config/connectionStrings.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(RootFolder)/Config/xrmFramework.config">
+      <Link>Config/xrmFramework.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

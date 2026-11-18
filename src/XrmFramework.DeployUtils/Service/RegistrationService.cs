@@ -211,8 +211,16 @@ public class RegistrationService : IRegistrationService
 		return list;
 	}
 
-	public PluginPackage GetRegisteredPackage(Guid assemblyId)
-		=> this.GetById<PluginPackage>(assemblyId);
+	public PluginPackage GetPackageByUniqueName(string uniqueName)
+	{
+		if (string.IsNullOrWhiteSpace(uniqueName)) return null;
+
+		var query = BindingModelHelper.GetRetrieveAllQuery<PluginPackage>();
+
+		query.Criteria.AddCondition(PluginPackageDefinition.Columns.UniqueName, ConditionOperator.Equal, uniqueName);
+
+		return RetrieveAll(query).FirstOrDefault()?.ToBindingModel<PluginPackage>();
+	}
 
 	public IList<Entity> RetrieveAll(QueryExpression query, bool cleanLinks = true)
 	{

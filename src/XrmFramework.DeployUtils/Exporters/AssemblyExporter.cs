@@ -62,8 +62,26 @@ public partial class AssemblyExporter : IAssemblyExporter
 
 	public void UpdateComponent(ICrmComponent component)
 	{
-		var updatedComponent = _converter.ToRegisterComponent(component);
+		var updatedComponent = _converter.ToUpdateComponent(component);
 		_registrationService.Update(updatedComponent);
+	}
+
+	public void PushPackage(PluginPackage localPackage, PluginPackage registeredPackage)
+	{
+		if (localPackage == null) throw new ArgumentNullException(nameof(localPackage));
+
+		if (registeredPackage == null)
+		{
+			// First push: name, unique name, version and content all travel. They are the only
+			// chance to set the name and the version, which the platform then freezes.
+			localPackage.Id = Guid.Empty;
+			CreateComponent(localPackage);
+			return;
+		}
+
+		localPackage.Id = registeredPackage.Id;
+		UpdateComponent(localPackage);
+		AddComponentToSolution(localPackage);
 	}
 
 	public void UpdateAllComponents(IEnumerable<ICrmComponent> componentsToUpdate)
@@ -74,12 +92,10 @@ public partial class AssemblyExporter : IAssemblyExporter
 
 	public void AddComponentToSolution(ICrmComponent component)
 	{
-		if (component is PluginPackage package)
-		{
-			var assembly = _registrationService.GetAssemblyInfoByName(package.AssemblyName);
-			AddComponentToSolution(assembly);
-		}
-
+		// A package used to also add its assembly here, by name. Dataverse does not accept that at
+		// all: a pluginassembly row it derived from a package cannot be a solution component on its
+		// own ("Please export the Package directly"). The package is the component, and it is added
+		// when it is pushed - which is also why the assembly reports DoAddToSolution false then.
 		if (!component.DoAddToSolution) return;
 
 		int? entityTypeCode = component.DoFetchTypeCode

@@ -1,0 +1,250 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    Plugin package (dependent assemblies) support.
+
+    Set <XrmFrameworkPluginPackage>true</XrmFrameworkPluginPackage> in the plugin project and a
+    plain `dotnet build` produces the NuGet package Dataverse expects in its pluginpackage table:
+    the plugin assembly AND its runtime dependencies, which is the only supported way to use a
+    third-party library in a plugin (Microsoft does not support ILMerge).
+
+    The mechanism mirrors Microsoft.PowerApps.MSBuild.Plugin: what gets packed is the PUBLISH
+    output, not the build output. Publishing is what resolves the runtime graph and drops the
+    dependencies - and only the dependencies - next to the assembly.
+
+    Everything lives in the .targets rather than a .props on purpose. A package's
+    build/<tfm>/*.props is imported before the project body, where XrmFrameworkPluginPackage has
+    not been set yet, so every condition on it would read false and nothing would apply. The
+    .targets is imported after the body; the properties below are all read at target-execution
+    time, which is later still, and `== ''` conditions keep the project able to override them.
+  -->
+
+  <PropertyGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+    <!-- One `dotnet build` is enough: no separate `dotnet pack` step for the developer. -->
+    <GeneratePackageOnBuild Condition="'$(XrmFrameworkPackageGenerateOnBuild)' != 'false'">true</GeneratePackageOnBuild>
+    <PublishOnBuild Condition="'$(PublishOnBuild)' == ''">true</PublishOnBuild>
+
+    <!-- Dataverse never restores the package, it unzips it. Declaring NuGet dependencies that are
+         already shipped inside the package only makes the manifest misleading. -->
+    <SuppressDependenciesWhenPacking Condition="'$(SuppressDependenciesWhenPacking)' == ''">true</SuppressDependenciesWhenPacking>
+
+    <!-- Signing is not required in a package, and it is actively harmful: a signed assembly
+         cannot consume an unsigned dependency, which is the whole point of packaging one. The
+         scaffolded solution turns SignAssembly on for every project, hence the override. -->
+    <SignAssembly Condition="'$(XrmFrameworkPackageSignAssembly)' != 'true'">false</SignAssembly>
+
+    <!-- The sandbox extracts the whole package, so a shipped .pdb gives plugin stack traces their
+         line numbers - something a classic assembly registration cannot offer. Off by default to
+         keep the package small. -->
+    <XrmFrameworkPackageIncludePdb Condition="'$(XrmFrameworkPackageIncludePdb)' == ''">false</XrmFrameworkPackageIncludePdb>
+
+    <!-- The .nupkg stays where NuGet puts it, bin/<Configuration>/, beside the TFM folders: one
+         package per project and configuration, multi-targeting included, so the deployment finds
+         it by looking next to the assembly and then one level up. NuGet freezes this path during
+         evaluation, so a project that wants it elsewhere has to set PackageOutputPath itself. -->
+
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);XrmFrameworkPackagePublishedFiles</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <!--
+    Stamps the opt-in into the assembly itself, so the deployment can tell how the project was
+    built instead of being told a second time in xrmFramework.config.
+
+    The alternative - looking for a .nupkg next to the DLL - is only a proxy: a stale package left
+    by an earlier build would flip a deployment into package mode on its own, and that switch is a
+    re-registration (new pluginassembly row, new step ids). The marker travels inside the assembly
+    being deployed, so it cannot disagree with the binary it describes.
+
+    Read back by XrmFramework.PluginInventory, which already executes inside this assembly and
+    reports it in its manifest. Nothing loads the DLL just to read this.
+  -->
+  <ItemGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+    <AssemblyMetadata Include="XrmFrameworkPluginPackage" Value="true" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+    <!--
+      Assemblies the Dataverse sandbox already provides. Shipping them invites a version conflict
+      at load time - System.Text.Json being the documented example - so they are pruned from the
+      package even when the restore graph drops them in the publish folder.
+
+      These reach a plugin project transitively through Microsoft.CrmSdk.CoreAssemblies, which
+      XrmFramework declares as an ordinary dependency, so without this list a plugin package would
+      carry some fifteen assemblies the server ignores at best.
+
+      Override per project by name, e.g.:
+        <XrmFrameworkSandboxProvidedAssemblyName Remove="System.Text.Json" />
+    -->
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Xrm.Sdk" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Xrm.Sdk.Workflow" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Xrm.Sdk.Deployment" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Crm.Sdk.Proxy" />
+    <!-- Pulled in by the plugin props as a copy-local framework reference, for workflow
+         activities. Part of the .NET Framework in the sandbox. -->
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Activities" />
+    <!-- Transitive closure of Microsoft.CrmSdk.CoreAssemblies. -->
+    <XrmFrameworkSandboxProvidedAssemblyName Include="Microsoft.Bcl.AsyncInterfaces" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Buffers" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Memory" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Numerics.Vectors" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Runtime.CompilerServices.Unsafe" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.ServiceModel.Http" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.ServiceModel.Primitives" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Text.Encodings.Web" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Text.Json" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.Threading.Tasks.Extensions" />
+    <XrmFrameworkSandboxProvidedAssemblyName Include="System.ValueTuple" />
+  </ItemGroup>
+
+  <!--
+    Replaces the default build output of the package with the published files.
+    IncludeBuildOutput has to be turned off from inside this target: setting it any earlier stops
+    every TFM build output target from running, this one included.
+  -->
+  <Target Name="XrmFrameworkPackagePublishedFiles" Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+    <Error Condition="!Exists('$(PublishDir)')"
+           Text="The publish folder '$(PublishDir)' does not exist, so the plugin package would be empty. Build with PublishOnBuild=true, or publish before packing." />
+
+    <!-- Resolved first, on its own: an element that both transforms this list and declares
+         %(FullPath) metadata batches over the wrong item and packs nonsense paths. -->
+    <ItemGroup>
+      <_XrmFrameworkPrunedAssembly Include="@(XrmFrameworkSandboxProvidedAssemblyName->'$(PublishDir)%(Identity).dll')" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_XrmFrameworkPackageFile Include="$(PublishDir)*.dll" Exclude="@(_XrmFrameworkPrunedAssembly)" />
+      <_XrmFrameworkPackageFile Include="$(PublishDir)*.pdb"
+                                Condition="'$(XrmFrameworkPackageIncludePdb)' == 'true'" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <!--
+        FinalOutputPath is what makes `dotnet build` produce a FRESH package after a code change.
+        NuGet decides whether to re-run GenerateNuspec by comparing @(NuGetPackInput) against the
+        existing .nupkg, and it builds that input list as
+        @(_BuildOutputInPackage->'%(FinalOutputPath)'). Without this metadata the transform yields
+        nothing, pack believes it has no inputs, considers itself up to date - and leaves a .nupkg
+        holding the PREVIOUS build of the assembly. The deployment would then push stale code and
+        report success. Microsoft.PowerApps.MSBuild.Plugin omits it too; don't take that as a
+        reason to drop it.
+      -->
+      <BuildOutputInPackage Include="@(_XrmFrameworkPackageFile)" FinalOutputPath="%(FullPath)" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <IncludeBuildOutput>false</IncludeBuildOutput>
+    </PropertyGroup>
+
+    <Message Importance="normal" Text="Plugin package contents: @(BuildOutputInPackage->'%(Filename)%(Extension)', ', ')" />
+  </Target>
+
+  <!--
+    Publishing is normally a separate command. Hooking it onto Build keeps the whole thing a
+    single `dotnet build`, and runs it before the Pack that GeneratePackageOnBuild schedules.
+  -->
+  <Target Name="XrmFrameworkPublishBeforePack"
+          AfterTargets="Build"
+          Condition="'$(XrmFrameworkPluginPackage)' == 'true' and '$(PublishOnBuild)' == 'true'"
+          DependsOnTargets="Publish" />
+
+  <!--
+    Hands the built .nupkg to whatever project references this one - in practice the deployment
+    console, which calls RegisterPluginsAndWorkflows<T> on the Plugins.dll a ProjectReference
+    copied next to its own output, and then looks for the package beside that DLL. The package has
+    to make the same trip, and nothing in the build does that on its own: a .nupkg is not a
+    reference, so no copy-local rule picks it up.
+
+    Answering a question instead of copying anything is what keeps the package's location an
+    implementation detail of this file - PackageOutputPath is settable per project - rather than a
+    relative path into bin/ hard-coded in every deployment project. XrmFramework.DeployUtils ships
+    the other half, which asks each ProjectReference this question and copies what comes back.
+
+    Returns nothing when there is no package to hand over (not a package project, or pack skipped
+    through XrmFrameworkPackageGenerateOnBuild=false): the caller skips a reference that answers
+    nothing, and a project that does not even define this target is skipped the same way.
+  -->
+  <!-- FullPath, not the item as declared: PackageOutputPath is relative to this project, and the
+       answer is read by another one, which would resolve a relative path against its own
+       directory. -->
+  <Target Name="XrmFrameworkGetPluginPackage"
+          Condition="'$(XrmFrameworkPluginPackage)' == 'true'"
+          Returns="@(_XrmFrameworkBuiltPluginPackage->'%(FullPath)')">
+
+    <PropertyGroup>
+      <_XrmFrameworkPackageOutputDir>$([MSBuild]::EnsureTrailingSlash('$(PackageOutputPath)'))</_XrmFrameworkPackageOutputDir>
+      <_XrmFrameworkBuiltPluginPackagePath>$(_XrmFrameworkPackageOutputDir)$(PackageId).$(PackageVersion).nupkg</_XrmFrameworkBuiltPluginPackagePath>
+    </PropertyGroup>
+
+    <!-- Named exactly rather than globbed: bin/<Configuration>/ keeps every version ever built
+         there, and handing back the whole pile would leave the deployment to guess which one
+         describes the assembly it is about to push. -->
+    <ItemGroup>
+      <_XrmFrameworkBuiltPluginPackage Include="$(_XrmFrameworkBuiltPluginPackagePath)"
+                                       Condition="Exists('$(_XrmFrameworkBuiltPluginPackagePath)')" />
+    </ItemGroup>
+  </Target>
+
+  <!--
+    Newtonsoft.Json: vendored source, or the real package.
+
+    A plugin assembly registered on its own cannot carry Newtonsoft.Json as a dependency, and the
+    copy living in the sandbox is not a version anyone controls. XrmFramework.Plugin therefore
+    ships Newtonsoft's SOURCE and compiles it into the plugin assembly - the HAVE_* switches below
+    are Newtonsoft's own source-build configuration, not XrmFramework's.
+
+    A plugin package removes that constraint: it carries its dependencies, so the real
+    Newtonsoft.Json assembly can be shipped inside it and the vendored source becomes both
+    unnecessary and harmful - it declares the same types in the same namespace as the real one.
+
+    Hence the switch. It lives in the .targets because the opt-in property is set in the project
+    body, which a package's .props is imported too early to see; and it is an evaluation-time
+    ItemGroup rather than a target so that IntelliSense and the IDE see the same files the
+    compiler does.
+  -->
+  <PropertyGroup Condition="'$(XrmFrameworkPluginPackage)' != 'true'">
+    <DefineConstants>$(DefineConstants);HAVE_ADO_NET;HAVE_APP_DOMAIN;HAVE_ASYNC;HAVE_BINARY_FORMATTER;HAVE_BINARY_SERIALIZATION;HAVE_BINARY_EXCEPTION_SERIALIZATION;HAVE_CAS;HAVE_CHAR_TO_LOWER_WITH_CULTURE;HAVE_CHAR_TO_STRING_WITH_CULTURE;HAVE_COMPONENT_MODEL;HAVE_CONCURRENT_COLLECTIONS;HAVE_COVARIANT_GENERICS;HAVE_DATA_CONTRACTS;HAVE_DATE_TIME_OFFSET;HAVE_DB_NULL_TYPE_CODE;HAVE_DYNAMIC;HAVE_EMPTY_TYPES;HAVE_ENTITY_FRAMEWORK;HAVE_EXPRESSIONS;HAVE_FAST_REVERSE;HAVE_FSHARP_TYPES;HAVE_FULL_REFLECTION;HAVE_GUID_TRY_PARSE;HAVE_HASH_SET;HAVE_ICLONEABLE;HAVE_ICONVERTIBLE;HAVE_IGNORE_DATA_MEMBER_ATTRIBUTE;HAVE_INOTIFY_COLLECTION_CHANGED;HAVE_INOTIFY_PROPERTY_CHANGING;HAVE_ISET;HAVE_LINQ;HAVE_MEMORY_BARRIER;HAVE_METHOD_IMPL_ATTRIBUTE;HAVE_NON_SERIALIZED_ATTRIBUTE;HAVE_READ_ONLY_COLLECTIONS;HAVE_REFLECTION_EMIT;HAVE_SERIALIZATION_BINDER_BIND_TO_NAME;HAVE_STREAM_READER_WRITER_CLOSE;HAVE_STRING_JOIN_WITH_ENUMERABLE;HAVE_TIME_SPAN_PARSE_WITH_CULTURE;HAVE_TIME_SPAN_TO_STRING_WITH_CULTURE;HAVE_TIME_ZONE_INFO;HAVE_TRACE_WRITER;HAVE_TYPE_DESCRIPTOR;HAVE_UNICODE_SURROGATE_DETECTION;HAVE_VARIANT_TYPE_PARAMETERS;HAVE_VERSION_TRY_PARSE;HAVE_XLINQ;HAVE_XML_DOCUMENT;HAVE_XML_DOCUMENT_TYPE;HAVE_CONCURRENT_DICTIONARY</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(XrmFrameworkPluginPackage)' != 'true'">
+    <!-- The metadata is what XRMFW1003 below looks for, to tell "the glob matched nothing" from
+         "the glob was never evaluated". -->
+    <Compile Include="$(MSBuildThisFileDirectory)../NewtonSoft.Json/**/*.cs"
+             Link="__Imports/XrmFramework.Plugin/NewtonSoft.Json/%(RecursiveDir)%(Filename)%(Extension)"
+             XrmFrameworkVendoredNewtonsoft="true" />
+  </ItemGroup>
+
+  <!--
+    Both halves of the switch fail in ways that are hard to read from the compiler output alone:
+    without Newtonsoft at all, every framework file using it reports CS0246; with both, every
+    Newtonsoft type reports CS0433. One error naming the fix is worth more than hundreds of those.
+  -->
+  <Target Name="XrmFrameworkCheckNewtonsoftJson"
+          AfterTargets="ResolveReferences"
+          BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <_XrmFrameworkNewtonsoftReferenced Condition="'@(ReferencePath->WithMetadataValue('Filename','Newtonsoft.Json'))' != ''">true</_XrmFrameworkNewtonsoftReferenced>
+    </PropertyGroup>
+
+    <!--
+      Guards the one link in this mechanism that spans two files: the nuspec ships the vendored
+      source to build/NewtonSoft.Json, and the ItemGroup above globs it from there relative to this
+      file. Move either and assembly mode silently compiles no Newtonsoft at all, which reaches the
+      consumer as hundreds of CS0246 in framework files they never wrote. Nothing on the framework's
+      own side would notice: its projects compile that source straight out of the repository.
+
+      Asserts the glob's RESULT rather than the directory's existence - that is the invariant that
+      matters, and it does not depend on how MSBuild normalises a path with a ".." segment in it.
+    -->
+    <Error Condition="'$(XrmFrameworkPluginPackage)' != 'true' and '@(Compile->WithMetadataValue('XrmFrameworkVendoredNewtonsoft','true'))' == ''"
+           Code="XRMFW1003"
+           Text="The XrmFramework.Plugin package is incomplete: it carries no Newtonsoft.Json source under build/NewtonSoft.Json, which is what a plugin deployed as a plain assembly compiles in place of a Newtonsoft.Json reference. Reinstall the package; if it persists, it was packed wrong - the framework's nuspec and its build/Shared/XrmFramework.Plugin.Package.targets disagree on where that source lives." />
+
+    <Error Condition="'$(XrmFrameworkPluginPackage)' == 'true' and '$(_XrmFrameworkNewtonsoftReferenced)' != 'true'"
+           Code="XRMFW1001"
+           Text="This project is built as a plugin package, so XrmFramework no longer compiles its vendored Newtonsoft.Json source into it - the package carries the real assembly instead. Add it to the project, conditioned on the same property so the two stay in step: &lt;ItemGroup Condition=&quot;'%24(XrmFrameworkPluginPackage)' == 'true'&quot;&gt;&lt;PackageReference Include=&quot;Newtonsoft.Json&quot; /&gt;&lt;/ItemGroup&gt; (the scaffolded plugin project ships exactly that; version centralized in Directory.Packages.props)." />
+
+    <Error Condition="'$(XrmFrameworkPluginPackage)' != 'true' and '$(_XrmFrameworkNewtonsoftReferenced)' == 'true'"
+           Code="XRMFW1002"
+           Text="This project references the Newtonsoft.Json assembly while XrmFramework compiles its vendored Newtonsoft.Json source into it, which declares the same types twice. Either remove the Newtonsoft.Json reference, or set &lt;XrmFrameworkPluginPackage&gt;true&lt;/XrmFrameworkPluginPackage&gt; to deploy as a plugin package - a lone plugin assembly cannot carry a dependency anyway." />  </Target>
+
+</Project>

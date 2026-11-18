@@ -58,7 +58,7 @@ namespace XrmFramework
     public enum Categorie
     {
         Null = 0,
-        [Description("ClientFavori")]
+        [Description("Client favori")]
         ClientFavori = 1,
         [Description("Standard")]
         Standard = 2,

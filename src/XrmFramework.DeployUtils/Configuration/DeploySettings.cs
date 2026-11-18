@@ -20,6 +20,15 @@ namespace XrmFramework.DeployUtils.Configuration
         /// </summary>
         public bool IsOnPremise { get; set; }
 
+        /// <summary>
+        /// How the assembly reaches Dataverse, from the <c>deployment</c> attribute of the
+        /// project in <c>xrmFramework.config</c>.
+        /// </summary>
+        public DeploymentMode Deployment { get; set; } = DeploymentMode.Assembly;
+
+        /// <summary>Shorthand for <see cref="Deployment" /> being <see cref="DeploymentMode.Package" />.</summary>
+        public bool UsePluginPackage => Deployment == DeploymentMode.Package;
+
         public string AuthType => ConnectionStringParser.GetConnectionStringField(ConnectionString, "AuthType");
         public string Url => ConnectionStringParser.GetConnectionStringField(ConnectionString, "Url");
         public string ClientId => ConnectionStringParser.GetConnectionStringField(ConnectionString, "ClientId");

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
       <TargetFrameworks>$(XrmFramework_Runtime_TFM)</TargetFrameworks>
@@ -29,7 +29,7 @@
 
         <Compile Include="..\XrmFramework.Plugin\RemoteDebugger\**\*.cs" Link="_Imports\XrmFramework.Plugin\RemoteDebugger\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework.Plugin\**\*partial*.cs;..\XrmFramework.Plugin\RemoteDebugger\RemoteDebugger.Remote\*.cs" />
 
-  
+
         <Compile Include="..\XrmFramework.Plugin\**\StepConfiguration*.cs" Link="Model\StepConfigurations\%(RecursiveDir)%(Filename)%(Extension)" />
 
 
@@ -78,22 +78,20 @@
         <Compile Remove="..\XrmFramework.Workflows\Context\**\*.cs" />
         <Compile Remove="..\XrmFramework.Workflows\RemoteDebugger\LocalWorkflowContext.cs" />
     </ItemGroup>
-    
-    
-    
+
+
+
     <ItemGroup>
         <ProjectReference Include="..\XrmFramework.Analyzers\XrmFramework.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\XrmFramework.Analyzers.CodeFixes\XrmFramework.Analyzers.CodeFixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 
-    <ItemGroup>
-        <AdditionalFiles Include="../XrmFramework/**/*.table"  Exclude="../XrmFramework/bin/**;../XrmFramework/obj/**" />
-    </ItemGroup>
-
   <!--
     In-process inventory (.NET Framework only): links the shared engine from
-    XrmFramework.PluginInventory. On net8/net10 the inventory goes through the out-of-process net462 exe
-    (instantiating a net462 plugin is not possible from net8).
+    XrmFramework.PluginInventory, for the deployment consoles that still run on .NET Framework.
+    On net8/net10 the inventory goes through the out-of-process host instead - not because a modern
+    runtime cannot load a net4x plugin, but to keep the plugin's Microsoft.Xrm.Sdk away from the one
+    Microsoft.PowerPlatform.Dataverse.Client brings into this process.
   -->
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <Compile Include="..\XrmFramework.PluginInventory\PluginInventoryEngine.cs" Link="_Imports\PluginInventory\PluginInventoryEngine.cs" />
@@ -151,9 +149,20 @@
 
     <ItemGroup>
         <None Remove="**\*.table" />
-        <AdditionalFiles Include="..\XrmFramework\**\*.table" Link="_Imports\XrmFramework\%(RecursiveDir)%(Filename)%(Extension)" Exclude="..\XrmFramework\bin/**;..\XrmFramework\obj/**" />
+        <AdditionalFiles Include="..\XrmFramework\**\*.table" Exclude="..\XrmFramework\bin\**;..\XrmFramework\obj\**" />
 
         <AdditionalFiles Include="**\*.table" Exclude="bin/**;obj/**" />
+    </ItemGroup>
+
+    <!--
+        The .table files the framework ships, embedded so that the CLI can read them at runtime:
+        FrameworkTableCatalog carries their locks onto a project's own copy of a framework table,
+        which a pull would otherwise never give it. AdditionalFiles above feeds the source
+        generator at compile time and leaves nothing to read once the tool is installed.
+    -->
+    <ItemGroup>
+        <EmbeddedResource Include="..\XrmFramework\Definitions\**\*.table"
+                          LogicalName="XrmFramework.ShippedTables.%(Filename)%(Extension)" />
     </ItemGroup>
 
 

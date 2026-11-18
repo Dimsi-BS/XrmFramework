@@ -257,7 +257,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "plugintypeid",
@@ -271,7 +272,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "plugintypeidunique",
@@ -318,7 +320,8 @@
         }
       ],
       "StrLen": 256,
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "version",

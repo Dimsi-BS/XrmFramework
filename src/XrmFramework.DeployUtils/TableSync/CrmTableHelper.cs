@@ -272,6 +272,11 @@ namespace XrmFramework.DeployUtils.TableSync
                         $"[blue]Updated[/] {Markup.Escape(fileName)} " +
                         $"([bold]{outcome.Table.Columns.Count}[/] column(s))");
 
+                if (outcome.SeededLocks > 0)
+                    AnsiConsole.MarkupLine(
+                        $"           [grey]{outcome.SeededLocks} declaration(s) locked by the " +
+                        "framework, seeded from the shipped table[/]");
+
                 if (outcome.ColumnsMissingFromCrm.Count > 0)
                     AnsiConsole.MarkupLine(
                         $"           [yellow]{outcome.ColumnsMissingFromCrm.Count} column(s) missing " +

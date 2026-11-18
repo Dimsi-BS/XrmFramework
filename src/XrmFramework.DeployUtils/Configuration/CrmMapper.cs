@@ -379,6 +379,20 @@ public class CrmMapper : ICrmMapper
         return dest;
     }
 
+    public Deploy.PluginPackage ToRemoteContentUpdate(PluginPackage src)
+    {
+        if (src == null) return null;
+
+        // Name and version of a plugin package are immutable once created: sending them back in an
+        // update is rejected by the platform. Only the content travels - which is also the only
+        // thing that ever changes, the version living inside the .nupkg rather than on the row.
+        return new Deploy.PluginPackage
+        {
+            Id      = src.Id,
+            Content = src.Content != null ? Convert.ToBase64String(src.Content) : null
+        };
+    }
+
     public Deploy.CustomApi ToRemote(CustomApi src)
     {
         if (src == null) return null;

@@ -27,6 +27,13 @@ public class CrmComponentConverter : ICrmComponentConverter
 		_mapper = mapper;
 	}
 
+	public Entity ToUpdateComponent(ICrmComponent component)
+	{
+		return component is PluginPackage package
+			? _mapper.ToRemoteContentUpdate(package)
+			: ToRegisterComponent(component);
+	}
+
 	public Entity ToRegisterComponent(ICrmComponent component)
 	{
 		switch (component)
