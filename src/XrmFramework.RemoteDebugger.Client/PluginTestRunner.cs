@@ -109,7 +109,10 @@ public static class PluginTestRunner
                 "Make sure the plugin's assembly is referenced by the test project.");
         }
 
-        if (inputContext.IsWorkflowContext)
+        // The resolved type decides, with the recorded flag as a hint: a CodeActivity cannot be run
+        // as an IPlugin whatever the recording claims. A session recorded before the flag was set
+        // correctly carries IsWorkflowContext: false, and replaying it must not fail on that.
+        if (inputContext.IsWorkflowContext || typeof(CodeActivity).IsAssignableFrom(pluginType))
         {
             RunWorkflowActivity(pluginType, serviceProvider, inputContext);
         }
@@ -141,6 +144,12 @@ public static class PluginTestRunner
         LocalServiceProvider serviceProvider,
         RemoteDebugExecutionContext context)
     {
+        if (!typeof(IPlugin).IsAssignableFrom(pluginType))
+            throw new InvalidOperationException(
+                $"'{pluginType.FullName}' is neither an IPlugin nor a CodeActivity, so the recorded "
+                + "session cannot be replayed. A custom workflow activity must derive from "
+                + "CodeActivity, and a plugin must implement IPlugin.");
+
         IPlugin plugin;
 
         if (pluginType.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
