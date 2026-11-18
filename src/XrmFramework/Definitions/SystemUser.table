@@ -15,7 +15,8 @@
         }
       ],
       "EnumName": "systemuser|accessmode",
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "address1_addressid",
@@ -629,7 +630,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "azuredeletedon",
@@ -668,7 +670,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "calendarid",
@@ -817,7 +820,8 @@
         }
       ],
       "StrLen": 1024,
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "emailrouteraccessapproval",
@@ -989,7 +993,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "isemailaddressapprovedbyo365admin",
@@ -1386,7 +1391,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "territoryid",

@@ -17,7 +17,7 @@ namespace XrmFramework.RemoteDebugger
             _uri = uri;
             var tokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(
                 keyName, sharedAccessKey);
-            
+
             var token =tokenProvider.GetTokenAsync(uri, TimeSpan.FromHours(1)).GetAwaiter().GetResult();
 
             _client = new HttpClient
@@ -27,7 +27,7 @@ namespace XrmFramework.RemoteDebugger
             _client.DefaultRequestHeaders.Add("ServiceBusAuthorization", token.TokenString);
         }
 
-        public async Task<RemoteDebuggerMessage?> SendMessage(RemoteDebuggerMessage message)
+        public async Task<RemoteDebuggerMessage> SendMessage(RemoteDebuggerMessage message)
         {
             var serializedContext = JsonConvert.SerializeObject(message);
 

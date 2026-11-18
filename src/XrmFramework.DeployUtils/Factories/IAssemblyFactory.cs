@@ -12,8 +12,8 @@ public partial interface IAssemblyFactory
     /// <summary>
     ///     Builds the local <see cref="IAssemblyContext" /> by INVENTORYING the assembly located at
     ///     <paramref name="dllPath" />: actual execution of the registration code (constructors /
-    ///     AddSteps) via XrmFramework.PluginInventory (in-process net462, or out-of-process net462 exe
-    ///     from net8/net10).
+    ///     AddSteps) via XrmFramework.PluginInventory (in-process on .NET Framework, or out of
+    ///     process through the inventory host otherwise).
     /// </summary>
     /// <param name="dllPath">Path to the local plugin assembly to inventory.</param>
     /// <returns><see cref="IAssemblyContext" /> rebuilt from the inventory.</returns>

@@ -27,7 +27,20 @@ public class PluginPackage : BaseCrmComponent, IBindingModel, IAssemblyComponent
 	}
 
 	public string HumanName => "Package";
-	public string AssemblyName => Name.Split('_')[1];
+
+	/// <summary>
+	///     Name of the assembly the package wraps, i.e. the unique name stripped of the publisher's
+	///     customization prefix. Split on the FIRST separator only: assembly names routinely contain
+	///     underscores, and splitting on all of them used to truncate the name to its second segment.
+	/// </summary>
+	public string AssemblyName
+	{
+		get
+		{
+			var separatorIndex = Name?.IndexOf('_') ?? -1;
+			return separatorIndex < 0 ? Name : Name.Substring(separatorIndex + 1);
+		}
+	}
 
 	#region CrmComponents Implementation
 

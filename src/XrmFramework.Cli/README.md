@@ -458,39 +458,112 @@ Deploys an XrmFramework assembly — **plugins, custom APIs, and workflows** —
 environment selected in `Config/xrmFramework.config`.
 
 ```bash
-xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <dir>] [--on-premise] [--noprompt]
+xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <dir>] [--package <path.nupkg>] [--on-premise] [--noprompt]
 ```
 
 | Option | Required | Description |
 |---|:---:|---|
-| `--dll <PATH>` | ✅ | Plugin project assembly (`net462`, the one registered in Dataverse). |
+| `--dll <PATH>` | ✅ | Plugin project assembly (`net48` or `net462`, the one registered in Dataverse). |
 | `--project <NAME>` | ✅ | Project name as declared in `xrmFramework.config` (e.g. `Plugins`). |
 | `--project-root <DIR>` | ❌ | Root containing the `Config/` folder (default: current folder). |
+| `--package <PATH>` | ❌ | Explicit `.nupkg` to push, overriding the one found next to the assembly. Only read for a project built as a package. |
 | `--on-premise` | ❌ | Targets an On-Premises CRM (default: Dataverse Online). |
 | `-n`, `--noprompt`, `-NoPrompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). `-NoPrompt` (any casing) is kept for backward compatibility with the deployment scripts written against that spelling. |
 
-> **How it works — inventory via actual code execution.** A plugin is `net462`, this tool is
-> `net10.0`: it therefore cannot instantiate the plugin's types itself. It delegates to the
-> **`XrmFramework.PluginInventory`** tool (a `net462` executable, embedded under `inventory/`),
-> which loads the assembly, **executes the constructors (`AddSteps`)**, and reflects over the
-> types, then returns the JSON manifest (plugins / steps / workflows / custom APIs) on its
+> **How it works — inventory via actual code execution.** The plugin assembly is `net48` (or
+> `net462`) and this tool is `net10.0`, so it does not instantiate the plugin's types itself. It
+> delegates to the **`XrmFramework.PluginInventory`** host (embedded under `inventory/` and started
+> with `dotnet`), which loads the assembly, **executes the constructors (`AddSteps`)**, reflects
+> over the types, and returns the JSON manifest (plugins / steps / workflows / custom APIs) on its
 > standard output.
 >
 > Consequences:
 > - Step registration is **entirely free-form**: loops, conditions, computed values,
 >   configuration… since the real code runs (no static analysis constraints).
-> - Deployment requires the **.NET Framework runtime** (Windows). For cross-platform
->   development, a launcher can be provided via the `XRMFRAMEWORK_INVENTORY_LAUNCHER`
->   environment variable (e.g. `mono`); `XRMFRAMEWORK_INVENTORY_EXE` allows pointing to an
->   alternative inventory executable.
+> - **Deployment works wherever the CLI works** — Windows, macOS and Linux — with no .NET Framework
+>   and no Mono. A .NET Framework assembly loads perfectly well on a modern runtime; the host
+>   supplies the two things that runtime lacks, a `System.Activities` stand-in (for custom workflow
+>   activities) and System.Configuration's implementation.
+> - A separate process, deliberately: this tool has its own `Microsoft.Xrm.Sdk` through
+>   `Microsoft.PowerPlatform.Dataverse.Client`, and the plugin's `net48` one must not meet it.
+> - The inventory **fails rather than report a partial picture**. If a type cannot be loaded — a
+>   dependency missing next to the assembly, say — the deployment stops, because a plugin absent
+>   from the manifest is one the deployment would unregister. A custom workflow activity using a
+>   `System.Activities` member the stand-in does not cover fails the same way, naming the member.
+> - Overrides, for development or an unusual install: `XRMFRAMEWORK_INVENTORY_DLL` points at the
+>   host assembly, `XRMFRAMEWORK_INVENTORY_DOTNET` at the `dotnet` executable to run it with.
+>   (`XRMFRAMEWORK_INVENTORY_LAUNCHER` and `XRMFRAMEWORK_INVENTORY_EXE`, which existed for Mono,
+>   are gone; the CLI warns if it still finds them set.)
 
 **Example**
 
 ```bash
-xrmframework deploy plugins --dll bin/Release/net462/MyProject.Plugins.dll \
+xrmframework deploy plugins --dll bin/Release/net48/MyProject.Plugins.dll \
                             --project MyProject.Plugins \
                             --noprompt
 ```
+
+#### Deploying as a plugin package (dependent assemblies)
+
+A plugin assembly registered on its own cannot carry a third-party library, and Microsoft does
+not support ILMerge. The supported answer is a **plugin package**: a NuGet package holding the
+assembly *and* its dependencies, stored in the `pluginpackage` table and unpacked by Dataverse
+into the sandbox.
+
+Two things to set, once:
+
+```xml
+<!-- MyProject.Plugins.csproj -->
+<PropertyGroup>
+  <XrmFrameworkPluginPackage>true</XrmFrameworkPluginPackage>
+</PropertyGroup>
+```
+
+Nothing to declare in `xrmFramework.config`: the packaging targets stamp the opt-in into the
+assembly, and the deployment reads it there, so the shape always matches the binary being pushed.
+The `deployment="Package"` attribute still forces the mode, for an assembly built before the
+marker existed.
+
+```xml
+<!-- MyProject.Plugins.csproj — already in the scaffolded project, nothing to edit -->
+<ItemGroup Condition="'$(XrmFrameworkPluginPackage)' == 'true'">
+  <PackageReference Include="Newtonsoft.Json" />
+</ItemGroup>
+```
+
+That reference is required in package mode: outside it, XrmFramework compiles its *vendored*
+Newtonsoft source into the plugin assembly, because a lone assembly cannot carry a dependency. In
+package mode it stops doing that and uses the real assembly, which the package ships. The two are
+mutually exclusive — both would declare every Newtonsoft type twice — so the reference is
+conditioned on the same property, leaving the property as the only lever. For a project written by
+hand, each half of the mistake gets a build error naming the fix (`XRMFW1001` / `XRMFW1002`).
+
+**The workflow does not change**: build the solution, then run the `Deploy.*` project — exactly
+as in assembly mode. Publishing and packing are hooked onto the build, so building the `Deploy.*`
+project alone is enough (it builds the plugin project as a project reference). The `.nupkg` lands
+in the plugin project's `bin/<Configuration>/`, beside the TFM folder, and is copied into the
+`Deploy.*` project's output next to the `Plugins.dll` the project reference puts there — which is
+where the deployment looks for it, so `deploy plugins` finds it without further options and
+without a hand-written copy step. A build with nothing changed re-packs nothing; a build after a code change always
+produces a fresh package. Assemblies the sandbox already provides — the Dataverse SDK,
+`System.Text.Json` and the rest of the `Microsoft.CrmSdk.CoreAssemblies` closure — are pruned
+from the package; override the `XrmFrameworkSandboxProvidedAssemblyName` item list to ship one
+anyway. Set `XrmFrameworkPackageIncludePdb` to `true` to also ship the `.pdb`, which gives
+server-side stack traces their line numbers.
+
+What changes at deployment time: Dataverse creates the `pluginassembly` and `plugintype` rows
+itself from the package, so the framework pushes the package first, waits for the platform to
+unpack it, and only then registers steps, images and custom APIs against what the platform
+produced. Signing is turned off automatically — it is not required in a package, and a signed
+assembly cannot load an unsigned dependency.
+
+Platform limitations, which the deployment refuses up front rather than failing halfway:
+
+- **custom workflow activities are not supported** in a package — keep them in a separate,
+  signed assembly project that does not opt in;
+- **on-premise is not supported**;
+- the package's **name and version are frozen** once created, so only its content is updated
+  afterwards.
 
 **Exit codes**
 
@@ -964,8 +1037,8 @@ migrate. Routine work is `pull` (rich metadata from the environment) plus the lo
 `tables columns` and `tables optionsets` make scriptable: column selection and C# naming in the
 `.table`.
 
-> `deploy plugins` inventories the `net462` plugin assembly by **executing its registration
-> code** via the `XrmFramework.PluginInventory` tool (embedded `net462` executable) — step
+> `deploy plugins` inventories the `net48`/`net462` plugin assembly by **executing its
+> registration code** via the embedded `XrmFramework.PluginInventory` host — step
 > registration therefore remains completely free-form (loops, conditions…). Requires the .NET
 > Framework runtime (Windows).
 

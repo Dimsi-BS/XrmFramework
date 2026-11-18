@@ -75,6 +75,11 @@ public class AssemblyImporter : IAssemblyImporter
 
     public IAssemblyContext CreateAssemblyFromRemote(AssemblyInfo assemblyInfo)
     {
+        // Nothing registered yet: no context at all, rather than one wrapping a null AssemblyInfo.
+        // The diff reads "no context" as "everything has to be created"; a context whose assembly
+        // row is missing looks deployed and blows up as soon as its id is read.
+        if (assemblyInfo == null) return null;
+
         return new AssemblyContext { AssemblyInfo = assemblyInfo };
     }
 
@@ -174,33 +179,72 @@ public class AssemblyImporter : IAssemblyImporter
         return parsedCustomApi;
     }
 
-    public PluginPackage CreatePackageFromLocal(AssemblyInfo assembly)
+    public PluginPackage CreatePackageFromLocal(AssemblyInfo assembly, string packagePath)
     {
-        var entryAssembly = Assembly.GetEntryAssembly();
+        if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+        if (string.IsNullOrWhiteSpace(packagePath))
+            throw new ArgumentException("The plugin package path is required.", nameof(packagePath));
 
-        if (entryAssembly == null) throw new ArgumentNullException(nameof(assembly));
+        if (!File.Exists(packagePath))
+            throw new FileNotFoundException(
+                $"Plugin package '{packagePath}' not found. Build the plugin project with " +
+                "<XrmFrameworkPluginPackage>true</XrmFrameworkPluginPackage> to produce it.",
+                packagePath);
 
-        var packagesFolderName = entryAssembly
-            .GetCustomAttribute<DeployFolderAttribute>()
-            .Path;
-        var directoryInfos = new DirectoryInfo(packagesFolderName);
+        // The publisher prefix is required: Dataverse identifies a package by its unique name, and
+        // an unprefixed one would collide with any other publisher's package of the same assembly.
+        var uniqueName = $"{_solutionContext.Publisher.CustomizationPrefix}_{assembly.Name}";
 
-        var files = directoryInfos.GetFiles($"{assembly.Name}.*.nupkg");
+        return new PluginPackage
+        {
+            Name = uniqueName,
+            UniqueName = uniqueName,
+            Version = assembly.Version,
+            Content = File.ReadAllBytes(packagePath)
+        };
+    }
 
-        var fileInfo = files.FirstOrDefault();
+    /// <summary>
+    ///     Locates the <c>.nupkg</c> produced for <paramref name="dllPath" />.
+    ///     NuGet drops it in <c>bin/&lt;Configuration&gt;/</c>, a sibling of the TFM folder holding the
+    ///     assembly, so the assembly folder is searched first and its parent second - that also covers
+    ///     a project that redirects <c>PackageOutputPath</c> next to its output.
+    /// </summary>
+    /// <param name="dllPath">Path of the plugin assembly being deployed.</param>
+    /// <returns>The package path, or <see langword="null" /> when none was found.</returns>
+    public static string ResolvePackagePath(string dllPath)
+    {
+        var assemblyFolder = Path.GetDirectoryName(Path.GetFullPath(dllPath));
+        if (string.IsNullOrEmpty(assemblyFolder)) return null;
 
-        return fileInfo == null
-            ? null
-            : new PluginPackage
-            {
-                Name = $"{_solutionContext.Publisher.CustomizationPrefix}_{assembly.Name}",
-                UniqueName = $"{_solutionContext.Publisher.CustomizationPrefix}_{assembly.Name}",
-                Version = assembly.Version,
-                Content = File.ReadAllBytes(fileInfo.FullName)
-            };
+        var assemblyName = Path.GetFileNameWithoutExtension(dllPath);
+
+        // Only the package of THIS assembly: a folder may hold several, one per project.
+        var candidateFolders = new[] {assemblyFolder, Path.GetDirectoryName(assemblyFolder)};
+
+        foreach (var folder in candidateFolders)
+        {
+            if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder)) continue;
+
+            var match = new DirectoryInfo(folder)
+                .GetFiles($"{assemblyName}.*.nupkg")
+                .OrderByDescending(f => f.LastWriteTimeUtc)
+                .FirstOrDefault();
+
+            if (match != null) return match.FullName;
+        }
+
+        return null;
     }
 
 
+    /// <summary>
+    ///     Fills the pre- or post-image of <paramref name="step" /> with the matching image registered
+    ///     on the server, so the deployment recognises it instead of creating a second one.
+    /// </summary>
+    /// <param name="step">The step read back from the server.</param>
+    /// <param name="isPreImage">Which of the step's two images to fill.</param>
+    /// <param name="stepImages">The images registered on the server, all steps mixed.</param>
     public void CreateStepImageFromRemote(Step step, bool isPreImage,
         IEnumerable<SdkMessageProcessingStepImage> stepImages)
     {
@@ -215,10 +259,17 @@ public class AssemblyImporter : IAssemblyImporter
             return;
         }
 
-        step.PreImage.Id = existingImage.Id;
-        step.PreImage.ParentId = step.Id;
-        step.PreImage.AllAttributes = existingImage.Attributes1 == null;
-        step.PreImage.Attributes.Add(existingImage.Attributes1);
+        // The image to fill is the one the caller asked for: writing the post-image onto the
+        // pre-image left the post-image without an Id, and the diff then created it on every run.
+        var image = isPreImage ? step.PreImage : step.PostImage;
+
+        image.Id = existingImage.Id;
+        image.ParentId = step.Id;
+        image.AllAttributes = existingImage.Attributes1 == null;
+        if (existingImage.Attributes1 != null)
+        {
+            image.Attributes.Add(existingImage.Attributes1);
+        }
     }
 
 }

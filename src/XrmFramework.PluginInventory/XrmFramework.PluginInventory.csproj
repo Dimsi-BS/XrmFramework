@@ -1,17 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    net462 inventory tool, launched out-of-process by the net8 CLI (deploy plugins command).
-    It loads the plugin assembly, EXECUTES the constructors (AddSteps) and reflects over the types
-    to produce the JSON manifest (plugins/steps/workflows/custom APIs) on standard output.
+    Plugin inventory host, launched out-of-process by the CLI (deploy plugins command).
+    It loads the plugin assembly, EXECUTES the registration code (constructors / AddSteps) and
+    reflects over the types to produce the JSON manifest (plugins/steps/workflows/custom APIs) on
+    standard output.
 
-    net462 is mandatory: instantiating a plugin executes code that depends on Microsoft.Xrm.Sdk
-    (net462) — impossible from a net8 process. Deliberately self-contained (no reference to the
-    rest of the solution) so it stays packageable in the net8 tool with a minimal closure.
+    net10.0, matching the CLI that ships and launches it: a .NET-modern runtime loads a net462/net48
+    assembly perfectly well (mscorlib and friends redirect to the facades), so the inventory no
+    longer needs .NET Framework and `deploy plugins` works on macOS and Linux. Two things have to be
+    handed to the runtime for that to hold, and they are the only reason this project has
+    dependencies at all:
+
+      - System.Configuration.ConfigurationManager, because configuration types compiled into a
+        plugin assembly (ConfigurationSection and friends) forward to it. Without it they fail to
+        load, GetTypes() throws, and the inventory now treats that as an error rather than silently
+        dropping types.
+      - System.Activities, which simply does not exist on .NET 5+, provided by the stand-in in
+        XrmFramework.PluginInventory.SystemActivities. Without it no CodeActivity-derived type
+        loads, so every Custom Workflow Activity would be missing from the manifest.
+
+    Still out-of-process, and deliberately so: the CLI references Microsoft.PowerPlatform.Dataverse.Client
+    and therefore its own .NET Microsoft.Xrm.Sdk. Loading the plugin's net4x Microsoft.Xrm.Sdk into
+    that same process would put two assemblies of the same name in play.
   -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>XrmFramework.PluginInventory</AssemblyName>
     <RootNamespace>XrmFramework.PluginInventory</RootNamespace>
     <LangVersion>latest</LangVersion>
@@ -22,8 +37,71 @@
     <IsPackable>false</IsPackable>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
 
+    <!-- A build-time helper ships no localized diagnostics; keeps the inventory/ folder small. -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+
+    <!--
+      No native launcher. An apphost is RID-specific, and the CLI ships as a single RID-less
+      `any` tool package, so the one built here would travel into every platform's package - a
+      macOS binary inside the Windows one. The CLI starts this host through the muxer instead
+      (`dotnet inventory/XrmFramework.PluginInventory.dll`), which needs nothing but the .dll.
+    -->
+    <UseAppHost>false</UseAppHost>
+
     <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
     <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" />
+  </ItemGroup>
+
+  <!--
+    The repository root Directory.Build.props forces System.Security.Cryptography.Xml onto every
+    net10.0 project, to raise the floor of a vulnerable version that reaches them transitively
+    through System.ServiceModel.Primitives. Nothing here pulls that chain - this host references
+    ConfigurationManager and nothing else - so the pin would only add two assemblies (Xml, and Pkcs
+    behind it) to the inventory/ folder the CLI ships, both of them currently carrying advisories of
+    their own. Removed rather than overridden: there is no dependency to pin.
+  -->
+  <ItemGroup>
+    <PackageReference Remove="System.Security.Cryptography.Xml" />
+  </ItemGroup>
+
+  <!--
+    The stand-in is a FILE this host hands to the assembly resolver, never a reference it compiles
+    against: ReferenceOutputAssembly=false keeps our own code from binding to those imitation types
+    by accident. The build order still holds, and the copy below puts System.Activities.dll next to
+    the host in both the build and the publish output (the CLI ships the publish output).
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\XrmFramework.PluginInventory.SystemActivities\XrmFramework.PluginInventory.SystemActivities.csproj"
+                      ReferenceOutputAssembly="false"
+                      Private="false" />
+  </ItemGroup>
+
+  <Target Name="ResolveSystemActivitiesShim" BeforeTargets="AssignTargetPaths">
+    <!--
+      RemoveProperties on TargetFramework, not a hard-coded netstandard2.0: whoever builds this
+      host may have a TargetFramework global property in scope (the CLI and the test project both
+      invoke it with TargetFramework=net10.0), and it would be inherited here, making GetTargetPath
+      answer with a net10.0 path the shim never builds. Dropping the property lets the shim resolve
+      its own, wherever it is set.
+    -->
+    <MSBuild Projects="..\XrmFramework.PluginInventory.SystemActivities\XrmFramework.PluginInventory.SystemActivities.csproj"
+             Targets="GetTargetPath"
+             Properties="Configuration=$(Configuration)"
+             RemoveProperties="TargetFramework">
+      <Output TaskParameter="TargetOutputs" ItemName="_SystemActivitiesShim" />
+    </MSBuild>
+
+    <ItemGroup>
+      <None Include="@(_SystemActivitiesShim)"
+            Link="System.Activities.dll"
+            CopyToOutputDirectory="PreserveNewest"
+            CopyToPublishDirectory="PreserveNewest"
+            Visible="false" />
+    </ItemGroup>
+  </Target>
 
 </Project>

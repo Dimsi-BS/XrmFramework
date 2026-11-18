@@ -83,6 +83,142 @@ namespace XrmFramework.Core.Tests
             Assert.That(_columnCollection.ToList(), Is.EquivalentTo(new List<Column> { _otherColumn, _notSelectedColumn }));
         }
 
+        // ──────────────────────────────────────────────────────────────────────
+        // Folding the two copies a framework table comes in
+        // ──────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// <c>teamtype</c> as the XrmFramework package declares it: named for the code shipped
+        /// alongside it (<c>TeamDefinition.Columns.Type</c>), and locked for that very reason.
+        /// </summary>
+        private static Column FrameworkTeamType(bool selected = true) => new Column
+        {
+            LogicalName = "teamtype",
+            Name = "Type",
+            IsLocked = true,
+            Selected = selected
+        };
+
+        /// <summary>
+        /// The same column as a project tracking its own copy of <c>team</c> pulled it: named after
+        /// the CRM schema name, and unaware of the lock.
+        /// </summary>
+        private static Column ProjectTeamType(bool selected = true) => new Column
+        {
+            LogicalName = "teamtype",
+            Name = "TeamType",
+            Selected = selected
+        };
+
+        [Test]
+        public void Add_LockedColumnThenUnlockedCopy_KeepsTheLockedName()
+        {
+            _columnCollection.Add(FrameworkTeamType());
+            _columnCollection.Add(ProjectTeamType());
+
+            var column = _columnCollection.Single();
+
+            Assert.AreEqual("Type", column.Name);
+            Assert.IsTrue(column.IsLocked);
+            Assert.IsTrue(column.Selected);
+        }
+
+        /// <summary>
+        /// The mirror case: the arbitration must not depend on the order the two copies reach the
+        /// collection in, which is the order <c>AdditionalFiles</c> happens to list them in.
+        /// </summary>
+        [Test]
+        public void Add_UnlockedCopyThenLockedColumn_KeepsTheLockedName()
+        {
+            _columnCollection.Add(ProjectTeamType());
+            _columnCollection.Add(FrameworkTeamType());
+
+            var column = _columnCollection.Single();
+
+            Assert.AreEqual("Type", column.Name);
+            Assert.IsTrue(column.IsLocked);
+            Assert.IsTrue(column.Selected);
+        }
+
+        /// <summary>
+        /// The branch that swaps the kept column for the incoming one: the lock describes the
+        /// column, so it has to make the trip.
+        /// </summary>
+        [Test]
+        public void Add_LockedColumnThenUnselectedUnlockedCopy_KeepsLockAndName()
+        {
+            _columnCollection.Add(FrameworkTeamType());
+            _columnCollection.Add(ProjectTeamType(selected: false));
+
+            var column = _columnCollection.Single();
+
+            Assert.AreEqual("Type", column.Name);
+            Assert.IsTrue(column.IsLocked);
+            Assert.IsTrue(column.Selected);
+        }
+
+        [Test]
+        public void Add_UnlockedCopyThenUnselectedLockedColumn_KeepsLockAndName()
+        {
+            _columnCollection.Add(ProjectTeamType());
+            _columnCollection.Add(FrameworkTeamType(selected: false));
+
+            var column = _columnCollection.Single();
+
+            Assert.AreEqual("Type", column.Name);
+            Assert.IsTrue(column.IsLocked);
+            Assert.IsTrue(column.Selected);
+        }
+
+        /// <summary>
+        /// Nothing locked: the selected copy coming in still names the column, as it always has.
+        /// </summary>
+        [Test]
+        public void Add_TwoUnlockedSelectedCopies_TheIncomingCopyNamesTheColumn()
+        {
+            _columnCollection.Add(ProjectTeamType());
+            _columnCollection.Add(new Column { LogicalName = "teamtype", Name = "Renamed", Selected = true });
+
+            var column = _columnCollection.Single();
+
+            Assert.AreEqual("Renamed", column.Name);
+            Assert.IsFalse(column.IsLocked);
+        }
+
+        /// <summary>
+        /// Two locked copies agree on the lock, so neither has a locked name to impose over the
+        /// other: the ordinary rule applies again.
+        /// </summary>
+        [Test]
+        public void Add_TwoLockedSelectedCopies_TheIncomingCopyNamesTheColumn()
+        {
+            _columnCollection.Add(FrameworkTeamType());
+            _columnCollection.Add(new Column
+            {
+                LogicalName = "teamtype",
+                Name = "Renamed",
+                IsLocked = true,
+                Selected = true
+            });
+
+            var column = _columnCollection.Single();
+
+            Assert.AreEqual("Renamed", column.Name);
+            Assert.IsTrue(column.IsLocked);
+        }
+
+        [Test]
+        public void Add_LockedColumnWithoutAName_ImposesNothing()
+        {
+            _columnCollection.Add(new Column { LogicalName = "teamtype", IsLocked = true, Selected = true });
+            _columnCollection.Add(ProjectTeamType());
+
+            var column = _columnCollection.Single();
+
+            Assert.AreEqual("TeamType", column.Name);
+            Assert.IsTrue(column.IsLocked);
+        }
+
         [Test]
         public void RemoveColumn()
         {

@@ -16,7 +16,7 @@ namespace XrmFramework.DeployUtils.Model
         public virtual void AddChild(ICrmComponent child) { child.ParentId = Id; }
         protected abstract void RemoveChild(ICrmComponent child);
 
-        public RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
+        public virtual RegistrationState RegistrationState { get; set; } = RegistrationState.NotComputed;
         
         private Guid _id = Guid.NewGuid();
         public Guid ParentId { get; set; } = Guid.NewGuid();

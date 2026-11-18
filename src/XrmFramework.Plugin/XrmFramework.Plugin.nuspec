@@ -24,7 +24,14 @@
   </metadata>
 
   <files>
-    <file src="**\*.cs" target="contentFiles/cs/any/__Imports/XrmFramework.Plugin" exclude="obj\**;**\AssemblyInfos.cs" />
+    <!-- contentFiles are compiled into the consuming project automatically. The vendored
+         Newtonsoft.Json source is deliberately kept OUT of them (see the exclude below) and
+         shipped under build/ instead, where nothing is auto-compiled: XrmFramework.Plugin.targets
+         adds it as Compile only for a project deployed as a plain assembly. A project deployed as
+         a plugin package references the real Newtonsoft.Json package instead, and compiling the
+         source there too would duplicate every type in the Newtonsoft.Json namespace. -->
+    <file src="**\*.cs" target="contentFiles/cs/any/__Imports/XrmFramework.Plugin" exclude="obj\**;**\AssemblyInfos.cs;NewtonSoft.Json\**" />
+    <file src="NewtonSoft.Json\**\*.cs" target="build/NewtonSoft.Json" />
     <file src="build\**\*" target="build/" />
 
     <file src="lib\**" target="lib" />

@@ -99,7 +99,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "ismanaged",
@@ -117,7 +118,8 @@
       "Name": "IsVisible",
       "Capa": 1,
       "Labels": [],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "modifiedby",
@@ -207,7 +209,8 @@
       "PrimaryType": "Id",
       "Capa": 5,
       "Labels": [],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "sdkmessagefilteridunique",
@@ -227,7 +230,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "solutionid",

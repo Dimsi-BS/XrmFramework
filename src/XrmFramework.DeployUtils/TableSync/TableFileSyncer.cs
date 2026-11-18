@@ -346,6 +346,10 @@ public sealed class TableFileSyncer
                 renamedOptionSets++;
         }
 
+        // Same reason as on the pull path: the analyzed DLL carries no lock — the generated code
+        // does not spell them out — so a project's own copy of a framework table gets them here.
+        var seededLocks = FrameworkTableCatalog.SeedLocks(table);
+
         SaveTable(tablePath, table);
 
         if (isNew)
@@ -356,7 +360,8 @@ public sealed class TableFileSyncer
             AnsiConsole.MarkupLine(
                 $"[blue]Updated[/] {def.TableName}.table " +
                 $"(+{added} created, {updated} activated" +
-                (renamedOptionSets > 0 ? $", {renamedOptionSets} option set(s) named" : string.Empty) + ")");
+                (renamedOptionSets > 0 ? $", {renamedOptionSets} option set(s) named" : string.Empty) +
+                (seededLocks > 0 ? $", {seededLocks} lock(s) seeded" : string.Empty) + ")");
     }
 
     // ──────────────────────────────────────────────────────────────────────────

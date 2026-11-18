@@ -53,7 +53,8 @@ internal static class DeployServiceCollectionFactory
         {
             ConnectionString        = connectionString,
             PluginSolutionUniqueName = projectConfig!.TargetSolution,
-            IsOnPremise             = deployOptions.IsOnPremise
+            IsOnPremise             = deployOptions.IsOnPremise,
+            Deployment              = projectConfig.Deployment
         };
 
         // ── DI container configuration ─────────────────────────────────────
@@ -61,6 +62,7 @@ internal static class DeployServiceCollectionFactory
             .InitServiceCollection()
             .AddScoped<IAssemblyExporter, AssemblyExporter>()
             .AddSingleton(deploySettings)
+            .AddSingleton(deployOptions)
             .AddScoped<IOrganizationService>(sp =>
             {
                 var settings = sp.GetRequiredService<DeploySettings>();

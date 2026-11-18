@@ -41,6 +41,7 @@
         <PackageReference Include="JetBrains.Annotations" />
         <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" />
         <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" />
+        <PackageReference Include="Microsoft.Identity.Client" />
         <PackageReference Include="System.Text.RegularExpressions" />
     </ItemGroup>
 

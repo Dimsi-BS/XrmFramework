@@ -157,5 +157,30 @@ namespace XrmFramework
 
             return result;
         }
+
+        /// <summary>
+        ///     Builds a <c>List&lt;<paramref name="enumType" />&gt;</c> out of the options, rather
+        ///     than the <see cref="ICollection{T}" /> of boxed values
+        ///     <see cref="ToEnumCollection" /> returns.
+        /// </summary>
+        /// <remarks>
+        ///     A boxed list is assignable to nothing a model actually declares: a settable
+        ///     <c>ICollection&lt;MyChoice&gt;</c> property rejects a <c>List&lt;object&gt;</c>, which
+        ///     left <c>ICollection&lt;int&gt;</c> as the only type a multi-select column could be
+        ///     read into. The real list satisfies both — and <c>List&lt;MyChoice&gt;</c>,
+        ///     <c>IList&lt;MyChoice&gt;</c> and <c>IEnumerable&lt;MyChoice&gt;</c> besides.
+        /// </remarks>
+        public static object ToTypedEnumList(this IEnumerable<OptionSetValue> values, Type enumType)
+        {
+            var list = (System.Collections.IList)Activator.CreateInstance(
+                typeof(List<>).MakeGenericType(enumType));
+
+            foreach (var value in values)
+            {
+                list.Add(Enum.ToObject(enumType, value.Value));
+            }
+
+            return list;
+        }
     }
 }

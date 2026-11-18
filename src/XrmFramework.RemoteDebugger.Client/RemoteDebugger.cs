@@ -2,11 +2,9 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Workflow;
 using Newtonsoft.Json;
 using Spectre.Console;
 using System;
-using System.Activities;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -309,25 +307,22 @@ namespace XrmFramework.RemoteDebugger.Common
             if (pluginType == null)
                 return false;
 
-            if (remoteContext.IsWorkflowContext)
+            // The resolved type decides, with the context's flag as a hint: a CodeActivity cannot be
+            // run as an IPlugin whatever the context claims, and trusting the flag alone is what
+            // turned a mis-flagged workflow activity into an InvalidCastException. It also keeps a
+            // session recorded before the flag was set correctly replayable.
+            if (WorkflowActivitySupport.IsWorkflowActivity(pluginType) || remoteContext.IsWorkflowContext)
             {
-                var activity = (CodeActivity)Activator.CreateInstance(pluginType);
-                var invoker = new WorkflowInvoker(activity);
-
-                AddWorkflowExtension<IWorkflowContext>(serviceProvider, invoker);
-                AddWorkflowExtension<IOrganizationServiceFactory>(serviceProvider, invoker);
-                AddWorkflowExtension<IServiceEndpointNotificationService>(serviceProvider, invoker);
-                AddWorkflowExtension<ITracingService>(serviceProvider, invoker);
-
-                var inputs = remoteContext.Arguments.ToDictionary(k => k.Key, k => k.Value);
-                var outputs = invoker.Invoke(inputs);
-
-                remoteContext.Arguments.Clear();
-                foreach (var kv in outputs)
-                    remoteContext.Arguments[kv.Key] = kv.Value;
+                WorkflowActivitySupport.Run(pluginType, serviceProvider, remoteContext);
             }
             else
             {
+                if (!typeof(IPlugin).IsAssignableFrom(pluginType))
+                    throw new InvalidOperationException(
+                        $"'{pluginType.FullName}' is neither an IPlugin nor a CodeActivity, so the "
+                        + "debugger has no way to run it. A custom workflow activity must derive "
+                        + "from CodeActivity, and a plugin must implement IPlugin.");
+
                 IPlugin plugin;
                 if (pluginType.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
                     plugin = (IPlugin)Activator.CreateInstance(
@@ -538,13 +533,5 @@ namespace XrmFramework.RemoteDebugger.Common
 
         // ── Helpers ───────────────────────────────────────────────────────
 
-        private static void AddWorkflowExtension<TService>(
-            IServiceProvider provider, WorkflowInvoker invoker)
-            where TService : class
-        {
-            var service = provider.GetService(typeof(TService));
-            if (service != null)
-                invoker.Extensions.Add(() => (TService)service);
-        }
     }
 }

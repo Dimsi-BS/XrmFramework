@@ -151,6 +151,55 @@ public class TablePullPersistenceTests
     }
 
     // ══════════════════════════════════════════════════════════════════════════
+    // Locks the framework ships
+    // ══════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// The environment knows nothing of Locked, and the merge can only keep what the file already
+    /// carried, so a project's copy of a framework table would never gain the locks. The pull path
+    /// seeds them -- and nothing but this notices if that call goes away.
+    /// </summary>
+    [Test]
+    public void Pull_OfAFrameworkTable_SeedsTheShippedLocks()
+    {
+        Pull(Team());
+
+        var teamType = LoadTable().Columns.Single(c => c.LogicalName == "teamtype");
+
+        Assert.AreEqual("Type", teamType.Name,
+            "the framework ships teamtype under the name its own code refers to");
+        Assert.IsTrue(teamType.IsLocked);
+        Assert.IsTrue(LoadTable().IsLocked, "the shipped team table is locked");
+    }
+
+    [Test]
+    public void Pull_OfAFrameworkTable_WritesTheLockIntoJson()
+    {
+        // Against the JSON rather than the object model: serialization omits default values, so a
+        // lock that failed to be set would simply be absent from the file.
+        Pull(Team());
+
+        var column = JObject.Parse(File.ReadAllText(TableFilePath()))["Cols"]!
+            .Single(c => (string?)c["LogName"] == "teamtype");
+
+        Assert.AreEqual(true, (bool?)column["Locked"]);
+        Assert.AreEqual("Type", (string?)column["Name"]);
+    }
+
+    /// <summary>
+    /// A table the framework does not ship has no locks to receive, and the pull must not invent
+    /// any.
+    /// </summary>
+    [Test]
+    public void Pull_OfAProjectTable_SeedsNothing()
+    {
+        Pull(Contrat());
+
+        Assert.IsFalse(LoadTable().IsLocked);
+        Assert.IsFalse(LoadTable().Columns.Any(c => c.IsLocked));
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
     // Helpers
     // ══════════════════════════════════════════════════════════════════════════
 
@@ -189,6 +238,20 @@ public class TablePullPersistenceTests
     }
 
     // ── Simulated metadata ────────────────────────────────────────────────────
+
+    /// <summary>
+    /// team as the environment describes it: the CRM schema names, and no notion of a lock. The
+    /// framework ships its own copy of this table, with teamtype named Type and locked.
+    /// </summary>
+    private static DataverseMetadata.EntityMetadata Team()
+        => Entity("team", "Team", "teamid", "name",
+            Attribute("teamid", "TeamId", DataverseMetadata.AttributeTypeCode.Uniqueidentifier),
+            StringAttribute("name", "Name", 160),
+            Attribute<DataverseMetadata.PicklistAttributeMetadata>(
+                    "teamtype", "TeamType", DataverseMetadata.AttributeTypeCode.Picklist)
+                .Set(nameof(DataverseMetadata.PicklistAttributeMetadata.OptionSet),
+                    OptionSet("teamtype", isGlobal: false, "Type d'equipe",
+                        Option(0, "Proprietaire"), Option(1, "Acces"))));
 
     private static DataverseMetadata.EntityMetadata Contrat()
         => Entity("ftp_contrat", "ftp_Contrat", "ftp_contratid", "ftp_nom",

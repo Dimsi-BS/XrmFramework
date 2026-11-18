@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Context;
 using XrmFramework.DeployUtils.Importers;
 using XrmFramework.DeployUtils.Model;
@@ -15,18 +17,25 @@ internal partial class AssemblyFactory : IAssemblyFactory
 {
 	private readonly IAssemblyImporter _importer;
 	private readonly ISolutionContext _solutionContext;
+	private readonly DeploySettings _deploySettings;
+	private readonly DeployOptions _deployOptions;
 
-	public AssemblyFactory(IAssemblyImporter importer, ISolutionContext solutionContext)
+	public AssemblyFactory(IAssemblyImporter importer,
+		ISolutionContext solutionContext,
+		DeploySettings deploySettings,
+		DeployOptions deployOptions)
 	{
 		_importer = importer;
 		_solutionContext = solutionContext;
+		_deploySettings = deploySettings;
+		_deployOptions = deployOptions;
 	}
 
 	public IAssemblyContext CreateFromLocalAssemblyContext(string dllPath)
 	{
-		// Inventory by EXECUTING the registration code (constructors / AddSteps), via the
-		// shared XrmFramework.PluginInventory engine: in-process on net462, out-of-process
-		// (net462 exe) from net8/net10. The result is the same JSON schema the reader consumes.
+		// Inventory by EXECUTING the registration code (constructors / AddSteps), via the shared
+		// XrmFramework.PluginInventory engine: in-process on .NET Framework, out of process through
+		// the inventory host otherwise. Either way, the same JSON schema the reader consumes.
 		var json = GetManifestJson(dllPath);
 		if (string.IsNullOrEmpty(json))
 			throw new InvalidOperationException(
@@ -36,6 +45,9 @@ internal partial class AssemblyFactory : IAssemblyFactory
 		{
 			AssemblyInfo = GetLocalAssemblyInfo(dllPath)
 		};
+
+		if (UsesPluginPackage(json))
+			AttachLocalPackage(localAssembly.AssemblyInfo, dllPath);
 
 		foreach (var plugin in PluginInventoryReader.ReadPlugins(json))
 			localAssembly.AddChild(plugin);
@@ -51,13 +63,52 @@ internal partial class AssemblyFactory : IAssemblyFactory
 		return localAssembly;
 	}
 
+	/// <summary>
+	///     Whether this deployment runs in package mode.
+	/// </summary>
+	/// <remarks>
+	///     The assembly decides. The packaging targets stamp the opt-in into it, so a project built
+	///     with <c>&lt;XrmFrameworkPluginPackage&gt;true&lt;/XrmFrameworkPluginPackage&gt;</c> deploys
+	///     as a package without having to say so a second time in <c>xrmFramework.config</c> - and a
+	///     project that was not built that way cannot be pushed as one by a configuration mistake.
+	///     <para>
+	///         <c>deployment="package"</c> still forces it, for assemblies built before the marker
+	///         existed. It is no longer required, and the mismatch it used to allow - configured for
+	///         package, built as a plain assembly - is now reported by the <c>.nupkg</c> lookup.
+	///     </para>
+	/// </remarks>
+	private bool UsesPluginPackage(string manifestJson)
+		=> PluginInventoryReader.ReadUsesPluginPackage(manifestJson) || _deploySettings.UsePluginPackage;
+
+	/// <summary>
+	///     Reads the <c>.nupkg</c> built next to <paramref name="dllPath" /> and hangs it under the
+	///     assembly, which is what switches the rest of the pipeline into package mode.
+	/// </summary>
+	private void AttachLocalPackage(AssemblyInfo assemblyInfo, string dllPath)
+	{
+		var packagePath = string.IsNullOrWhiteSpace(_deployOptions.PackagePath)
+			? AssemblyImporter.ResolvePackagePath(dllPath)
+			: _deployOptions.PackagePath;
+
+		if (string.IsNullOrWhiteSpace(packagePath))
+			throw new InvalidOperationException(
+				$"No plugin package found for '{Path.GetFileName(dllPath)}'. The project is configured " +
+				"for package deployment, so build it with <XrmFrameworkPluginPackage>true</XrmFrameworkPluginPackage>, " +
+				"or point at the .nupkg with --package.");
+
+		assemblyInfo.AddChild(_importer.CreatePackageFromLocal(assemblyInfo, packagePath));
+	}
+
 	private static string GetManifestJson(string dllPath)
 	{
 #if NET462_OR_GREATER
-		// Already on .NET Framework: plugins are instantiated in-process.
+		// Already on .NET Framework, and holding the plugin's own Microsoft.Xrm.Sdk: no second
+		// process buys anything here, so the engine runs in this one.
 		return PluginInventory.PluginInventoryEngine.BuildManifestJson(dllPath);
 #else
-		// net8/net10: delegated to the net462 exe (instantiating a net462 plugin here is impossible).
+		// Delegated to the inventory host, which runs on this same .NET version. Out of process not
+		// because a modern runtime cannot load a net4x plugin - it can - but because this process
+		// already has its own Microsoft.Xrm.Sdk, by way of Microsoft.PowerPlatform.Dataverse.Client.
 		return PluginInventoryProcessRunner.Run(dllPath);
 #endif
 	}

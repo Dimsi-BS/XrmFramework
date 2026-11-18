@@ -2,10 +2,8 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using System.Activities;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Workflow;
 using Newtonsoft.Json;
 using XrmFramework.RemoteDebugger.Client.ConsoleUI;
 using XrmFramework.RemoteDebugger.Common;
@@ -109,9 +107,12 @@ public static class PluginTestRunner
                 "Make sure the plugin's assembly is referenced by the test project.");
         }
 
-        if (inputContext.IsWorkflowContext)
+        // The resolved type decides, with the recorded flag as a hint: a CodeActivity cannot be run
+        // as an IPlugin whatever the recording claims. A session recorded before the flag was set
+        // correctly carries IsWorkflowContext: false, and replaying it must not fail on that.
+        if (WorkflowActivitySupport.IsWorkflowActivity(pluginType) || inputContext.IsWorkflowContext)
         {
-            RunWorkflowActivity(pluginType, serviceProvider, inputContext);
+            WorkflowActivitySupport.Run(pluginType, serviceProvider, inputContext);
         }
         else
         {
@@ -141,6 +142,12 @@ public static class PluginTestRunner
         LocalServiceProvider serviceProvider,
         RemoteDebugExecutionContext context)
     {
+        if (!typeof(IPlugin).IsAssignableFrom(pluginType))
+            throw new InvalidOperationException(
+                $"'{pluginType.FullName}' is neither an IPlugin nor a CodeActivity, so the recorded "
+                + "session cannot be replayed. A custom workflow activity must derive from "
+                + "CodeActivity, and a plugin must implement IPlugin.");
+
         IPlugin plugin;
 
         if (pluginType.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
@@ -158,36 +165,4 @@ public static class PluginTestRunner
         plugin.Execute(serviceProvider);
     }
 
-    private static void RunWorkflowActivity(
-        Type activityType,
-        LocalServiceProvider serviceProvider,
-        RemoteDebugExecutionContext context)
-    {
-        var codeActivity = (CodeActivity)Activator.CreateInstance(activityType);
-        var invoker = new WorkflowInvoker(codeActivity);
-
-        AddWorkflowExtension<IWorkflowContext>(serviceProvider, invoker);
-        AddWorkflowExtension<IOrganizationServiceFactory>(serviceProvider, invoker);
-        AddWorkflowExtension<IServiceEndpointNotificationService>(serviceProvider, invoker);
-        AddWorkflowExtension<ITracingService>(serviceProvider, invoker);
-
-        var inputs = context.Arguments.ToDictionary(k => k.Key, k => k.Value);
-        var outputs = invoker.Invoke(inputs);
-
-        context.Arguments.Clear();
-        foreach (var output in outputs)
-        {
-            context.Arguments[output.Key] = output.Value;
-        }
-    }
-
-    private static void AddWorkflowExtension<TService>(IServiceProvider provider, WorkflowInvoker invoker)
-        where TService : class
-    {
-        var service = provider.GetService(typeof(TService));
-        if (service != null)
-        {
-            invoker.Extensions.Add<TService>(() => (TService)service);
-        }
-    }
 }

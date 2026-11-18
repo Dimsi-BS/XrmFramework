@@ -116,7 +116,8 @@
           "LangId": 1036
         }
       ],
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "isvisible",
@@ -313,7 +314,8 @@
         }
       ],
       "StrLen": 65,
-      "Select": true
+      "Select": true,
+      "Locked": true
     },
     {
       "LogName": "updatedon",
