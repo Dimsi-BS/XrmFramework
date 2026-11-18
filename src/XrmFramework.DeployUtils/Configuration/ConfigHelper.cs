@@ -123,5 +123,23 @@ namespace XrmFramework.DeployUtils.Configuration
 
             return settings?.ConnectionString;
         }
+
+        /// <summary>
+        ///     An <c>appSettings</c> value by key, or <see langword="null" /> if it is not declared.
+        /// </summary>
+        /// <remarks>
+        ///     Same duality as <see cref="GetConnectionString" />, for the same reason: it lets a
+        ///     runner read its settings with one line of code whether it is a .NET Framework host with
+        ///     an App.config or a .NET one pointed at a project's <c>Config/</c> folder.
+        /// </remarks>
+        public static string GetAppSetting(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+                return null;
+
+            return _projectConfig != null
+                ? _projectConfig.AppSettings.Settings[key]?.Value
+                : ConfigurationManager.AppSettings[key];
+        }
     }
 }

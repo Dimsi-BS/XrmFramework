@@ -1,16 +1,83 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <!--
+    The local half of the remote debugger: it receives a plugin execution context from Dataverse over
+    Azure Relay and runs the plugin in this process, so your breakpoints hit.
+
+    Two target frameworks, because they are good at different things:
+
+      .NET Framework  everything, Custom Workflow Activities included. Windows only.
+      .NET            plugins and Custom APIs, on Windows, macOS and Linux. Workflow activities
+                      cannot run here - they are built on Windows Workflow Foundation, which has no
+                      .NET build.
+
+    Pick one when you run it: `dotnet run -f net10.0`, or your IDE's launch profile. Debugging from
+    macOS or Linux means the .NET one.
+
+    The Plugins project is NOT retargeted for any of this. The assembly under debug stays the one
+    that gets deployed; a .NET runtime loads and runs it as it is.
+  -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFrameworks>net48;net10.0</TargetFrameworks>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- .NET Framework: a plain reference, so the plugin assembly lands in this project's output. -->
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <ProjectReference Include="$(RootFolder)/$safeprojectname$.Plugins/$safeprojectname$.Plugins.csproj" />
+  </ItemGroup>
+
+  <!--
+    .NET: build ordering only. SkipGetTargetFrameworkProperties stops this project from trying to
+    negotiate a target framework with a project it cannot reference for its types - the Plugins
+    project targets .NET Framework. UndefineProperties is the other half and easy to miss: in a
+    multi-targeting project the inner build sets TargetFramework as a global property, which
+    would flow into the Plugins project and ask it for a build it has no target for.
+    The plugin travels through the copy below instead, and PluginAssemblyLoader finds it there.
+  -->
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' != 'net'">
+    <ProjectReference Include="$(RootFolder)/$safeprojectname$.Plugins/$safeprojectname$.Plugins.csproj"
+                      ReferenceOutputAssembly="false"
+                      SkipGetTargetFrameworkProperties="true"
+                      UndefineProperties="TargetFramework"
+                      Private="false" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="XrmFramework.RemoteDebugger.Client" />
   </ItemGroup>
+
+  <!--
+    Puts the Plugins project's whole output under plugins/, for the .NET leg. The whole directory,
+    not just the assembly: the plugin's dependencies have to be resolvable from beside it, which is
+    how PluginAssemblyLoader finds them.
+
+    The Plugins project's own target framework is never named here - GetTargetPath is asked with
+    TargetFramework dropped, so the project answers with whichever one it builds. That keeps this
+    file correct whichever framework the solution was scaffolded for.
+  -->
+  <Target Name="CopyPluginOutputForDotNetRunner"
+          AfterTargets="Build"
+          Condition="'$(TargetFramework.TrimEnd(`0123456789`))' != 'net'">
+
+    <MSBuild Projects="$(RootFolder)/$safeprojectname$.Plugins/$safeprojectname$.Plugins.csproj"
+             Targets="GetTargetPath"
+             Properties="Configuration=$(Configuration)"
+             RemoveProperties="TargetFramework">
+      <Output TaskParameter="TargetOutputs" ItemName="_PluginTargetPath" />
+    </MSBuild>
+
+    <PropertyGroup>
+      <_PluginOutputDirectory>%(_PluginTargetPath.RootDir)%(_PluginTargetPath.Directory)</_PluginOutputDirectory>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_PluginOutputFile Include="$(_PluginOutputDirectory)**\*" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_PluginOutputFile)"
+          DestinationFiles="@(_PluginOutputFile->'$(OutDir)plugins\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>
