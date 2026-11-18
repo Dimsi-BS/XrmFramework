@@ -2,11 +2,11 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
-using System.Configuration;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.RemoteDebugger.Common;
 
 namespace XrmFramework.RemoteDebugger.Client
@@ -19,21 +19,55 @@ namespace XrmFramework.RemoteDebugger.Client
 
         public event Action<RemoteDebugExecutionContext> ContextReceived;
 
+        /// <summary>
+        ///     Environment variable holding the Azure Relay connection string, consulted before any
+        ///     configuration file.
+        /// </summary>
+        /// <remarks>
+        ///     The way a runner on .NET gets configured without an App.config. A classic .NET
+        ///     Framework runner keeps working off its own, unchanged, through
+        ///     <see cref="ConfigHelper" />; this gives every other host - and anyone who would rather
+        ///     not keep a SAS key in a file - a way in that needs no XML at all.
+        /// </remarks>
+        public const string RelayConnectionStringVariable = "XRMFRAMEWORK_DEBUG_RELAY";
+
+        private const string RelayConnectionStringName = "DebugConnectionString";
+
         public AzureRelayHybridConnectionMessageManager()
         {
-            if (ConfigurationManager.ConnectionStrings["DebugConnectionString"] == null)
-            {
-                throw new Exception("The connectionString \"DebugConnectionString\" is not defined.");
-            }
-
             // create a connection string with the listener profile
-            Listener = new HybridConnectionListener(ConfigurationManager.ConnectionStrings["DebugConnectionString"].ConnectionString);
+            Listener = new HybridConnectionListener(ResolveRelayConnectionString());
 
           //  Listener.Connecting += (_, _) => { Console.WriteLine("Listener is connecting to Azure…"); };
           //  Listener.Offline += (_, _) => { Console.WriteLine("Listener is about to go offline…"); };
           //  Listener.Online += (_, _) => { Console.WriteLine("Listener is online…"); };
 
             Listener.RequestHandler = RequestHandler;
+        }
+
+        /// <summary>
+        ///     The Azure Relay connection string: the environment variable if set, otherwise the
+        ///     <c>DebugConnectionString</c> connection string from configuration.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">When neither is available.</exception>
+        private static string ResolveRelayConnectionString()
+        {
+            var fromEnvironment = Environment.GetEnvironmentVariable(RelayConnectionStringVariable);
+            if (!string.IsNullOrWhiteSpace(fromEnvironment))
+                return fromEnvironment;
+
+            var fromConfiguration = ConfigHelper.GetConnectionString(RelayConnectionStringName);
+            if (!string.IsNullOrWhiteSpace(fromConfiguration))
+                return fromConfiguration;
+
+            // Both options named, because which one applies depends on how the runner was started,
+            // and the old message ("the connectionString is not defined") sent people looking for an
+            // App.config a .NET runner may not even have.
+            throw new InvalidOperationException(
+                $"No Azure Relay connection string. Set the {RelayConnectionStringVariable} environment "
+                + $"variable, or declare a \"{RelayConnectionStringName}\" connection string in the "
+                + "runner's configuration - App.config for a .NET Framework runner, or the project's "
+                + "Config/connectionStrings.config with ConfigHelper.UseProjectConfig() pointed at it.");
         }
 
         private HybridConnectionListener Listener { get; }

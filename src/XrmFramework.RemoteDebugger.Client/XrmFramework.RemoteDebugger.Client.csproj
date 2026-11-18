@@ -1,7 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <!--
+    The local half of the remote debugger: it receives a plugin execution context over Azure Relay
+    and runs the plugin in this process, so that breakpoints hit.
+
+    Multi-targeted onto .NET, not only .NET Framework, so that the runner can be a net8/net10 console
+    and the debugger therefore works on macOS and Linux. Nothing about the plugin changes: the
+    assembly under debug stays net462/net48, and a .NET-modern runtime loads and runs it, because the
+    Microsoft.Xrm.Sdk that Microsoft.PowerPlatform.Dataverse.Client ships for net8.0/net10.0 carries
+    the same identity as the net462 one (Version=9.0.0.0, PublicKeyToken=31bf3856ad364e35) - so host
+    and plugin share one SDK and the context handed to the plugin is a type it accepts. That claim is
+    not taken on trust: CrossTargetFrameworkExecutionTests runs a real net462/net48 plugin this way.
+
+    One capability does not cross over: Custom Workflow Activities. See WorkflowActivitySupport.
+  -->
   <PropertyGroup>
-    <TargetFrameworks>$(XrmFramework_FullFramework_Runtime_TFM)</TargetFrameworks>
+    <TargetFrameworks>$(XrmFramework_Runtime_TFM)</TargetFrameworks>
     <AssemblyName>XrmFramework.RemoteDebugger.Client</AssemblyName>
     <AssemblyOriginatorKeyFile>$(XrmFramework_KeyFile)</AssemblyOriginatorKeyFile>
     <SignAssembly>$(XrmFramework_EnableStrongNameSigning)</SignAssembly>
@@ -57,11 +71,34 @@
     <PackageReference Include="Spectre.Console" />
   </ItemGroup>
 
+  <!--
+    .NET Framework leg. Microsoft.CrmSdk.Workflow is what makes Custom Workflow Activities runnable
+    here - it brings Microsoft.Xrm.Sdk.Workflow (IWorkflowContext) and, through its nuspec's
+    frameworkAssemblies, System.Activities. Neither has a .NET equivalent, hence the capability
+    symbol rather than a TFM test in the code: it names what this leg can do.
+  -->
+  <PropertyGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <DefineConstants>$(DefineConstants);XRMFRAMEWORK_WORKFLOW_ACTIVITIES</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" />
     <PackageReference Include="Microsoft.CrmSdk.Workflow" />
     <PackageReference Include="System.ComponentModel.Annotations" />
     <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+  <!--
+    .NET leg. Microsoft.Xrm.Sdk comes from Dataverse.Client here, exactly as it does for the modern
+    leg of DeployUtils - the same package pair, so the two cannot disagree about which SDK is in the
+    process. ConfigurationManager is a real dependency and not a leftover: ConfigHelper reads the
+    runner's connection strings through it, which is how DebugConnectionString resolves identically
+    on both legs.
+  -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" />
   </ItemGroup>
 
   <ItemGroup>
