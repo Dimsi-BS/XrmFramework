@@ -309,7 +309,11 @@ namespace XrmFramework.RemoteDebugger.Common
             if (pluginType == null)
                 return false;
 
-            if (remoteContext.IsWorkflowContext)
+            // The resolved type decides, with the context's flag as a hint: a CodeActivity cannot be
+            // run as an IPlugin whatever the context claims, and trusting the flag alone is what
+            // turned a mis-flagged workflow activity into an InvalidCastException. It also keeps a
+            // session recorded before the flag was set correctly replayable.
+            if (remoteContext.IsWorkflowContext || typeof(CodeActivity).IsAssignableFrom(pluginType))
             {
                 var activity = (CodeActivity)Activator.CreateInstance(pluginType);
                 var invoker = new WorkflowInvoker(activity);
@@ -328,6 +332,12 @@ namespace XrmFramework.RemoteDebugger.Common
             }
             else
             {
+                if (!typeof(IPlugin).IsAssignableFrom(pluginType))
+                    throw new InvalidOperationException(
+                        $"'{pluginType.FullName}' is neither an IPlugin nor a CodeActivity, so the "
+                        + "debugger has no way to run it. A custom workflow activity must derive "
+                        + "from CodeActivity, and a plugin must implement IPlugin.");
+
                 IPlugin plugin;
                 if (pluginType.GetConstructor(new[] { typeof(string), typeof(string) }) != null)
                     plugin = (IPlugin)Activator.CreateInstance(
