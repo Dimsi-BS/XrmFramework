@@ -84,6 +84,11 @@ namespace XrmFramework.DeployUtils.Configuration
             return GetSection().EntitySolution.Name;
         }
 
+        /// <remarks>
+        ///     Deliberately not routed through <see cref="GetConnectionString" />: that one answers
+        ///     null for a name it does not find, and the deployment path has always failed loudly
+        ///     here instead. Changing that is not this method's business.
+        /// </remarks>
         public static string GetSelectedConnectionString()
         {
             var selectedConnection = GetSection().SelectedConnection;
@@ -91,6 +96,32 @@ namespace XrmFramework.DeployUtils.Configuration
             return _projectConfig != null
                 ? _projectConfig.ConnectionStrings.ConnectionStrings[selectedConnection].ConnectionString
                 : ConfigurationManager.ConnectionStrings[selectedConnection].ConnectionString;
+        }
+
+        /// <summary>
+        ///     A connection string by name, or <see langword="null" /> if it is not declared.
+        /// </summary>
+        /// <remarks>
+        ///     Named rather than selected, for the connection strings that are not the Dataverse one:
+        ///     the remote debugger's <c>DebugConnectionString</c> (Azure Relay) is read this way, so
+        ///     that it resolves identically whether the host is a classic .NET Framework runner
+        ///     reading its App.config or a .NET one pointed at a project's <c>Config/</c> folder by
+        ///     <see cref="UseProjectConfig" />.
+        ///     <para>
+        ///         Returns null instead of throwing: a missing connection string is the caller's to
+        ///         explain, and it is the one that knows what the name is for.
+        ///     </para>
+        /// </remarks>
+        public static string GetConnectionString(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return null;
+
+            var settings = _projectConfig != null
+                ? _projectConfig.ConnectionStrings.ConnectionStrings[name]
+                : ConfigurationManager.ConnectionStrings[name];
+
+            return settings?.ConnectionString;
         }
     }
 }
