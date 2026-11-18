@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace XrmFramework
 {
-    public partial class LocalContext : IContext, IServiceContext
+    public partial class LocalContext : IContext, IServiceContext, ILoggerAccessor
     {
         private IServiceProvider ServiceProvider { get; }
 
@@ -42,6 +42,12 @@ namespace XrmFramework
         }
 
         protected ILogger Logger { get; }
+
+        ILogger ILoggerAccessor.Logger => Logger;
+
+        private ILeveledLogger LeveledLogger => Logger as ILeveledLogger;
+
+        private ITelemetrySink _telemetrySink = NullTelemetrySink.Instance;
 
         public Guid UserId => ExecutionContext.UserId;
 
@@ -76,8 +82,17 @@ namespace XrmFramework
 
             _businessUnitRef = new EntityReference("businessunit", ExecutionContext.BusinessUnitId);
 
-            Logger = LoggerFactory.GetLogger(this, TracingService.Trace);
+            InitializeTelemetry(serviceProvider);
+
+            Logger = LoggerFactory.GetLogger(this, TracingService.Trace, _telemetrySink);
         }
+
+        /// <summary>
+        /// Implemented in the plugin source set, where the Dataverse
+        /// <c>Microsoft.Xrm.Sdk.PluginTelemetry.ILogger</c> can be resolved from the sandbox
+        /// service provider. No-op anywhere else.
+        /// </summary>
+        partial void InitializeTelemetry(IServiceProvider serviceProvider);
 
         public LogServiceMethod LogServiceMethod => Logger.LogWithMethodName;
 
@@ -98,10 +113,56 @@ namespace XrmFramework
             Logger.Log(message, formatArgs);
         }
 
+        public void Log(XrmLogLevel level, string message, params object[] formatArgs)
+        {
+            if (LeveledLogger == null)
+            {
+                Logger.Log(message, formatArgs);
+                return;
+            }
+
+            LeveledLogger.Log(level, message, formatArgs);
+        }
+
+        public void LogTrace(string message, params object[] formatArgs) => Log(XrmLogLevel.Trace, message, formatArgs);
+
+        public void LogDebug(string message, params object[] formatArgs) => Log(XrmLogLevel.Debug, message, formatArgs);
+
+        public void LogInformation(string message, params object[] formatArgs) => Log(XrmLogLevel.Information, message, formatArgs);
+
+        public void LogWarning(string message, params object[] formatArgs) => Log(XrmLogLevel.Warning, message, formatArgs);
+
         public void LogError(Exception e)
         {
             Logger.LogError(e, "ERROR");
         }
+
+        public void LogError(Exception e, string message, params object[] formatArgs) => LogError(XrmLogLevel.Error, e, message, formatArgs);
+
+        public void LogCritical(Exception e, string message = null, params object[] formatArgs) => LogError(XrmLogLevel.Critical, e, message, formatArgs);
+
+        public void LogError(XrmLogLevel level, Exception e, string message = null, params object[] formatArgs)
+        {
+            if (LeveledLogger == null)
+            {
+                Logger.LogError(e, message, formatArgs);
+                return;
+            }
+
+            LeveledLogger.LogError(level, e, message, formatArgs);
+        }
+
+        /// <summary>
+        /// Opens an Application Insights scope, carried by the <c>customDimensions</c> of every
+        /// entry written until disposal. No effect on the tracing channel.
+        /// </summary>
+        public IDisposable BeginScope(string name) => LeveledLogger?.BeginScope(name) ?? NullTelemetrySink.Instance.BeginScope(name);
+
+        /// <summary>
+        /// Tells whether the telemetry channel writes at that level, to guard expensive
+        /// diagnostics. The tracing channel always writes, whatever this returns.
+        /// </summary>
+        public bool IsTelemetryEnabled(XrmLogLevel level) => LeveledLogger?.IsTelemetryEnabled(level) == true;
 
         public void DumpLog() => Logger.DumpLog();
 

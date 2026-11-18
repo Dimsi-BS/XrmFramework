@@ -117,38 +117,38 @@ namespace XrmFramework
 
         public void LogStart()
         {
-            Log($"Entity: {PrimaryEntityName}, Message: {MessageName}, Stage: {Enum.ToObject(typeof(Stages), Stage)}, Mode: {Mode}");
+            LogInformation($"Entity: {PrimaryEntityName}, Message: {MessageName}, Stage: {Enum.ToObject(typeof(Stages), Stage)}, Mode: {Mode}");
 
-            Log($"\r\nUserId\t\t\t{UserId}\r\nInitiatingUserId\t{InitiatingUserId}");
+            LogDebug($"\r\nUserId\t\t\t{UserId}\r\nInitiatingUserId\t{InitiatingUserId}");
 #pragma warning disable XRM0300
-            Log($"\r\nStart : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}");
+            LogDebug($"\r\nStart : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}");
 #pragma warning restore XRM0300
         }
 
         public void LogExit()
         {
 #pragma warning disable XRM0300
-            Log($"End : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}\r\n");
+            LogDebug($"End : {DateTime.Now:dd/MM/yyyy HH:mm:ss.fff}\r\n");
 #pragma warning restore XRM0300
         }
 
         public void LogContextEntry()
         {
-            Log("\r\n------------------ Input Variables (before) ------------------");
+            LogDebug("\r\n------------------ Input Variables (before) ------------------");
             DumpInputParameters();
-            Log("\r\n------------------ Shared Variables (before) ------------------");
+            LogDebug("\r\n------------------ Shared Variables (before) ------------------");
             DumpSharedVariables();
-            Log("\r\n---------------------------------------------------------------");
+            LogDebug("\r\n---------------------------------------------------------------");
         }
         public void LogContextExit()
         {
             if (IsStage(Stages.PreValidation) || IsStage(Stages.PreOperation))
             {
-                Log("\r\n\r\n------------------ Input Variables (after) ------------------");
+                LogDebug("\r\n\r\n------------------ Input Variables (after) ------------------");
                 DumpInputParameters();
-                Log("\r\n------------------ Shared Variables (after) ------------------");
+                LogDebug("\r\n------------------ Shared Variables (after) ------------------");
                 DumpSharedVariables();
-                Log("\r\n---------------------------------------------------------------");
+                LogDebug("\r\n---------------------------------------------------------------");
             }
         }
 
@@ -156,7 +156,7 @@ namespace XrmFramework
         {
             var stage = Enum.ToObject(typeof(Stages), Stage);
 
-            Log("\r\n{0}.{5} is not fired because filteringAttributes filter is not met.",
+            LogDebug("\r\n{0}.{5} is not fired because filteringAttributes filter is not met.",
                 childClassName,
                 PrimaryEntityName,
                 MessageName,
