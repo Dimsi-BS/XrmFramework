@@ -48,6 +48,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\XrmFramework.DeployUtils\XrmFramework.DeployUtils.csproj" />
+    <!--
+      For WorkflowActivitySupportTests. The remote debugger client is the consumer of everything
+      tested here - it loads a net4x plugin assembly on this runtime and runs it - and it is the
+      piece that has to refuse workflow activities with an explanation rather than a cast error.
+      It resolves on net8.0 because the client now multi-targets onto .NET.
+    -->
+    <ProjectReference Include="..\..\XrmFramework.RemoteDebugger.Client\XrmFramework.RemoteDebugger.Client.csproj" />
   </ItemGroup>
 
   <!-- Inventory engine linked in source (compiled for net8 in this test assembly). -->
