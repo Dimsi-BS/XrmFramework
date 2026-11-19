@@ -50,7 +50,12 @@ namespace XrmFramework.RemoteDebugger.Converters
 
             var serializedValues = serializer.Deserialize<List<ObjectSerialization>>(reader);
 
-            serializedValues.ForEach(o => condition.Values.Add(o.Value));
+            // A condition with no values is legitimate - Null and NotNull take none - and a message
+            // written by an older build may carry one. Reading it must not be what fails.
+            if (serializedValues != null)
+            {
+                serializedValues.ForEach(o => condition.Values.Add(o.Value));
+            }
 
             reader.Read();
             propertyName = (string)reader.Value;
