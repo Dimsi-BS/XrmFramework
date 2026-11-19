@@ -202,7 +202,35 @@ namespace XrmFramework.RemoteDebugger.Converters
         public ObjectSerialization(object objectToSerialize)
         {
             Value = objectToSerialize;
-            Type = objectToSerialize.GetType().AssemblyQualifiedName;
+            Type = PortableTypeName(objectToSerialize?.GetType());
+        }
+
+        /// <summary>
+        ///     A type's name as the other end of the remote debugger can resolve it.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         The runner can be a .NET process while the plugin it debugs is always .NET
+        ///         Framework, and the two runtimes do not name core library types the same way:
+        ///         <c>System.Private.CoreLib</c> against <c>mscorlib</c>. .NET resolves either, .NET
+        ///         Framework resolves only its own, so an assembly-qualified <c>System.DateTime</c>
+        ///         written by a .NET runner is unreadable by the plugin. Unqualified, it resolves on
+        ///         both - the core library is where an unqualified name is looked up.
+        ///     </para>
+        ///     <para>
+        ///         Everything else keeps its assembly-qualified name. Those types live in assemblies
+        ///         the two ends genuinely share - <c>Microsoft.Xrm.Sdk</c> has one identity on both
+        ///         runtimes - and dropping the assembly there would only make the name ambiguous.
+        ///     </para>
+        /// </remarks>
+        public static string PortableTypeName(System.Type type)
+        {
+            if (type == null)
+                return null;
+
+            return type.Assembly == typeof(object).Assembly
+                ? type.FullName
+                : type.AssemblyQualifiedName;
         }
 
         [JsonProperty]
