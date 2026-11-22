@@ -12,18 +12,18 @@
         <Compile Remove="**\*.model" />
         <None Remove="**\*.model" />
         <AdditionalFiles Include="**/*.model" />
-
-        <Compile Remove="Generated\**" />
     </ItemGroup>
+
+    <!--
+      The Generated\** exclusion lives in XrmFramework.targets, not here. A NuGet build/*.props is
+      imported from Microsoft.Common.props, long before the SDK expands the default Compile glob,
+      so a Remove placed here has no items to act on and silently does nothing. See the targets.
+    -->
 
     <PropertyGroup Condition="'$(XrmFrameworkShowGeneratedFiles)' == 'true'">
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
         <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
     </PropertyGroup>
-
-    <ItemGroup Condition="'$(XrmFrameworkShowGeneratedFiles)' == 'true'">
-        <None Include="Generated\**" />
-    </ItemGroup>
 
     <PropertyGroup>
         <ImplicitUsings>true</ImplicitUsings>
