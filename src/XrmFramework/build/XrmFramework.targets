@@ -1,5 +1,31 @@
 <Project>
     <!--
+      Keeps the emitted source-generator output out of the compilation.
+
+      XrmFrameworkShowGeneratedFiles=true sets EmitCompilerGeneratedFiles with
+      CompilerGeneratedFilesOutputPath=Generated, so the generated .cs files land in the project
+      directory, where the SDK's default Compile glob (**/*.cs) picks them up. They are then both
+      compiled from disk and produced by the generator, and every generated symbol is declared
+      twice: "CS0229 Ambiguity between 'AccountDefinition.EntityName' and
+      'AccountDefinition.EntityName'", once per member, for every table in the project.
+
+      This exclusion has to be in the .targets, not in XrmFramework.props: a NuGet build/*.props is
+      imported from Microsoft.Common.props, i.e. before Microsoft.NET.Sdk.DefaultItems.props expands
+      the default Compile glob. A Remove evaluated at that point has no items to act on and silently
+      does nothing — which is what made the flag unusable. A build/*.targets is imported after the
+      project body, so the default items already exist here.
+
+      Unconditional on purpose: a Generated folder left over from an earlier run with the flag on
+      keeps breaking every later build otherwise.
+
+      The matching None Include is dropped rather than moved — the folder shows up in the IDE through
+      the default None glob anyway, which is exactly what it was there for.
+    -->
+    <ItemGroup>
+        <Compile Remove="Generated/**" />
+    </ItemGroup>
+
+    <!--
       Detects the Microsoft.PowerPlatform.Dataverse.Client package in the project being compiled.
 
       The XrmFramework package ships its sources as contentFiles: they are therefore compiled into the
