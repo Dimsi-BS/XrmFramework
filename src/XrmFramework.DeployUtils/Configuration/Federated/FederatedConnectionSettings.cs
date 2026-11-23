@@ -29,6 +29,25 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
         /// <summary>Value of <c>AuthType</c> that routes a connection through federation.</summary>
         public const string AuthTypeValue = "WorkloadIdentity";
 
+        /// <summary>
+        ///     Entra tenant, under a name that belongs to no particular kind of service connection.
+        /// </summary>
+        /// <remarks>
+        ///     The <c>AZURESUBSCRIPTION_*</c> variables below are published only by the tasks that
+        ///     take an <em>Azure</em> service connection. A Power Platform service connection
+        ///     publishes none of them, so a pipeline using one would otherwise have to either
+        ///     repeat three command-line options on every step or set Azure-named variables that
+        ///     have nothing to do with its connection. These three let a variable group carry the
+        ///     configuration once, under names that say what they are.
+        /// </remarks>
+        public const string XrmFrameworkTenantIdVariable = "XRMFRAMEWORK_TENANT_ID";
+
+        /// <inheritdoc cref="XrmFrameworkTenantIdVariable" />
+        public const string XrmFrameworkClientIdVariable = "XRMFRAMEWORK_CLIENT_ID";
+
+        /// <inheritdoc cref="XrmFrameworkTenantIdVariable" />
+        public const string XrmFrameworkServiceConnectionIdVariable = "XRMFRAMEWORK_SERVICE_CONNECTION_ID";
+
         /// <summary>Entra tenant of the app registration, as Azure Pipelines publishes it.</summary>
         public const string TenantIdVariable = "AZURESUBSCRIPTION_TENANT_ID";
 
@@ -111,6 +130,7 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
                 TenantId = First(
                     options.TenantId,
                     Field(connectionString, "TenantId"),
+                    environment(XrmFrameworkTenantIdVariable),
                     environment(TenantIdVariable),
                     environment(AzureCliTenantIdVariable)),
 
@@ -118,12 +138,14 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
                     options.ApplicationId,
                     Field(connectionString, "ClientId"),
                     Field(connectionString, "AppId"),
+                    environment(XrmFrameworkClientIdVariable),
                     environment(ClientIdVariable),
                     environment(AzureCliClientIdVariable)),
 
                 ServiceConnectionId = First(
                     options.ServiceConnectionId,
                     Field(connectionString, "ServiceConnectionId"),
+                    environment(XrmFrameworkServiceConnectionIdVariable),
                     environment(ServiceConnectionIdVariable))
             };
         }
@@ -145,13 +167,15 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
 
             if (string.IsNullOrWhiteSpace(TenantId))
                 missing.Add(
-                    $"the Entra tenant (--tenant, TenantId= in the connection string, ${TenantIdVariable}, " +
-                    $"or ${AzureCliTenantIdVariable} from AzureCLI@2 with addSpnToEnvironment)");
+                    $"the Entra tenant (--tenant, TenantId= in the connection string, " +
+                    $"${XrmFrameworkTenantIdVariable}, ${TenantIdVariable}, or ${AzureCliTenantIdVariable} " +
+                    "from AzureCLI@2 with addSpnToEnvironment)");
 
             if (string.IsNullOrWhiteSpace(ClientId))
                 missing.Add(
-                    $"the application id (--application-id, ClientId= in the connection string, ${ClientIdVariable}, " +
-                    $"or ${AzureCliClientIdVariable} from AzureCLI@2 with addSpnToEnvironment)");
+                    $"the application id (--application-id, ClientId= in the connection string, " +
+                    $"${XrmFrameworkClientIdVariable}, ${ClientIdVariable}, or ${AzureCliClientIdVariable} " +
+                    "from AzureCLI@2 with addSpnToEnvironment)");
 
             if (missing.Count == 0) return;
 

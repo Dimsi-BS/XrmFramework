@@ -129,6 +129,48 @@ public class FederatedConnectionSettingsTests
     }
 
     [Test]
+    public void Create_ReadsTheConnectionNeutralVariables()
+    {
+        // A Power Platform service connection publishes no AZURESUBSCRIPTION_* variable, so a
+        // pipeline using one configures these instead of repeating three options per step.
+        var settings = FederatedConnectionSettings.Create(
+            null,
+            new DeployOptions { EnvironmentUrl = Url },
+            Reader(new Dictionary<string, string>
+            {
+                [FederatedConnectionSettings.XrmFrameworkTenantIdVariable] = "neutral-tenant",
+                [FederatedConnectionSettings.XrmFrameworkClientIdVariable] = "neutral-app",
+                [FederatedConnectionSettings.XrmFrameworkServiceConnectionIdVariable] = "neutral-connection"
+            }));
+
+        Assert.AreEqual("neutral-tenant", settings.TenantId);
+        Assert.AreEqual("neutral-app", settings.ClientId);
+        Assert.AreEqual("neutral-connection", settings.ServiceConnectionId);
+        Assert.DoesNotThrow(() => settings.Validate());
+    }
+
+    [Test]
+    public void Create_PrefersTheConnectionNeutralVariablesOverTheAzureOnes()
+    {
+        var settings = FederatedConnectionSettings.Create(
+            null,
+            new DeployOptions(),
+            Reader(new Dictionary<string, string>
+            {
+                [FederatedConnectionSettings.XrmFrameworkTenantIdVariable] = "neutral-tenant",
+                [FederatedConnectionSettings.XrmFrameworkClientIdVariable] = "neutral-app",
+                [FederatedConnectionSettings.XrmFrameworkServiceConnectionIdVariable] = "neutral-connection",
+                [FederatedConnectionSettings.TenantIdVariable] = "subscription-tenant",
+                [FederatedConnectionSettings.ClientIdVariable] = "subscription-app",
+                [FederatedConnectionSettings.ServiceConnectionIdVariable] = "subscription-connection"
+            }));
+
+        Assert.AreEqual("neutral-tenant", settings.TenantId);
+        Assert.AreEqual("neutral-app", settings.ClientId);
+        Assert.AreEqual("neutral-connection", settings.ServiceConnectionId);
+    }
+
+    [Test]
     public void Create_PrefersTheAzureSubscriptionVariablesOverAzureClis()
     {
         var settings = FederatedConnectionSettings.Create(

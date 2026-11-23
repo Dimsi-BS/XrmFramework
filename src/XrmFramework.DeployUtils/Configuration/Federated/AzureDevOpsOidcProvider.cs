@@ -238,6 +238,7 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
                     throw new FederatedAuthenticationException(
                         $"The Azure DevOps OIDC endpoint ({Redact(url)}) names no service connection. " +
                         "Pass --service-connection-id, set " +
+                        $"{FederatedConnectionSettings.XrmFrameworkServiceConnectionIdVariable} or " +
                         $"{FederatedConnectionSettings.ServiceConnectionIdVariable}, or give the whole " +
                         $"endpoint - query included - in {RequestUrlVariable}.");
 
