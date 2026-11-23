@@ -503,6 +503,51 @@ public class AzureDevOpsOidcProviderTests
     }
 
     [Test]
+    public void GetAssertionAsync_RefusedServiceConnection_ExplainsTheJobHasToConsumeIt()
+    {
+        // Observed on a real pipeline: a correct id, a correctly built URL, and a bare 400 - because
+        // the job was a plain script step, and Azure DevOps authorizes a service connection only for
+        // a job that takes it as a task input.
+        var handler = Answering(new HttpResponseMessage(HttpStatusCode.BadRequest));
+
+        var provider = new AzureDevOpsOidcProvider(
+            Endpoint + "?serviceConnectionId=" + Connection, "job-token", handler.Client);
+
+        var error = Assert.ThrowsAsync<FederatedAuthenticationException>(
+            () => provider.GetAssertionAsync(CancellationToken.None));
+
+        Assert.IsTrue(error!.Message.Contains("consumes it as a task input"), error.Message);
+        Assert.IsTrue(error.Message.Contains("pipeline's own identity"), error.Message);
+    }
+
+    [Test]
+    public void GetAssertionAsync_RefusalWithoutAServiceConnection_SkipsThatHint()
+    {
+        var handler = Answering(new HttpResponseMessage(HttpStatusCode.BadRequest));
+        var provider = new AzureDevOpsOidcProvider(Endpoint, "job-token", handler.Client);
+
+        var error = Assert.ThrowsAsync<FederatedAuthenticationException>(
+            () => provider.GetAssertionAsync(CancellationToken.None));
+
+        Assert.IsFalse(error!.Message.Contains("task input"), error.Message);
+    }
+
+    [Test]
+    public void GetAssertionAsync_ServerError_SkipsTheHint()
+    {
+        // 500 is Azure DevOps having a bad day, not an authorization shape.
+        var handler = Answering(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+
+        var provider = new AzureDevOpsOidcProvider(
+            Endpoint + "?serviceConnectionId=" + Connection, "job-token", handler.Client);
+
+        var error = Assert.ThrowsAsync<FederatedAuthenticationException>(
+            () => provider.GetAssertionAsync(CancellationToken.None));
+
+        Assert.IsFalse(error!.Message.Contains("task input"), error.Message);
+    }
+
+    [Test]
     public void GetAssertionAsync_NonJsonFailureBody_IsQuotedAsIs()
     {
         var handler = Answering(new HttpResponseMessage(HttpStatusCode.BadRequest)

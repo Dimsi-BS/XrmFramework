@@ -561,11 +561,51 @@ on its own.
 > `AZURE_FEDERATED_TOKEN_FILE` is read for the same reason, so the Azure Kubernetes and
 > `azure/login` conventions work at no extra cost.
 
+**With the pipeline's own identity — no service connection at all**
+
+A service connection is made available to a job **only when a task in that job takes it as an
+input** ([resource consumption](https://learn.microsoft.com/azure/devops/pipelines/process/about-resources#use-resources-to-enhance-security)).
+A plain `script:` step takes no input, so it cannot mint a token for one however the connection's
+Security page is set — Azure DevOps answers a bare 400, or silently hands back a token scoped to the
+pipeline. `AzureCLI@2` works precisely because it *is* such a task, and it only accepts an Azure
+connection.
+
+For a Power Platform pipeline the simplest answer is therefore to skip the service connection and
+let the **pipeline** be the identity. Nothing to create in Azure DevOps, nothing to authorize:
+
+```yaml
+variables:
+  PowerPlatformUrl: https://org.crm4.dynamics.com
+  XRMFRAMEWORK_TENANT_ID: <Tenant ID>
+  XRMFRAMEWORK_CLIENT_ID: <Application ID>
+
+steps:
+- script: |
+    dotnet build MyProject.Plugins/MyProject.Plugins.csproj -c Release
+    xrmframework deploy plugins \
+      --dll MyProject.Plugins/bin/Release/net48/MyProject.Plugins.dll \
+      --project MyProject.Plugins \
+      --auth wif --environment $(PowerPlatformUrl) -n
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+```
+
+Run it once: the deployment prints the issuer and subject of the token it obtained, of the form
+`https://vstoken.dev.azure.com/<organization id>` and `p://<organization>/<project>/<pipeline>`.
+Put those two into the app registration's federated credential (*Certificates & secrets* →
+*Federated credentials* → *Other issuer*) and the next run signs in.
+
+> **The trade-off.** The subject embeds the **pipeline name**, so renaming the pipeline breaks the
+> sign-in, and one credential is needed per pipeline. The service connection's authorizations and
+> approval checks no longer apply either — the pipeline's own identity is what Dataverse trusts.
+> Where that governance matters, use a service connection and a task that consumes it.
+
 **With a Power Platform service connection**
 
-A **Power Platform** service connection in *Workload Identity federation* mode works just as well,
-and is the natural choice for a Dataverse pipeline. `AzureCLI@2` cannot consume one — it only takes
-an Azure service connection — so the OIDC token is requested from the endpoint the job exposes:
+A **Power Platform** service connection in *Workload Identity federation* mode is usable when a task
+in the job consumes it — the Build Tools tasks do, and that is how they obtain their own token.
+`AzureCLI@2` cannot consume one; it only takes an Azure service connection. From a plain `script:`
+step the request is made against the endpoint the job exposes:
 
 ```yaml
 variables:

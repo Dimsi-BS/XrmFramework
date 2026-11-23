@@ -188,7 +188,7 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
                         throw new FederatedAuthenticationException(
                             $"Azure DevOps refused to mint an OIDC token ({(int)response.StatusCode} " +
                             $"{response.ReasonPhrase}) for {_requestUrl}. " +
-                            DescribeFailure(response, body));
+                            DescribeFailure(response, body) + ExplainRefusal(response));
 
                     var token = ReadOidcToken(body);
 
@@ -412,6 +412,33 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
                 return "The answer had no body.";
 
             return "Azure DevOps said: " + (ReadErrorMessage(body) ?? Truncate(body));
+        }
+
+        /// <summary>
+        ///     The hint a refusal on a service-connection request almost always needs.
+        /// </summary>
+        /// <remarks>
+        ///     Azure DevOps authorizes a service connection per job, and a job consumes one by
+        ///     <em>taking it as a task input</em>. A plain <c>script:</c> step takes no input, so the
+        ///     connection is not authorized for that job however its own Security page is set - and
+        ///     the endpoint answers a bare 400. Nothing in the body says that, and it is not the
+        ///     first thing anyone suspects after double-checking an id that was right all along.
+        /// </remarks>
+        private string ExplainRefusal(HttpResponseMessage response)
+        {
+            var status = (int)response.StatusCode;
+
+            if (status != 400 && status != 403 && status != 404) return string.Empty;
+
+            if (string.IsNullOrWhiteSpace(QueryParameter(_requestUrl, ServiceConnectionIdParameter)))
+                return string.Empty;
+
+            return " Note that Azure DevOps makes a service connection available only to a job that " +
+                   "consumes it as a task input, so a plain script step cannot mint a token for one " +
+                   "whatever its Security page says. Either run the deployment inside a task that " +
+                   "takes the connection - AzureCLI@2 with addSpnToEnvironment, for an Azure one - or " +
+                   "drop the service connection id and let the pipeline's own identity sign in, " +
+                   "adding a federated credential for the issuer and subject the next run prints.";
         }
 
         /// <summary>The <c>message</c> of an Azure DevOps error envelope, or <see langword="null" />.</summary>
