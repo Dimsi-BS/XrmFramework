@@ -113,13 +113,22 @@ internal static class DeployServiceCollectionFactory
         if (FederatedConnectionSettings.IsFederatedConnectionString(connectionString))
             return AuthenticationMode.WorkloadIdentity;
 
-        if (string.IsNullOrWhiteSpace(connectionString)
-            && AzureDevOpsOidcProvider.IsAvailable(System.Environment.GetEnvironmentVariable))
+        if (string.IsNullOrWhiteSpace(connectionString) && OffersFederation())
             return AuthenticationMode.WorkloadIdentity;
 #endif
 
         return AuthenticationMode.ConnectionString;
     }
+
+#if !NET462_OR_GREATER
+    /// <summary>
+    ///     Whether the job can federate at all: either it already holds an assertion, or it
+    ///     exposes an endpoint to request one from.
+    /// </summary>
+    private static bool OffersFederation()
+        => PreFetchedOidcTokenProvider.IsAvailable(System.Environment.GetEnvironmentVariable)
+           || AzureDevOpsOidcProvider.IsAvailable(System.Environment.GetEnvironmentVariable);
+#endif
 
     /// <summary>
     ///     Fails before the container is built when the connection-string path has nothing to

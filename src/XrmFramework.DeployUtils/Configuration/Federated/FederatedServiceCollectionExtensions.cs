@@ -48,16 +48,41 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
             deploySettings.Url = settings.Url;
             deploySettings.ClientId = settings.ClientId;
 
-            var oidc = AzureDevOpsOidcProvider.Create(
-                deployOptions,
-                settings.ServiceConnectionId,
-                Environment.GetEnvironmentVariable,
-                log: line => AnsiConsole.WriteLine(line));
+            var oidc = ResolveOidcProvider(deployOptions, settings, line => AnsiConsole.WriteLine(line));
 
             var tokenProvider = new FederatedTokenProvider(settings, oidc);
 
             return services.AddScoped<IOrganizationService>(
                 _ => new ServiceClient(new Uri(settings.Url), tokenProvider.TokenProviderFunction));
+        }
+
+        /// <summary>
+        ///     Picks where the assertion comes from.
+        /// </summary>
+        /// <remarks>
+        ///     An assertion the job already holds wins over requesting one: it is one fewer HTTP
+        ///     call, and it needs no endpoint, no service connection id and no
+        ///     <c>SYSTEM_ACCESSTOKEN</c> mapping. An explicit <c>--oidc-request-url</c> still wins
+        ///     over both, because asking for it is asking for it.
+        /// </remarks>
+        private static IOidcTokenProvider ResolveOidcProvider(
+            DeployOptions deployOptions,
+            FederatedConnectionSettings settings,
+            Action<string> log)
+        {
+            if (string.IsNullOrWhiteSpace(deployOptions.OidcRequestUrl))
+            {
+                var preFetched = PreFetchedOidcTokenProvider.TryCreate(
+                    Environment.GetEnvironmentVariable, log: log);
+
+                if (preFetched != null) return preFetched;
+            }
+
+            return AzureDevOpsOidcProvider.Create(
+                deployOptions,
+                settings.ServiceConnectionId,
+                Environment.GetEnvironmentVariable,
+                log: log);
         }
     }
 }

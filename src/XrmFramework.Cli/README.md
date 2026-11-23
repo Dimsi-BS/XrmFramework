@@ -473,9 +473,9 @@ xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <d
 | `-n`, `--noprompt`, `-NoPrompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). `-NoPrompt` (any casing) is kept for backward compatibility with the deployment scripts written against that spelling. |
 | `--auth <MODE>` | ❌ | `auto` (default), `connectionstring`, or `wif` — see [Deploying from Azure DevOps without a secret](#deploying-from-azure-devops-without-a-secret). |
 | `--environment <URL>` | ❌ | Dataverse organization URL to deploy to. **Workload identity federation only**: with a connection string, change its `Url` instead. |
-| `--tenant <ID>` | ❌ | Entra tenant to sign in to (default: `$AZURESUBSCRIPTION_TENANT_ID`). |
-| `--application-id <ID>` | ❌ | Entra application whose federated credential trusts the job (default: `$AZURESUBSCRIPTION_CLIENT_ID`). |
-| `--service-connection-id <ID>` | ❌ | Azure DevOps service connection to request the OIDC token for (default: `$AZURESUBSCRIPTION_SERVICE_CONNECTION_ID`). |
+| `--tenant <ID>` | ❌ | Entra tenant to sign in to (default: `$XRMFRAMEWORK_TENANT_ID`, `$AZURESUBSCRIPTION_TENANT_ID`, then `$tenantId`). |
+| `--application-id <ID>` | ❌ | Entra application whose federated credential trusts the job (default: `$XRMFRAMEWORK_CLIENT_ID`, `$AZURESUBSCRIPTION_CLIENT_ID`, then `$servicePrincipalId`). |
+| `--service-connection-id <ID>` | ❌ | Azure DevOps service connection to request the OIDC token for — Power Platform or Azure (default: `$XRMFRAMEWORK_SERVICE_CONNECTION_ID`, then `$AZURESUBSCRIPTION_SERVICE_CONNECTION_ID`). |
 | `--oidc-request-url <URL>` | ❌ | Complete OIDC token endpoint, query included, for a job whose endpoint cannot be derived from `$SYSTEM_OIDCREQUESTURI`. |
 | `--oidc-request-token <TOKEN>` | ❌ | Token authorizing the OIDC token request. Prefer the environment variable: a command line is visible to every process on the agent. |
 
@@ -515,31 +515,102 @@ xrmframework deploy plugins --dll bin/Release/net48/MyProject.Plugins.dll \
 #### Deploying from Azure DevOps without a secret
 
 With **workload identity federation** the pipeline holds no client secret at all. The job proves
-its own identity with an OIDC token that Azure DevOps mints on demand; XrmFramework exchanges that
-token for a Dataverse one. Everything else about the deployment is unchanged — same inventory,
-same diff, same registration, including the unregistration of what the source no longer declares.
+its own identity with an OIDC token, which XrmFramework exchanges for a Dataverse one. Everything
+else about the deployment is unchanged — same inventory, same diff, same registration, including
+the unregistration of what the source no longer declares.
+
+Three things to set up once, outside the pipeline:
+
+1. A **service connection** using workload identity federation, in the Azure DevOps project —
+   either a **Power Platform** one or an **Azure** one. Note the **Issuer** and **Subject
+   identifier** it shows.
+2. On the Entra **app registration**, a **federated credential** (*Certificates & secrets* →
+   *Federated credentials* → scenario *Other issuer*) carrying those two values.
+3. That same application as an **application user** in the Dataverse environment, with a security
+   role — without it the token is valid and Dataverse still refuses every call.
+
+**With an Azure service connection — nothing to restate**
 
 ```yaml
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: <service connection using workload identity federation>
+    addSpnToEnvironment: true
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      dotnet build MyProject.Plugins/MyProject.Plugins.csproj -c Release
+      xrmframework deploy plugins \
+        --dll MyProject.Plugins/bin/Release/net48/MyProject.Plugins.dll \
+        --project MyProject.Plugins \
+        --environment $(DataverseUrl) -n
+```
+
+No tenant, no application id, no OIDC endpoint, no `SYSTEM_ACCESSTOKEN` mapping, not even
+`--auth wif`. `addSpnToEnvironment: true` runs the script with `idToken`, `servicePrincipalId` and
+`tenantId` in its environment: the task has already read the service connection and fetched the
+federated token, so the deployment has nothing left to request and auto-detection picks federation
+on its own.
+
+> **Why the CLI cannot read the service connection itself.** That is what
+> `azure-pipelines-task-lib`'s `getEndpointAuthorization` does — and it is a thin accessor over
+> `ENDPOINT_AUTH_*` environment variables the agent injects **only into a task whose inputs declare
+> that service connection**. A plain `script:` step gets none of them, and the library is Node
+> besides. Short of shipping an Azure DevOps task of our own, the way to benefit from it is to let
+> a task that already calls it hand over the result — which is exactly what `AzureCLI@2` does.
+> `AZURE_FEDERATED_TOKEN_FILE` is read for the same reason, so the Azure Kubernetes and
+> `azure/login` conventions work at no extra cost.
+
+**With a Power Platform service connection**
+
+A **Power Platform** service connection in *Workload Identity federation* mode works just as well,
+and is the natural choice for a Dataverse pipeline. `AzureCLI@2` cannot consume one — it only takes
+an Azure service connection — so the OIDC token is requested from the endpoint the job exposes:
+
+```yaml
+variables:
+  # All four are on the service connection's page. The id is the `resourceId` query parameter
+  # of its URL. None of them is a secret.
+  PowerPlatformUrl: https://org.crm4.dynamics.com
+  XRMFRAMEWORK_TENANT_ID: <Tenant ID>
+  XRMFRAMEWORK_CLIENT_ID: <Application ID>
+  XRMFRAMEWORK_SERVICE_CONNECTION_ID: <service connection id>
+
+steps:
 - script: |
     dotnet build MyProject.Plugins/MyProject.Plugins.csproj -c Release
     xrmframework deploy plugins \
       --dll MyProject.Plugins/bin/Release/net48/MyProject.Plugins.dll \
       --project MyProject.Plugins \
+      --auth wif --environment $(PowerPlatformUrl) -n
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+```
+
+The endpoint is built from `$SYSTEM_OIDCREQUESTURI` and the service connection id, so there is no
+URL to assemble by hand. `--tenant`, `--application-id` and `--service-connection-id` accept the
+same three values on the command line if you would rather not use variables.
+
+> **This is the same request the Build Tools make.** Their `getCredentials.ts` passes
+> `tl.getInput("PowerPlatformSPN")` — the *Power Platform* connection's id — to the very same
+> generic `oidctoken` endpoint. Nothing in that flow is specific to an Azure service connection.
+
+> **Why `XRMFRAMEWORK_*` rather than `AZURESUBSCRIPTION_*`.** The latter are published only by the
+> tasks that take an Azure service connection; a Power Platform one publishes none of them. Both
+> sets are read, ours first, so a Power Platform pipeline is not made to set Azure-named variables
+> that have nothing to do with its connection.
+
+**With neither — a job that already sets the pac variables**
+
+```yaml
+- script: |
+    xrmframework deploy plugins --dll ... --project ... \
       --auth wif --environment $(DataverseUrl) \
       --tenant $(TenantId) --application-id $(ApplicationId) -n
   env:
     PAC_ADO_ID_TOKEN_REQUEST_URL: $(System.OidcRequestUri)?serviceConnectionId=$(ServiceConnectionId)&api-version=7.2-preview.1
     PAC_ADO_ID_TOKEN_REQUEST_TOKEN: $(System.AccessToken)
 ```
-
-Three things to set up once, outside the pipeline:
-
-1. A **service connection** using workload identity federation, in the Azure DevOps project. Note
-   the **Issuer** and **Subject identifier** it shows.
-2. On the Entra **app registration**, a **federated credential** (*Certificates & secrets* →
-   *Federated credentials* → scenario *Other issuer*) carrying those two values.
-3. That same application as an **application user** in the Dataverse environment, with a security
-   role — without it the token is valid and Dataverse still refuses every call.
 
 > **Why those two variable names.** They are the ones `pac auth create --azureDevOpsFederated`
 > reads, and the ones the Power Platform Build Tools set, so a single pair serves `pac` and this
@@ -550,6 +621,10 @@ Three things to set up once, outside the pipeline:
 > failing both, the endpoint is built from `$SYSTEM_OIDCREQUESTURI` and `$SYSTEM_ACCESSTOKEN`.
 > `System.AccessToken` is never exposed to a YAML step unless mapped explicitly, which is the one
 > mistake everybody makes first — the error message says so by name.
+
+> **Order of preference.** An assertion the job already holds (`$XRMFRAMEWORK_OIDC_TOKEN`,
+> `$idToken`, `$AZURE_FEDERATED_TOKEN_FILE`) wins over requesting one: it is one fewer HTTP call and
+> needs no endpoint. An explicit `--oidc-request-url` still wins over both.
 
 > **`--auth auto`, the default.** Federation is chosen when the selected connection string declares
 > `AuthType=WorkloadIdentity`, or when there is **no** connection string and the job exposes an OIDC
