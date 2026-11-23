@@ -25,6 +25,14 @@ public class AzureDevOpsOidcProviderTests
     private const string Issuer = "https://vstoken.dev.azure.com/contoso";
     private const string Subject = "sc://contoso/Dataverse/DimsiDev";
 
+    /// <summary>
+    ///     Azure DevOps types <c>serviceConnectionId</c> as a uuid, so the id a test hands over to
+    ///     be injected has to be one.
+    /// </summary>
+    private const string Connection = "8d3f6a21-5c44-4f0e-9a1b-2e7d9c0f4b55";
+
+    private const string OtherConnection = "1b2c3d4e-5f60-4712-8345-9a0bcdef1234";
+
     // ──────────────────────────────────────────────
     //  The request pac makes, header for header
     // ──────────────────────────────────────────────
@@ -200,7 +208,7 @@ public class AzureDevOpsOidcProviderTests
     [Test]
     public async Task Create_PrefersPacsVariableOverTheSystemOne()
     {
-        var url = await UrlRequestedBy(new DeployOptions(), "from-options", new Dictionary<string, string>
+        var url = await UrlRequestedBy(new DeployOptions(), Connection, new Dictionary<string, string>
         {
             [AzureDevOpsOidcProvider.PacRequestUrlVariable] = Endpoint + "?serviceConnectionId=pacs",
             [AzureDevOpsOidcProvider.SystemRequestUrlVariable] = "https://elsewhere.invalid/oidctoken",
@@ -221,7 +229,7 @@ public class AzureDevOpsOidcProviderTests
 
         var handler = Answering(Ok(Jwt()));
         var provider = AzureDevOpsOidcProvider.Create(
-            options, "ignored", Reader(new Dictionary<string, string>
+            options, Connection, Reader(new Dictionary<string, string>
             {
                 [AzureDevOpsOidcProvider.RequestUrlVariable] = Endpoint + "?serviceConnectionId=ours"
             }), handler.Client);
@@ -235,14 +243,14 @@ public class AzureDevOpsOidcProviderTests
     [Test]
     public async Task Create_CompletesTheSystemEndpointWithItsQuery()
     {
-        var url = await UrlRequestedBy(new DeployOptions(), "the-connection", new Dictionary<string, string>
+        var url = await UrlRequestedBy(new DeployOptions(), Connection, new Dictionary<string, string>
         {
             [AzureDevOpsOidcProvider.SystemRequestUrlVariable] = Endpoint,
             [AzureDevOpsOidcProvider.SystemRequestTokenVariable] = "job-token"
         });
 
         Assert.AreEqual(
-            Endpoint + "?serviceConnectionId=the-connection&api-version=" + AzureDevOpsOidcProvider.DefaultApiVersion,
+            Endpoint + "?serviceConnectionId=" + Connection + "&api-version=" + AzureDevOpsOidcProvider.DefaultApiVersion,
             url);
     }
 
@@ -251,7 +259,7 @@ public class AzureDevOpsOidcProviderTests
     {
         var complete = Endpoint + "?serviceConnectionId=already&api-version=7.1";
 
-        var url = await UrlRequestedBy(new DeployOptions(), "the-connection", new Dictionary<string, string>
+        var url = await UrlRequestedBy(new DeployOptions(), Connection, new Dictionary<string, string>
         {
             [AzureDevOpsOidcProvider.PacRequestUrlVariable] = complete,
             [AzureDevOpsOidcProvider.PacRequestTokenVariable] = "job-token"
@@ -277,7 +285,7 @@ public class AzureDevOpsOidcProviderTests
     [Test]
     public async Task Create_HonoursTheApiVersionOverride()
     {
-        var url = await UrlRequestedBy(new DeployOptions(), "the-connection", new Dictionary<string, string>
+        var url = await UrlRequestedBy(new DeployOptions(), Connection, new Dictionary<string, string>
         {
             [AzureDevOpsOidcProvider.SystemRequestUrlVariable] = Endpoint,
             [AzureDevOpsOidcProvider.SystemRequestTokenVariable] = "job-token",
@@ -307,7 +315,7 @@ public class AzureDevOpsOidcProviderTests
     public void Create_NoEndpointAtAll_NamesTheVariables()
     {
         var error = Assert.Throws<FederatedAuthenticationException>(() => AzureDevOpsOidcProvider.Create(
-            new DeployOptions(), "the-connection", Reader(new Dictionary<string, string>())));
+            new DeployOptions(), Connection, Reader(new Dictionary<string, string>())));
 
         Assert.IsTrue(error!.Message.Contains(AzureDevOpsOidcProvider.SystemRequestUrlVariable), error.Message);
         Assert.IsTrue(error.Message.Contains("System.OidcRequestUri"), error.Message);
@@ -318,7 +326,7 @@ public class AzureDevOpsOidcProviderTests
     {
         var error = Assert.Throws<FederatedAuthenticationException>(() => AzureDevOpsOidcProvider.Create(
             new DeployOptions(),
-            "the-connection",
+            Connection,
             Reader(new Dictionary<string, string>
             {
                 [AzureDevOpsOidcProvider.SystemRequestUrlVariable] = Endpoint
@@ -340,7 +348,7 @@ public class AzureDevOpsOidcProviderTests
         // pipeline-scoped token - which Entra then rejected for a subject nobody had configured.
         var url = await UrlRequestedBy(
             new DeployOptions(),
-            "the-real-one",
+            Connection,
             new Dictionary<string, string>
             {
                 [AzureDevOpsOidcProvider.PacRequestUrlVariable] =
@@ -348,7 +356,7 @@ public class AzureDevOpsOidcProviderTests
                 [AzureDevOpsOidcProvider.PacRequestTokenVariable] = "job-token"
             });
 
-        Assert.IsTrue(url.Contains("serviceConnectionId=the-real-one"), url);
+        Assert.IsTrue(url.Contains("serviceConnectionId=" + Connection), url);
         Assert.IsFalse(url.Contains("$("), url);
         Assert.AreEqual(1, Occurrences(url, "serviceConnectionId="), "the parameter is duplicated");
         Assert.IsTrue(url.Contains("api-version=7.1"), "an api-version already there is kept");
@@ -359,14 +367,14 @@ public class AzureDevOpsOidcProviderTests
     {
         var url = await UrlRequestedBy(
             new DeployOptions(),
-            "the-real-one",
+            Connection,
             new Dictionary<string, string>
             {
                 [AzureDevOpsOidcProvider.PacRequestUrlVariable] = Endpoint + "?serviceConnectionId=",
                 [AzureDevOpsOidcProvider.PacRequestTokenVariable] = "job-token"
             });
 
-        Assert.IsTrue(url.Contains("serviceConnectionId=the-real-one"), url);
+        Assert.IsTrue(url.Contains("serviceConnectionId=" + Connection), url);
         Assert.AreEqual(1, Occurrences(url, "serviceConnectionId="), "the parameter is duplicated");
     }
 
@@ -393,14 +401,14 @@ public class AzureDevOpsOidcProviderTests
         var handler = Answering(Ok(Jwt("p://contoso/Dataverse/MyPipeline")));
 
         var provider = new AzureDevOpsOidcProvider(
-            Endpoint + "?serviceConnectionId=the-connection", "job-token", handler.Client, logged.Add);
+            Endpoint + "?serviceConnectionId=" + OtherConnection, "job-token", handler.Client, logged.Add);
 
         await provider.GetAssertionAsync(CancellationToken.None);
 
         var warning = logged.FirstOrDefault(l => l.StartsWith("Warning:"));
 
         Assert.IsNotNull(warning, "a pipeline-scoped token went unreported");
-        Assert.IsTrue(warning!.Contains("the-connection"), warning);
+        Assert.IsTrue(warning!.Contains(OtherConnection), warning);
         Assert.IsTrue(warning.Contains("sc://"), warning);
     }
 
@@ -411,11 +419,103 @@ public class AzureDevOpsOidcProviderTests
         var handler = Answering(Ok(Jwt()));
 
         var provider = new AzureDevOpsOidcProvider(
-            Endpoint + "?serviceConnectionId=the-connection", "job-token", handler.Client, logged.Add);
+            Endpoint + "?serviceConnectionId=" + OtherConnection, "job-token", handler.Client, logged.Add);
 
         await provider.GetAssertionAsync(CancellationToken.None);
 
         Assert.IsFalse(logged.Any(l => l.StartsWith("Warning:")), string.Join(" | ", logged));
+    }
+
+    [Test]
+    public void Create_ServiceConnectionNameInsteadOfItsId_SaysSo()
+    {
+        // Azure DevOps types the parameter as a uuid and answers 400 Bad Request for anything else,
+        // with nothing in the body naming the mistake. Observed on a real pipeline.
+        var error = Assert.Throws<FederatedAuthenticationException>(() => AzureDevOpsOidcProvider.Create(
+            new DeployOptions { ServiceConnectionId = "DIMSI-ERP-Dataverse" },
+            "DIMSI-ERP-Dataverse",
+            Reader(new Dictionary<string, string>
+            {
+                [AzureDevOpsOidcProvider.SystemRequestUrlVariable] = Endpoint,
+                [AzureDevOpsOidcProvider.SystemRequestTokenVariable] = "job-token"
+            })));
+
+        Assert.IsTrue(error!.Message.Contains("not a service connection id"), error.Message);
+        Assert.IsTrue(error.Message.Contains("resourceId"), error.Message);
+    }
+
+    [Test]
+    public async Task Create_ServiceConnectionIdKeepingItsQuotes_IsAccepted()
+    {
+        var url = await UrlRequestedBy(
+            new DeployOptions(),
+            "\"" + Connection + "\"",
+            new Dictionary<string, string>
+            {
+                [AzureDevOpsOidcProvider.SystemRequestUrlVariable] = Endpoint,
+                [AzureDevOpsOidcProvider.SystemRequestTokenVariable] = "job-token"
+            });
+
+        Assert.IsTrue(url.Contains("serviceConnectionId=" + Connection), url);
+    }
+
+    // ──────────────────────────────────────────────
+    //  What a refusal tells the reader
+    // ──────────────────────────────────────────────
+
+    [Test]
+    public void GetAssertionAsync_BadRequest_QuotesWhatAzureDevOpsSaid()
+    {
+        // The whole point: the diagnostic is in the envelope's "message", and summarising the
+        // body's length instead of reading it threw the answer away.
+        var handler = Answering(new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent(
+                "{\"$id\":\"1\",\"innerException\":null,\"message\":\"The service connection could not be found.\"," +
+                "\"typeName\":\"ServiceEndpointNotFoundException\"}",
+                Encoding.UTF8,
+                "application/json")
+        });
+
+        var provider = new AzureDevOpsOidcProvider(
+            Endpoint + "?serviceConnectionId=" + Connection, "job-token", handler.Client);
+
+        var error = Assert.ThrowsAsync<FederatedAuthenticationException>(
+            () => provider.GetAssertionAsync(CancellationToken.None));
+
+        Assert.IsTrue(error!.Message.Contains("The service connection could not be found."), error.Message);
+    }
+
+    [Test]
+    public void GetAssertionAsync_Failure_ShowsTheWholeEndpointQueryIncluded()
+    {
+        // Nothing secret goes in the URL - the token travels in a header - and the query is what a
+        // 400 on this API is about.
+        var handler = Answering(new HttpResponseMessage(HttpStatusCode.BadRequest));
+
+        var provider = new AzureDevOpsOidcProvider(
+            Endpoint + "?serviceConnectionId=" + Connection, "job-token", handler.Client);
+
+        var error = Assert.ThrowsAsync<FederatedAuthenticationException>(
+            () => provider.GetAssertionAsync(CancellationToken.None));
+
+        Assert.IsTrue(error!.Message.Contains("serviceConnectionId=" + Connection), error.Message);
+    }
+
+    [Test]
+    public void GetAssertionAsync_NonJsonFailureBody_IsQuotedAsIs()
+    {
+        var handler = Answering(new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent("plain words about what went wrong", Encoding.UTF8, "text/plain")
+        });
+
+        var provider = new AzureDevOpsOidcProvider(Endpoint, "job-token", handler.Client);
+
+        var error = Assert.ThrowsAsync<FederatedAuthenticationException>(
+            () => provider.GetAssertionAsync(CancellationToken.None));
+
+        Assert.IsTrue(error!.Message.Contains("plain words about what went wrong"), error.Message);
     }
 
     // ──────────────────────────────────────────────

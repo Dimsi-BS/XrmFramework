@@ -176,7 +176,7 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
                 catch (Exception ex) when (!(ex is OperationCanceledException))
                 {
                     throw new FederatedAuthenticationException(
-                        $"The Azure DevOps OIDC endpoint could not be reached ({Redact(_requestUrl)}): {ex.Message}",
+                        $"The Azure DevOps OIDC endpoint could not be reached ({_requestUrl}): {ex.Message}",
                         ex);
                 }
 
@@ -187,7 +187,7 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
                     if (!response.IsSuccessStatusCode)
                         throw new FederatedAuthenticationException(
                             $"Azure DevOps refused to mint an OIDC token ({(int)response.StatusCode} " +
-                            $"{response.ReasonPhrase}) for {Redact(_requestUrl)}. " +
+                            $"{response.ReasonPhrase}) for {_requestUrl}. " +
                             DescribeFailure(response, body));
 
                     var token = ReadOidcToken(body);
@@ -245,20 +245,43 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
             {
                 if (string.IsNullOrWhiteSpace(serviceConnectionId))
                     throw new FederatedAuthenticationException(
-                        $"The Azure DevOps OIDC endpoint ({Redact(url)}) names no usable service " +
+                        $"The Azure DevOps OIDC endpoint ({url}) names no usable service " +
                         "connection. Pass --service-connection-id, set " +
                         $"{FederatedConnectionSettings.XrmFrameworkServiceConnectionIdVariable} or " +
                         $"{FederatedConnectionSettings.ServiceConnectionIdVariable}, or give the whole " +
                         $"endpoint - query included - in {RequestUrlVariable}.");
 
                 result = SetQueryParameter(
-                    result, ServiceConnectionIdParameter, Uri.EscapeDataString(serviceConnectionId.Trim()));
+                    result, ServiceConnectionIdParameter, RequireId(serviceConnectionId));
             }
 
             if (!HasUsableQueryParameter(result, "api-version"))
                 result = SetQueryParameter(result, "api-version", ApiVersion(environment));
 
             return result;
+        }
+
+        /// <summary>
+        ///     Checks the service connection id is a GUID before it is sent.
+        /// </summary>
+        /// <remarks>
+        ///     Azure DevOps types this parameter as a uuid and answers 400 Bad Request for anything
+        ///     else - the connection's <em>name</em>, a value that kept its YAML quotes, a copied
+        ///     "resourceId=..." - with nothing in the body that says which of those happened. The
+        ///     id is on the service connection's page, as the <c>resourceId</c> query parameter of
+        ///     its URL.
+        /// </remarks>
+        private static string RequireId(string serviceConnectionId)
+        {
+            var value = serviceConnectionId.Trim().Trim('"', '\'');
+
+            if (!Guid.TryParse(value, out var id))
+                throw new FederatedAuthenticationException(
+                    $"\"{serviceConnectionId}\" is not a service connection id. Azure DevOps expects " +
+                    "the connection's GUID, which is the resourceId query parameter of its URL in " +
+                    "the Azure DevOps portal - not its name.");
+
+            return id.ToString();
         }
 
         private static string ApiVersion(Func<string, string> environment)
@@ -368,10 +391,14 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
         }
 
         /// <summary>
-        ///     Says what came back, without echoing it: the body of a failed OIDC request is
-        ///     sometimes a sign-in page, and always something we would rather not paste into a
-        ///     build log wholesale.
+        ///     Says what came back.
         /// </summary>
+        /// <remarks>
+        ///     Azure DevOps answers an error as a JSON envelope whose <c>message</c> is the whole
+        ///     diagnostic - "the service connection could not be found", and such. An HTML body is
+        ///     not quoted, because that one is a sign-in page and says nothing a sentence cannot
+        ///     say better.
+        /// </remarks>
         private static string DescribeFailure(HttpResponseMessage response, string body)
         {
             var contentType = response.Content?.Headers?.ContentType?.MediaType;
@@ -384,8 +411,31 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
             if (string.IsNullOrWhiteSpace(body))
                 return "The answer had no body.";
 
-            return "The answer was " + body.Length + " characters of " + (contentType ?? "an unnamed type") + ".";
+            return "Azure DevOps said: " + (ReadErrorMessage(body) ?? Truncate(body));
         }
+
+        /// <summary>The <c>message</c> of an Azure DevOps error envelope, or <see langword="null" />.</summary>
+        private static string ReadErrorMessage(string body)
+        {
+            try
+            {
+                using (var document = JsonDocument.Parse(body))
+                {
+                    return document.RootElement.ValueKind == JsonValueKind.Object
+                           && document.RootElement.TryGetProperty("message", out var message)
+                           && message.ValueKind == JsonValueKind.String
+                        ? message.GetString()
+                        : null;
+                }
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+        }
+
+        private static string Truncate(string body)
+            => body.Length <= 600 ? body.Trim() : body.Substring(0, 600).Trim() + "…";
 
         /// <summary>
         ///     Records and logs the issuer and subject of the token.
@@ -431,17 +481,6 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
                 "service connection token has a subject of the form " +
                 "sc://<organization>/<project>/<connection name>. Otherwise, configure the " +
                 "application's federated credential with the issuer and subject printed above.");
-        }
-
-        /// <summary>
-        ///     Keeps the endpoint readable in a message without its query, which names the service
-        ///     connection and carries nothing a reader needs.
-        /// </summary>
-        private static string Redact(string url)
-        {
-            var query = url.IndexOf('?');
-
-            return query < 0 ? url : url.Substring(0, query);
         }
 
         private static string First(params string[] candidates)

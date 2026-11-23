@@ -637,6 +637,15 @@ the deployment printed just above the error:
 | `sc://<organization>/<project>/<connection name>` | The token is scoped to that **service connection**. Its issuer and subject are the ones the service connection's own page shows — copy those two into the app registration's federated credential. |
 | `p://<organization>/<project>/<pipeline name>` | The token is scoped to the **pipeline**, not to a service connection. Azure DevOps answers this when it cannot resolve the `serviceConnectionId` — and it does so silently rather than refusing, so the deployment prints a warning saying the connection was ignored. |
 
+**`Azure DevOps refused to mint an OIDC token (400 Bad Request)`** — the message quotes what Azure
+DevOps said, and the endpoint it was said about, query included. `serviceConnectionId` is typed as a
+*uuid* by [the API](https://learn.microsoft.com/rest/api/azure/devops/distributedtask/oidctoken/create),
+so anything that is not a GUID earns a 400 with nothing in the body naming the mistake — the
+connection's **name**, a value that kept its YAML quotes, a copied `resourceId=…`. The deployment
+refuses those itself now, before sending anything. A 400 on a well-formed GUID is about the id
+itself: either no connection has it, or this pipeline is not authorized to use it (**Project
+settings** → **Service connections** → the connection → **Security**).
+
 A `p://` subject with a service connection requested almost always means the id never reached Azure
 DevOps: an `env:` entry built from a pipeline variable that does not exist leaves `$(Variable)`
 verbatim in the URL. The deployment now treats such an unexpanded macro, and an empty value, as no
