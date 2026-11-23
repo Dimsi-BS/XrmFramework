@@ -53,7 +53,7 @@ read from the **`Config/`** folder at the project root:
 | File | Role |
 |---|---|
 | `Config/xrmFramework.config` | Declares the projects and the active connection (`selectedConnection`). |
-| `Config/connectionStrings.config` | Defines the named connection strings (Dataverse / On-Premises). |
+| `Config/connectionStrings.config` | Defines the named connection strings (Dataverse / On-Premises). Optional when the deployment authenticates through [workload identity federation](#deploying-from-azure-devops-without-a-secret). |
 
 `selectedConnection` points to an entry in `connectionStrings.config`: this is
 **the target environment**. `migrate sync-tables`, `tables columns` and `tables optionsets`, on
@@ -459,6 +459,8 @@ environment selected in `Config/xrmFramework.config`.
 
 ```bash
 xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <dir>] [--package <path.nupkg>] [--on-premise] [--noprompt]
+                            [--auth <mode>] [--environment <url>] [--tenant <id>] [--application-id <id>]
+                            [--service-connection-id <id>] [--oidc-request-url <url>] [--oidc-request-token <token>]
 ```
 
 | Option | Required | Description |
@@ -469,6 +471,13 @@ xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <d
 | `--package <PATH>` | ❌ | Explicit `.nupkg` to push, overriding the one found next to the assembly. Only read for a project built as a package. |
 | `--on-premise` | ❌ | Targets an On-Premises CRM (default: Dataverse Online). |
 | `-n`, `--noprompt`, `-NoPrompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). `-NoPrompt` (any casing) is kept for backward compatibility with the deployment scripts written against that spelling. |
+| `--auth <MODE>` | ❌ | `auto` (default), `connectionstring`, or `wif` — see [Deploying from Azure DevOps without a secret](#deploying-from-azure-devops-without-a-secret). |
+| `--environment <URL>` | ❌ | Dataverse organization URL to deploy to. **Workload identity federation only**: with a connection string, change its `Url` instead. |
+| `--tenant <ID>` | ❌ | Entra tenant to sign in to (default: `$AZURESUBSCRIPTION_TENANT_ID`). |
+| `--application-id <ID>` | ❌ | Entra application whose federated credential trusts the job (default: `$AZURESUBSCRIPTION_CLIENT_ID`). |
+| `--service-connection-id <ID>` | ❌ | Azure DevOps service connection to request the OIDC token for (default: `$AZURESUBSCRIPTION_SERVICE_CONNECTION_ID`). |
+| `--oidc-request-url <URL>` | ❌ | Complete OIDC token endpoint, query included, for a job whose endpoint cannot be derived from `$SYSTEM_OIDCREQUESTURI`. |
+| `--oidc-request-token <TOKEN>` | ❌ | Token authorizing the OIDC token request. Prefer the environment variable: a command line is visible to every process on the agent. |
 
 > **How it works — inventory via actual code execution.** The plugin assembly is `net48` (or
 > `net462`) and this tool is `net10.0`, so it does not instantiate the plugin's types itself. It
@@ -502,6 +511,66 @@ xrmframework deploy plugins --dll bin/Release/net48/MyProject.Plugins.dll \
                             --project MyProject.Plugins \
                             --noprompt
 ```
+
+#### Deploying from Azure DevOps without a secret
+
+With **workload identity federation** the pipeline holds no client secret at all. The job proves
+its own identity with an OIDC token that Azure DevOps mints on demand; XrmFramework exchanges that
+token for a Dataverse one. Everything else about the deployment is unchanged — same inventory,
+same diff, same registration, including the unregistration of what the source no longer declares.
+
+```yaml
+- script: |
+    dotnet build MyProject.Plugins/MyProject.Plugins.csproj -c Release
+    xrmframework deploy plugins \
+      --dll MyProject.Plugins/bin/Release/net48/MyProject.Plugins.dll \
+      --project MyProject.Plugins \
+      --auth wif --environment $(DataverseUrl) \
+      --tenant $(TenantId) --application-id $(ApplicationId) -n
+  env:
+    PAC_ADO_ID_TOKEN_REQUEST_URL: $(System.OidcRequestUri)?serviceConnectionId=$(ServiceConnectionId)&api-version=7.2-preview.1
+    PAC_ADO_ID_TOKEN_REQUEST_TOKEN: $(System.AccessToken)
+```
+
+Three things to set up once, outside the pipeline:
+
+1. A **service connection** using workload identity federation, in the Azure DevOps project. Note
+   the **Issuer** and **Subject identifier** it shows.
+2. On the Entra **app registration**, a **federated credential** (*Certificates & secrets* →
+   *Federated credentials* → scenario *Other issuer*) carrying those two values.
+3. That same application as an **application user** in the Dataverse environment, with a security
+   role — without it the token is valid and Dataverse still refuses every call.
+
+> **Why those two variable names.** They are the ones `pac auth create --azureDevOpsFederated`
+> reads, and the ones the Power Platform Build Tools set, so a single pair serves `pac` and this
+> tool in the same job. They are set with `process.env` inside the Build Tools' own Node process,
+> though, which means they reach the `pac` *that task* launches and **not** a later `script:` step
+> — hence setting them in the step, as above. `XRMFRAMEWORK_ADO_ID_TOKEN_REQUEST_URL` /
+> `_TOKEN` take precedence over them, because `PAC_ADO_*` is undocumented and not ours to rely on;
+> failing both, the endpoint is built from `$SYSTEM_OIDCREQUESTURI` and `$SYSTEM_ACCESSTOKEN`.
+> `System.AccessToken` is never exposed to a YAML step unless mapped explicitly, which is the one
+> mistake everybody makes first — the error message says so by name.
+
+> **`--auth auto`, the default.** Federation is chosen when the selected connection string declares
+> `AuthType=WorkloadIdentity`, or when there is **no** connection string and the job exposes an OIDC
+> endpoint. A pipeline that already works by feeding a `ClientSecret` connection string therefore
+> keeps working exactly as before: auto-detection exists to make the no-secret case need no switch,
+> not to take an existing setup away. `--auth wif` forces it and fails with an explicit message when
+> the job cannot provide what it needs; `--auth connectionstring` forces the old path.
+
+Because a federated connection carries **no secret**, it can be committed — unlike the
+`ClientSecret` entries `connectionStrings.config` is gitignored for:
+
+```xml
+<add name="DevOps" connectionString="AuthType=WorkloadIdentity; Url=https://org.crm4.dynamics.com" />
+```
+
+In a pipeline there need not be a `connectionStrings.config` at all: `--environment` names the
+target and the rest comes from the job's own variables. One repository then serves dev, UAT and
+production by changing a pipeline variable rather than a committed file.
+
+Not available on-premise: federation is Dataverse-only, and `--on-premise` with `--auth wif` is
+refused rather than quietly ignored.
 
 #### Deploying as a plugin package (dependent assemblies)
 
