@@ -38,6 +38,16 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
         /// <summary>Service connection the federated credential is bound to.</summary>
         public const string ServiceConnectionIdVariable = "AZURESUBSCRIPTION_SERVICE_CONNECTION_ID";
 
+        /// <summary>
+        ///     Client id as <c>AzureCLI@2</c> with <c>addSpnToEnvironment: true</c> exports it.
+        ///     Spelled exactly as the task spells it: environment variables are case-sensitive on
+        ///     the Linux agents.
+        /// </summary>
+        public const string AzureCliClientIdVariable = "servicePrincipalId";
+
+        /// <summary>Tenant as <c>AzureCLI@2</c> with <c>addSpnToEnvironment: true</c> exports it.</summary>
+        public const string AzureCliTenantIdVariable = "tenantId";
+
         private FederatedConnectionSettings()
         {
         }
@@ -101,13 +111,15 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
                 TenantId = First(
                     options.TenantId,
                     Field(connectionString, "TenantId"),
-                    environment(TenantIdVariable)),
+                    environment(TenantIdVariable),
+                    environment(AzureCliTenantIdVariable)),
 
                 ClientId = First(
                     options.ApplicationId,
                     Field(connectionString, "ClientId"),
                     Field(connectionString, "AppId"),
-                    environment(ClientIdVariable)),
+                    environment(ClientIdVariable),
+                    environment(AzureCliClientIdVariable)),
 
                 ServiceConnectionId = First(
                     options.ServiceConnectionId,
@@ -132,10 +144,14 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
                 missing.Add("the Dataverse URL (--environment, or Url= in the connection string)");
 
             if (string.IsNullOrWhiteSpace(TenantId))
-                missing.Add($"the Entra tenant (--tenant, TenantId= in the connection string, or ${TenantIdVariable})");
+                missing.Add(
+                    $"the Entra tenant (--tenant, TenantId= in the connection string, ${TenantIdVariable}, " +
+                    $"or ${AzureCliTenantIdVariable} from AzureCLI@2 with addSpnToEnvironment)");
 
             if (string.IsNullOrWhiteSpace(ClientId))
-                missing.Add($"the application id (--application-id, ClientId= in the connection string, or ${ClientIdVariable})");
+                missing.Add(
+                    $"the application id (--application-id, ClientId= in the connection string, ${ClientIdVariable}, " +
+                    $"or ${AzureCliClientIdVariable} from AzureCLI@2 with addSpnToEnvironment)");
 
             if (missing.Count == 0) return;
 

@@ -110,6 +110,43 @@ public class FederatedConnectionSettingsTests
     }
 
     [Test]
+    public void Create_ReadsWhatAzureCliExportsWithAddSpnToEnvironment()
+    {
+        // The whole point: an AzureCLI@2 step with addSpnToEnvironment has already read the
+        // service connection, so neither --tenant nor --application-id has to be restated.
+        var settings = FederatedConnectionSettings.Create(
+            null,
+            new DeployOptions { EnvironmentUrl = Url },
+            Reader(new Dictionary<string, string>
+            {
+                [FederatedConnectionSettings.AzureCliTenantIdVariable] = "cli-tenant",
+                [FederatedConnectionSettings.AzureCliClientIdVariable] = "cli-app"
+            }));
+
+        Assert.AreEqual("cli-tenant", settings.TenantId);
+        Assert.AreEqual("cli-app", settings.ClientId);
+        Assert.DoesNotThrow(() => settings.Validate());
+    }
+
+    [Test]
+    public void Create_PrefersTheAzureSubscriptionVariablesOverAzureClis()
+    {
+        var settings = FederatedConnectionSettings.Create(
+            null,
+            new DeployOptions(),
+            Reader(new Dictionary<string, string>
+            {
+                [FederatedConnectionSettings.TenantIdVariable] = "subscription-tenant",
+                [FederatedConnectionSettings.ClientIdVariable] = "subscription-app",
+                [FederatedConnectionSettings.AzureCliTenantIdVariable] = "cli-tenant",
+                [FederatedConnectionSettings.AzureCliClientIdVariable] = "cli-app"
+            }));
+
+        Assert.AreEqual("subscription-tenant", settings.TenantId);
+        Assert.AreEqual("subscription-app", settings.ClientId);
+    }
+
+    [Test]
     public void Create_AcceptsTheAlternateFieldSpellings()
     {
         var settings = FederatedConnectionSettings.Create(

@@ -97,15 +97,13 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
         /// </summary>
         private string Explain()
         {
-            var provider = _oidc as AzureDevOpsOidcProvider;
-
-            if (provider?.Issuer == null || provider.Subject == null)
+            if (_oidc.Issuer == null || _oidc.Subject == null)
                 return $"Check that the application is trusted by the {_oidc.PlatformName} job " +
                        "through a federated credential, and that it exists as an application user " +
                        "in Dataverse with a security role.";
 
             return "Check that the application's federated credential uses issuer " +
-                   $"\"{provider.Issuer}\" and subject \"{provider.Subject}\", and that the " +
+                   $"\"{_oidc.Issuer}\" and subject \"{_oidc.Subject}\", and that the " +
                    "application exists as an application user in Dataverse with a security role.";
         }
     }
