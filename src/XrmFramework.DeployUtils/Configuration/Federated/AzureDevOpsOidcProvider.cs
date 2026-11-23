@@ -94,17 +94,10 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
         /// <inheritdoc />
         public string PlatformName => "Azure DevOps";
 
-        /// <summary>
-        ///     Issuer claim of the last token obtained, or <see langword="null" />.
-        /// </summary>
-        /// <remarks>
-        ///     Surfaced because it is half of what has to be pasted into the app registration's
-        ///     federated credential, and reading it off a failed pipeline run is how that gets
-        ///     configured right the first time.
-        /// </remarks>
+        /// <inheritdoc />
         public string Issuer { get; private set; }
 
-        /// <summary>Subject claim of the last token obtained, or <see langword="null" />.</summary>
+        /// <inheritdoc />
         public string Subject { get; private set; }
 
         /// <summary>
@@ -245,6 +238,7 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
                     throw new FederatedAuthenticationException(
                         $"The Azure DevOps OIDC endpoint ({Redact(url)}) names no service connection. " +
                         "Pass --service-connection-id, set " +
+                        $"{FederatedConnectionSettings.XrmFrameworkServiceConnectionIdVariable} or " +
                         $"{FederatedConnectionSettings.ServiceConnectionIdVariable}, or give the whole " +
                         $"endpoint - query included - in {RequestUrlVariable}.");
 
@@ -346,60 +340,19 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
         }
 
         /// <summary>
-        ///     Records the issuer and subject of the token, the two values the app registration's
-        ///     federated credential has to be configured with.
+        ///     Records and logs the issuer and subject of the token.
         /// </summary>
         private void DescribeToken(string jwt)
         {
-            var payload = ReadJwtPayload(jwt);
+            var claims = OidcTokenClaims.Read(jwt);
 
-            if (payload == null) return;
+            if (claims == null) return;
 
-            Issuer = payload.Value.issuer;
-            Subject = payload.Value.subject;
+            Issuer = claims.Value.Issuer;
+            Subject = claims.Value.Subject;
 
             _log?.Invoke($"OIDC token issuer: {Issuer}");
             _log?.Invoke($"OIDC token subject: {Subject}");
-        }
-
-        /// <remarks>
-        ///     Decoded by hand rather than with a JWT library: two claims are not worth a
-        ///     dependency, and this is diagnostics - a token we cannot read must still be usable.
-        /// </remarks>
-        private static (string issuer, string subject)? ReadJwtPayload(string jwt)
-        {
-            try
-            {
-                var parts = jwt.Split('.');
-
-                if (parts.Length < 2) return null;
-
-                using (var document = JsonDocument.Parse(DecodeBase64Url(parts[1])))
-                {
-                    var root = document.RootElement;
-
-                    return (
-                        root.TryGetProperty("iss", out var iss) ? iss.GetString() : null,
-                        root.TryGetProperty("sub", out var sub) ? sub.GetString() : null);
-                }
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        private static byte[] DecodeBase64Url(string value)
-        {
-            var padded = value.Replace('-', '+').Replace('_', '/');
-
-            switch (padded.Length % 4)
-            {
-                case 2: padded += "=="; break;
-                case 3: padded += "="; break;
-            }
-
-            return Convert.FromBase64String(padded);
         }
 
         /// <summary>

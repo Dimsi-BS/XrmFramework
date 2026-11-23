@@ -19,8 +19,21 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
     /// </remarks>
     public interface IOidcTokenProvider
     {
-        /// <summary>Name of the platform, for error and log messages.</summary>
+        /// <summary>Where the token came from, for error and log messages.</summary>
         string PlatformName { get; }
+
+        /// <summary>
+        ///     Issuer claim of the last token obtained, or <see langword="null" />.
+        /// </summary>
+        /// <remarks>
+        ///     Part of the contract because it is half of what has to be pasted into the app
+        ///     registration's federated credential, and the sign-in reports both when Entra
+        ///     rejects the assertion - whichever provider produced it.
+        /// </remarks>
+        string Issuer { get; }
+
+        /// <summary>Subject claim of the last token obtained, or <see langword="null" />.</summary>
+        string Subject { get; }
 
         /// <summary>
         ///     Requests a fresh OIDC token.
