@@ -328,6 +328,97 @@ public class AzureDevOpsOidcProviderTests
     }
 
     // ──────────────────────────────────────────────
+    //  The service connection id has to be real
+    // ──────────────────────────────────────────────
+
+    [Test]
+    public async Task Create_UnexpandedVariableInTheEndpoint_IsReplaced()
+    {
+        // Observed on a real pipeline: PAC_ADO_ID_TOKEN_REQUEST_URL was set to
+        // "$(System.OidcRequestUri)?serviceConnectionId=$(ServiceConnectionId)..." with that
+        // variable undefined. Azure DevOps left the macro verbatim, ignored it, and answered a
+        // pipeline-scoped token - which Entra then rejected for a subject nobody had configured.
+        var url = await UrlRequestedBy(
+            new DeployOptions(),
+            "the-real-one",
+            new Dictionary<string, string>
+            {
+                [AzureDevOpsOidcProvider.PacRequestUrlVariable] =
+                    Endpoint + "?serviceConnectionId=$(ServiceConnectionId)&api-version=7.1",
+                [AzureDevOpsOidcProvider.PacRequestTokenVariable] = "job-token"
+            });
+
+        Assert.IsTrue(url.Contains("serviceConnectionId=the-real-one"), url);
+        Assert.IsFalse(url.Contains("$("), url);
+        Assert.AreEqual(1, Occurrences(url, "serviceConnectionId="), "the parameter is duplicated");
+        Assert.IsTrue(url.Contains("api-version=7.1"), "an api-version already there is kept");
+    }
+
+    [Test]
+    public async Task Create_EmptyServiceConnectionIdInTheEndpoint_IsReplaced()
+    {
+        var url = await UrlRequestedBy(
+            new DeployOptions(),
+            "the-real-one",
+            new Dictionary<string, string>
+            {
+                [AzureDevOpsOidcProvider.PacRequestUrlVariable] = Endpoint + "?serviceConnectionId=",
+                [AzureDevOpsOidcProvider.PacRequestTokenVariable] = "job-token"
+            });
+
+        Assert.IsTrue(url.Contains("serviceConnectionId=the-real-one"), url);
+        Assert.AreEqual(1, Occurrences(url, "serviceConnectionId="), "the parameter is duplicated");
+    }
+
+    [Test]
+    public void Create_UnusableServiceConnectionIdAndNoReplacement_SaysWhatToPass()
+    {
+        var error = Assert.Throws<FederatedAuthenticationException>(() => AzureDevOpsOidcProvider.Create(
+            new DeployOptions(),
+            null,
+            Reader(new Dictionary<string, string>
+            {
+                [AzureDevOpsOidcProvider.PacRequestUrlVariable] =
+                    Endpoint + "?serviceConnectionId=$(ServiceConnectionId)",
+                [AzureDevOpsOidcProvider.PacRequestTokenVariable] = "job-token"
+            })));
+
+        Assert.IsTrue(error!.Message.Contains("--service-connection-id"), error.Message);
+    }
+
+    [Test]
+    public async Task GetAssertionAsync_PipelineScopedAnswer_WarnsThatTheConnectionWasIgnored()
+    {
+        var logged = new List<string>();
+        var handler = Answering(Ok(Jwt("p://contoso/Dataverse/MyPipeline")));
+
+        var provider = new AzureDevOpsOidcProvider(
+            Endpoint + "?serviceConnectionId=the-connection", "job-token", handler.Client, logged.Add);
+
+        await provider.GetAssertionAsync(CancellationToken.None);
+
+        var warning = logged.FirstOrDefault(l => l.StartsWith("Warning:"));
+
+        Assert.IsNotNull(warning, "a pipeline-scoped token went unreported");
+        Assert.IsTrue(warning!.Contains("the-connection"), warning);
+        Assert.IsTrue(warning.Contains("sc://"), warning);
+    }
+
+    [Test]
+    public async Task GetAssertionAsync_ServiceConnectionScopedAnswer_DoesNotWarn()
+    {
+        var logged = new List<string>();
+        var handler = Answering(Ok(Jwt()));
+
+        var provider = new AzureDevOpsOidcProvider(
+            Endpoint + "?serviceConnectionId=the-connection", "job-token", handler.Client, logged.Add);
+
+        await provider.GetAssertionAsync(CancellationToken.None);
+
+        Assert.IsFalse(logged.Any(l => l.StartsWith("Warning:")), string.Join(" | ", logged));
+    }
+
+    // ──────────────────────────────────────────────
     //  Auto-detection
     // ──────────────────────────────────────────────
 
@@ -387,10 +478,24 @@ public class AzureDevOpsOidcProviderTests
         };
 
     /// <summary>A JWT carrying only the two claims the provider reads.</summary>
-    private static string Jwt()
+    private static string Jwt(string subject = Subject)
         => Base64Url("{\"alg\":\"RS256\"}")
-           + "." + Base64Url("{\"iss\":\"" + Issuer + "\",\"sub\":\"" + Subject + "\"}")
+           + "." + Base64Url("{\"iss\":\"" + Issuer + "\",\"sub\":\"" + subject + "\"}")
            + ".signature";
+
+    private static int Occurrences(string text, string value)
+    {
+        var count = 0;
+
+        for (var i = text.IndexOf(value, StringComparison.Ordinal);
+             i >= 0;
+             i = text.IndexOf(value, i + value.Length, StringComparison.Ordinal))
+        {
+            count++;
+        }
+
+        return count;
+    }
 
     private static string Base64Url(string json)
         => Convert.ToBase64String(Encoding.UTF8.GetBytes(json))

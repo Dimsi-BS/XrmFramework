@@ -626,6 +626,28 @@ same three values on the command line if you would rather not use variables.
 > `$idToken`, `$AZURE_FEDERATED_TOKEN_FILE`) wins over requesting one: it is one fewer HTTP call and
 > needs no endpoint. An explicit `--oidc-request-url` still wins over both.
 
+#### Troubleshooting a federated sign-in
+
+**`AADSTS700213: No matching federated identity record found for presented assertion subject`** —
+the token was minted, and Entra has no federated credential matching its subject. Read the subject
+the deployment printed just above the error:
+
+| Subject | What it means |
+|---|---|
+| `sc://<organization>/<project>/<connection name>` | The token is scoped to that **service connection**. Its issuer and subject are the ones the service connection's own page shows — copy those two into the app registration's federated credential. |
+| `p://<organization>/<project>/<pipeline name>` | The token is scoped to the **pipeline**, not to a service connection. Azure DevOps answers this when it cannot resolve the `serviceConnectionId` — and it does so silently rather than refusing, so the deployment prints a warning saying the connection was ignored. |
+
+A `p://` subject with a service connection requested almost always means the id never reached Azure
+DevOps: an `env:` entry built from a pipeline variable that does not exist leaves `$(Variable)`
+verbatim in the URL. The deployment now treats such an unexpanded macro, and an empty value, as no
+id at all and says so before sending anything — but a *wrong* id it cannot detect, hence the
+warning.
+
+Using the pipeline's own identity is a legitimate setup too: configure the federated credential with
+the `p://…` subject and the issuer printed above. Note that the subject then embeds the **pipeline
+name**, so renaming the pipeline breaks the sign-in, and the service connection's authorizations and
+approvals no longer apply.
+
 > **`--auth auto`, the default.** Federation is chosen when the selected connection string declares
 > `AuthType=WorkloadIdentity`, or when there is **no** connection string and the job exposes an OIDC
 > endpoint. A pipeline that already works by feeding a `ClientSecret` connection string therefore
