@@ -28,7 +28,13 @@ namespace XrmFramework.DeployUtils.Configuration
         ///     — no global state, no reflection.
         /// </remarks>
         /// <param name="projectRoot">Root of the project containing the <c>Config/</c> folder.</param>
-        /// <exception cref="FileNotFoundException">If either of the two config files is missing.</exception>
+        /// <exception cref="FileNotFoundException">If <c>xrmFramework.config</c> is missing.</exception>
+        /// <remarks>
+        ///     <c>connectionStrings.config</c> is optional. It holds secrets, so it is gitignored,
+        ///     so a pipeline that authenticates without one - workload identity federation - has no
+        ///     reason to carry it. A deployment that does need it says so itself, by name, when it
+        ///     looks the connection up.
+        /// </remarks>
         public static void UseProjectConfig(string projectRoot)
         {
             var configDir = Path.Combine(projectRoot, "Config");
@@ -39,14 +45,12 @@ namespace XrmFramework.DeployUtils.Configuration
                 throw new FileNotFoundException(
                     $"Configuration file not found: {xrmConfigPath}", xrmConfigPath);
 
-            if (!File.Exists(connectionsPath))
-                throw new FileNotFoundException(
-                    $"Configuration file not found: {connectionsPath}", connectionsPath);
-
             // The two files are fragments (<xrmFramework .../> and <connectionStrings .../>):
             // they are inlined into a full App.config declaring the xrmFramework section.
             var xrmRoot = XDocument.Load(xrmConfigPath).Root;
-            var connectionsRoot = XDocument.Load(connectionsPath).Root;
+            var connectionsRoot = File.Exists(connectionsPath)
+                ? XDocument.Load(connectionsPath).Root
+                : new XElement("connectionStrings");
 
             var appConfig = new XDocument(
                 new XElement("configuration",
@@ -96,6 +100,30 @@ namespace XrmFramework.DeployUtils.Configuration
             return _projectConfig != null
                 ? _projectConfig.ConnectionStrings.ConnectionStrings[selectedConnection].ConnectionString
                 : ConfigurationManager.ConnectionStrings[selectedConnection].ConnectionString;
+        }
+
+        /// <summary>
+        ///     The selected connection string, or <see langword="null" /> when the project declares
+        ///     none.
+        /// </summary>
+        /// <remarks>
+        ///     Added alongside <see cref="GetSelectedConnectionString" /> rather than replacing it:
+        ///     the connection-string deployment path is still right to fail loudly, but deciding
+        ///     <em>which</em> authentication to use happens before anything has established that a
+        ///     connection string exists - and under workload identity federation none ever will.
+        /// </remarks>
+        public static string TryGetSelectedConnectionString()
+        {
+            var selectedConnection = GetSection()?.SelectedConnection;
+
+            if (string.IsNullOrEmpty(selectedConnection))
+                return null;
+
+            var settings = _projectConfig != null
+                ? _projectConfig.ConnectionStrings.ConnectionStrings[selectedConnection]
+                : ConfigurationManager.ConnectionStrings[selectedConnection];
+
+            return settings?.ConnectionString;
         }
 
         /// <summary>

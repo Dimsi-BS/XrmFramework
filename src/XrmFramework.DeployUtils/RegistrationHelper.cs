@@ -137,16 +137,25 @@ public partial class RegistrationHelper
         bool isOnPremise,
         bool noPrompt,
         string packagePath)
+        => RegisterPluginsAndWorkflows(dllPath, projectName, new DeployOptions
+        {
+            IsOnPremise = isOnPremise,
+            NoPrompt = noPrompt,
+            PackagePath = packagePath
+        });
+
+    /// <param name="deployOptions">
+    ///     Everything the command line settled: the deployment shape, the silent mode, and how to
+    ///     authenticate.
+    /// </param>
+    /// <inheritdoc cref="RegisterPluginsAndWorkflows(string,string,bool,bool)" />
+    public static int RegisterPluginsAndWorkflows(
+        string dllPath,
+        string projectName,
+        DeployOptions deployOptions)
     {
         try
         {
-            var deployOptions = new DeployOptions
-            {
-                IsOnPremise = isOnPremise,
-                NoPrompt = noPrompt,
-                PackagePath = packagePath
-            };
-
             // ── Initialize the DI container ─────────────────────────────────────
             var serviceCollection = DeployServiceCollectionFactory
                 .CreateServiceCollection(projectName, deployOptions);
@@ -159,7 +168,8 @@ public partial class RegistrationHelper
             AnsiConsole.WriteLine($"Assembly  : {Path.GetFileNameWithoutExtension(dllPath)}");
             AnsiConsole.WriteLine($"Target    : {deploySettings.Url}");
             AnsiConsole.WriteLine($"ClientId  : {deploySettings.ClientId}");
-            AnsiConsole.WriteLine($"OnPremise : {(isOnPremise ? "yes" : "no")}");
+            AnsiConsole.WriteLine($"Auth      : {Describe(deploySettings.Authentication)}");
+            AnsiConsole.WriteLine($"OnPremise : {(deployOptions.IsOnPremise ? "yes" : "no")}");
             // "Deploy as" is not printed here any more: the shape now comes from the assembly's own
             // marker, which is only known once the inventory has run. Register prints it then,
             // rather than restating a configuration that no longer decides.
@@ -181,6 +191,13 @@ public partial class RegistrationHelper
 
             return 0;
         }
+        catch (System.Configuration.ConfigurationErrorsException ex)
+        {
+            // A misconfiguration, not a crash: the message names the file and the entry to fix,
+            // and a stack trace would only bury it.
+            AnsiConsole.MarkupLine($"[red]{Markup.Escape(ex.Message)}[/]");
+            return 3;
+        }
         catch (OperationCanceledException ex)
         {
             // A declined confirmation is a choice, not a failure. Nothing has been written when it
@@ -190,10 +207,60 @@ public partial class RegistrationHelper
         }
         catch (Exception ex)
         {
+#if !NET462_OR_GREATER
+            // A federation failure is a configuration problem, not a crash, and the stack trace
+            // buries the one line that says what to fix. It has to be dug out of the chain:
+            // ServiceClient wraps whatever its token provider threw in a connection exception of
+            // its own, so it is never the top-level exception.
+            var federated = FindFederatedCause(ex);
+
+            if (federated != null)
+            {
+                AnsiConsole.MarkupLine($"[red]{Markup.Escape(federated.Message)}[/]");
+                return 3;
+            }
+#endif
+
             AnsiConsole.WriteException(ex);
             return 3;
         }
     }
+
+#if !NET462_OR_GREATER
+    /// <summary>
+    ///     The federation failure buried in <paramref name="exception" />, or
+    ///     <see langword="null" />.
+    /// </summary>
+    private static Configuration.Federated.FederatedAuthenticationException FindFederatedCause(Exception exception)
+    {
+        switch (exception)
+        {
+            case null:
+                return null;
+
+            case Configuration.Federated.FederatedAuthenticationException federated:
+                return federated;
+
+            // Flattened by hand because a token provider runs on a task: what surfaces can be an
+            // AggregateException whose interesting branch is not the first one.
+            case AggregateException aggregate:
+                return aggregate.InnerExceptions
+                    .Select(FindFederatedCause)
+                    .FirstOrDefault(found => found != null);
+
+            default:
+                return FindFederatedCause(exception.InnerException);
+        }
+    }
+#endif
+
+    /// <summary>
+    ///     How the deployment authenticated, for the connection summary.
+    /// </summary>
+    private static string Describe(Configuration.AuthenticationMode authentication)
+        => authentication == Configuration.AuthenticationMode.WorkloadIdentity
+            ? "workload identity federation"
+            : "connection string";
 
     /// <summary>
     ///     Main algorithm for deploying the plugin assembly located at <paramref name="dllPath" />.
