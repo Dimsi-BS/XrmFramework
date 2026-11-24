@@ -53,6 +53,10 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 **/Properties/launchSettings.json
+# ... except the ones the CLI scaffolds: they are template content shipped in the package, not a
+# local developer preference, and a clean clone that lost them would scaffold solutions without
+# their deploy profiles.
+!src/XrmFramework.Cli/Scaffolding/**/Properties/launchSettings.json
 
 # StyleCop
 StyleCopReport.xml
