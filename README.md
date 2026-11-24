@@ -166,6 +166,8 @@ The supported connection strings are those documented in [Use connection strings
 
 The `connectionStrings.config` file is added to `.gitignore`, so your credentials are never pushed to the repository and each developer can use their own.
 
+Being gitignored, it is absent from a fresh clone and from a CI agent, so the build does not require it: projects link it only when it is there. A pipeline that authenticates another way — [workload identity federation](src/XrmFramework.Cli/README.md#deploying-from-azure-devops-without-a-secret), for instance — therefore needs no connection string at all. A command that does need one still fails with the path of the missing file. `xrmFramework.config` is versioned and stays mandatory.
+
 Edit the `xrmFramework.config` file in the `Config` solution folder to configure the connection to Dynamics 365 and the deployment targets:
 
 ```xml
