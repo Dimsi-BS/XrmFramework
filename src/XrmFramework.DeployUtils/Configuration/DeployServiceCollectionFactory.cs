@@ -78,7 +78,17 @@ internal static class DeployServiceCollectionFactory
             return services.AddFederatedOrganizationService(deploySettings, deployOptions, connectionString);
 #endif
 
-        RequireConnectionString(connectionString, xrmSection, deployOptions);
+        if (authentication == AuthenticationMode.ClientSecret)
+        {
+            // The synthesized string travels the ordinary connection-string path from here, so
+            // nothing else in the pipeline has to know where the credentials came from.
+            deploySettings.ConnectionString = ClientSecretConnection.Build(
+                deployOptions, connectionString, System.Environment.GetEnvironmentVariable);
+        }
+        else
+        {
+            RequireConnectionString(connectionString, xrmSection, deployOptions);
+        }
 
         return services
             .AddScoped<IOrganizationService>(sp =>
@@ -108,6 +118,11 @@ internal static class DeployServiceCollectionFactory
     {
         if (deployOptions.Authentication != AuthenticationMode.Auto)
             return deployOptions.Authentication;
+
+        // A secret only turns up when it was handed over on purpose, so taking it as the answer
+        // cannot surprise a pipeline that did not.
+        if (ClientSecretConnection.IsAvailable(deployOptions, System.Environment.GetEnvironmentVariable))
+            return AuthenticationMode.ClientSecret;
 
 #if !NET462_OR_GREATER
         if (FederatedConnectionSettings.IsFederatedConnectionString(connectionString))
@@ -161,8 +176,9 @@ internal static class DeployServiceCollectionFactory
 
         if (!string.IsNullOrWhiteSpace(deployOptions.EnvironmentUrl))
             throw new ConfigurationErrorsException(
-                "--environment only applies to workload identity federation. Add --auth wif, or " +
-                "change the Url of the selected connection in Config/connectionStrings.config.");
+                "--environment names the environment for --auth wif and --auth clientsecret. Add " +
+                "one of those, or change the Url of the selected connection in " +
+                "Config/connectionStrings.config.");
     }
 
     /// <summary>

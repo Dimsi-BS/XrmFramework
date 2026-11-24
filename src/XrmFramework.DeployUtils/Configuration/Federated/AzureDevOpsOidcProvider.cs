@@ -62,6 +62,15 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
         /// <summary>Overrides <see cref="DefaultApiVersion" /> without republishing the CLI.</summary>
         public const string ApiVersionVariable = "XRMFRAMEWORK_ADO_OIDC_API_VERSION";
 
+        /// <summary>Query parameter naming the service connection to mint the token for.</summary>
+        private const string ServiceConnectionIdParameter = "serviceConnectionId";
+
+        /// <summary>
+        ///     Subject prefix of a token minted for the pipeline itself rather than for a service
+        ///     connection - <c>p://&lt;organization&gt;/&lt;project&gt;/&lt;pipeline&gt;</c>.
+        /// </summary>
+        private const string PipelineSubjectPrefix = "p://";
+
         /// <summary>
         ///     API version of the Azure DevOps <c>oidctoken</c> endpoint, the one the Power Platform
         ///     Build Tools request. A preview version, which is why
@@ -167,7 +176,7 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
                 catch (Exception ex) when (!(ex is OperationCanceledException))
                 {
                     throw new FederatedAuthenticationException(
-                        $"The Azure DevOps OIDC endpoint could not be reached ({Redact(_requestUrl)}): {ex.Message}",
+                        $"The Azure DevOps OIDC endpoint could not be reached ({_requestUrl}): {ex.Message}",
                         ex);
                 }
 
@@ -178,8 +187,8 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
                     if (!response.IsSuccessStatusCode)
                         throw new FederatedAuthenticationException(
                             $"Azure DevOps refused to mint an OIDC token ({(int)response.StatusCode} " +
-                            $"{response.ReasonPhrase}) for {Redact(_requestUrl)}. " +
-                            DescribeFailure(response, body));
+                            $"{response.ReasonPhrase}) for {_requestUrl}. " +
+                            DescribeFailure(response, body) + ExplainRefusal(response));
 
                     var token = ReadOidcToken(body);
 
@@ -232,23 +241,47 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
         {
             var result = url;
 
-            if (!HasQueryParameter(result, "serviceConnectionId"))
+            if (!HasUsableQueryParameter(result, ServiceConnectionIdParameter))
             {
                 if (string.IsNullOrWhiteSpace(serviceConnectionId))
                     throw new FederatedAuthenticationException(
-                        $"The Azure DevOps OIDC endpoint ({Redact(url)}) names no service connection. " +
-                        "Pass --service-connection-id, set " +
+                        $"The Azure DevOps OIDC endpoint ({url}) names no usable service " +
+                        "connection. Pass --service-connection-id, set " +
                         $"{FederatedConnectionSettings.XrmFrameworkServiceConnectionIdVariable} or " +
                         $"{FederatedConnectionSettings.ServiceConnectionIdVariable}, or give the whole " +
                         $"endpoint - query included - in {RequestUrlVariable}.");
 
-                result = Append(result, "serviceConnectionId=" + Uri.EscapeDataString(serviceConnectionId.Trim()));
+                result = SetQueryParameter(
+                    result, ServiceConnectionIdParameter, RequireId(serviceConnectionId));
             }
 
-            if (!HasQueryParameter(result, "api-version"))
-                result = Append(result, "api-version=" + ApiVersion(environment));
+            if (!HasUsableQueryParameter(result, "api-version"))
+                result = SetQueryParameter(result, "api-version", ApiVersion(environment));
 
             return result;
+        }
+
+        /// <summary>
+        ///     Checks the service connection id is a GUID before it is sent.
+        /// </summary>
+        /// <remarks>
+        ///     Azure DevOps types this parameter as a uuid and answers 400 Bad Request for anything
+        ///     else - the connection's <em>name</em>, a value that kept its YAML quotes, a copied
+        ///     "resourceId=..." - with nothing in the body that says which of those happened. The
+        ///     id is on the service connection's page, as the <c>resourceId</c> query parameter of
+        ///     its URL.
+        /// </remarks>
+        private static string RequireId(string serviceConnectionId)
+        {
+            var value = serviceConnectionId.Trim().Trim('"', '\'');
+
+            if (!Guid.TryParse(value, out var id))
+                throw new FederatedAuthenticationException(
+                    $"\"{serviceConnectionId}\" is not a service connection id. Azure DevOps expects " +
+                    "the connection's GUID, which is the resourceId query parameter of its URL in " +
+                    "the Azure DevOps portal - not its name.");
+
+            return id.ToString();
         }
 
         private static string ApiVersion(Func<string, string> environment)
@@ -271,19 +304,57 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
                 environment(PacRequestUrlVariable),
                 environment(SystemRequestUrlVariable));
 
-        private static bool HasQueryParameter(string url, string name)
+        /// <summary>
+        ///     Whether <paramref name="url" /> already carries a query parameter worth keeping.
+        /// </summary>
+        /// <remarks>
+        ///     Present is not enough; it has to have a value, and not an unexpanded
+        ///     <c>$(Variable)</c>. Azure DevOps leaves such a macro verbatim when the variable is
+        ///     undefined, and answers the OIDC request with a <em>pipeline</em>-scoped token rather
+        ///     than refusing - which Entra then rejects for a subject nobody configured. Treating
+        ///     it as absent turns that into the plain "names no usable service connection" error.
+        /// </remarks>
+        private static bool HasUsableQueryParameter(string url, string name)
+        {
+            var value = QueryParameter(url, name);
+
+            return !string.IsNullOrWhiteSpace(value)
+                   && value.IndexOf("$(", StringComparison.Ordinal) < 0;
+        }
+
+        /// <summary>Raw value of a query parameter, or <see langword="null" /> when absent.</summary>
+        private static string QueryParameter(string url, string name)
         {
             var query = url.IndexOf('?');
 
-            if (query < 0) return false;
+            if (query < 0) return null;
 
-            return url.Substring(query + 1)
+            var match = url.Substring(query + 1)
                 .Split('&')
-                .Any(p => p.StartsWith(name + "=", StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(p => p.StartsWith(name + "=", StringComparison.OrdinalIgnoreCase));
+
+            return match?.Substring(name.Length + 1);
         }
 
-        private static string Append(string url, string parameter)
-            => url + (url.IndexOf('?') < 0 ? '?' : '&') + parameter;
+        /// <summary>
+        ///     Sets a query parameter, dropping any occurrence already there rather than appending
+        ///     a second one the server would be free to resolve either way.
+        /// </summary>
+        private static string SetQueryParameter(string url, string name, string value)
+        {
+            var query = url.IndexOf('?');
+
+            var path = query < 0 ? url : url.Substring(0, query);
+
+            var parameters = (query < 0
+                    ? Enumerable.Empty<string>()
+                    : url.Substring(query + 1).Split('&'))
+                .Where(p => !string.IsNullOrEmpty(p))
+                .Where(p => !p.StartsWith(name + "=", StringComparison.OrdinalIgnoreCase))
+                .Concat(new[] { name + "=" + value });
+
+            return path + "?" + string.Join("&", parameters);
+        }
 
         private static async Task<string> ReadBodyAsync(HttpResponseMessage response)
         {
@@ -320,10 +391,14 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
         }
 
         /// <summary>
-        ///     Says what came back, without echoing it: the body of a failed OIDC request is
-        ///     sometimes a sign-in page, and always something we would rather not paste into a
-        ///     build log wholesale.
+        ///     Says what came back.
         /// </summary>
+        /// <remarks>
+        ///     Azure DevOps answers an error as a JSON envelope whose <c>message</c> is the whole
+        ///     diagnostic - "the service connection could not be found", and such. An HTML body is
+        ///     not quoted, because that one is a sign-in page and says nothing a sentence cannot
+        ///     say better.
+        /// </remarks>
         private static string DescribeFailure(HttpResponseMessage response, string body)
         {
             var contentType = response.Content?.Headers?.ContentType?.MediaType;
@@ -336,8 +411,58 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
             if (string.IsNullOrWhiteSpace(body))
                 return "The answer had no body.";
 
-            return "The answer was " + body.Length + " characters of " + (contentType ?? "an unnamed type") + ".";
+            return "Azure DevOps said: " + (ReadErrorMessage(body) ?? Truncate(body));
         }
+
+        /// <summary>
+        ///     The hint a refusal on a service-connection request almost always needs.
+        /// </summary>
+        /// <remarks>
+        ///     Azure DevOps authorizes a service connection per job, and a job consumes one by
+        ///     <em>taking it as a task input</em>. A plain <c>script:</c> step takes no input, so the
+        ///     connection is not authorized for that job however its own Security page is set - and
+        ///     the endpoint answers a bare 400. Nothing in the body says that, and it is not the
+        ///     first thing anyone suspects after double-checking an id that was right all along.
+        /// </remarks>
+        private string ExplainRefusal(HttpResponseMessage response)
+        {
+            var status = (int)response.StatusCode;
+
+            if (status != 400 && status != 403 && status != 404) return string.Empty;
+
+            if (string.IsNullOrWhiteSpace(QueryParameter(_requestUrl, ServiceConnectionIdParameter)))
+                return string.Empty;
+
+            return " Note that Azure DevOps makes a service connection available only to a job that " +
+                   "consumes it as a task input, so a plain script step cannot mint a token for one " +
+                   "whatever its Security page says. Either run the deployment inside a task that " +
+                   "takes the connection - AzureCLI@2 with addSpnToEnvironment, for an Azure one - or " +
+                   "drop the service connection id and let the pipeline's own identity sign in, " +
+                   "adding a federated credential for the issuer and subject the next run prints.";
+        }
+
+        /// <summary>The <c>message</c> of an Azure DevOps error envelope, or <see langword="null" />.</summary>
+        private static string ReadErrorMessage(string body)
+        {
+            try
+            {
+                using (var document = JsonDocument.Parse(body))
+                {
+                    return document.RootElement.ValueKind == JsonValueKind.Object
+                           && document.RootElement.TryGetProperty("message", out var message)
+                           && message.ValueKind == JsonValueKind.String
+                        ? message.GetString()
+                        : null;
+                }
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+        }
+
+        private static string Truncate(string body)
+            => body.Length <= 600 ? body.Trim() : body.Substring(0, 600).Trim() + "…";
 
         /// <summary>
         ///     Records and logs the issuer and subject of the token.
@@ -353,17 +478,36 @@ namespace XrmFramework.DeployUtils.Configuration.Federated
 
             _log?.Invoke($"OIDC token issuer: {Issuer}");
             _log?.Invoke($"OIDC token subject: {Subject}");
+
+            WarnIfScopedToThePipeline();
         }
 
         /// <summary>
-        ///     Keeps the endpoint readable in a message without its query, which names the service
-        ///     connection and carries nothing a reader needs.
+        ///     Says so when Azure DevOps answered with a token for the pipeline although a service
+        ///     connection was asked for.
         /// </summary>
-        private static string Redact(string url)
+        /// <remarks>
+        ///     It does not refuse such a request, it just ignores the service connection - so the
+        ///     only visible symptom is Entra rejecting a subject nobody configured
+        ///     (<c>AADSTS700213</c>), several steps away from the cause. Saying it here turns a
+        ///     puzzle into a sentence.
+        /// </remarks>
+        private void WarnIfScopedToThePipeline()
         {
-            var query = url.IndexOf('?');
+            if (Subject == null || !Subject.StartsWith(PipelineSubjectPrefix, StringComparison.OrdinalIgnoreCase))
+                return;
 
-            return query < 0 ? url : url.Substring(0, query);
+            var requested = QueryParameter(_requestUrl, ServiceConnectionIdParameter);
+
+            if (string.IsNullOrWhiteSpace(requested)) return;
+
+            _log?.Invoke(
+                $"Warning: this token is scoped to the pipeline, not to service connection {requested}. " +
+                "Azure DevOps ignores a service connection id it cannot resolve instead of refusing " +
+                "the request, so check that the id is one this pipeline is authorized to use - a " +
+                "service connection token has a subject of the form " +
+                "sc://<organization>/<project>/<connection name>. Otherwise, configure the " +
+                "application's federated credential with the issuer and subject printed above.");
         }
 
         private static string First(params string[] candidates)

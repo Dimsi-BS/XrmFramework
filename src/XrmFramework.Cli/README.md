@@ -471,10 +471,11 @@ xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <d
 | `--package <PATH>` | ❌ | Explicit `.nupkg` to push, overriding the one found next to the assembly. Only read for a project built as a package. |
 | `--on-premise` | ❌ | Targets an On-Premises CRM (default: Dataverse Online). |
 | `-n`, `--noprompt`, `-NoPrompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). `-NoPrompt` (any casing) is kept for backward compatibility with the deployment scripts written against that spelling. |
-| `--auth <MODE>` | ❌ | `auto` (default), `connectionstring`, or `wif` — see [Deploying from Azure DevOps without a secret](#deploying-from-azure-devops-without-a-secret). |
+| `--auth <MODE>` | ❌ | `auto` (default), `connectionstring`, `clientsecret`, or `wif` — see [Deploying from Azure DevOps without a secret](#deploying-from-azure-devops-without-a-secret). |
 | `--environment <URL>` | ❌ | Dataverse organization URL to deploy to. **Workload identity federation only**: with a connection string, change its `Url` instead. |
 | `--tenant <ID>` | ❌ | Entra tenant to sign in to (default: `$XRMFRAMEWORK_TENANT_ID`, `$AZURESUBSCRIPTION_TENANT_ID`, then `$tenantId`). |
 | `--application-id <ID>` | ❌ | Entra application whose federated credential trusts the job (default: `$XRMFRAMEWORK_CLIENT_ID`, `$AZURESUBSCRIPTION_CLIENT_ID`, then `$servicePrincipalId`). |
+| `--secret <SECRET>` | ❌ | Secret of the Entra application, for `--auth clientsecret`. Prefer `$XRMFRAMEWORK_CLIENT_SECRET`: a command line is visible to every process on the agent. |
 | `--service-connection-id <ID>` | ❌ | Azure DevOps service connection to request the OIDC token for — Power Platform or Azure (default: `$XRMFRAMEWORK_SERVICE_CONNECTION_ID`, then `$AZURESUBSCRIPTION_SERVICE_CONNECTION_ID`). |
 | `--oidc-request-url <URL>` | ❌ | Complete OIDC token endpoint, query included, for a job whose endpoint cannot be derived from `$SYSTEM_OIDCREQUESTURI`. |
 | `--oidc-request-token <TOKEN>` | ❌ | Token authorizing the OIDC token request. Prefer the environment variable: a command line is visible to every process on the agent. |
@@ -561,11 +562,51 @@ on its own.
 > `AZURE_FEDERATED_TOKEN_FILE` is read for the same reason, so the Azure Kubernetes and
 > `azure/login` conventions work at no extra cost.
 
+**With the pipeline's own identity — no service connection at all**
+
+A service connection is made available to a job **only when a task in that job takes it as an
+input** ([resource consumption](https://learn.microsoft.com/azure/devops/pipelines/process/about-resources#use-resources-to-enhance-security)).
+A plain `script:` step takes no input, so it cannot mint a token for one however the connection's
+Security page is set — Azure DevOps answers a bare 400, or silently hands back a token scoped to the
+pipeline. `AzureCLI@2` works precisely because it *is* such a task, and it only accepts an Azure
+connection.
+
+For a Power Platform pipeline the simplest answer is therefore to skip the service connection and
+let the **pipeline** be the identity. Nothing to create in Azure DevOps, nothing to authorize:
+
+```yaml
+variables:
+  PowerPlatformUrl: https://org.crm4.dynamics.com
+  XRMFRAMEWORK_TENANT_ID: <Tenant ID>
+  XRMFRAMEWORK_CLIENT_ID: <Application ID>
+
+steps:
+- script: |
+    dotnet build MyProject.Plugins/MyProject.Plugins.csproj -c Release
+    xrmframework deploy plugins \
+      --dll MyProject.Plugins/bin/Release/net48/MyProject.Plugins.dll \
+      --project MyProject.Plugins \
+      --auth wif --environment $(PowerPlatformUrl) -n
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+```
+
+Run it once: the deployment prints the issuer and subject of the token it obtained, of the form
+`https://vstoken.dev.azure.com/<organization id>` and `p://<organization>/<project>/<pipeline>`.
+Put those two into the app registration's federated credential (*Certificates & secrets* →
+*Federated credentials* → *Other issuer*) and the next run signs in.
+
+> **The trade-off.** The subject embeds the **pipeline name**, so renaming the pipeline breaks the
+> sign-in, and one credential is needed per pipeline. The service connection's authorizations and
+> approval checks no longer apply either — the pipeline's own identity is what Dataverse trusts.
+> Where that governance matters, use a service connection and a task that consumes it.
+
 **With a Power Platform service connection**
 
-A **Power Platform** service connection in *Workload Identity federation* mode works just as well,
-and is the natural choice for a Dataverse pipeline. `AzureCLI@2` cannot consume one — it only takes
-an Azure service connection — so the OIDC token is requested from the endpoint the job exposes:
+A **Power Platform** service connection in *Workload Identity federation* mode is usable when a task
+in the job consumes it — the Build Tools tasks do, and that is how they obtain their own token.
+`AzureCLI@2` cannot consume one; it only takes an Azure service connection. From a plain `script:`
+step the request is made against the endpoint the job exposes:
 
 ```yaml
 variables:
@@ -626,9 +667,41 @@ same three values on the command line if you would rather not use variables.
 > `$idToken`, `$AZURE_FEDERATED_TOKEN_FILE`) wins over requesting one: it is one fewer HTTP call and
 > needs no endpoint. An explicit `--oidc-request-url` still wins over both.
 
-> **`--auth auto`, the default.** Federation is chosen when the selected connection string declares
-> `AuthType=WorkloadIdentity`, or when there is **no** connection string and the job exposes an OIDC
-> endpoint. A pipeline that already works by feeding a `ClientSecret` connection string therefore
+#### Troubleshooting a federated sign-in
+
+**`AADSTS700213: No matching federated identity record found for presented assertion subject`** —
+the token was minted, and Entra has no federated credential matching its subject. Read the subject
+the deployment printed just above the error:
+
+| Subject | What it means |
+|---|---|
+| `sc://<organization>/<project>/<connection name>` | The token is scoped to that **service connection**. Its issuer and subject are the ones the service connection's own page shows — copy those two into the app registration's federated credential. |
+| `p://<organization>/<project>/<pipeline name>` | The token is scoped to the **pipeline**, not to a service connection. Azure DevOps answers this when it cannot resolve the `serviceConnectionId` — and it does so silently rather than refusing, so the deployment prints a warning saying the connection was ignored. |
+
+**`Azure DevOps refused to mint an OIDC token (400 Bad Request)`** — the message quotes what Azure
+DevOps said, and the endpoint it was said about, query included. `serviceConnectionId` is typed as a
+*uuid* by [the API](https://learn.microsoft.com/rest/api/azure/devops/distributedtask/oidctoken/create),
+so anything that is not a GUID earns a 400 with nothing in the body naming the mistake — the
+connection's **name**, a value that kept its YAML quotes, a copied `resourceId=…`. The deployment
+refuses those itself now, before sending anything. A 400 on a well-formed GUID is about the id
+itself: either no connection has it, or this pipeline is not authorized to use it (**Project
+settings** → **Service connections** → the connection → **Security**).
+
+A `p://` subject with a service connection requested almost always means the id never reached Azure
+DevOps: an `env:` entry built from a pipeline variable that does not exist leaves `$(Variable)`
+verbatim in the URL. The deployment now treats such an unexpanded macro, and an empty value, as no
+id at all and says so before sending anything — but a *wrong* id it cannot detect, hence the
+warning.
+
+Using the pipeline's own identity is a legitimate setup too: configure the federated credential with
+the `p://…` subject and the issuer printed above. Note that the subject then embeds the **pipeline
+name**, so renaming the pipeline breaks the sign-in, and the service connection's authorizations and
+approvals no longer apply.
+
+> **`--auth auto`, the default.** An application secret is chosen whenever one is supplied, since
+> that only happens on purpose. Otherwise federation is chosen when the selected connection string
+> declares `AuthType=WorkloadIdentity`, or when there is **no** connection string and the job exposes
+> an OIDC endpoint or already holds a token. A pipeline that already works by feeding a `ClientSecret` connection string therefore
 > keeps working exactly as before: auto-detection exists to make the no-secret case need no switch,
 > not to take an existing setup away. `--auth wif` forces it and fails with an explicit message when
 > the job cannot provide what it needs; `--auth connectionstring` forces the old path.
@@ -646,6 +719,27 @@ production by changing a pipeline variable rather than a committed file.
 
 Not available on-premise: federation is Dataverse-only, and `--on-premise` with `--auth wif` is
 refused rather than quietly ignored.
+
+#### Deploying with an application secret
+
+Where federation is not available, the application and its secret can be handed over directly
+instead of being written into a `connectionStrings.config` first:
+
+```yaml
+- script: |
+    xrmframework deploy plugins --dll … --project Plugins \
+      --auth clientsecret --environment $(DataverseUrl) \
+      --application-id $(ApplicationId) -n
+  env:
+    XRMFRAMEWORK_CLIENT_SECRET: $(ApplicationSecret)
+```
+
+The secret belongs in the environment rather than on the command line, which is visible to every
+process on the agent; `--secret` exists for the cases where that is impractical. `--auth auto` picks
+this mode whenever a secret is supplied, so the switch is optional.
+
+This is the fallback, not the recommendation: a secret has to be stored, rotated, and can leak.
+Where the pipeline can federate, it should.
 
 #### Deploying as a plugin package (dependent assemblies)
 
