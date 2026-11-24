@@ -7,18 +7,20 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 using XrmFramework.DeployUtils;
 using XrmFramework.DeployUtils.Configuration;
+using XrmFramework.DeployUtils.Reporting;
 
 namespace XrmFramework.Cli.Commands;
 
 /// <summary>
 /// <c>xrmframework deploy webresources</c> command: publishes the web resources found under
 /// <c>--path</c> (or auto-discovered from a folder named after <c>--project</c>) to the
-/// environment selected in <c>Config/xrmFramework.config</c>. Delegates to
-/// <see cref="WebResourceHelper.SyncWebResources(string, string, bool)" />.
+/// environment selected in <c>Config/xrmFramework.config</c>, or to the one <c>--environment</c>
+/// names. Delegates to
+/// <see cref="WebResourceHelper.SyncWebResources(string, string, DeployOptions)" />.
 /// </summary>
 public sealed class DeployWebResourcesCommand : Command<DeployWebResourcesCommand.Settings>
 {
-    public sealed class Settings : CommandSettings
+    public sealed class Settings : FederatedDeploySettings
     {
         [CommandOption("--project <NAME>")]
         [System.ComponentModel.Description("Project name as declared in xrmFramework.config (e.g. Webresources).")]
@@ -28,17 +30,6 @@ public sealed class DeployWebResourcesCommand : Command<DeployWebResourcesComman
         [System.ComponentModel.Description("Webresources project folder (default: auto-discovered from a folder named after --project).")]
         public string? Path { get; init; }
 
-        [CommandOption("--project-root <DIR>")]
-        [System.ComponentModel.Description("Project root containing the Config/ folder (default: current folder).")]
-        public string ProjectRoot { get; init; } = ".";
-
-        // -NoPrompt is accepted too, for the scripts written against that spelling: Program.cs
-        // rewrites it to --noprompt before Spectre parses, a short option name being limited to
-        // one character.
-        [CommandOption("-n|--noprompt")]
-        [System.ComponentModel.Description("Silent mode: skips the connection confirmation (CI/CD). Also accepts -NoPrompt.")]
-        public bool NoPrompt { get; init; }
-
         public override ValidationResult Validate()
         {
             if (string.IsNullOrWhiteSpace(Project))
@@ -47,16 +38,15 @@ public sealed class DeployWebResourcesCommand : Command<DeployWebResourcesComman
             if (!string.IsNullOrWhiteSpace(Path) && !Directory.Exists(Path))
                 return ValidationResult.Error($"Directory not found: {Path}");
 
-            return ValidationResult.Success();
+            return base.Validate();
         }
     }
 
     protected override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        ConfigHelper.UseProjectConfig(Path.GetFullPath(settings.ProjectRoot));
+        ConfigHelper.UseProjectConfig(System.IO.Path.GetFullPath(settings.ProjectRoot));
 
-        WebResourceHelper.SyncWebResources(settings.Project!, settings.Path!, settings.NoPrompt);
-
-        return 0;
+        return DeployErrors.Report(() => WebResourceHelper.SyncWebResources(
+            settings.Project!, settings.Path!, settings.ToDeployOptions()));
     }
 }
