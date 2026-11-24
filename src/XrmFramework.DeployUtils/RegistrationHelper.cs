@@ -137,61 +137,76 @@ public partial class RegistrationHelper
         bool isOnPremise,
         bool noPrompt,
         string packagePath)
+        => RegisterPluginsAndWorkflows(dllPath, projectName, new DeployOptions
+        {
+            IsOnPremise = isOnPremise,
+            NoPrompt = noPrompt,
+            PackagePath = packagePath
+        });
+
+    /// <param name="deployOptions">
+    ///     Everything the command line settled: the deployment shape, the silent mode, and how to
+    ///     authenticate.
+    /// </param>
+    /// <inheritdoc cref="RegisterPluginsAndWorkflows(string,string,bool,bool)" />
+    public static int RegisterPluginsAndWorkflows(
+        string dllPath,
+        string projectName,
+        DeployOptions deployOptions)
+        => DeployErrors.Report(() => Register(dllPath, projectName, deployOptions));
+
+    /// <inheritdoc cref="RegisterPluginsAndWorkflows(string,string,DeployOptions)" />
+    private static void Register(string dllPath, string projectName, DeployOptions deployOptions)
     {
-        try
+        // ── Initialize the DI container ─────────────────────────────────────
+        var serviceCollection = DeployServiceCollectionFactory
+            .CreateServiceCollection(projectName, deployOptions);
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        var deploySettings = serviceProvider.GetRequiredService<DeploySettings>();
+
+        // ── Display the connection summary ─────────────────────────────────
+        AnsiConsole.WriteLine($"Assembly  : {Path.GetFileNameWithoutExtension(dllPath)}");
+        AnsiConsole.WriteLine($"Target    : {deploySettings.Url}");
+        AnsiConsole.WriteLine($"ClientId  : {deploySettings.ClientId}");
+        AnsiConsole.WriteLine($"Auth      : {Describe(deploySettings.Authentication)}");
+        AnsiConsole.WriteLine($"OnPremise : {(deployOptions.IsOnPremise ? "yes" : "no")}");
+        // "Deploy as" is not printed here any more: the shape now comes from the assembly's own
+        // marker, which is only known once the inventory has run. Register prints it then,
+        // rather than restating a configuration that no longer decides.
+
+        // ── Interactive confirmation (unless silent mode) ────────────────
+        // Declining travels as a cancellation rather than a return code: the shared reporter reads
+        // it as the choice it is and still exits 0, and nothing has been written at this point.
+        if (!deployOptions.NoPrompt && !AnsiConsole.Confirm("Continue the deployment?"))
+            throw new OperationCanceledException("Deployment cancelled.");
+
+        // ── Connection and deployment ───────────────────────────────────────
+        AnsiConsole.WriteLine("Connecting to CRM...");
+
+        var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
+        solutionContext.InitSolutionContext();
+
+        var registrationHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
+        registrationHelper.Register(dllPath);
+    }
+
+    /// <summary>
+    ///     How the deployment authenticated, for the connection summary.
+    /// </summary>
+    private static string Describe(Configuration.AuthenticationMode authentication)
+    {
+        switch (authentication)
         {
-            var deployOptions = new DeployOptions
-            {
-                IsOnPremise = isOnPremise,
-                NoPrompt = noPrompt,
-                PackagePath = packagePath
-            };
+            case Configuration.AuthenticationMode.WorkloadIdentity:
+                return "workload identity federation";
 
-            // ── Initialize the DI container ─────────────────────────────────────
-            var serviceCollection = DeployServiceCollectionFactory
-                .CreateServiceCollection(projectName, deployOptions);
+            case Configuration.AuthenticationMode.ClientSecret:
+                return "application secret";
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            var deploySettings = serviceProvider.GetRequiredService<DeploySettings>();
-
-            // ── Display the connection summary ─────────────────────────────────
-            AnsiConsole.WriteLine($"Assembly  : {Path.GetFileNameWithoutExtension(dllPath)}");
-            AnsiConsole.WriteLine($"Target    : {deploySettings.Url}");
-            AnsiConsole.WriteLine($"ClientId  : {deploySettings.ClientId}");
-            AnsiConsole.WriteLine($"OnPremise : {(isOnPremise ? "yes" : "no")}");
-            // "Deploy as" is not printed here any more: the shape now comes from the assembly's own
-            // marker, which is only known once the inventory has run. Register prints it then,
-            // rather than restating a configuration that no longer decides.
-
-            // ── Interactive confirmation (unless silent mode) ────────────────
-            if (!deployOptions.NoPrompt && !AnsiConsole.Confirm("Continue the deployment?"))
-            {
-                return 0;
-            }
-
-            // ── Connection and deployment ───────────────────────────────────────
-            AnsiConsole.WriteLine("Connecting to CRM...");
-
-            var solutionContext = serviceProvider.GetRequiredService<ISolutionContext>();
-            solutionContext.InitSolutionContext();
-
-            var registrationHelper = serviceProvider.GetRequiredService<RegistrationHelper>();
-            registrationHelper.Register(dllPath);
-
-            return 0;
-        }
-        catch (OperationCanceledException ex)
-        {
-            // A declined confirmation is a choice, not a failure. Nothing has been written when it
-            // is raised, and a non-zero code would fail a pipeline that did exactly as it was told.
-            AnsiConsole.MarkupLine($"[yellow]{Markup.Escape(ex.Message)}[/]");
-            return 0;
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.WriteException(ex);
-            return 3;
+            default:
+                return "connection string";
         }
     }
 

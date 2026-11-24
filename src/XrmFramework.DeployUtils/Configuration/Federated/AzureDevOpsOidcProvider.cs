@@ -1,0 +1,521 @@
+// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+#if !NET462_OR_GREATER
+
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace XrmFramework.DeployUtils.Configuration.Federated
+{
+    /// <summary>
+    ///     Asks Azure DevOps for the OIDC token that proves the identity of the running job, so it
+    ///     can be exchanged for a Dataverse token without any secret ever reaching the pipeline.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The exchange is the one <c>pac auth create --azureDevOpsFederated</c> performs, down
+    ///         to the headers: a POST, a lower-case <c>bearer</c> scheme, and
+    ///         <c>X-TFS-FedAuthRedirect: Suppress</c> - without which Azure DevOps may answer an
+    ///         HTML sign-in page instead of a 401. Keeping the two identical is deliberate: a job
+    ///         where <c>pac</c> authenticates and this does not is a bug here, not a
+    ///         misconfigured pipeline.
+    ///     </para>
+    ///     <para>
+    ///         The endpoint is read from several variable names because the ecosystem has several.
+    ///         The Power Platform Build Tools task sets <c>PAC_ADO_ID_TOKEN_REQUEST_*</c>, but with
+    ///         <c>process.env</c> inside its own Node process - so they reach the <c>pac</c> that
+    ///         task launches and not a later script step. In practice a pipeline sets them itself
+    ///         from <c>System.OidcRequestUri</c> and <c>System.AccessToken</c>; they are read here
+    ///         anyway, for the contexts that do export them. They are also undocumented, hence our
+    ///         own names taking precedence.
+    ///     </para>
+    /// </remarks>
+    public sealed class AzureDevOpsOidcProvider : IOidcTokenProvider
+    {
+        /// <summary>Our own endpoint variable, the one that cannot be renamed under us.</summary>
+        public const string RequestUrlVariable = "XRMFRAMEWORK_ADO_ID_TOKEN_REQUEST_URL";
+
+        /// <summary>Our own request-token variable.</summary>
+        public const string RequestTokenVariable = "XRMFRAMEWORK_ADO_ID_TOKEN_REQUEST_TOKEN";
+
+        /// <summary>Endpoint variable the Power Platform Build Tools and pac agree on.</summary>
+        public const string PacRequestUrlVariable = "PAC_ADO_ID_TOKEN_REQUEST_URL";
+
+        /// <summary>Request-token variable the Power Platform Build Tools and pac agree on.</summary>
+        public const string PacRequestTokenVariable = "PAC_ADO_ID_TOKEN_REQUEST_TOKEN";
+
+        /// <summary>Azure DevOps predefined variable holding the OIDC endpoint, without its query.</summary>
+        public const string SystemRequestUrlVariable = "SYSTEM_OIDCREQUESTURI";
+
+        /// <summary>
+        ///     Azure DevOps predefined variable holding the job's token. In YAML it has to be
+        ///     mapped explicitly - <c>env: SYSTEM_ACCESSTOKEN: $(System.AccessToken)</c>.
+        /// </summary>
+        public const string SystemRequestTokenVariable = "SYSTEM_ACCESSTOKEN";
+
+        /// <summary>Overrides <see cref="DefaultApiVersion" /> without republishing the CLI.</summary>
+        public const string ApiVersionVariable = "XRMFRAMEWORK_ADO_OIDC_API_VERSION";
+
+        /// <summary>Query parameter naming the service connection to mint the token for.</summary>
+        private const string ServiceConnectionIdParameter = "serviceConnectionId";
+
+        /// <summary>
+        ///     Subject prefix of a token minted for the pipeline itself rather than for a service
+        ///     connection - <c>p://&lt;organization&gt;/&lt;project&gt;/&lt;pipeline&gt;</c>.
+        /// </summary>
+        private const string PipelineSubjectPrefix = "p://";
+
+        /// <summary>
+        ///     API version of the Azure DevOps <c>oidctoken</c> endpoint, the one the Power Platform
+        ///     Build Tools request. A preview version, which is why
+        ///     <see cref="ApiVersionVariable" /> exists.
+        /// </summary>
+        public const string DefaultApiVersion = "7.2-preview.1";
+
+        private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(100);
+
+        private readonly string _requestUrl;
+        private readonly string _requestToken;
+        private readonly HttpClient _client;
+        private readonly Action<string> _log;
+
+        public AzureDevOpsOidcProvider(
+            string requestUrl,
+            string requestToken,
+            HttpClient client = null,
+            Action<string> log = null)
+        {
+            if (string.IsNullOrWhiteSpace(requestUrl)) throw new ArgumentNullException(nameof(requestUrl));
+            if (string.IsNullOrWhiteSpace(requestToken)) throw new ArgumentNullException(nameof(requestToken));
+
+            _requestUrl = requestUrl.Trim();
+            _requestToken = requestToken.Trim();
+            _client = client ?? SharedClient.Value;
+            _log = log;
+        }
+
+        /// <inheritdoc />
+        public string PlatformName => "Azure DevOps";
+
+        /// <inheritdoc />
+        public string Issuer { get; private set; }
+
+        /// <inheritdoc />
+        public string Subject { get; private set; }
+
+        /// <summary>
+        ///     <see langword="true" /> when the environment looks like an Azure DevOps job offering
+        ///     federation, so <c>--auth auto</c> can pick it without being told.
+        /// </summary>
+        public static bool IsAvailable(Func<string, string> environment)
+        {
+            if (environment == null) throw new ArgumentNullException(nameof(environment));
+
+            return ResolveUrlSource(environment) != null && ResolveToken(null, environment) != null;
+        }
+
+        /// <summary>
+        ///     Builds the provider for the running job, or throws naming what the job is missing.
+        /// </summary>
+        /// <param name="options">Deployment options carrying the command-line overrides.</param>
+        /// <param name="serviceConnectionId">
+        ///     Service connection to request the token for, needed only when the endpoint comes
+        ///     from <see cref="SystemRequestUrlVariable" /> and therefore has no query yet.
+        /// </param>
+        /// <param name="environment">Environment variable reader.</param>
+        /// <param name="client">Transport, injected by the tests.</param>
+        /// <param name="log">Diagnostic sink, or <see langword="null" /> to stay quiet.</param>
+        /// <exception cref="FederatedAuthenticationException">
+        ///     The job exposes no OIDC endpoint, no token, or not enough to build the endpoint.
+        /// </exception>
+        public static AzureDevOpsOidcProvider Create(
+            DeployOptions options,
+            string serviceConnectionId,
+            Func<string, string> environment,
+            HttpClient client = null,
+            Action<string> log = null)
+        {
+            if (options == null) throw new ArgumentNullException(nameof(options));
+            if (environment == null) throw new ArgumentNullException(nameof(environment));
+
+            var url = ResolveUrl(options, serviceConnectionId, environment);
+            var token = ResolveToken(options, environment);
+
+            if (token == null)
+                throw new FederatedAuthenticationException(
+                    "No Azure DevOps token to request an OIDC token with. In a YAML pipeline " +
+                    $"System.AccessToken has to be mapped explicitly - add \"env: {SystemRequestTokenVariable}: " +
+                    "$(System.AccessToken)\" to the step.");
+
+            return new AzureDevOpsOidcProvider(url, token, client, log);
+        }
+
+        /// <inheritdoc />
+        public async Task<string> GetAssertionAsync(CancellationToken cancellationToken)
+        {
+            using (var request = new HttpRequestMessage(HttpMethod.Post, _requestUrl))
+            {
+                // Shaped exactly like pac's own request. "bearer" is lower-case there, and
+                // X-TFS-FedAuthRedirect keeps Azure DevOps from answering a sign-in page.
+                request.Headers.Add("Authorization", "bearer " + _requestToken);
+                request.Headers.Add("Accept", "application/json");
+                request.Headers.Add("X-TFS-FedAuthRedirect", "Suppress");
+
+                HttpResponseMessage response;
+
+                try
+                {
+                    response = await _client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (!(ex is OperationCanceledException))
+                {
+                    throw new FederatedAuthenticationException(
+                        $"The Azure DevOps OIDC endpoint could not be reached ({_requestUrl}): {ex.Message}",
+                        ex);
+                }
+
+                using (response)
+                {
+                    var body = await ReadBodyAsync(response).ConfigureAwait(false);
+
+                    if (!response.IsSuccessStatusCode)
+                        throw new FederatedAuthenticationException(
+                            $"Azure DevOps refused to mint an OIDC token ({(int)response.StatusCode} " +
+                            $"{response.ReasonPhrase}) for {_requestUrl}. " +
+                            DescribeFailure(response, body) + ExplainRefusal(response));
+
+                    var token = ReadOidcToken(body);
+
+                    if (string.IsNullOrWhiteSpace(token))
+                        throw new FederatedAuthenticationException(
+                            "Azure DevOps answered the OIDC request without an \"oidcToken\" field. " +
+                            DescribeFailure(response, body));
+
+                    DescribeToken(token);
+
+                    return token;
+                }
+            }
+        }
+
+        private static string ResolveUrl(
+            DeployOptions options,
+            string serviceConnectionId,
+            Func<string, string> environment)
+        {
+            var explicitUrl = First(
+                options.OidcRequestUrl,
+                environment(RequestUrlVariable),
+                environment(PacRequestUrlVariable));
+
+            if (explicitUrl != null)
+                return WithQuery(explicitUrl, serviceConnectionId, environment);
+
+            var systemUrl = First(environment(SystemRequestUrlVariable));
+
+            if (systemUrl == null)
+                throw new FederatedAuthenticationException(
+                    "No Azure DevOps OIDC endpoint found. Set " +
+                    $"{SystemRequestUrlVariable} (from $(System.OidcRequestUri)) or " +
+                    $"{RequestUrlVariable}, or pass --oidc-request-url. Outside a pipeline, use a " +
+                    "connection string instead of workload identity federation.");
+
+            return WithQuery(systemUrl, serviceConnectionId, environment);
+        }
+
+        /// <summary>
+        ///     Completes an endpoint that was given without its query.
+        /// </summary>
+        /// <remarks>
+        ///     Driven by what the URL already carries rather than by where it came from, so a
+        ///     complete endpoint is left alone whichever variable held it, and a bare one is
+        ///     completed just the same.
+        /// </remarks>
+        private static string WithQuery(string url, string serviceConnectionId, Func<string, string> environment)
+        {
+            var result = url;
+
+            if (!HasUsableQueryParameter(result, ServiceConnectionIdParameter))
+            {
+                if (string.IsNullOrWhiteSpace(serviceConnectionId))
+                    throw new FederatedAuthenticationException(
+                        $"The Azure DevOps OIDC endpoint ({url}) names no usable service " +
+                        "connection. Pass --service-connection-id, set " +
+                        $"{FederatedConnectionSettings.XrmFrameworkServiceConnectionIdVariable} or " +
+                        $"{FederatedConnectionSettings.ServiceConnectionIdVariable}, or give the whole " +
+                        $"endpoint - query included - in {RequestUrlVariable}.");
+
+                result = SetQueryParameter(
+                    result, ServiceConnectionIdParameter, RequireId(serviceConnectionId));
+            }
+
+            if (!HasUsableQueryParameter(result, "api-version"))
+                result = SetQueryParameter(result, "api-version", ApiVersion(environment));
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Checks the service connection id is a GUID before it is sent.
+        /// </summary>
+        /// <remarks>
+        ///     Azure DevOps types this parameter as a uuid and answers 400 Bad Request for anything
+        ///     else - the connection's <em>name</em>, a value that kept its YAML quotes, a copied
+        ///     "resourceId=..." - with nothing in the body that says which of those happened. The
+        ///     id is on the service connection's page, as the <c>resourceId</c> query parameter of
+        ///     its URL.
+        /// </remarks>
+        private static string RequireId(string serviceConnectionId)
+        {
+            var value = serviceConnectionId.Trim().Trim('"', '\'');
+
+            if (!Guid.TryParse(value, out var id))
+                throw new FederatedAuthenticationException(
+                    $"\"{serviceConnectionId}\" is not a service connection id. Azure DevOps expects " +
+                    "the connection's GUID, which is the resourceId query parameter of its URL in " +
+                    "the Azure DevOps portal - not its name.");
+
+            return id.ToString();
+        }
+
+        private static string ApiVersion(Func<string, string> environment)
+            => First(environment(ApiVersionVariable)) ?? DefaultApiVersion;
+
+        private static string ResolveToken(DeployOptions options, Func<string, string> environment)
+            => First(
+                options?.OidcRequestToken,
+                environment(RequestTokenVariable),
+                environment(PacRequestTokenVariable),
+                environment(SystemRequestTokenVariable));
+
+        /// <summary>
+        ///     Which variable, if any, holds an endpoint - used by the availability probe so that
+        ///     <c>--auth auto</c> never has to build a URL just to find out.
+        /// </summary>
+        private static string ResolveUrlSource(Func<string, string> environment)
+            => First(
+                environment(RequestUrlVariable),
+                environment(PacRequestUrlVariable),
+                environment(SystemRequestUrlVariable));
+
+        /// <summary>
+        ///     Whether <paramref name="url" /> already carries a query parameter worth keeping.
+        /// </summary>
+        /// <remarks>
+        ///     Present is not enough; it has to have a value, and not an unexpanded
+        ///     <c>$(Variable)</c>. Azure DevOps leaves such a macro verbatim when the variable is
+        ///     undefined, and answers the OIDC request with a <em>pipeline</em>-scoped token rather
+        ///     than refusing - which Entra then rejects for a subject nobody configured. Treating
+        ///     it as absent turns that into the plain "names no usable service connection" error.
+        /// </remarks>
+        private static bool HasUsableQueryParameter(string url, string name)
+        {
+            var value = QueryParameter(url, name);
+
+            return !string.IsNullOrWhiteSpace(value)
+                   && value.IndexOf("$(", StringComparison.Ordinal) < 0;
+        }
+
+        /// <summary>Raw value of a query parameter, or <see langword="null" /> when absent.</summary>
+        private static string QueryParameter(string url, string name)
+        {
+            var query = url.IndexOf('?');
+
+            if (query < 0) return null;
+
+            var match = url.Substring(query + 1)
+                .Split('&')
+                .FirstOrDefault(p => p.StartsWith(name + "=", StringComparison.OrdinalIgnoreCase));
+
+            return match?.Substring(name.Length + 1);
+        }
+
+        /// <summary>
+        ///     Sets a query parameter, dropping any occurrence already there rather than appending
+        ///     a second one the server would be free to resolve either way.
+        /// </summary>
+        private static string SetQueryParameter(string url, string name, string value)
+        {
+            var query = url.IndexOf('?');
+
+            var path = query < 0 ? url : url.Substring(0, query);
+
+            var parameters = (query < 0
+                    ? Enumerable.Empty<string>()
+                    : url.Substring(query + 1).Split('&'))
+                .Where(p => !string.IsNullOrEmpty(p))
+                .Where(p => !p.StartsWith(name + "=", StringComparison.OrdinalIgnoreCase))
+                .Concat(new[] { name + "=" + value });
+
+            return path + "?" + string.Join("&", parameters);
+        }
+
+        private static async Task<string> ReadBodyAsync(HttpResponseMessage response)
+        {
+            try
+            {
+                return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            }
+            catch
+            {
+                // A body we cannot read must not replace the status code in the message below.
+                return null;
+            }
+        }
+
+        private static string ReadOidcToken(string body)
+        {
+            if (string.IsNullOrWhiteSpace(body)) return null;
+
+            try
+            {
+                using (var document = JsonDocument.Parse(body))
+                {
+                    return document.RootElement.ValueKind == JsonValueKind.Object
+                           && document.RootElement.TryGetProperty("oidcToken", out var token)
+                           && token.ValueKind == JsonValueKind.String
+                        ? token.GetString()
+                        : null;
+                }
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        ///     Says what came back.
+        /// </summary>
+        /// <remarks>
+        ///     Azure DevOps answers an error as a JSON envelope whose <c>message</c> is the whole
+        ///     diagnostic - "the service connection could not be found", and such. An HTML body is
+        ///     not quoted, because that one is a sign-in page and says nothing a sentence cannot
+        ///     say better.
+        /// </remarks>
+        private static string DescribeFailure(HttpResponseMessage response, string body)
+        {
+            var contentType = response.Content?.Headers?.ContentType?.MediaType;
+
+            if (contentType != null && contentType.IndexOf("html", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "The answer was an HTML page, which means the request was not authenticated: " +
+                       "check that the token is the job's System.AccessToken and that the pipeline is " +
+                       "authorized for this service connection.";
+
+            if (string.IsNullOrWhiteSpace(body))
+                return "The answer had no body.";
+
+            return "Azure DevOps said: " + (ReadErrorMessage(body) ?? Truncate(body));
+        }
+
+        /// <summary>
+        ///     The hint a refusal on a service-connection request almost always needs.
+        /// </summary>
+        /// <remarks>
+        ///     Azure DevOps authorizes a service connection per job, and a job consumes one by
+        ///     <em>taking it as a task input</em>. A plain <c>script:</c> step takes no input, so the
+        ///     connection is not authorized for that job however its own Security page is set - and
+        ///     the endpoint answers a bare 400. Nothing in the body says that, and it is not the
+        ///     first thing anyone suspects after double-checking an id that was right all along.
+        /// </remarks>
+        private string ExplainRefusal(HttpResponseMessage response)
+        {
+            var status = (int)response.StatusCode;
+
+            if (status != 400 && status != 403 && status != 404) return string.Empty;
+
+            if (string.IsNullOrWhiteSpace(QueryParameter(_requestUrl, ServiceConnectionIdParameter)))
+                return string.Empty;
+
+            return " Note that Azure DevOps makes a service connection available only to a job that " +
+                   "consumes it as a task input, so a plain script step cannot mint a token for one " +
+                   "whatever its Security page says. Either run the deployment inside a task that " +
+                   "takes the connection - AzureCLI@2 with addSpnToEnvironment, for an Azure one - or " +
+                   "drop the service connection id and let the pipeline's own identity sign in, " +
+                   "adding a federated credential for the issuer and subject the next run prints.";
+        }
+
+        /// <summary>The <c>message</c> of an Azure DevOps error envelope, or <see langword="null" />.</summary>
+        private static string ReadErrorMessage(string body)
+        {
+            try
+            {
+                using (var document = JsonDocument.Parse(body))
+                {
+                    return document.RootElement.ValueKind == JsonValueKind.Object
+                           && document.RootElement.TryGetProperty("message", out var message)
+                           && message.ValueKind == JsonValueKind.String
+                        ? message.GetString()
+                        : null;
+                }
+            }
+            catch (JsonException)
+            {
+                return null;
+            }
+        }
+
+        private static string Truncate(string body)
+            => body.Length <= 600 ? body.Trim() : body.Substring(0, 600).Trim() + "…";
+
+        /// <summary>
+        ///     Records and logs the issuer and subject of the token.
+        /// </summary>
+        private void DescribeToken(string jwt)
+        {
+            var claims = OidcTokenClaims.Read(jwt);
+
+            if (claims == null) return;
+
+            Issuer = claims.Value.Issuer;
+            Subject = claims.Value.Subject;
+
+            _log?.Invoke($"OIDC token issuer: {Issuer}");
+            _log?.Invoke($"OIDC token subject: {Subject}");
+
+            WarnIfScopedToThePipeline();
+        }
+
+        /// <summary>
+        ///     Says so when Azure DevOps answered with a token for the pipeline although a service
+        ///     connection was asked for.
+        /// </summary>
+        /// <remarks>
+        ///     It does not refuse such a request, it just ignores the service connection - so the
+        ///     only visible symptom is Entra rejecting a subject nobody configured
+        ///     (<c>AADSTS700213</c>), several steps away from the cause. Saying it here turns a
+        ///     puzzle into a sentence.
+        /// </remarks>
+        private void WarnIfScopedToThePipeline()
+        {
+            if (Subject == null || !Subject.StartsWith(PipelineSubjectPrefix, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            var requested = QueryParameter(_requestUrl, ServiceConnectionIdParameter);
+
+            if (string.IsNullOrWhiteSpace(requested)) return;
+
+            _log?.Invoke(
+                $"Warning: this token is scoped to the pipeline, not to service connection {requested}. " +
+                "Azure DevOps ignores a service connection id it cannot resolve instead of refusing " +
+                "the request, so check that the id is one this pipeline is authorized to use - a " +
+                "service connection token has a subject of the form " +
+                "sc://<organization>/<project>/<connection name>. Otherwise, configure the " +
+                "application's federated credential with the issuer and subject printed above.");
+        }
+
+        private static string First(params string[] candidates)
+            => candidates.FirstOrDefault(c => !string.IsNullOrWhiteSpace(c))?.Trim();
+
+        private static readonly Lazy<HttpClient> SharedClient = new Lazy<HttpClient>(() =>
+            new HttpClient { Timeout = Timeout });
+    }
+}
+
+#endif
