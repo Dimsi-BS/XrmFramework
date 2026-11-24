@@ -58,6 +58,14 @@ public sealed class DeployOptions
     public string ApplicationId { get; set; }
 
     /// <summary>
+    /// Secret of the Entra application named by <see cref="ApplicationId" />.
+    /// Equivalent to the <c>--secret</c> command-line option, though the
+    /// <c>XRMFRAMEWORK_CLIENT_SECRET</c> environment variable is the better way to supply it: a
+    /// command line is visible to every process on the agent.
+    /// </summary>
+    public string ClientSecret { get; set; }
+
+    /// <summary>
     /// Azure DevOps service connection to request the OIDC token for.
     /// Equivalent to the <c>--service-connection-id</c> command-line option.
     /// </summary>

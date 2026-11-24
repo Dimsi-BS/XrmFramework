@@ -15,7 +15,7 @@ namespace XrmFramework.Cli.Commands;
 /// Factored out rather than repeated so the two commands cannot drift apart - a deployment that
 /// authenticates one way for plugins and another for web resources would be its own kind of bug.
 /// </remarks>
-public abstract class FederatedDeploySettings : CommandSettings
+public abstract class DeployCommandSettings : CommandSettings
 {
     [CommandOption("--project-root <DIR>")]
     [System.ComponentModel.Description("Project root containing the Config/ folder (default: current folder).")]
@@ -33,7 +33,7 @@ public abstract class FederatedDeploySettings : CommandSettings
     public string? Auth { get; init; }
 
     [CommandOption("--environment <URL>")]
-    [System.ComponentModel.Description("Dataverse organization URL to deploy to. Workload identity federation only - with a connection string, change its Url instead.")]
+    [System.ComponentModel.Description("Dataverse organization URL to deploy to. For --auth wif and --auth clientsecret - with a declared connection string, change its Url instead.")]
     public string? EnvironmentUrl { get; init; }
 
     [CommandOption("--tenant <ID>")]
@@ -41,12 +41,16 @@ public abstract class FederatedDeploySettings : CommandSettings
     public string? TenantId { get; init; }
 
     [CommandOption("--application-id <ID>")]
-    [System.ComponentModel.Description("Entra application whose federated credential trusts the job (default: $XRMFRAMEWORK_CLIENT_ID, $AZURESUBSCRIPTION_CLIENT_ID, then $servicePrincipalId).")]
+    [System.ComponentModel.Description("Entra application to sign in as - the one whose federated credential trusts the job, or the one --secret belongs to (default: $XRMFRAMEWORK_CLIENT_ID, $AZURESUBSCRIPTION_CLIENT_ID, then $servicePrincipalId).")]
     public string? ApplicationId { get; init; }
 
     [CommandOption("--service-connection-id <ID>")]
     [System.ComponentModel.Description("Azure DevOps service connection to request the OIDC token for - Power Platform or Azure (default: $XRMFRAMEWORK_SERVICE_CONNECTION_ID, then $AZURESUBSCRIPTION_SERVICE_CONNECTION_ID).")]
     public string? ServiceConnectionId { get; init; }
+
+    [CommandOption("--secret <SECRET>")]
+    [System.ComponentModel.Description("Secret of the Entra application, for --auth clientsecret. Prefer the $XRMFRAMEWORK_CLIENT_SECRET environment variable: a command line is visible to every process on the agent.")]
+    public string? ClientSecret { get; init; }
 
     [CommandOption("--oidc-request-url <URL>")]
     [System.ComponentModel.Description("Complete OIDC token endpoint, query included, for a job whose endpoint cannot be derived from $SYSTEM_OIDCREQUESTURI.")]
@@ -80,6 +84,7 @@ public abstract class FederatedDeploySettings : CommandSettings
             EnvironmentUrl = EnvironmentUrl,
             TenantId = TenantId,
             ApplicationId = ApplicationId,
+            ClientSecret = ClientSecret,
             ServiceConnectionId = ServiceConnectionId,
             OidcRequestUrl = OidcRequestUrl,
             OidcRequestToken = OidcRequestToken

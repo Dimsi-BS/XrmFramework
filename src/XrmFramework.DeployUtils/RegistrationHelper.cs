@@ -196,9 +196,19 @@ public partial class RegistrationHelper
     ///     How the deployment authenticated, for the connection summary.
     /// </summary>
     private static string Describe(Configuration.AuthenticationMode authentication)
-        => authentication == Configuration.AuthenticationMode.WorkloadIdentity
-            ? "workload identity federation"
-            : "connection string";
+    {
+        switch (authentication)
+        {
+            case Configuration.AuthenticationMode.WorkloadIdentity:
+                return "workload identity federation";
+
+            case Configuration.AuthenticationMode.ClientSecret:
+                return "application secret";
+
+            default:
+                return "connection string";
+        }
+    }
 
     /// <summary>
     ///     Main algorithm for deploying the plugin assembly located at <paramref name="dllPath" />.

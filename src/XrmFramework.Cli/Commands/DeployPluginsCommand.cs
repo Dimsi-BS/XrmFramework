@@ -21,7 +21,7 @@ namespace XrmFramework.Cli.Commands;
 /// </summary>
 public sealed class DeployPluginsCommand : Command<DeployPluginsCommand.Settings>
 {
-    public sealed class Settings : FederatedDeploySettings
+    public sealed class Settings : DeployCommandSettings
     {
         [CommandOption("--dll <PATH>")]
         [System.ComponentModel.Description("net48 or net462 assembly of the plugin project to deploy (plugins, custom APIs, workflows).")]

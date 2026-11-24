@@ -22,6 +22,17 @@ namespace XrmFramework.DeployUtils.Configuration
         ConnectionString,
 
         /// <summary>
+        ///     Sign in with an Entra application and its secret, given on the command line or in
+        ///     the environment rather than declared in a file.
+        /// </summary>
+        /// <remarks>
+        ///     For a pipeline whose service connection carries a secret: the credentials can be
+        ///     handed over directly instead of being written into a
+        ///     <c>connectionStrings.config</c> first.
+        /// </remarks>
+        ClientSecret,
+
+        /// <summary>
         ///     Always sign in through workload identity federation, failing with an explicit
         ///     message when the job does not provide what that needs.
         /// </summary>

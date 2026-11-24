@@ -16,7 +16,7 @@ namespace XrmFramework.DeployUtils.Configuration
     public static class AuthenticationModeParser
     {
         /// <summary>Accepted spellings, for help and error messages.</summary>
-        public const string AcceptedValues = "auto, connectionstring or wif";
+        public const string AcceptedValues = "auto, connectionstring, clientsecret or wif";
 
         /// <summary>
         ///     Parses <paramref name="value" />, treating a missing one as
@@ -39,6 +39,12 @@ namespace XrmFramework.DeployUtils.Configuration
                 case "connectionstring":
                 case "connection-string":
                     mode = AuthenticationMode.ConnectionString;
+                    return true;
+
+                case "clientsecret":
+                case "client-secret":
+                case "secret":
+                    mode = AuthenticationMode.ClientSecret;
                     return true;
 
                 case "wif":

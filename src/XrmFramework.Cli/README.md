@@ -471,10 +471,11 @@ xrmframework deploy plugins --dll <path.dll> --project <name> [--project-root <d
 | `--package <PATH>` | ❌ | Explicit `.nupkg` to push, overriding the one found next to the assembly. Only read for a project built as a package. |
 | `--on-premise` | ❌ | Targets an On-Premises CRM (default: Dataverse Online). |
 | `-n`, `--noprompt`, `-NoPrompt` | ❌ | Silent mode: skips the connection confirmation (CI/CD). `-NoPrompt` (any casing) is kept for backward compatibility with the deployment scripts written against that spelling. |
-| `--auth <MODE>` | ❌ | `auto` (default), `connectionstring`, or `wif` — see [Deploying from Azure DevOps without a secret](#deploying-from-azure-devops-without-a-secret). |
+| `--auth <MODE>` | ❌ | `auto` (default), `connectionstring`, `clientsecret`, or `wif` — see [Deploying from Azure DevOps without a secret](#deploying-from-azure-devops-without-a-secret). |
 | `--environment <URL>` | ❌ | Dataverse organization URL to deploy to. **Workload identity federation only**: with a connection string, change its `Url` instead. |
 | `--tenant <ID>` | ❌ | Entra tenant to sign in to (default: `$XRMFRAMEWORK_TENANT_ID`, `$AZURESUBSCRIPTION_TENANT_ID`, then `$tenantId`). |
 | `--application-id <ID>` | ❌ | Entra application whose federated credential trusts the job (default: `$XRMFRAMEWORK_CLIENT_ID`, `$AZURESUBSCRIPTION_CLIENT_ID`, then `$servicePrincipalId`). |
+| `--secret <SECRET>` | ❌ | Secret of the Entra application, for `--auth clientsecret`. Prefer `$XRMFRAMEWORK_CLIENT_SECRET`: a command line is visible to every process on the agent. |
 | `--service-connection-id <ID>` | ❌ | Azure DevOps service connection to request the OIDC token for — Power Platform or Azure (default: `$XRMFRAMEWORK_SERVICE_CONNECTION_ID`, then `$AZURESUBSCRIPTION_SERVICE_CONNECTION_ID`). |
 | `--oidc-request-url <URL>` | ❌ | Complete OIDC token endpoint, query included, for a job whose endpoint cannot be derived from `$SYSTEM_OIDCREQUESTURI`. |
 | `--oidc-request-token <TOKEN>` | ❌ | Token authorizing the OIDC token request. Prefer the environment variable: a command line is visible to every process on the agent. |
@@ -697,9 +698,10 @@ the `p://…` subject and the issuer printed above. Note that the subject then e
 name**, so renaming the pipeline breaks the sign-in, and the service connection's authorizations and
 approvals no longer apply.
 
-> **`--auth auto`, the default.** Federation is chosen when the selected connection string declares
-> `AuthType=WorkloadIdentity`, or when there is **no** connection string and the job exposes an OIDC
-> endpoint. A pipeline that already works by feeding a `ClientSecret` connection string therefore
+> **`--auth auto`, the default.** An application secret is chosen whenever one is supplied, since
+> that only happens on purpose. Otherwise federation is chosen when the selected connection string
+> declares `AuthType=WorkloadIdentity`, or when there is **no** connection string and the job exposes
+> an OIDC endpoint or already holds a token. A pipeline that already works by feeding a `ClientSecret` connection string therefore
 > keeps working exactly as before: auto-detection exists to make the no-secret case need no switch,
 > not to take an existing setup away. `--auth wif` forces it and fails with an explicit message when
 > the job cannot provide what it needs; `--auth connectionstring` forces the old path.
@@ -717,6 +719,27 @@ production by changing a pipeline variable rather than a committed file.
 
 Not available on-premise: federation is Dataverse-only, and `--on-premise` with `--auth wif` is
 refused rather than quietly ignored.
+
+#### Deploying with an application secret
+
+Where federation is not available, the application and its secret can be handed over directly
+instead of being written into a `connectionStrings.config` first:
+
+```yaml
+- script: |
+    xrmframework deploy plugins --dll … --project Plugins \
+      --auth clientsecret --environment $(DataverseUrl) \
+      --application-id $(ApplicationId) -n
+  env:
+    XRMFRAMEWORK_CLIENT_SECRET: $(ApplicationSecret)
+```
+
+The secret belongs in the environment rather than on the command line, which is visible to every
+process on the agent; `--secret` exists for the cases where that is impractical. `--auth auto` picks
+this mode whenever a secret is supplied, so the switch is optional.
+
+This is the fallback, not the recommendation: a secret has to be stored, rotated, and can leak.
+Where the pipeline can federate, it should.
 
 #### Deploying as a plugin package (dependent assemblies)
 

@@ -29,6 +29,16 @@ public class AuthenticationModeParserTests
         Assert.AreEqual(AuthenticationMode.ConnectionString, mode);
     }
 
+    [TestCase("clientsecret")]
+    [TestCase("ClientSecret")]
+    [TestCase("client-secret")]
+    [TestCase("secret")]
+    public void TryParse_ClientSecretSpellings(string value)
+    {
+        Assert.IsTrue(AuthenticationModeParser.TryParse(value, out var mode));
+        Assert.AreEqual(AuthenticationMode.ClientSecret, mode);
+    }
+
     [TestCase("wif")]
     [TestCase("WIF")]
     [TestCase(" wif ")]
@@ -41,7 +51,7 @@ public class AuthenticationModeParserTests
     }
 
     [TestCase("oauth")]
-    [TestCase("clientsecret")]
+    [TestCase("certificate")]
     [TestCase("pac")]
     public void TryParse_UnknownValue_Fails(string value)
     {

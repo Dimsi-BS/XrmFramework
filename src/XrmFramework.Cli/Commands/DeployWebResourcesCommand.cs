@@ -20,7 +20,7 @@ namespace XrmFramework.Cli.Commands;
 /// </summary>
 public sealed class DeployWebResourcesCommand : Command<DeployWebResourcesCommand.Settings>
 {
-    public sealed class Settings : FederatedDeploySettings
+    public sealed class Settings : DeployCommandSettings
     {
         [CommandOption("--project <NAME>")]
         [System.ComponentModel.Description("Project name as declared in xrmFramework.config (e.g. Webresources).")]
