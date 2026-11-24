@@ -1,10 +1,18 @@
 <Project>
   <ItemGroup>
-    <None Include="$(RootFolder)\Config\App.config" Condition="">
+    <None Include="$(RootFolder)\Config\App.config">
       <Link>App.config</Link>
       <SubType>Designer</SubType>
     </None>
-    <None Include="$(RootFolder)\Config\connectionStrings.config">
+    <!--
+      connectionStrings.config alone is conditioned on being there: it holds credentials, so it is
+      gitignored and absent from a fresh clone and from a CI agent. Without the condition the item
+      still exists and CopyToOutputDirectory fails the build with MSB3030, which forces a pipeline
+      to invent a connection string it never uses. A project that does need the connection still
+      fails, loudly and at the point of use: on .NET Framework the configSource in App.config names
+      the missing file. App.config and xrmFramework.config are versioned, so they stay mandatory.
+    -->
+    <None Include="$(RootFolder)\Config\connectionStrings.config" Condition="Exists('$(RootFolder)\Config\connectionStrings.config')">
       <Link>connectionStrings.config</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

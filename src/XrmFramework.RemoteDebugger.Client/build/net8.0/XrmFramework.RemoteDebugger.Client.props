@@ -11,7 +11,14 @@
     and looks for Config/ beneath it: the folder has to survive into the output.
   -->
   <ItemGroup>
-    <Content Include="$(RootFolder)/Config/connectionStrings.config">
+    <!--
+      connectionStrings.config alone is conditioned on being there: it holds credentials, so it is
+      gitignored and absent from a fresh clone and from a CI agent, and an unconditional item fails
+      the build with MSB3030 over a file the project may never read. A runner that does need it
+      still fails at the point of use, where UseProjectConfig() names the missing file.
+      xrmFramework.config is versioned, so it stays mandatory.
+    -->
+    <Content Include="$(RootFolder)/Config/connectionStrings.config" Condition="Exists('$(RootFolder)/Config/connectionStrings.config')">
       <Link>Config/connectionStrings.config</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
