@@ -558,6 +558,233 @@ public class DeploymentChangeSummaryTests
         });
     }
 
+    /// <summary>
+    ///     A deployment that wrote something has to say what, per state: the closing line is the
+    ///     only place a scripted run records how much it changed.
+    /// </summary>
+    [Test]
+    public void SummarizeApplied_CountsEachWritingStateSeparately()
+    {
+        var pool = new ICrmComponent[]
+        {
+            WithState(new Plugin("P.A"), RegistrationState.ToCreate),
+            WithState(new Plugin("P.B"), RegistrationState.ToCreate),
+            WithState(new Plugin("P.C"), RegistrationState.ToUpdate),
+            WithState(new Plugin("P.D"), RegistrationState.ToDelete),
+            WithState(new Plugin("P.E"), RegistrationState.Ignore),
+            WithState(new Plugin("P.F"), RegistrationState.Computed)
+        };
+
+        Assert.That(DeploymentChangeSummary.SummarizeApplied(pool), Is.EqualTo("2 added, 1 updated, 1 removed"));
+    }
+
+    /// <summary>
+    ///     A state nothing happened in is left out rather than printed as a zero: "2 added" reads
+    ///     as what the deployment did, "2 added, 0 updated, 0 removed" as a form to decipher.
+    /// </summary>
+    [Test]
+    public void SummarizeApplied_OmitsTheStatesNothingHappenedIn()
+    {
+        var pool = new ICrmComponent[]
+        {
+            WithState(new Plugin("P.A"), RegistrationState.ToCreate),
+            WithState(new Plugin("P.B"), RegistrationState.ToCreate)
+        };
+
+        Assert.That(DeploymentChangeSummary.SummarizeApplied(pool), Is.EqualTo("2 added"));
+    }
+
+    /// <summary>
+    ///     Counts are always read in the order the deployment applies them, whatever order the pool
+    ///     happens to be in, so two successful runs never phrase the same outcome differently.
+    /// </summary>
+    [Test]
+    public void SummarizeApplied_AlwaysReadsAddedThenUpdatedThenRemoved()
+    {
+        var pool = new ICrmComponent[]
+        {
+            WithState(new Plugin("P.A"), RegistrationState.ToDelete),
+            WithState(new Plugin("P.B"), RegistrationState.ToUpdate),
+            WithState(new Plugin("P.C"), RegistrationState.ToCreate)
+        };
+
+        Assert.That(DeploymentChangeSummary.SummarizeApplied(pool), Is.EqualTo("1 added, 1 updated, 1 removed"));
+    }
+
+    /// <summary>
+    ///     An empty diff is a successful deployment too, and has to end on a line saying so: on the
+    ///     console it is otherwise indistinguishable from a run that died without a message.
+    /// </summary>
+    [Test]
+    public void SummarizeApplied_NothingWrittenIsStillSaid()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(DeploymentChangeSummary.SummarizeApplied(null),
+                Is.EqualTo(DeploymentChangeSummary.NothingAppliedText));
+            Assert.That(DeploymentChangeSummary.SummarizeApplied(Array.Empty<ICrmComponent>()),
+                Is.EqualTo(DeploymentChangeSummary.NothingAppliedText));
+            Assert.That(
+                DeploymentChangeSummary.SummarizeApplied(new ICrmComponent[]
+                    {WithState(new Plugin("P.A"), RegistrationState.Ignore)}),
+                Is.EqualTo(DeploymentChangeSummary.NothingAppliedText));
+        });
+    }
+
+    /// <summary>
+    ///     Already-filtered changes count the same as the whole pool: the deployment snapshots the
+    ///     changes before executing the strategy, and passes that same list back in to close.
+    /// </summary>
+    [Test]
+    public void SummarizeApplied_IsIdempotentOnAnAlreadyFilteredList()
+    {
+        var pool = new ICrmComponent[]
+        {
+            WithState(new Plugin("P.A"), RegistrationState.ToCreate),
+            WithState(new Plugin("P.B"), RegistrationState.ToUpdate),
+            WithState(new Plugin("P.C"), RegistrationState.Ignore)
+        };
+
+        var changes = DeploymentChangeSummary.SelectChanges(pool);
+
+        Assert.That(DeploymentChangeSummary.SummarizeApplied(changes),
+            Is.EqualTo(DeploymentChangeSummary.SummarizeApplied(pool)));
+    }
+
+    /// <summary>
+    ///     The closing line states the outcome, then which assembly went to which environment -
+    ///     the connection header has scrolled away by then, and that pair is what identifies the run.
+    /// </summary>
+    [Test]
+    public void BuildCompletionLines_StatesTheOutcomeThenTheTarget()
+    {
+        var pool = new ICrmComponent[] {WithState(new Plugin("P.A"), RegistrationState.ToCreate)};
+
+        var lines = DeploymentChangeSummary.BuildCompletionLines(
+            pool, "MyProject.Plugins", "https://org.crm4.dynamics.com");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(lines, Has.Count.EqualTo(2));
+            Assert.That(lines[0], Is.EqualTo($"[green]{DeploymentChangeSummary.CompletedLineHeader}[/]: 1 added."));
+            Assert.That(lines[1], Is.EqualTo("  [grey]MyProject.Plugins -> https://org.crm4.dynamics.com[/]"));
+        });
+    }
+
+    /// <summary>
+    ///     With neither assembly nor environment known there is no second line at all: an empty,
+    ///     indented line would read as a truncated piece of information.
+    /// </summary>
+    [Test]
+    public void BuildCompletionLines_UnknownTargetPrintsNoSecondLine()
+    {
+        var pool = new ICrmComponent[] {WithState(new Plugin("P.A"), RegistrationState.ToUpdate)};
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(DeploymentChangeSummary.BuildCompletionLines(pool), Has.Count.EqualTo(1));
+            Assert.That(DeploymentChangeSummary.BuildCompletionLines(pool, "   ", "  "), Has.Count.EqualTo(1));
+        });
+    }
+
+    /// <summary>
+    ///     Whichever half of the target is known is printed on its own: a deployment whose
+    ///     configuration carries no url still names the assembly it just wrote.
+    /// </summary>
+    [Test]
+    [TestCase("MyProject.Plugins", null, "MyProject.Plugins")]
+    [TestCase(null, "https://org.crm4.dynamics.com", "https://org.crm4.dynamics.com")]
+    public void BuildCompletionLines_FallsBackToTheHalfOfTheTargetItKnows(
+        string assemblyName, string targetUrl, string expected)
+    {
+        var pool = new ICrmComponent[] {WithState(new Plugin("P.A"), RegistrationState.ToCreate)};
+
+        var lines = DeploymentChangeSummary.BuildCompletionLines(pool, assemblyName, targetUrl);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(lines, Has.Count.EqualTo(2));
+            Assert.That(lines[1], Is.EqualTo($"  [grey]{expected}[/]"));
+        });
+    }
+
+    /// <summary>
+    ///     A deployment that changed nothing still ends on the success line, naming its target: the
+    ///     answer to "did it run?" belongs on the console, not inferred from the exit code.
+    /// </summary>
+    [Test]
+    public void BuildCompletionLines_NothingToChangeIsStillACompletion()
+    {
+        var lines = DeploymentChangeSummary.BuildCompletionLines(
+            Array.Empty<ICrmComponent>(), "MyProject.Plugins", "https://org.crm4.dynamics.com");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(lines[0],
+                Is.EqualTo($"[green]{DeploymentChangeSummary.CompletedLineHeader}[/]: " +
+                           $"{DeploymentChangeSummary.NothingAppliedText}."));
+            Assert.That(lines[1], Is.EqualTo("  [grey]MyProject.Plugins -> https://org.crm4.dynamics.com[/]"));
+        });
+    }
+
+    /// <summary>
+    ///     The last line of a deployment must not be the one that throws: the assembly name comes
+    ///     from the project, and a square bracket in it would otherwise be read as markup.
+    /// </summary>
+    [Test]
+    public void BuildCompletionLines_EveryLineSurvivesBeingPrinted()
+    {
+        var lines = DeploymentChangeSummary.BuildCompletionLines(
+            new ICrmComponent[] {WithState(new Plugin("P.A"), RegistrationState.ToCreate)},
+            "My[Project].Plugins", "https://org.crm4.dynamics.com");
+
+        var writer = new StringWriter();
+        var console = AnsiConsole.Create(new AnsiConsoleSettings
+        {
+            Ansi = AnsiSupport.No,
+            ColorSystem = ColorSystemSupport.NoColors,
+            Out = new AnsiConsoleOutput(writer)
+        });
+
+        Assert.That(() =>
+        {
+            foreach (var line in lines) console.MarkupLine(line);
+        }, Throws.Nothing);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(writer.ToString(), Does.Contain(DeploymentChangeSummary.CompletedLineHeader));
+            Assert.That(writer.ToString(), Does.Contain("My[Project].Plugins"),
+                "the assembly's real name should reach the output, brackets included");
+        });
+    }
+
+    /// <summary>
+    ///     The closing line and the summary that preceded it describe the same work, so the counts
+    ///     have to add up to the lines that were listed - a deployment announcing three changes and
+    ///     reporting two would be worse than silence.
+    /// </summary>
+    [Test]
+    public void BuildCompletionLines_CountsWhatTheChangeSummaryListed()
+    {
+        var pool = new ICrmComponent[]
+        {
+            WithState(new Plugin("P.A"), RegistrationState.ToCreate),
+            WithState(new Plugin("P.B"), RegistrationState.ToUpdate),
+            WithState(new Plugin("P.C"), RegistrationState.ToDelete),
+            WithState(new Plugin("P.D"), RegistrationState.Ignore)
+        };
+
+        var changeLines = DeploymentChangeSummary.BuildLines(pool);
+        var completion = DeploymentChangeSummary.BuildCompletionLines(pool);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(changeLines, Has.Count.EqualTo(4), "the header, then one line per change");
+            Assert.That(completion[0], Does.Contain("1 added, 1 updated, 1 removed"));
+        });
+    }
+
     /// <summary>A component type the summary has no special case for.</summary>
     private sealed class UnknownComponent : BaseCrmComponent
     {
