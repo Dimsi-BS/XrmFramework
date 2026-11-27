@@ -15,6 +15,7 @@ using System.Text;
 using XrmFramework.DeployUtils.CommandOptions;
 using XrmFramework.DeployUtils.Configuration;
 using XrmFramework.DeployUtils.Model;
+using XrmFramework.DeployUtils.Reporting;
 
 namespace XrmFramework.DeployUtils;
 
@@ -234,6 +235,14 @@ public static class WebResourceHelper
             service.Execute(request);
 
         }
+
+        // Says the run went through, the same way the plugin deployment does: the file-by-file
+        // listing above is identical whether a resource was published or left alone, so without
+        // this a successful publish and an interrupted one end on the same output.
+        Console.WriteLine();
+        Console.WriteLine(nbWebresources > 0
+            ? $@"{DeploymentChangeSummary.CompletedLineHeader}: {nbWebresources} published."
+            : $@"{DeploymentChangeSummary.CompletedLineHeader}: {DeploymentChangeSummary.NothingAppliedText}.");
     }
 
 
