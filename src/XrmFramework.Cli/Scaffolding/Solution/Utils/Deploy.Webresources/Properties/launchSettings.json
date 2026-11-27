@@ -1,0 +1,19 @@
+{
+  "profiles": {
+    "Deploy.Webresources": {
+      "commandName": "Project"
+    },
+    "xrmframework CLI (global tool)": {
+      "commandName": "Executable",
+      "executablePath": "xrmframework",
+      "commandLineArgs": "deploy webresources --project Webresources --project-root ../..",
+      "workingDirectory": "."
+    },
+    "xrmframework CLI (local tool)": {
+      "commandName": "Executable",
+      "executablePath": "dotnet",
+      "commandLineArgs": "xrmframework deploy webresources --project Webresources --project-root ../..",
+      "workingDirectory": "."
+    }
+  }
+}

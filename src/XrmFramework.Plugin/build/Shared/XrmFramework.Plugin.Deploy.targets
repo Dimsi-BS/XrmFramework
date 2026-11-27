@@ -1,0 +1,131 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    Deployment as a build target: `dotnet build -t:XrmFrameworkDeploy` from the plugin project
+    builds it and hands the assembly to the XrmFramework CLI, which registers the plugins, custom
+    APIs and workflows it declares in the environment selected by Config/xrmFramework.config.
+
+    Why a target, and not a launch profile on this project: a plugin project is a class library,
+    and neither Visual Studio nor `dotnet run` offers a launch profile for one - a profile only
+    exists on a project that produces something runnable. A target is the one extension point a
+    NuGet package can hand to a class library, and it works the same on Windows, macOS, Linux and
+    in CI. The scaffolded Deploy.* project, which IS an executable, carries launch profiles for
+    the same deployment (see its Properties/launchSettings.json).
+
+    The CLI is a separate install - a global .NET tool, or a local manifest per repository -
+    deliberately: it is net10.0, this project is net48/net462, and the deployment must not run
+    inside the plugin's own framework.
+
+    Levers, all overridable from the command line or the project:
+      XrmFrameworkCliCommand          How to invoke the CLI. Default: `dotnet xrmframework`, the
+                                      local-tool form, when a .config/dotnet-tools.json at or
+                                      above the project declares it; otherwise the global tool
+                                      `xrmframework`.
+      XrmFrameworkDeployProjectRoot   Folder holding Config/xrmFramework.config. Default: the
+                                      nearest one at or above the project directory.
+      XrmFrameworkDeployProjectName   Project name as declared in xrmFramework.config.
+                                      Default: this project's name.
+      XrmFrameworkDeployNoPrompt      Default true, see below.
+      XrmFrameworkDeployArgs          Extra CLI arguments, appended as typed: the on-premise
+                                      switch, the federated-authentication ones, an explicit
+                                      package path...
+      XrmFrameworkDeployTargetFramework  Which TFM to deploy from, for a multi-targeted project.
+                                      Default: the first entry of TargetFrameworks.
+      XrmFrameworkDeployDependsOn     Targets to run first. Default: Build.
+  -->
+
+  <PropertyGroup>
+    <XrmFrameworkDeployDependsOn Condition="'$(XrmFrameworkDeployDependsOn)' == ''">Build</XrmFrameworkDeployDependsOn>
+  </PropertyGroup>
+
+  <Target Name="XrmFrameworkDeploy" DependsOnTargets="$(XrmFrameworkDeployDependsOn)">
+
+    <!--
+      Cross-targeting (outer) build of a multi-targeted project: there is no TargetPath to deploy
+      here, only per-TFM inner builds. One assembly is registered per project, so one TFM is
+      picked - the first declared, unless named - and the target runs again inside that inner
+      build, where TargetFramework (and everything derived from it) exists.
+    -->
+    <PropertyGroup>
+      <_XrmFrameworkDeployTargetFramework>$(XrmFrameworkDeployTargetFramework)</_XrmFrameworkDeployTargetFramework>
+      <_XrmFrameworkDeployTargetFramework Condition="'$(_XrmFrameworkDeployTargetFramework)' == '' and '$(TargetFrameworks)' != ''">$(TargetFrameworks.Split(';')[0])</_XrmFrameworkDeployTargetFramework>
+    </PropertyGroup>
+
+    <Error Condition="'$(TargetFramework)' == '' and '$(_XrmFrameworkDeployTargetFramework)' == ''"
+           Text="XrmFrameworkDeploy could not tell which target framework to deploy from. Pass -p:XrmFrameworkDeployTargetFramework=net48." />
+
+    <MSBuild Condition="'$(TargetFramework)' == ''"
+             Projects="$(MSBuildProjectFullPath)"
+             Targets="XrmFrameworkDeploy"
+             Properties="TargetFramework=$(_XrmFrameworkDeployTargetFramework)" />
+
+  </Target>
+
+  <!--
+    The deployment itself, in the build that has a TargetFramework - the inner build of a
+    multi-targeted project, or the only build of a single-TFM one (the common case, since
+    Dataverse registers one assembly).
+  -->
+  <Target Name="_XrmFrameworkDeployRun"
+          AfterTargets="XrmFrameworkDeploy"
+          Condition="'$(TargetFramework)' != ''">
+
+    <PropertyGroup>
+      <_XrmFrameworkDeployProjectRoot>$(XrmFrameworkDeployProjectRoot)</_XrmFrameworkDeployProjectRoot>
+      <!-- The config folder sits at the solution root, not in the plugin project, so it is looked
+           up the directory chain rather than assumed: GetDirectoryNameOfFileAbove searches the
+           starting directory too, which also covers a project that keeps its own Config/. -->
+      <_XrmFrameworkDeployProjectRoot Condition="'$(_XrmFrameworkDeployProjectRoot)' == ''">$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), 'Config/xrmFramework.config'))</_XrmFrameworkDeployProjectRoot>
+
+      <_XrmFrameworkDeployProjectName>$(XrmFrameworkDeployProjectName)</_XrmFrameworkDeployProjectName>
+      <_XrmFrameworkDeployProjectName Condition="'$(_XrmFrameworkDeployProjectName)' == ''">$(MSBuildProjectName)</_XrmFrameworkDeployProjectName>
+
+      <!-- A local manifest wins over the global tool: it is the install the CLI's README
+           recommends per repository, and it pins the version the team and CI share. Its content
+           is read rather than its mere presence: a repository can perfectly well pin some other
+           tool locally and still install this one globally. -->
+      <_XrmFrameworkToolManifestDir Condition="'$(XrmFrameworkCliCommand)' == ''">$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), '.config/dotnet-tools.json'))</_XrmFrameworkToolManifestDir>
+      <_XrmFrameworkToolManifestText Condition="'$(_XrmFrameworkToolManifestDir)' != ''">$([System.IO.File]::ReadAllText('$(_XrmFrameworkToolManifestDir)/.config/dotnet-tools.json').ToLowerInvariant())</_XrmFrameworkToolManifestText>
+
+      <_XrmFrameworkCliCommand>$(XrmFrameworkCliCommand)</_XrmFrameworkCliCommand>
+      <_XrmFrameworkCliCommand Condition="'$(_XrmFrameworkCliCommand)' == '' and $(_XrmFrameworkToolManifestText.Contains('xrmframework'))">dotnet xrmframework</_XrmFrameworkCliCommand>
+      <_XrmFrameworkCliCommand Condition="'$(_XrmFrameworkCliCommand)' == ''">xrmframework</_XrmFrameworkCliCommand>
+
+      <!--
+        Silent by default, because a build target has no console to confirm in: MSBuild captures
+        the child process's output and logs it a line at a time, so a prompt - which Spectre
+        writes without a newline, then waits on a keypress - would never reach the screen, and
+        where its input is redirected too Spectre refuses outright ("Failed to read input in
+        non-interactive mode"). The target is the scripted path, for a terminal or a pipeline; the
+        interactive confirmation lives where a console really is attached, in the Deploy.*
+        project's launch profiles.
+      -->
+      <_XrmFrameworkDeployNoPromptArg Condition="'$(XrmFrameworkDeployNoPrompt)' != 'false'"> --noprompt</_XrmFrameworkDeployNoPromptArg>
+    </PropertyGroup>
+
+    <Error Condition="'$(_XrmFrameworkDeployProjectRoot)' == ''"
+           Text="No Config/xrmFramework.config found at or above '$(MSBuildProjectDirectory)'. Pass -p:XrmFrameworkDeployProjectRoot=&lt;folder holding Config/&gt;." />
+
+    <Message Importance="high"
+             Text="Deploying $(_XrmFrameworkDeployProjectName) ($(TargetPath)) with the configuration of $(_XrmFrameworkDeployProjectRoot)" />
+
+    <!--
+      ContinueOnError, so that an exit code becomes a message of this target's own rather than
+      MSB3073 alone: the CLI not being installed is the one failure a first run is likely to hit,
+      and it has a fix worth printing. 127 is sh's "command not found", 9009 cmd's.
+    -->
+    <Exec Command="$(_XrmFrameworkCliCommand) deploy plugins --dll &quot;$(TargetPath)&quot; --project &quot;$(_XrmFrameworkDeployProjectName)&quot; --project-root &quot;$(_XrmFrameworkDeployProjectRoot)&quot;$(_XrmFrameworkDeployNoPromptArg) $(XrmFrameworkDeployArgs)"
+          WorkingDirectory="$(MSBuildProjectDirectory)"
+          ContinueOnError="WarnAndContinue">
+      <Output TaskParameter="ExitCode" PropertyName="_XrmFrameworkDeployExitCode" />
+    </Exec>
+
+    <Error Condition="'$(_XrmFrameworkDeployExitCode)' == '127' or '$(_XrmFrameworkDeployExitCode)' == '9009'"
+           Text="The XrmFramework CLI could not be run as '$(_XrmFrameworkCliCommand)'. Install it globally with 'dotnet tool install --global XrmFramework.Cli', or per repository with 'dotnet new tool-manifest' then 'dotnet tool install XrmFramework.Cli'. Pass -p:XrmFrameworkCliCommand=&lt;command&gt; for an install neither covers." />
+
+    <Error Condition="'$(_XrmFrameworkDeployExitCode)' != '0'"
+           Text="'xrmframework deploy plugins' failed with exit code $(_XrmFrameworkDeployExitCode)." />
+
+  </Target>
+
+</Project>
