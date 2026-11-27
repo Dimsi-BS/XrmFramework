@@ -56,7 +56,7 @@ var name = account.Nom;
 - 🏷️ **Strongly-typed model definitions** — `.table` files are the single source of truth; typed table/column/optionset definitions are generated at compile time by a Roslyn source generator. Produce and edit them with the **Definition Manager** UI or headlessly with the **`xrmframework` CLI**. No more magic strings.
 - 💉 **Service-oriented architecture** — typed `IService` classes encapsulate data access and business logic, and are injected into plugins, Custom APIs, console apps and Azure Functions.
 - 🔍 **Live remote debugger** — set breakpoints in Visual Studio and step through real plugin executions on any environment, forwarded to your machine over Azure Relay.
-- 🚀 **One-command scaffolding & deployment** — `dotnet new` templates plus deploy utilities for plugins, web resources and Custom APIs.
+- 🚀 **One-command scaffolding & deployment** — `dotnet new` templates plus deploy utilities for plugins, web resources and Custom APIs. Deploy from the build itself (`dotnet build -t:XrmFrameworkDeploy`), from a scaffolded launch profile, or straight from the CLI.
 - 📦 **Third-party libraries in plugins** — one property turns a plugin project into a Dataverse **plugin package** carrying its own dependencies, built on build and deployed by the same command. The supported alternative to ILMerge.
 - 📋 **Rich, zero-boilerplate tracing** — every service call and step execution is logged automatically.
 - 🛠️ **Productivity utilities** — concise extension methods for OptionSets, image/target merges, QueryExpression and EntityReference handling.

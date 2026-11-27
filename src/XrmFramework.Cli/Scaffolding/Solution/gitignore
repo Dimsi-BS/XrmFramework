@@ -56,6 +56,9 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 **/Properties/launchSettings.json
+# ... except the deployment ones: they hold no machine-specific path and no secret, only the
+# command that deploys this solution, which is worth sharing with the team and the next clone.
+!Utils/Deploy.*/Properties/launchSettings.json
 
 # StyleCop
 StyleCopReport.xml

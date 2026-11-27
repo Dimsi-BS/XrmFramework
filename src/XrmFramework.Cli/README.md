@@ -513,6 +513,59 @@ xrmframework deploy plugins --dll bin/Release/net48/MyProject.Plugins.dll \
                             --noprompt
 ```
 
+#### Deploying without typing the command: the build target and the launch profiles
+
+Two routes run exactly the command above, with the paths filled in for you.
+
+**From the plugin project — `dotnet build -t:XrmFrameworkDeploy`.** The `XrmFramework.Plugin`
+package ships an MSBuild target that builds the project and hands the resulting assembly to this
+command, with the `Config/` folder found by walking up from the project:
+
+```bash
+dotnet build MyProject.Plugins/MyProject.Plugins.csproj -t:XrmFrameworkDeploy
+```
+
+Package mode needs nothing extra: publishing and packing are hooked onto the build, and the
+`.nupkg` lands where the deployment already looks for it.
+
+| Property | Default | What it does |
+|---|---|---|
+| `XrmFrameworkCliCommand` | `dotnet xrmframework` when a `.config/dotnet-tools.json` at or above the project declares the CLI, otherwise the global `xrmframework` | How the CLI is invoked. |
+| `XrmFrameworkDeployProjectRoot` | nearest folder at or above the project holding `Config/xrmFramework.config` | Becomes `--project-root`. |
+| `XrmFrameworkDeployProjectName` | the project's name | Becomes `--project`, so it must match the `name` declared in `xrmFramework.config`. |
+| `XrmFrameworkDeployNoPrompt` | `true` | Passes `--noprompt`. A build target has no console to confirm in: MSBuild captures the child's output, so a prompt would never reach the screen. |
+| `XrmFrameworkDeployArgs` | *(empty)* | Extra arguments, appended as typed — `--on-premise`, the `--auth`/`--environment` switches, an explicit `--package`... |
+| `XrmFrameworkDeployTargetFramework` | first entry of `TargetFrameworks` | Which TFM to deploy from, for a multi-targeted plugin project. |
+| `XrmFrameworkDeployDependsOn` | `Build` | Targets to run first. |
+
+The target lives on the plugin project rather than a launch profile because a plugin project is a
+**class library**: neither Visual Studio nor `dotnet run` offers a launch profile for one. A target
+is what a NuGet package can give a class library, and it behaves the same on Windows, macOS, Linux
+and in CI.
+
+**From the IDE — the `Deploy.*` projects' launch profiles.** A scaffolded solution ships
+`Properties/launchSettings.json` on each `Deploy.*` project, which *is* an executable, with three
+profiles:
+
+| Profile | What it runs |
+|---|---|
+| `Deploy.MyProject.Plugins` | The project itself, as before — `net48`, so Windows only. |
+| `xrmframework CLI (global tool)` | `xrmframework deploy plugins …` on the assembly the build copied into the project's output. |
+| `xrmframework CLI (local tool)` | The same through `dotnet xrmframework`, for a repository pinning the CLI in `.config/dotnet-tools.json`. |
+
+The project's own profile comes first, so F5 keeps doing what it did. The CLI profiles run in a
+real console, which is what keeps the connection confirmation and the change summary interactive —
+the difference from the build target.
+
+`launchSettings.json` gets no MSBuild expansion, so those profiles carry a literal
+`bin/Debug/<moniker>/…` path: the moniker follows `xrmframework new --framework`, but deploying a
+**Release** build means editing `Debug` out of the profile (or duplicating it). Only Visual Studio
+reads `commandName: "Executable"` profiles reliably; elsewhere — and on macOS and Linux, where the
+`net48` `Deploy.*` project cannot run at all — use the build target or the plain command.
+
+`Deploy.Webresources` carries the same three profiles, running `deploy webresources` instead;
+being `net10.0`, its own profile runs anywhere.
+
 #### Deploying from Azure DevOps without a secret
 
 With **workload identity federation** the pipeline holds no client secret at all. The job proves
