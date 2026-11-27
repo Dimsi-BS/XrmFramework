@@ -492,6 +492,6 @@ public partial class RegistrationHelper
 
         var componentsToCreate = strategyPool.Where(c =>
             c.RegistrationState == RegistrationState.ToCreate);
-        _assemblyExporter.CreateAllComponents(componentsToCreate);
+        _assemblyExporter.CreateAllComponents(strategy, componentsToCreate);
     }
 }
