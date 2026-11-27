@@ -31,7 +31,7 @@ public partial class AssemblyExporter : IAssemblyExporter
 		_converter = converter;
 	}
 
-	public void CreateAllComponents(IEnumerable<ICrmComponent> componentsToCreate)
+	public void CreateAllComponents(IAssemblyContext assemblyContext, IEnumerable<ICrmComponent> componentsToCreate)
 	{
 		var sortedList = componentsToCreate.ToList();
 		sortedList.Sort((x, y) => x.Rank.CompareTo(y.Rank));
@@ -40,6 +40,16 @@ public partial class AssemblyExporter : IAssemblyExporter
 		{
 			component.Id = Guid.Empty;
 			CreateComponent(component);
+
+			// Everything that hangs off the assembly references it by id - Plugin.ParentId,
+			// CustomApi.AssemblyId - and those ids are only ever aligned on the registered row by
+			// IAssemblyContext.SetAssemblyId, which the diff calls when the assembly is already
+			// deployed. On a first deployment into an organization there is nothing to align with: the
+			// assembly is created in this very batch, before its dependents (Rank 0), and AssemblyInfo
+			// deliberately carries no children, so the Id setter's propagation reaches nobody. Without
+			// this hand-over every plugin type would be registered against the id the local model
+			// invented, and Dataverse answers "Entity 'pluginassembly' With Id = ... Does Not Exist".
+			if (component is AssemblyInfo) assemblyContext?.SetAssemblyId(component.Id);
 		}
 	}
 
