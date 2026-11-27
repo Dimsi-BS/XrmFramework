@@ -3,4 +3,7 @@
   <!-- Plugin package (dependent assemblies) packaging, opt-in via XrmFrameworkPluginPackage. -->
   <Import Project="$(MSBuildThisFileDirectory)../Shared/XrmFramework.Plugin.Package.targets" />
 
+  <!-- `dotnet build -t:XrmFrameworkDeploy`: deployment through the XrmFramework CLI. -->
+  <Import Project="$(MSBuildThisFileDirectory)../Shared/XrmFramework.Plugin.Deploy.targets" />
+
 </Project>

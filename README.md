@@ -56,7 +56,7 @@ var name = account.Nom;
 - 🏷️ **Strongly-typed model definitions** — `.table` files are the single source of truth; typed table/column/optionset definitions are generated at compile time by a Roslyn source generator. Produce and edit them with the **Definition Manager** UI or headlessly with the **`xrmframework` CLI**. No more magic strings.
 - 💉 **Service-oriented architecture** — typed `IService` classes encapsulate data access and business logic, and are injected into plugins, Custom APIs, console apps and Azure Functions.
 - 🔍 **Live remote debugger** — set breakpoints in Visual Studio and step through real plugin executions on any environment, forwarded to your machine over Azure Relay.
-- 🚀 **One-command scaffolding & deployment** — `dotnet new` templates plus deploy utilities for plugins, web resources and Custom APIs.
+- 🚀 **One-command scaffolding & deployment** — `dotnet new` templates plus deploy utilities for plugins, web resources and Custom APIs. Deploy from the build itself (`dotnet build -t:XrmFrameworkDeploy`), from a scaffolded launch profile, or straight from the CLI.
 - 📦 **Third-party libraries in plugins** — one property turns a plugin project into a Dataverse **plugin package** carrying its own dependencies, built on build and deployed by the same command. The supported alternative to ILMerge.
 - 📋 **Rich, zero-boilerplate tracing** — every service call and step execution is logged automatically.
 - 🛠️ **Productivity utilities** — concise extension methods for OptionSets, image/target merges, QueryExpression and EntityReference handling.
@@ -165,6 +165,8 @@ A `connectionStrings.config` file has been created in the `Config\` folder next 
 The supported connection strings are those documented in [Use connection strings in XRM tooling to connect to Microsoft Dataverse](https://docs.microsoft.com/en-us/powerapps/developer/data-platform/xrm-tooling/use-connection-strings-xrm-tooling-connect).
 
 The `connectionStrings.config` file is added to `.gitignore`, so your credentials are never pushed to the repository and each developer can use their own.
+
+Being gitignored, it is absent from a fresh clone and from a CI agent, so the build does not require it: projects link it only when it is there. A pipeline that authenticates another way — [workload identity federation](src/XrmFramework.Cli/README.md#deploying-from-azure-devops-without-a-secret), for instance — therefore needs no connection string at all. A command that does need one still fails with the path of the missing file. `xrmFramework.config` is versioned and stays mandatory.
 
 Edit the `xrmFramework.config` file in the `Config` solution folder to configure the connection to Dynamics 365 and the deployment targets:
 
@@ -322,6 +324,12 @@ XrmFramework includes a remote debugger that lets you set Visual Studio breakpoi
 
 -> **[Remote Debugger](docs/RemoteDebugger.md)**
 
+## Logging and telemetry
+
+Plugins, workflow activities and services write to two channels at once: the plugin trace logs (`ITracingService`, 24 h retention) as they always did, and the Application Insights resource configured on the environment (`Microsoft.Xrm.Sdk.PluginTelemetry.ILogger`, 90 days, KQL queries) when the integration is enabled. Severity levels, scopes and request correlation come for free, and an assembly attribute sets how verbose the telemetry channel gets.
+
+-> **[Logging and telemetry](docs/Logging.md)**
+
 ## Utilities
 
 XrmFramework ships a collection of extension methods that make working with the Dataverse SDK more concise: typed OptionSet helpers, pre-image/target merges, QueryExpression helpers, EntityReference conversions and more.
@@ -343,6 +351,7 @@ XrmFramework ships a collection of extension methods that make working with the 
 | [IService Architecture](docs/IService-Architecture.md) | Design rationale and the complete `IService` API surface. |
 | [Custom APIs](docs/CustomApis.md) | Define and deploy Dataverse Custom APIs from C#. |
 | [Remote Debugger](docs/RemoteDebugger.md) | Debug live plugin executions in Visual Studio. |
+| [Logging and telemetry](docs/Logging.md) | Plugin trace logs and Application Insights: levels, scopes, KQL queries. |
 | [Utilities](docs/XrmFrameworkUtilities.md) | Extension methods for the Dataverse SDK. |
 | [TypeScript](docs/XrmFrameworkTypeScript.md) | Client-side scripting: typed form/ribbon scripts, the `UtilsApi` helper, and the webpack build pipeline. |
 | [Analyzers](docs/Analyzers.md) | Build-time diagnostics (`XRM00xx`) and code fixes that catch plugin mistakes before deploy. |

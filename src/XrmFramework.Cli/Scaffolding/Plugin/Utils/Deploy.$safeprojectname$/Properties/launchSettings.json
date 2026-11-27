@@ -1,0 +1,19 @@
+{
+  "profiles": {
+    "Deploy.$safeprojectname$": {
+      "commandName": "Project"
+    },
+    "xrmframework CLI (global tool)": {
+      "commandName": "Executable",
+      "executablePath": "xrmframework",
+      "commandLineArgs": "deploy plugins --dll \"bin/Debug/net48/$safeprojectname$.dll\" --project $safeprojectname$ --project-root ../..",
+      "workingDirectory": "."
+    },
+    "xrmframework CLI (local tool)": {
+      "commandName": "Executable",
+      "executablePath": "dotnet",
+      "commandLineArgs": "xrmframework deploy plugins --dll \"bin/Debug/net48/$safeprojectname$.dll\" --project $safeprojectname$ --project-root ../..",
+      "workingDirectory": "."
+    }
+  }
+}

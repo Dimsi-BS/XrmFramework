@@ -60,6 +60,12 @@
         <Compile Remove="..\XrmFramework\Utils\LogHelper.cs" />
         <Compile Remove="..\XrmFramework\Utils\LoggerFactory.cs" />
         <Compile Remove="..\XrmFramework\Utils\DefaultLoggerWithSettings.cs" />
+        <Compile Remove="..\XrmFramework\Utils\ContextLoggingExtensions.cs" />
+        <Compile Remove="..\XrmFramework\Utils\ILeveledLogger.cs" />
+        <Compile Remove="..\XrmFramework\Utils\ILoggerAccessor.cs" />
+        <Compile Remove="..\XrmFramework\Utils\ITelemetrySink.cs" />
+        <Compile Remove="..\XrmFramework\Utils\XrmLogLevel.cs" />
+        <Compile Remove="..\XrmFramework\Attributes\TelemetryOptionsAttribute.cs" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'" >

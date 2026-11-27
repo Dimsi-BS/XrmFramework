@@ -32,6 +32,59 @@ public sealed class DeployOptions
     public string PackagePath { get; set; }
 
     /// <summary>
+    /// How the deployment proves who it is to Dataverse.
+    /// Equivalent to the <c>--auth</c> command-line option.
+    /// </summary>
+    public Configuration.AuthenticationMode Authentication { get; set; } = Configuration.AuthenticationMode.Auto;
+
+    /// <summary>
+    /// Dataverse organization URL to deploy to, overriding the one the connection string declares.
+    /// Lets one repository serve dev, UAT and production by changing a pipeline variable instead of
+    /// a committed file.
+    /// Equivalent to the <c>--environment</c> command-line option.
+    /// </summary>
+    public string EnvironmentUrl { get; set; }
+
+    /// <summary>
+    /// Entra tenant to sign in to, for workload identity federation.
+    /// Equivalent to the <c>--tenant</c> command-line option.
+    /// </summary>
+    public string TenantId { get; set; }
+
+    /// <summary>
+    /// Entra application whose federated credential trusts the running job.
+    /// Equivalent to the <c>--application-id</c> command-line option.
+    /// </summary>
+    public string ApplicationId { get; set; }
+
+    /// <summary>
+    /// Secret of the Entra application named by <see cref="ApplicationId" />.
+    /// Equivalent to the <c>--secret</c> command-line option, though the
+    /// <c>XRMFRAMEWORK_CLIENT_SECRET</c> environment variable is the better way to supply it: a
+    /// command line is visible to every process on the agent.
+    /// </summary>
+    public string ClientSecret { get; set; }
+
+    /// <summary>
+    /// Azure DevOps service connection to request the OIDC token for.
+    /// Equivalent to the <c>--service-connection-id</c> command-line option.
+    /// </summary>
+    public string ServiceConnectionId { get; set; }
+
+    /// <summary>
+    /// Complete OIDC token endpoint, query included, for the jobs whose endpoint cannot be derived
+    /// from the usual variables.
+    /// Equivalent to the <c>--oidc-request-url</c> command-line option.
+    /// </summary>
+    public string OidcRequestUrl { get; set; }
+
+    /// <summary>
+    /// Token authorizing the OIDC token request - the job's own access token.
+    /// Equivalent to the <c>--oidc-request-token</c> command-line option.
+    /// </summary>
+    public string OidcRequestToken { get; set; }
+
+    /// <summary>
     /// How long to wait for Dataverse to unpack a pushed plugin package and create the
     /// <c>pluginassembly</c> and <c>plugintype</c> rows the steps are registered against.
     /// Packages holding hundreds of plugin types take minutes, not seconds.

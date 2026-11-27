@@ -28,7 +28,13 @@ namespace XrmFramework.DeployUtils.Configuration
         ///     — no global state, no reflection.
         /// </remarks>
         /// <param name="projectRoot">Root of the project containing the <c>Config/</c> folder.</param>
-        /// <exception cref="FileNotFoundException">If either of the two config files is missing.</exception>
+        /// <exception cref="FileNotFoundException">If <c>xrmFramework.config</c> is missing.</exception>
+        /// <remarks>
+        ///     <c>connectionStrings.config</c> is optional. It holds secrets, so it is gitignored,
+        ///     so a pipeline that authenticates without one - workload identity federation - has no
+        ///     reason to carry it. A deployment that does need it says so itself, by name, when it
+        ///     looks the connection up.
+        /// </remarks>
         public static void UseProjectConfig(string projectRoot)
         {
             var configDir = Path.Combine(projectRoot, "Config");
@@ -39,14 +45,12 @@ namespace XrmFramework.DeployUtils.Configuration
                 throw new FileNotFoundException(
                     $"Configuration file not found: {xrmConfigPath}", xrmConfigPath);
 
-            if (!File.Exists(connectionsPath))
-                throw new FileNotFoundException(
-                    $"Configuration file not found: {connectionsPath}", connectionsPath);
-
             // The two files are fragments (<xrmFramework .../> and <connectionStrings .../>):
             // they are inlined into a full App.config declaring the xrmFramework section.
             var xrmRoot = XDocument.Load(xrmConfigPath).Root;
-            var connectionsRoot = XDocument.Load(connectionsPath).Root;
+            var connectionsRoot = File.Exists(connectionsPath)
+                ? XDocument.Load(connectionsPath).Root
+                : new XElement("connectionStrings");
 
             var appConfig = new XDocument(
                 new XElement("configuration",
@@ -84,6 +88,11 @@ namespace XrmFramework.DeployUtils.Configuration
             return GetSection().EntitySolution.Name;
         }
 
+        /// <remarks>
+        ///     Deliberately not routed through <see cref="GetConnectionString" />: that one answers
+        ///     null for a name it does not find, and the deployment path has always failed loudly
+        ///     here instead. Changing that is not this method's business.
+        /// </remarks>
         public static string GetSelectedConnectionString()
         {
             var selectedConnection = GetSection().SelectedConnection;
@@ -91,6 +100,74 @@ namespace XrmFramework.DeployUtils.Configuration
             return _projectConfig != null
                 ? _projectConfig.ConnectionStrings.ConnectionStrings[selectedConnection].ConnectionString
                 : ConfigurationManager.ConnectionStrings[selectedConnection].ConnectionString;
+        }
+
+        /// <summary>
+        ///     The selected connection string, or <see langword="null" /> when the project declares
+        ///     none.
+        /// </summary>
+        /// <remarks>
+        ///     Added alongside <see cref="GetSelectedConnectionString" /> rather than replacing it:
+        ///     the connection-string deployment path is still right to fail loudly, but deciding
+        ///     <em>which</em> authentication to use happens before anything has established that a
+        ///     connection string exists - and under workload identity federation none ever will.
+        /// </remarks>
+        public static string TryGetSelectedConnectionString()
+        {
+            var selectedConnection = GetSection()?.SelectedConnection;
+
+            if (string.IsNullOrEmpty(selectedConnection))
+                return null;
+
+            var settings = _projectConfig != null
+                ? _projectConfig.ConnectionStrings.ConnectionStrings[selectedConnection]
+                : ConfigurationManager.ConnectionStrings[selectedConnection];
+
+            return settings?.ConnectionString;
+        }
+
+        /// <summary>
+        ///     A connection string by name, or <see langword="null" /> if it is not declared.
+        /// </summary>
+        /// <remarks>
+        ///     Named rather than selected, for the connection strings that are not the Dataverse one:
+        ///     the remote debugger's <c>DebugConnectionString</c> (Azure Relay) is read this way, so
+        ///     that it resolves identically whether the host is a classic .NET Framework runner
+        ///     reading its App.config or a .NET one pointed at a project's <c>Config/</c> folder by
+        ///     <see cref="UseProjectConfig" />.
+        ///     <para>
+        ///         Returns null instead of throwing: a missing connection string is the caller's to
+        ///         explain, and it is the one that knows what the name is for.
+        ///     </para>
+        /// </remarks>
+        public static string GetConnectionString(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return null;
+
+            var settings = _projectConfig != null
+                ? _projectConfig.ConnectionStrings.ConnectionStrings[name]
+                : ConfigurationManager.ConnectionStrings[name];
+
+            return settings?.ConnectionString;
+        }
+
+        /// <summary>
+        ///     An <c>appSettings</c> value by key, or <see langword="null" /> if it is not declared.
+        /// </summary>
+        /// <remarks>
+        ///     Same duality as <see cref="GetConnectionString" />, for the same reason: it lets a
+        ///     runner read its settings with one line of code whether it is a .NET Framework host with
+        ///     an App.config or a .NET one pointed at a project's <c>Config/</c> folder.
+        /// </remarks>
+        public static string GetAppSetting(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+                return null;
+
+            return _projectConfig != null
+                ? _projectConfig.AppSettings.Settings[key]?.Value
+                : ConfigurationManager.AppSettings[key];
         }
     }
 }

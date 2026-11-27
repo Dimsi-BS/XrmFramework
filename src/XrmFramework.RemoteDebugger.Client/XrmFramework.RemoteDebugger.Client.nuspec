@@ -30,6 +30,27 @@
         <dependency id="XrmFramework.DeployUtils" version="[$version$]" />
         <dependency id="Spectre.Console" version="$Ver_SpectreConsole$" />
       </group>
+      <!--
+        The .NET groups carry no Microsoft.CrmSdk.*: Microsoft ships those for net462 only, and the
+        SDK comes from Dataverse.Client instead. Dropping CrmSdk.Workflow is what removes Custom
+        Workflow Activity support on these frameworks - there is no package that would restore it.
+      -->
+      <group targetFramework="net8.0">
+        <dependency id="Microsoft.Azure.Relay" version="$Ver_AzureRelay$" />
+        <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="$Ver_DataverseClient$" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="$Ver_DataverseClient$" exclude="Build,Analyzers" />
+        <dependency id="System.Configuration.ConfigurationManager" version="$Ver_SysConfigurationManager$" />
+        <dependency id="XrmFramework.DeployUtils" version="[$version$]" />
+        <dependency id="Spectre.Console" version="$Ver_SpectreConsole$" />
+      </group>
+      <group targetFramework="net10.0">
+        <dependency id="Microsoft.Azure.Relay" version="$Ver_AzureRelay$" />
+        <dependency id="Microsoft.PowerPlatform.Dataverse.Client" version="$Ver_DataverseClient$" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" version="$Ver_DataverseClient$" exclude="Build,Analyzers" />
+        <dependency id="System.Configuration.ConfigurationManager" version="$Ver_SysConfigurationManager$" />
+        <dependency id="XrmFramework.DeployUtils" version="[$version$]" />
+        <dependency id="Spectre.Console" version="$Ver_SpectreConsole$" />
+      </group>
     </dependencies>
     <repository
       type="git"
@@ -41,6 +62,18 @@
   <files>
     <file src="bin\$config$\net462\XrmFramework.RemoteDebugger.Client.*" target="lib\$XrmFramework_FullFramework_TFM$" />
     <file src="bin\$config$\net48\XrmFramework.RemoteDebugger.Client.*" target="lib\$XrmFramework_FullFramework_Latest_TFM$" />
+    <!--
+      Spelled out rather than tokenised: the modern monikers have no $(XrmFramework_*_TFM) property
+      of their own, they are the tail of $(XrmFramework_Runtime_TFM).
+
+      Extensions listed one by one rather than the .* the net4x lines use, because a .NET build also
+      emits a .deps.json next to the assembly and that file has no business in lib/: NuGet would
+      ship a dependency graph of this project's own build into every consumer.
+    -->
+    <file src="bin\$config$\net8.0\XrmFramework.RemoteDebugger.Client.dll" target="lib\net8.0" />
+    <file src="bin\$config$\net8.0\XrmFramework.RemoteDebugger.Client.xml" target="lib\net8.0" />
+    <file src="bin\$config$\net10.0\XrmFramework.RemoteDebugger.Client.dll" target="lib\net10.0" />
+    <file src="bin\$config$\net10.0\XrmFramework.RemoteDebugger.Client.xml" target="lib\net10.0" />
 
     <file src="build\**\*" target="build/" />
   </files>

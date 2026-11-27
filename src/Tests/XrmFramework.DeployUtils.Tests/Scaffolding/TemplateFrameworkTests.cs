@@ -1,4 +1,4 @@
-// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
+﻿// Copyright (c) Christophe Gondouin (CGO Conseils). All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -124,6 +124,15 @@ public class TemplateFrameworkTests
                 if (Regex.IsMatch(line, @"<TargetFrameworks?>[^<]*</TargetFrameworks?>"))
                     continue;
 
+                // A deploy launch profile carries the moniker on purpose, as a path segment of
+                // the assembly it hands to the CLI: there --framework net462 MUST rewrite it, or
+                // the profile would point at a bin/.../net48 folder the solution never produces.
+                // Only that shape is allowed, so a moniker written anywhere else in the file is
+                // still caught.
+                if (Path.GetFileName(file) == "launchSettings.json"
+                    && Regex.IsMatch(line, $@"bin/(Debug|Release)/{TemplateScaffolder.FrameworkToken}/"))
+                    continue;
+
                 offenders.Add($"{file.Substring(scaffoldingRoot.Length).TrimStart(Path.DirectorySeparatorChar)}:{lineNumber}: {line.Trim()}");
             }
         }
@@ -131,6 +140,72 @@ public class TemplateFrameworkTests
         Assert.That(offenders, Is.Empty,
             $"'{TemplateScaffolder.FrameworkToken}' outside a TargetFramework element would be rewritten "
             + $"by --framework net462:{System.Environment.NewLine}{string.Join(System.Environment.NewLine, offenders)}");
+    }
+
+    /// <summary>
+    /// Every scaffolded deploy launch profile hands the CLI an assembly path under
+    /// <c>bin/&lt;Configuration&gt;/&lt;moniker&gt;/</c>, written with the framework token: the
+    /// profile is a literal command line - launchSettings.json gets no MSBuild expansion - so the
+    /// moniker can only follow <c>--framework</c> through the template substitution.
+    /// </summary>
+    [Test]
+    public void TheDeployProfilesCarryTheFrameworkTokenInTheAssemblyPath()
+    {
+        var scaffoldingRoot = RepositoryPaths.FindDirectory(
+            Path.Combine("src", "XrmFramework.Cli", "Scaffolding"));
+
+        var profiles = Directory.EnumerateFiles(scaffoldingRoot, "launchSettings.json", SearchOption.AllDirectories)
+                                 .ToArray();
+
+        Assert.That(profiles, Is.Not.Empty, "the templates are expected to ship deploy launch profiles");
+
+        var offenders = profiles
+            .SelectMany(file => File.ReadAllLines(file)
+                                    .Where(line => line.Contains("--dll"))
+                                    .Where(line => !line.Contains($"/{TemplateScaffolder.FrameworkToken}/"))
+                                    .Select(line => $"{file}: {line.Trim()}"))
+            .ToArray();
+
+        Assert.That(offenders, Is.Empty,
+            "an assembly path without the framework token would survive --framework net462 unchanged:"
+            + System.Environment.NewLine + string.Join(System.Environment.NewLine, offenders));
+    }
+
+    /// <summary>
+    /// The shipped solution template, substituted the way <c>xrmframework new solution</c>
+    /// substitutes it: the deploy profile must come out naming the solution's own project and the
+    /// moniker that was asked for, since that command line is what the IDE runs verbatim.
+    /// </summary>
+    [Test]
+    public void CopyAndReplace_OverTheSolutionTemplate_WritesAUsableDeployProfile()
+    {
+        var source = RepositoryPaths.FindDirectory(
+            Path.Combine("src", "XrmFramework.Cli", "Scaffolding", "Solution"));
+        var destination = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+
+        try
+        {
+            TemplateScaffolder.CopyAndReplace(source, destination, new[]
+            {
+                new KeyValuePair<string, string>("$safeprojectname$", "Contoso"),
+                new KeyValuePair<string, string>(TemplateScaffolder.FrameworkToken, "net462"),
+            });
+
+            var profile = File.ReadAllText(Path.Combine(
+                destination, "Utils", "Deploy.Contoso.Plugins", "Properties", "launchSettings.json"));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(profile, Does.Contain("bin/Debug/net462/Contoso.Plugins.dll"));
+                Assert.That(profile, Does.Contain("--project Contoso.Plugins"));
+                Assert.That(profile, Does.Not.Contain("$safeprojectname$"));
+                Assert.That(profile, Does.Not.Contain("net48"));
+            });
+        }
+        finally
+        {
+            if (Directory.Exists(destination)) Directory.Delete(destination, recursive: true);
+        }
     }
 
     /// <summary>

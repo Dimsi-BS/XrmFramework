@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.Xrm.Sdk;
+#if XRMFRAMEWORK_WORKFLOW_ACTIVITIES
 using Microsoft.Xrm.Sdk.Workflow;
+#endif
 
 namespace XrmFramework.RemoteDebugger.Common
 {
@@ -45,14 +47,32 @@ namespace XrmFramework.RemoteDebugger.Common
                 return OrganizationServiceFactory;
             }
 
-            if (serviceType == typeof(IPluginExecutionContext) || serviceType == typeof(IWorkflowContext))
+            if (serviceType == typeof(IPluginExecutionContext))
             {
                 return Context;
             }
 
+#if XRMFRAMEWORK_WORKFLOW_ACTIVITIES
+            // The same context object serves both: RemoteDebugExecutionContext implements
+            // IPluginExecutionContext in XrmFramework.Plugin and IWorkflowContext in a partial over
+            // in XrmFramework.Workflows, which DeployUtils links on the full-framework leg only.
+            // So on .NET the type is not merely unreferenceable here - that facet of the context does
+            // not exist, which is the same reason workflow activities cannot run there.
+            if (serviceType == typeof(IWorkflowContext))
+            {
+                return Context;
+            }
+#endif
+
             if (serviceType == typeof(IServiceEndpointNotificationService))
             {
                 return ServiceEndpointNotificationService;
+            }
+
+            if (serviceType == typeof(Microsoft.Xrm.Sdk.PluginTelemetry.ILogger))
+            {
+                // Application Insights telemetry is not available in a remote debugging session.
+                return null;
             }
 
             throw new NotImplementedException();

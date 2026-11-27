@@ -4,10 +4,10 @@
 using CommandLine;
 using Deploy;
 using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using System;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.ServiceModel;
@@ -54,6 +54,20 @@ public static class WebResourceHelper
     /// <param name="webresourcesPath">Webresources project folder. Auto-discovered when <see langword="null" /> or empty.</param>
     /// <param name="noPrompt">Silent mode: skips the interactive connection confirmation (CI/CD).</param>
     public static void SyncWebResources(string projectName, string webresourcesPath, bool noPrompt)
+        => SyncWebResources(projectName, webresourcesPath, new DeployOptions { NoPrompt = noPrompt });
+
+    /// <param name="deployOptions">
+    ///     Everything the command line settled: the silent mode, and how to authenticate.
+    /// </param>
+    /// <inheritdoc cref="SyncWebResources(string,string,bool)" />
+    /// <remarks>
+    ///     The Dataverse client comes from the same container the plugin deployment uses, so this
+    ///     reaches the environment exactly the same way - workload identity federation included.
+    ///     It used to read <c>ConfigurationManager.ConnectionStrings</c> directly, which ignores the
+    ///     project configuration <see cref="ConfigHelper.UseProjectConfig" /> loads: on the CLI,
+    ///     where there is no application App.config to read, that could only ever fail.
+    /// </remarks>
+    public static void SyncWebResources(string projectName, string webresourcesPath, DeployOptions deployOptions)
     {
         var nbWebresources = 0;
 
@@ -61,55 +75,43 @@ public static class WebResourceHelper
 
         var solutionName = xrmFrameworkConfigSection.Projects.OfType<ProjectElement>().Single(p => p.Name == projectName).TargetSolution;
 
-        var connectionString = ConfigurationManager.ConnectionStrings[xrmFrameworkConfigSection.SelectedConnection].ConnectionString;
+        var serviceProvider = DeployServiceCollectionFactory
+            .CreateServiceCollection(projectName, deployOptions)
+            .BuildServiceProvider();
 
-        if (!noPrompt)
+        var deploySettings = serviceProvider.GetRequiredService<DeploySettings>();
+
+        // The URL, never the connection string: that one carries a client secret, and this line
+        // used to print it.
+        if (!deployOptions.NoPrompt)
         {
-            Console.WriteLine($@"You are about to deploy on {connectionString} organization. If ok press any key.");
+            Console.WriteLine($@"You are about to deploy on {deploySettings.Url}. If ok press any key.");
             Console.ReadKey();
         }
         else
         {
-            var parsedConnectionString = ConnectionStringParser.Parse(connectionString);
-                
-            Console.WriteLine($@"Connecting to the environment {parsedConnectionString.Url}");
+            Console.WriteLine($@"Connecting to the environment {deploySettings.Url}");
         }
 
         Console.WriteLine(@"Connecting to CRM...");
 
 #if NET462_OR_GREATER
-
         Microsoft.Xrm.Tooling.Connector.CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
-
-        var service = new Microsoft.Xrm.Tooling.Connector.CrmServiceClient(connectionString);
-
 #else
         Microsoft.PowerPlatform.Dataverse.Client.ServiceClient.MaxConnectionTimeout = TimeSpan.FromMinutes(10);
-        var service = new Microsoft.PowerPlatform.Dataverse.Client.ServiceClient(connectionString);
 #endif
-        if (!service.IsReady)
-        {
-            throw new Exception(
-#if NET462_OR_GREATER
-                $"Unable to connect to CRM : {service.LastCrmError}");
-#else
-            $"Unable to connect to CRM : {service.LastError}");
-#endif
-        }
 
+        var service = serviceProvider.GetRequiredService<IOrganizationService>();
+
+        // WhoAmI is the readiness check: the client's own IsReady says nothing about whether the
+        // identity can actually be used, and a federated sign-in only reaches Entra here.
         try
         {
             service.Execute(new WhoAmIRequest());
         }
-        catch (FaultException<OrganizationServiceFault>)
+        catch (FaultException<OrganizationServiceFault> ex)
         {
-            throw new Exception(
-#if NET462_OR_GREATER
-                $"Unable to connect to CRM : {service.LastCrmError}"
-#else
-            $"Unable to connect to CRM : {service.LastError}"
-#endif
-                );
+            throw new Exception($"Unable to connect to CRM : {ex.Message}", ex);
         }
 
         var query = new QueryExpression(Solution.EntityLogicalName);
