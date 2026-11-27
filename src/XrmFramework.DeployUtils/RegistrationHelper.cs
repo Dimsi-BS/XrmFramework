@@ -241,7 +241,11 @@ public partial class RegistrationHelper
 
         var registrationStrategy = _assemblyDiffFactory.ComputeDiffPatch(localAssembly, registeredAssembly);
 
-        PrintChangeSummary(registrationStrategy.ComponentsOrderedPool);
+        // Snapshotted once: the pool is recomputed on every access, and the closing line has to
+        // count exactly what the summary announced.
+        var plannedChanges = DeploymentChangeSummary.SelectChanges(registrationStrategy.ComponentsOrderedPool);
+
+        PrintChangeSummary(plannedChanges);
 
         _consoleService.SetStatus(@"Executing Registration Strategy...");
 
@@ -251,6 +255,30 @@ public partial class RegistrationHelper
         // solution component, added when it is pushed, and Dataverse refuses the pluginassembly
         // rows it derives from a package - "cannot be exported as it is part of a Plugin Package.
         // Please export the Package directly."
+
+        PrintCompletion(plannedChanges, localAssembly.AssemblyInfo.Name);
+    }
+
+    /// <summary>
+    ///     Closes a deployment that ran through: what it wrote, and the assembly/environment pair it
+    ///     wrote it to.
+    /// </summary>
+    /// <remarks>
+    ///     Only reached once the registration strategy has been executed without throwing, so the
+    ///     line is a statement of success - everything that fails leaves through the exception
+    ///     handler in <see cref="RegisterPluginsAndWorkflows(string,string,bool,bool,string)" />
+    ///     instead. Without it, a run that had nothing to change and a run that wrote a dozen
+    ///     components both end on the same silence.
+    /// </remarks>
+    private void PrintCompletion(IEnumerable<ICrmComponent> appliedComponents, string assemblyName)
+    {
+        AnsiConsole.WriteLine();
+
+        foreach (var line in DeploymentChangeSummary.BuildCompletionLines(
+                     appliedComponents, assemblyName, _deploySettings.Url))
+        {
+            AnsiConsole.MarkupLine(line);
+        }
     }
 
     /// <summary>

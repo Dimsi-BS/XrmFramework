@@ -117,6 +117,90 @@ public static class DeploymentChangeSummary
     }
 
     /// <summary>
+    ///     Introduces the line a deployment ends on once it has run through without an error, so a
+    ///     successful run says so instead of just stopping.
+    /// </summary>
+    public const string CompletedLineHeader = "Deployment completed";
+
+    /// <summary>
+    ///     Said in place of the counts when a completed deployment had nothing to write - the diff
+    ///     came out empty, and the environment already matched the assembly.
+    /// </summary>
+    public const string NothingAppliedText = "nothing to change";
+
+    /// <summary>The past tense a registration state reads as once it has been applied.</summary>
+    public static string DescribeAppliedState(RegistrationState state) => state switch
+    {
+        RegistrationState.ToCreate => "added",
+        RegistrationState.ToUpdate => "updated",
+        RegistrationState.ToDelete => "removed",
+        _ => "unchanged"
+    };
+
+    /// <summary>
+    ///     What a deployment ended up writing, counted per state, e.g. <c>3 added, 1 updated</c>.
+    ///     A state nothing happened in is left out rather than printed as a zero.
+    /// </summary>
+    /// <param name="componentsPool">
+    ///     The components the deployment applied - the strategy pool, or the already filtered
+    ///     changes: both read the same, since only the writing states are counted.
+    /// </param>
+    public static string SummarizeApplied(IEnumerable<ICrmComponent> componentsPool)
+    {
+        var changes = SelectChanges(componentsPool);
+
+        if (changes.Count == 0) return NothingAppliedText;
+
+        var counted = new[] {RegistrationState.ToCreate, RegistrationState.ToUpdate, RegistrationState.ToDelete}
+            .Select(state => new {State = state, Count = changes.Count(c => c.RegistrationState == state)})
+            .Where(x => x.Count > 0)
+            .Select(x => $"{x.Count} {DescribeAppliedState(x.State)}");
+
+        return string.Join(", ", counted);
+    }
+
+    /// <summary>
+    ///     The lines closing a successful deployment: what it wrote, and - when known - which
+    ///     assembly went to which environment, because the console has scrolled past the header by
+    ///     then and that pair is what makes the run identifiable afterwards.
+    /// </summary>
+    /// <param name="componentsPool">The components the deployment applied.</param>
+    /// <param name="assemblyName">Name of the deployed assembly. Omitted when <see langword="null" /> or blank.</param>
+    /// <param name="targetUrl">Url of the target environment. Omitted when <see langword="null" /> or blank.</param>
+    public static IReadOnlyList<string> BuildCompletionLines(
+        IEnumerable<ICrmComponent> componentsPool,
+        string assemblyName = null,
+        string targetUrl = null)
+    {
+        var lines = new List<string>(2)
+        {
+            $"[green]{CompletedLineHeader}[/]: {Markup.Escape(SummarizeApplied(componentsPool))}."
+        };
+
+        var target = DescribeTarget(assemblyName, targetUrl);
+
+        if (target != null) lines.Add($"  [grey]{Markup.Escape(target)}[/]");
+
+        return lines;
+    }
+
+    /// <summary>
+    ///     Where the deployment went, from whichever of the two halves is known. Nothing known
+    ///     yields <see langword="null" />, so the caller prints no second line at all rather than
+    ///     an empty one.
+    /// </summary>
+    private static string DescribeTarget(string assemblyName, string targetUrl)
+    {
+        var hasAssembly = !string.IsNullOrWhiteSpace(assemblyName);
+        var hasUrl = !string.IsNullOrWhiteSpace(targetUrl);
+
+        if (hasAssembly && hasUrl) return $"{assemblyName} -> {targetUrl}";
+        if (hasAssembly) return assemblyName;
+
+        return hasUrl ? targetUrl : null;
+    }
+
+    /// <summary>
     ///     The components a pre-push phase is about to delete outright, in the order given.
     /// </summary>
     public static IReadOnlyList<ICrmComponent> SelectRemovals(IEnumerable<ICrmComponent> components)
