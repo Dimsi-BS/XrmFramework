@@ -15,8 +15,13 @@ public interface IAssemblyExporter
     /// <summary>
     ///     Creates an enumeration of <see cref="ICrmComponent" /> on the Crm
     /// </summary>
+    /// <param name="assemblyContext">
+    ///     The context the components belong to. A newly created <c>pluginassembly</c> row only gets
+    ///     its id once Dataverse has assigned it, and the plugin types and custom APIs created right
+    ///     after reference the assembly by that id: the context is what hands it over to them.
+    /// </param>
     /// <param name="componentsToCreate"></param>
-    void CreateAllComponents(IEnumerable<ICrmComponent> componentsToCreate);
+    void CreateAllComponents(IAssemblyContext assemblyContext, IEnumerable<ICrmComponent> componentsToCreate);
 
     /// <summary>
     ///     Creates a list that contains a request to delete each of the given components
